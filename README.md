@@ -49,6 +49,7 @@ cd build
 cmake ../
 make
 ```
+BRANCH_NAME=master
 
 For using:
 
