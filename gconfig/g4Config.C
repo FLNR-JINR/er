@@ -28,7 +28,7 @@ void Config()
     gSystem->Load("libR3BPlist.so");
 
   TG4RunConfiguration* runConfiguration 
-             = new TG4RunConfiguration("geomRoot", "QGSP_BERT_EMV", "stepLimiter+specialCuts+specialControls");
+             = new TG4RunConfiguration("geomRoot", "QGSP_BERT", "stepLimiter+specialCuts+specialControls");
 
   //TG4RunConfiguration* runConfiguration 
   //         = new TG4RunConfiguration("geomRoot", "emStandard", "stepLimiter+specialCuts+specialControls");
