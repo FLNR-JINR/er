@@ -24,6 +24,7 @@ void NeuRad_sim(){
 	
 	FairModule* neuRad= new ExpertNeuRad("ExpertNeuRad", kTRUE);
 	neuRad->SetGeometryFileName("NeuRad.geo.root");
+  //neuRad->SetGeometryFileName("neuland_v12a_14m.geo.root");
 	run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 	
@@ -32,12 +33,12 @@ void NeuRad_sim(){
   Int_t pdgId = 2112; // neutron  beam
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 7.;
-  Double32_t momentum = 2.;
+  Double32_t momentum = .01; //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-  boxGen->SetThetaRange(theta1, theta2);
-  boxGen->SetPRange(momentum, momentum*2.);
-  boxGen->SetPhiRange(0, 360);
-  boxGen->SetXYZ(0.0, 25.0, 800.0);
+  boxGen->SetThetaRange(theta1, theta1);
+  boxGen->SetPRange(momentum, momentum);
+  boxGen->SetPhiRange(90,90);
+  boxGen->SetXYZ(1.2, 1.2, -35.0);
 
   primGen->AddGenerator(boxGen);
 	run->SetGenerator(primGen);

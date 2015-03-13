@@ -56,16 +56,16 @@ void ExpertNeuRad::Initialize()
 
 
 Bool_t ExpertNeuRad::ProcessHits(FairVolume* vol) {
-    if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
-      fELoss  = 0.;
-      fTime   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
-      fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
-      gMC->TrackPosition(fPosIn);
-      gMC->TrackMomentum(fMomIn);
-    }
+  if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
+    fELoss  = 0.;
+    fTime   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
+    fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
+    gMC->TrackPosition(fPosIn);
+    gMC->TrackMomentum(fMomIn);
+  }
     
-    fELoss += gMC->Edep() * 1E+6; // keV //Return the energy lost in the current step
-    
+  fELoss += gMC->Edep() * 1E+6; // keV //Return the energy lost in the current step
+  
 	if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume 
 	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
 	    gMC->IsTrackDisappeared()) 
@@ -78,13 +78,14 @@ Bool_t ExpertNeuRad::ProcessHits(FairVolume* vol) {
       gMC->TrackPosition(fPosOut);
       gMC->TrackMomentum(fMomOut);
 	  
-	  
-	  AddHit(fEventID, fTrackID, fMot0TrackID, fMass,
-	       TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
-	       TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
-	       TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
-	       TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-	       fTime, fLength, fELoss);
+	  if (fELoss > 0.){
+      AddHit(fEventID, fTrackID, fMot0TrackID, fMass,
+           TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
+           TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
+           TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
+           TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+           fTime, fLength, fELoss);
+    }
 	}
   return kTRUE;
 }
@@ -171,7 +172,7 @@ void ExpertNeuRad::ConstructGeometry() {
 Bool_t ExpertNeuRad::CheckIfSensitive(std::string name)
 {
   TString volName = name;
-  if(volName.Contains("padle")) {
+  if(volName.Contains("module")) {
     return kTRUE;
   }
   return kFALSE;

@@ -44,3 +44,13 @@
 # Limit max number of Cerenkov photons per step
 # (Needed as Cerenkov process does not limit step itself)
 #
+
+/R3B/phys/addPhysics penelope
+/R3B/phys/addPhysics decay
+/R3B/phys/addPhysics elastic
+/R3B/phys/addPhysics binary_ion
+/R3B/phys/addPhysics gamma_nuc
+/mcPhysics/rangeCutForElectron 0.1 mm
+
+
+/run/particle/dumpCutValues

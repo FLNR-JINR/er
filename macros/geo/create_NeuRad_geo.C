@@ -3,27 +3,18 @@
 #include "TGeoManager.h"
 #include "TMath.h"
 
-// Create Matrix Unity
-TGeoRotation *fGlobalRot = new TGeoRotation();
 
-// Create a null translation
+// Create a global translation
 TGeoTranslation *fGlobalTrans = new TGeoTranslation();
 fGlobalTrans->SetTranslation(0.0,0.0,1000.);
-TGeoRotation *fRefRot = NULL;
+
+// Create a zero rotation
+TGeoRotation *fZeroRotation = new TGeoRotation();
+fZeroRotation->RotateX(0.);
+fZeroRotation->RotateY(0.);
+fZeroRotation->RotateZ(0.);
 
 TGeoManager*   gGeoMan = NULL;
-
-Double_t fThetaX = 0.;
-Double_t fThetaY = 0.;
-Double_t fThetaZ = 0.;
-Double_t fPhi   = 0.;
-Double_t fTheta = 0.;
-Double_t fPsi   = 0.;
-Double_t fX = 0.;
-Double_t fY = 0.;
-Double_t fZ = 1550.;
-Bool_t fLocalTrans = kFALSE;
-Bool_t fLabTrans = kTRUE;
 
 void create_NeuRad_geo()
 {
@@ -57,30 +48,81 @@ void create_NeuRad_geo()
   TGeoMedium* pMed0 = gGeoMan->GetMedium("vacuum");
   if ( ! pMed0 ) Fatal("Main", "Medium vacuum not found");
   // --------------------------------------------------------------------------
-
+  
+  //------------------------- VOLUMES -----------------------------------------
+  
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   gGeoMan->SetName("DETgeom");
   TGeoVolume* top = new TGeoVolumeAssembly("TOP");
   gGeoMan->SetTopVolume(top);
+  TGeoVolume* NeuRad = new TGeoVolumeAssembly("NeuRad");
   // --------------------------------------------------------------------------
 
-  //------------------ BC408 paddles -----------------------------------------
-  TGeoVolume *mini_padle = gGeoManager->MakeBox("mini_padle", pMed37,500.,25.,25.);
-
-  TGeoVolume *container = gGeoManager->MakeBox("container", pMed0,500.,50.,50.);
-
-  TGeoRotation *zeroRotation = new TGeoRotation();
-  zeroRotation->RotateX(0.);
-  zeroRotation->RotateY(0.);
-  zeroRotation->RotateZ(0.);
+  //------------------ BC408 cladding -----------------------------------------
+  Double_t cladding_X = 0.024; //cm
+  Double_t cladding_Y = 0.6;   //cm
+  Double_t cladding_Z = 0.6;   //cm
+  cladding_X /= 2.;
+  cladding_Y /= 2.;
+  cladding_Z /= 2.;
+  TGeoVolume *cladding = gGeoManager->MakeBox("cladding", pMed37, cladding_X, cladding_Y, cladding_Z);
   
-  container->AddNode(mini_padle, 1, new TGeoCombiTrans(0., 25., -25., zeroRotation));
-  container->AddNode(mini_padle, 2, new TGeoCombiTrans(0., 25., 25., zeroRotation));
-  container->AddNode(mini_padle, 3, new TGeoCombiTrans(0., -25., -25., zeroRotation));
-  container->AddNode(mini_padle, 4, new TGeoCombiTrans(0., -25., 25., zeroRotation));
+  //------------------ BC408  module  -----------------------------------------
+  Double_t module_X = 0.6;   //cm
+  Double_t module_Y = 0.6;   //cm
+  Double_t module_Z = 50.;  //cm
+  module_X /= 2.;
+  module_Y /= 2.;
+  module_Z /= 2.;
+  TGeoVolume *module = gGeoManager->MakeBox("module", pMed37, module_X, module_Y, module_Z);
+
+  //------------------ vacuum  bundle  -----------------------------------------
+  Int_t modules_in_boundle_X_Nb = 8;
+  Int_t modules_in_boundle_Y_Nb = 8;
   
-  top->AddNode(container, 1, /*GetGlobalPosition(t0)*/new TGeoCombiTrans(0.,0.,1000., zeroRotation));
+  Double_t boundle_X = module_X * modules_in_boundle_X_Nb;
+  Double_t boundle_Y = module_Y * modules_in_boundle_Y_Nb;
+  Double_t boundle_Z = module_Z;
+  TGeoVolume *bundle = gGeoManager->MakeBox("bundle", pMed0,boundle_X, boundle_Y, boundle_Z);
+  
+  //------------------ STRUCTURE  -----------------------------------------
+  //------------------ Add claddings to module -----------------------------
+  
+  
+  Double_t cladding_in_module_X_trans = 0.;
+  Double_t cladding_in_module_Y_trans = 0.;
+  Double_t cladding_in_module_Z_trans = module_Z - cladding_Z;
+  
+  module->AddNode(cladding, 1, new TGeoCombiTrans(cladding_in_module_X_trans, 
+                                                  cladding_in_module_Y_trans, 
+                                                  cladding_in_module_Z_trans, 
+                                                  fZeroRotation));
+
+  cladding_in_module_Z_trans = -cladding_in_module_Z_trans;
+  
+  module->AddNode(cladding, 1, new TGeoCombiTrans(cladding_in_module_X_trans, 
+                                                  cladding_in_module_Y_trans, 
+                                                  cladding_in_module_Z_trans, 
+                                                  fZeroRotation));
+  
+  //------------------ Add modules to bundle  -----------------------------
+  Int_t i_module = 1;
+  for (Int_t i_Y_module = 0; i_Y_module < modules_in_boundle_Y_Nb; i_Y_module++){
+    for (Int_t i_X_module = 0; i_X_module < modules_in_boundle_X_Nb; i_X_module++){
+      Double_t module_in_boundle_X_trans = boundle_X - module_X*(i_X_module+1);
+      Double_t module_in_boundle_Y_trans = boundle_Y - module_Y*(i_Y_module+1);
+      Double_t module_in_boundle_Z_trans = 0.;
+      bundle->AddNode( module, i_module, new TGeoCombiTrans(module_in_boundle_X_trans, 
+                                                            module_in_boundle_Y_trans,
+                                                            module_in_boundle_Z_trans, 
+                                                            fZeroRotation));
+      i_module++;
+    }
+  }
+  
+  NeuRad->AddNode(bundle, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
+  top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
 
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();
