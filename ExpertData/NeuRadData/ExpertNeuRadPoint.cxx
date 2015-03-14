@@ -25,13 +25,16 @@ ExpertNeuRadPoint::ExpertNeuRadPoint()
 // -----   Standard constructor   ------------------------------------------
 ExpertNeuRadPoint::ExpertNeuRadPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
+      Int_t moduleInBundleNb,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss)
+		  Double_t tof, Double_t length, Double_t eLoss, Double_t lightYield)
   : FairMCPoint(trackID, -1., posIn, momIn, tof, length, eLoss),
+    fModuleInBundleNb(moduleInBundleNb),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
-    fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z())
+    fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
+    fLightYield(lightYield)
 {
 }
 // -------------------------------------------------------------------------
@@ -41,8 +44,10 @@ ExpertNeuRadPoint::ExpertNeuRadPoint(Int_t eventID, Int_t trackID,
 // -------------------------------------------------------------------------
 ExpertNeuRadPoint::ExpertNeuRadPoint(const ExpertNeuRadPoint& right)
   : FairMCPoint(right),
+    fModuleInBundleNb(right.fModuleInBundleNb),
     fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
-    fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out)
+    fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out),
+    fLightYield(right.fLightYield)
 {
 }
 // -------------------------------------------------------------------------

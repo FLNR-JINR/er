@@ -134,6 +134,8 @@ class ExpertNeuRad : public FairDetector
   Double32_t     fTime;              //!  time
   Double32_t     fLength;            //!  length
   Double32_t     fELoss;             //!  energy loss
+  Double_t       fLightYield;        //!  light yield
+  Int_t          fModuleInBundleNb;   //!  number of module in bundle
   
   Int_t          fPosIndex;          //!
   TClonesArray*  fNeuRadCollection;    //!  The hit collection
@@ -148,11 +150,12 @@ class ExpertNeuRad : public FairDetector
    **/
   ExpertNeuRadPoint* AddHit(Int_t eventID, Int_t trackID,
 			  Int_t mot0trackID,
+        Int_t moduleInBundleNb,
 			  Double_t mass,
 			  TVector3 posIn,
 			  TVector3 pos_out, TVector3 momIn,
 			  TVector3 momOut, Double_t time,
-			  Double_t length, Double_t eLoss);
+			  Double_t length, Double_t eLoss, Double_t lightYield);
   /** Private method ResetParameters
    **
    ** Resets the private members for the track parameters
