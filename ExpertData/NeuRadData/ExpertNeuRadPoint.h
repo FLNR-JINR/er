@@ -37,13 +37,16 @@ class ExpertNeuRadPoint : public FairMCPoint
    *@param tof      Time since event start [ns]
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [GeV]
+   *@param fLightYield    Energy deposit [GeV]
+   *@param fModuleInBundleNb number of module in bundle
    **/
   ExpertNeuRadPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
+      Int_t moduleInBundleNb,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss);
+		  Double_t tof, Double_t length, Double_t eLoss, Double_t lightYield);
 
 
   /** Copy constructor **/
@@ -61,8 +64,6 @@ class ExpertNeuRadPoint : public FairMCPoint
   Int_t GetEventID() const { return fEventID; }
   Int_t GetMot0TrackID()   const { return fMot0TrackID; }
   Int_t GetDetID() const { return fDetID; }
-  Int_t GetCellID() const { return fCellID; }
-  Int_t GetSegID() const { return fSegID; }
   Double_t GetXIn()   const { return fX; }
   Double_t GetYIn()   const { return fY; }
   Double_t GetZIn()   const { return fZ; }
@@ -73,6 +74,7 @@ class ExpertNeuRadPoint : public FairMCPoint
   Double_t GetPyOut() const { return fPy_out; }
   Double_t GetPzOut() const { return fPz_out; }
   Double_t GetMass() const { return fMass; }
+  Double_t GetLightYield() const {return fLightYield;}
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
@@ -103,9 +105,9 @@ class ExpertNeuRadPoint : public FairMCPoint
   Int_t fEventID;
   Int_t fMot0TrackID;
   Int_t fDetID;
-  Int_t fCellID;
-  Int_t fSegID;
   Double_t fMass;
+  Double_t fLightYield;
+  Int_t fModuleInBundleNb;
 
   ClassDef(ExpertNeuRadPoint,1)
 
