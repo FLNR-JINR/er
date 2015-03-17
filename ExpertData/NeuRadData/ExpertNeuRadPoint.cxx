@@ -3,14 +3,7 @@
 // -------------------------------------------------------------------------
 
 #include "ExpertNeuRadPoint.h"
-
-#include <iostream>
-
-using std::cout;
-using std::endl;
-using std::flush;
-
-
+#include "FairLogger.h"
 // -----   Default constructor   -------------------------------------------
 ExpertNeuRadPoint::ExpertNeuRadPoint()
   : FairMCPoint(),
@@ -63,20 +56,14 @@ ExpertNeuRadPoint::~ExpertNeuRadPoint()
 
 
 // -----   Public method Print   -------------------------------------------
-void ExpertNeuRadPoint::Print(const Option_t* opt) const
+void ExpertNeuRadPoint::Print(const Option_t* opt /* = 0*/) const
 {
-  cout << "-I- ExpertNeuRadPoint: LAND Point for track " << fTrackID
-       << " in detector " << fDetectorID
-       //<< " Sector: " << fSector
-     //  << " PaddleTyp: " << fPaddleTyp
-     //  << " PaddleNb: " << fPaddleNb 
-	 << endl; 
-  cout << "    Position (" << fX << ", " << fY << ", " << fZ
-       << ") cm" << endl;
-  cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz
-       << ") GeV" << endl;
-  cout << "    Time " << fTime << " ns,  Length " << fLength 
-       << " cm,  Energy loss " << fELoss*1.0e06 << " keV" << endl;
+  LOG(INFO) << "-I- ExpertNeuRadPoint: track " << fTrackID << " mother track = " << fMot0TrackID << FairLogger::endl;
+  LOG(INFO) << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << FairLogger::endl;
+  LOG(INFO) << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << FairLogger::endl;
+  LOG(INFO) << "    Time " << fTime << " ns,  Length " << fLength << " cm" << FairLogger::endl;
+  LOG(INFO) << "    Energy loss " << fELoss << " keV, Light yield " << fLightYield << " MeV "<< FairLogger::endl;
+  LOG(INFO) << "    Module in bundle number " << fModuleInBundleNb << FairLogger::endl;
 }
 // -------------------------------------------------------------------------
 

@@ -36,8 +36,8 @@ void SetCuts()
   gMC->SetProcess("MULS",1); /**multiple scattering*/
 
   //Double_t cut1 = 1.0E-3;         // MeV --> 1 keV
-  Double_t cut1 = 1.0E-5;
-  Double_t cut2 = 1.0E-5;
+  Double_t cut1 = 1.0E-9;
+  Double_t cut2 = 1.0E-9;
   //Double_t cut2 = 1.0E-3;         // MeV --> 100 keV
   Double_t cutb = 1.0E4;          // GeV --> 10 TeV
   Double_t tofmax = 1.E10;        // seconds
