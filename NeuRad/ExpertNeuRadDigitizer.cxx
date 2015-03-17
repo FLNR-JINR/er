@@ -140,7 +140,8 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
     Double_t point_z_in_module = point_z + module_length/2.;
     
     if (fFrontPointsPerModules[point_module_nb].size() > ERROR_POINTS_IN_MODULE_COUNT)
-       LOG(ERROR) << "ExpertNeuRadDigitizer: Too many points in one module: "<< fFrontPointsPerModules[point_module_nb].size()<< " points" << FairLogger::endl;
+       LOG(ERROR) << "ExpertNeuRadDigitizer: Too many points in one module: "
+                  << fFrontPointsPerModules[point_module_nb].size()<< " points" << FairLogger::endl;
     
     ExpertNeuRadModulePoint newFrontModulePoint;
     ExpertNeuRadModulePoint newBackModulePoint;
@@ -171,10 +172,15 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
       fFrontPointsPerModules[i_module][i_point].energy = BC408_DECAY_CONSTANT*fFrontPointsPerModules[i_module][i_point].lightQDC;
       fBackPointsPerModules[i_module][i_point].energy = BC408_DECAY_CONSTANT*fBackPointsPerModules[i_module][i_point].lightQDC;
       if (i_point > 0){
+        Double_t curPoint_frontTime = fFrontPointsPerModules[i_module][i_point].time
+        Double_t prevPoint_frontTime = fFrontPointsPerModules[i_module][i_point-1].time;
+        Double_t curPoint_backTime = fBackPointsPerModules[i_module][i_point].time
+        Double_t prevPoint_backTime = fBackPointsPerModules[i_module][i_point-1].time;
+        
         fFrontPointsPerModules[i_module][i_point].energy += fFrontPointsPerModules[i_module][i_point].energy*
-          exp(-BC408_DECAY_CONSTANT*(fFrontPointsPerModules[i_module][i_point].time - fFrontPointsPerModules[i_module][i_point-1].time));
+                                        exp(-BC408_DECAY_CONSTANT*(curPoint_frontTime - prevPoint_frontTime));
         fBackPointsPerModules[i_module][i_point].energy += fBackPointsPerModules[i_module][i_point].energy*
-          exp(-BC408_DECAY_CONSTANT*(fBackPointsPerModules[i_module][i_point].time - fBackPointsPerModules[i_module][i_point-1].time)); 
+                                        exp(-BC408_DECAY_CONSTANT*(curPoint_backTime - prevPoint_backTime)); 
       }
       
       if (fFrontPointsPerModules[i_module][i_point].energy > module_energyThreshold)
