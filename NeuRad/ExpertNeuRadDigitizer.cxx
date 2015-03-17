@@ -27,6 +27,7 @@ const Double_t ExpertNeuRadDigitizer::DEFAULT_SATURATION_COEFFICIENT = 0.012;
 const Double_t ExpertNeuRadDigitizer::LIGHT_ATTENUATION  = 0.008; // [1/cm]
 const Double_t ExpertNeuRadDigitizer::BC408_DECAY_CONSTANT= 1./2.1; // [1/ns]
 const Double_t ExpertNeuRadDigitizer::SPEED_OF_FLIGHT_IN_MATERIAL = 14.;//[cm/ns]
+const Double_t ExpertNeuRadDigitizer::MEASURING_ERROR_WIDTH_COEF = 0.05;
 const Int_t    ExpertNeuRadDigitizer::ERROR_POINTS_IN_MODULE_COUNT = 1000;
 
 
@@ -123,7 +124,7 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
   TRandom3 *Rnd = new TRandom3();
   
   Double_t module_length = 100.;//[cm] //@todo get from parameter class 
-  Double_t module_energyThreshold = 0.001; //[MeV]
+  Double_t module_energyThreshold = 0.001; //[MeV/ns] threshold on instantaneous current on PMT
   Double_t timeRes = 0.15; //[ns]
   
   Int_t points_count = fNeuRadPoints->GetEntries();
@@ -149,10 +150,11 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
     newFrontModulePoint.time  = point_time+(point_z_in_module)/SPEED_OF_FLIGHT_IN_MATERIAL;
     newBackModulePoint.time   = point_time+(module_length-point_z_in_module)/SPEED_OF_FLIGHT_IN_MATERIAL;
     
-    newFrontModulePoint.lightQDC = point_lightYield*exp(-LIGHT_ATTENUATION*point_z_in_module);
-    newBackModulePoint.lightQDC  = point_lightYield*exp(-LIGHT_ATTENUATION*(module_length-point_z_in_module));
-    //newFrontModulePoint.lightQDC = point_lightYield*(0.46*exp(-point_z/0.005) + 0.04*exp(-point_z/2));
-    //newBackModulePoint.lightQDC  = point_lightYield*(0.46*exp(-(module_length-point_z)/0.005) + 0.04*exp(-(module_length-point_z)/2));
+    //newFrontModulePoint.lightQDC = point_lightYield*exp(-LIGHT_ATTENUATION*point_z_in_module);
+    //newBackModulePoint.lightQDC  = point_lightYield*exp(-LIGHT_ATTENUATION*(module_length-point_z_in_module));
+    newFrontModulePoint.lightQDC = point_lightYield*(0.46*exp(-point_z_in_module/0.5) + 0.04*exp(-point_z_in_module/200.));
+    newBackModulePoint.lightQDC  = point_lightYield*(0.46*exp(-(module_length-point_z_in_module)/0.5) 
+                                                      + 0.04*exp(-(module_length-point_z_in_module)/200.));
     
     fFrontPointsPerModules[point_module_nb].push_back(newFrontModulePoint);
     fBackPointsPerModules[point_module_nb].push_back(newBackModulePoint);
@@ -169,14 +171,19 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
   
   for (Int_t i_module = 0; i_module <fNModules; i_module++){
     for (Int_t i_point = 0; i_point < fFrontPointsPerModules[i_module].size(); i_point++){
-      fFrontPointsPerModules[i_module][i_point].energy = BC408_DECAY_CONSTANT*fFrontPointsPerModules[i_module][i_point].lightQDC;
+      fFrontPointsPerModules[i_module][i_point].energy = BC408_DECAY_CONSTANT*fFrontPointsPerModules[i_module][i_point].lightQDC; //instantaneous current on PMT
       fBackPointsPerModules[i_module][i_point].energy = BC408_DECAY_CONSTANT*fBackPointsPerModules[i_module][i_point].lightQDC;
       if (i_point > 0){
-        Double_t curPoint_frontTime = fFrontPointsPerModules[i_module][i_point].time
+        Double_t curPoint_frontTime = fFrontPointsPerModules[i_module][i_point].time;
         Double_t prevPoint_frontTime = fFrontPointsPerModules[i_module][i_point-1].time;
-        Double_t curPoint_backTime = fBackPointsPerModules[i_module][i_point].time
+        Double_t curPoint_backTime = fBackPointsPerModules[i_module][i_point].time;
         Double_t prevPoint_backTime = fBackPointsPerModules[i_module][i_point-1].time;
         
+        /* 
+        Warning!!!!!
+        This piece of code is just inherited from R3B Land
+        Idea has not adapted for fiber detector
+        */
         fFrontPointsPerModules[i_module][i_point].energy += fFrontPointsPerModules[i_module][i_point].energy*
                                         exp(-BC408_DECAY_CONSTANT*(curPoint_frontTime - prevPoint_frontTime));
         fBackPointsPerModules[i_module][i_point].energy += fBackPointsPerModules[i_module][i_point].energy*
@@ -217,8 +224,8 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
         backTimeTrigerFlag = kTRUE;
       }
       
-      // add all times inside +- tofRange (ns) for QDC
-      if(TMath::Abs(fFrontPointsPerModules[i_module][i_point].time-triggerTime+fTOFRange/2.) < fTOFRange) {
+      // if point satisfies time gate for QDC ("Integration time") at runtime
+      if(TMath::Abs(fFrontPointsPerModules[i_module][i_point].time-triggerTime+fTOFRange/2.) < fTOFRange) { 
         frontSumLightQDC += fFrontPointsPerModules[i_module][i_point].lightQDC;
       }
       
@@ -241,12 +248,13 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
       backSumLightQDC = backSumLightQDC / (1. + fSaturationCoefficient*backSumLightQDC);
 
       //measuring error
-      frontSumLightQDC = Rnd->Gaus(frontSumLightQDC, 0.05*frontSumLightQDC);
-      backSumLightQDC = Rnd->Gaus(backSumLightQDC, 0.05*backSumLightQDC);
+      frontSumLightQDC = Rnd->Gaus(frontSumLightQDC, MEASURING_ERROR_WIDTH_COEF*frontSumLightQDC);
+      backSumLightQDC = Rnd->Gaus(backSumLightQDC, MEASURING_ERROR_WIDTH_COEF*backSumLightQDC);
 
       if(frontSumLightQDC < fModuleThreshold || backSumLightQDC < fModuleThreshold) {
         continue;
       }
+      //explicitly light yield and quantum что-то not introduced 
       
       Double_t frontQDC = frontSumLightQDC;
       Double_t backQDC  = backSumLightQDC;

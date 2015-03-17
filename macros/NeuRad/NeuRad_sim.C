@@ -26,7 +26,7 @@ void NeuRad_sim(Int_t nEvents = 1){
 	cave->SetGeometryFileName("Expert_cave.geo");
 	run->AddModule(cave);
 	
-  Int_t verbose = 1; /*1 - only standard logs, 2 - Print points after each event, 3 - GEANT Step information*/
+  Int_t verbose = 3; /*1 - only standard logs, 2 - Print points after each event, 3 - GEANT Step information*/
 	FairModule* neuRad= new ExpertNeuRad("ExpertNeuRad", kTRUE,verbose); 
 	neuRad->SetGeometryFileName("NeuRad.geo.root");
 	run->AddModule(neuRad);

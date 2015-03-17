@@ -77,6 +77,7 @@ protected:
   static const Double_t BC408_DECAY_CONSTANT; // [1/ns]
   static const Int_t    ERROR_POINTS_IN_MODULE_COUNT;
   static const Double_t SPEED_OF_FLIGHT_IN_MATERIAL; //[cm/ns]
+  static const Double_t MEASURING_ERROR_WIDTH_COEF;
   
   //Allow for user params
   Double_t fBeamEnergy;
