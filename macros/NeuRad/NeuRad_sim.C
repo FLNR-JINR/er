@@ -1,4 +1,8 @@
-void NeuRad_sim(){
+void NeuRad_sim(Int_t nEvents = 1){
+  //---------------------Files-----------------------------------------------
+  TString outFile= "sim.root";
+  TString parFile= "par.root";
+  // ------------------------------------------------------------------------
  
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
@@ -8,7 +12,7 @@ void NeuRad_sim(){
 	// -----   Create simulation run   ----------------------------------------
 	FairRunSim* run = new FairRunSim();
 	run->SetName("TGeant3");              // Transport engine
-	run->SetOutputFile("out.root");          // Output file
+	run->SetOutputFile(outFile.Data());          // Output file
 	FairRuntimeDb* rtdb = run->GetRuntimeDb();
   // ------------------------------------------------------------------------
   
@@ -22,9 +26,9 @@ void NeuRad_sim(){
 	cave->SetGeometryFileName("Expert_cave.geo");
 	run->AddModule(cave);
 	
-	FairModule* neuRad= new ExpertNeuRad("ExpertNeuRad", kTRUE);
+  Int_t verbose = 1; /*1 - only standard logs, 2 - Print points after each event, 3 - GEANT Step information*/
+	FairModule* neuRad= new ExpertNeuRad("ExpertNeuRad", kTRUE,verbose); 
 	neuRad->SetGeometryFileName("NeuRad.geo.root");
-  //neuRad->SetGeometryFileName("neuland_v12a_14m.geo.root");
 	run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 	
@@ -38,7 +42,7 @@ void NeuRad_sim(){
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(90,90);
-  boxGen->SetXYZ(1.2, 1.2, -35.0);
+  boxGen->SetXYZ(1.2, 1.2, -26.0);
 
   primGen->AddGenerator(boxGen);
 	run->SetGenerator(primGen);
@@ -58,12 +62,12 @@ void NeuRad_sim(){
 	// -----   Runtime database   ---------------------------------------------
 	Bool_t kParameterMerged = kTRUE;
 	FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
-	parOut->open("par.root");
+	parOut->open(parFile.Data());
 	rtdb->setOutput(parOut);
 	rtdb->saveOutput();
 	rtdb->print();
 	  
-	run->Run(1);
+	run->Run(nEvents);
 	
 	// -----   Finish   -------------------------------------------------------
 	timer.Stop();

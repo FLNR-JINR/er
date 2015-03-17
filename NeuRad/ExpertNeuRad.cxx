@@ -4,42 +4,42 @@
 // -------------------------------------------------------------------------
 #include "ExpertNeuRad.h"
 #include "FairRootManager.h"
-#include "TParticle.h"
 #include "TClonesArray.h"
+#include "TParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
-using std::cout;
-using std::cerr;
-using std::endl;
 
+Int_t ExpertNeuRad::fNEeventsWithoutPoints = 0;
+const Double_t ExpertNeuRad::fHistoELossThreshold = 100.;
 
 // -----   Default constructor   -------------------------------------------
 ExpertNeuRad::ExpertNeuRad() : FairDetector("ExpertNeuRad", kTRUE){
   ResetParameters();
   fNeuRadCollection = new TClonesArray("ExpertNeuRadPoint");
   fPosIndex = 0;
-  kGeoSaved = kFALSE;
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
-  fVerboseLevel = 0;
+  fVerboseLevel = 1;
   fVersion = 1;
-
+  fhModulesPerSumEnergyLoss =  new TH1F("ModulesPerSumEnergyLoss", "Modules per sum of energy loss", 10000, 0., 10000.);
+  fhSumEnergyLossOfAllModules =  new TH1F("SumEnergyLossOfAllModules", "Sum Of ELoss in all modules", 10000, 0., 10000.);
 }
 // -------------------------------------------------------------------------
 
 
 
 // -----   Standard constructor   ------------------------------------------
-ExpertNeuRad::ExpertNeuRad(const char* name, Bool_t active) 
+ExpertNeuRad::ExpertNeuRad(const char* name, Bool_t active, Int_t verbose) 
   : FairDetector(name, active) {
   ResetParameters();
   fNeuRadCollection = new TClonesArray("ExpertNeuRadPoint");
   fPosIndex = 0;
-  kGeoSaved = kFALSE;
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
-  fVerboseLevel = 0;
+  fVerboseLevel = verbose;
   fVersion = 1;
+  fhModulesPerSumEnergyLoss =  new TH1F("ModulesPerSumEnergyLoss", "Modules per sum of energy loss", 10000, 0., 10000.);
+  fhSumEnergyLossOfAllModules =  new TH1F("SumEnergyLossOfAllModules", "Sum Of ELoss in all modules", 10000, 0., 10000.);
 }
 
 ExpertNeuRad::~ExpertNeuRad() {
@@ -69,12 +69,14 @@ Bool_t ExpertNeuRad::ProcessHits(FairVolume* vol) {
     fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     gMC->TrackPosition(fPosIn);
     gMC->TrackMomentum(fMomIn);
-    
     fModuleInBundleNb = -1.;
     Int_t curVolId =  gMC->CurrentVolID(fModuleInBundleNb);
   }
     
   fELoss += gMC->Edep() * 1E+6; // keV //Return the energy lost in the current step
+  
+  if (fVerboseLevel > 2)
+    StepHistory();
   
   // Apply Birk's law ( Adapted from G3BIRK/Geant3)
   // Correction for all charge states
@@ -90,8 +92,8 @@ Bool_t ExpertNeuRad::ProcessHits(FairVolume* vol) {
 
     if (gMC->TrackStep()>0)
     {
-      Double_t dedxcm=1000.*gMC->Edep()/gMC->TrackStep();
-      Double_t curLightYield=gMC->Edep()/(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm);
+      Double_t dedxcm=1000.*gMC->Edep()/gMC->TrackStep(); //[MeV/cm]
+      Double_t curLightYield=1000.*gMC->Edep()/(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
       
       fLightYield+=curLightYield;
     }
@@ -128,7 +130,16 @@ void ExpertNeuRad::BeginEvent() {
 
 
 void ExpertNeuRad::EndOfEvent() {
-
+  if (fVerboseLevel > 1) {
+    Print();
+  }
+  
+  FillHisto();
+  
+  fhModulesPerSumEnergyLoss->Write();
+  fhSumEnergyLossOfAllModules->Write();
+  
+  Reset();
 }
 
 
@@ -137,7 +148,7 @@ void ExpertNeuRad::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
 	Fatal("Init", "IO manager is not set");	
-  ioman->Register("NeuRadPoints","NeuRad", fNeuRadCollection, kTRUE);
+  ioman->Register("NeuRadPoint","NeuRad", fNeuRadCollection, kTRUE);
 }
 // ----------------------------------------------------------------------------
 
@@ -155,13 +166,12 @@ TClonesArray* ExpertNeuRad::GetCollection(Int_t iColl) const {
 // -----   Public method Print   ----------------------------------------------
 void ExpertNeuRad::Print(Option_t *option) const
 {
-  LOG(INFO) << "-I- ExpertNeuRadPoint: NeuRad Point for track " << fTrackID;
-  LOG(INFO) << "    Time " << fTime << " ns,  Length " << fLength 
-       << " cm,  Energy loss " << fELoss*1.0e06 << " keV" <<" lightYield " << fLightYield << FairLogger::endl;
+  for (Int_t i_point = 0; i_point < fNeuRadCollection->GetEntriesFast(); i_point++){
+    ExpertNeuRadPoint* point = (ExpertNeuRadPoint*)fNeuRadCollection->At(i_point);
+    point->Print();
+  }
 }
 // ----------------------------------------------------------------------------
-
-
 
 // -----   Public method Reset   ----------------------------------------------
 void ExpertNeuRad::Reset() {
@@ -170,12 +180,22 @@ void ExpertNeuRad::Reset() {
 }
 // ----------------------------------------------------------------------------
 
-
-
 // -----   Public method CopyClones   -----------------------------------------
 void ExpertNeuRad::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
-
+  Int_t nEntries = cl1->GetEntriesFast();
+  LOG(INFO) << "NeuRad: " << nEntries << " entries to add" << FairLogger::endl;
+  TClonesArray& clref = *cl2;
+  ExpertNeuRadPoint* oldpoint = NULL;
+  for (Int_t i=0; i<nEntries; i++) {
+  oldpoint = (ExpertNeuRadPoint*) cl1->At(i);
+   Int_t index = oldpoint->GetTrackID() + offset;
+   oldpoint->SetTrackID(index);
+   new (clref[fPosIndex]) ExpertNeuRadPoint(*oldpoint);
+   fPosIndex++;
+  }
+  LOG(INFO) << "NeuRad: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 }
+// ----------------------------------------------------------------------------
 
 // -----   Private method AddHit   --------------------------------------------
 ExpertNeuRadPoint* ExpertNeuRad::AddHit(Int_t eventID, Int_t trackID,
@@ -192,6 +212,8 @@ ExpertNeuRadPoint* ExpertNeuRad::AddHit(Int_t eventID, Int_t trackID,
 					  posIn, posOut, momIn, momOut, time, length, eLoss, lightYield);
 	
 }
+// ----------------------------------------------------------------------------
+
 // -----   Public method ConstructGeometry   ----------------------------------
 void ExpertNeuRad::ConstructGeometry() {
   TString fileName = GetGeometryFileName();
@@ -202,7 +224,9 @@ void ExpertNeuRad::ConstructGeometry() {
     LOG(FATAL) << "Geometry file name is not set" << FairLogger::endl;
   }
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 Bool_t ExpertNeuRad::CheckIfSensitive(std::string name)
 {
   TString volName = name;
@@ -211,7 +235,9 @@ Bool_t ExpertNeuRad::CheckIfSensitive(std::string name)
   }
   return kFALSE;
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 void ExpertNeuRad::ResetParameters() {
   fEventID = fTrackID = -1;
   fMot0TrackID = -1;
@@ -222,6 +248,80 @@ void ExpertNeuRad::ResetParameters() {
   fTime = fLength = fELoss = fMass = 0;
   fPosIndex = 0;
 };
+// ----------------------------------------------------------------------------
+
+// -----   Private method FillHisto   ---------------------------------------
+void ExpertNeuRad::FillHisto(){
+  //Fill ModulesPerSumEnergyLoss histo
+  Int_t NPoints = fNeuRadCollection->GetEntriesFast();
+  if (NPoints == 0)
+    fNEeventsWithoutPoints++;
+  Int_t NModules = 64.;
+  Double_t* SumEloss = new Double_t[NModules];
+  // init 
+  for (Int_t i_module = 0; i_module < NModules; i_module++)
+    SumEloss[i_module] = 0.;
+  
+  // Sum energy per modules
+  Double_t sumOfEnergy = 0.;
+  for (Int_t i_point = 0; i_point < NPoints; i_point++){
+    ExpertNeuRadPoint* point = (ExpertNeuRadPoint*)fNeuRadCollection->At(i_point);
+    Int_t point_module_nb = point->GetModuleInBundleNb();
+    SumEloss[point_module_nb] += point->GetEnergyLoss();
+    sumOfEnergy+= point->GetEnergyLoss();
+  }
+  if (sumOfEnergy > fHistoELossThreshold)
+    fhSumEnergyLossOfAllModules->Fill(sumOfEnergy);
+  for (Int_t i_module = 0; i_module < NModules; i_module++){
+    if (SumEloss[i_module] > fHistoELossThreshold)
+      fhModulesPerSumEnergyLoss->Fill(SumEloss[i_module]);
+  }
+}
+// ----------------------------------------------------------------------------
+
+// -----   Private method StepHistory   ---------------------------------------
+void ExpertNeuRad::StepHistory()
+{
+  static Int_t iStepN;
+
+  // Particle being tracked
+  const char *sParticle;
+  switch(gMC->TrackPid()){
+    case 2212:          sParticle="proton"    ;break;
+    case 2112:          sParticle="neutron"   ;break;
+    case 22:            sParticle="gamma"     ;break;
+    case 50000050:      sParticle="ckov"      ;break;
+    case 111:           sParticle="pi0"       ;break;  
+    case 211:           sParticle="pi+"       ;break;  
+    case -211:          sParticle="Pi-"       ;break;  
+    case 1000010020:            sParticle="deuteron"        ;break;
+    case 1000010030:            sParticle="triton"        ;break;
+    case 1000020030:            sParticle="he3"        ;break;
+    case 1000020040:            sParticle="alpha"        ;break;
+    default:            sParticle="not known" ;break;
+  }
 
 
+  TString flag="-I- STEPINFO: tracking status: ";
+  if(gMC->IsTrackAlive()) {
+    if(gMC->IsTrackEntering())      flag="enters to";
+    else if(gMC->IsTrackExiting())  flag="exits from";
+    else if(gMC->IsTrackInside())   flag="inside";
+  } else {
+    if(gMC->IsTrackStop())          flag="stopped in";
+  }
+  
+  LOG(INFO) << "STEP = " << iStepN << " particle="<< sParticle << "(" << gMC->TrackPid() << ") Edep = " << gMC->Edep()*1e6 << "[KeV]" << FairLogger::endl;
+  LOG(INFO) << "track_status = "  << flag.Data() << " track_charge = " << gMC->TrackCharge() << "track_nb = " << gMC->GetStack()->GetCurrentTrackNumber() << FairLogger::endl;
+  
+  TArrayI proc;  
+  gMC->StepProcesses(proc);
+  for ( int i = 0 ; i < proc.GetSize(); i++){
+    //if(proc.At(i)!=22 && proc.At(i)!=23 && proc.At(i)!=31 && proc.At(i)!=43 &&  proc.At(i)!=13){
+    LOG(INFO) << "process: " << proc.At(i) <<"  "<< TMCProcessName[proc.At(i)] << FairLogger::endl;
+	}
+  LOG(INFO) << FairLogger::endl;
+  iStepN++;
+}
+// ----------------------------------------------------------------------------
 ClassImp(ExpertNeuRad)

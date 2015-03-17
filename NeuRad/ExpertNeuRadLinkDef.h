@@ -5,5 +5,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class ExpertNeuRad+;
+#pragma link C++ class ExpertNeuRadDigitizer+;
 
 #endif

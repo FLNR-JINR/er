@@ -282,7 +282,6 @@ void R3BStack::UpdateTrackIndex(TRefArray* detList) {
     }
     track->SetMotherId( (*fIndexIter).second );
   }
-  
   // Now iterate through all active detectors
   TIterator* detIter = detList->MakeIterator();
   detIter->Reset();
@@ -295,7 +294,6 @@ void R3BStack::UpdateTrackIndex(TRefArray* detList) {
     while ( (hitArray = det->GetCollection(iColl++)) ) {
       nColl++;
       Int_t nPoints = hitArray->GetEntriesFast();
-      
       // --> Update track index for all MCPoints in the collection
       for (Int_t iPoint=0; iPoint<nPoints; iPoint++) {
         FairMCPoint* point = (FairMCPoint*)hitArray->At(iPoint);
@@ -316,30 +314,6 @@ void R3BStack::UpdateTrackIndex(TRefArray* detList) {
         //	}
       }
     }
-/*
-    if(det->GetDetId() == kCALIFA) {
-      // --> Get hit collections from detector
-      hitArray = det->GetCollection(2);
-      nColl++;
-      Int_t nPoints = hitArray->GetEntriesFast();
-      
-      // --> Update track index for all MCPoints in the collection
-      for (Int_t iPoint=0; iPoint<nPoints; iPoint++) {
-        R3BCaloCrystalHitSim* point = (R3BCaloCrystalHitSim*)hitArray->At(iPoint);
-        Int_t iTrack = point->GetTrackId();
-        
-        fIndexIter = fIndexMap.find(iTrack);
-        if (fIndexIter == fIndexMap.end()) {
-          LOG(FATAL) << "R3BStack: Particle index " << iTrack
-          << " not found in index map! " << FairLogger::endl;
-        }
-        //	if ( ((*fIndexIter).second ) < 0 ) {
-        //	   point->SetTrackID(iTrack);
-        //	}else{
-        point->SetTrackId((*fIndexIter).second);
-        //	}
-      }
-    }*/
   }     // List of active detectors
 
   LOG(INFO) << "...stack and " << nColl << " collections updated" << FairLogger::endl;

@@ -28,17 +28,18 @@ class ExpertNeuRadPoint : public FairMCPoint
 
 
   /** Constructor with arguments
+   *@param EventID  Index of Event
    *@param trackID  Index of MCTrack
-   *@param detID    Detector ID
-   *@param posIn    Ccoordinates at entrance to active volume [cm]
-   *@param posOut   Coordinates at exit of active volume [cm]
+   *@param mot0trackID Index of Mother MCTrack
+   *@param moduleInBundleNb number of module in bundle
+   *@param posIn    Ccoordinates at entrance of point [cm]
+   *@param posOut   Coordinates at exit of point [cm]
    *@param momIn    Momentum of track at entrance [GeV]
    *@param momOut   Momentum of track at exit [GeV]
    *@param tof      Time since event start [ns]
    *@param length   Track length since creation [cm]
-   *@param eLoss    Energy deposit [GeV]
-   *@param fLightYield    Energy deposit [GeV]
-   *@param fModuleInBundleNb number of module in bundle
+   *@param eLoss    Energy deposit [KeV]
+   *@param lightYield    Energy deposit [MeV]
    **/
   ExpertNeuRadPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
@@ -63,7 +64,6 @@ class ExpertNeuRadPoint : public FairMCPoint
   /** Accessors **/
   Int_t GetEventID() const { return fEventID; }
   Int_t GetMot0TrackID()   const { return fMot0TrackID; }
-  Int_t GetDetID() const { return fDetID; }
   Double_t GetXIn()   const { return fX; }
   Double_t GetYIn()   const { return fY; }
   Double_t GetZIn()   const { return fZ; }
@@ -75,6 +75,7 @@ class ExpertNeuRadPoint : public FairMCPoint
   Double_t GetPzOut() const { return fPz_out; }
   Double_t GetMass() const { return fMass; }
   Double_t GetLightYield() const {return fLightYield;}
+  Double_t GetModuleInBundleNb() const {return fModuleInBundleNb;}
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
@@ -89,45 +90,19 @@ class ExpertNeuRadPoint : public FairMCPoint
   /** Check for distance between in and out **/
   Bool_t IsUsable() const;
 
-
-  /** Modifiers **/
-  void SetPositionOut(TVector3 pos);
-  void SetMomentumOut(TVector3 mom);
-
   /** Output to screen **/
-  virtual void Print(const Option_t* opt) const;
-
+  virtual void Print(const Option_t* opt = 0) const;
 
  protected:
-
-  Double32_t fX_out,  fY_out,  fZ_out;
-  Double32_t fPx_out, fPy_out, fPz_out;
+  
   Int_t fEventID;
   Int_t fMot0TrackID;
-  Int_t fDetID;
-  Double_t fMass;
-  Double_t fLightYield;
   Int_t fModuleInBundleNb;
+  Double_t fMass;
+  Double32_t fX_out,  fY_out,  fZ_out;
+  Double32_t fPx_out, fPy_out, fPz_out;
+  Double_t fLightYield;
 
   ClassDef(ExpertNeuRadPoint,1)
-
 };
-
-
-
-inline void ExpertNeuRadPoint::SetPositionOut(TVector3 pos) {
-  fX_out = pos.X();
-  fY_out = pos.Y();
-  fZ_out = pos.Z();
-}
-
-
-inline void ExpertNeuRadPoint::SetMomentumOut(TVector3 mom) {
-  fPx_out = mom.Px();
-  fPy_out = mom.Py();
-  fPz_out = mom.Pz();
-}
-
-
-
 #endif

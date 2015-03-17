@@ -27,6 +27,6 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ExpertPassiveLinkDef.h)
 Set(LIBRARY_NAME ExpertPassive) 
-Set(DEPENDENCIES )
+Set(DEPENDENCIES Base)
 
 GENERATE_LIBRARY()
