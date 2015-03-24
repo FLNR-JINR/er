@@ -66,8 +66,8 @@ class ExpertNeuRadDigi : public TObject
   void SetFrontQDC(Double_t charge){fFrontQDC = charge;}
   Double_t GetFrontQDC(){return fFrontQDC;}
 
-  void SetBackQDC(Double_t charge){fBackTDC = charge;}
-  Double_t GetBackTDC(){return fBackTDC;}
+  void SetBackQDC(Double_t charge){fBackQDC = charge;}
+  Double_t GetBackQDC(){return fBackQDC;}
 
   void SetDigiNr(Int_t digiNr){fDigi_nr = digiNr;}
   Int_t GetDigiNr(){return fDigi_nr;}

@@ -85,6 +85,15 @@ protected:
   Double_t fSaturationCoefficient;    // Allow change of the PMT Saturation at runtime. ExpertNeuRadDigitizer is initialized with the default value
   Double_t fModuleThreshold;
   
+  //Control Histos
+  TH1F* fhFirstPointELoss;
+  TH1F* fhSecondPointELoss;
+  TH1F* fhFristPointLightYeild;
+  TH1F* fhSecondPointLightYeild;
+  TH1F* fhFrontQDCcmXMinusFirst;
+  TH1F* fhFrontQDCcmYMinusFirst;
+  TH1F* fhBackQDCcmXMinusFirst;
+  TH1F* fhBackQDCcmYMinusFirst;  
 protected:
   inline Double_t BuildTOFRangeFromBeamEnergy(const Double_t &e);
   
@@ -93,8 +102,6 @@ protected:
                                       Int_t module_nr);
 
 private:
-  vector<ExpertNeuRadModulePoint>* fFrontPointsPerModules;
-  vector<ExpertNeuRadModulePoint>* fBackPointsPerModules;
 
 private:
   virtual void SetParContainers();

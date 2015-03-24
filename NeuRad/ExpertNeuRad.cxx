@@ -112,7 +112,7 @@ Bool_t ExpertNeuRad::ProcessHits(FairVolume* vol) {
     gMC->TrackMomentum(fMomOut);
 	  
 	  if (fELoss > 0.){
-      AddHit(fEventID, fTrackID, fMot0TrackID, fModuleInBundleNb, fMass,
+      AddHit(fEventID, fTrackID, fMot0TrackID, fModuleInBundleNb-1, fMass,
            TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
            TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
            TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),

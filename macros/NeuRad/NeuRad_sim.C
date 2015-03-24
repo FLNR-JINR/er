@@ -1,4 +1,4 @@
-void NeuRad_sim(Int_t nEvents = 1){
+void NeuRad_sim(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -26,7 +26,7 @@ void NeuRad_sim(Int_t nEvents = 1){
 	cave->SetGeometryFileName("Expert_cave.geo");
 	run->AddModule(cave);
 	
-  Int_t verbose = 3; /*1 - only standard logs, 2 - Print points after each event, 3 - GEANT Step information*/
+  Int_t verbose = 1; /*1 - only standard logs, 2 - Print points after each event, 3 - GEANT Step information*/
 	FairModule* neuRad= new ExpertNeuRad("ExpertNeuRad", kTRUE,verbose); 
 	neuRad->SetGeometryFileName("NeuRad.geo.root");
 	run->AddModule(neuRad);
@@ -37,12 +37,12 @@ void NeuRad_sim(Int_t nEvents = 1){
   Int_t pdgId = 2112; // neutron  beam
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 7.;
-  Double32_t momentum = .1; //GeV
+  Double32_t momentum = .4; //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(90,90);
-  boxGen->SetXYZ(1.2, 1.2, -26.0);
+  boxGen->SetXYZ(0.1,0.1, -26.0);
 
   primGen->AddGenerator(boxGen);
 	run->SetGenerator(primGen);
