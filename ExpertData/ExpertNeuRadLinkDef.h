@@ -6,6 +6,7 @@
 
 #pragma link C++ class ExpertNeuRadPoint+;
 #pragma link C++ class ExpertNeuRadDigi+;
+#pragma link C++ class ExpertNeuRadStep+;
 #pragma link C++ class R3BStack+;
 #pragma link C++ class R3BMCTrack+;
 

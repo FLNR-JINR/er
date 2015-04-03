@@ -1,8 +1,8 @@
-void NeuRad_digi(Int_t nEvents = 10000){
+void NeuRad_digi(Int_t nEvents = 100000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "sim.root";
-  TString outFile = "digi.root";
-  TString parFile = "par.root";
+  TString inFile = "data/sim_100MeV_G4_BERT.root";
+  TString outFile = "data/digi_100MeV_G4_BERT.root";
+  TString parFile = "data/par_100MeV_G4_BERT.root";
   // ------------------------------------------------------------------------
   
   // -----   Timer   --------------------------------------------------------
@@ -17,7 +17,7 @@ void NeuRad_digi(Int_t nEvents = 10000){
   // ------------------------------------------------------------------------
   
   // ------------------------NeuRadDigitizer---------------------------------
-  Int_t verbose = 2; // 1 - only standard log print, 2 - print digi information 
+  Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ExpertNeuRadDigitizer* digitizer = new ExpertNeuRadDigitizer(verbose);
   //digitizer->SetBeamEnergy(100.); //[MeV] // OR 
   digitizer->SetTOFRange(1000.); //[ns]

@@ -1,5 +1,7 @@
-void NeuRad_sim(Int_t nEvents = 10000){
+void NeuRad_sim(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
+  //TString outFile= "sim_400MeV_G4_BERT.root";
+  //TString parFile= "par_400MeV_G4_BERT.root";
   TString outFile= "sim.root";
   TString parFile= "par.root";
   // ------------------------------------------------------------------------
@@ -27,8 +29,9 @@ void NeuRad_sim(Int_t nEvents = 10000){
 	run->AddModule(cave);
 	
   Int_t verbose = 1; /*1 - only standard logs, 2 - Print points after each event, 3 - GEANT Step information*/
-	FairModule* neuRad= new ExpertNeuRad("ExpertNeuRad", kTRUE,verbose); 
+	ExpertNeuRad* neuRad= new ExpertNeuRad("ExpertNeuRad", kTRUE,verbose); 
 	neuRad->SetGeometryFileName("NeuRad.geo.root");
+  neuRad->SetStorePrimarySteps();
 	run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 	
@@ -37,7 +40,7 @@ void NeuRad_sim(Int_t nEvents = 10000){
   Int_t pdgId = 2112; // neutron  beam
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 7.;
-  Double32_t momentum = .4; //GeV
+  Double32_t momentum = .1; //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);
@@ -55,7 +58,6 @@ void NeuRad_sim(Int_t nEvents = 10000){
 	
 	// -----   Initialize simulation run   ------------------------------------
 	run->Init();
-	
 	Int_t nSteps = -15000;
 	gMC->SetMaxNStep(nSteps);
 	
@@ -68,8 +70,10 @@ void NeuRad_sim(Int_t nEvents = 10000){
 	rtdb->print();
 	  
 	run->Run(nEvents);
-	
+  
 	// -----   Finish   -------------------------------------------------------
+  neuRad->WriteHisto();
+  
 	timer.Stop();
 	Double_t rtime = timer.RealTime();
 	Double_t ctime = timer.CpuTime();

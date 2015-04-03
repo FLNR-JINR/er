@@ -22,6 +22,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 NeuRadData/ExpertNeuRadPoint.cxx
 NeuRadData/ExpertNeuRadDigi.cxx
+NeuRadData/ExpertNeuRadStep.cxx
 R3BMCStack.cxx
 R3BMCTrack.cxx
 )

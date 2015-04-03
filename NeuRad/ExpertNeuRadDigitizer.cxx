@@ -21,6 +21,7 @@ using std::sort;
 #include "FairLogger.h"
 
 #include "ExpertNeuRadPoint.h"
+#include "ExpertNeuRadStep.h"
 #include "ExpertNeuRadDigitizer.h"
 
 const Double_t ExpertNeuRadDigitizer::DEFAULT_SATURATION_COEFFICIENT = 0.012;
@@ -91,7 +92,11 @@ InitStatus ExpertNeuRadDigitizer::Init()
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
+  
   fNeuRadPoints = (TClonesArray*) ioman->GetObject("NeuRadPoint");
+  fNeuRadFirstStep = (TClonesArray*) ioman->GetObject("NeuRadFirstStep");
+  //todo check
+  
   
   // Register output array NeuRadDigi
   fNeuRadDigi = new TClonesArray("ExpertNeuRadDigi",1000);
@@ -108,10 +113,10 @@ InitStatus ExpertNeuRadDigitizer::Init()
   fhSecondPointELoss      = new TH1F("SecondPointELoss",    "SecondPointELoss, [MeV]", 30, 0., 3.);
   fhFristPointLightYeild  = new TH1F("FristPointLightYeild","FristPointLightYeild, [MeV]", 30, 0., 3.);
   fhSecondPointLightYeild = new TH1F("SecondPointLightYeild","SecondPointLightYeild, [MeV]", 30, 0., 3.);
-  fhFrontQDCcmXMinusFirst = new TH1F("FrontQDCcmXMinusFirst","FrontQDCcmXMinusFirst, [digi]", 8., 0., 8.);
-  fhFrontQDCcmYMinusFirst = new TH1F("FrontQDCcmYMinusFirst","FrontQDCcmYMinusFirst, [digi]", 8., 0., 8.);
-  fhBackQDCcmXMinusFirst  = new TH1F("BackQDCcmXMinusFirst", "BackQDCcmXMinusFirst, [digi]", 8., 0., 8.);
-  fhBackQDCcmYMinusFirst  = new TH1F("BackQDCcmYMinusFirst", "BackQDCcmYMinusFirst, [digi]", 8., 0., 8.);
+  fhFrontQDCcmXMinusFirst = new TH1F("FrontQDCcmXMinusFirst","FrontQDCcmXMinusFirst, [digi]", 40., 0., 8.);
+  fhFrontQDCcmYMinusFirst = new TH1F("FrontQDCcmYMinusFirst","FrontQDCcmYMinusFirst, [digi]", 40., 0., 8.);
+  fhBackQDCcmXMinusFirst  = new TH1F("BackQDCcmXMinusFirst", "BackQDCcmXMinusFirst, [digi]", 40., 0., 8.);
+  fhBackQDCcmYMinusFirst  = new TH1F("BackQDCcmYMinusFirst", "BackQDCcmYMinusFirst, [digi]", 40., 0., 8.);
   
   return kSUCCESS;
 }
@@ -325,13 +330,13 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
     backQDC_cm_x  /= sumBackQDC;
     backQDC_cm_y  /= sumBackQDC;  
     
-    //first point
-    ExpertNeuRadPoint* first_point = (ExpertNeuRadPoint*) fNeuRadPoints->At(0);
-    Int_t point_module_nr = first_point->GetModuleInBundleNb();
-    point_module_nr+=1;
-    Int_t x_module_nr = point_module_nr%8; //@todo Get from Parameter class
-    Int_t y_module_nr = point_module_nr/8 + 1;
-    LOG(INFO) << "point_module_nr = " << point_module_nr << " x_module_nr = "<< x_module_nr << " y_module_nr = " << y_module_nr << FairLogger::endl;
+    //firstStep in Neurad
+    ExpertNeuRadStep* firstStep = (ExpertNeuRadStep*) fNeuRadFirstStep->At(0);
+    Int_t module_nr = firstStep->GetModuleInBundleNb();
+    module_nr+=1;
+    Int_t x_module_nr = module_nr%8; //@todo Get from Parameter class
+    Int_t y_module_nr = module_nr/8 + 1;
+    LOG(INFO) << "module_nr = " << module_nr << " x_module_nr = "<< x_module_nr << " y_module_nr = " << y_module_nr << FairLogger::endl;
     
     fhFrontQDCcmXMinusFirst->Fill(TMath::Abs(frontQDC_cm_x - x_module_nr));
     fhFrontQDCcmYMinusFirst->Fill(TMath::Abs(frontQDC_cm_y - y_module_nr));
@@ -344,14 +349,6 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
 // ----------------------------------------------------------------------------
 void ExpertNeuRadDigitizer::Reset()
 {
-  if (fNeuRadDigi) {
-    fNeuRadDigi->Clear();
-  }
-  
-  if (fNeuRadDigi) {
-    fNeuRadDigi->Clear();
-  }
-  
   if (fNeuRadDigi) {
     fNeuRadDigi->Clear();
   }

@@ -11,6 +11,7 @@
 #define ExpertNeuRad_H
 
 #include "FairDetector.h"
+#include "ExpertNeuRadStep.h"
 #include "ExpertNeuRadPoint.h"
 
 #include "TH1F.h"
@@ -126,24 +127,16 @@ public:
   **/
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
   
+  /**Method WriteHisto
+  **/
+  void WriteHisto();
+  
+  void SetStorePrimarySteps() {fStorePrimarySteps = kTRUE;}
+  void SetStoreAllSteps() {fStoreAllSteps = kTRUE;}
 private:
-  
-  /** Track information to be stored until the track leaves the
-      active volume. **/
-  Int_t          fEventID;           //!  track index
-  Int_t          fTrackID;           //!  track index
-  Int_t          fMot0TrackID;       //!  0th mother track index
-  Double_t       fMass;              //!  mass
-  TLorentzVector fPosIn, fPosOut;    //!  position
-  TLorentzVector fMomIn, fMomOut;    //!  momentum
-  Double32_t     fTime;              //!  time
-  Double32_t     fLength;            //!  length
-  Double32_t     fELoss;             //!  energy loss
-  Double_t       fLightYield;        //!  light yield
-  Int_t          fModuleInBundleNb;   //!  number of module in bundle
-  
-  Int_t          fPosIndex;          //!
-  TClonesArray*  fNeuRadCollection;  //!  The point collection
+  TClonesArray*  fNeuRadPoints;     //!  The point collection
+  TClonesArray*  fNeuRadFirstStep;  //!  The first step collection
+  TClonesArray*  fNeuRadSteps;      //!  The steps collection
   Int_t fVersion;                    //! geometry version
   
   TH1F *fhSumEnergyLossOfAllModules;    //! Histo Events per sum of ELoss
@@ -153,12 +146,14 @@ private:
   //Constants
   static const Double_t fHistoELossThreshold; //! Threshold of ELoss for analyze histos
   
+  Bool_t fStorePrimarySteps;
+  Bool_t fStoreAllSteps;
 private:
-  /** Private method AddHit
+  /** Private method AddPoint
    **
-   ** Adds a NeuRadPoint to the HitCollection
+   ** Adds a NeuRadPoint to the Point Collection
    **/
-  ExpertNeuRadPoint* AddHit(Int_t eventID, Int_t trackID,
+  ExpertNeuRadPoint* AddPoint(Int_t eventID, Int_t trackID,
 			  Int_t mot0trackID,
         Int_t moduleInBundleNb,
 			  Double_t mass,
@@ -166,6 +161,42 @@ private:
 			  TVector3 pos_out, TVector3 momIn,
 			  TVector3 momOut, Double_t time,
 			  Double_t length, Double_t eLoss, Double_t lightYield);
+  
+  /** Private method AddFirstStep
+  **
+  ** Adds a NeuRadStep to the FirstStep Collection
+  **/
+  ExpertNeuRadStep* AddFirstStep(Int_t eventID, Int_t stepNr,Int_t trackID,
+		  Int_t mot0trackID,
+      Int_t moduleInBundleNb,
+		  TVector3 pos, 
+      TVector3 mom, 
+		  Double_t tof, 
+      Double_t length, 
+      Int_t pid,
+      Double_t mass,
+      ExpertTrackingStatus trackStatus,
+      Double_t eLoss,
+      Double_t charge,
+      TArrayI  processID);
+        
+  /** Private method AddStep
+  **
+  ** Adds a NeuRadStep to the Steps Collection
+  **/      
+  ExpertNeuRadStep* AddStep(Int_t eventID, Int_t stepNr,Int_t trackID,
+		  Int_t mot0trackID,
+      Int_t moduleInBundleNb,
+		  TVector3 pos, 
+      TVector3 mom, 
+		  Double_t tof, 
+      Double_t length, 
+      Int_t pid,
+      Double_t mass,
+      ExpertTrackingStatus trackStatus,
+      Double_t eLoss,
+      Double_t charge,
+      TArrayI  processID);
   
   /** Private method ResetParameters
    **

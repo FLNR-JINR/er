@@ -1,5 +1,10 @@
-#ifndef R3BLANDDIGITIZER_H
-#define R3BLANDDIGITISER_H 1
+// -------------------------------------------------------------------------
+// -----                        ExpertNeuRadDigitizer header file      -----
+// -----                  Created 03/15  by V.Schetinin                -----
+// -------------------------------------------------------------------------
+
+#ifndef EXPERTNEURADDIGITIZER_H
+#define EXPERTNEURADDIGITIZER_H 
 
 #include <vector>
 using std::vector;
@@ -67,6 +72,7 @@ protected:
   
   //Input arrays
   TClonesArray *fNeuRadPoints;
+  TClonesArray *fNeuRadFirstStep;
 
   //Output arrays
   TClonesArray *fNeuRadDigi;
