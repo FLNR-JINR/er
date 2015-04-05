@@ -14,7 +14,7 @@ ExpertNeuRadDigi::ExpertNeuRadDigi()
   fFrontQDC(0.),
   fBackQDC(0.),
   fQDC(0.),
-  fModule_nr(-1)
+  fFiber_nr(-1)
 {
 }
 
@@ -22,7 +22,7 @@ ExpertNeuRadDigi::ExpertNeuRadDigi()
 
 ExpertNeuRadDigi::ExpertNeuRadDigi(Int_t digi_nr, Double_t frontTDC, Double_t backTDC,
                                       Double_t TDC, Double_t frontQDC, Double_t backQDC, Double_t QDC,
-                                      Int_t module_nr)
+                                      Int_t fiber_nr)
   :fDigi_nr(digi_nr),
   fFrontTDC(frontTDC),
   fBackTDC(backTDC),
@@ -30,7 +30,7 @@ ExpertNeuRadDigi::ExpertNeuRadDigi(Int_t digi_nr, Double_t frontTDC, Double_t ba
   fFrontQDC(frontQDC),
   fBackQDC(backQDC),
   fQDC(QDC),
-  fModule_nr(module_nr)
+  fFiber_nr(fiber_nr)
 {
 }
 
@@ -42,7 +42,7 @@ ExpertNeuRadDigi::ExpertNeuRadDigi(const ExpertNeuRadDigi& right)
   fFrontQDC(right.fFrontQDC),
   fBackQDC(right.fBackQDC),
   fQDC(right.fQDC),
-  fModule_nr(right.fModule_nr)
+  fFiber_nr(right.fFiber_nr)
 {
 }
 
@@ -57,7 +57,7 @@ ExpertNeuRadDigi::~ExpertNeuRadDigi()
 void ExpertNeuRadDigi::Print(const Option_t* opt /* = 0 */) const
 {
   LOG(INFO) << "-I- ExpertNeuRadDigi:  " << FairLogger::endl;
-  LOG(INFO) << "    Module : " << fModule_nr << FairLogger::endl;
+  LOG(INFO) << "    Fiber : " << fFiber_nr << FairLogger::endl;
   LOG(INFO) << "    FrontTDC: " << fFrontTDC << " BackTDC " << fBackTDC << FairLogger::endl;
   LOG(INFO) << "    FrontQDC: " << fFrontQDC << " BackQDC " << fBackQDC << FairLogger::endl;
 }

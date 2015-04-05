@@ -7,5 +7,6 @@
 #pragma link C++ class ExpertNeuRad+;
 #pragma link C++ class ExpertNeuRadDigitizer+;
 #pragma link C++ class ExpertNeuRadPointAnalyser+;
+#pragma link C++ class ExpertNeuRadDigiAnalyser+;
 
 #endif

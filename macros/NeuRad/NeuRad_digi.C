@@ -1,8 +1,8 @@
-void NeuRad_digi(Int_t nEvents = 100000){
+void NeuRad_digi(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "data/sim_100MeV_G4_BERT.root";
-  TString outFile = "data/digi_100MeV_G4_BERT.root";
-  TString parFile = "data/par_100MeV_G4_BERT.root";
+  TString inFile = "sim.root";
+  TString outFile = "digi.root";
+  TString parFile = "par.root";
   // ------------------------------------------------------------------------
   
   // -----   Timer   --------------------------------------------------------
@@ -10,7 +10,7 @@ void NeuRad_digi(Int_t nEvents = 100000){
   timer.Start();
   // ------------------------------------------------------------------------
   
-    // -----   Digitization run   -------------------------------------------
+  // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
@@ -22,7 +22,7 @@ void NeuRad_digi(Int_t nEvents = 100000){
   //digitizer->SetBeamEnergy(100.); //[MeV] // OR 
   digitizer->SetTOFRange(1000.); //[ns]
   digitizer->SetSaturationCoefficient(0.012); //DEFAULT = 0.012
-  digitizer->SetModuleThreshold (0.0000001); //[MeV]
+  digitizer->SetFiberThreshold (0.0000001); //[MeV]
   // ------------------------------------------------------------------------
   
   fRun->AddTask(digitizer);

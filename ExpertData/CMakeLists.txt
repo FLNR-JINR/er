@@ -31,7 +31,7 @@ R3BMCTrack.cxx
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 SET(HEADERS ${HEADERS})
-set(LINKDEF  ExpertNeuRadLinkDef.h)
+set(LINKDEF  ExpertDataLinkDef.h)
 set(LIBRARY_NAME ExpertData)
 set(DEPENDENCIES
     Base)

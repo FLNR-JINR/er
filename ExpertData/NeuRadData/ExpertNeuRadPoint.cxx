@@ -18,14 +18,14 @@ ExpertNeuRadPoint::ExpertNeuRadPoint()
 // -----   Standard constructor   ------------------------------------------
 ExpertNeuRadPoint::ExpertNeuRadPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t moduleInBundleNb,
+      Int_t fiberInBundleNb,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
 		  Double_t tof, Double_t length, Double_t eLoss, Double_t lightYield)
   : FairMCPoint(trackID, -1., posIn, momIn, tof, length, eLoss),
     fEventID(eventID),
-    fModuleInBundleNb(moduleInBundleNb),
+    fFiberInBundleNb(fiberInBundleNb),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
     fLightYield(lightYield)
@@ -38,7 +38,7 @@ ExpertNeuRadPoint::ExpertNeuRadPoint(Int_t eventID, Int_t trackID,
 // -------------------------------------------------------------------------
 ExpertNeuRadPoint::ExpertNeuRadPoint(const ExpertNeuRadPoint& right)
   : FairMCPoint(right),
-    fModuleInBundleNb(right.fModuleInBundleNb),
+    fFiberInBundleNb(right.fFiberInBundleNb),
     fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
     fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out),
     fLightYield(right.fLightYield)
@@ -64,7 +64,7 @@ void ExpertNeuRadPoint::Print(const Option_t* opt /* = 0*/) const
   LOG(INFO) << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << FairLogger::endl;
   LOG(INFO) << "    Time " << fTime << " ns,  Length " << fLength << " cm" << FairLogger::endl;
   LOG(INFO) << "    Energy loss " << fELoss << " keV, Light yield " << fLightYield << " MeV "<< FairLogger::endl;
-  LOG(INFO) << "    Module in bundle number " << fModuleInBundleNb << FairLogger::endl;
+  LOG(INFO) << "    Fiber in bundle number " << fFiberInBundleNb << FairLogger::endl;
 }
 // -------------------------------------------------------------------------
 

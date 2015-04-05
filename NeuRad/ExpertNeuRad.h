@@ -119,17 +119,13 @@ public:
   ** @param(name)  Volume name
   ** @value        kTRUE if volume is sensitive, else kFALSE
   **
-  ** The decision is based on the volume name (has to contain "module").
+  ** The decision is based on the volume name (has to contain "fiber").
   **/
   virtual Bool_t CheckIfSensitive(std::string name);
   
   /** Virtaul method SetGeomVersion
   **/
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
-  
-  /**Method WriteHisto
-  **/
-  void WriteHisto();
   
   void SetStorePrimarySteps() {fStorePrimarySteps = kTRUE;}
   void SetStoreAllSteps() {fStoreAllSteps = kTRUE;}
@@ -138,14 +134,7 @@ private:
   TClonesArray*  fNeuRadFirstStep;  //!  The first step collection
   TClonesArray*  fNeuRadSteps;      //!  The steps collection
   Int_t fVersion;                    //! geometry version
-  
-  TH1F *fhSumEnergyLossOfAllModules;    //! Histo Events per sum of ELoss
-  TH1F *fhModulesPerSumEnergyLoss;      //! Histo Modules with point count per Energy loss
-  static Int_t fNEeventsWithoutPoints;  //! Count of events without points
-
-  //Constants
-  static const Double_t fHistoELossThreshold; //! Threshold of ELoss for analyze histos
-  
+    
   Bool_t fStorePrimarySteps;
   Bool_t fStoreAllSteps;
 private:
@@ -155,7 +144,7 @@ private:
    **/
   ExpertNeuRadPoint* AddPoint(Int_t eventID, Int_t trackID,
 			  Int_t mot0trackID,
-        Int_t moduleInBundleNb,
+        Int_t fiberInBundleNb,
 			  Double_t mass,
 			  TVector3 posIn,
 			  TVector3 pos_out, TVector3 momIn,
@@ -168,7 +157,7 @@ private:
   **/
   ExpertNeuRadStep* AddFirstStep(Int_t eventID, Int_t stepNr,Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t moduleInBundleNb,
+      Int_t fiberInBundleNb,
 		  TVector3 pos, 
       TVector3 mom, 
 		  Double_t tof, 
@@ -186,7 +175,7 @@ private:
   **/      
   ExpertNeuRadStep* AddStep(Int_t eventID, Int_t stepNr,Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t moduleInBundleNb,
+      Int_t fiberInBundleNb,
 		  TVector3 pos, 
       TVector3 mom, 
 		  Double_t tof, 
@@ -204,22 +193,7 @@ private:
    **/
   void ResetParameters();
   
-  /** Private method StepHistory
-   **
-   ** Print GEANT step information
-   **/
-  void StepHistory();
-  
-  /**  Private method FillHisto
-  **
-  **  Filling histos for analyze and write histos to param file
-  **/
-  void FillHisto();
-  
   ClassDef(ExpertNeuRad,1);
 };
-
-
-
 
 #endif 

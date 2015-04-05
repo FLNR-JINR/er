@@ -9,8 +9,6 @@
 #include "TVirtualMC.h"
 #include "TString.h"
 
-Int_t ExpertNeuRad::fNEeventsWithoutPoints = 0;
-const Double_t ExpertNeuRad::fHistoELossThreshold = 100.;
 
 // -----   Default constructor   -------------------------------------------
 ExpertNeuRad::ExpertNeuRad() : FairDetector("ExpertNeuRad", kTRUE),
@@ -25,8 +23,6 @@ ExpertNeuRad::ExpertNeuRad() : FairDetector("ExpertNeuRad", kTRUE),
   flGeoPar->SetName( GetName());
   fVerboseLevel = 1;
   fVersion = 1;
-  fhModulesPerSumEnergyLoss =  new TH1F("ModulesPerSumEnergyLoss", "Modules per sum of energy loss", 100000, 0., 100000.);
-  fhSumEnergyLossOfAllModules =  new TH1F("SumEnergyLossOfAllModules", "Sum Of ELoss in all modules", 100000, 0., 100000.);
 }
 // -------------------------------------------------------------------------
 
@@ -44,10 +40,7 @@ ExpertNeuRad::ExpertNeuRad(const char* name, Bool_t active, Int_t verbose)
   fNeuRadSteps = new TClonesArray("ExpertNeuRadStep");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
-  
   fVersion = 1;
-  fhModulesPerSumEnergyLoss =  new TH1F("ModulesPerSumEnergyLoss", "Modules per sum of energy loss", 100000, 0., 100000.);
-  fhSumEnergyLossOfAllModules =  new TH1F("SumEnergyLossOfAllModules", "Sum Of ELoss in all modules", 100000, 0., 100000.);
 }
 
 ExpertNeuRad::~ExpertNeuRad() {
@@ -82,7 +75,7 @@ Bool_t ExpertNeuRad::ProcessHits(FairVolume* vol) {
   static Double32_t     length;            //!  length
   static Double32_t     eLoss;             //!  energy loss
   static Double_t       lightYield;        //!  light yield
-  static Int_t          moduleInBundleNb;  //!  number of module in bundle
+  static Int_t          fiberInBundleNb;  //!  number of fiber in bundle
   static Int_t          stepNr;            //!  current step numb in this active volumes
   static ExpertTrackingStatus trackStatus;
   static Double_t charge;
@@ -105,10 +98,10 @@ Bool_t ExpertNeuRad::ProcessHits(FairVolume* vol) {
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
-    Int_t curVolId =  gMC->CurrentVolID(moduleInBundleNb);
+    Int_t curVolId =  gMC->CurrentVolID(fiberInBundleNb);
     
     if (fNeuRadFirstStep->GetEntriesFast() == 0){
-      AddFirstStep( eventID, stepNr+1, trackID, mot0TrackID, moduleInBundleNb-1,
+      AddFirstStep( eventID, stepNr+1, trackID, mot0TrackID, fiberInBundleNb-1,
                     TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                     TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
                     time, length, gMC->TrackPid(),mass, 
@@ -121,7 +114,7 @@ Bool_t ExpertNeuRad::ProcessHits(FairVolume* vol) {
   
   
   if (fStorePrimarySteps && mot0TrackID == -1){
-    ExpertNeuRadStep* step =  AddStep( eventID, stepNr, trackID, mot0TrackID, moduleInBundleNb-1,
+    ExpertNeuRadStep* step =  AddStep( eventID, stepNr, trackID, mot0TrackID, fiberInBundleNb-1,
                                       TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                                       TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
                                       time, length, gMC->TrackPid(),mass, 
@@ -130,7 +123,7 @@ Bool_t ExpertNeuRad::ProcessHits(FairVolume* vol) {
       step->Print();
   }
   if (fStoreAllSteps){
-    ExpertNeuRadStep* step =  AddStep( eventID, stepNr, trackID, mot0TrackID, moduleInBundleNb-1,
+    ExpertNeuRadStep* step =  AddStep( eventID, stepNr, trackID, mot0TrackID, fiberInBundleNb-1,
                                       TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                                       TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
                                       time, length, gMC->TrackPid(),mass, 
@@ -168,7 +161,7 @@ Bool_t ExpertNeuRad::ProcessHits(FairVolume* vol) {
     gMC->TrackMomentum(momOut);
     
 	  if (eLoss > 0.){
-      AddPoint( eventID, trackID, mot0TrackID, moduleInBundleNb-1, mass,
+      AddPoint( eventID, trackID, mot0TrackID, fiberInBundleNb-1, mass,
                 TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                 TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
                 TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
@@ -190,7 +183,6 @@ void ExpertNeuRad::EndOfEvent() {
     Print();
   }
   
-  FillHisto();
   Reset();
 }
 
@@ -254,7 +246,7 @@ void ExpertNeuRad::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset
 // -----   Private method AddPoint   --------------------------------------------
 ExpertNeuRadPoint* ExpertNeuRad::AddPoint(Int_t eventID, Int_t trackID,
 				    Int_t mot0trackID,
-            Int_t moduleInBundleNb,
+            Int_t fiberInBundleNb,
 				    Double_t mass,
 				    TVector3 posIn,
 				    TVector3 posOut, TVector3 momIn,
@@ -262,7 +254,7 @@ ExpertNeuRadPoint* ExpertNeuRad::AddPoint(Int_t eventID, Int_t trackID,
 				    Double_t length, Double_t eLoss, Double_t lightYield) {
   TClonesArray& clref = *fNeuRadPoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ExpertNeuRadPoint(eventID, trackID, mot0trackID, moduleInBundleNb, mass,
+  return new(clref[size]) ExpertNeuRadPoint(eventID, trackID, mot0trackID, fiberInBundleNb, mass,
 					  posIn, posOut, momIn, momOut, time, length, eLoss, lightYield);
 	
 }
@@ -271,7 +263,7 @@ ExpertNeuRadPoint* ExpertNeuRad::AddPoint(Int_t eventID, Int_t trackID,
 // -----   Private method AddFirstStep   --------------------------------------------
 ExpertNeuRadStep* ExpertNeuRad::AddFirstStep(Int_t eventID, Int_t stepNr,Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t moduleInBundleNb,
+      Int_t fiberInBundleNb,
 		  TVector3 pos, 
       TVector3 mom, 
 		  Double_t tof, 
@@ -283,14 +275,14 @@ ExpertNeuRadStep* ExpertNeuRad::AddFirstStep(Int_t eventID, Int_t stepNr,Int_t t
       Double_t charge,
       TArrayI  processID){
   TClonesArray& clref = *fNeuRadFirstStep;
-  return new(clref[0]) ExpertNeuRadStep(eventID,  stepNr, trackID, mot0trackID, moduleInBundleNb,
+  return new(clref[0]) ExpertNeuRadStep(eventID,  stepNr, trackID, mot0trackID, fiberInBundleNb,
 					  pos, mom, tof, length, pid, mass, trackStatus, eLoss, charge, processID);        
 }
 
 // -----   Private method AddStep   --------------------------------------------
 ExpertNeuRadStep* ExpertNeuRad::AddStep(Int_t eventID, Int_t stepNr,Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t moduleInBundleNb,
+      Int_t fiberInBundleNb,
 		  TVector3 pos, 
       TVector3 mom, 
 		  Double_t tof, 
@@ -303,7 +295,7 @@ ExpertNeuRadStep* ExpertNeuRad::AddStep(Int_t eventID, Int_t stepNr,Int_t trackI
       TArrayI  processID){
   TClonesArray& clref = *fNeuRadSteps;
   return new(clref[fNeuRadSteps->GetEntriesFast()]) ExpertNeuRadStep(eventID,  stepNr, trackID, 
-              mot0trackID, moduleInBundleNb, pos, mom, tof, length, pid, mass, trackStatus,
+              mot0trackID, fiberInBundleNb, pos, mom, tof, length, pid, mass, trackStatus,
               eLoss, charge, processID);        
 }
 
@@ -323,7 +315,7 @@ void ExpertNeuRad::ConstructGeometry() {
 Bool_t ExpertNeuRad::CheckIfSensitive(std::string name)
 {
   TString volName = name;
-  if(volName.Contains("module")) {
+  if(volName.Contains("fiber")) {
     return kTRUE;
   }
   return kFALSE;
@@ -334,41 +326,5 @@ Bool_t ExpertNeuRad::CheckIfSensitive(std::string name)
 void ExpertNeuRad::ResetParameters() {
   
 };
-// ----------------------------------------------------------------------------
-
-// -----   Private method FillHisto   ---------------------------------------
-void ExpertNeuRad::FillHisto(){
-  //Fill ModulesPerSumEnergyLoss histo
-  Int_t NPoints = fNeuRadPoints->GetEntriesFast();
-  if (NPoints == 0)
-    fNEeventsWithoutPoints++;
-  Int_t NModules = 64.;
-  Double_t* SumEloss = new Double_t[NModules];
-  // init 
-  for (Int_t i_module = 0; i_module < NModules; i_module++)
-    SumEloss[i_module] = 0.;
-  
-  // Sum energy per modules
-  Double_t sumOfEnergy = 0.;
-  for (Int_t i_point = 0; i_point < NPoints; i_point++){
-    ExpertNeuRadPoint* point = (ExpertNeuRadPoint*)fNeuRadPoints->At(i_point);
-    Int_t point_module_nb = point->GetModuleInBundleNb();
-    SumEloss[point_module_nb] += point->GetEnergyLoss();
-    sumOfEnergy+= point->GetEnergyLoss();
-  }
-  if (sumOfEnergy > fHistoELossThreshold)
-    fhSumEnergyLossOfAllModules->Fill(sumOfEnergy);
-  for (Int_t i_module = 0; i_module < NModules; i_module++){
-    if (SumEloss[i_module] > fHistoELossThreshold)
-      fhModulesPerSumEnergyLoss->Fill(SumEloss[i_module]);
-  }
-}
-// ----------------------------------------------------------------------------
-
-// -----   Public method WriteHisto   ---------------------------------------
-void ExpertNeuRad::WriteHisto(){
-  fhModulesPerSumEnergyLoss->Write();
-  fhSumEnergyLossOfAllModules->Write();
-}
 // ----------------------------------------------------------------------------
 ClassImp(ExpertNeuRad)
