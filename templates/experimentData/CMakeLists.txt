@@ -4,7 +4,7 @@
 
 set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
-${CMAKE_SOURCE_DIR}/ExpertData/
+${CMAKE_SOURCE_DIR}/experimentData/
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -20,18 +20,14 @@ MESSAGE ("Boost_INCLUDE_DIRS = " ${Boost_INCLUDE_DIRS})
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-NeuRadData/ExpertNeuRadPoint.cxx
-NeuRadData/ExpertNeuRadDigi.cxx
-NeuRadData/ExpertNeuRadStep.cxx
-R3BMCStack.cxx
-R3BMCTrack.cxx
+detectorData/detectorPoint.cxx
 )
 
 # fill list of header files from list of source files
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 SET(HEADERS ${HEADERS})
-set(LINKDEF  ExpertDataLinkDef.h)
+set(LINKDEF  ExpertNeuRadLinkDef.h)
 set(LIBRARY_NAME ExpertData)
 set(DEPENDENCIES
     Base)

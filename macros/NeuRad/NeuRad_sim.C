@@ -1,4 +1,4 @@
-void NeuRad_sim(Int_t nEvents = 1){
+void NeuRad_sim(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -11,9 +11,12 @@ void NeuRad_sim(Int_t nEvents = 1){
  
 	// -----   Create simulation run   ----------------------------------------
 	FairRunSim* run = new FairRunSim();
+  /** Select transport engine
+  * TGeant3
+  * TGeant4
+  **/
 	run->SetName("TGeant3");              // Transport engine
 	run->SetOutputFile(outFile.Data());          // Output file
-	FairRuntimeDb* rtdb = run->GetRuntimeDb();
   // ------------------------------------------------------------------------
   
 	// -----   Create media   -------------------------------------------------
@@ -26,9 +29,21 @@ void NeuRad_sim(Int_t nEvents = 1){
 	cave->SetGeometryFileName("Expert_cave.geo");
 	run->AddModule(cave);
 	
-  Int_t verbose = 3; /*1 - only standard logs, 2 - Print points after each event, 3 - GEANT Step information*/
-	FairModule* neuRad= new ExpertNeuRad("ExpertNeuRad", kTRUE,verbose); 
+  // Expert NeuRad definition
+  /** Select verbosity level
+  * 1 - only standard logs
+  * 2 - Print points after each event
+  * 3 - - GEANT Step information
+  **/
+  Int_t verbose = 1;
+	ExpertNeuRad* neuRad= new ExpertNeuRad("ExpertNeuRad", kTRUE,verbose); 
 	neuRad->SetGeometryFileName("NeuRad.geo.root");
+  /** Select storing steps
+  * not store steps
+  * SetStorePrimarySteps() - store only primary particle step
+  * SetStoreAllSteps() - store all steps. WARNING - very slow
+  **/
+  neuRad->SetStorePrimarySteps();
 	run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 	
@@ -42,7 +57,7 @@ void NeuRad_sim(Int_t nEvents = 1){
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(90,90);
-  boxGen->SetXYZ(1.2, 1.2, -26.0);
+  boxGen->SetXYZ(0.1,0.1, -26.0);
 
   primGen->AddGenerator(boxGen);
 	run->SetGenerator(primGen);
@@ -51,24 +66,26 @@ void NeuRad_sim(Int_t nEvents = 1){
 	//-------Set visualisation flag to true------------------------------------
 	run->SetStoreTraj(kTRUE);
 	
+  //-------Set LOG verbosity  ----------------------------------------------- 
 	FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
 	
-	// -----   Initialize simulation run   ------------------------------------
-	run->Init();
-	
-	Int_t nSteps = -15000;
-	gMC->SetMaxNStep(nSteps);
-	
 	// -----   Runtime database   ---------------------------------------------
+  FairRuntimeDb* rtdb = run->GetRuntimeDb();
 	Bool_t kParameterMerged = kTRUE;
 	FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
 	parOut->open(parFile.Data());
 	rtdb->setOutput(parOut);
 	rtdb->saveOutput();
 	rtdb->print();
-	  
-	run->Run(nEvents);
+  
+  // -----   Initialize simulation run   ------------------------------------
+	run->Init();
+	Int_t nSteps = -15000;
+	gMC->SetMaxNStep(nSteps);
 	
+  // -----   Run simulation  ------------------------------------------------
+	run->Run(nEvents);
+  
 	// -----   Finish   -------------------------------------------------------
 	timer.Stop();
 	Double_t rtime = timer.RealTime();

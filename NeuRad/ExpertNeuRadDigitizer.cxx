@@ -21,6 +21,7 @@ using std::sort;
 #include "FairLogger.h"
 
 #include "ExpertNeuRadPoint.h"
+#include "ExpertNeuRadStep.h"
 #include "ExpertNeuRadDigitizer.h"
 
 const Double_t ExpertNeuRadDigitizer::DEFAULT_SATURATION_COEFFICIENT = 0.012;
@@ -47,7 +48,7 @@ inline Double_t ExpertNeuRadDigitizer::BuildTOFRangeFromBeamEnergy(const Double_
 // ----------------------------------------------------------------------------
 ExpertNeuRadDigitizer::ExpertNeuRadDigitizer()
   : FairTask("Expert NeuRad Digitization scheme"),
-  fModuleThreshold(0.),fTOFRange(0.),fBeamEnergy(0.),fSaturationCoefficient(DEFAULT_SATURATION_COEFFICIENT)
+  fFiberThreshold(0.),fTOFRange(0.),fBeamEnergy(0.),fSaturationCoefficient(DEFAULT_SATURATION_COEFFICIENT)
 {
 }
 // ----------------------------------------------------------------------------
@@ -55,7 +56,7 @@ ExpertNeuRadDigitizer::ExpertNeuRadDigitizer()
 // ----------------------------------------------------------------------------
 ExpertNeuRadDigitizer::ExpertNeuRadDigitizer(Int_t verbose)
   : FairTask("Expert NeuRad Digitization scheme ", verbose),
-  fModuleThreshold(0.),fTOFRange(0.),fBeamEnergy(0.),fSaturationCoefficient(DEFAULT_SATURATION_COEFFICIENT)
+  fFiberThreshold(0.),fTOFRange(0.),fBeamEnergy(0.),fSaturationCoefficient(DEFAULT_SATURATION_COEFFICIENT)
 {
 }
 // ----------------------------------------------------------------------------
@@ -91,15 +92,16 @@ InitStatus ExpertNeuRadDigitizer::Init()
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
+  
   fNeuRadPoints = (TClonesArray*) ioman->GetObject("NeuRadPoint");
+  fNeuRadFirstStep = (TClonesArray*) ioman->GetObject("NeuRadFirstStep");
+  //todo check
   
   // Register output array NeuRadDigi
   fNeuRadDigi = new TClonesArray("ExpertNeuRadDigi",1000);
   ioman->Register("NeuRadDigi", "Digital response in NeuRad", fNeuRadDigi, kTRUE);
   
-  fNModules = 64;  //@todo get from parameter class 
-  fFrontPointsPerModules = new vector<ExpertNeuRadModulePoint> [fNModules];
-  fBackPointsPerModules = new vector<ExpertNeuRadModulePoint>  [fNModules];
+  fNFibers = 64;  //@todo get from parameter class 
   
   // If integration time has not been set otherwise, set it from beam energy - mimicks previous behavior
   if (fTOFRange < 0.01) {
@@ -111,7 +113,7 @@ InitStatus ExpertNeuRadDigitizer::Init()
 // -------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-bool pointsPerModuleTimeCompare (const ExpertNeuRadModulePoint& first, const ExpertNeuRadModulePoint& second){
+bool pointsPerFiberTimeCompare (const ExpertNeuRadFiberPoint& first, const ExpertNeuRadFiberPoint& second){
   return first.time > second.time;
 }
 // ----------------------------------------------------------------------------
@@ -122,9 +124,11 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
   // Reset entries in output arrays
   Reset();
   TRandom3 *Rnd = new TRandom3();
+  vector<ExpertNeuRadFiberPoint>* frontPointsPerFibers = new vector<ExpertNeuRadFiberPoint> [fNFibers];
+  vector<ExpertNeuRadFiberPoint>* backPointsPerFibers = new vector<ExpertNeuRadFiberPoint>  [fNFibers];
   
-  Double_t module_length = 100.;//[cm] //@todo get from parameter class 
-  Double_t module_energyThreshold = 0.001; //[MeV/ns] threshold on instantaneous current on PMT
+  Double_t fiber_length = 100.;//[cm] //@todo get from parameter class 
+  Double_t fiber_energyThreshold = 0.000001; //[MeV/ns] threshold on instantaneous current on PMT
   Double_t timeRes = 0.15; //[ns]
   
   Int_t points_count = fNeuRadPoints->GetEntries();
@@ -132,76 +136,83 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
   for (Int_t i_point=0; i_point < points_count; i_point++) {
     ExpertNeuRadPoint *point = (ExpertNeuRadPoint*) fNeuRadPoints->At(i_point);
     
-    Int_t    point_module_nb  = point->GetModuleInBundleNb();
+    Int_t    point_fiber_nb  = point->GetFiberInBundleNb();
+    Double_t point_eLoss	    =  point->GetEnergyLoss();
     Double_t point_lightYield = point->GetLightYield(); // [MeV]
     Double_t point_x          = point->GetXIn();
     Double_t point_y          = point->GetYIn();
     Double_t point_z          = point->GetZIn();
     Double_t point_time       = point->GetTime();
-    Double_t point_z_in_module = point_z + module_length/2.;
+    Double_t point_z_in_fiber = point_z + fiber_length/2.;
     
-    if (fFrontPointsPerModules[point_module_nb].size() > ERROR_POINTS_IN_MODULE_COUNT)
-       LOG(ERROR) << "ExpertNeuRadDigitizer: Too many points in one module: "
-                  << fFrontPointsPerModules[point_module_nb].size()<< " points" << FairLogger::endl;
     
-    ExpertNeuRadModulePoint newFrontModulePoint;
-    ExpertNeuRadModulePoint newBackModulePoint;
+    if (frontPointsPerFibers[point_fiber_nb].size() > ERROR_POINTS_IN_MODULE_COUNT)
+       LOG(ERROR) << "ExpertNeuRadDigitizer: Too many points in one fiber: "
+                  << frontPointsPerFibers[point_fiber_nb].size()<< " points" << FairLogger::endl;
     
-    newFrontModulePoint.time  = point_time+(point_z_in_module)/SPEED_OF_FLIGHT_IN_MATERIAL;
-    newBackModulePoint.time   = point_time+(module_length-point_z_in_module)/SPEED_OF_FLIGHT_IN_MATERIAL;
+    ExpertNeuRadFiberPoint newFrontFiberPoint;
+    ExpertNeuRadFiberPoint newBackFiberPoint;
     
-    //newFrontModulePoint.lightQDC = point_lightYield*exp(-LIGHT_ATTENUATION*point_z_in_module);
-    //newBackModulePoint.lightQDC  = point_lightYield*exp(-LIGHT_ATTENUATION*(module_length-point_z_in_module));
-    newFrontModulePoint.lightQDC = point_lightYield*(0.46*exp(-point_z_in_module/0.5) + 0.04*exp(-point_z_in_module/200.));
-    newBackModulePoint.lightQDC  = point_lightYield*(0.46*exp(-(module_length-point_z_in_module)/0.5) 
-                                                      + 0.04*exp(-(module_length-point_z_in_module)/200.));
+    newFrontFiberPoint.time  = point_time+(point_z_in_fiber)/SPEED_OF_FLIGHT_IN_MATERIAL;
+    newBackFiberPoint.time   = point_time+(fiber_length-point_z_in_fiber)/SPEED_OF_FLIGHT_IN_MATERIAL;
     
-    fFrontPointsPerModules[point_module_nb].push_back(newFrontModulePoint);
-    fBackPointsPerModules[point_module_nb].push_back(newBackModulePoint);
+    //newFrontFiberPoint.lightQDC = point_lightYield*exp(-LIGHT_ATTENUATION*point_z_in_fiber);
+    //newBackFiberPoint.lightQDC  = point_lightYield*exp(-LIGHT_ATTENUATION*(fiber_length-point_z_in_fiber));
+    /*
+    Two component attenuation for optical fibers. First term is rough 
+    approximation for dirrect illumination of a cathode by the source, the 
+    second one is for attrenuation of the totally reflected in the WLS. At 
+    the ends - half of the light goes to the nearest photocathode 
+    */
+    newFrontFiberPoint.lightQDC = point_lightYield*(0.46*exp(-point_z_in_fiber/0.5) + 0.04*exp(-point_z_in_fiber/200.));
+    newBackFiberPoint.lightQDC  = point_lightYield*(0.46*exp(-(fiber_length-point_z_in_fiber)/0.5) 
+                                                      + 0.04*exp(-(fiber_length-point_z_in_fiber)/200.));
+    frontPointsPerFibers[point_fiber_nb].push_back(newFrontFiberPoint);
+    backPointsPerFibers[point_fiber_nb].push_back(newBackFiberPoint);
   }
   
   // sort points according to time; 
-  for (Int_t i_module = 0; i_module <fNModules; i_module++){
-    sort (fFrontPointsPerModules[i_module].begin(), fFrontPointsPerModules[i_module].end(), pointsPerModuleTimeCompare);
-    sort (fBackPointsPerModules[i_module].begin(),  fBackPointsPerModules[i_module].end(),  pointsPerModuleTimeCompare); 
+  for (Int_t i_fiber = 0; i_fiber <fNFibers; i_fiber++){
+    sort (frontPointsPerFibers[i_fiber].begin(), frontPointsPerFibers[i_fiber].end(), pointsPerFiberTimeCompare);
+    sort (backPointsPerFibers[i_fiber].begin(),  backPointsPerFibers[i_fiber].end(),  pointsPerFiberTimeCompare); 
   }
   
   // Check for leading edge
   Double_t triggerTime=1e100;
   
-  for (Int_t i_module = 0; i_module <fNModules; i_module++){
-    for (Int_t i_point = 0; i_point < fFrontPointsPerModules[i_module].size(); i_point++){
-      fFrontPointsPerModules[i_module][i_point].energy = BC408_DECAY_CONSTANT*fFrontPointsPerModules[i_module][i_point].lightQDC; //instantaneous current on PMT
-      fBackPointsPerModules[i_module][i_point].energy = BC408_DECAY_CONSTANT*fBackPointsPerModules[i_module][i_point].lightQDC;
+  for (Int_t i_fiber = 0; i_fiber <fNFibers; i_fiber++){
+    for (Int_t i_point = 0; i_point < frontPointsPerFibers[i_fiber].size(); i_point++){
+      frontPointsPerFibers[i_fiber][i_point].energy = BC408_DECAY_CONSTANT*frontPointsPerFibers[i_fiber][i_point].lightQDC; //instantaneous current on PMT
+      backPointsPerFibers[i_fiber][i_point].energy = BC408_DECAY_CONSTANT*backPointsPerFibers[i_fiber][i_point].lightQDC;
       if (i_point > 0){
-        Double_t curPoint_frontTime = fFrontPointsPerModules[i_module][i_point].time;
-        Double_t prevPoint_frontTime = fFrontPointsPerModules[i_module][i_point-1].time;
-        Double_t curPoint_backTime = fBackPointsPerModules[i_module][i_point].time;
-        Double_t prevPoint_backTime = fBackPointsPerModules[i_module][i_point-1].time;
+        Double_t curPoint_frontTime = frontPointsPerFibers[i_fiber][i_point].time;
+        Double_t prevPoint_frontTime = frontPointsPerFibers[i_fiber][i_point-1].time;
+        Double_t curPoint_backTime = backPointsPerFibers[i_fiber][i_point].time;
+        Double_t prevPoint_backTime = backPointsPerFibers[i_fiber][i_point-1].time;
         
         /* 
         Warning!!!!!
         This piece of code is just inherited from R3B Land
         Idea has not adapted for fiber detector
         */
-        fFrontPointsPerModules[i_module][i_point].energy += fFrontPointsPerModules[i_module][i_point].energy*
+        frontPointsPerFibers[i_fiber][i_point].energy += frontPointsPerFibers[i_fiber][i_point].energy*
                                         exp(-BC408_DECAY_CONSTANT*(curPoint_frontTime - prevPoint_frontTime));
-        fBackPointsPerModules[i_module][i_point].energy += fBackPointsPerModules[i_module][i_point].energy*
+        backPointsPerFibers[i_fiber][i_point].energy += backPointsPerFibers[i_fiber][i_point].energy*
                                         exp(-BC408_DECAY_CONSTANT*(curPoint_backTime - prevPoint_backTime)); 
       }
       
-      if (fFrontPointsPerModules[i_module][i_point].energy > module_energyThreshold)
-        if (fFrontPointsPerModules[i_module][i_point].time < triggerTime)
-          triggerTime = fFrontPointsPerModules[i_module][i_point].time;
+      if (frontPointsPerFibers[i_fiber][i_point].energy > fiber_energyThreshold)
+        if (frontPointsPerFibers[i_fiber][i_point].time < triggerTime)
+          triggerTime = frontPointsPerFibers[i_fiber][i_point].time;
 
-      if (fBackPointsPerModules[i_module][i_point].energy > module_energyThreshold)
-        if (fBackPointsPerModules[i_module][i_point].time < triggerTime)
-          triggerTime = fBackPointsPerModules[i_module][i_point].time;
+      if (backPointsPerFibers[i_fiber][i_point].energy > fiber_energyThreshold)
+        if (backPointsPerFibers[i_fiber][i_point].time < triggerTime)
+          triggerTime = backPointsPerFibers[i_fiber][i_point].time;
     } //i_point
-  }// i_module
+  }// i_fiber
     
   Int_t digi_nr = 0;
-  for (Int_t i_module = 0; i_module < fNModules; i_module++){
+  for (Int_t i_fiber = 0; i_fiber < fNFibers; i_fiber++){
   
     Double_t frontSumLightQDC = 0.;
     Double_t backSumLightQDC = 0.;
@@ -210,32 +221,32 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
     Bool_t   frontTimeTrigerFlag = kFALSE;
     Bool_t   backTimeTrigerFlag = kFALSE;
     
-    for(Int_t i_point = 0; i_point < fFrontPointsPerModules[i_module].size(); i_point++) {
+    for(Int_t i_point = 0; i_point < frontPointsPerFibers[i_fiber].size(); i_point++) {
       // This is supposed to mimic a QDC and a TDC
       // check if light energy is larger than threshold and register time 
       // Take also time resolution of sigma=timeRes ps into account
-      if(fFrontPointsPerModules[i_module][i_point].energy > module_energyThreshold && !frontTimeTrigerFlag) {
-        frontTDC=fFrontPointsPerModules[i_module][i_point].time+Rnd->Gaus(0.,timeRes);
+      if(frontPointsPerFibers[i_fiber][i_point].energy > fiber_energyThreshold && !frontTimeTrigerFlag) {
+        frontTDC=frontPointsPerFibers[i_fiber][i_point].time+Rnd->Gaus(0.,timeRes);
         frontTimeTrigerFlag = kTRUE;
       }
 
-      if(fBackPointsPerModules[i_module][i_point].energy > module_energyThreshold && !backTimeTrigerFlag) {
-        backTDC=fBackPointsPerModules[i_module][i_point].time+Rnd->Gaus(0.,timeRes);
+      if(backPointsPerFibers[i_fiber][i_point].energy > fiber_energyThreshold && !backTimeTrigerFlag) {
+        backTDC=backPointsPerFibers[i_fiber][i_point].time+Rnd->Gaus(0.,timeRes);
         backTimeTrigerFlag = kTRUE;
       }
       
       // if point satisfies time gate for QDC ("Integration time") at runtime
-      if(TMath::Abs(fFrontPointsPerModules[i_module][i_point].time-triggerTime+fTOFRange/2.) < fTOFRange) { 
-        frontSumLightQDC += fFrontPointsPerModules[i_module][i_point].lightQDC;
+      if(TMath::Abs(frontPointsPerFibers[i_fiber][i_point].time-triggerTime+fTOFRange/2.) < fTOFRange) { 
+        frontSumLightQDC += frontPointsPerFibers[i_fiber][i_point].lightQDC;
       }
       
-      if(TMath::Abs(fBackPointsPerModules[i_module][i_point].time-triggerTime+fTOFRange/2.) < fTOFRange) {
-        backSumLightQDC += fBackPointsPerModules[i_module][i_point].lightQDC;
+      if(TMath::Abs(backPointsPerFibers[i_fiber][i_point].time-triggerTime+fTOFRange/2.) < fTOFRange) {
+        backSumLightQDC += backPointsPerFibers[i_fiber][i_point].lightQDC;
       }
     } // i_point
 
-    if(!(frontTimeTrigerFlag || backTimeTrigerFlag) && fBackPointsPerModules[i_module].size() > 0) {
-      LOG(INFO) << "In module "<< i_module << " one side of module has not fired !" << FairLogger::endl;
+    if(!(frontTimeTrigerFlag || backTimeTrigerFlag) && backPointsPerFibers[i_fiber].size() > 0) {
+      LOG(INFO) << "In fiber "<< i_fiber << " one side of fiber has not fired !" << FairLogger::endl;
     }
     
     if(frontTimeTrigerFlag && backTimeTrigerFlag) {
@@ -250,8 +261,8 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
       //measuring error
       frontSumLightQDC = Rnd->Gaus(frontSumLightQDC, MEASURING_ERROR_WIDTH_COEF*frontSumLightQDC);
       backSumLightQDC = Rnd->Gaus(backSumLightQDC, MEASURING_ERROR_WIDTH_COEF*backSumLightQDC);
-
-      if(frontSumLightQDC < fModuleThreshold || backSumLightQDC < fModuleThreshold) {
+      LOG(INFO) << "frontSumLightQDC =" << frontSumLightQDC << " backSumLightQDC = " << backSumLightQDC << FairLogger::endl;
+      if(frontSumLightQDC < fFiberThreshold || backSumLightQDC < fFiberThreshold) {
         continue;
       }
       //explicitly light yield and quantum что-то not introduced 
@@ -259,15 +270,20 @@ void ExpertNeuRadDigitizer::Exec(Option_t* opt)
       Double_t frontQDC = frontSumLightQDC;
       Double_t backQDC  = backSumLightQDC;
       Double_t QDC      = TMath::Sqrt(frontQDC*backQDC);
-      Double_t TDC      = (frontTDC + backTDC) / 2. - module_length/SPEED_OF_FLIGHT_IN_MATERIAL;
+      Double_t TDC      = (frontTDC + backTDC) / 2. - fiber_length/SPEED_OF_FLIGHT_IN_MATERIAL;
 
-      AddDigi(digi_nr, frontTDC, backTDC, TDC, frontQDC, backQDC, QDC, i_module);
+      AddDigi(digi_nr, frontTDC, backTDC, TDC, frontQDC, backQDC, QDC, i_fiber);
       
       digi_nr ++;
     }
   } //i_paddle
 
   LOG(INFO) << "ExpertNeuRadDigitizer: produced " << fNeuRadDigi->GetEntries() << " digis" << FairLogger::endl;
+  if (fVerbose > 1)
+    for (Int_t i_digi = 0; i_digi < fNeuRadDigi->GetEntriesFast(); i_digi++){
+      ExpertNeuRadDigi* digi = (ExpertNeuRadDigi*) fNeuRadDigi->At(i_digi);
+      digi->Print();
+    }
 }
 // ----------------------------------------------------------------------------
 
@@ -282,24 +298,20 @@ void ExpertNeuRadDigitizer::Reset()
 
 // ----------------------------------------------------------------------------
 void ExpertNeuRadDigitizer::Finish()
-{
-  if (fVerbose > 1)
-    for (Int_t i_digi = 0; i_digi < fNeuRadDigi->GetEntriesFast(); i_digi++){
-      ExpertNeuRadDigi* digi = (ExpertNeuRadDigi*) fNeuRadDigi->At(i_digi);
-      digi->Print();
-    }
+{   
+
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 ExpertNeuRadDigi* ExpertNeuRadDigitizer::AddDigi(Int_t digi_nr, Double_t frontTDC, Double_t backTDC,
                                       Double_t TDC, Double_t frontQDC, Double_t backQDC, Double_t QDC,
-                                      Int_t module_nr)
+                                      Int_t fiber_nr)
 {
   ExpertNeuRadDigi *digi = new((*fNeuRadDigi)[fNeuRadDigi->GetEntriesFast()]) ExpertNeuRadDigi(digi_nr,
                                                                     frontTDC, backTDC, TDC, 
                                                                     frontQDC, backQDC, QDC,
-                                                                    module_nr);
+                                                                    fiber_nr);
   return digi;
 }
 // ----------------------------------------------------------------------------

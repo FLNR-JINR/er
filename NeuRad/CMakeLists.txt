@@ -20,6 +20,8 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 ExpertNeuRad.cxx
 ExpertNeuRadDigitizer.cxx
+ExpertNeuRadPointAnalyser.cxx
+ExpertNeuRadDigiAnalyser.cxx
 )
 
 # fill list of header files from list of source files

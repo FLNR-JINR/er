@@ -33,10 +33,10 @@ class ExpertNeuRadDigi : public TObject
    *@param frontQDC Front Charge to Digi Converter value [MeV]
    *@param backQDC  Back Charge to Digi Converter value [MeV]
    *@param QDC      Charge to Digi Converter value [MeV]
-   *@param module_nr module in bundle number
+   *@param fiber_nr fiber in bundle number
    **/
   ExpertNeuRadDigi(Int_t digi_nr, Double_t frontTDC, Double_t backTDC, Double_t TDC, 
-                   Double_t frontQDC, Double_t backQDC, Double_t QDC, Int_t module_nr);
+                   Double_t frontQDC, Double_t backQDC, Double_t QDC, Int_t fiber_nr);
                    
   /** Copy constructor **/
   ExpertNeuRadDigi(const ExpertNeuRadDigi&);
@@ -66,14 +66,14 @@ class ExpertNeuRadDigi : public TObject
   void SetFrontQDC(Double_t charge){fFrontQDC = charge;}
   Double_t GetFrontQDC(){return fFrontQDC;}
 
-  void SetBackQDC(Double_t charge){fBackTDC = charge;}
-  Double_t GetBackTDC(){return fBackTDC;}
+  void SetBackQDC(Double_t charge){fBackQDC = charge;}
+  Double_t GetBackQDC(){return fBackQDC;}
 
   void SetDigiNr(Int_t digiNr){fDigi_nr = digiNr;}
   Int_t GetDigiNr(){return fDigi_nr;}
   
-  void SetModuleNr(Int_t moduleNr){fModule_nr = moduleNr;}
-  Int_t GetModuleNr(){return fModule_nr;}
+  void SetFiberNr(Int_t fiberNr){fFiber_nr = fiberNr;}
+  Int_t GetFiberNr(){return fFiber_nr;}
   
  protected:
 
@@ -84,7 +84,7 @@ class ExpertNeuRadDigi : public TObject
   Double32_t fFrontQDC;
   Double32_t fBackQDC;
   Double32_t fQDC;
-  Int_t fModule_nr;
+  Int_t fFiber_nr;
 
   ClassDef(ExpertNeuRadDigi,1)
 

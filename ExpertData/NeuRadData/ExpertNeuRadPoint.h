@@ -31,7 +31,7 @@ class ExpertNeuRadPoint : public FairMCPoint
    *@param EventID  Index of Event
    *@param trackID  Index of MCTrack
    *@param mot0trackID Index of Mother MCTrack
-   *@param moduleInBundleNb number of module in bundle
+   *@param fiberInBundleNb number of fiber in bundle
    *@param posIn    Ccoordinates at entrance of point [cm]
    *@param posOut   Coordinates at exit of point [cm]
    *@param momIn    Momentum of track at entrance [GeV]
@@ -43,7 +43,7 @@ class ExpertNeuRadPoint : public FairMCPoint
    **/
   ExpertNeuRadPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t moduleInBundleNb,
+      Int_t fiberInBundleNb,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
@@ -75,7 +75,7 @@ class ExpertNeuRadPoint : public FairMCPoint
   Double_t GetPzOut() const { return fPz_out; }
   Double_t GetMass() const { return fMass; }
   Double_t GetLightYield() const {return fLightYield;}
-  Double_t GetModuleInBundleNb() const {return fModuleInBundleNb;}
+  Double_t GetFiberInBundleNb() const {return fFiberInBundleNb;}
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
@@ -97,7 +97,7 @@ class ExpertNeuRadPoint : public FairMCPoint
   
   Int_t fEventID;
   Int_t fMot0TrackID;
-  Int_t fModuleInBundleNb;
+  Int_t fFiberInBundleNb;
   Double_t fMass;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;

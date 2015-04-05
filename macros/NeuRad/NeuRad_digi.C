@@ -1,4 +1,4 @@
-void NeuRad_digi(Int_t nEvents = 1){
+void NeuRad_digi(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "digi.root";
@@ -10,7 +10,7 @@ void NeuRad_digi(Int_t nEvents = 1){
   timer.Start();
   // ------------------------------------------------------------------------
   
-    // -----   Digitization run   -------------------------------------------
+  // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
@@ -19,9 +19,10 @@ void NeuRad_digi(Int_t nEvents = 1){
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ExpertNeuRadDigitizer* digitizer = new ExpertNeuRadDigitizer(verbose);
-  digitizer->SetBeamEnergy(100.); //[MeV] // OR digitizer->SetTOFRange(13.); //[ns]
+  //digitizer->SetBeamEnergy(100.); //[MeV] // OR 
+  digitizer->SetTOFRange(1000.); //[ns]
   digitizer->SetSaturationCoefficient(0.012); //DEFAULT = 0.012
-  digitizer->SetModuleThreshold (0.0001); //[MeV]
+  digitizer->SetFiberThreshold (0.0000001); //[MeV]
   // ------------------------------------------------------------------------
   
   fRun->AddTask(digitizer);

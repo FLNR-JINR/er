@@ -1,5 +1,10 @@
-#ifndef R3BLANDDIGITIZER_H
-#define R3BLANDDIGITISER_H 1
+// -------------------------------------------------------------------------
+// -----                        ExpertNeuRadDigitizer header file      -----
+// -----                  Created 03/15  by V.Schetinin                -----
+// -------------------------------------------------------------------------
+
+#ifndef EXPERTNEURADDIGITIZER_H
+#define EXPERTNEURADDIGITIZER_H 
 
 #include <vector>
 using std::vector;
@@ -15,8 +20,8 @@ class TF1;
 class TRandom3;
 
 
-/** Structure for module point properties **/
-struct ExpertNeuRadModulePoint  
+/** Structure for fiber point properties **/
+struct ExpertNeuRadFiberPoint  
 {
   Double_t time;
   Double_t lightQDC;
@@ -53,20 +58,21 @@ public:
   inline void      SetBeamEnergy(const Double_t& beamEnergy) {fBeamEnergy = beamEnergy; }
   inline void      SetTOFRange(const Double_t& TOFRange) {  fTOFRange = TOFRange;  }
   inline void      SetSaturationCoefficient(const Double_t& saturationCoefficient) {  fSaturationCoefficient = saturationCoefficient;  }
-  inline void      SetModuleThreshold(const Double_t& moduleThreshold) {fModuleThreshold = moduleThreshold; }
+  inline void      SetFiberThreshold(const Double_t& fiberThreshold) {fFiberThreshold = fiberThreshold; }
   
   /** Accessors **/
   inline Double_t  GetBeamEnergy() const { return fBeamEnergy; }
   inline Double_t  GetTOFRange() const  {  return fTOFRange;  }
   inline Double_t  GetSaturationCoefficient() const  {  return fSaturationCoefficient; }
-  inline Double_t  GetModuleThreshold() const { return fModuleThreshold; }
+  inline Double_t  GetFiberThreshold() const { return fFiberThreshold; }
   
 protected:
   //Geometry parameters
-  Int_t fNModules;
+  Int_t fNFibers;
   
   //Input arrays
   TClonesArray *fNeuRadPoints;
+  TClonesArray *fNeuRadFirstStep;
 
   //Output arrays
   TClonesArray *fNeuRadDigi;
@@ -83,18 +89,16 @@ protected:
   Double_t fBeamEnergy;
   Double_t fTOFRange;                 // Allow change of length of time gate for QDC ("Integration time") at runtime
   Double_t fSaturationCoefficient;    // Allow change of the PMT Saturation at runtime. ExpertNeuRadDigitizer is initialized with the default value
-  Double_t fModuleThreshold;
+  Double_t fFiberThreshold;
   
 protected:
   inline Double_t BuildTOFRangeFromBeamEnergy(const Double_t &e);
   
   ExpertNeuRadDigi* AddDigi(Int_t digi_nr, Double_t frontTDC, Double_t backTDC,
                                       Double_t TDC, Double_t frontQDC, Double_t backQDC, Double_t QDC,
-                                      Int_t module_nr);
+                                      Int_t fiber_nr);
 
 private:
-  vector<ExpertNeuRadModulePoint>* fFrontPointsPerModules;
-  vector<ExpertNeuRadModulePoint>* fBackPointsPerModules;
 
 private:
   virtual void SetParContainers();
