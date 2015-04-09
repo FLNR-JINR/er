@@ -92,10 +92,10 @@ void ExpertNeuRadStep::Print()
   LOG(INFO) << "-I- STEPINFO:" << FairLogger::endl;
   TString flag;
   switch (fTrackStatus) {
-    case ExpertTrackingStatus::Entering :      flag="enters to";               break;
-    case ExpertTrackingStatus::Exiting :  flag="exits from";              break;
-    case ExpertTrackingStatus::Inside :   flag="inside";                  break;
-    case ExpertTrackingStatus::Stop :     flag="stopped in";              break;
+    case Entering :      flag="enters to";               break;
+    case Exiting :  flag="exits from";              break;
+    case Inside :   flag="inside";                  break;
+    case Stop :     flag="stopped in";              break;
     default:                                        flag="unknown tracking status"; break;  
   }
   
@@ -117,13 +117,13 @@ void ExpertNeuRadStep::Print()
 ExpertTrackingStatus ExpertNeuRadStep::GetTrackStatus(){
   if(gMC->IsTrackAlive()) {
     if(gMC->IsTrackEntering())      
-      return ExpertTrackingStatus::Entering;
+      return Entering;
     else if(gMC->IsTrackExiting())  
-      return ExpertTrackingStatus::Exiting;
+      return Exiting;
     else if(gMC->IsTrackInside())   
-      return ExpertTrackingStatus::Inside;
+      return Inside;
   } else {
-    return ExpertTrackingStatus::Stop;
+    return Stop;
   }
   
 }
