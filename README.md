@@ -33,7 +33,7 @@ cmake -DCMAKE_INSTALL_PREFIX="~/fair_install/FairRootInst" ..
 make
 make install
 ```
-BRANCH_NAME=nightly_master
+BRANCH_NAME=v-14.11
 
 ### 3. Install [ExpertRoot] (#)
 
