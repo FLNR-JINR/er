@@ -30,7 +30,8 @@ ExpertNeuRad::ExpertNeuRad() : FairDetector("ExpertNeuRad", kTRUE),
 
 // -----   Standard constructor   ------------------------------------------
 ExpertNeuRad::ExpertNeuRad(const char* name, Bool_t active, Int_t verbose) 
-  : FairDetector(name, active,verbose),
+  : FairDetector(name, active),
+  fVerbose(verbose),
   fStorePrimarySteps(kFALSE),
   fStoreAllSteps(kFALSE)
   {
@@ -119,7 +120,7 @@ Bool_t ExpertNeuRad::ProcessHits(FairVolume* vol) {
                                       TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
                                       time, length, gMC->TrackPid(),mass, 
                                       trackStatus, gMC->Edep() * 1E+6,charge, processesID);
-    if (fVerboseLevel > 2)
+    if (fVerbose > 2)
       step->Print();
   }
   if (fStoreAllSteps){
@@ -128,7 +129,7 @@ Bool_t ExpertNeuRad::ProcessHits(FairVolume* vol) {
                                       TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
                                       time, length, gMC->TrackPid(),mass, 
                                       trackStatus, gMC->Edep() * 1E+6,charge, processesID);
-    if (fVerboseLevel > 2)
+    if (fVerbose > 2)
       step->Print();
   }
 
@@ -179,7 +180,7 @@ void ExpertNeuRad::BeginEvent() {
 
 
 void ExpertNeuRad::EndOfEvent() {
-  if (fVerboseLevel > 1) {
+  if (fVerbose > 1) {
     Print();
   }
   

@@ -1,4 +1,4 @@
-void NeuRad_sim(Int_t nEvents = 1000){
+void NeuRad_sim(Int_t nEvents = 1){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -35,15 +35,15 @@ void NeuRad_sim(Int_t nEvents = 1000){
   * 2 - Print points after each event
   * 3 - - GEANT Step information
   **/
-  Int_t verbose = 1;
+  Int_t verbose = 3;
 	ExpertNeuRad* neuRad= new ExpertNeuRad("ExpertNeuRad", kTRUE,verbose); 
 	neuRad->SetGeometryFileName("NeuRad.geo.root");
-  /** Select storing steps
+  /** Select storing stepss
   * not store steps
   * SetStorePrimarySteps() - store only primary particle step
   * SetStoreAllSteps() - store all steps. WARNING - very slow
   **/
-  neuRad->SetStorePrimarySteps();
+  neuRad->SetStoreAllSteps();
 	run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 	

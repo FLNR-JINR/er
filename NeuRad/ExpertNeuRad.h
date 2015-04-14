@@ -35,7 +35,8 @@ public:
   /** Standard constructor.
    *@param name    ExpertNeuRad detector name
    *@param active  sensitivity flag
-   *@param verbose Verbosity level. 1 - only standart logs, 2 - Print points after each event, 3 - GEANT Step information
+   *@param verbose Verbosity level. 1 - only standart logs, 2 - Print points after each event, 
+                                    3 - GEANT Step information
    **/
   ExpertNeuRad(const char* name, Bool_t active, Int_t verbose);
   
@@ -137,6 +138,7 @@ private:
     
   Bool_t fStorePrimarySteps;
   Bool_t fStoreAllSteps;
+  Int_t   fVerbose;
 private:
   /** Private method AddPoint
    **
