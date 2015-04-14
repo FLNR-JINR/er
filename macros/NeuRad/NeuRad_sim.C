@@ -17,6 +17,11 @@ void NeuRad_sim(Int_t nEvents = 1){
   **/
 	run->SetName("TGeant3");              // Transport engine
 	run->SetOutputFile(outFile.Data());          // Output file
+
+  // ------------------------------------------------------------------------
+  
+  // -----   Runtime database   ---------------------------------------------
+  FairRuntimeDb* rtdb = run->GetRuntimeDb();
   // ------------------------------------------------------------------------
   
 	// -----   Create media   -------------------------------------------------
@@ -43,7 +48,7 @@ void NeuRad_sim(Int_t nEvents = 1){
   * SetStorePrimarySteps() - store only primary particle step
   * SetStoreAllSteps() - store all steps. WARNING - very slow
   **/
-  neuRad->SetStoreAllSteps();
+  neuRad->SetStorePrimarySteps();
 	run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 	
@@ -68,23 +73,25 @@ void NeuRad_sim(Int_t nEvents = 1){
 	
   //-------Set LOG verbosity  ----------------------------------------------- 
 	FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-	
-	// -----   Runtime database   ---------------------------------------------
-  FairRuntimeDb* rtdb = run->GetRuntimeDb();
-	Bool_t kParameterMerged = kTRUE;
-	FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
-	parOut->open(parFile.Data());
-	rtdb->setOutput(parOut);
-	rtdb->saveOutput();
-	rtdb->print();
+  
   
   // -----   Initialize simulation run   ------------------------------------
 	run->Init();
 	Int_t nSteps = -15000;
 	gMC->SetMaxNStep(nSteps);
 	
+  
+  // -----   Runtime database   ---------------------------------------------
+	Bool_t kParameterMerged = kTRUE;
+	FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
+	parOut->open(parFile.Data());
+	rtdb->setOutput(parOut);
+	rtdb->saveOutput();
+	rtdb->print();
+  // ---------------------------------------------------------
+  
   // -----   Run simulation  ------------------------------------------------
-	run->Run(nEvents);
+  run->Run(nEvents);
   
 	// -----   Finish   -------------------------------------------------------
 	timer.Stop();
@@ -92,7 +99,7 @@ void NeuRad_sim(Int_t nEvents = 1){
 	Double_t ctime = timer.CpuTime();
 	cout << endl << endl;
 	cout << "Macro finished succesfully." << endl;
-  cout << "Output file is out.root" << endl;
+  cout << "Output file is sim.root" << endl;
 	cout << "Parameter file is par.root" << endl;
 	cout << "Real time " << rtime << " s, CPU time " << ctime
 	<< "s" << endl << endl;

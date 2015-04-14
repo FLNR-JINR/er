@@ -6,7 +6,7 @@ eventDisplay()
   FairParRootFileIo*  parIo1 = new FairParRootFileIo();
   parIo1->open("par.root");
   rtdb->setFirstInput(parIo1);
-  rtdb->print();
+  //rtdb->print();
   
   fRun->SetInputFile("sim.root");
   fRun->SetOutputFile("EventDisplay.root");
