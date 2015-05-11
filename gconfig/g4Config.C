@@ -38,7 +38,7 @@ void Config()
    cout << "Geant4 has been created." << endl;
 
 /// create the Specific stack
-   R3BStack *stack = new R3BStack(1000); 
+   ERStack *stack = new ERStack(1000);
    stack->SetDebug(kFALSE);
    stack->StoreSecondaries(kTRUE);
    stack->SetMinPoints(0);

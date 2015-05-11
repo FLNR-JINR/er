@@ -62,7 +62,7 @@ void NeuRad_sim(Int_t nEvents = 1){
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(90,90);
-  boxGen->SetXYZ(0.1,0.1, -26.0);
+  boxGen->SetXYZ(0.0,0.0, -26.0);
 
   primGen->AddGenerator(boxGen);
 	run->SetGenerator(primGen);

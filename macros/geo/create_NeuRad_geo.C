@@ -110,8 +110,8 @@ void create_NeuRad_geo()
   Int_t i_fiber = 1;
   for (Int_t i_Y_fiber = 0; i_Y_fiber < fibers_in_boundle_Y_Nb; i_Y_fiber++){
     for (Int_t i_X_fiber = 0; i_X_fiber < fibers_in_boundle_X_Nb; i_X_fiber++){
-      Double_t fiber_in_boundle_X_trans = boundle_X - fiber_X*(i_X_fiber+1);
-      Double_t fiber_in_boundle_Y_trans = boundle_Y - fiber_Y*(i_Y_fiber+1);
+      Double_t fiber_in_boundle_X_trans = boundle_X - fiber_X*2*(i_X_fiber)-fiber_X;
+      Double_t fiber_in_boundle_Y_trans = boundle_Y - fiber_Y*2*(i_Y_fiber)-fiber_Y;
       Double_t fiber_in_boundle_Z_trans = 0.;
       bundle->AddNode( fiber, i_fiber, new TGeoCombiTrans(fiber_in_boundle_X_trans, 
                                                             fiber_in_boundle_Y_trans,

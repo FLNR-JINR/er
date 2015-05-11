@@ -23,8 +23,8 @@ set(SRCS
 NeuRadData/ExpertNeuRadPoint.cxx
 NeuRadData/ExpertNeuRadDigi.cxx
 NeuRadData/ExpertNeuRadStep.cxx
-R3BMCStack.cxx
-R3BMCTrack.cxx
+ERStack.cxx
+ERMCTrack.cxx
 )
 
 # fill list of header files from list of source files

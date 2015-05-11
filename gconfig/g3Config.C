@@ -19,11 +19,11 @@ void Config()
 		 << endl;
   }
   // create R3B  Specific Stack
-  R3BStack *st = new R3BStack();
+  ERStack *st = new ERStack();
   // Stack debug mode
-  st->SetDebug(kFALSE);
-//  st->SetDebug(kTRUE);
-  st->SetMinPoints(1);
+  //st->SetDebug(kFALSE);
+//st->SetDebug(kTRUE);
+  //st->SetMinPoints(1);
   st->StoreSecondaries(kTRUE);
   
   geant3->SetStack( st ) ;
