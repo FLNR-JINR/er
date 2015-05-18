@@ -16,17 +16,17 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-R3BCave.cxx            
-R3BGeoCave.cxx            
-R3BGeoPassivePar.cxx        
+ERCave.cxx            
+ERGeoCave.cxx            
+ERGeoPassivePar.cxx        
 )
 
 # fill list of header files from list of source files
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
-Set(LINKDEF ExpertPassiveLinkDef.h)
-Set(LIBRARY_NAME ExpertPassive) 
+Set(LINKDEF ERPassiveLinkDef.h)
+Set(LIBRARY_NAME ERPassive) 
 Set(DEPENDENCIES Base)
 
 GENERATE_LIBRARY()

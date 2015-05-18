@@ -1,10 +1,10 @@
-# Create a library called "libExpertData" which includes the source files given in
+# Create a library called "libERData" which includes the source files given in
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
 set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
-${CMAKE_SOURCE_DIR}/experimentData/
+${CMAKE_SOURCE_DIR}/ERData/
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -20,15 +20,19 @@ MESSAGE ("Boost_INCLUDE_DIRS = " ${Boost_INCLUDE_DIRS})
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-detectorData/detectorPoint.cxx
+NeuRadData/ERNeuRadPoint.cxx
+NeuRadData/ERNeuRadDigi.cxx
+NeuRadData/ERNeuRadStep.cxx
+ERStack.cxx
+ERMCTrack.cxx
 )
 
 # fill list of header files from list of source files
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 SET(HEADERS ${HEADERS})
-set(LINKDEF  ExpertNeuRadLinkDef.h)
-set(LIBRARY_NAME ExpertData)
+set(LINKDEF  ERDataLinkDef.h)
+set(LIBRARY_NAME ERData)
 set(DEPENDENCIES
     Base)
 

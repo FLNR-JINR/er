@@ -1,4 +1,4 @@
-# The name of our project is “EXPERTROOT”.  CMakeLists files in this project can
+# The name of our project is ï¿½EXPERTROOTï¿½.  CMakeLists files in this project can
 # refer to the root source directory of the project as ${EXPERTROOT_SOURCE_DIR} or
 # as ${CMAKE_SOURCE_DIR} and to the root binary directory of the project as 
 # ${EXPERTROOT_BINARY_DIR} or ${CMAKE_BINARY_DIR}.
@@ -196,7 +196,7 @@ add_subdirectory (trackbase)
 add_subdirectory (MbsAPI)
 ENDIF (NOT FAIRROOT_FOUND)
 
-add_subdirectory (ExpertData)
+add_subdirectory (ERData)
 add_subdirectory (passive)
 add_subdirectory (NeuRad)
 
