@@ -11,7 +11,7 @@
 
 
 // -----   Default constructor   -------------------------------------------
-ERNeuRad::ERNeuRad() : FairDetector("ERNeuRad", kTRUE),
+ERNeuRad::ERNeuRad() : ERDetector("ERNeuRad", kTRUE),
   fStorePrimarySteps(kFALSE),
   fStoreAllSteps(kFALSE)
 {
@@ -28,7 +28,7 @@ ERNeuRad::ERNeuRad() : FairDetector("ERNeuRad", kTRUE),
 
 // -----   Standard constructor   ------------------------------------------
 ERNeuRad::ERNeuRad(const char* name, Bool_t active, Int_t verbose)
-  : FairDetector(name, active),
+  : ERDetector(name, active),
   fVerbose(verbose),
   fStorePrimarySteps(kFALSE),
   fStoreAllSteps(kFALSE)
@@ -297,18 +297,6 @@ ERNeuRadStep* ERNeuRad::AddStep(Int_t eventID, Int_t stepNr,Int_t trackID,
               mot0trackID, fiberInBundleNb, pos, mom, tof, length, pid, mass, trackStatus,
               eLoss, charge, processID);        
 }
-
-// -----   Public method ConstructGeometry   ----------------------------------
-void ERNeuRad::ConstructGeometry() {
-  TString fileName = GetGeometryFileName();
-  if(fileName.EndsWith(".root")) {
-    LOG(INFO) << "Constructing ERNeuRad geometry from ROOT file " << fileName.Data() << FairLogger::endl;
-    ConstructRootGeometry();
-  } else {
-    LOG(FATAL) << "Geometry file name is not set" << FairLogger::endl;
-  }
-}
-// ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 Bool_t ERNeuRad::CheckIfSensitive(std::string name)

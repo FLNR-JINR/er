@@ -196,6 +196,7 @@ add_subdirectory (trackbase)
 add_subdirectory (MbsAPI)
 ENDIF (NOT FAIRROOT_FOUND)
 
+add_subdirectory (ERBase)
 add_subdirectory (ERData)
 add_subdirectory (passive)
 add_subdirectory (NeuRad)

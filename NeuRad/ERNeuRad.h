@@ -6,20 +6,21 @@
 #ifndef ERNeuRad_H
 #define ERNeuRad_H
 
-#include "FairDetector.h"
-#include "ERNeuRadStep.h"
-#include "ERNeuRadPoint.h"
-
 #include "TH1F.h"
 #include "TLorentzVector.h"
 
 using namespace std;
 
+
+#include "ERDetector.h"
+#include "ERNeuRadStep.h"
+#include "ERNeuRadPoint.h"
+
 class TClonesArray;
 class FairVolume;
 class TF1;
 
-class ERNeuRad : public FairDetector
+class ERNeuRad : public ERDetector
 {
   
 public:
@@ -97,13 +98,6 @@ public:
    **/
   virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2,
 			  Int_t offset);
-  
-  
-  /** Virtaul method Construct geometry
-   **
-   ** Constructs the ERNeuRad geometry
-   **/
-  virtual void ConstructGeometry();
   
    /** Virtaul method Initialize
    **
