@@ -15,7 +15,7 @@ void NeuRad_sim(Int_t nEvents = 1){
   * TGeant3
   * TGeant4
   **/
-  run->SetName("TGeant3");              // Transport engine
+  run->SetName("TGeant4");              // Transport engine
   run->SetOutputFile(outFile.Data());          // Output file
   // ------------------------------------------------------------------------
   

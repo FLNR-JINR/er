@@ -39,7 +39,7 @@ void Config()
 
 /// create the Specific stack
    ERStack *stack = new ERStack(1000);
-   stack->SetDebug(kFALSE);
+   //stack->SetDebug(kFALSE);
    stack->StoreSecondaries(kTRUE);
    stack->SetMinPoints(0);
    geant4->SetStack(stack);
