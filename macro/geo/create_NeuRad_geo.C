@@ -71,7 +71,7 @@ void create_NeuRad_geo()
   //------------------ BC408  fiber  -----------------------------------------
   Double_t fiber_X = 0.6;   //cm
   Double_t fiber_Y = 0.6;   //cm
-  Double_t fiber_Z = 50.;  //cm
+  Double_t fiber_Z = 100.;  //cm
   fiber_X /= 2.;
   fiber_Y /= 2.;
   fiber_Z /= 2.;

@@ -58,13 +58,11 @@ void NeuRad_sim(Int_t nEvents = 100){
   Double32_t kin_energy = .5; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
-  //Double32_t momentum = 0.5; //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
   boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(90,90);
-  boxGen->SetBoxXYZ(0.,0.,0.6,0.6,-26.0);
-
+  boxGen->SetBoxXYZ(0.,0.,0.6,0.6,-51.0);
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------

@@ -17,42 +17,42 @@ void FiredFibers(){
 	TH1F* hPointsEdep1Fiber = new TH1F("500MeV. Point edeps. 1Fiber.",
 			"Neutron. EKin=500MeV. Sum Energy deposit in 1-fiber events. Cut=100KeV. 10000 events",nbins,bin_min,bin_max);
 	hPointsEdep1Fiber->GetXaxis()->SetTitle("Sum Edep [MeV]");
-    hPointsEdep1Fiber->GetYaxis()->SetTitle("Counts/0.1MeV");
+    hPointsEdep1Fiber->GetYaxis()->SetTitle(TString.Form("Counts/%f MeV", bin));
 	
 	TH1F* hPointsEdep2Fiber = new TH1F("500MeV. Point edeps. 2Fiber.",
 			"Neutron. EKin=500MeV. Sum Energy deposit in (2 and more)-fiber events.Cut=100KeV. 10000 events",nbins,bin_min,bin_max);
 	hPointsEdep2Fiber->GetXaxis()->SetTitle("Sum Edep [MeV]");
-    hPointsEdep2Fiber->GetYaxis()->SetTitle("Counts/0.1MeV");
+    hPointsEdep2Fiber->GetYaxis()->SetTitle(TString.Form("Counts/%f MeV", bin));
 	
 	TH1F* hPointsLYield1Fiber = new TH1F("500MeV. Point light. 1Fiber.",
 			"Neutron. EKin=500MeV. Sum light yield in 1-fiber events.Cut=100KeV. 10000 events",nbins,bin_min,bin_max);
 	hPointsLYield1Fiber->GetXaxis()->SetTitle("Sum light yield [MeV]");
-    hPointsLYield1Fiber->GetYaxis()->SetTitle("Counts/0.1MeV");
+    hPointsLYield1Fiber->GetYaxis()->SetTitle(TString.Form("Counts/%f MeV", bin));
 	
 	TH1F* hPointsLYield2Fiber = new TH1F("500MeV. Point light. 2Fiber.",
 			"Neutron. EKin=500MeV. Sum light yield in (2 and more)-fiber events.Cut=100KeV. 10000 events",nbins,bin_min,bin_max);
 	hPointsLYield2Fiber->GetXaxis()->SetTitle("Sum light yield [MeV]");
-    hPointsLYield2Fiber->GetYaxis()->SetTitle("Counts/0.1MeV");
+    hPointsLYield2Fiber->GetYaxis()->SetTitle(TString.Form("Counts/%f MeV", bin));
 	
 	TH1F* hPointsEdepPerFiber1Fiber = new TH1F("500MeV. Point edeps per fiber. 1Fiber.",
 			"Neutron. EKin=500MeV. Sum Energy deposit per fiber in 1-fiber events. Cut=100KeV. 10000 events",nbins,bin_min,bin_max);
 	hPointsEdepPerFiber1Fiber->GetXaxis()->SetTitle("Sum Edep [MeV]");
-    hPointsEdepPerFiber1Fiber->GetYaxis()->SetTitle("Counts/0.1MeV");
+    hPointsEdepPerFiber1Fiber->GetYaxis()->SetTitle(TString.Form("Counts/%f MeV", bin));
 	
 	TH1F* hPointsEdepPerFiber2Fiber = new TH1F("500MeV. Point edeps per fiber. 2Fiber.",
 			"Neutron. EKin=500MeV. Sum Energy deposit per fiber in (2 and more)-fiber events. Cut=100KeV. 10000 events",nbins,bin_min,bin_max);
 	hPointsEdepPerFiber2Fiber->GetXaxis()->SetTitle("Sum Edep [MeV]");
-    hPointsEdepPerFiber2Fiber->GetYaxis()->SetTitle("Counts/0.1MeV");
+    hPointsEdepPerFiber2Fiber->GetYaxis()->SetTitle(TString.Form("Counts/%f MeV", bin));
 	
 	TH1F* hPointsLYieldPerFiber1Fiber = new TH1F("500MeV. Point light per fiber. 1Fiber.",
 			"Neutron. EKin=500MeV. Sum light yield per fiber in 1-fiber events. Cut=100KeV. 10000 events",nbins,bin_min,bin_max);
 	hPointsLYieldPerFiber1Fiber->GetXaxis()->SetTitle("Sum light yield [MeV]");
-    hPointsLYieldPerFiber1Fiber->GetYaxis()->SetTitle("Counts/0.1MeV");
+    hPointsLYieldPerFiber1Fiber->GetYaxis()->SetTitle(TString.Form("Counts/%f MeV", bin));
 	
 	TH1F* hPointsLYieldPerFiber2Fiber = new TH1F("500MeV. Point light per fiber. 2Fiber.",
 			"Neutron. EKin=500MeV. Sum light yield per fiber in (2 and more)-fiber events. Cut=100KeV. 10000 events",nbins,bin_min,bin_max);
 	hPointsLYieldPerFiber2Fiber->GetXaxis()->SetTitle("Sum light yield [MeV]");
-    hPointsLYieldPerFiber2Fiber->GetYaxis()->SetTitle("Counts/0.1MeV");
+    hPointsLYieldPerFiber2Fiber->GetYaxis()->SetTitle(TString.Form("Counts/%f MeV", bin));
 	
 	
 	TH1F* hEventsPerFiber = new TH1F("Neutron. EKin = 500MeV. Events per alight fibers count","Neutron. EKin = 500MeV. Events per alight fibers ",10,0,10);
