@@ -104,11 +104,11 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
                     TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                     TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
                     time, length, gMC->TrackPid(),mass, 
-                    trackStatus, gMC->Edep() * 1E+6,charge, processesID);
+                    trackStatus, gMC->Edep(),charge, processesID);
     }
   }
   
-  eLoss += gMC->Edep() * 1E+6; // keV //Return the energy lost in the current step
+  eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
   stepNr++;
   
   
@@ -117,7 +117,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
                                       TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                                       TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
                                       time, length, gMC->TrackPid(),mass, 
-                                      trackStatus, gMC->Edep() * 1E+6,charge, processesID);
+                                      trackStatus, gMC->Edep(),charge, processesID);
     if (fVerbose > 2)
       step->Print();
   }
@@ -126,7 +126,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
                                       TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                                       TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
                                       time, length, gMC->TrackPid(),mass, 
-                                      trackStatus, gMC->Edep() * 1E+6,charge, processesID);
+                                      trackStatus, gMC->Edep(),charge, processesID);
     if (fVerbose > 2)
       step->Print();
   }
@@ -145,8 +145,8 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
 
     if (gMC->TrackStep()>0)
     {
-      Double_t dedxcm=1000.*gMC->Edep()/gMC->TrackStep(); //[MeV/cm]
-      Double_t curLightYield=1000.*gMC->Edep()/(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
+      Double_t dedxcm=gMC->Edep()/gMC->TrackStep(); //[GeV/cm]
+      Double_t curLightYield=gMC->Edep()/(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[GeV]
       
       lightYield+=curLightYield;
     }

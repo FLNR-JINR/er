@@ -74,8 +74,8 @@ void FiredFibers(){
 	
 		for (Int_t i=0;i<nTracks;i++) {
 			ERNeuRadPoint *point = (ERNeuRadPoint*)points->At(i);
-			sumEPerFibers[(Int_t)point->GetFiberInBundleNb()]+= point->GetEnergyLoss()/1000.;
-			sumLPerFibers[(Int_t)point->GetFiberInBundleNb()]+= point->GetLightYield();
+			sumEPerFibers[(Int_t)point->GetFiberInBundleNb()]+= point->GetEnergyLoss()*1000.; //MeV
+ 			sumLPerFibers[(Int_t)point->GetFiberInBundleNb()]+= point->GetLightYield()*1000.; //MeV
 			sumEdep += sumEPerFibers[(Int_t)point->GetFiberInBundleNb()];
 			sumLY 	+= sumLPerFibers[(Int_t)point->GetFiberInBundleNb()];
 		}
