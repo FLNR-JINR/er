@@ -24,31 +24,21 @@ using std::sort;
 #include "ERNeuRadStep.h"
 #include "ERNeuRadDigitizer.h"
 
-const Double_t ERNeuRadDigitizer::DEFAULT_SATURATION_COEFFICIENT = 0.012;
-const Double_t ERNeuRadDigitizer::LIGHT_ATTENUATION  = 0.008; // [1/cm]
-const Double_t ERNeuRadDigitizer::BC408_DECAY_CONSTANT= 1./2.1; // [1/ns]
-const Double_t ERNeuRadDigitizer::SPEED_OF_FLIGHT_IN_MATERIAL = 14.;//[cm/ns]
-const Double_t ERNeuRadDigitizer::MEASURING_ERROR_WIDTH_COEF = 0.05;
+const Double_t ERNeuRadDigitizer::BC408_LIGHT_YIELD= 100.; // [1/MeV]
+const Double_t ERNeuRadDigitizer::SPEED_OF_LIGHT_IN_MATERIAL = 14.;//[cm/ns]
 const Int_t    ERNeuRadDigitizer::ERROR_POINTS_IN_MODULE_COUNT = 1000;
-
-
-// ----------------------------------------------------------------------------
-inline Double_t ERNeuRadDigitizer::BuildTOFRangeFromBeamEnergy(const Double_t &e) // [ns]
-{
-  if(e > 1100) {
-    return 15.;
-  }
-  if(e < 350) {
-    return 13.;
-  }
-  return 11. + (e / 498. - 1.) * 0.9;
-}
-// ----------------------------------------------------------------------------
+const Double_t ERNeuRadDigitizer::LIGHT_PART_TO_TOTAL_WLS_REFLECTED = 0.04;
+//доля света захватываемая файбером в полное внутренне отражение в каждую сторону.
+const Double_t ERNeuRadDigitizer::PMT_QUANTUM_EFFICIENCY = 0.3;
+const Double_t ERNeuRadDigitizer::PMT_GAIN = 1.5e6;
+const Double_t ERNeuRadDigitizer::EXCESS_NOISE_FACTOR = 0.8;
+const Double_t ERNeuRadDigitizer::PMT_DELAY=0.1; //[ns]
+const Double_t ERNeuRadDigitizer::PMT_JITTER = 0.001; //[ns]
 
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer()
   : FairTask("ER NeuRad Digitization scheme"),
-  fFiberThreshold(0.),fTOFRange(0.),fBeamEnergy(0.),fSaturationCoefficient(DEFAULT_SATURATION_COEFFICIENT)
+  fFiberThreshold(0.)
 {
 }
 // ----------------------------------------------------------------------------
@@ -56,7 +46,7 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   : FairTask("ER NeuRad Digitization scheme ", verbose),
-  fFiberThreshold(0.),fTOFRange(0.),fBeamEnergy(0.),fSaturationCoefficient(DEFAULT_SATURATION_COEFFICIENT)
+  fFiberThreshold(0.)
 {
 }
 // ----------------------------------------------------------------------------
@@ -77,11 +67,8 @@ void ERNeuRadDigitizer::SetParContainers()
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
 
-  //fLandDigiPar = (R3BLandDigiPar*)(rtdb->getContainer("R3BLandDigiPar"));
-
   if ( fVerbose /*&& fLandDigiPar*/ ) {
     LOG(INFO) << "ERNeuRadDigitizer::SetParContainers() "<< FairLogger::endl;
-    //LOG(INFO) << "Container R3BLandDigiPar loaded " << FairLogger::endl;
   }
 }
 // ----------------------------------------------------------------------------
@@ -97,39 +84,29 @@ InitStatus ERNeuRadDigitizer::Init()
   fNeuRadFirstStep = (TClonesArray*) ioman->GetObject("NeuRadFirstStep");
   //todo check
   
-  // Register output array NeuRadDigi
+  // Register output array NeuRadFiberPoint and NeuRadDigi
+  fNeuRadFiberPoint = new TClonesArray("ERNeuRadFiberPoint",fNeuRadPoints->GetEntriesFast()*2);
+													//*2, because front and back
+  ioman->Register("NeuRadFiberPoint", "NeuRad Fiber points", fNeuRadFiberPoint, kTRUE);
   fNeuRadDigi = new TClonesArray("ERNeuRadDigi",1000);
   ioman->Register("NeuRadDigi", "Digital response in NeuRad", fNeuRadDigi, kTRUE);
   
   fNFibers = 64;  //@todo get from parameter class 
   
-  // If integration time has not been set otherwise, set it from beam energy - mimicks previous behavior
-  if (fTOFRange < 0.01) {
-    fTOFRange = BuildTOFRangeFromBeamEnergy(fBeamEnergy);
-  }
-  
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-bool pointsPerFiberTimeCompare (const ERNeuRadFiberPoint& first, const ERNeuRadFiberPoint& second){
-  return first.time > second.time;
-}
-// ----------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
 void ERNeuRadDigitizer::Exec(Option_t* opt)
 {
   // Reset entries in output arrays
   Reset();
-  TRandom3 *Rnd = new TRandom3();
-  vector<ERNeuRadFiberPoint>* frontPointsPerFibers = new vector<ERNeuRadFiberPoint> [fNFibers];
-  vector<ERNeuRadFiberPoint>* backPointsPerFibers = new vector<ERNeuRadFiberPoint>  [fNFibers];
+  TRandom *rand = new TRandom(0);
+  vector<ERNeuRadFiberPoint* >* frontPointsPerFibers = new vector<ERNeuRadFiberPoint*> [fNFibers];
+  vector<ERNeuRadFiberPoint* >* backPointsPerFibers = new vector<ERNeuRadFiberPoint*>  [fNFibers];
   
   Double_t fiber_length = 100.;//[cm] //@todo get from parameter class 
-  Double_t fiber_energyThreshold = 0.000001; //[MeV/ns] threshold on instantaneous current on PMT
-  Double_t timeRes = 0.15; //[ns]
   
   Int_t points_count = fNeuRadPoints->GetEntries();
   
@@ -137,153 +114,62 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
     ERNeuRadPoint *point = (ERNeuRadPoint*) fNeuRadPoints->At(i_point);
     
     Int_t    point_fiber_nb  = point->GetFiberInBundleNb();
-    Double_t point_eLoss	    =  point->GetEnergyLoss();
-    Double_t point_lightYield = point->GetLightYield(); // [MeV]
+    Double_t point_eLoss	    =  point->GetEnergyLoss(); //[GeV]
+    Double_t point_lightYield = point->GetLightYield();  //[GeV]
     Double_t point_x          = point->GetXIn();
     Double_t point_y          = point->GetYIn();
     Double_t point_z          = point->GetZIn();
     Double_t point_time       = point->GetTime();
     Double_t point_z_in_fiber = point_z + fiber_length/2.;
     
-    
     if (frontPointsPerFibers[point_fiber_nb].size() > ERROR_POINTS_IN_MODULE_COUNT)
        LOG(ERROR) << "ERNeuRadDigitizer: Too many points in one fiber: "
                   << frontPointsPerFibers[point_fiber_nb].size()<< " points" << FairLogger::endl;
     
-    ERNeuRadFiberPoint newFrontFiberPoint;
-    ERNeuRadFiberPoint newBackFiberPoint;
-    
-    newFrontFiberPoint.time  = point_time+(point_z_in_fiber)/SPEED_OF_FLIGHT_IN_MATERIAL;
-    newBackFiberPoint.time   = point_time+(fiber_length-point_z_in_fiber)/SPEED_OF_FLIGHT_IN_MATERIAL;
-    
-    //newFrontFiberPoint.lightQDC = point_lightYield*exp(-LIGHT_ATTENUATION*point_z_in_fiber);
-    //newBackFiberPoint.lightQDC  = point_lightYield*exp(-LIGHT_ATTENUATION*(fiber_length-point_z_in_fiber));
+    //ffp - front fiber point, bfp - back_fiber_point
+    Double_t ffp_cathode_time  = point_time+(point_z_in_fiber)/SPEED_OF_LIGHT_IN_MATERIAL;
+    Double_t bfp_cathode_time  = point_time+(fiber_length-point_z_in_fiber)/SPEED_OF_LIGHT_IN_MATERIAL;
+
+	//scintillator light yield
+	Int_t ffp_photon_count = point_lightYield/BC408_LIGHT_YIELD;
+	Int_t bfp_photon_count = point_lightYield/BC408_LIGHT_YIELD;
+
     /*
     Two component attenuation for optical fibers. First term is rough 
     approximation for dirrect illumination of a cathode by the source, the 
     second one is for attrenuation of the totally reflected in the WLS. At 
     the ends - half of the light goes to the nearest photocathode 
     */
-    newFrontFiberPoint.lightQDC = point_lightYield*(0.46*exp(-point_z_in_fiber/0.5) + 0.04*exp(-point_z_in_fiber/200.));
-    newBackFiberPoint.lightQDC  = point_lightYield*(0.46*exp(-(fiber_length-point_z_in_fiber)/0.5) 
-                                                      + 0.04*exp(-(fiber_length-point_z_in_fiber)/200.));
-    frontPointsPerFibers[point_fiber_nb].push_back(newFrontFiberPoint);
-    backPointsPerFibers[point_fiber_nb].push_back(newBackFiberPoint);
+	Double_t k1 = 0.5-LIGHT_PART_TO_TOTAL_WLS_REFLECTED;
+	Double_t k2 = LIGHT_PART_TO_TOTAL_WLS_REFLECTED;
+
+    ffp_photon_count =  (Int_t)point_lightYield*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
+    bfp_photon_count =  (Int_t)point_lightYield*(k1*exp(-(fiber_length-point_z_in_fiber)/0.5) 
+                                                      + k2*exp(-(fiber_length-point_z_in_fiber)/200.));
+	
+	//Take into account quantum efficiency. Photoelectrons count
+	//@todo Среднее значение квантовой эфективности должно быть разным для каждого файбера
+    Int_t ffp_photoel_cathode_count = (Int_t)ffp_photon_count * (Double_t)rand->Poisson(PMT_QUANTUM_EFFICIENCY);
+	Int_t bfp_photoel_cathode_count = (Int_t)bfp_photon_count * (Double_t)rand->Poisson(PMT_QUANTUM_EFFICIENCY);
+	
+	//Take into account pmt gain
+    Int_t ffp_photoel_anode_count = (Int_t)rand->Gaus(ffp_photoel_cathode_count * PMT_GAIN,
+														ffp_photoel_cathode_count * EXCESS_NOISE_FACTOR);
+	Int_t bfp_photoel_anode_count = (Int_t)rand->Gaus(bfp_photoel_cathode_count * PMT_GAIN,
+														bfp_photoel_cathode_count * EXCESS_NOISE_FACTOR);
+	
+	//Take into account PMT delay and jitter
+	Double_t ffp_anode_time = ffp_cathode_time + (Double_t)rand->Gaus(PMT_DELAY, PMT_JITTER);
+	Double_t bfp_anode_time = bfp_cathode_time + (Double_t)rand->Gaus(PMT_DELAY, PMT_JITTER);
+	
+	ERNeuRadFiberPoint* ffPoint = AddFiberPoint(0, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
+													ffp_photoel_cathode_count, ffp_photoel_anode_count);
+	ERNeuRadFiberPoint* bfPoint = AddFiberPoint(1, bfp_cathode_time, bfp_anode_time, bfp_photon_count,
+													bfp_photoel_cathode_count, bfp_photoel_anode_count);
+
+	frontPointsPerFibers[point_fiber_nb].push_back(ffPoint);
+    backPointsPerFibers[point_fiber_nb].push_back(bfPoint);
   }
-  
-  // sort points according to time; 
-  for (Int_t i_fiber = 0; i_fiber <fNFibers; i_fiber++){
-    sort (frontPointsPerFibers[i_fiber].begin(), frontPointsPerFibers[i_fiber].end(), pointsPerFiberTimeCompare);
-    sort (backPointsPerFibers[i_fiber].begin(),  backPointsPerFibers[i_fiber].end(),  pointsPerFiberTimeCompare); 
-  }
-  
-  // Check for leading edge
-  Double_t triggerTime=1e100;
-  
-  for (Int_t i_fiber = 0; i_fiber <fNFibers; i_fiber++){
-    for (Int_t i_point = 0; i_point < frontPointsPerFibers[i_fiber].size(); i_point++){
-      frontPointsPerFibers[i_fiber][i_point].energy = BC408_DECAY_CONSTANT*frontPointsPerFibers[i_fiber][i_point].lightQDC; //instantaneous current on PMT
-      backPointsPerFibers[i_fiber][i_point].energy = BC408_DECAY_CONSTANT*backPointsPerFibers[i_fiber][i_point].lightQDC;
-      if (i_point > 0){
-        Double_t curPoint_frontTime = frontPointsPerFibers[i_fiber][i_point].time;
-        Double_t prevPoint_frontTime = frontPointsPerFibers[i_fiber][i_point-1].time;
-        Double_t curPoint_backTime = backPointsPerFibers[i_fiber][i_point].time;
-        Double_t prevPoint_backTime = backPointsPerFibers[i_fiber][i_point-1].time;
-        
-        /* 
-        Warning!!!!!
-        This piece of code is just inherited from R3B Land
-        Idea has not adapted for fiber detector
-        */
-        frontPointsPerFibers[i_fiber][i_point].energy += frontPointsPerFibers[i_fiber][i_point].energy*
-                                        exp(-BC408_DECAY_CONSTANT*(curPoint_frontTime - prevPoint_frontTime));
-        backPointsPerFibers[i_fiber][i_point].energy += backPointsPerFibers[i_fiber][i_point].energy*
-                                        exp(-BC408_DECAY_CONSTANT*(curPoint_backTime - prevPoint_backTime)); 
-      }
-      
-      if (frontPointsPerFibers[i_fiber][i_point].energy > fiber_energyThreshold)
-        if (frontPointsPerFibers[i_fiber][i_point].time < triggerTime)
-          triggerTime = frontPointsPerFibers[i_fiber][i_point].time;
-
-      if (backPointsPerFibers[i_fiber][i_point].energy > fiber_energyThreshold)
-        if (backPointsPerFibers[i_fiber][i_point].time < triggerTime)
-          triggerTime = backPointsPerFibers[i_fiber][i_point].time;
-    } //i_point
-  }// i_fiber
-    
-  Int_t digi_nr = 0;
-  for (Int_t i_fiber = 0; i_fiber < fNFibers; i_fiber++){
-  
-    Double_t frontSumLightQDC = 0.;
-    Double_t backSumLightQDC = 0.;
-    Double_t frontTDC = 0.;
-    Double_t backTDC = 0.;
-    Bool_t   frontTimeTrigerFlag = kFALSE;
-    Bool_t   backTimeTrigerFlag = kFALSE;
-    
-    for(Int_t i_point = 0; i_point < frontPointsPerFibers[i_fiber].size(); i_point++) {
-      // This is supposed to mimic a QDC and a TDC
-      // check if light energy is larger than threshold and register time 
-      // Take also time resolution of sigma=timeRes ps into account
-      if(frontPointsPerFibers[i_fiber][i_point].energy > fiber_energyThreshold && !frontTimeTrigerFlag) {
-        frontTDC=frontPointsPerFibers[i_fiber][i_point].time+Rnd->Gaus(0.,timeRes);
-        frontTimeTrigerFlag = kTRUE;
-      }
-
-      if(backPointsPerFibers[i_fiber][i_point].energy > fiber_energyThreshold && !backTimeTrigerFlag) {
-        backTDC=backPointsPerFibers[i_fiber][i_point].time+Rnd->Gaus(0.,timeRes);
-        backTimeTrigerFlag = kTRUE;
-      }
-      
-      // if point satisfies time gate for QDC ("Integration time") at runtime
-      if(TMath::Abs(frontPointsPerFibers[i_fiber][i_point].time-triggerTime+fTOFRange/2.) < fTOFRange) { 
-        frontSumLightQDC += frontPointsPerFibers[i_fiber][i_point].lightQDC;
-      }
-      
-      if(TMath::Abs(backPointsPerFibers[i_fiber][i_point].time-triggerTime+fTOFRange/2.) < fTOFRange) {
-        backSumLightQDC += backPointsPerFibers[i_fiber][i_point].lightQDC;
-      }
-    } // i_point
-
-    if(!(frontTimeTrigerFlag || backTimeTrigerFlag) && backPointsPerFibers[i_fiber].size() > 0) {
-      LOG(INFO) << "In fiber "<< i_fiber << " one side of fiber has not fired !" << FairLogger::endl;
-    }
-    
-    if(frontTimeTrigerFlag && backTimeTrigerFlag) {
-
-      //lightl *= TMath::Exp((2.*(plength))*att/2.);
-      //lightr *= TMath::Exp((2.*(plength))*att/2.);
-      
-      //MA PMT Saturation
-      frontSumLightQDC = frontSumLightQDC / (1. + fSaturationCoefficient*frontSumLightQDC);
-      backSumLightQDC = backSumLightQDC / (1. + fSaturationCoefficient*backSumLightQDC);
-
-      //measuring error
-      frontSumLightQDC = Rnd->Gaus(frontSumLightQDC, MEASURING_ERROR_WIDTH_COEF*frontSumLightQDC);
-      backSumLightQDC = Rnd->Gaus(backSumLightQDC, MEASURING_ERROR_WIDTH_COEF*backSumLightQDC);
-      LOG(INFO) << "frontSumLightQDC =" << frontSumLightQDC << " backSumLightQDC = " << backSumLightQDC << FairLogger::endl;
-      if(frontSumLightQDC < fFiberThreshold || backSumLightQDC < fFiberThreshold) {
-        continue;
-      }
-      //explicitly light yield and quantum что-то not introduced 
-      
-      Double_t frontQDC = frontSumLightQDC;
-      Double_t backQDC  = backSumLightQDC;
-      Double_t QDC      = TMath::Sqrt(frontQDC*backQDC);
-      Double_t TDC      = (frontTDC + backTDC) / 2. - fiber_length/SPEED_OF_FLIGHT_IN_MATERIAL;
-
-      AddDigi(digi_nr, frontTDC, backTDC, TDC, frontQDC, backQDC, QDC, i_fiber);
-      
-      digi_nr ++;
-    }
-  } //i_paddle
-
-  LOG(INFO) << "ERNeuRadDigitizer: produced " << fNeuRadDigi->GetEntries() << " digis" << FairLogger::endl;
-  if (fVerbose > 1)
-    for (Int_t i_digi = 0; i_digi < fNeuRadDigi->GetEntriesFast(); i_digi++){
-      ERNeuRadDigi* digi = (ERNeuRadDigi*) fNeuRadDigi->At(i_digi);
-      digi->Print();
-    }
 }
 // ----------------------------------------------------------------------------
 
@@ -291,6 +177,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
 void ERNeuRadDigitizer::Reset()
 {
   if (fNeuRadDigi) {
+    fNeuRadFiberPoint->Clear();
     fNeuRadDigi->Clear();
   }
 }
@@ -308,12 +195,20 @@ ERNeuRadDigi* ERNeuRadDigitizer::AddDigi(Int_t digi_nr, Double_t frontTDC, Doubl
                                       Double_t TDC, Double_t frontQDC, Double_t backQDC, Double_t QDC,
                                       Int_t fiber_nr)
 {
-  ERNeuRadDigi *digi = new((*fNeuRadDigi)[fNeuRadDigi->GetEntriesFast()]) ERNeuRadDigi(digi_nr,
-                                                                    frontTDC, backTDC, TDC, 
-                                                                    frontQDC, backQDC, QDC,
-                                                                    fiber_nr);
+  ERNeuRadDigi *digi = new((*fNeuRadDigi)[fNeuRadDigi->GetEntriesFast()])
+							ERNeuRadDigi(digi_nr, frontTDC, backTDC, TDC, 
+                                         frontQDC, backQDC, QDC, fiber_nr);
   return digi;
 }
 // ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
+ERNeuRadFiberPoint* ERNeuRadDigitizer::AddFiberPoint(Int_t side, Double_t cathode_time, Double_t anode_time, 
+									Int_t photon_count, Int_t photoel_cathode_count, 
+									Int_t photoel_anode_count){
+  ERNeuRadFiberPoint *fp = new ((*fNeuRadFiberPoint)[fNeuRadFiberPoint->GetEntriesFast()])
+								ERNeuRadFiberPoint(side, cathode_time, anode_time, photon_count, 
+													photoel_cathode_count, photoel_anode_count);
+}
+// ----------------------------------------------------------------------------
 ClassImp(ERNeuRadDigitizer)

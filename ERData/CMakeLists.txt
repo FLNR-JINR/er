@@ -21,6 +21,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 NeuRadData/ERNeuRadPoint.cxx
+NeuRadData/ERNeuRadFiberPoint.cxx
 NeuRadData/ERNeuRadDigi.cxx
 NeuRadData/ERNeuRadStep.cxx
 ERStack.cxx

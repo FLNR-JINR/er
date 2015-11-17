@@ -52,7 +52,7 @@ class ERNeuRadPoint : public FairMCPoint
 
   /** Copy constructor **/
   ERNeuRadPoint(const ERNeuRadPoint&);
-
+  
 
   /** Destructor **/
   virtual ~ERNeuRadPoint();
