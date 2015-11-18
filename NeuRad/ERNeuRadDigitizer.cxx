@@ -36,12 +36,6 @@ const Double_t ERNeuRadDigitizer::EXCESS_NOISE_FACTOR = 1.3;
 const Double_t ERNeuRadDigitizer::PMT_DELAY=6.; //[ns] (H8500)
 const Double_t ERNeuRadDigitizer::PMT_JITTER = 0.4; //[ns] (H8500)
 
-struct ERNeuRadPMTSignal{
-  vector<Double_t> fTimeSlice;
-  vector<Double_t> fK1;
-  vector<Double_t> fK2;
-}
-
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer()
   : FairTask("ER NeuRad Digitization scheme"),
@@ -189,10 +183,10 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   
   //Формируем кусочно линейные сигналы для каждого файбера
   for (Int_t iFiber = 0; iFiber < fNFibers; iFiber++) {
-    ERNeuRadPMTSignal* pmtSignal = new ERNeuRadPMTSignal();
+    ERNeuRadPMTSignal* pmtSignal = AddPMTSignal();
     for(Int_t iFPoint = 0; iFPoint < frontPointsPerFibers[iFiber].size(); iFPoint++){
-      ERNeuRadFiberPoint* FPoint = frontPointsPerFibers[iFiber][iPoint];
-      ERNeuRadPMTSignal->AddFiberPoint(FPoint);
+      ERNeuRadFiberPoint* FPoint = frontPointsPerFibers[iFiber][iFPoint];
+      pmtSignal->AddFiberPoint(FPoint);
     }
   }
 }
@@ -228,6 +222,13 @@ ERNeuRadDigi* ERNeuRadDigitizer::AddDigi(Int_t digi_nr, Double_t frontTDC, Doubl
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
+ERNeuRadPMTSignal* ERNeuRadDigitizer::AddPMTSignal(){
+  ERNeuRadPMTSignal *pmtSignal = new((*fNeuRadPMTSignal)[fNeuRadPMTSignal->GetEntriesFast()])
+							ERNeuRadPMTSignal();
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 ERNeuRadFiberPoint* ERNeuRadDigitizer::AddFiberPoint(Int_t side, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count, Int_t photoel_count, 
 									Double_t amplitude){
@@ -235,5 +236,5 @@ ERNeuRadFiberPoint* ERNeuRadDigitizer::AddFiberPoint(Int_t side, Double_t cathod
 								ERNeuRadFiberPoint(side, cathode_time, anode_time, photon_count, 
                                     photoel_count, amplitude);
 }
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 ClassImp(ERNeuRadDigitizer)

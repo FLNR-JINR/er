@@ -86,6 +86,8 @@ protected:
   ERNeuRadFiberPoint* AddFiberPoint(Int_t side, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count, Int_t photoel_count, 
 									Double_t amplitude);
+
+  ERNeuRadPMTSignal* AddPMTSignal();
   
   ERNeuRadDigi* AddDigi(Int_t digi_nr, Double_t frontTDC, Double_t backTDC,
                                       Double_t TDC, Double_t frontQDC, Double_t backQDC, Double_t QDC,
