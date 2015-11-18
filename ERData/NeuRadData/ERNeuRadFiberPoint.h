@@ -15,14 +15,14 @@ class ERNeuRadFiberPoint : public TObject{
 		Double_t fCathodeTime;
 		Double_t fAnodeTime;
 		Int_t fPhotonCount;
-		Int_t fPhotoElCathodeCount;
-		Int_t fPhotoElAnodeCount;
+		Int_t fPhotoElCount;
+		Double_t fAmplitude;
 	public:
 		/** Default constructor **/
 		ERNeuRadFiberPoint();
 		ERNeuRadFiberPoint(Int_t side, Double_t cathode_time, Double_t anode_time, 
-							Int_t photon_count, Int_t photoel_cathode_count, 
-							Int_t photoel_anode_count);
+							Int_t photon_count, Int_t photoel_count, 
+							Double_t amplitude);
 
 		/** Destructor **/
 		~ERNeuRadFiberPoint();

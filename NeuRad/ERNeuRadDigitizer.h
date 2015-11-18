@@ -65,10 +65,11 @@ protected:
   TClonesArray *fNeuRadDigi;
   
   //constants
-  static const Double_t BC408_LIGHT_YIELD; // [1/MeV]
+  static const Double_t SciFi_LIGHT_YIELD; // [photons/MeV]
+  static const Double_t SPEED_OF_LIGHT; //[cm/ns]
   static const Double_t SPEED_OF_LIGHT_IN_MATERIAL;//[cm/ns]
   static const Int_t    ERROR_POINTS_IN_MODULE_COUNT;
-  static const Double_t LIGHT_PART_TO_TOTAL_WLS_REFLECTED;
+  static const Double_t LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION;
   //доля света захватываемая файбером в полное внутренне отражение в каждую сторону.
   static const Double_t PMT_QUANTUM_EFFICIENCY;
   static const Double_t PMT_GAIN;
@@ -81,8 +82,8 @@ protected:
   
 protected:
   ERNeuRadFiberPoint* AddFiberPoint(Int_t side, Double_t cathode_time, Double_t anode_time, 
-									Int_t photon_count, Int_t photoel_cathode_count, 
-									Int_t photoel_anode_count);
+									Int_t photon_count, Int_t photoel_count, 
+									Double_t amplitude);
   
   ERNeuRadDigi* AddDigi(Int_t digi_nr, Double_t frontTDC, Double_t backTDC,
                                       Double_t TDC, Double_t frontQDC, Double_t backQDC, Double_t QDC,
