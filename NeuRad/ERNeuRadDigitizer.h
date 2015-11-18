@@ -12,6 +12,7 @@ using std::vector;
 #include "FairTask.h"
 #include "ERNeuRadDigi.h"
 #include "ERNeuRadFiberPoint.h"
+#include "ERNeuRadPMTSignal.h"
 
 class TClonesArray;
 class TObjectArray;
@@ -62,6 +63,7 @@ protected:
 
   //Output arrays
   TClonesArray *fNeuRadFiberPoint;
+  TClonesArray *fNeuRadPMTSignal;
   TClonesArray *fNeuRadDigi;
   
   //constants

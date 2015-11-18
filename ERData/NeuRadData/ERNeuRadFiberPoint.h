@@ -27,6 +27,14 @@ class ERNeuRadFiberPoint : public TObject{
 		/** Destructor **/
 		~ERNeuRadFiberPoint();
 
+    /** Accessors **/
+    Int_t     Side()         {return fSide;}
+    Double_t  CathodeTime()  {return fCathodeTime;}
+    Double_t  AnodeTime()    {return fAnodeTime;}
+    Int_t     PhotonCount()  {return fPhotonCount;}
+    Int_t     PhotoElCount() {return fPhotoElCount;}
+    Double_t  Amplitude()    {return fAmplitude;}
+
 	ClassDef(ERNeuRadFiberPoint,1)
 };
 
