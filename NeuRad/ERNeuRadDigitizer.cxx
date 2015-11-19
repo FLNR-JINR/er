@@ -105,7 +105,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
 {
   // Reset entries in output arrays
   Reset();
-  TRandom *rand = new TRandom(0);
+  TRandom3  *rand = new TRandom3();
   vector<ERNeuRadFiberPoint* >* frontPointsPerFibers = new vector<ERNeuRadFiberPoint*> [fNFibers];
   vector<ERNeuRadFiberPoint* >* backPointsPerFibers = new vector<ERNeuRadFiberPoint*>  [fNFibers];
   
@@ -151,9 +151,10 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
     
     //Take into account quantum efficiency. Photoelectrons count
     //@todo Среднее значение квантовой эфективности должно быть разным для каждого файбера
-    Double_t ffp_photoel_count = ffp_photon_count * rand->Poisson(PMT_QUANTUM_EFFICIENCY);
-    Double_t bfp_photoel_count = bfp_photon_count * rand->Poisson(PMT_QUANTUM_EFFICIENCY);
-    
+    Double_t ffp_photoel_count = (Double_t)rand->PoissonD( ffp_photon_count *PMT_QUANTUM_EFFICIENCY);
+    Double_t bfp_photoel_count = (Double_t)rand->PoissonD( bfp_photon_count *PMT_QUANTUM_EFFICIENCY);
+    LOG(INFO) << "photons count: " << ffp_photon_count << " pe count: " << ffp_photoel_count << FairLogger::endl;
+    LOG(INFO) << "photons count: " << bfp_photon_count << " pe count: " << bfp_photoel_count << FairLogger::endl;
     //Take into account pmt gain
     Double_t ffp_amplitude = rand->Gaus(ffp_photoel_count * PMT_GAIN,
                               ffp_photoel_count * TMath::Sqrt(EXCESS_NOISE_FACTOR));
