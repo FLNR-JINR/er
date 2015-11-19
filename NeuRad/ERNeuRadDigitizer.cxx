@@ -33,7 +33,7 @@ const Double_t ERNeuRadDigitizer::LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION = 0.04;
 const Double_t ERNeuRadDigitizer::PMT_QUANTUM_EFFICIENCY = 0.2;
 const Double_t ERNeuRadDigitizer::PMT_GAIN = 5; // [mV/p.e]
 const Double_t ERNeuRadDigitizer::EXCESS_NOISE_FACTOR = 1.3;
-const Double_t ERNeuRadDigitizer::PMT_DELAY=6.; //[ns] (H8500)
+const Double_t ERNeuRadDigitizer::PMT_DELAY=6.;     //[ns] (H8500)
 const Double_t ERNeuRadDigitizer::PMT_JITTER = 0.4; //[ns] (H8500)
 
 // ----------------------------------------------------------------------------
@@ -90,7 +90,7 @@ InitStatus ERNeuRadDigitizer::Init()
 													//*2, because front and back
   ioman->Register("NeuRadFiberPoint", "NeuRad Fiber points", fNeuRadFiberPoint, kTRUE);
   fNeuRadPMTSignal = new TClonesArray("ERNeuRadPMTSignal", 1000);
-  ioman->Register("NeuRadPMTSignal", "Digital signal after PMT", fNeuRadPMTSignal, kTRUE);
+  ioman->Register("NeuRadPMTSignal", "Signal after PMT", fNeuRadPMTSignal, kTRUE);
   fNeuRadDigi = new TClonesArray("ERNeuRadDigi",1000);
   ioman->Register("NeuRadDigi", "Digital response in NeuRad", fNeuRadDigi, kTRUE);
 
@@ -134,9 +134,8 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
     Double_t bfp_cathode_time  = point_time+(fiber_length-point_z_in_fiber)/SPEED_OF_LIGHT_IN_MATERIAL;
 
     //scintillator light yield
-    Int_t ffp_photon_count = point_lightYield/SciFi_LIGHT_YIELD;
-    Int_t bfp_photon_count = point_lightYield/SciFi_LIGHT_YIELD;
-
+    Double_t ffp_photon_count = point_lightYield*1000.*SciFi_LIGHT_YIELD;
+    Double_t bfp_photon_count = point_lightYield*1000.*SciFi_LIGHT_YIELD;
     /*
       Two component attenuation for optical fibers. First term is rough 
       approximation for dirrect illumination of a cathode by the source, the 
@@ -146,19 +145,19 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
     Double_t k1 = 0.5-LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION;
     Double_t k2 = LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION;
 
-    ffp_photon_count =  (Int_t)point_lightYield*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
-    bfp_photon_count =  (Int_t)point_lightYield*(k1*exp(-(fiber_length-point_z_in_fiber)/0.5) 
+    ffp_photon_count =  ffp_photon_count*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
+    bfp_photon_count =  bfp_photon_count*(k1*exp(-(fiber_length-point_z_in_fiber)/0.5) 
                                                         + k2*exp(-(fiber_length-point_z_in_fiber)/200.));
     
     //Take into account quantum efficiency. Photoelectrons count
     //@todo Среднее значение квантовой эфективности должно быть разным для каждого файбера
-    Int_t ffp_photoel_count = (Int_t)ffp_photon_count * (Double_t)rand->Poisson(PMT_QUANTUM_EFFICIENCY);
-    Int_t bfp_photoel_count = (Int_t)bfp_photon_count * (Double_t)rand->Poisson(PMT_QUANTUM_EFFICIENCY);
+    Double_t ffp_photoel_count = ffp_photon_count * rand->Poisson(PMT_QUANTUM_EFFICIENCY);
+    Double_t bfp_photoel_count = bfp_photon_count * rand->Poisson(PMT_QUANTUM_EFFICIENCY);
     
     //Take into account pmt gain
-    Int_t ffp_amplitude = (Int_t)rand->Gaus(ffp_photoel_count * PMT_GAIN,
+    Double_t ffp_amplitude = rand->Gaus(ffp_photoel_count * PMT_GAIN,
                               ffp_photoel_count * EXCESS_NOISE_FACTOR);
-    Int_t bfp_amplitude = (Int_t)rand->Gaus(bfp_photoel_count * PMT_GAIN,
+    Double_t bfp_amplitude = rand->Gaus(bfp_photoel_count * PMT_GAIN,
                               bfp_photoel_count * EXCESS_NOISE_FACTOR);
     
     //Take into account PMT delay and jitter
@@ -183,10 +182,15 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   
   //Формируем кусочно линейные сигналы для каждого файбера
   for (Int_t iFiber = 0; iFiber < fNFibers; iFiber++) {
-    ERNeuRadPMTSignal* pmtSignal = AddPMTSignal();
+    ERNeuRadPMTSignal* pmtFSignal = AddPMTSignal();
     for(Int_t iFPoint = 0; iFPoint < frontPointsPerFibers[iFiber].size(); iFPoint++){
       ERNeuRadFiberPoint* FPoint = frontPointsPerFibers[iFiber][iFPoint];
-      pmtSignal->AddFiberPoint(FPoint);
+      pmtFSignal->AddFiberPoint(FPoint);
+    }
+    ERNeuRadPMTSignal* pmtBSignal = AddPMTSignal();
+    for(Int_t iFPoint = 0; iFPoint < backPointsPerFibers[iFiber].size(); iFPoint++){
+      ERNeuRadFiberPoint* FPoint = backPointsPerFibers[iFiber][iFPoint];
+      pmtBSignal->AddFiberPoint(FPoint);
     }
   }
 }
@@ -225,6 +229,7 @@ ERNeuRadDigi* ERNeuRadDigitizer::AddDigi(Int_t digi_nr, Double_t frontTDC, Doubl
 ERNeuRadPMTSignal* ERNeuRadDigitizer::AddPMTSignal(){
   ERNeuRadPMTSignal *pmtSignal = new((*fNeuRadPMTSignal)[fNeuRadPMTSignal->GetEntriesFast()])
 							ERNeuRadPMTSignal();
+  return pmtSignal;
 }
 // ----------------------------------------------------------------------------
 
@@ -235,6 +240,7 @@ ERNeuRadFiberPoint* ERNeuRadDigitizer::AddFiberPoint(Int_t side, Double_t cathod
   ERNeuRadFiberPoint *fp = new ((*fNeuRadFiberPoint)[fNeuRadFiberPoint->GetEntriesFast()])
 								ERNeuRadFiberPoint(side, cathode_time, anode_time, photon_count, 
                                     photoel_count, amplitude);
+  return fp;
 }
 //-----------------------------------------------------------------------------
 ClassImp(ERNeuRadDigitizer)

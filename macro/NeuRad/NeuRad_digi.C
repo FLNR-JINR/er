@@ -1,4 +1,4 @@
-void NeuRad_digi(Int_t nEvents = 1000){
+void NeuRad_digi(Int_t nEvents = 1){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "digi.root";
@@ -19,10 +19,6 @@ void NeuRad_digi(Int_t nEvents = 1000){
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
-  //digitizer->SetBeamEnergy(100.); //[MeV] // OR 
-  digitizer->SetTOFRange(1000.); //[ns]
-  digitizer->SetSaturationCoefficient(0.012); //DEFAULT = 0.012
-  digitizer->SetFiberThreshold (0.0000001); //[MeV]
   // ------------------------------------------------------------------------
   
   fRun->AddTask(digitizer);

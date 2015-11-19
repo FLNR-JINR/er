@@ -15,8 +15,8 @@
 
 #include "ERNeuRadFiberPoint.h"
 
-typedef std::pair<Double_t, Double_t> SignalPoint; //<time, amplitude>
-typedef std::map<Double_t, Double_t> SignalPointsMap; 
+typedef std::pair<double, double> SignalPoint; //<time, amplitude>
+typedef std::map<double, double> SignalPointsMap; 
 
 class ERNeuRadPMTSignal : public TObject
 {
@@ -34,6 +34,8 @@ class ERNeuRadPMTSignal : public TObject
   virtual ~ERNeuRadPMTSignal();
   
   void AddFiberPoint(ERNeuRadFiberPoint* fpoint);
+
+  SignalPointsMap GetSignalPoints() {return fSignalPoints;}
   
   ClassDef(ERNeuRadPMTSignal,1);
 };

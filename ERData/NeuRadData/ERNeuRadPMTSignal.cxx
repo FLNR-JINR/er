@@ -38,7 +38,7 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
     fSignalPoints.insert(SignalPoint(t4,A4));
     return;
   }
-
+/*
   SignalPointsMap::iterator itFirstSPoint,itSecSPoint, itSPrevPoint, itSNextPoint;
   
   pair<SignalPointsMap::iterator,bool> ret;
@@ -69,6 +69,7 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   for (SignalPointsMap::iterator it = itFirstSPoint+1; it != itSecSPoint; ++it){
     
   }
+*/
 }
 // -------------------------------------------------------------------------
 
