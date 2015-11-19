@@ -156,9 +156,9 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
     
     //Take into account pmt gain
     Double_t ffp_amplitude = rand->Gaus(ffp_photoel_count * PMT_GAIN,
-                              ffp_photoel_count * EXCESS_NOISE_FACTOR);
+                              ffp_photoel_count * TMath::Sqrt(EXCESS_NOISE_FACTOR));
     Double_t bfp_amplitude = rand->Gaus(bfp_photoel_count * PMT_GAIN,
-                              bfp_photoel_count * EXCESS_NOISE_FACTOR);
+                              bfp_photoel_count * TMath::Sqrt(EXCESS_NOISE_FACTOR));
     
     //Take into account PMT delay and jitter
     Double_t ffp_anode_time = ffp_cathode_time + (Double_t)rand->Gaus(PMT_DELAY, PMT_JITTER);

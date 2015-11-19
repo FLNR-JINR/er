@@ -23,11 +23,11 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   //Определяем какие точки преломления добавляет поинт во временную ось
   Double_t t1 = fpoint->AnodeTime();
   Double_t A1 = 0.;
-  Double_t t2 = 12.8/7. * fpoint->AnodeTime();
+  Double_t t2 = 12.8 * fpoint->AnodeTime();
   Double_t A2 = fpoint->Amplitude();
-  Double_t t3 = 15.2/7. * fpoint->AnodeTime();
+  Double_t t3 = 15.2 * fpoint->AnodeTime();
   Double_t A3 = fpoint->Amplitude();
-  Double_t t4 = 23./7. * fpoint->AnodeTime();
+  Double_t t4 = 23. * fpoint->AnodeTime();
   Double_t A4 = 0.;
 
   //if first fiber point in signal
