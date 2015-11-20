@@ -25,11 +25,11 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   //Определяем какие точки преломления добавляет поинт во временную ось
   Double_t t1 = fpoint->AnodeTime();
   Double_t A1 = 0.;
-  Double_t t2 = 12.8/7. * fpoint->AnodeTime();
+  Double_t t2 = fpoint->AnodeTime() + 12.8/7. * (fpoint->AnodeTime() - fpoint->CathodeTime());
   Double_t A2 = fpoint->Amplitude();
-  Double_t t3 = 15.2/7. * fpoint->AnodeTime();
+  Double_t t3 = fpoint->AnodeTime() + 15.2/7. * (fpoint->AnodeTime() - fpoint->CathodeTime());
   Double_t A3 = fpoint->Amplitude();
-  Double_t t4 = 23./7. * fpoint->AnodeTime();
+  Double_t t4 = fpoint->AnodeTime() + 23./7. * (fpoint->AnodeTime() - fpoint->CathodeTime());
   Double_t A4 = 0.;
   
   SignalPointsMap separateSignal;
@@ -72,14 +72,13 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   ret = fSignalPoints.insert(SignalPoint(t1,A1));
   
   itFirstSPoint= ret.first;
-
+  itSNextPoint = itFirstSPoint;
+  itSNextPoint++;
   //Изменяем амлитуду первой точки, если она попадает на участок с существующим сигналом
-  if (!(itFirstSPoint == fSignalPoints.begin() || itFirstSPoint == fSignalPoints.end())){
+  if (!(itFirstSPoint == fSignalPoints.begin() || itSNextPoint == fSignalPoints.end())){
     //Находим предыдущую и следующую точки текущего сигнала, составляем уравнение прямой
     itSPrevPoint = itFirstSPoint;
-    itSNextPoint = itFirstSPoint;
     itSPrevPoint--;
-    itSNextPoint++;
     Double_t newValue = itFirstSPoint->second +(itSNextPoint->second - itSPrevPoint->second)/(itSNextPoint->first - itSPrevPoint->first)
             *(itFirstSPoint->first-itSPrevPoint->first) + itSPrevPoint->second; 
     Change change = Change{itFirstSPoint,newValue};
@@ -88,15 +87,14 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
 
   ret = fSignalPoints.insert(SignalPoint(t2,A2));
   itSecSPoint = ret.first;
-  Double_t newSecSpointA;
+  itSNextPoint = itSecSPoint;
+  itSNextPoint++;
   //Изменяем амлитуду второй точки, если она попадает на участок с существующим сигналом
-  if (!(itSecSPoint == fSignalPoints.end())){
+  if (!(itSNextPoint == fSignalPoints.end())){
     itSPrevPoint = itSecSPoint;
     itSPrevPoint--;
     if (itSPrevPoint == itFirstSPoint && itFirstSPoint != fSignalPoints.begin())
       itSPrevPoint--;
-    itSNextPoint = itSecSPoint;
-    itSNextPoint++;
     Double_t newValue = itSecSPoint->second + (itSNextPoint->second - itSPrevPoint->second)/(itSNextPoint->first - itSPrevPoint->first)
             *(itSecSPoint->first-itSPrevPoint->first) + itSPrevPoint->second;
     Change change = Change{itSecSPoint,newValue};
@@ -117,13 +115,13 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   //Изменяем амлитуду третьей точки, если она попадает на участок с существующим сигналом
   itFirstSPoint = itSecSPoint;
   itSecSPoint = ret.first;
-  if (!(itSecSPoint == fSignalPoints.end())){
+  itSNextPoint = itSecSPoint;
+  itSNextPoint++;
+  if (!(itSNextPoint == fSignalPoints.end())){
     itSPrevPoint = itSecSPoint;
     itSPrevPoint--;
     if (itSPrevPoint == itFirstSPoint && itFirstSPoint != fSignalPoints.begin())
       itSPrevPoint--;
-    itSNextPoint = itSecSPoint;
-    itSNextPoint++;
     Double_t newValue = itSecSPoint->second + (itSNextPoint->second - itSPrevPoint->second)/(itSNextPoint->first - itSPrevPoint->first)
             *(itSecSPoint->first-itSPrevPoint->first) + itSPrevPoint->second;
     Change change = Change{itSecSPoint,newValue};
@@ -134,21 +132,23 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   itSNextPoint = itFirstSPoint;
   itSNextPoint++;
   for (SignalPointsMap::iterator it = itSNextPoint; it != itSecSPoint; ++it){
-    it->second = (itSecSPoint->second - itFirstSPoint->second)/(itSecSPoint->first - itFirstSPoint->first)
+    Double_t newValue = it->second + (itSecSPoint->second - itFirstSPoint->second)/(itSecSPoint->first - itFirstSPoint->first)
             *(it->first-itFirstSPoint->first) + itFirstSPoint->second;
+    Change change = Change{it,newValue};
+    changes.push_back(change);
   }
 
   ret = fSignalPoints.insert(SignalPoint(t4,A4));
-  //Изменяем амлитуду третьей точки, если она попадает на участок с существующим сигналом
+  //Изменяем амлитуду четвертой точки, если она попадает на участок с существующим сигналом
   itFirstSPoint = itSecSPoint;
   itSecSPoint = ret.first;
-  if (!(itSecSPoint == fSignalPoints.end())){
+  itSNextPoint = itSecSPoint;
+  itSNextPoint++;
+  if (!(itSNextPoint == fSignalPoints.end())){
     itSPrevPoint = itSecSPoint;
     itSPrevPoint--;
     if (itSPrevPoint == itFirstSPoint && itFirstSPoint != fSignalPoints.begin())
       itSPrevPoint--;
-    itSNextPoint = itSecSPoint;
-    itSNextPoint++;
     Double_t newValue = itSecSPoint->second + (itSNextPoint->second - itSPrevPoint->second)/(itSNextPoint->first - itSPrevPoint->first)
             *(itSecSPoint->first-itSPrevPoint->first) + itSPrevPoint->second;
     Change change = Change{itSecSPoint,newValue};
@@ -159,9 +159,12 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   itSNextPoint = itFirstSPoint;
   itSNextPoint++;
   for (SignalPointsMap::iterator it = itSNextPoint; it != itSecSPoint; ++it){
-    it->second = (itSecSPoint->second - itFirstSPoint->second)/(itSecSPoint->first - itFirstSPoint->first)
+    Double_t newValue = it->second + (itSecSPoint->second - itFirstSPoint->second)/(itSecSPoint->first - itFirstSPoint->first)
             *(it->first-itFirstSPoint->first) + itFirstSPoint->second;
+    Change change = Change{it,newValue};
+    changes.push_back(change);
   }
+  
   //Применяем изменения к сигналу
   for (vector<Change>::iterator it = changes.begin(); it != changes.end(); ++it){
     (*it).it->second = (*it).value;

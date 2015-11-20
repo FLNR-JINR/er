@@ -37,7 +37,7 @@ const Double_t ERNeuRadDigitizer::PMT_DELAY=6.;     //[ns] (H8500)
 const Double_t ERNeuRadDigitizer::PMT_JITTER = 0.4; //[ns] (H8500)
 const Int_t    ERNeuRadDigitizer::PE_COUNT_FOR_ONE_ELECTRONS_SIM = 10;
 const Double_t ERNeuRadDigitizer::SCINCILATION_TAU = 3.2; //[ns]
-const Double_t ERNeuRadDigitizer::SCINCILATION_dT = 0.3;  //[ns]
+const Double_t ERNeuRadDigitizer::SCINCILATION_dT = 1.;  //[ns]
 
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer()

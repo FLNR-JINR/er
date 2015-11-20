@@ -22,8 +22,9 @@ void PMTSignalsViewer(){
   TGraph* signals_gr[1000];
   Signal separateSignals_mas[1000][100];
   TGraph* separateSignals_gr[1000][100];
-  
-  for (int iSignal = 0; iSignal < pmtSignals->GetEntriesFast(); iSignal++){
+  TMultiGraph *mg = new TMultiGraph();
+  //for (int iSignal = 0; iSignal < pmtSignals->GetEntriesFast(); iSignal++){
+    Int_t iSignal = 54;
     ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)pmtSignals->At(iSignal);
     
     if (!signal->Exist())
@@ -37,29 +38,44 @@ void PMTSignalsViewer(){
       signal_mas[iSignal].y[signal_mas[iSignal].nb] = it->second;
       cout <<  iSignal << " " << signal_mas[iSignal].nb <<  " " << 
                 signal_mas[iSignal].x[signal_mas[iSignal].nb] << " " <<
-                signal_mas[iSignal].y[signal_mas[iSignal].nb] << endl;  
+                signal_mas[iSignal].y[signal_mas[iSignal].nb] << endl;
+                
       signal_mas[iSignal].nb++;
-      TGraph* gr = signals_gr[iSignal];
-      gr = new TGraph(signal_mas[iSignal].nb,signal_mas[iSignal].x, signal_mas[iSignal].y);
-      TString title = "NeuRad PMT Signal in fiber number " + iSignal;
-      gr->SetTitle(title);
-      gr->GetXaxis()->SetTitle("Time [ns]");
-      gr->GetYaxis()->SetTitle("U [mV]");
-      gr->Draw("AL*");
+    }
+    TGraph* gr = signals_gr[iSignal];
+    gr = new TGraph(signal_mas[iSignal].nb,signal_mas[iSignal].x, signal_mas[iSignal].y);
+    TString title = "NeuRad PMT Signal in fiber number " + iSignal;
+    gr->SetTitle(title);
+    gr->GetXaxis()->SetTitle("Time [ns]");
+    gr->GetYaxis()->SetTitle("U [mV]");
+    //gr->Draw("AL*");
+    gr->SetLineWidth(5);
+    mg->Add(gr);
       //Обрабатываем сигналы от отдельных FiberPoint
       for (int issig = 0; issig < signal->GetNumberOfSeparatesSignals(); issig++){
         map<double, double> ssPointsMap = signal->GetSeparateSignal(issig);
-        for (map<double,double>::iterator sit = sPointsMap.begin(); sit != sPointsMap.end(); sit++){
-          int nb = separateSignals_mas[iSignal][issig].nb;
+        separateSignals_mas[iSignal][issig].nb = 0;
+        
+        for (map<double,double>::iterator sit = ssPointsMap.begin(); sit != ssPointsMap.end(); sit++){
+          Int_t nb = separateSignals_mas[iSignal][issig].nb;
           separateSignals_mas[iSignal][issig].x[nb] = sit->first;
           separateSignals_mas[iSignal][issig].y[nb] = sit->second;
+          cout <<  iSignal << " " << issig << " " << separateSignals_mas[iSignal][issig].nb
+                <<  " " << 
+                separateSignals_mas[iSignal][issig].x[nb] << " " <<
+                separateSignals_mas[iSignal][issig].y[nb]<< endl;
+          separateSignals_mas[iSignal][issig].nb++;
         }
+        separateSignals_gr[iSignal][issig] = new TGraph(separateSignals_mas[iSignal][issig].nb,separateSignals_mas[iSignal][issig].x,
+                            separateSignals_mas[iSignal][issig].y);
+        ///gr1->Draw("AL*");
+        separateSignals_gr[iSignal][issig]->SetLineColorAlpha(issig+2, 1.);
+        mg->Add(separateSignals_gr[iSignal][issig]);
+        cout<<separateSignals_mas[iSignal][issig].nb<<endl;
       }
-    } 
-  }
+  //}
   
-  //TCanvas *c1 = new TCanvas("NeuRad PMTSignal","NeuRad PMTSignal",200,10,700,500);
-  //c1->Divide(2);
- //c1-cd(1);
+  TCanvas *c1 = new TCanvas("NeuRad PMTSignal","NeuRad PMTSignal",200,10,700,500);
+  mg->Draw("AL*");
   
 }
