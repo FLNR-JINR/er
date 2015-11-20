@@ -78,6 +78,9 @@ protected:
   static const Double_t EXCESS_NOISE_FACTOR;
   static const Double_t PMT_DELAY;
   static const Double_t PMT_JITTER;
+  static const Int_t    PE_COUNT_FOR_ONE_ELECTRONS_SIM;
+  static const Double_t SCINCILATION_TAU; //[ns]
+  static const Double_t SCINCILATION_dT;  //[ns]
   
   //Allow for user params
   Double_t fFiberThreshold;

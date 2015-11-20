@@ -35,6 +35,9 @@ const Double_t ERNeuRadDigitizer::PMT_GAIN = 5; // [mV/p.e]
 const Double_t ERNeuRadDigitizer::EXCESS_NOISE_FACTOR = 1.3;
 const Double_t ERNeuRadDigitizer::PMT_DELAY=6.;     //[ns] (H8500)
 const Double_t ERNeuRadDigitizer::PMT_JITTER = 0.4; //[ns] (H8500)
+const Int_t    ERNeuRadDigitizer::PE_COUNT_FOR_ONE_ELECTRONS_SIM = 10;
+const Double_t ERNeuRadDigitizer::SCINCILATION_TAU = 3.2; //[ns]
+const Double_t ERNeuRadDigitizer::SCINCILATION_dT = 0.3;  //[ns]
 
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer()
@@ -129,50 +132,122 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
        LOG(ERROR) << "ERNeuRadDigitizer: Too many points in one fiber: "
                   << frontPointsPerFibers[point_fiber_nb].size()<< " points" << FairLogger::endl;
     
-    //ffp - front fiber point, bfp - back_fiber_point
-    Double_t ffp_cathode_time  = point_time+(point_z_in_fiber)/SPEED_OF_LIGHT_IN_MATERIAL;
-    Double_t bfp_cathode_time  = point_time+(fiber_length-point_z_in_fiber)/SPEED_OF_LIGHT_IN_MATERIAL;
-
-    //scintillator light yield
-    Double_t ffp_photon_count = point_lightYield*1000.*SciFi_LIGHT_YIELD;
-    Double_t bfp_photon_count = point_lightYield*1000.*SciFi_LIGHT_YIELD;
     /*
-      Two component attenuation for optical fibers. First term is rough 
-      approximation for dirrect illumination of a cathode by the source, the 
-      second one is for attrenuation of the totally reflected in the WLS. At 
-      the ends - half of the light goes to the nearest photocathode 
+      Высвечивание энергии в фотоны происходит не мгновенно, а по exp от времени.
+      Будем моделировать выход фотонов пачками во времени. Пачка фотонов выходит в отрезке времени(timeslice) равному dt.
+      Каждая пачка фотонов соответствует объекту типа FiberPoint
     */
-    Double_t k1 = 0.5-LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION;
-    Double_t k2 = LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION;
-
-    ffp_photon_count =  ffp_photon_count*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
-    bfp_photon_count =  bfp_photon_count*(k1*exp(-(fiber_length-point_z_in_fiber)/0.5) 
-                                                        + k2*exp(-(fiber_length-point_z_in_fiber)/200.));
     
-    //Take into account quantum efficiency. Photoelectrons count
-    //@todo Среднее значение квантовой эфективности должно быть разным для каждого файбера
-    Double_t ffp_photoel_count = (Double_t)rand->PoissonD( ffp_photon_count *PMT_QUANTUM_EFFICIENCY);
-    Double_t bfp_photoel_count = (Double_t)rand->PoissonD( bfp_photon_count *PMT_QUANTUM_EFFICIENCY);
-    LOG(INFO) << "photons count: " << ffp_photon_count << " pe count: " << ffp_photoel_count << FairLogger::endl;
-    LOG(INFO) << "photons count: " << bfp_photon_count << " pe count: " << bfp_photoel_count << FairLogger::endl;
-    //Take into account pmt gain
-    Double_t ffp_amplitude = rand->Gaus(ffp_photoel_count * PMT_GAIN,
-                              ffp_photoel_count * TMath::Sqrt(EXCESS_NOISE_FACTOR));
-    Double_t bfp_amplitude = rand->Gaus(bfp_photoel_count * PMT_GAIN,
-                              bfp_photoel_count * TMath::Sqrt(EXCESS_NOISE_FACTOR));
+    //Время выхода последней пачки фотонов, которые дадут один фотоэлектрон
+    Double_t finishTime =  -1*SCINCILATION_TAU*(1-rand->Uniform());
+    //Количество timeSlice
+    Int_t timeSliceCount = (finishTime - point_time)/SCINCILATION_dT;
     
-    //Take into account PMT delay and jitter
-    Double_t ffp_anode_time = ffp_cathode_time + (Double_t)rand->Gaus(PMT_DELAY, PMT_JITTER);
-    Double_t bfp_anode_time = bfp_cathode_time + (Double_t)rand->Gaus(PMT_DELAY, PMT_JITTER);
+    //scintillator light yield - общее число рожденных фотонов
+    Double_t photon_count = point_lightYield*1000.*SciFi_LIGHT_YIELD;
     
-    ERNeuRadFiberPoint* ffPoint = AddFiberPoint(0, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
-                            ffp_photoel_count, ffp_amplitude);
-    ERNeuRadFiberPoint* bfPoint = AddFiberPoint(1, bfp_cathode_time, bfp_anode_time, bfp_photon_count,
-                            bfp_photoel_count, bfp_amplitude);
-
-    //Collect Fiber Points by fiber
-    frontPointsPerFibers[point_fiber_nb].push_back(ffPoint);
-    backPointsPerFibers[point_fiber_nb].push_back(bfPoint);
+    Int_t iTimeSlice = 1;
+    
+    //Моделируем распространнение сигнала на передние ФЭУ
+    while(1){
+      //ffp - front fiber point, bfp - back_fiber_point
+      Double_t ffp_cathode_time  = point_time+iTimeSlice*SCINCILATION_dT+(point_z_in_fiber)/SPEED_OF_LIGHT_IN_MATERIAL;
+      
+      //Количество оставшихся фотонов
+      Double_t ffp_remainig_photons_count = photon_count*TMath::Exp(-SCINCILATION_dT*(Double_t)iTimeSlice/SCINCILATION_TAU);
+      //Количество фотонов в слайсе                              
+      Double_t ffp_photon_count = photon_count*TMath::Exp(-SCINCILATION_dT*(Double_t)(iTimeSlice)/SCINCILATION_TAU)
+                                      *SCINCILATION_dT/SCINCILATION_TAU;
+      /*
+        Two component attenuation for optical fibers. First term is rough 
+        approximation for dirrect illumination of a cathode by the source, the 
+        second one is for attrenuation of the totally reflected in the WLS. At 
+        the ends - half of the light goes to the nearest photocathode 
+      */
+      Double_t k1 = 0.5-LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION;
+      Double_t k2 = LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION;
+      
+      ffp_photon_count =  ffp_photon_count*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
+      ffp_remainig_photons_count = ffp_remainig_photons_count*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
+      //Если число фотоэлектронов, оставшихся в конце высвечивания меньше заданного моделируем их как одноэлектронные импульсы
+      //Моделирование хвоста высвечивания
+      Double_t remainingPhotoEl = ffp_remainig_photons_count*SCINCILATION_TAU/SCINCILATION_dT;
+      if(remainingPhotoEl < PE_COUNT_FOR_ONE_ELECTRONS_SIM){
+        for(Int_t iOnePESignal=0;iOnePESignal<remainingPhotoEl;iOnePESignal++){
+          //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
+          ffp_cathode_time = point_time+iTimeSlice*SCINCILATION_dT + (-1)*SCINCILATION_TAU*TMath::Log(1-rand->Uniform());
+          Double_t ffp_amplitude = PMT_GAIN;
+          Double_t ffp_anode_time = ffp_cathode_time + (Double_t)rand->Gaus(PMT_DELAY, PMT_JITTER);
+          ERNeuRadFiberPoint* ffPoint = AddFiberPoint(0, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
+                              1, ffp_amplitude);
+          frontPointsPerFibers[point_fiber_nb].push_back(ffPoint);
+        } 
+        break;
+      }
+      //Take into account quantum efficiency. Photoelectrons count
+      //@todo Среднее значение квантовой эфективности должно быть разным для каждого файбера
+      Double_t ffp_photoel_count = (Double_t)rand->PoissonD( ffp_photon_count *PMT_QUANTUM_EFFICIENCY);
+      
+      //Take into account pmt gain
+      Double_t ffp_amplitude = rand->Gaus(ffp_photoel_count * PMT_GAIN,
+                                ffp_photoel_count * TMath::Sqrt(EXCESS_NOISE_FACTOR));
+      
+      //Take into account PMT delay and jitter
+      Double_t ffp_anode_time = ffp_cathode_time + (Double_t)rand->Gaus(PMT_DELAY, PMT_JITTER);
+      
+      if (ffp_amplitude > 0.){
+        ERNeuRadFiberPoint* ffPoint = AddFiberPoint(0, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
+                              ffp_photoel_count, ffp_amplitude);
+        //Collect Fiber Points by fiber
+        frontPointsPerFibers[point_fiber_nb].push_back(ffPoint);
+      }
+      iTimeSlice++;
+    }
+    
+    iTimeSlice = 1;
+    //Моделируем рампространнение сигнала на задние ФЭУ
+    while(1){
+      Double_t bfp_cathode_time  = point_time+iTimeSlice*SCINCILATION_dT+(fiber_length-point_z_in_fiber)/SPEED_OF_LIGHT_IN_MATERIAL;
+      
+      Double_t bfp_remainig_photons_count = photon_count*TMath::Exp(-SCINCILATION_dT*(Double_t)iTimeSlice/SCINCILATION_TAU);
+      
+      Double_t bfp_photon_count = photon_count*TMath::Exp(-SCINCILATION_dT*(Double_t)(iTimeSlice+1)/SCINCILATION_TAU)
+                                      *SCINCILATION_dT/SCINCILATION_TAU;
+                                    
+      Double_t k1 = 0.5-LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION;
+      Double_t k2 = LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION;
+      bfp_photon_count =  bfp_photon_count*(k1*exp(-(fiber_length-point_z_in_fiber)/0.5) 
+                                                   + k2*exp(-(fiber_length-point_z_in_fiber)/200.));
+      bfp_remainig_photons_count = bfp_remainig_photons_count*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
+      
+      Double_t remainingPhotoEl = bfp_remainig_photons_count*SCINCILATION_TAU/SCINCILATION_dT;
+      if(remainingPhotoEl < PE_COUNT_FOR_ONE_ELECTRONS_SIM){
+        for(Int_t iOnePESignal=0;iOnePESignal<remainingPhotoEl;iOnePESignal++){
+          //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
+          bfp_cathode_time = point_time+iTimeSlice*SCINCILATION_dT + (-1)*SCINCILATION_TAU*TMath::Log(1-rand->Uniform());
+          Double_t bfp_amplitude = PMT_GAIN;
+          Double_t bfp_anode_time = bfp_cathode_time + (Double_t)rand->Gaus(PMT_DELAY, PMT_JITTER);
+          ERNeuRadFiberPoint* bfPoint = AddFiberPoint(1, bfp_cathode_time, bfp_anode_time, bfp_photon_count,
+                              1, bfp_amplitude);
+          backPointsPerFibers[point_fiber_nb].push_back(bfPoint);
+        } 
+        break;
+      }
+      
+      Double_t bfp_photoel_count = (Double_t)rand->PoissonD( bfp_photon_count *PMT_QUANTUM_EFFICIENCY);
+      
+      Double_t bfp_amplitude = rand->Gaus(bfp_photoel_count * PMT_GAIN,
+                                bfp_photoel_count * TMath::Sqrt(EXCESS_NOISE_FACTOR));
+                                
+      Double_t bfp_anode_time = bfp_cathode_time + (Double_t)rand->Gaus(PMT_DELAY, PMT_JITTER);
+      
+      if (bfp_amplitude > 0.){
+        ERNeuRadFiberPoint* bfPoint = AddFiberPoint(1, bfp_cathode_time, bfp_anode_time, bfp_photon_count,
+                              bfp_photoel_count, bfp_amplitude);
+        backPointsPerFibers[point_fiber_nb].push_back(bfPoint);
+      }
+      iTimeSlice++;
+    }
   }
   /*
     Implementation of piecewise linear approximation of PMT fiber point impuls from 
@@ -194,6 +269,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
       pmtBSignal->AddFiberPoint(FPoint);
     }
   }
+  
 }
 // ----------------------------------------------------------------------------
 

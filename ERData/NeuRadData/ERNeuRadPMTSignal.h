@@ -21,8 +21,8 @@ typedef std::map<double, double> SignalPointsMap;
 class ERNeuRadPMTSignal : public TObject
 {
  private:
-  SignalPointsMap fSignalPoints;  
-
+  SignalPointsMap fSignalPoints;  //sum signal
+  std::vector<SignalPointsMap> fSeparateSignals; //points of fiberPoinsSignals
  public:
 
   /** Default constructor **/
@@ -36,6 +36,10 @@ class ERNeuRadPMTSignal : public TObject
   void AddFiberPoint(ERNeuRadFiberPoint* fpoint);
 
   SignalPointsMap GetSignalPoints() {return fSignalPoints;}
+  
+  bool Exist(){return (fSignalPoints.size() > 0);}
+  int GetNumberOfSeparatesSignals(){return fSeparateSignals.size();};
+  SignalPointsMap GetSeparateSignal(int i){return fSeparateSignals[i];}
   
   ClassDef(ERNeuRadPMTSignal,1);
 };
