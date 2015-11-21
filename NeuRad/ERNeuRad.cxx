@@ -58,7 +58,7 @@ void ERNeuRad::Initialize()
 Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   // Set constants for Birk's Law implentation
   static Double_t dP = 1.032 ;
-  static Double_t BirkC0 =  1.;
+  //static Double_t BirkC0 =  1.;
   static Double_t BirkC1 =  0.013/dP;
   static Double_t BirkC2 =  9.6e-6/(dP * dP);
   
@@ -136,18 +136,18 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   if (gMC->TrackCharge()!=0) { // Return the charge of the track currently transported
     Double_t BirkC1Mod = 0;
     // Apply correction for higher charge states
-    if (BirkC0==1){
+    //if (BirkC0==1){
       if (TMath::Abs(gMC->TrackCharge())>=2)
         BirkC1Mod=BirkC1*7.2/12.6;
       else
         BirkC1Mod=BirkC1;
-    }
+    //}
 
     if (gMC->TrackStep()>0)
     {
-      Double_t dedxcm=gMC->Edep()/gMC->TrackStep(); //[GeV/cm]
-      Double_t curLightYield=gMC->Edep()/(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[GeV]
-      
+      Double_t dedxcm=gMC->Edep()*1000./gMC->TrackStep(); //[MeV/cm]
+      Double_t curLightYield=gMC->Edep()*1000./(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
+      curLightYield /= 1000.; //[GeV]
       lightYield+=curLightYield;
     }
   }

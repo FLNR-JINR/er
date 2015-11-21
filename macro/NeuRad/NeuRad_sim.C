@@ -1,4 +1,4 @@
-void NeuRad_sim(Int_t nEvents = 1){
+void NeuRad_sim(Int_t nEvents = 100){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -55,7 +55,7 @@ void NeuRad_sim(Int_t nEvents = 1){
   Int_t pdgId = 2112; // neutron  beam
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 7.;
-  Double32_t momentum = .100; //GeV
+  Double32_t momentum = .200; //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);

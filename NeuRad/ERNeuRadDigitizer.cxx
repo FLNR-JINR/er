@@ -3,8 +3,10 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <vector>
 
 using std::sort;
+using std::vector;
 
 #include "TGeoManager.h"
 #include "TClonesArray.h"
@@ -42,7 +44,8 @@ const Double_t ERNeuRadDigitizer::SCINCILATION_dT = 1.;  //[ns]
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer()
   : FairTask("ER NeuRad Digitization scheme"),
-  fFiberThreshold(0.)
+  fFiberThreshold(0.),
+  fDiscriminatorThreshold(0.)
 {
 }
 // ----------------------------------------------------------------------------
@@ -50,7 +53,8 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   : FairTask("ER NeuRad Digitization scheme ", verbose),
-  fFiberThreshold(0.)
+  fFiberThreshold(0.),
+  fDiscriminatorThreshold(0.)
 {
 }
 // ----------------------------------------------------------------------------
@@ -254,8 +258,8 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
     Румянцев "Алгоритм пространственно-временного поиска импульсных сигналов в режиме одноканальной
     регистрации однофотонных импульсов"
   */
-  //Вводим массив кусочнолинейных сигналов по колличеству файберов
   
+  Int_t digiCount = 0;
   //Формируем кусочно линейные сигналы для каждого файбера
   for (Int_t iFiber = 0; iFiber < fNFibers; iFiber++) {
     ERNeuRadPMTSignal* pmtFSignal = AddPMTSignal();
@@ -263,10 +267,22 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
       ERNeuRadFiberPoint* FPoint = frontPointsPerFibers[iFiber][iFPoint];
       pmtFSignal->AddFiberPoint(FPoint);
     }
+    if (pmtFSignal->Exist()){
+      vector<Double_t> intersections = pmtFSignal->GetIntersections(fDiscriminatorThreshold);
+      for (Int_t iInter = 0; iInter < intersections.size(); iInter+=2){
+        AddDigi(digiCount++, intersections[iInter], intersections[iInter+1],0., 0.,0.,0.,iFiber);
+      }
+    }
     ERNeuRadPMTSignal* pmtBSignal = AddPMTSignal();
     for(Int_t iFPoint = 0; iFPoint < backPointsPerFibers[iFiber].size(); iFPoint++){
       ERNeuRadFiberPoint* FPoint = backPointsPerFibers[iFiber][iFPoint];
       pmtBSignal->AddFiberPoint(FPoint);
+    }
+    if (pmtBSignal->Exist()){
+      vector<Double_t> intersections = pmtBSignal->GetIntersections(fDiscriminatorThreshold);
+      for (Int_t iInter = 0; iInter < intersections.size(); iInter+=2){
+        AddDigi(digiCount++, intersections[iInter], intersections[iInter+1],0., 0.,0.,0.,iFiber);
+      }
     }
   }
   

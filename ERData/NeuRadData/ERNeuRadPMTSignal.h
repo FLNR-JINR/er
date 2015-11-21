@@ -40,6 +40,7 @@ class ERNeuRadPMTSignal : public TObject
   bool Exist(){return (fSignalPoints.size() > 0);}
   int GetNumberOfSeparatesSignals(){return fSeparateSignals.size();};
   SignalPointsMap GetSeparateSignal(int i){return fSeparateSignals[i];}
+  std::vector<Double_t> GetIntersections(Double_t discriminatorThreshold);
   
   ClassDef(ERNeuRadPMTSignal,1);
 };

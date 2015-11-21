@@ -172,4 +172,42 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
 }
 // -------------------------------------------------------------------------
 
+// -------------------------------------------------------------------------
+vector<Double_t> ERNeuRadPMTSignal::GetIntersections(Double_t discriminatorThreshold){
+  vector<Double_t> intersections;
+
+  SignalPointsMap::iterator itSp= fSignalPoints.begin();
+  itSp++;
+  SignalPointsMap::iterator itPrevSp;
+  bool inSignal = false;
+  for (; itSp != fSignalPoints.end(); itSp++){
+    itPrevSp= itSp;
+    itPrevSp--;
+    if (!inSignal){
+      if(itSp->second < discriminatorThreshold){
+        continue;
+      }else{
+        inSignal = true;
+        Double_t intersect = (discriminatorThreshold - itPrevSp->second)/(itSp->second - itPrevSp->second)
+                      *(itSp->first - itPrevSp->first) + itPrevSp->first;
+                      
+        intersections.push_back(intersect);
+      }
+    }
+    else{
+      if(itSp->second > discriminatorThreshold){
+        continue;
+      }else{
+        inSignal = false;
+        Double_t intersect = (discriminatorThreshold - itPrevSp->second)/(itSp->second - itPrevSp->second)
+                      *(itSp->first - itPrevSp->first) + itPrevSp->first;
+                      
+        intersections.push_back(intersect);
+      }  
+    }
+  }
+  return intersections;
+}
+// -------------------------------------------------------------------------
+
 ClassImp(ERNeuRadPMTSignal);

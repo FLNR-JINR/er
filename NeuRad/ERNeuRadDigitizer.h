@@ -49,10 +49,10 @@ public:
   
   /** Modifiers **/
   inline void SetFiberThreshold(const Double_t& fiberThreshold) {fFiberThreshold = fiberThreshold; }
-  
+  inline void SetDiscriminatorThreshold(const Double_t& discrThreshold)
+                                                        {fDiscriminatorThreshold = discrThreshold; }
   /** Accessors **/
   inline Double_t  GetFiberThreshold() const { return fFiberThreshold; }
-  
 protected:
   //Geometry parameters
   Int_t fNFibers;
@@ -84,7 +84,7 @@ protected:
   
   //Allow for user params
   Double_t fFiberThreshold;
-  
+  Double_t fDiscriminatorThreshold; //[mV]
 protected:
   ERNeuRadFiberPoint* AddFiberPoint(Int_t side, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count, Int_t photoel_count, 
