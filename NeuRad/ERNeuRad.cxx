@@ -78,11 +78,13 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   static Int_t          stepNr;            //!  current step numb in this active volumes
   static ExpertTrackingStatus trackStatus;
   static Double_t charge;
+  static Int_t pid; 
   
   trackStatus = ERNeuRadStep::GetTrackStatus();
   TArrayI processesID;  
   gMC->StepProcesses(processesID);
   charge = gMC->TrackCharge();
+  LOG(INFO) << gMC->TrackPid() << " " << gMC->TrackCharge() << FairLogger::endl;
   
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     eLoss  = 0.;
@@ -98,6 +100,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
     Int_t curVolId =  gMC->CurrentVolID(fiberInBundleNb);
+    pid = gMC->TrackPid();
     
     if (fNeuRadFirstStep->GetEntriesFast() == 0){
       AddFirstStep( eventID, stepNr+1, trackID, mot0TrackID, fiberInBundleNb-1,
@@ -165,7 +168,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
                 TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
                 TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
                 TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                time, length, eLoss, lightYield);
+                time, length, eLoss, lightYield, pid, charge);
     }
 	}
   return kTRUE;
@@ -250,11 +253,11 @@ ERNeuRadPoint* ERNeuRad::AddPoint(Int_t eventID, Int_t trackID,
 				    TVector3 posIn,
 				    TVector3 posOut, TVector3 momIn,
 				    TVector3 momOut, Double_t time,
-				    Double_t length, Double_t eLoss, Double_t lightYield) {
+				    Double_t length, Double_t eLoss, Double_t lightYield, Int_t pid, Double_t charge) {
   TClonesArray& clref = *fNeuRadPoints;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) ERNeuRadPoint(eventID, trackID, mot0trackID, fiberInBundleNb, mass,
-					  posIn, posOut, momIn, momOut, time, length, eLoss, lightYield);
+					  posIn, posOut, momIn, momOut, time, length, eLoss, lightYield, pid, charge);
 	
 }
 // ----------------------------------------------------------------------------

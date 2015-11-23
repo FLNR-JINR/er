@@ -47,9 +47,9 @@ class ERNeuRadPoint : public FairMCPoint
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Double_t lightYield);
-
-
+		  Double_t tof, Double_t length, Double_t eLoss,
+      Double_t lightYield, Int_t pid, Double_t charge) ;
+      
   /** Copy constructor **/
   ERNeuRadPoint(const ERNeuRadPoint&);
   
@@ -76,6 +76,8 @@ class ERNeuRadPoint : public FairMCPoint
   Double_t GetMass() const { return fMass; }
   Double_t GetLightYield() const {return fLightYield;}
   Double_t GetFiberInBundleNb() const {return fFiberInBundleNb;}
+  Int_t GetPID() const {return fPID;}
+  Double_t GetCharge() const {return fCharge;}
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
@@ -102,6 +104,8 @@ class ERNeuRadPoint : public FairMCPoint
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
   Double_t fLightYield;
+  Int_t fPID;
+  Double_t fCharge;
 
   ClassDef(ERNeuRadPoint,1)
 };

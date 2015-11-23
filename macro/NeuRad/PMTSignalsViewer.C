@@ -44,10 +44,6 @@ void PMTSignalsViewer(){
     }
     TGraph* gr = signals_gr[iSignal];
     gr = new TGraph(signal_mas[iSignal].nb,signal_mas[iSignal].x, signal_mas[iSignal].y);
-    TString title = "NeuRad PMT Signal in fiber number " + iSignal;
-    gr->SetTitle(title);
-    gr->GetXaxis()->SetTitle("Time [ns]");
-    gr->GetYaxis()->SetTitle("U [mV]");
     //gr->Draw("AL*");
     gr->SetLineWidth(5);
     mg->Add(gr);
@@ -76,6 +72,11 @@ void PMTSignalsViewer(){
   //}
   
   TCanvas *c1 = new TCanvas("NeuRad PMTSignal","NeuRad PMTSignal",200,10,700,500);
-  mg->Draw("AL*");
+  TString title = "NeuRad PMT Signal in fiber number " + iSignal;
+  mg->SetTitle(title);
+  mg->Draw("AL");
+  mg->GetXaxis()->SetTitle("Time [ns]");
+  mg->GetYaxis()->SetTitle("U [mV]");
+  gPad->Modified();
   
 }

@@ -22,13 +22,13 @@ ERNeuRadPoint::ERNeuRadPoint(Int_t eventID, Int_t trackID,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Double_t lightYield)
+		  Double_t tof, Double_t length, Double_t eLoss, Double_t lightYield, Int_t pid, Double_t charge)
   : FairMCPoint(trackID, -1., posIn, momIn, tof, length, eLoss),
     fEventID(eventID),
     fFiberInBundleNb(fiberInBundleNb),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
-    fLightYield(lightYield)
+    fLightYield(lightYield), fPID(pid), fCharge(charge)
 {
 }
 // -------------------------------------------------------------------------
