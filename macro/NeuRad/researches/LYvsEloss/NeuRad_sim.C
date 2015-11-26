@@ -1,5 +1,5 @@
-void NeuRad_sim(Int_t nEvents = 1){
-  //---------------------Files-----------------------------------------------
+void NeuRad_sim(Int_t nEvents = 9){
+   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
   // ------------------------------------------------------------------------
@@ -46,7 +46,7 @@ void NeuRad_sim(Int_t nEvents = 1){
    * SetStorePrimarySteps() - store only primary particle step
    * SetStoreAllSteps() - store all steps. WARNING - very slow
   */
-  neuRad->SetStoreAllSteps();
+  //neuRad->SetStoreAllSteps();
   run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 	
@@ -54,14 +54,15 @@ void NeuRad_sim(Int_t nEvents = 1){
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   Int_t pdgId = 2112; // neutron  beam
   Double32_t theta1 = 0.;  // polar angle distribution
-  Double32_t theta2 = 7.;
-  Double32_t momentum = .200; //GeV
+  Double32_t theta2 = 0.;
+  Double32_t kin_energy = .250; //GeV
+  Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
+  Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-  boxGen->SetThetaRange(theta1, theta1);
+  boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(45, 135);
-  boxGen->SetXYZ(0.15,0.15, -51.0);
-
+  boxGen->SetPhiRange(90,90);
+  boxGen->SetBoxXYZ(0.,0.,0.6,0.6,-51.0);
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------

@@ -37,9 +37,9 @@ const Double_t ERNeuRadDigitizer::PMT_GAIN = 5; // [mV/p.e]
 const Double_t ERNeuRadDigitizer::EXCESS_NOISE_FACTOR = 1.3;
 const Double_t ERNeuRadDigitizer::PMT_DELAY=6.;     //[ns] (H8500)
 const Double_t ERNeuRadDigitizer::PMT_JITTER = 0.4; //[ns] (H8500)
-const Int_t    ERNeuRadDigitizer::PE_COUNT_FOR_ONE_ELECTRONS_SIM = 10;
+const Int_t    ERNeuRadDigitizer::PE_COUNT_FOR_ONE_ELECTRONS_SIM = 20;
 const Double_t ERNeuRadDigitizer::SCINCILATION_TAU = 3.2; //[ns]
-const Double_t ERNeuRadDigitizer::SCINCILATION_dT = 0.5;  //[ns]
+const Double_t ERNeuRadDigitizer::SCINCILATION_dT = 0.05;  //[ns]
 
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer()
@@ -151,7 +151,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
     Double_t photon_count = point_lightYield*1000.*SciFi_LIGHT_YIELD;
     
     Int_t iTimeSlice = 1;
-    
+    LOG(INFO) << "photon_count = " << photon_count << FairLogger::endl;
     //Моделируем распространнение сигнала на передние ФЭУ
     while(1){
       //ffp - front fiber point, bfp - back_fiber_point
@@ -168,6 +168,8 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
         second one is for attrenuation of the totally reflected in the WLS. At 
         the ends - half of the light goes to the nearest photocathode 
       */
+      LOG(INFO) << "ffp_cathode_time = " << ffp_cathode_time << " ffp_remainig_photons_count =" << 
+                ffp_remainig_photons_count << " ffp_photon_count=" << ffp_photon_count << FairLogger::endl;
       Double_t k1 = 0.5-LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION;
       Double_t k2 = LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION;
       
@@ -175,7 +177,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
       ffp_remainig_photons_count = ffp_remainig_photons_count*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
       //Если число фотоэлектронов, оставшихся в конце высвечивания меньше заданного моделируем их как одноэлектронные импульсы
       //Моделирование хвоста высвечивания
-      Double_t remainingPhotoEl = ffp_remainig_photons_count*SCINCILATION_TAU/SCINCILATION_dT;
+      Double_t remainingPhotoEl = ffp_remainig_photons_count*PMT_QUANTUM_EFFICIENCY/SCINCILATION_TAU;
       if(remainingPhotoEl < PE_COUNT_FOR_ONE_ELECTRONS_SIM){
         for(Int_t iOnePESignal=0;iOnePESignal<remainingPhotoEl;iOnePESignal++){
           //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
@@ -185,12 +187,14 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
           ERNeuRadFiberPoint* ffPoint = AddFiberPoint(0, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
                               1, ffp_amplitude);
           frontPointsPerFibers[point_fiber_nb].push_back(ffPoint);
-        } 
+        }
         break;
       }
       //Take into account quantum efficiency. Photoelectrons count
       //@todo Среднее значение квантовой эфективности должно быть разным для каждого файбера
       Double_t ffp_photoel_count = (Double_t)rand->PoissonD( ffp_photon_count *PMT_QUANTUM_EFFICIENCY);
+      
+      if (ffp_photoel_count < 1.) continue;
       
       //Take into account pmt gain
       Double_t ffp_amplitude = rand->Gaus(ffp_photoel_count * PMT_GAIN,
@@ -224,7 +228,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
                                                    + k2*exp(-(fiber_length-point_z_in_fiber)/200.));
       bfp_remainig_photons_count = bfp_remainig_photons_count*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
       
-      Double_t remainingPhotoEl = bfp_remainig_photons_count*SCINCILATION_TAU/SCINCILATION_dT;
+      Double_t remainingPhotoEl = bfp_remainig_photons_count*PMT_QUANTUM_EFFICIENCY/SCINCILATION_TAU;
       if(remainingPhotoEl < PE_COUNT_FOR_ONE_ELECTRONS_SIM){
         for(Int_t iOnePESignal=0;iOnePESignal<remainingPhotoEl;iOnePESignal++){
           //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
@@ -239,6 +243,8 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
       }
       
       Double_t bfp_photoel_count = (Double_t)rand->PoissonD( bfp_photon_count *PMT_QUANTUM_EFFICIENCY);
+      
+      if (bfp_photoel_count < 1.) continue;
       
       Double_t bfp_amplitude = rand->Gaus(bfp_photoel_count * PMT_GAIN,
                                 bfp_photoel_count * TMath::Sqrt(EXCESS_NOISE_FACTOR));

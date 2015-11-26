@@ -9,6 +9,8 @@
 #include "TVirtualMC.h"
 #include "TString.h"
 
+#include <iostream>
+
 
 // -----   Default constructor   -------------------------------------------
 ERNeuRad::ERNeuRad() : ERDetector("ERNeuRad", kTRUE),
@@ -84,7 +86,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   TArrayI processesID;  
   gMC->StepProcesses(processesID);
   charge = gMC->TrackCharge();
-  LOG(INFO) << gMC->TrackPid() << " " << gMC->TrackCharge() << FairLogger::endl;
+  /*LOG(INFO) << gMC->TrackPid() << " " << gMC->TrackCharge() << FairLogger::endl;*/
   
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     eLoss  = 0.;
@@ -133,7 +135,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
     if (fVerbose > 2)
       step->Print();
   }
-
+  Double_t curLightYield = 0.;
   // Apply Birk's law ( Adapted from G3BIRK/Geant3)
   // Correction for all charge states
   if (gMC->TrackCharge()!=0) { // Return the charge of the track currently transported
@@ -149,7 +151,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
     if (gMC->TrackStep()>0)
     {
       Double_t dedxcm=gMC->Edep()*1000./gMC->TrackStep(); //[MeV/cm]
-      Double_t curLightYield=gMC->Edep()*1000./(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
+      curLightYield=gMC->Edep()*1000./(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
       curLightYield /= 1000.; //[GeV]
       lightYield+=curLightYield;
     }
@@ -168,9 +170,16 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
                 TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
                 TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
                 TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                time, length, eLoss, lightYield, pid, charge);
+                time, length, eLoss, lightYield, gMC->TrackPid(), gMC->TrackCharge());
     }
 	}
+  Double_t px, py, pz, tot;
+  
+  gMC->TrackMomentum (px,py,pz,tot);
+  
+  std::cout << gMC->IsTrackEntering() << " " << gMC->TrackPid()  << " " << gMC->Edep() << " " << gMC->TrackStep() << " " << curLightYield << " "  
+            << TMCProcessName[processesID[0]]<< " " << fiberInBundleNb-1 << " px = " << px << " py=" << py << " pz=" << pz << std::endl;
+  
   return kTRUE;
 }
 

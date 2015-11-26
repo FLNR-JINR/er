@@ -24,12 +24,12 @@ void PMTSignalsViewer(){
   TGraph* separateSignals_gr[1000][100];
   TMultiGraph *mg = new TMultiGraph();
   //for (int iSignal = 0; iSignal < pmtSignals->GetEntriesFast(); iSignal++){
-    Int_t iSignal = 54;
+    Int_t iSignal = 90;
     ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)pmtSignals->At(iSignal);
     
     if (!signal->Exist())
       continue;
-    
+    cout << iSignal << endl;
     map<double, double> sPointsMap = signal->GetSignalPoints();
     signal_mas[iSignal].nb = 0;
     for (map<double,double>::iterator it = sPointsMap.begin(); it != sPointsMap.end(); it++){
@@ -65,7 +65,7 @@ void PMTSignalsViewer(){
         separateSignals_gr[iSignal][issig] = new TGraph(separateSignals_mas[iSignal][issig].nb,separateSignals_mas[iSignal][issig].x,
                             separateSignals_mas[iSignal][issig].y);
         ///gr1->Draw("AL*");
-        separateSignals_gr[iSignal][issig]->SetLineColorAlpha(issig+2, 1.);
+        separateSignals_gr[iSignal][issig]->SetLineColorAlpha(3, 1.);
         mg->Add(separateSignals_gr[iSignal][issig]);
         cout<<separateSignals_mas[iSignal][issig].nb<<endl;
       }
