@@ -9,6 +9,8 @@
 #include <vector>
 using std::vector;
 
+#include "TRandom3.h"
+
 #include "FairTask.h"
 #include "ERNeuRadDigi.h"
 #include "ERNeuRadFiberPoint.h"
@@ -66,21 +68,26 @@ protected:
   TClonesArray *fNeuRadPMTSignal;
   TClonesArray *fNeuRadDigi;
   
+  //Outputs counts
+  Int_t fNeuRadFiberPointCount;
+  Int_t fNeuRadPMTSignalCount;
+  Int_t fNeuRadDigiCount;
+  
   //constants
-  static const Double_t SciFi_LIGHT_YIELD; // [photons/MeV]
-  static const Double_t SPEED_OF_LIGHT; //[cm/ns]
-  static const Double_t SPEED_OF_LIGHT_IN_MATERIAL;//[cm/ns]
-  static const Int_t    ERROR_POINTS_IN_MODULE_COUNT;
-  static const Double_t LIGHT_FRACTION_IN_TOTAL_INT_REFLECTION;
+  static const Double_t cSciFiLightYield; // [photons/MeV]
+  static const Double_t cSpeedOfLight; //[cm/ns]
+  static const Double_t cMaterialSpeedOfLight;//[cm/ns]
+  static const Int_t    cErrorPointsInModuleCount;
+  static const Double_t cLightFractionInTotalIntReflection;
   //доля света захватываемая файбером в полное внутренне отражение в каждую сторону.
-  static const Double_t PMT_QUANTUM_EFFICIENCY;
-  static const Double_t PMT_GAIN;
-  static const Double_t EXCESS_NOISE_FACTOR;
-  static const Double_t PMT_DELAY;
-  static const Double_t PMT_JITTER;
-  static const Int_t    PE_COUNT_FOR_ONE_ELECTRONS_SIM;
-  static const Double_t SCINCILATION_TAU; //[ns]
-  static const Double_t SCINCILATION_dT;  //[ns]
+  static const Double_t cPMTQuantumEfficiency;
+  static const Double_t cPMTGain;
+  static const Double_t cExcessNoiseFactor;
+  static const Double_t cPMTDelay;
+  static const Double_t cPMTJitter;
+  static const Int_t    cPECountForOneElectronsSim;
+  static const Double_t cScincilationTau; //[ns]
+  static const Double_t cScincilationDT;  //[ns]
   
   //Allow for user params
   Double_t fFiberThreshold;
@@ -92,14 +99,22 @@ protected:
 
   ERNeuRadPMTSignal* AddPMTSignal();
   
-  ERNeuRadDigi* AddDigi(Int_t digi_nr, Double_t frontTDC, Double_t backTDC,
+  ERNeuRadDigi* AddDigi(Double_t frontTDC, Double_t backTDC,
                                       Double_t TDC, Double_t frontQDC, Double_t backQDC, Double_t QDC,
                                       Int_t fiber_nr);
 
 private:
-
+  TRandom3  *fRand;
 private:
   virtual void SetParContainers();
+  
+  void FiberPointsCreating(Int_t i_point,
+                          std::vector<ERNeuRadFiberPoint* >* frontPointsPerFibers,
+                          std::vector<ERNeuRadFiberPoint* >* backPointsPerFibers);
+                        
+  void PMTSignalsAndDigiCreating(Int_t iFiber,
+                                std::vector<ERNeuRadFiberPoint* >* frontPointsPerFibers,
+                                std::vector<ERNeuRadFiberPoint* >* backPointsPerFibers);
 
   ClassDef(ERNeuRadDigitizer,1)
 };
