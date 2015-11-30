@@ -5,7 +5,8 @@
 #include "ERNeuRadPMTSignal.h"
 
 #include "FairLogger.h"
-
+#include <iostream>
+#include <algorithm>
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
@@ -31,7 +32,6 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   Double_t A3 = fpoint->Amplitude();
   Double_t t4 = t3 + 0.8;
   Double_t A4 = 0.;
-  
   SignalPointsMap separateSignal;
   separateSignal.insert(SignalPoint(t1,A1));
   separateSignal.insert(SignalPoint(t2,A2));
@@ -40,22 +40,22 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   fSeparateSignals.push_back(separateSignal);
   //if first fiber point in signal
   if (fSignalPoints.size() == 0){
-    LOG(INFO) << "First fiber point" << FairLogger::endl;
-    LOG(INFO) << t1 << " " << A1 << FairLogger::endl;
-    LOG(INFO) << t2 << " " << A2 << FairLogger::endl;
-    LOG(INFO) << t3 << " " << A3 << FairLogger::endl;
-    LOG(INFO) << t4 << " " << A4 << FairLogger::endl;
+    //LOG(INFO) << "First fiber point" << FairLogger::endl;
+    //LOG(INFO) << t1 << " " << A1 << FairLogger::endl;
+    //LOG(INFO) << t2 << " " << A2 << FairLogger::endl;
+    //LOG(INFO) << t3 << " " << A3 << FairLogger::endl;
+    //LOG(INFO) << t4 << " " << A4 << FairLogger::endl;
     fSignalPoints.insert(SignalPoint(t1,A1));
     fSignalPoints.insert(SignalPoint(t2,A2));
     fSignalPoints.insert(SignalPoint(t3,A3));
     fSignalPoints.insert(SignalPoint(t4,A4));
     return;
   }
-  LOG(INFO) << "Next fiber point" << FairLogger::endl;
-  LOG(INFO) << t1 << " " << A1 << FairLogger::endl;
-  LOG(INFO) << t2 << " " << A2 << FairLogger::endl;
-  LOG(INFO) << t3 << " " << A3 << FairLogger::endl;
-  LOG(INFO) << t4 << " " << A4 << FairLogger::endl; 
+  //LOG(INFO) << "Next fiber point" << FairLogger::endl;
+  //LOG(INFO) << t1 << " " << A1 << FairLogger::endl;
+  //LOG(INFO) << t2 << " " << A2 << FairLogger::endl;
+  //LOG(INFO) << t3 << " " << A3 << FairLogger::endl;
+  //LOG(INFO) << t4 << " " << A4 << FairLogger::endl; 
 
   /*
   Ќеобходимо вычислить сумму текущего сигнала и сигнала от нового FiberPoint
@@ -63,15 +63,17 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   но также, если это необходимо пересчитать амплитуды в тех точках, что уже были на оси.
   ƒл€ этого сначала введем map изменений, а после всех вычислений применим его
   */
+  
   struct Change{SignalPointsMap::iterator it; Double_t value;};
   vector<Change> changes;
-
+  vector<Double_t> fpTimes;
+  
   SignalPointsMap::iterator itFirstSPoint,itSecSPoint, itSPrevPoint,itSNextPoint;
   
   pair<SignalPointsMap::iterator,bool> ret;
   ret = fSignalPoints.insert(SignalPoint(t1,A1));
-  
   itFirstSPoint= ret.first;
+  fpTimes.push_back(t1);
   itSNextPoint = itFirstSPoint;
   itSNextPoint++;
   //»змен€ем амлитуду первой точки, если она попадает на участок с существующим сигналом
@@ -86,6 +88,7 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   }
 
   ret = fSignalPoints.insert(SignalPoint(t2,A2));
+  fpTimes.push_back(t2);
   itSecSPoint = ret.first;
   itSNextPoint = itSecSPoint;
   itSNextPoint++;
@@ -93,7 +96,7 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   if (!(itSNextPoint == fSignalPoints.end())){
     itSPrevPoint = itSecSPoint;
     itSPrevPoint--;
-    if (itSPrevPoint == itFirstSPoint && itFirstSPoint != fSignalPoints.begin())
+    while (find(fpTimes.begin(), fpTimes.end(), itSPrevPoint->first) != fpTimes.end())
       itSPrevPoint--;
     Double_t newValue = itSecSPoint->second + (itSNextPoint->second - itSPrevPoint->second)/(itSNextPoint->first - itSPrevPoint->first)
             *(itSecSPoint->first-itSPrevPoint->first) + itSPrevPoint->second;
@@ -112,6 +115,7 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   }
 
   ret = fSignalPoints.insert(SignalPoint(t3,A3));
+  fpTimes.push_back(t3);
   //»змен€ем амлитуду третьей точки, если она попадает на участок с существующим сигналом
   itFirstSPoint = itSecSPoint;
   itSecSPoint = ret.first;
@@ -120,7 +124,7 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   if (!(itSNextPoint == fSignalPoints.end())){
     itSPrevPoint = itSecSPoint;
     itSPrevPoint--;
-    if (itSPrevPoint == itFirstSPoint && itFirstSPoint != fSignalPoints.begin())
+    while (find(fpTimes.begin(), fpTimes.end(), itSPrevPoint->first) != fpTimes.end())
       itSPrevPoint--;
     Double_t newValue = itSecSPoint->second + (itSNextPoint->second - itSPrevPoint->second)/(itSNextPoint->first - itSPrevPoint->first)
             *(itSecSPoint->first-itSPrevPoint->first) + itSPrevPoint->second;
@@ -139,6 +143,7 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   }
 
   ret = fSignalPoints.insert(SignalPoint(t4,A4));
+  fpTimes.push_back(t4);
   //»змен€ем амлитуду четвертой точки, если она попадает на участок с существующим сигналом
   itFirstSPoint = itSecSPoint;
   itSecSPoint = ret.first;
@@ -147,7 +152,7 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   if (!(itSNextPoint == fSignalPoints.end())){
     itSPrevPoint = itSecSPoint;
     itSPrevPoint--;
-    if (itSPrevPoint == itFirstSPoint && itFirstSPoint != fSignalPoints.begin())
+    while (find(fpTimes.begin(), fpTimes.end(), itSPrevPoint->first) != fpTimes.end())
       itSPrevPoint--;
     Double_t newValue = itSecSPoint->second + (itSNextPoint->second - itSPrevPoint->second)/(itSNextPoint->first - itSPrevPoint->first)
             *(itSecSPoint->first-itSPrevPoint->first) + itSPrevPoint->second;
@@ -169,6 +174,7 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   for (vector<Change>::iterator it = changes.begin(); it != changes.end(); ++it){
     (*it).it->second = (*it).value;
   }
+  
 }
 // -------------------------------------------------------------------------
 

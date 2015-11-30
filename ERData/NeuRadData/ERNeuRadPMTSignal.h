@@ -13,12 +13,14 @@
 
 #include <map>
 
+#include "FairMultiLinkedData.h"
+
 #include "ERNeuRadFiberPoint.h"
 
 typedef std::pair<double, double> SignalPoint; //<time, amplitude>
 typedef std::map<double, double> SignalPointsMap; 
 
-class ERNeuRadPMTSignal : public TObject
+class ERNeuRadPMTSignal : public FairMultiLinkedData
 {
  private:
   SignalPointsMap fSignalPoints;  //sum signal

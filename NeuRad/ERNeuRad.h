@@ -140,8 +140,8 @@ private:
 			  Double_t mass,
 			  TVector3 posIn,
 			  TVector3 pos_out, TVector3 momIn,
-			  TVector3 momOut, Double_t time,
-			  Double_t length, Double_t eLoss,
+			  TVector3 momOut, Double_t time, Double_t timeOut,
+			  Double_t trackLength, Double_t eLoss,
         Double_t lightYield, Int_t pid, Double_t charge);
   
   /** Private method AddFirstStep

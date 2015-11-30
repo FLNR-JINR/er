@@ -22,13 +22,19 @@ void PMTSignalsViewer(){
   TGraph* signals_gr[1000];
   Signal separateSignals_mas[1000][100];
   TGraph* separateSignals_gr[1000][100];
-  TMultiGraph *mg = new TMultiGraph();
-  //for (int iSignal = 0; iSignal < pmtSignals->GetEntriesFast(); iSignal++){
-    Int_t iSignal = 90;
+  
+  TCanvas *c1 = new TCanvas("NeuRad PMTSignal","NeuRad PMTSignal",200,10,700,500);
+  c1->Divide(2,1,0,0);
+  int realSignals = 0;
+  for (int iSignal = 0; iSignal < pmtSignals->GetEntriesFast(); iSignal++){
+
     ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)pmtSignals->At(iSignal);
     
     if (!signal->Exist())
       continue;
+    c1->cd(++realSignals);
+    gPad->SetLeftMargin(0.1);
+    TMultiGraph *mg = new TMultiGraph();
     cout << iSignal << endl;
     map<double, double> sPointsMap = signal->GetSignalPoints();
     signal_mas[iSignal].nb = 0;
@@ -69,14 +75,12 @@ void PMTSignalsViewer(){
         mg->Add(separateSignals_gr[iSignal][issig]);
         cout<<separateSignals_mas[iSignal][issig].nb<<endl;
       }
-  //}
-  
-  TCanvas *c1 = new TCanvas("NeuRad PMTSignal","NeuRad PMTSignal",200,10,700,500);
-  TString title = "NeuRad PMT Signal in fiber number " + iSignal;
-  mg->SetTitle(title);
-  mg->Draw("AL");
-  mg->GetXaxis()->SetTitle("Time [ns]");
-  mg->GetYaxis()->SetTitle("U [mV]");
-  gPad->Modified();
-  
+      TString title = "NeuRad PMT Signal in fiber number " + iSignal;
+      mg->SetTitle(title);
+      mg->Draw("AL");
+      mg->GetXaxis()->SetTitle("Time [ns]");
+      mg->GetYaxis()->SetTitle("U [mV]");
+      gPad->Modified();
+  }
+  c1->SaveAs("SignalsMap.png");
 }
