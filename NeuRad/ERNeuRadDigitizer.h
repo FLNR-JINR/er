@@ -15,6 +15,7 @@ using std::vector;
 #include "ERNeuRadDigi.h"
 #include "ERNeuRadFiberPoint.h"
 #include "ERNeuRadPMTSignal.h"
+#include "ERNeuRadDigiPar.h"
 
 class TObjectArray;
 class TH1F;
@@ -56,8 +57,8 @@ public:
   Int_t PMTSignalCount()   const;
   Int_t DigiCount()        const;
 protected:
-  //Geometry parameters
-  Int_t fNFibers;
+  //Digitization parameters
+  ERNeuRadDigiPar* fDigiPar;
   
   //Input arrays
   TClonesArray *fNeuRadPoints;
@@ -75,8 +76,6 @@ protected:
   static const Int_t    cErrorPointsInModuleCount;
   static const Double_t cLightFractionInTotalIntReflection;
   //доля света захватываемая файбером в полное внутренне отражение в каждую сторону.
-  static const Double_t cPMTQuantumEfficiency;
-  static const Double_t cPMTGain;
   static const Double_t cExcessNoiseFactor;
   static const Double_t cPMTDelay;
   static const Double_t cPMTJitter;

@@ -4,10 +4,14 @@
 // -------------------------------------------------------------------------
 #include "ERNeuRad.h"
 #include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "TClonesArray.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
+
+#include "ERNeuRadGeoPar.h"
 
 #include <iostream>
 
@@ -54,6 +58,8 @@ ERNeuRad::~ERNeuRad() {
 void ERNeuRad::Initialize()
 {
   FairDetector::Initialize();
+  FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
+  ERNeuRadGeoPar* par=(ERNeuRadGeoPar*)(rtdb->getContainer("ERNeuRadGeoPar"));
 }
 
 

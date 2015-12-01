@@ -1,4 +1,4 @@
-void NeuRad_digi(Int_t nEvents = 1){
+void NeuRad_digi(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "digi.root";
@@ -15,22 +15,28 @@ void NeuRad_digi(Int_t nEvents = 1){
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
-  
+ 
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
+  fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   
-  fRun->AddTask(digitizer);
-  
-   // -----------Runtime DataBase info --------------------------------------
+  // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  
   FairParRootFileIo*  parIo1 = new FairParRootFileIo();
   parIo1->open(parFile.Data());
   rtdb->setFirstInput(parIo1);
+  
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
+  NeuRadDetDigiFile += "/parameters/NeuRad.digi.par";
+  parInput2->open(NeuRadDetDigiFile.Data(),"in");
+  rtdb->setSecondInput(parInput2);
+  
   rtdb->setOutput(parIo1);
   rtdb->saveOutput();
-  // ------------------------------------------------------------------------
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();

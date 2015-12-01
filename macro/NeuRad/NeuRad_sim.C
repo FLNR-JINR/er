@@ -1,4 +1,4 @@
-void NeuRad_sim(Int_t nEvents = 1){
+void NeuRad_sim(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -38,7 +38,7 @@ void NeuRad_sim(Int_t nEvents = 1){
    * 2 - Print points after each event
    * 3 - - GEANT Step information
   */
-  Int_t verbose = 3;
+  Int_t verbose = 1;
   ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,verbose);
   neuRad->SetGeometryFileName("NeuRad.geo.root");
   /* Select storing stepss
@@ -46,7 +46,7 @@ void NeuRad_sim(Int_t nEvents = 1){
    * SetStorePrimarySteps() - store only primary particle step
    * SetStoreAllSteps() - store all steps. WARNING - very slow
   */
-  neuRad->SetStoreAllSteps();
+  //neuRad->SetStoreAllSteps();
   run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 	
