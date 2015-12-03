@@ -88,6 +88,10 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   trackStatus = ERNeuRadStep::GetTrackStatus();
   TArrayI processesID;  
   gMC->StepProcesses(processesID);
+  TLorentzVector curPosIn;
+  TLorentzVector curMomIn;
+  gMC->TrackPosition(curPosIn);
+  gMC->TrackMomentum(curMomIn);
   
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     StartNewPoint(eventID, eLoss, lightYield, stepNr, posIn, momIn, trackID, mot0TrackID,
@@ -100,25 +104,27 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
                     timeIn, gMC->TrackStep(), gMC->TrackPid(),mass, 
                     trackStatus, gMC->Edep(),gMC->TrackCharge(), processesID);
     }
+    
+
   }
+  
+      if (fStorePrimarySteps && mot0TrackID == -1 && fNeuRadSteps->GetEntriesFast() == 0){
+      ERNeuRadStep* step =  AddStep( eventID, stepNr, trackID, mot0TrackID, fiberInBundleNb-1,
+                                        TVector3(curPosIn.X(),   curPosIn.Y(),   curPosIn.Z()),
+                                        TVector3(curMomIn.X(),   curMomIn.Y(),   curMomIn.Z()),  
+                                        gMC->TrackTime() * 1.0e09, gMC->TrackStep(), gMC->TrackPid(),mass, 
+                                        trackStatus, gMC->Edep(),gMC->TrackCharge(), processesID);
+      if (fVerbose > 2)
+        step->Print();
+    }
   
   eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
   stepNr++;
   
-  
-  if (fStorePrimarySteps && mot0TrackID == -1){
-    ERNeuRadStep* step =  AddStep( eventID, stepNr, trackID, mot0TrackID, fiberInBundleNb-1,
-                                      TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
-                                      TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
-                                      gMC->TrackTime() * 1.0e09, gMC->TrackStep(), gMC->TrackPid(),mass, 
-                                      trackStatus, gMC->Edep(),gMC->TrackCharge(), processesID);
-    if (fVerbose > 2)
-      step->Print();
-  }
   if (fStoreAllSteps){
     ERNeuRadStep* step =  AddStep( eventID, stepNr, trackID, mot0TrackID, fiberInBundleNb-1,
-                                      TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
-                                      TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
+                                      TVector3(curPosIn.X(),   curPosIn.Y(),   curPosIn.Z()),
+                                      TVector3(curMomIn.X(),   curMomIn.Y(),   curMomIn.Z()),  
                                       gMC->TrackTime() * 1.0e09, gMC->TrackStep(), gMC->TrackPid(),mass, 
                                       trackStatus, gMC->Edep(),gMC->TrackCharge(), processesID);
     if (fVerbose > 2)
@@ -267,6 +273,7 @@ void ERNeuRad::Print(Option_t *option) const
 // -----   Public method Reset   ----------------------------------------------
 void ERNeuRad::Reset() {
   fNeuRadPoints->Clear();
+  fNeuRadSteps->Clear();
   fNeuRadFirstStep->Clear();
   ResetParameters();
 }

@@ -103,6 +103,8 @@ void ERNeuRadStep::Print()
             << fEloss << "[KeV]" << FairLogger::endl;
   LOG(INFO) << "track_status = "  << flag.Data() << " track_charge = " << fCharge 
             << "track_nb = " << fTrackID << FairLogger::endl;
+  LOG(INFO) << "track_pos = "  << fX << " " << fY << " " << fZ << FairLogger::endl;
+  LOG(INFO) << "track_mom = "  << fPx << " " << fPy << " " << fPz << FairLogger::endl;
   
   for ( int i = 0 ; i < fProcessID.GetSize(); i++){
     //if(proc.At(i)!=22 && proc.At(i)!=23 && proc.At(i)!=31 && proc.At(i)!=43 &&  proc.At(i)!=13){
