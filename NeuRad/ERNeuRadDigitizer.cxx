@@ -134,19 +134,19 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
     //LOG(INFO) <<"iPoint = " << iPoint << FairLogger::endl;
     ERNeuRadPoint *point = (ERNeuRadPoint*) fNeuRadPoints->At(iPoint);
     
-    if (point->GetLength() < cMaxPointLength){
+    //if (point->GetLength() < cMaxPointLength){
       FiberPointsCreating(iPoint,point,frontPointsPerFibers,backPointsPerFibers);
-      continue;
-    }
+      //continue;
+    //}
     
     //Дробим поинт по длине
-    vector<ERNeuRadPoint*> *points = new vector<ERNeuRadPoint*>;
-    LongPointSeparating(point, points);
+    //vector<ERNeuRadPoint*> *points = new vector<ERNeuRadPoint*>;
+    //LongPointSeparating(point, points);
     
-    for (Int_t jPoint = 0; jPoint < points->size(); jPoint++){
-      ERNeuRadPoint *sepPoint = (*points)[jPoint];
-      FiberPointsCreating(iPoint,sepPoint,frontPointsPerFibers,backPointsPerFibers);
-    }
+    //for (Int_t jPoint = 0; jPoint < points->size(); jPoint++){
+    //  ERNeuRadPoint *sepPoint = (*points)[jPoint];
+    //  FiberPointsCreating(iPoint,sepPoint,frontPointsPerFibers,backPointsPerFibers);
+    //}
   }
   
   //Формируем сигналы на ФЭУ и digi
@@ -417,7 +417,7 @@ ERNeuRadDigi* ERNeuRadDigitizer::AddDigi(Double_t frontTDC, Double_t backTDC,
 // ----------------------------------------------------------------------------
 ERNeuRadPMTSignal* ERNeuRadDigitizer::AddPMTSignal(Int_t iFiber){
   ERNeuRadPMTSignal *pmtSignal = new((*fNeuRadPMTSignal)[PMTSignalCount()])
-							ERNeuRadPMTSignal();            
+							ERNeuRadPMTSignal(iFiber);            
   return pmtSignal;
 }
 // ----------------------------------------------------------------------------

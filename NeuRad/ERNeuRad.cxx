@@ -65,10 +65,9 @@ void ERNeuRad::Initialize()
 
 Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   // Set constants for Birk's Law implentation
-  static Double_t dP = 1.032 ;
-  //static Double_t BirkC0 =  1.;
-  static Double_t BirkC1 =  0.013/dP;
-  static Double_t BirkC2 =  9.6e-6/(dP * dP);
+  static const Double_t dP = 1.032 ;
+  static const Double_t BirkC1 =  0.013/dP;
+  static const Double_t BirkC2 =  9.6e-6/(dP * dP);
   
   /** Track information to be stored until the track leaves the
       active volume. **/
@@ -76,47 +75,30 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   static Int_t          trackID;           //!  track index
   static Int_t          mot0TrackID;       //!  0th mother track index
   static Double_t       mass;              //!  mass
-  static TLorentzVector posIn, posOut;    //!  position
-  static TLorentzVector momIn, momOut;    //!  momentum
-  static Double32_t     timeIn;              //!  time
-  static Double32_t     timeOut;
-  static Double32_t     trackLength;            //!  length
+  static TLorentzVector posIn;    //!  position
+  static TLorentzVector momIn;    //!  momentum
+  static Double32_t     timeIn;           //!  time
+  static Double32_t     trackLength;       //!  track length from his origin
   static Double32_t     eLoss;             //!  energy loss
   static Double_t       lightYield;        //!  light yield
   static Int_t          fiberInBundleNb;  //!  number of fiber in bundle
   static Int_t          stepNr;            //!  current step numb in this active volumes
   static ExpertTrackingStatus trackStatus;
-  static Double_t charge;
-  static Int_t pid; 
   
   trackStatus = ERNeuRadStep::GetTrackStatus();
   TArrayI processesID;  
   gMC->StepProcesses(processesID);
-  charge = gMC->TrackCharge();
-  /*LOG(INFO) << gMC->TrackPid() << " " << gMC->TrackCharge() << FairLogger::endl;*/
   
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
-    eLoss  = 0.;
-    lightYield = 0.;
-    stepNr = 0;
-    
-    eventID = gMC->CurrentEvent();
-    gMC->TrackPosition(posIn);
-    gMC->TrackMomentum(momIn);
-    trackID  = gMC->GetStack()->GetCurrentTrackNumber();
-    timeIn   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
-    trackLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
-    mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
-    mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
-    Int_t curVolId =  gMC->CurrentVolID(fiberInBundleNb);
-    pid = gMC->TrackPid();
-    
+    StartNewPoint(eventID, eLoss, lightYield, stepNr, posIn, momIn, trackID, mot0TrackID,
+                  trackLength, fiberInBundleNb, mass, timeIn);
+                  
     if (fNeuRadFirstStep->GetEntriesFast() == 0){
       AddFirstStep( eventID, stepNr+1, trackID, mot0TrackID, fiberInBundleNb-1,
                     TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                     TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
                     timeIn, gMC->TrackStep(), gMC->TrackPid(),mass, 
-                    trackStatus, gMC->Edep(),charge, processesID);
+                    trackStatus, gMC->Edep(),gMC->TrackCharge(), processesID);
     }
   }
   
@@ -129,7 +111,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
                                       TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                                       TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
                                       gMC->TrackTime() * 1.0e09, gMC->TrackStep(), gMC->TrackPid(),mass, 
-                                      trackStatus, gMC->Edep(),charge, processesID);
+                                      trackStatus, gMC->Edep(),gMC->TrackCharge(), processesID);
     if (fVerbose > 2)
       step->Print();
   }
@@ -138,7 +120,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
                                       TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                                       TVector3(momIn.X(),   momIn.Y(),   momIn.Z()),  
                                       gMC->TrackTime() * 1.0e09, gMC->TrackStep(), gMC->TrackPid(),mass, 
-                                      trackStatus, gMC->Edep(),charge, processesID);
+                                      trackStatus, gMC->Edep(),gMC->TrackCharge(), processesID);
     if (fVerbose > 2)
       step->Print();
   }
@@ -148,12 +130,10 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   if (gMC->TrackCharge()!=0) { // Return the charge of the track currently transported
     Double_t BirkC1Mod = 0;
     // Apply correction for higher charge states
-    //if (BirkC0==1){
       if (TMath::Abs(gMC->TrackCharge())>=2)
         BirkC1Mod=BirkC1*7.2/12.6;
       else
         BirkC1Mod=BirkC1;
-    //}
 
     if (gMC->TrackStep()>0)
     {
@@ -168,28 +148,75 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
 	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
 	    gMC->IsTrackDisappeared()) 
 	{ 
-    gMC->TrackPosition(posOut);
-    gMC->TrackMomentum(momOut);
-    timeOut = gMC->TrackTime() * 1.0e09; 
-	  if (eLoss > 0.){
-      AddPoint( eventID, trackID, mot0TrackID, fiberInBundleNb-1, mass,
-                TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
-                TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
-                TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
-                TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                timeIn, timeOut, trackLength, eLoss, lightYield, gMC->TrackPid(), gMC->TrackCharge());
-    }
+    FinishNewPoint(eventID,eLoss,lightYield,stepNr, posIn, momIn, trackID,mot0TrackID,
+                    trackLength,fiberInBundleNb,mass, timeIn);
 	}
-  Double_t px, py, pz, tot;
   
-  gMC->TrackMomentum (px,py,pz,tot);
-  
-  //std::cout << gMC->IsTrackEntering() << " " << gMC->TrackPid()  << " " << gMC->Edep() << " " << gMC->TrackStep() << " " << curLightYield << " "  
-  //          << TMCProcessName[processesID[0]]<< " " << fiberInBundleNb-1 << " px = " << px << " py=" << py << " pz=" << pz << std::endl;
+  if (CurPointLen(posIn) > 4.){
+    FinishNewPoint(eventID,eLoss,lightYield,stepNr, posIn, momIn, trackID,mot0TrackID,
+                    trackLength,fiberInBundleNb,mass, timeIn);
+    StartNewPoint(eventID, eLoss, lightYield, stepNr, posIn, momIn, trackID, mot0TrackID,
+                  trackLength, fiberInBundleNb, mass, timeIn);
+  }
   
   return kTRUE;
 }
+//--------------------------------------------------------------------------------------------------
 
+Double_t ERNeuRad::CurPointLen(TLorentzVector& posIn){
+  TLorentzVector posOut;
+  gMC->TrackPosition(posOut);
+  return TMath::Sqrt((posIn.X() - posOut.X())*(posIn.X() - posOut.X()) + 
+                    (posIn.Y() - posOut.Y())*(posIn.X() - posOut.X()) + 
+                    (posIn.Z() - posOut.Z())*(posIn.Z() - posOut.Z()));
+}
+
+//--------------------------------------------------------------------------------------------------
+void ERNeuRad::StartNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
+                            TLorentzVector& posIn, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
+                            Double_t& trackLength,Int_t& fiberInBundleNb,Double_t& mass, Double_t& timeIn){
+  eLoss  = 0.;
+  lightYield = 0.;
+  stepNr = 0;
+  
+  eventID = gMC->CurrentEvent();
+  gMC->TrackPosition(posIn);
+  gMC->TrackMomentum(momIn);
+  trackID  = gMC->GetStack()->GetCurrentTrackNumber();
+  timeIn   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
+  trackLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
+  mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
+  mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
+  Int_t curVolId =  gMC->CurrentVolID(fiberInBundleNb);              
+}
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+void ERNeuRad::FinishNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
+                   TLorentzVector& posIn, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
+                   Double_t& trackLength,Int_t& fiberInBundleNb,Double_t& mass, Double_t& timeIn){
+
+  TLorentzVector posOut, momOut;
+    
+  gMC->TrackPosition(posOut);
+  gMC->TrackMomentum(momOut);
+  Double_t timeOut = gMC->TrackTime() * 1.0e09; 
+  
+  if (eLoss > 0.){
+    AddPoint( eventID, trackID, mot0TrackID, fiberInBundleNb-1, mass,
+              TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
+              TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
+              TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
+              TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
+              timeIn, timeOut, trackLength, eLoss, lightYield, gMC->TrackPid(), gMC->TrackCharge());
+  }                 
+}
+                   
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
 // -----   Public method EndOfEvent   -----------------------------------------
 void ERNeuRad::BeginEvent() {
 

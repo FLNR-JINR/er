@@ -14,12 +14,18 @@ ERNeuRadPMTSignal::ERNeuRadPMTSignal(){
 
 }
 // -------------------------------------------------------------------------
+// -----   Constructor with arguments   ------------------------------------
+ERNeuRadPMTSignal::ERNeuRadPMTSignal(Int_t iFiber)
+  :fFiberIndex(iFiber)
+{  
+}
+//-------------------------------------------------------------------------
 
-// -----   Destructor   ----------------------------------------------------
+//-----   Destructor   ----------------------------------------------------
 ERNeuRadPMTSignal::~ERNeuRadPMTSignal(){
 
 }
-// -------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------
 void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
@@ -176,9 +182,9 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
   }
   
 }
-// -------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
-// -------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vector<Double_t> ERNeuRadPMTSignal::GetIntersections(Double_t discriminatorThreshold){
   vector<Double_t> intersections;
 
@@ -215,5 +221,81 @@ vector<Double_t> ERNeuRadPMTSignal::GetIntersections(Double_t discriminatorThres
   return intersections;
 }
 // -------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
+Double_t ERNeuRadPMTSignal::GetMaxInteg(const Double_t window, const Double_t dt){
+  Double_t start = GetStartTime();
+  Double_t finish = start+window;
+  Double_t max = -9999999.;
+  do{
+    Double_t curInteg = GetInteg(start, finish);
+    if (curInteg > max)
+      max = curInteg;
+    start += dt;
+    finish += start + window;
+  }
+  while(finish<GetFinishTime());
+  
+  return max;
+}
+//-------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
+Double_t ERNeuRadPMTSignal::GetInteg(const Double_t start,const Double_t finish){
+  if (finish<GetStartTime())
+    return 0;
+  
+  Double_t res = 0;
+  SignalPointsMap::iterator itStartSp = fSignalPoints.upper_bound (start);
+  SignalPointsMap::iterator itFinishSp = fSignalPoints.lower_bound(finish);
+  
+  //Первая трапеция 
+  res += 0.5*(GetMean(start)+itStartSp->second)*(itStartSp->first-start);
+  
+  //Суммируем трапеции внутри промежутка
+  for(SignalPointsMap::iterator prev = itStartSp;prev!=itFinishSp;++prev){
+    SignalPointsMap::iterator next = prev;
+    next++;
+    
+    res += 0.5*(prev->second + next->second)*(next->first - prev->first);
+  }
+  
+  //Последняя трапеция
+  res += 0.5*(itFinishSp->second + GetMean(finish))*(finish-itFinishSp->first);
+  
+  return res;
+}
+//-------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
+Double_t ERNeuRadPMTSignal::GetMean(const Double_t time){
+  SignalPointsMap::iterator itSp= fSignalPoints.begin();
+  if (GetStartTime() > time)
+    return 0;
+  if (GetFinishTime() < time)
+    return 0;
+  while(itSp->first < time)
+    itSp++;
+  SignalPointsMap::iterator itPrevSp = itSp;
+  itPrevSp--;
+  
+  return (time-itPrevSp->first)/(itSp->first-itPrevSp->first)*(itSp->second-itPrevSp->second)+itPrevSp->second;
+}
+//-------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
+Double_t ERNeuRadPMTSignal::GetStartTime(){
+  return fSignalPoints.begin()->first;
+}
+//-------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
+Double_t ERNeuRadPMTSignal::GetFinishTime(){
+  SignalPointsMap::iterator itSp= fSignalPoints.end();
+  return (--itSp)->first;
+}
+//-------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
 
 ClassImp(ERNeuRadPMTSignal);

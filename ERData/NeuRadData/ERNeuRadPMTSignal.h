@@ -23,6 +23,7 @@ typedef std::map<double, double> SignalPointsMap;
 class ERNeuRadPMTSignal : public FairMultiLinkedData
 {
  private:
+  Int_t fFiberIndex;
   SignalPointsMap fSignalPoints;  //sum signal
   std::vector<SignalPointsMap> fSeparateSignals; //points of fiberPoinsSignals
  public:
@@ -31,7 +32,7 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData
   ERNeuRadPMTSignal();
 
   /** Constructor with arguments **/
-  //-------------------------------
+  ERNeuRadPMTSignal(Int_t iFiber);
 
   virtual ~ERNeuRadPMTSignal();
   
@@ -40,9 +41,15 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData
   SignalPointsMap GetSignalPoints() {return fSignalPoints;}
   
   bool Exist(){return (fSignalPoints.size() > 0);}
+  Int_t FiberIndex() const {return fFiberIndex;}
   int GetNumberOfSeparatesSignals(){return fSeparateSignals.size();};
   SignalPointsMap GetSeparateSignal(int i){return fSeparateSignals[i];}
   std::vector<Double_t> GetIntersections(Double_t discriminatorThreshold);
+  Double_t GetMaxInteg(const Double_t window, const Double_t dt);
+  Double_t GetInteg(const Double_t start,const Double_t finish);
+  Double_t GetMean(const Double_t time);
+  Double_t GetStartTime();
+  Double_t GetFinishTime();
   
   ClassDef(ERNeuRadPMTSignal,1);
 };

@@ -186,6 +186,15 @@ private:
    **/
   void ResetParameters();
   
+  void StartNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
+                            TLorentzVector& posIn, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
+                            Double_t& trackLength,Int_t& fiberInBundleNb,Double_t& mass, Double_t& timeIn);
+  void FinishNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
+                            TLorentzVector& posIn, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
+                            Double_t& trackLength,Int_t& fiberInBundleNb,Double_t& mass, Double_t& timeIn);
+                            
+  Double_t CurPointLen(TLorentzVector& posIn);
+  
   ClassDef(ERNeuRad,1);
 };
 
