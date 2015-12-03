@@ -1,8 +1,8 @@
-void NeuRad_digi(Int_t nEvents = 1000000){
+void NeuRad_digi(Int_t nEvents = 100000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "/home/expertroot/er/macro/NeuRad/sim/sim500MeV1000000ev.root";
-  TString outFile = "digi500MeV1000000ev.root";
-  TString parFile = "par.root";
+  TString inFile = "/home/vitaliy/er/macro/NeuRad/sim/sim500MeV100000evfc.root";
+  TString parFile = "/home/vitaliy/er/macro/NeuRad/sim/par500MeV100000evfc.root";
+  TString outFile = "digi500MeV100000evfc.root";
   // ------------------------------------------------------------------------
   
   // -----   Timer   --------------------------------------------------------

@@ -47,6 +47,7 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData
   std::vector<Double_t> GetIntersections(Double_t discriminatorThreshold);
   Double_t GetMaxInteg(const Double_t window, const Double_t dt);
   Double_t GetInteg(const Double_t start,const Double_t finish);
+  Double_t GetFirstInteg(const Double_t window);
   Double_t GetMean(const Double_t time);
   Double_t GetStartTime();
   Double_t GetFinishTime();

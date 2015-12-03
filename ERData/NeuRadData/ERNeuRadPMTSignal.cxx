@@ -284,6 +284,12 @@ Double_t ERNeuRadPMTSignal::GetMean(const Double_t time){
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
+Double_t ERNeuRadPMTSignal::GetFirstInteg(const Double_t window){
+  return GetInteg(GetStartTime(),GetStartTime()+window );
+}
+//-------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
 Double_t ERNeuRadPMTSignal::GetStartTime(){
   return fSignalPoints.begin()->first;
 }

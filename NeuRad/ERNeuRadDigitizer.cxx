@@ -266,7 +266,9 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
         for(Int_t iOnePESignal=0;iOnePESignal<remainingPhotoEl;iOnePESignal++){
           //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
           ffp_cathode_time = point_time+iTimeSlice*cScincilationDT + (-1)*cScincilationTau*TMath::Log(1-fRand->Uniform());
-          Double_t ffp_amplitude = PMTGain;
+          Double_t ffp_amplitude = fRand->Gaus(PMTGain,PMTGain*1.1);
+          if (ffp_amplitude < 0)
+            continue;
           Double_t ffp_anode_time = ffp_cathode_time + (Double_t)fRand->Gaus(cPMTDelay, cPMTJitter);
           ERNeuRadFiberPoint* ffPoint = AddFiberPoint(i_point, 0, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
                               1, ffp_amplitude, 1);
@@ -282,7 +284,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
       
       //Take into account pmt gain
       Double_t ffp_amplitude = fRand->Gaus(ffp_photoel_count * PMTGain,
-                                ffp_photoel_count * TMath::Sqrt(cExcessNoiseFactor));
+                                 TMath::Sqrt(cExcessNoiseFactor*ffp_photoel_count));
       
       //Take into account PMT delay and jitter
       Double_t ffp_anode_time = ffp_cathode_time + (Double_t)fRand->Gaus(cPMTDelay, cPMTJitter);
@@ -318,7 +320,9 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
         for(Int_t iOnePESignal=0;iOnePESignal<remainingPhotoEl;iOnePESignal++){
           //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
           bfp_cathode_time = point_time+iTimeSlice*cScincilationDT + (-1)*cScincilationTau*TMath::Log(1-fRand->Uniform());
-          Double_t bfp_amplitude = PMTGain;
+          Double_t bfp_amplitude = fRand->Gaus(PMTGain,PMTGain*1.1);
+          if (bfp_amplitude < 0)
+            continue;
           Double_t bfp_anode_time = bfp_cathode_time + (Double_t)fRand->Gaus(cPMTDelay, cPMTJitter);
           ERNeuRadFiberPoint* bfPoint = AddFiberPoint(i_point, 1, bfp_cathode_time, bfp_anode_time, bfp_photon_count,
                               1, bfp_amplitude, 1);
@@ -332,7 +336,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
       if (bfp_photoel_count < 1.) continue;
       
       Double_t bfp_amplitude = fRand->Gaus(bfp_photoel_count * PMTGain,
-                                bfp_photoel_count * TMath::Sqrt(cExcessNoiseFactor));
+                                 TMath::Sqrt(bfp_photoel_count *cExcessNoiseFactor));
                                 
       Double_t bfp_anode_time = bfp_cathode_time + (Double_t)fRand->Gaus(cPMTDelay, cPMTJitter);
       
