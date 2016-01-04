@@ -80,7 +80,7 @@ class ERNeuRadPoint : public FairMCPoint
   Double_t GetPOut()  const;
   Double_t GetMass() const { return fMass; }
   Double_t GetLightYield() const {return fLightYield;}
-  Double_t GetFiberInBundleNb() const {return fFiberInBundleNb;}
+  Int_t GetFiberInBundleNb() const {return fFiberInBundleNb;}
   Int_t GetPID() const {return fPID;}
   Double_t GetCharge() const {return fCharge;}
   Double_t GetTime() const {return fTimeIn;}

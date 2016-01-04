@@ -19,11 +19,11 @@ class ERNeuRadFiberPoint : public FairMultiLinkedData{
 		Int_t fPhotonCount;
 		Int_t fPhotoElCount;
 		Double_t fAmplitude;
+      Double_t fLYTime;
 	public:
 		/** Default constructor **/
 		ERNeuRadFiberPoint();
-		ERNeuRadFiberPoint(Int_t index, Int_t side, Double_t cathode_time, Double_t anode_time, 
-							Int_t photon_count, Int_t photoel_count, 
+		ERNeuRadFiberPoint(Int_t index, Int_t side, Double_t LYTime, Double_t cathode_time, Double_t anode_time, Int_t photon_count, Int_t photoel_count, 
 							Double_t amplitude,Int_t onePE);
 
 		/** Destructor **/
@@ -32,6 +32,7 @@ class ERNeuRadFiberPoint : public FairMultiLinkedData{
     /** Accessors **/
     Int_t     Index()        {return fIndex;}
     Int_t     Side()         {return fSide;}
+    Double_t   LYTime()       {return fLYTime;}
     Double_t  CathodeTime()  {return fCathodeTime;}
     Double_t  AnodeTime()    {return fAnodeTime;}
     Int_t     PhotonCount()  {return fPhotonCount;}

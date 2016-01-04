@@ -38,7 +38,8 @@ const Double_t ERNeuRadDigitizer::cLightFractionInTotalIntReflection = 0.04;
 //доля света захватываемая файбером в полное внутренне отражение в каждую сторону.
 const Double_t ERNeuRadDigitizer::cExcessNoiseFactor = 1.3;
 const Double_t ERNeuRadDigitizer::cPMTDelay=6.;     //[ns] (H8500)
-const Double_t ERNeuRadDigitizer::cPMTJitter = 0.4; //[ns] (H8500)
+//const Double_t ERNeuRadDigitizer::cPMTJitter = 0.4; //[ns] (H8500)
+const Double_t ERNeuRadDigitizer::cPMTJitter = 0.; //[ns] (H8500)
 const Int_t    ERNeuRadDigitizer::cPECountForOneElectronsSim = 20;
 const Double_t ERNeuRadDigitizer::cScincilationTau = 3.2; //[ns]
 const Double_t ERNeuRadDigitizer::cScincilationDT = 0.05;  //[ns]
@@ -212,10 +213,11 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
     Double_t point_z          = point->GetZIn();
     Double_t point_time       = point->GetTimeIn();
     Double_t point_z_in_fiber = point_z + fiber_length/2.;
+    /*
     if (frontPointsPerFibers[point_fiber_nb].size() > cErrorPointsInModuleCount)
        LOG(ERROR) << "ERNeuRadDigitizer: Too many points in one fiber: "
                   << frontPointsPerFibers[point_fiber_nb].size()<< " points" << FairLogger::endl;
-    
+    */
     Double_t PMTQuantumEfficiency = fDigiPar->PMTQuantumEfficiency(point_fiber_nb);
     Double_t PMTGain = fDigiPar->PMTGain(point_fiber_nb);
     /*
@@ -239,7 +241,8 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
     //Моделируем распространнение сигнала на передние ФЭУ
     while(1){
       //ffp - front fiber point, bfp - back_fiber_point
-      Double_t ffp_cathode_time  = point_time+iTimeSlice*cScincilationDT+(point_z_in_fiber)/cMaterialSpeedOfLight;
+      Double_t ffp_lytime = point_time+iTimeSlice*cScincilationDT;
+      Double_t ffp_cathode_time  = ffp_lytime + (point_z_in_fiber)/cMaterialSpeedOfLight;
       
       //Количество оставшихся фотонов
       Double_t ffp_remainig_photons_count = photon_count*TMath::Exp(-cScincilationDT*(Double_t)iTimeSlice/cScincilationTau);
@@ -265,12 +268,12 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
       if(remainingPhotoEl < cPECountForOneElectronsSim){
         for(Int_t iOnePESignal=0;iOnePESignal<remainingPhotoEl;iOnePESignal++){
           //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
-          ffp_cathode_time = point_time+iTimeSlice*cScincilationDT + (-1)*cScincilationTau*TMath::Log(1-fRand->Uniform());
-          Double_t ffp_amplitude = fRand->Gaus(PMTGain,PMTGain*1.1);
-          if (ffp_amplitude < 0)
-            continue;
+          ffp_lytime = point_time+iTimeSlice*cScincilationDT + (-1)*cScincilationTau*TMath::Log(1-fRand->Uniform());
+          ffp_cathode_time = ffp_lytime + (point_z_in_fiber)/cMaterialSpeedOfLight;
+          Double_t onePESigma = TMath::Sqrt(cExcessNoiseFactor-1)*PMTGain;
+          Double_t ffp_amplitude = TMath::Abs(fRand->Gaus(PMTGain, onePESigma));
           Double_t ffp_anode_time = ffp_cathode_time + (Double_t)fRand->Gaus(cPMTDelay, cPMTJitter);
-          ERNeuRadFiberPoint* ffPoint = AddFiberPoint(i_point, 0, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
+          ERNeuRadFiberPoint* ffPoint = AddFiberPoint(i_point, 0, ffp_lytime, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
                               1, ffp_amplitude, 1);
           frontPointsPerFibers[point_fiber_nb].push_back(ffPoint);
         }
@@ -290,7 +293,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
       Double_t ffp_anode_time = ffp_cathode_time + (Double_t)fRand->Gaus(cPMTDelay, cPMTJitter);
       
       if (ffp_amplitude > 0.){
-        ERNeuRadFiberPoint* ffPoint = AddFiberPoint(i_point, 0, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
+        ERNeuRadFiberPoint* ffPoint = AddFiberPoint(i_point, 0, ffp_lytime, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
                               ffp_photoel_count, ffp_amplitude, 0);
         //Collect Fiber Points by fiber
         frontPointsPerFibers[point_fiber_nb].push_back(ffPoint);
@@ -301,7 +304,8 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
     iTimeSlice = 1;
     //Моделируем рампространнение сигнала на задние ФЭУ
     while(1){
-      Double_t bfp_cathode_time  = point_time+iTimeSlice*cScincilationDT+(fiber_length-point_z_in_fiber)/cMaterialSpeedOfLight;
+      Double_t bfp_lytime = point_time+iTimeSlice*cScincilationDT;
+      Double_t bfp_cathode_time  = bfp_lytime+(fiber_length-point_z_in_fiber)/cMaterialSpeedOfLight;
       
       Double_t bfp_remainig_photons_count = photon_count*TMath::Exp(-cScincilationDT*(Double_t)iTimeSlice/cScincilationTau);
       
@@ -319,12 +323,12 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
         //LOG(INFO) << remainingPhotoEl << FairLogger::endl;
         for(Int_t iOnePESignal=0;iOnePESignal<remainingPhotoEl;iOnePESignal++){
           //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
-          bfp_cathode_time = point_time+iTimeSlice*cScincilationDT + (-1)*cScincilationTau*TMath::Log(1-fRand->Uniform());
-          Double_t bfp_amplitude = fRand->Gaus(PMTGain,PMTGain*1.1);
-          if (bfp_amplitude < 0)
-            continue;
+          bfp_lytime = point_time+iTimeSlice*cScincilationDT + (-1)*cScincilationTau*TMath::Log(1-fRand->Uniform());
+          bfp_cathode_time = bfp_lytime + (fiber_length-point_z_in_fiber)/cMaterialSpeedOfLight;
+          Double_t onePESigma = TMath::Sqrt(cExcessNoiseFactor-1)*PMTGain;
+          Double_t bfp_amplitude = TMath::Abs(fRand->Gaus(PMTGain,onePESigma));
           Double_t bfp_anode_time = bfp_cathode_time + (Double_t)fRand->Gaus(cPMTDelay, cPMTJitter);
-          ERNeuRadFiberPoint* bfPoint = AddFiberPoint(i_point, 1, bfp_cathode_time, bfp_anode_time, bfp_photon_count,
+          ERNeuRadFiberPoint* bfPoint = AddFiberPoint(i_point, 1,bfp_lytime, bfp_cathode_time, bfp_anode_time, bfp_photon_count,
                               1, bfp_amplitude, 1);
           backPointsPerFibers[point_fiber_nb].push_back(bfPoint);
         } 
@@ -341,7 +345,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
       Double_t bfp_anode_time = bfp_cathode_time + (Double_t)fRand->Gaus(cPMTDelay, cPMTJitter);
       
       if (bfp_amplitude > 0.){
-        ERNeuRadFiberPoint* bfPoint = AddFiberPoint(i_point, 1, bfp_cathode_time, bfp_anode_time, bfp_photon_count,
+        ERNeuRadFiberPoint* bfPoint = AddFiberPoint(i_point, 1,bfp_lytime,  bfp_cathode_time, bfp_anode_time, bfp_photon_count,
                               bfp_photoel_count, bfp_amplitude, 0);
         backPointsPerFibers[point_fiber_nb].push_back(bfPoint);
       }
@@ -427,11 +431,11 @@ ERNeuRadPMTSignal* ERNeuRadDigitizer::AddPMTSignal(Int_t iFiber){
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERNeuRadFiberPoint* ERNeuRadDigitizer::AddFiberPoint(Int_t i_point, Int_t side, Double_t cathode_time, Double_t anode_time, 
+ERNeuRadFiberPoint* ERNeuRadDigitizer::AddFiberPoint(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count, Int_t photoel_count, 
 									Double_t amplitude, Int_t onePE){
   ERNeuRadFiberPoint *fp = new ((*fNeuRadFiberPoint)[FiberPointCount()])
-								ERNeuRadFiberPoint(FiberPointCount(),side, cathode_time, anode_time, photon_count, 
+								ERNeuRadFiberPoint(FiberPointCount(),side, lytime, cathode_time, anode_time, photon_count, 
                                     photoel_count, amplitude, onePE);
   fp->AddLink(FairLink("NeuRadPoint",i_point));
   return fp;
