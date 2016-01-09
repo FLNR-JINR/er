@@ -77,15 +77,21 @@ protected:
   static const Double_t cLightFractionInTotalIntReflection;
   //доля света захватываемая файбером в полное внутренне отражение в каждую сторону.
   static const Double_t cExcessNoiseFactor;
-  static const Double_t cPMTDelay;
-  static const Double_t cPMTJitter;
+  static const Double_t cPMTDelay; //[ns]
+  static const Double_t cPMTJitter; //[ns]
   static const Int_t    cPECountForOneElectronsSim;
   static const Double_t cScincilationTau; //[ns]
   static const Double_t cScincilationDT;  //[ns]
-  static const Double_t cMaxPointLength; //[cm]
+  static const Double_t cMaxPointLength; //[cm] //старый параметр, для идеи дробления поинта в диджитизации. Будет удален в следующих версиях
   
   //Allow for user params
   Double_t fDiscriminatorThreshold; //[mV]
+  Double_t fPMTJitter; //[ns]
+  Double_t fPMTDelay; //[ns]
+  Int_t fPECountForOneElectronsSim;
+  Double_t fExcessNoiseFactor;
+  Double_t fScincilationTau; //[ns]
+  Double_t fScincilationDT;  //[ns]
 protected:
   ERNeuRadFiberPoint* AddFiberPoint(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count, Int_t photoel_count,Double_t amplitude, Int_t onePE);
