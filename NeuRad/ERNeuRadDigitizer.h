@@ -50,8 +50,16 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  inline void SetDiscriminatorThreshold(const Double_t& discrThreshold)
+  inline void SetDiscriminatorThreshold(const Double_t discrThreshold)
                                                         {fDiscriminatorThreshold = discrThreshold; }
+  inline void SetPMTJitter(const Double_t PMTJitter)    {fPMTJitter = PMTJitter;}
+  inline void SetPMTDelay(const Double_t PMTDelay)      {fPMTDelay = PMTDelay;}
+  inline void SetPECountForOneElectronsSim(const Double_t count)
+                                                        {fPECountForOneElectronsSim = count;}
+  inline void SetExcessNoiseFactor(const Double_t enf)  {fExcessNoiseFactor = enf;}
+  inline void SetScincilationTau(const Double_t tau)    {fScincilationTau = tau;}
+  inline void SetScincilationDT(const Double_t dt)      {fScincilationDT = dt;}
+
   /** Accessors **/ 
   Int_t FiberPointCount()  const;
   Int_t PMTSignalCount()   const;
