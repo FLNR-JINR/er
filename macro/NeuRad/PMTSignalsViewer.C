@@ -5,7 +5,7 @@ struct Signal {
 };
 
 void PMTSignalsViewer(){
-  int nEvent = 3;
+  int nEvent = 2;
 	
   TString fdigiName = "digi.root";
 

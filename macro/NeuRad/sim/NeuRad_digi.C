@@ -19,6 +19,7 @@ void NeuRad_digi(Int_t nEvents,TString inFile, TString parFile, TString outFile)
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
+  digitizer->SetPECountForOneElectronsSim(999999999999.);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   
