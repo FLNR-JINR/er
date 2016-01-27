@@ -9,5 +9,6 @@
 #pragma link C++ class ERNeuRadStep+;
 #pragma link C++ class ERStack+;
 #pragma link C++ class ERMCTrack+;
+#pragma link C++ class ERmuSiPoint+;
 
 #endif

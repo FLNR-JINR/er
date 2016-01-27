@@ -200,6 +200,7 @@ add_subdirectory (ERBase)
 add_subdirectory (ERData)
 add_subdirectory (passive)
 add_subdirectory (NeuRad)
+add_subdirectory (muSi)
 
 Execute_Process(COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-opengl
                 OUTPUT_VARIABLE EveIsBuild
