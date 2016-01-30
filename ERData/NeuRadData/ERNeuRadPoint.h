@@ -43,7 +43,7 @@ class ERNeuRadPoint : public FairMCPoint
    **/
   ERNeuRadPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t fiberInBundleNb,
+      Int_t fiberInBundleNb, Int_t bundleNb, 
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
@@ -121,6 +121,7 @@ class ERNeuRadPoint : public FairMCPoint
   Int_t fEventID;
   Int_t fMot0TrackID;
   Int_t fFiberInBundleNb;
+  Int_t fBundleNb;
   Double_t fMass;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;

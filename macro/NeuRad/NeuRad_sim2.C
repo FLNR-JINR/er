@@ -1,4 +1,4 @@
-void NeuRad_sim(Int_t nEvents = 1000){
+void NeuRad_sim2(Int_t nEvents = 10){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -40,7 +40,7 @@ void NeuRad_sim(Int_t nEvents = 1000){
   */
   Int_t verbose = 1;
   ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,verbose);
-  neuRad->SetGeometryFileName("NeuRad.geo.root");
+  neuRad->SetGeometryFileName("NeuRad_v2.geo.root");
   /* Select storing stepss
    * not store steps
    * SetStorePrimarySteps() - store only primary particle step

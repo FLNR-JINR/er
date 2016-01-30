@@ -82,6 +82,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   static Double32_t     eLoss;             //!  energy loss
   static Double_t       lightYield;        //!  light yield
   static Int_t          fiberInBundleNb;  //!  number of fiber in bundle
+  static Int_t          bundle;
   static Int_t          stepNr;            //!  current step numb in this active volumes
   static ExpertTrackingStatus trackStatus;
   
@@ -95,7 +96,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     StartNewPoint(eventID, eLoss, lightYield, stepNr, posIn, momIn, trackID, mot0TrackID,
-                  trackLength, fiberInBundleNb, mass, timeIn);
+                  trackLength, fiberInBundleNb, bundle, mass, timeIn);
                   
     if (fNeuRadFirstStep->GetEntriesFast() == 0){
       AddFirstStep( eventID, stepNr+1, trackID, mot0TrackID, fiberInBundleNb-1,
@@ -155,14 +156,14 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
 	    gMC->IsTrackDisappeared()) 
 	{ 
     FinishNewPoint(eventID,eLoss,lightYield,stepNr, posIn, momIn, trackID,mot0TrackID,
-                    trackLength,fiberInBundleNb,mass, timeIn);
+                    trackLength,fiberInBundleNb, bundle,mass, timeIn);
 	}
   
   if (CurPointLen(posIn) > 4.){
     FinishNewPoint(eventID,eLoss,lightYield,stepNr, posIn, momIn, trackID,mot0TrackID,
-                    trackLength,fiberInBundleNb,mass, timeIn);
+                    trackLength,fiberInBundleNb, bundle,mass, timeIn);
     StartNewPoint(eventID, eLoss, lightYield, stepNr, posIn, momIn, trackID, mot0TrackID,
-                  trackLength, fiberInBundleNb, mass, timeIn);
+                  trackLength, fiberInBundleNb, bundle, mass, timeIn);
   }
   
   return kTRUE;
@@ -180,7 +181,7 @@ Double_t ERNeuRad::CurPointLen(TLorentzVector& posIn){
 //--------------------------------------------------------------------------------------------------
 void ERNeuRad::StartNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
                             TLorentzVector& posIn, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
-                            Double_t& trackLength,Int_t& fiberInBundleNb,Double_t& mass, Double_t& timeIn){
+                            Double_t& trackLength,Int_t& fiberInBundleNb, Int_t& bundleNb, Double_t& mass, Double_t& timeIn){
   eLoss  = 0.;
   lightYield = 0.;
   stepNr = 0;
@@ -193,14 +194,15 @@ void ERNeuRad::StartNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield
   trackLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
   mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
   mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
-  Int_t curVolId =  gMC->CurrentVolID(fiberInBundleNb);              
+  Int_t curVolId =  gMC->CurrentVolID(fiberInBundleNb);
+  Int_t corOffVolId = gMC->CurrentVolOffID(1, bundleNb);              
 }
 //--------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
 void ERNeuRad::FinishNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
                    TLorentzVector& posIn, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
-                   Double_t& trackLength,Int_t& fiberInBundleNb,Double_t& mass, Double_t& timeIn){
+                   Double_t& trackLength,Int_t& fiberInBundleNb, Int_t& bundle ,Double_t& mass, Double_t& timeIn){
 
   TLorentzVector posOut, momOut;
     
@@ -209,7 +211,7 @@ void ERNeuRad::FinishNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYiel
   Double_t timeOut = gMC->TrackTime() * 1.0e09; 
   
   if (eLoss > 0.){
-    AddPoint( eventID, trackID, mot0TrackID, fiberInBundleNb-1, mass,
+    AddPoint( eventID, trackID, mot0TrackID, fiberInBundleNb-1,bundle-1, mass,
               TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
               TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
               TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
@@ -298,7 +300,7 @@ void ERNeuRad::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
 // -----   Private method AddPoint   --------------------------------------------
 ERNeuRadPoint* ERNeuRad::AddPoint(Int_t eventID, Int_t trackID,
 				    Int_t mot0trackID,
-            Int_t fiberInBundleNb,
+            Int_t fiberInBundleNb, Int_t bundle, 
 				    Double_t mass,
 				    TVector3 posIn,
 				    TVector3 posOut, TVector3 momIn,
@@ -306,7 +308,7 @@ ERNeuRadPoint* ERNeuRad::AddPoint(Int_t eventID, Int_t trackID,
 				    Double_t length, Double_t eLoss, Double_t lightYield, Int_t pid, Double_t charge) {
   TClonesArray& clref = *fNeuRadPoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERNeuRadPoint(eventID, trackID, mot0trackID, fiberInBundleNb, mass,
+  return new(clref[size]) ERNeuRadPoint(eventID, trackID, mot0trackID, fiberInBundleNb, bundle, mass,
 					  posIn, posOut, momIn, momOut, time,timeOut, length, eLoss, lightYield, pid, charge);
 	
 }

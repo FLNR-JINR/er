@@ -19,14 +19,14 @@ ERNeuRadPoint::ERNeuRadPoint()
 // -----   Standard constructor   ------------------------------------------
 ERNeuRadPoint::ERNeuRadPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t fiberInBundleNb,
+      Int_t fiberInBundleNb, Int_t bundleNb,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
 		  Double_t timeIn, Double_t timeOut, Double_t trackLength, Double_t eLoss, Double_t lightYield, Int_t pid, Double_t charge)
   : FairMCPoint(trackID, -1., posIn, momIn, timeIn, 0., eLoss),
     fEventID(eventID),
-    fFiberInBundleNb(fiberInBundleNb),
+    fFiberInBundleNb(fiberInBundleNb), fBundleNb(bundleNb), 
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
     fLightYield(lightYield), fPID(pid), fCharge(charge),fTimeIn(timeIn), fTimeOut(timeOut),
