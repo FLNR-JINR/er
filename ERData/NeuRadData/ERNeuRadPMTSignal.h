@@ -33,7 +33,7 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData
   ERNeuRadPMTSignal();
 
   /** Constructor with arguments **/
-  ERNeuRadPMTSignal(Int_t iFiber, Int_t iBundle);
+  ERNeuRadPMTSignal(Int_t iBundle, Int_t iFiber);
 
   virtual ~ERNeuRadPMTSignal();
   
