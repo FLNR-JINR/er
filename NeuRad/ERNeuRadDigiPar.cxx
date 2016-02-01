@@ -58,6 +58,7 @@ void ERNeuRadDigiPar::print()
   LOG(INFO) << "          ERNeuRadDigiPar                " << FairLogger::endl;
   LOG(INFO) << "*****************************************" << FairLogger::endl;
   LOG(INFO) << "   ERNeuRadFiberLength: " <<  fFiberLength <<  FairLogger::endl;
+  LOG(INFO) << "   ERNeuRadNofBundles: " <<  fNofBundles <<  FairLogger::endl;
   LOG(INFO) << "   ERNeuRadNofFibers: " <<  fNofFibers <<  FairLogger::endl;
   LOG(INFO) << "   ERNeuRadPMTQuantumEfficiency: " <<  FairLogger::endl;
   for (Int_t iFiber = 0; iFiber < rowNofFibers; iFiber++){

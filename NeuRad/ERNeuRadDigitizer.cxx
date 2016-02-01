@@ -141,27 +141,26 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   vector<ERNeuRadFiberPoint* >** backPointsPerFibers = new vector<ERNeuRadFiberPoint*>*  [nofBundles];
   for (Int_t i = 0; i<nofBundles; i++){
     frontPointsPerFibers[i] = new vector<ERNeuRadFiberPoint*>  [nofFibers];
+    backPointsPerFibers[i] = new vector<ERNeuRadFiberPoint*>  [nofFibers];
   }
   
   Int_t points_count = fNeuRadPoints->GetEntries();
-  
   //Формируем промежуточные сущности FiberPoints
   for (Int_t iPoint=0; iPoint < points_count; iPoint++) { // цикл
     ERNeuRadPoint *point = (ERNeuRadPoint*) fNeuRadPoints->At(iPoint);
     
     FiberPointsCreating(iPoint,point,frontPointsPerFibers,backPointsPerFibers);
   }
-  
   //Формируем сигналы на ФЭУ и digi
   for (Int_t iBundle = 0; iBundle < nofBundles; iBundle++){
     for (Int_t iFiber = 0; iFiber < nofFibers; iFiber++) {
       PMTSignalsAndDigiCreating(iBundle, iFiber, frontPointsPerFibers,backPointsPerFibers);
     }
   }
-
   //освобождаем память
   for (Int_t i = 0; i<nofBundles; i++){
     delete [] frontPointsPerFibers[i];
+    delete [] backPointsPerFibers[i];
   }
   delete [] frontPointsPerFibers;
   delete [] backPointsPerFibers;
@@ -257,9 +256,10 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
       //LOG(INFO) << "LYT " << ffp_lytime << " CT " << ffp_cathode_time << " AT " << ffp_anode_time << " A " << ffp_amplitude << endl;
       ERNeuRadFiberPoint* ffPoint = AddFiberPoint(i_point, 0, ffp_lytime - point_time, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
                           1, ffp_amplitude, 1);
+      
       frontPointsPerFibers[point_bundle][point_fiber_nb].push_back(ffPoint);
+      
     }
-
     Double_t bfp_photon_count =  photon_count*(k1*exp(-(fiber_length-point_z_in_fiber)/0.5) 
                                                    + k2*exp(-(fiber_length-point_z_in_fiber)/200.));
     
@@ -276,7 +276,6 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
                           1, bfp_amplitude, 1);
       backPointsPerFibers[point_bundle][point_fiber_nb].push_back(bfPoint);
     }
-
 }
 //----------------------------------------------------------------------------
 void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,

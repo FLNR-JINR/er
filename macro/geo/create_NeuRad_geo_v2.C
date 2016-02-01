@@ -123,7 +123,7 @@ void create_NeuRad_geo_v2()
   //----------------- Add bundles to NeuRad ----------------------------------
   Int_t boundles_nb = 49;
   Int_t boundles_row_nb = TMath::Sqrt(boundles_nb);
-  Int_t i_boundle = 0;
+  Int_t i_boundle = 1;
   for (Int_t i_Y_boundle = 0; i_Y_boundle < boundles_row_nb; i_Y_boundle++){
     for (Int_t i_X_boundle = 0; i_X_boundle < boundles_row_nb; i_X_boundle++){
       Double_t boundle_in_fiber_X_trans = boundles_row_nb*boundle_X - i_X_boundle*2*boundle_X - boundle_X;
