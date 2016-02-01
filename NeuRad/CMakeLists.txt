@@ -22,7 +22,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 ERNeuRad.cxx
 ERNeuRadDigitizer.cxx
-ERNeuRadDigitizerFullMC.cxx
+#ERNeuRadDigitizerFullMC.cxx
 ERNeuRadPointAnalyser.cxx
 ERNeuRadDigiAnalyser.cxx
 ERNeuRadContFact.cxx

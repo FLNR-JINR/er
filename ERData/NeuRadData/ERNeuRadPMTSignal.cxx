@@ -15,8 +15,9 @@ ERNeuRadPMTSignal::ERNeuRadPMTSignal(){
 }
 // -------------------------------------------------------------------------
 // -----   Constructor with arguments   ------------------------------------
-ERNeuRadPMTSignal::ERNeuRadPMTSignal(Int_t iFiber)
-  :fFiberIndex(iFiber)
+ERNeuRadPMTSignal::ERNeuRadPMTSignal(Int_t iFiber, Int_t iBundle)
+  :fFiberIndex(iFiber),
+  fBundleIndex(iBundle)
 {  
 }
 //-------------------------------------------------------------------------

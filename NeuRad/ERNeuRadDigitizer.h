@@ -104,7 +104,7 @@ protected:
   ERNeuRadFiberPoint* AddFiberPoint(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count, Int_t photoel_count,Double_t amplitude, Int_t onePE);
 
-  ERNeuRadPMTSignal* AddPMTSignal(Int_t iFiber);
+  ERNeuRadPMTSignal* AddPMTSignal(Int_t iBundle, Int_t iFiber);
   
   ERNeuRadDigi* AddDigi(Double_t frontTDC, Double_t backTDC, Double_t TDC, Double_t frontQDC,
                         Double_t backQDC, Double_t QDC, Int_t fiber_nr);
@@ -117,12 +117,12 @@ private:
   void LongPointSeparating(ERNeuRadPoint* point, std::vector<ERNeuRadPoint*> * points);
   
   void FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
-                          std::vector<ERNeuRadFiberPoint* >* frontPointsPerFibers,
-                          std::vector<ERNeuRadFiberPoint* >* backPointsPerFibers);
+                          std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
+                          std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
                         
-  void PMTSignalsAndDigiCreating(Int_t iFiber,
-                                std::vector<ERNeuRadFiberPoint* >* frontPointsPerFibers,
-                                std::vector<ERNeuRadFiberPoint* >* backPointsPerFibers);
+  void PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
+                                std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
+                                std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
 
   ClassDef(ERNeuRadDigitizer,1)
 };

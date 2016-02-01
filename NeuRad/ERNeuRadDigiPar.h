@@ -45,6 +45,7 @@ class ERNeuRadDigiPar : public FairParGenericSet
     
     /** Accessories  **/
     Int_t   NofFibers()     const {return fNofFibers;}
+    Int_t   NofBundles()    const {return fNofBundles;}
     Double_t FiberLength() const {return fFiberLength;}
     //@todo добавить обработку выхода зза границу
     Double_t PMTQuantumEfficiency (Int_t iFiber) const {return (*fPMTQuantumEfficiency)[iFiber];}
@@ -53,7 +54,8 @@ class ERNeuRadDigiPar : public FairParGenericSet
     Float_t fFiberLength;
     TArrayF* fPMTQuantumEfficiency;
     TArrayF* fPMTGain;
-    Int_t fNofFibers; 
+    Int_t fNofFibers;
+    Int_t fNofBundles;
 
     ERNeuRadDigiPar(const ERNeuRadDigiPar&);
     ERNeuRadDigiPar& operator=(const ERNeuRadDigiPar&);

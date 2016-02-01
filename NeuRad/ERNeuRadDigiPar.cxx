@@ -24,7 +24,8 @@ ERNeuRadDigiPar::ERNeuRadDigiPar(const char* name,
     fPMTQuantumEfficiency(new TArrayF(64)),
     fPMTGain(new TArrayF(64)),
     fFiberLength(0.),
-    fNofFibers(-1)
+    fNofFibers(-1),
+    fNofBundles(-1)
 {
 }
 // -------------------------------------------------------------------------
@@ -110,6 +111,8 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
   if (!l) { return kFALSE; }
   
   if ( ! l->fill("ERNeuRadFiberLength", &fFiberLength) ) { return kFALSE; }
+
+  if ( ! l->fill("ERNeuRadNofBundles", &fNofBundles) ) { return kFALSE; }
   
   if ( ! l->fill("ERNeuRadNofFibers", &fNofFibers) ) { return kFALSE; }
   

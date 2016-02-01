@@ -24,6 +24,7 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData
 {
  private:
   Int_t fFiberIndex;
+  Int_t fBundleIndex;
   SignalPointsMap fSignalPoints;  //sum signal
   std::vector<SignalPointsMap> fSeparateSignals; //points of fiberPoinsSignals
  public:
@@ -32,7 +33,7 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData
   ERNeuRadPMTSignal();
 
   /** Constructor with arguments **/
-  ERNeuRadPMTSignal(Int_t iFiber);
+  ERNeuRadPMTSignal(Int_t iFiber, Int_t iBundle);
 
   virtual ~ERNeuRadPMTSignal();
   
@@ -42,6 +43,7 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData
   
   bool Exist(){return (fSignalPoints.size() > 0);}
   Int_t FiberIndex() const {return fFiberIndex;}
+  Int_t BundleIndex() const {return fBundleIndex;}
   int GetNumberOfSeparatesSignals(){return fSeparateSignals.size();};
   SignalPointsMap GetSeparateSignal(int i){return fSeparateSignals[i];}
   std::vector<Double_t> GetIntersections(Double_t discriminatorThreshold);
