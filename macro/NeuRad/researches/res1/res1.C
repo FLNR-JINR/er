@@ -33,7 +33,6 @@ void res1(int eKin, TString pngdir, TString pngname, int pe, Double_t thEdep,TSt
   
   //TString fdigiName = "digi500MeV100000ev.root";
   //TString fsimName = "/home/vitaliy/er/macro/NeuRad/sim/sim500MeV100000ev.root";
-  TFile *out = new TFile("out.root");
   
   TFile fdigi(fdigiName);
   TFile fsim(fsimName);
@@ -163,7 +162,7 @@ void res1(int eKin, TString pngdir, TString pngname, int pe, Double_t thEdep,TSt
       signals[i][1] = 0;
       fiberEdep[i] = 0.;
     }
-    
+    /*
     for (int iPoint = 0; iPoint < points->GetEntriesFast(); iPoint++){
       ERNeuRadPoint* point = (ERNeuRadPoint*) points->At(iPoint);
       fiberEdep[(int)point->GetFiberInBundleNb()] += point->GetEnergyLoss();
@@ -181,7 +180,7 @@ void res1(int eKin, TString pngdir, TString pngname, int pe, Double_t thEdep,TSt
       hdxEdep->Fill(step->GetX()-fb_x[iThFEdep]);
       hdyEdep->Fill(step->GetY()-fb_y[iThFEdep]);
     }
-    
+    */
     Long_t sigCount = pmtSignals->GetEntriesFast();
     for (int iSignal = 0; iSignal < sigCount; iSignal++){
         ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)pmtSignals->At(iSignal);
@@ -200,7 +199,7 @@ void res1(int eKin, TString pngdir, TString pngname, int pe, Double_t thEdep,TSt
         }        
     }
    
-    hAmod->Fill(modA);
+    //hAmod->Fill(modA);
     
     //Îïðåäåëÿåìñÿ ñ êîëè÷åñòâîì ïðîøåäøèõ ïîðîã
     
@@ -225,21 +224,21 @@ void res1(int eKin, TString pngdir, TString pngname, int pe, Double_t thEdep,TSt
       hdxLess6->Fill(TMath::Abs(step->GetX()-fb_x[thFb[0]]));
       hdy->Fill(TMath::Abs(step->GetY()-fb_y[thFb[0]]));
       hdyLess6->Fill(TMath::Abs(step->GetY()-fb_y[thFb[0]]));
-      ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)pmtSignals->At(signals[thFb[0]][0]);
-      fsum_pe=0;
+      /*ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)pmtSignals->At(signals[thFb[0]][0]);
+      /*fsum_pe=0;
       for (int iLink = 0; iLink < signal->GetNLinks();iLink++){
         ERNeuRadFiberPoint* fpoint = (ERNeuRadFiberPoint*)fpoints->At(signal->GetLink(iLink).GetIndex());
         fsum_pe += fpoint->PhotoElCount();
       }
-      hfApe->Fill(fsum_pe);
-      signal = (ERNeuRadPMTSignal*)pmtSignals->At(signals[thFb[0]][1]);
-      bsum_pe=0;
-      for (int iLink = 0; iLink < signal->GetNLinks();iLink++){
+      //hfApe->Fill(fsum_pe);
+      //signal = (ERNeuRadPMTSignal*)pmtSignals->At(signals[thFb[0]][1]);
+      //bsum_pe=0;
+      /*for (int iLink = 0; iLink < signal->GetNLinks();iLink++){
         ERNeuRadFiberPoint* fpoint = (ERNeuRadFiberPoint*)fpoints->At(signal->GetLink(iLink).GetIndex());
         bsum_pe += fpoint->PhotoElCount();
-      }
-      hbApe->Fill(bsum_pe);
-      hApe->Fill(fsum_pe+bsum_pe);
+      }*/
+      //hbApe->Fill(bsum_pe);
+      //hApe->Fill(fsum_pe+bsum_pe);
       
     }
     
