@@ -1,4 +1,4 @@
-void NeuRad_digi(Int_t nEvents,TString inFile, TString parFile, TString outFile){
+void NeuRad_digi(Int_t startEvent,Int_t finishEvent, TString inFile, TString parFile, TString outFile){
   //---------------------Files-----------------------------------------------
   //TString inFile = "sim.root";
   //TString outFile = "digi.root";
@@ -41,7 +41,7 @@ void NeuRad_digi(Int_t nEvents,TString inFile, TString parFile, TString outFile)
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  fRun->Run(0, nEvents);
+  fRun->Run(startEvent, finishEvent);
   // ------------------------------------------------------------------------
 
   // -----   Finish   -------------------------------------------------------
