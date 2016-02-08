@@ -42,14 +42,14 @@ void res10(int eKin, TString pngdir, TString pngname, int pe, int sumpe, Double_
   
   TString title;
   title.Form("XY distance, neutron, Ekin=%d MeV, %d events, pixel threshold %d pe, module threshold %d pe", eKin,nEvent, pe, sumpe);
-  TH1F* hdxy = new TH1F("hdxy", title.Data(),400,0.,4.);
+  TH1F* hdxy = new TH1F("hdxy", title.Data(),200,0.,20.);
   title.Form("Counts/%.3f",4./400);
   hdxy->GetXaxis()->SetTitle("XY disance [cm]");
   hdxy->GetYaxis()->SetTitle(title.Data());
   
   title.Form("XY distance less 6mm, neutron, Ekin=%d MeV, %d events, pixel threshold %d pe, module threshold %d pe",eKin,nEvent, pe, sumpe);
-  TH1F* hdxyLess6 = new TH1F("hdxyLess6", title.Data(),400,0.,4.);
-  title.Form("Counts/%.3f",0.4/400);
+  TH1F* hdxyLess6 = new TH1F("hdxyLess6", title.Data(),100.,0.,1.);
+  title.Form("Counts/%.3f",1./100);
   hdxyLess6->GetXaxis()->SetTitle("XY disance [cm]");
   hdxyLess6->GetYaxis()->SetTitle(title.Data());
   
@@ -99,12 +99,12 @@ void res10(int eKin, TString pngdir, TString pngname, int pe, int sumpe, Double_
         if (!signal->Exist())
           continue;
 	  
-        int bundle = signal->BundleIndex();
+        int  bundle  = signal->BundleIndex();
         int fiber = signal->FiberIndex();
         
 		sumModule[bundle] +=signal->GetFirstInteg(50.);
 		
-        if (signal->GetFirstInteg(5.) > fiberThreshold || signals[signal->FiberIndex()][0] != -1){
+        if (signal->GetFirstInteg(5.) > fiberThreshold || signals[bundle][fiber][0] != -1){
           fb[bundle][fiber]++;
           signals[bundle][fiber][jsig[bundle][fiber]++] = iSignal;
         }        
@@ -144,7 +144,8 @@ void res10(int eKin, TString pngdir, TString pngname, int pe, int sumpe, Double_
     //Индекс первого загоревшегося файбера с перевалом порога
     int iFirstFiber = sig->FiberIndex();
 	int iFirstBundle = thBn[iFind];
-    
+    cout << iFirstBundle << " " << iFirstFiber << " " << setup->FiberX(iFirstBundle, iFirstFiber) << " " << setup->FiberY(iFirstBundle, iFirstFiber) << endl;
+
     double dist = TMath::Sqrt( (step->GetX()-setup->FiberX(iFirstBundle, iFirstFiber))*(step->GetX()-setup->FiberX(iFirstBundle, iFirstFiber))+
                               (step->GetY()-setup->FiberY(iFirstBundle, iFirstFiber))*(step->GetY()-setup->FiberY(iFirstBundle, iFirstFiber)));
     hdxy->Fill(dist);

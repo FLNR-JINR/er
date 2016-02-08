@@ -24,12 +24,18 @@ ERNeuRadSetup::ERNeuRadSetup(){
 	fDigiPar = (ERNeuRadDigiPar*)
              (rtdb->getContainer("ERNeuRadDigiPar"));
 	if ( ! fDigiPar ) Fatal("ERNeuRadSetup", "No ERNeuRadDigiPar in runtime");
-	fDigiPar->print();
+	//fDigiPar->print();
+/*
 	Int_t nofFiberInRow = Int_t(TMath::Sqrt(fDigiPar->NofFibers()));
 	Int_t nofBundlesInRow = Int_t(TMath::Sqrt(fDigiPar->NofBundles()));
 	Float_t bundleWidth = nofFiberInRow*fDigiPar->FiberWidth();
 	Float_t neuradWidth = bundleWidth*nofBundlesInRow;
-	
+*/
+	Int_t nofFiberInRow = 8;
+	Int_t nofBundlesInRow = 7;
+	Float_t fiberWidth = 0.6;
+	Float_t bundleWidth = nofFiberInRow*fiberWidth;
+	Float_t neuradWidth = bundleWidth*nofBundlesInRow;	
 	//Инициализируем бандлы
 	for(Int_t iBundle = 0; iBundle < nofBundlesInRow; iBundle++ ){
 		for(Int_t jBundle = 0; jBundle < nofBundlesInRow; jBundle++ ){
@@ -40,8 +46,8 @@ ERNeuRadSetup::ERNeuRadSetup(){
 			//Инициализируем файберы в бандле
 			for (Int_t iFiber = 0; iFiber < nofFiberInRow; iFiber++){
 				for (Int_t jFiber = 0; jFiber < nofFiberInRow; jFiber++){
-					Float_t fiberX = bundleX + bundleWidth/2. - iFiber*bundleWidth - bundleWidth/2.;
-					Float_t fiberY = bundleY + bundleWidth/2. - jFiber*bundleWidth - bundleWidth/2.;
+					Float_t fiberX = bundleX + bundleWidth/2. - iFiber*fiberWidth - fiberWidth/2.;
+					Float_t fiberY = bundleY + bundleWidth/2. - jFiber*fiberWidth - fiberWidth/2.;
 					fibersInBundle.push_back(new ERNeuRadFiber(fiberX,fiberY));
 				}
 			}
