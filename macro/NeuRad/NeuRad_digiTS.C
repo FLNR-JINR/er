@@ -1,4 +1,4 @@
-void NeuRad_digi_full(Int_t nEvents = 1000){
+void NeuRad_digiTS(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "digi.root";
@@ -18,7 +18,7 @@ void NeuRad_digi_full(Int_t nEvents = 1000){
  
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
-  ERNeuRadDigitizerFullMC* digitizer = new ERNeuRadDigitizerFullMC(verbose);
+  ERNeuRadDigitizerTS* digitizer = new ERNeuRadDigitizerTS(verbose);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   

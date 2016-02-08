@@ -110,14 +110,9 @@ protected:
   ERNeuRadDigi* AddDigi(Double_t frontTDC, Double_t backTDC, Double_t TDC, Double_t frontQDC,
                         Double_t backQDC, Double_t QDC, Int_t fiber_nr);
 
-private:
-  TRandom3  *fRand;
-private:
-  virtual void SetParContainers();
-  
   void LongPointSeparating(ERNeuRadPoint* point, std::vector<ERNeuRadPoint*> * points);
   
-  void FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
+  virtual void FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
                           std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
                           std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
                         
@@ -125,6 +120,10 @@ private:
                                 std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
                                 std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
 
+  TRandom3  *fRand;
+private:
+  virtual void SetParContainers();
+  
   ClassDef(ERNeuRadDigitizer,1)
 };
 
