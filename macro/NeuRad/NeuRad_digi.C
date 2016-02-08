@@ -3,6 +3,7 @@ void NeuRad_digi(Int_t nEvents = 1000){
   TString inFile = "sim.root";
   TString outFile = "digi.root";
   TString parFile = "par.root";
+  TString parOutFile = "parOut.root";
   // ------------------------------------------------------------------------
   
   // -----   Timer   --------------------------------------------------------
@@ -15,32 +16,34 @@ void NeuRad_digi(Int_t nEvents = 1000){
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
-  
+ 
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
-  //digitizer->SetBeamEnergy(100.); //[MeV] // OR 
-  digitizer->SetTOFRange(1000.); //[ns]
-  digitizer->SetSaturationCoefficient(0.012); //DEFAULT = 0.012
-  digitizer->SetFiberThreshold (0.0000001); //[MeV]
-  // ------------------------------------------------------------------------
-  
   fRun->AddTask(digitizer);
-  
-   // -----------Runtime DataBase info --------------------------------------
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo*  parIo1 = new FairParRootFileIo();
-  parIo1->open(parFile.Data());
-  rtdb->setFirstInput(parIo1);
-  rtdb->setOutput(parIo1);
-  rtdb->saveOutput();
   // ------------------------------------------------------------------------
+  
+  // -----------Runtime DataBase info -------------------------------------
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  
+  FairParRootFileIo*  parIo1 = new FairParRootFileIo();
+  parIo1->open(parFile.Data(), "UPDATE");
+  rtdb->setFirstInput(parIo1);
+  
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
+  NeuRadDetDigiFile += "/parameters/NeuRad.digi.par";
+  parInput2->open(NeuRadDetDigiFile.Data(),"in");
+  rtdb->setSecondInput(parInput2);
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
-
+  //FairParRootFileIo*  parIo2 = new FairParRootFileIo();
+  //parIo2->open(parOutFile.Data());
+  rtdb->setOutput(parIo1);
+  rtdb->saveOutput();
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();

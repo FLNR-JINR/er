@@ -37,8 +37,8 @@ void SumEdepAndLightYield(){
 	
 		for (Int_t i=0;i<nTracks;i++) {
 			ERNeuRadPoint *point = (ERNeuRadPoint*)points->At(i);
-			sumEPerFibers[(Int_t)point->GetFiberInBundleNb()]+= point->GetEnergyLoss()/1000.; //MeV
-			sumLPerFibers[(Int_t)point->GetFiberInBundleNb()]+= point->GetLightYield();  	  //MeV
+			sumEPerFibers[(Int_t)point->GetFiberInBundleNb()]+= point->GetEnergyLoss()*1000.; //MeV
+			sumLPerFibers[(Int_t)point->GetFiberInBundleNb()]+= point->GetLightYield()*1000.; //MeV
 		}
 		
 		for (Int_t ifiber = 0; ifiber < 64; ifiber++){

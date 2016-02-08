@@ -15,6 +15,9 @@
 #include "TVector3.h"
 #include "TArrayI.h"
 
+
+#include "FairMultiLinkedData.h"
+
 enum ExpertTrackingStatus{
     Entering,
     Exiting,
@@ -22,7 +25,7 @@ enum ExpertTrackingStatus{
     Stop
 };
 
-class ERNeuRadStep : public TObject
+class ERNeuRadStep : public FairMultiLinkedData
 {
  public:
 
@@ -66,7 +69,9 @@ class ERNeuRadStep : public TObject
   
   /** Accessors **/
   Double_t GetFiberInBundleNb() const {return fFiberInBundleNb;}
-  
+  Double_t GetX() const {return fX;}
+  Double_t GetY() const {return fY;}
+  Double_t GetZ() const {return fZ;}
   void Print();
   
   static ExpertTrackingStatus GetTrackStatus();

@@ -136,12 +136,13 @@ private:
    **/
   ERNeuRadPoint* AddPoint(Int_t eventID, Int_t trackID,
 			  Int_t mot0trackID,
-        Int_t fiberInBundleNb,
+        Int_t fiberInBundleNb, Int_t bundleNb, 
 			  Double_t mass,
 			  TVector3 posIn,
 			  TVector3 pos_out, TVector3 momIn,
-			  TVector3 momOut, Double_t time,
-			  Double_t length, Double_t eLoss, Double_t lightYield);
+			  TVector3 momOut, Double_t time, Double_t timeOut,
+			  Double_t trackLength, Double_t eLoss,
+        Double_t lightYield, Int_t pid, Double_t charge);
   
   /** Private method AddFirstStep
   **
@@ -184,6 +185,15 @@ private:
    ** Resets the private members for the track parameters
    **/
   void ResetParameters();
+  
+  void StartNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
+                            TLorentzVector& posIn, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
+                            Double_t& trackLength,Int_t& fiberInBundleNb, Int_t& bundle, Double_t& mass, Double_t& timeIn);
+  void FinishNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
+                            TLorentzVector& posIn, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
+                            Double_t& trackLength,Int_t& fiberInBundleNb, Int_t& bundle,Double_t& mass, Double_t& timeIn);
+                            
+  Double_t CurPointLen(TLorentzVector& posIn);
   
   ClassDef(ERNeuRad,1);
 };

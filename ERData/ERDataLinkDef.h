@@ -5,6 +5,8 @@
 #pragma link off all functions;
 
 #pragma link C++ class ERNeuRadPoint+;
+#pragma link C++ class ERNeuRadFiberPoint+;
+#pragma link C++ class ERNeuRadPMTSignal+;
 #pragma link C++ class ERNeuRadDigi+;
 #pragma link C++ class ERNeuRadStep+;
 #pragma link C++ class ERStack+;

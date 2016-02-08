@@ -432,7 +432,7 @@ void ERStack::SelectTracks()
     // --> Check for cuts (store primaries in any case)
     if (iMother < 0) { store = kTRUE; }
     else {
-      if (!fStoreSecondaries) { store = kFALSE; }
+      //if (!fStoreSecondaries) { store = kFALSE; }
       if (nPoints < fMinPoints) { store = kFALSE; }
       if (eKin < fEnergyCut) { store = kFALSE; }
     }

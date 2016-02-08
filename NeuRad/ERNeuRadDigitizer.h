@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                        ERNeuRadDigitizer header file      -----
+// -----                        ERNeuRadDigitizer header file          -----
 // -----                  Created 03/15  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
@@ -9,24 +9,20 @@
 #include <vector>
 using std::vector;
 
+#include "TRandom3.h"
+
 #include "FairTask.h"
 #include "ERNeuRadDigi.h"
+#include "ERNeuRadFiberPoint.h"
+#include "ERNeuRadPMTSignal.h"
+#include "ERNeuRadDigiPar.h"
+#include "ERNeuRadSetup.h"
 
-class TClonesArray;
 class TObjectArray;
 class TH1F;
 class TH2F;
 class TF1;
-class TRandom3;
-
-
-/** Structure for fiber point properties **/
-struct ERNeuRadFiberPoint
-{
-  Double_t time;
-  Double_t lightQDC;
-  Double_t energy;
-};
+class TRandom;
 
 class ERNeuRadDigitizer : public FairTask {
 
@@ -55,54 +51,79 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  inline void      SetBeamEnergy(const Double_t& beamEnergy) {fBeamEnergy = beamEnergy; }
-  inline void      SetTOFRange(const Double_t& TOFRange) {  fTOFRange = TOFRange;  }
-  inline void      SetSaturationCoefficient(const Double_t& saturationCoefficient) {  fSaturationCoefficient = saturationCoefficient;  }
-  inline void      SetFiberThreshold(const Double_t& fiberThreshold) {fFiberThreshold = fiberThreshold; }
-  
-  /** Accessors **/
-  inline Double_t  GetBeamEnergy() const { return fBeamEnergy; }
-  inline Double_t  GetTOFRange() const  {  return fTOFRange;  }
-  inline Double_t  GetSaturationCoefficient() const  {  return fSaturationCoefficient; }
-  inline Double_t  GetFiberThreshold() const { return fFiberThreshold; }
-  
+  inline void SetDiscriminatorThreshold(const Double_t discrThreshold)
+                                                        {fDiscriminatorThreshold = discrThreshold; }
+  inline void SetPMTJitter(const Double_t PMTJitter)    {fPMTJitter = PMTJitter;}
+  inline void SetPMTDelay(const Double_t PMTDelay)      {fPMTDelay = PMTDelay;}
+  inline void SetPECountForOneElectronsSim(const Double_t count)
+                                                        {fPECountForOneElectronsSim = count;}
+  inline void SetExcessNoiseFactor(const Double_t enf)  {fExcessNoiseFactor = enf;}
+  inline void SetScincilationTau(const Double_t tau)    {fScincilationTau = tau;}
+  inline void SetScincilationDT(const Double_t dt)      {fScincilationDT = dt;}
+
+  /** Accessors **/ 
+  Int_t FiberPointCount()  const;
+  Int_t PMTSignalCount()   const;
+  Int_t DigiCount()        const;
 protected:
-  //Geometry parameters
-  Int_t fNFibers;
-  
+  //Digitization parameters
+  ERNeuRadDigiPar* fDigiPar;
+  ERNeuRadSetup* fNeuRadSetup;
   //Input arrays
   TClonesArray *fNeuRadPoints;
   TClonesArray *fNeuRadFirstStep;
 
   //Output arrays
+  TClonesArray *fNeuRadFiberPoint;
+  TClonesArray *fNeuRadPMTSignal;
   TClonesArray *fNeuRadDigi;
   
   //constants
-  static const Double_t DEFAULT_SATURATION_COEFFICIENT;
-  static const Double_t LIGHT_ATTENUATION ;   // [1/cm]
-  static const Double_t BC408_DECAY_CONSTANT; // [1/ns]
-  static const Int_t    ERROR_POINTS_IN_MODULE_COUNT;
-  static const Double_t SPEED_OF_FLIGHT_IN_MATERIAL; //[cm/ns]
-  static const Double_t MEASURING_ERROR_WIDTH_COEF;
+  static const Double_t cSciFiLightYield; // [photons/MeV]
+  static const Double_t cSpeedOfLight; //[cm/ns]
+  static const Double_t cMaterialSpeedOfLight;//[cm/ns]
+  static const Int_t    cErrorPointsInModuleCount;
+  static const Double_t cLightFractionInTotalIntReflection;
+  //доля света захватываемая файбером в полное внутренне отражение в каждую сторону.
+  static const Double_t cExcessNoiseFactor;
+  static const Double_t cPMTDelay; //[ns]
+  static const Double_t cPMTJitter; //[ns]
+  static const Int_t    cPECountForOneElectronsSim;
+  static const Double_t cScincilationTau; //[ns]
+  static const Double_t cScincilationDT;  //[ns]
+  static const Double_t cMaxPointLength; //[cm] //старый параметр, для идеи дробления поинта в диджитизации. Будет удален в следующих версиях
   
   //Allow for user params
-  Double_t fBeamEnergy;
-  Double_t fTOFRange;                 // Allow change of length of time gate for QDC ("Integration time") at runtime
-  Double_t fSaturationCoefficient;    // Allow change of the PMT Saturation at runtime. ERNeuRadDigitizer is initialized with the default value
-  Double_t fFiberThreshold;
-  
+  Double_t fDiscriminatorThreshold; //[mV]
+  Double_t fPMTJitter; //[ns]
+  Double_t fPMTDelay; //[ns]
+  Int_t fPECountForOneElectronsSim;
+  Double_t fExcessNoiseFactor;
+  Double_t fScincilationTau; //[ns]
+  Double_t fScincilationDT;  //[ns]
 protected:
-  inline Double_t BuildTOFRangeFromBeamEnergy(const Double_t &e);
+  ERNeuRadFiberPoint* AddFiberPoint(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
+									Int_t photon_count, Int_t photoel_count,Double_t amplitude, Int_t onePE);
+
+  ERNeuRadPMTSignal* AddPMTSignal(Int_t iBundle, Int_t iFiber);
   
-  ERNeuRadDigi* AddDigi(Int_t digi_nr, Double_t frontTDC, Double_t backTDC,
-                                      Double_t TDC, Double_t frontQDC, Double_t backQDC, Double_t QDC,
-                                      Int_t fiber_nr);
+  ERNeuRadDigi* AddDigi(Double_t frontTDC, Double_t backTDC, Double_t TDC, Double_t frontQDC,
+                        Double_t backQDC, Double_t QDC, Int_t fiber_nr);
 
-private:
+  void LongPointSeparating(ERNeuRadPoint* point, std::vector<ERNeuRadPoint*> * points);
+  
+  virtual void FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
+                          std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
+                          std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
+                        
+  void PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
+                                std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
+                                std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
 
+  TRandom3  *fRand;
 private:
   virtual void SetParContainers();
-
+  
   ClassDef(ERNeuRadDigitizer,1)
 };
 

@@ -10,7 +10,9 @@
 #include "TObject.h"
 #include "TVector3.h"
 
-class ERNeuRadDigi : public TObject
+#include "FairMultiLinkedData.h"
+
+class ERNeuRadDigi : public FairMultiLinkedData
 {
  public:
   /** Default constructor **/

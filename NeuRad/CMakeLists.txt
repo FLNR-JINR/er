@@ -22,8 +22,14 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 ERNeuRad.cxx
 ERNeuRadDigitizer.cxx
+ERNeuRadDigitizerTS.cxx
+#ERNeuRadDigitizerFullMC.cxx
 ERNeuRadPointAnalyser.cxx
 ERNeuRadDigiAnalyser.cxx
+ERNeuRadContFact.cxx
+ERNeuRadDigiPar.cxx
+ERNeuRadGeoPar.cxx
+ERNeuRadSetup.cxx
 )
 
 # fill list of header files from list of source files
@@ -32,7 +38,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERNeuRadLinkDef.h)
 Set(LIBRARY_NAME NeuRad)
-Set(DEPENDENCIES ERBase)
+Set(DEPENDENCIES ERBase ERData)
 
 GENERATE_LIBRARY()
 
