@@ -3,6 +3,7 @@ void NeuRad_digi(Int_t nEvents = 1000){
   TString inFile = "sim.root";
   TString outFile = "digi.root";
   TString parFile = "par.root";
+  TString parOutFile = "parOut.root";
   // ------------------------------------------------------------------------
   
   // -----   Timer   --------------------------------------------------------
@@ -26,7 +27,7 @@ void NeuRad_digi(Int_t nEvents = 1000){
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   
   FairParRootFileIo*  parIo1 = new FairParRootFileIo();
-  parIo1->open(parFile.Data());
+  parIo1->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parIo1);
   
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
@@ -35,14 +36,14 @@ void NeuRad_digi(Int_t nEvents = 1000){
   parInput2->open(NeuRadDetDigiFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
   
-  rtdb->setOutput(parIo1);
-  rtdb->saveOutput();
-  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
-
+  //FairParRootFileIo*  parIo2 = new FairParRootFileIo();
+  //parIo2->open(parOutFile.Data());
+  rtdb->setOutput(parIo1);
+  rtdb->saveOutput();
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();

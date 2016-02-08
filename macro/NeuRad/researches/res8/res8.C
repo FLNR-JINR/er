@@ -126,7 +126,7 @@ void res8(int eKin, TString pngdir, TString pngname, int pe, Double_t thEdep,TSt
   
   int signals[49][64][2], jsig[49][64];
   double fiberEdep[49][64];
-  Int_t thFb[100];
+  Int_t thFb[1000];
   int fb[49][64];
   Double_t modA = 0.;
   Int_t thFbN = 0;
@@ -184,7 +184,7 @@ void res8(int eKin, TString pngdir, TString pngname, int pe, Double_t thEdep,TSt
       for (int i = 0; i < 64; i++){
         if (fb[j][i] == 2) 
         {
-          if (j != 23) 
+          if (j != 24) 
           {
             counter++;
             another_bundle = true;

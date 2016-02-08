@@ -4,7 +4,9 @@
 #include "FairDetParIo.h"
 #include "FairParIo.h"
 #include "FairGenericParAsciiFileIo.h"
+#include "FairGenericParRootFileIo.h"
 #include "FairParAsciiFileIo.h"
+#include "FairParRootFileIo.h"
 #include "FairLogger.h"
 
 #include "TString.h"
@@ -58,6 +60,7 @@ void ERNeuRadDigiPar::print()
   LOG(INFO) << "          ERNeuRadDigiPar                " << FairLogger::endl;
   LOG(INFO) << "*****************************************" << FairLogger::endl;
   LOG(INFO) << "   ERNeuRadFiberLength: " <<  fFiberLength <<  FairLogger::endl;
+  LOG(INFO) << "   ERNeuRadFiberWidth: " <<  fFiberWidth <<  FairLogger::endl;
   LOG(INFO) << "   ERNeuRadNofBundles: " <<  fNofBundles <<  FairLogger::endl;
   LOG(INFO) << "   ERNeuRadNofFibers: " <<  fNofFibers <<  FairLogger::endl;
   LOG(INFO) << "   ERNeuRadPMTQuantumEfficiency: " <<  FairLogger::endl;
@@ -82,10 +85,10 @@ void ERNeuRadDigiPar::print()
 //------------------------------------------------------
 void ERNeuRadDigiPar::putParams(FairParamList* l)
 { 
-/*
+
   //   print();
   cout << " I am in ERNeuRadDigiPar::putParams " << endl;
-  if (!l) { return; }
+  /*if (!l) { return; }
   l->add("FairTutorialDet2DigiStations", ftutdetdigiparstation);
   l->add("FairTutorialDet2DigiSectorsPerStation", ftutdetdigiparsector);
   Int_t count_sectors = 0;
@@ -112,6 +115,8 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
   if (!l) { return kFALSE; }
   
   if ( ! l->fill("ERNeuRadFiberLength", &fFiberLength) ) { return kFALSE; }
+  
+  if ( ! l->fill("ERNeuRadFiberWidth", &fFiberWidth) ) { return kFALSE; }
 
   if ( ! l->fill("ERNeuRadNofBundles", &fNofBundles) ) { return kFALSE; }
   
@@ -126,11 +131,16 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 }
 //------------------------------------------------------
 Bool_t ERNeuRadDigiPar::init(FairParIo* input){
-  if ( ! TString(input->getFilename()).Contains("NeuRad.digi")){
-    return kFALSE;
+	LOG(INFO) << input->getFilename() << FairLogger::endl;
+  if ( TString(input->getFilename()).Contains(".digi")){
+    FairGenericParAsciiFileIo* p=new FairGenericParAsciiFileIo(((FairParAsciiFileIo*)input)->getFile());
+	return p->init(this);
   }
-  FairGenericParAsciiFileIo* p=new FairGenericParAsciiFileIo(((FairParAsciiFileIo*)input)->getFile());
-  return p->init(this);
+  if ( TString(input->getFilename()).Contains(".root")){ 
+    FairGenericParRootFileIo* p=new FairGenericParRootFileIo(((FairParRootFileIo*)input)->getParRootFile());
+	return p->init(this);
+  }
+  return kFALSE;
 }
 //------------------------------------------------------
 
