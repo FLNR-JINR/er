@@ -9,7 +9,7 @@
 #include "FairLogger.h"
 
 ERNeuRadSetup* ERNeuRadSetup::fInstance = NULL;
-ERNeuRadDigiPar* ERNeuRadSetup::fDigiPar = NULL;
+ERNeuRadDigiPar* ERNeuRadSetup::fDigiPar;
 std::vector<ERNeuRadBundle*> ERNeuRadSetup::fBundles;
 std::vector<std::vector<ERNeuRadFiber*> > ERNeuRadSetup::fFibers;
 
@@ -24,18 +24,12 @@ ERNeuRadSetup::ERNeuRadSetup(){
 	fDigiPar = (ERNeuRadDigiPar*)
              (rtdb->getContainer("ERNeuRadDigiPar"));
 	if ( ! fDigiPar ) Fatal("ERNeuRadSetup", "No ERNeuRadDigiPar in runtime");
-	//fDigiPar->print();
-/*
+
 	Int_t nofFiberInRow = Int_t(TMath::Sqrt(fDigiPar->NofFibers()));
 	Int_t nofBundlesInRow = Int_t(TMath::Sqrt(fDigiPar->NofBundles()));
-	Float_t bundleWidth = nofFiberInRow*fDigiPar->FiberWidth();
-	Float_t neuradWidth = bundleWidth*nofBundlesInRow;
-*/
-	Int_t nofFiberInRow = 8;
-	Int_t nofBundlesInRow = 7;
-	Float_t fiberWidth = 0.6;
+	Float_t fiberWidth = fDigiPar->FiberWidth();
 	Float_t bundleWidth = nofFiberInRow*fiberWidth;
-	Float_t neuradWidth = bundleWidth*nofBundlesInRow;	
+	Float_t neuradWidth = bundleWidth*nofBundlesInRow;
 	//Инициализируем бандлы
 	for(Int_t iBundle = 0; iBundle < nofBundlesInRow; iBundle++ ){
 		for(Int_t jBundle = 0; jBundle < nofBundlesInRow; jBundle++ ){
@@ -66,19 +60,19 @@ ERNeuRadSetup* ERNeuRadSetup::Instance(){
 }
 
 Int_t  ERNeuRadSetup::NofFibers() {
-	fDigiPar->NofFibers();
+	return fDigiPar->NofFibers();
 }
 
 Int_t   ERNeuRadSetup::NofBundles() {
-	fDigiPar->NofBundles();
+	return fDigiPar->NofBundles();
 }
 
 Float_t ERNeuRadSetup::FiberLength() {
-	fDigiPar->FiberLength();
+	return fDigiPar->FiberLength();
 }
 
 Float_t ERNeuRadSetup::FiberWidth() {
-	fDigiPar->FiberWidth();
+	return fDigiPar->FiberWidth();
 }
 
 Float_t ERNeuRadSetup::BundleX(Int_t iBundle){
@@ -95,6 +89,18 @@ Float_t ERNeuRadSetup::FiberX(Int_t iBundle, Int_t iFiber){
 
 Float_t ERNeuRadSetup::FiberY(Int_t iBundle, Int_t iFiber){
 	return fFibers[iBundle][iFiber]->fY;
+}
+
+Float_t ERNeuRadSetup::PMTQuantumEfficiency(Int_t iBundle, Int_t iFiber){
+	return fDigiPar->PMTQuantumEfficiency(iFiber);
+}
+
+Float_t ERNeuRadSetup::PMTGain(Int_t iBundle, Int_t iFiber){
+	return fDigiPar->PMTGain(iFiber);
+}
+
+void ERNeuRadSetup::Print(){
+	fDigiPar->print();
 }
 
 ClassImp(ERNeuRadSetup)

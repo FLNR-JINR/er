@@ -16,6 +16,7 @@ using std::vector;
 #include "ERNeuRadFiberPoint.h"
 #include "ERNeuRadPMTSignal.h"
 #include "ERNeuRadDigiPar.h"
+#include "ERNeuRadSetup.h"
 
 class TObjectArray;
 class TH1F;
@@ -67,7 +68,7 @@ public:
 protected:
   //Digitization parameters
   ERNeuRadDigiPar* fDigiPar;
-  
+  ERNeuRadSetup* fNeuRadSetup;
   //Input arrays
   TClonesArray *fNeuRadPoints;
   TClonesArray *fNeuRadFirstStep;

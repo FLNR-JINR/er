@@ -120,7 +120,8 @@ InitStatus ERNeuRadDigitizer::Init()
   
   fRand = new TRandom3();
   
-  fDigiPar->print();
+  fNeuRadSetup = ERNeuRadSetup::Instance();
+  fNeuRadSetup->Print();
   
   return kSUCCESS;
 }
@@ -134,8 +135,8 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   LOG(INFO) << "Event " << iEvent << FairLogger::endl;
   // Reset entries in output arrays
   Reset();
-  Int_t nofFibers = fDigiPar->NofFibers();
-  Int_t nofBundles = fDigiPar->NofBundles();
+  Int_t nofFibers = fNeuRadSetup->NofFibers();
+  Int_t nofBundles = fNeuRadSetup->NofBundles();
   //выделяем память под хранение поинтов по файберам
   vector<ERNeuRadFiberPoint* >** frontPointsPerFibers = new vector<ERNeuRadFiberPoint*>* [nofBundles];
   vector<ERNeuRadFiberPoint* >** backPointsPerFibers = new vector<ERNeuRadFiberPoint*>*  [nofBundles];
@@ -215,7 +216,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
                         std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers)
 {
 
-    Double_t fiber_length = fDigiPar->FiberLength();
+    Double_t fiber_length = fNeuRadSetup->FiberLength();
     Int_t    point_bundle = point->GetBundleNb();
     Int_t    point_fiber_nb  = point->GetFiberInBundleNb();
     Double_t point_eLoss      =  point->GetEnergyLoss(); //[GeV]
@@ -231,8 +232,8 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
        LOG(ERROR) << "ERNeuRadDigitizerFullMC: Too many points in one fiber: "
                   << frontPointsPerFibers[point_fiber_nb].size()<< " points" << FairLogger::endl;
     */
-    Double_t PMTQuantumEfficiency = fDigiPar->PMTQuantumEfficiency(point_fiber_nb);
-    Double_t PMTGain = fDigiPar->PMTGain(point_fiber_nb);
+    Double_t PMTQuantumEfficiency = fNeuRadSetup->PMTQuantumEfficiency(point_bundle,point_fiber_nb);
+    Double_t PMTGain = fNeuRadSetup->PMTGain(point_bundle,point_fiber_nb);
     
     //scintillator light yield - общее число рожденных фотонов
     Double_t photon_count = point_lightYield*1000.*cSciFiLightYield;

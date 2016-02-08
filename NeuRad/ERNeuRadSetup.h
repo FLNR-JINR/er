@@ -40,7 +40,9 @@ class ERNeuRadSetup {
 		static Float_t BundleY(Int_t iBundle);
 		static Float_t FiberX(Int_t iBundle, Int_t iFiber);
 		static Float_t FiberY(Int_t iBundle, Int_t iFiber);
-		
+		static Float_t PMTQuantumEfficiency(Int_t iBundle, Int_t iFiber);
+		static Float_t PMTGain(Int_t iBundle, Int_t iFiber);
+		static void    Print();
 	ClassDef(ERNeuRadSetup,1)
 };
 
