@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#nohup root -l -q 'NeuRad_sim.C(1000, "sim500MeV1000evrc.root", "par500MeV1000evrc.root", 0.5)' &
+nohup root -l -q 'NeuRad_sim.C(100, "sim500MeVtest.root", "par500MeVtest.root", 0.5)' &
 #nohup root -l -q 'NeuRad_sim.C(1000, "sim400MeV1000evrc.root", "par400MeV1000evrc.root", 0.4)' &
 
 
@@ -27,4 +27,4 @@
 #nohup root -l -q 'NeuRad_digi.C(250,500,"sim500MeV1000evrc.root", "par500MeV1000evrc.root", "digi500MeV1000evpe_250_500.root")' &
 #nohup root -l -q 'NeuRad_digi.C(500,750,"sim500MeV1000evrc.root", "par500MeV1000evrc.root", "digi500MeV1000evpe_500_750.root")' &
 #nohup root -l -q 'NeuRad_digi.C(750,1000,"sim500MeV1000evrc.root", "par500MeV1000evrc.root", "digi500MeV1000evpe_750_1000.root")' &
-nohup root -l -q 'merge.C("digi500MeV1000evpe_0_250.root,digi500MeV1000evpe_250_500.root,digi500MeV1000evpe_500_750.root,digi500MeV1000evpe_750_1000.root", "digi500MeV1000evpe.root")' & 
+#nohup root -l -q 'merge.C("digi500MeV1000evpe_0_250.root,digi500MeV1000evpe_250_500.root,digi500MeV1000evpe_500_750.root,digi500MeV1000evpe_750_1000.root", "digi500MeV1000evpe.root")' & 
