@@ -19,15 +19,14 @@ void NeuRad_digi(Int_t startEvent,Int_t finishEvent, TString inFile, TString par
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
-  digitizer->SetPECountForOneElectronsSim(999999999999.);
+  //digitizer->SetPECountForOneElectronsSim(999999999999.);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
-  
-  // -----------Runtime DataBase info -------------------------------------
+ // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   
   FairParRootFileIo*  parIo1 = new FairParRootFileIo();
-  parIo1->open(parFile.Data());
+  parIo1->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parIo1);
   
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
@@ -36,14 +35,12 @@ void NeuRad_digi(Int_t startEvent,Int_t finishEvent, TString inFile, TString par
   parInput2->open(NeuRadDetDigiFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
   
-  rtdb->setOutput(parIo1);
-  rtdb->saveOutput();
-  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(startEvent, finishEvent);
   // ------------------------------------------------------------------------
-
+  rtdb->setOutput(parIo1);
+  rtdb->saveOutput();
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
