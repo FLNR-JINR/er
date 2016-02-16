@@ -38,6 +38,7 @@ EndIf (FAIRBASE)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 set(CMAKE_MODULE_PATH "${FAIRROOTPATH}/share/fairbase/cmake/modules"  ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${FAIRROOTPATH}/share/fairbase/cmake/modules_old" ${CMAKE_MODULE_PATH})
 
 # Check if the compiler support specific C++11 features
 # Up to now this is only a check since the code does not use
@@ -149,7 +150,7 @@ if(EXPERTROOT_MINIMAL)
   find_package(ROOT 5.32.00 REQUIRED)
 else(EXPERTROOT_MINIMAL)
   find_package(ROOT 5.32.00 REQUIRED)
-  find_package(PLUTO REQUIRED)
+  #find_package(PLUTO REQUIRED)
   find_package(GENERATORS REQUIRED)
   find_package(GEANT3 REQUIRED)
   find_package(GEANT4 REQUIRED)
@@ -201,6 +202,7 @@ add_subdirectory (ERData)
 add_subdirectory (passive)
 add_subdirectory (NeuRad)
 add_subdirectory (muSi)
+add_subdirectory (Gadast)
 
 Execute_Process(COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-opengl
                 OUTPUT_VARIABLE EveIsBuild

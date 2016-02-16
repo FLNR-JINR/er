@@ -12,5 +12,6 @@
 #pragma link C++ class ERStack+;
 #pragma link C++ class ERMCTrack+;
 #pragma link C++ class ERmuSiPoint+;
+#pragma link C++ class ERGadastPoint+;
 
 #endif

@@ -26,6 +26,7 @@ NeuRadData/ERNeuRadPMTSignal.cxx
 NeuRadData/ERNeuRadDigi.cxx
 NeuRadData/ERNeuRadStep.cxx
 muSiData/ERmuSiPoint.cxx
+GadastData/ERGadastPoint.cxx
 ERStack.cxx
 ERMCTrack.cxx
 )

@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <define/>
+
+  <materials>
+    <isotope N="204" Z="82" name="Pb2040xd25bc0">
+      <atom unit="g/mole" value="203.973"/>
+    </isotope>
+    <isotope N="206" Z="82" name="Pb2060xd25c70">
+      <atom unit="g/mole" value="205.974"/>
+    </isotope>
+    <isotope N="207" Z="82" name="Pb2070xd25d00">
+      <atom unit="g/mole" value="206.976"/>
+    </isotope>
+    <isotope N="208" Z="82" name="Pb2080xd25dd0">
+      <atom unit="g/mole" value="207.977"/>
+    </isotope>
+    <element name="Pb0xd25960">
+      <fraction n="0.014" ref="Pb2040xd25bc0"/>
+      <fraction n="0.241" ref="Pb2060xd25c70"/>
+      <fraction n="0.221" ref="Pb2070xd25d00"/>
+      <fraction n="0.524" ref="Pb2080xd25dd0"/>
+    </element>
+    <material name="G4_Pb0xd25810" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="823"/>
+      <D unit="g/cm3" value="11.35"/>
+      <fraction n="1" ref="Pb0xd25960"/>
+    </material>
+    <isotope N="12" Z="6" name="C120xd318c0">
+      <atom unit="g/mole" value="12"/>
+    </isotope>
+    <isotope N="13" Z="6" name="C130xd31930">
+      <atom unit="g/mole" value="13.0034"/>
+    </isotope>
+    <element name="C0xd31660">
+      <fraction n="0.9893" ref="C120xd318c0"/>
+      <fraction n="0.0107" ref="C130xd31930"/>
+    </element>
+    <isotope N="1" Z="1" name="H10xd20290">
+      <atom unit="g/mole" value="1.00782503081372"/>
+    </isotope>
+    <isotope N="2" Z="1" name="H20xd30660">
+      <atom unit="g/mole" value="2.01410199966617"/>
+    </isotope>
+    <element name="H0xd30400">
+      <fraction n="0.999885" ref="H10xd20290"/>
+      <fraction n="0.000115" ref="H20xd30660"/>
+    </element>
+    <isotope N="35" Z="17" name="I350xd33090">
+      <atom unit="g/mole" value="34.9689"/>
+    </isotope>
+    <isotope N="37" Z="17" name="I370xd33100">
+      <atom unit="g/mole" value="36.9659"/>
+    </isotope>
+    <element name="Chlorine0xd32c70">
+      <fraction n="0.7578" ref="I350xd33090"/>
+      <fraction n="0.2422" ref="I370xd33100"/>
+    </element>
+    <material name="PVC0xd33fc0" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="106.238800944005"/>
+      <D unit="g/cm3" value="1.2"/>
+      <fraction n="0.3843724996111" ref="C0xd31660"/>
+      <fraction n="0.0483847985216282" ref="H0xd30400"/>
+      <fraction n="0.567242701867272" ref="Chlorine0xd32c70"/>
+    </material>
+    <isotope N="133" Z="55" name="Cs1330xd32a40">
+      <atom unit="g/mole" value="132.905"/>
+    </isotope>
+    <element name="Cesium0xd32690">
+      <fraction n="1" ref="Cs1330xd32a40"/>
+    </element>
+    <isotope N="127" Z="53" name="I1270xd32dd0">
+      <atom unit="g/mole" value="126.904"/>
+    </isotope>
+    <element name="Iodine0xd32970">
+      <fraction n="1" ref="I1270xd32dd0"/>
+    </element>
+    <material name="CsI0xd32f00" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="489.469924784908"/>
+      <D unit="g/cm3" value="4.51"/>
+      <fraction n="0.511548751606463" ref="Cesium0xd32690"/>
+      <fraction n="0.488451248393537" ref="Iodine0xd32970"/>
+    </material>
+    <isotope N="16" Z="8" name="O160xd31820">
+      <atom unit="g/mole" value="15.9949"/>
+    </isotope>
+    <isotope N="17" Z="8" name="O170xd31c30">
+      <atom unit="g/mole" value="16.9991"/>
+    </isotope>
+    <isotope N="18" Z="8" name="O180xd31cc0">
+      <atom unit="g/mole" value="17.9992"/>
+    </isotope>
+    <element name="O0xd31a00">
+      <fraction n="0.99757" ref="O160xd31820"/>
+      <fraction n="0.00038" ref="O170xd31c30"/>
+      <fraction n="0.00205" ref="O180xd31cc0"/>
+    </element>
+    <material name="BoPET0xd33370" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="73.9459512090726"/>
+      <D unit="g/cm3" value="1.39"/>
+      <fraction n="0.618522421261208" ref="C0xd31660"/>
+      <fraction n="0.0519063890091215" ref="H0xd30400"/>
+      <fraction n="0.32957118972967" ref="O0xd31a00"/>
+    </material>
+    <material name="G4_Galactic0xd30310" state="gas">
+      <T unit="K" value="2.73"/>
+      <P unit="pascal" value="3e-18"/>
+      <MEE unit="eV" value="21.8"/>
+      <D unit="g/cm3" value="1e-25"/>
+      <fraction n="1" ref="H0xd30400"/>
+    </material>
+    <isotope N="138" Z="57" name="La1380xd31ec0">
+      <atom unit="g/mole" value="137.907"/>
+    </isotope>
+    <isotope N="139" Z="57" name="La1390xd32270">
+      <atom unit="g/mole" value="138.906"/>
+    </isotope>
+    <element name="La0xd32040">
+      <fraction n="0.0009" ref="La1380xd31ec0"/>
+      <fraction n="0.9991" ref="La1390xd32270"/>
+    </element>
+    <isotope N="79" Z="35" name="Br790xd319c0">
+      <atom unit="g/mole" value="78.9183"/>
+    </isotope>
+    <isotope N="81" Z="35" name="Br810xd32620">
+      <atom unit="g/mole" value="80.9163"/>
+    </isotope>
+    <element name="Br0xd323c0">
+      <fraction n="0.5069" ref="Br790xd319c0"/>
+      <fraction n="0.4931" ref="Br810xd32620"/>
+    </element>
+    <material name="LaBr0xd35a80" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="433.750126997431"/>
+      <D unit="g/cm3" value="5.06"/>
+      <fraction n="0.634824643858046" ref="La0xd32040"/>
+      <fraction n="0.365175356141954" ref="Br0xd323c0"/>
+    </material>
+    <isotope N="24" Z="12" name="Mg240xd31ba0">
+      <atom unit="g/mole" value="23.985"/>
+    </isotope>
+    <isotope N="25" Z="12" name="Mg250xd31f60">
+      <atom unit="g/mole" value="24.9858"/>
+    </isotope>
+    <isotope N="26" Z="12" name="Mg260xd31fd0">
+      <atom unit="g/mole" value="25.9826"/>
+    </isotope>
+    <element name="Mg0xd31d30">
+      <fraction n="0.7899" ref="Mg240xd31ba0"/>
+      <fraction n="0.1" ref="Mg250xd31f60"/>
+      <fraction n="0.1101" ref="Mg260xd31fd0"/>
+    </element>
+    <material name="MgO0xd349d0" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="127.927584916888"/>
+      <D unit="g/cm3" value="3.58"/>
+      <fraction n="0.603036195518694" ref="Mg0xd31d30"/>
+      <fraction n="0.396963804481306" ref="O0xd31a00"/>
+    </material>
+    <material Z="13" name="G4_Al0xd30d30" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="166"/>
+      <D unit="g/cm3" value="2.699"/>
+      <atom unit="g/mole" value="26.9815"/>
+    </material>
+  </materials>
+
+  <solids>
+    <tube aunit="deg" deltaphi="360" lunit="mm" name="target_tybe0xd41410" rmax="10" rmin="0" startphi="0" z="1"/>
+    <trd lunit="mm" name="trd_out0xd42150" x1="60.9304552728773" x2="73.4597603292059" y1="141.679649132661" y2="166.824795555029" z="119.426153751196"/>
+    <trd lunit="mm" name="trd_in0xd420b0" x1="60.3233594179232" x2="72.9301787351589" y1="141.063748296039" y2="166.234065035146" z="119.545699450647"/>
+    <subtraction name="block_wrap0xd421f0">
+      <first ref="trd_out0xd42150"/>
+      <second ref="trd_in0xd420b0"/>
+    </subtraction>
+    <trd lunit="mm" name="trd_10xd42470" x1="60.2" x2="72.8" y1="35.2" y2="41.5" z="120.1"/>
+    <trd lunit="mm" name="trd_20xd42510" x1="72.8" x2="38.2" y1="41.5" y2="38.2" z="30"/>
+    <union name="onecell_cell0xd42580">
+      <first ref="trd_10xd42470"/>
+      <second ref="trd_20xd42510"/>
+      <position name="onecell_cell0xd42580_pos" unit="mm" x="0" y="0" z="75.05"/>
+    </union>
+    <trd lunit="mm" name="trd_10xd42940" x1="60.3233594179232" x2="72.9301787351589" y1="35.3266350482021" y2="41.63004470682" z="120.165"/>
+    <trd lunit="mm" name="trd_20xd429e0" x1="72.9301787351589" x2="38.2750999888938" y1="41.63004470682" y2="38.3230464765268" z="30.065"/>
+    <union name="onecellshell0xd42a50">
+      <first ref="trd_10xd42940"/>
+      <second ref="trd_20xd429e0"/>
+      <position name="onecellshell0xd42a50_pos" unit="mm" x="0" y="0" z="75.115"/>
+    </union>
+    <trd lunit="mm" name="block0xd41f10" x1="60.9241843494256" x2="77.1627367837899" y1="141.667063974292" y2="174.256323858513" z="154.781757727551"/>
+    <trd lunit="mm" name="wall0xd41de0" x1="242.026516713816" x2="322.964103105143" y1="284.594761459107" y2="365.58962748532" z="190.209718754012"/>
+    <tube aunit="deg" deltaphi="360" lunit="mm" name="LaBrcell_cell0xd453b0" rmax="12.7" rmin="0" startphi="0" z="50.8"/>
+    <tube aunit="deg" deltaphi="360" lunit="mm" name="LaBrcell_ref0xd450f0" rmax="13.7" rmin="0" startphi="0" z="102.6"/>
+    <tube aunit="deg" deltaphi="360" lunit="mm" name="LaBrcellshell0xd44eb0" rmax="14.2" rmin="0" startphi="0" z="103.1"/>
+    <box lunit="mm" name="expHall_box0xd35e10" x="2000" y="1000" z="2000"/>
+  </solids>
+
+  <structure>
+    <volume name="target_log0xd41520">
+      <materialref ref="G4_Pb0xd25810"/>
+      <solidref ref="target_tybe0xd41410"/>
+    </volume>
+    <volume name="block_wrap_log0xd422a0">
+      <materialref ref="PVC0xd33fc0"/>
+      <solidref ref="block_wrap0xd421f0"/>
+    </volume>
+    <volume name="onecell_cell_log0xd427a0">
+      <materialref ref="CsI0xd32f00"/>
+      <solidref ref="onecell_cell0xd42580"/>
+    </volume>
+    <volume name="onecellshell_log0xd42c70">
+      <materialref ref="BoPET0xd33370"/>
+      <solidref ref="onecellshell0xd42a50"/>
+      <physvol name="onecell_cell_phys0xd42df0">
+        <volumeref ref="onecell_cell_log0xd427a0"/>
+      </physvol>
+    </volume>
+    <volume name="block_log0xd41fb0">
+      <materialref ref="G4_Galactic0xd30310"/>
+      <solidref ref="block0xd41f10"/>
+      <physvol name="block_wrap_phys0xd423a0">
+        <volumeref ref="block_wrap_log0xd422a0"/>
+        <position name="block_wrap_phys0xd423a0_pos" unit="mm" x="0" y="0" z="-17.6180291384523"/>
+      </physvol>
+      <physvol name="block_cell_phys0xd43ef0">
+        <volumeref ref="onecellshell_log0xd42c70"/>
+        <position name="block_cell_phys0xd43ef0_pos" unit="mm" x="0" y="57.6447825558185" z="-16.1061135260391"/>
+        <rotation name="block_cell_phys0xd43ef0_rot" unit="deg" x="4.50725238515248" y="0" z="0"/>
+      </physvol>
+      <physvol copynumber="1" name="block_cell_phys0xd43fa0">
+        <volumeref ref="onecellshell_log0xd42c70"/>
+        <position name="block_cell_phys0xd43fa0_pos" unit="mm" x="0" y="19.2325558894204" z="-14.0897636833871"/>
+        <rotation name="block_cell_phys0xd43fa0_rot" unit="deg" x="1.50241746171749" y="0" z="0"/>
+      </physvol>
+      <physvol copynumber="2" name="block_cell_phys0xd44090">
+        <volumeref ref="onecellshell_log0xd42c70"/>
+        <position name="block_cell_phys0xd44090_pos" unit="mm" x="0" y="-19.2325558894204" z="-14.0897636833871"/>
+        <rotation name="block_cell_phys0xd44090_rot" unit="deg" x="-1.50241746171749" y="0" z="0"/>
+      </physvol>
+      <physvol copynumber="3" name="block_cell_phys0xd44180">
+        <volumeref ref="onecellshell_log0xd42c70"/>
+        <position name="block_cell_phys0xd44180_pos" unit="mm" x="0" y="-57.6447825558185" z="-16.1061135260391"/>
+        <rotation name="block_cell_phys0xd44180_rot" unit="deg" x="-4.50725238515248" y="0" z="0"/>
+      </physvol>
+    </volume>
+    <volume name="wall_log0xd41e80">
+      <materialref ref="G4_Galactic0xd30310"/>
+      <solidref ref="wall0xd41de0"/>
+      <physvol name="wall_block_phys0xd44290">
+        <volumeref ref="block_log0xd41fb0"/>
+        <position name="wall_block_phys0xd44290_pos" unit="mm" x="-103.044590446142" y="78.5467871681578" z="-6.4276427410717"/>
+        <rotation name="wall_block_phys0xd44290_rot" unit="deg" x="6.08416157475463" y="8.95839879792529" z="0.950898948409389"/>
+      </physvol>
+      <physvol copynumber="1" name="wall_block_phys0xd44380">
+        <volumeref ref="block_log0xd41fb0"/>
+        <position name="wall_block_phys0xd44380_pos" unit="mm" x="-34.474332012467" y="78.5467871681578" z="0.786089244683839"/>
+        <rotation name="wall_block_phys0xd44380_rot" unit="deg" x="6.01787186506522" y="2.98625412179348" z="0.314664083802861"/>
+      </physvol>
+      <physvol copynumber="2" name="wall_block_phys0xd44470">
+        <volumeref ref="block_log0xd41fb0"/>
+        <position name="wall_block_phys0xd44470_pos" unit="mm" x="34.474332012467" y="78.5467871681578" z="0.786089244683839"/>
+        <rotation name="wall_block_phys0xd44470_rot" unit="deg" x="6.01787186506522" y="-2.98625412179348" z="-0.314664083802861"/>
+      </physvol>
+      <physvol copynumber="3" name="wall_block_phys0xd44590">
+        <volumeref ref="block_log0xd41fb0"/>
+        <position name="wall_block_phys0xd44590_pos" unit="mm" x="103.044590446142" y="78.5467871681578" z="-6.4276427410717"/>
+        <rotation name="wall_block_phys0xd44590_rot" unit="deg" x="6.08416157475463" y="-8.95839879792529" z="-0.950898948409389"/>
+      </physvol>
+      <physvol copynumber="4" name="wall_block_phys0xd44680">
+        <volumeref ref="block_log0xd41fb0"/>
+        <position name="wall_block_phys0xd44680_pos" unit="mm" x="-103.044590446142" y="-78.5467871681578" z="-6.4276427410717"/>
+        <rotation name="wall_block_phys0xd44680_rot" unit="deg" x="-6.08416157475463" y="8.95839879792529" z="-0.950898948409389"/>
+      </physvol>
+      <physvol copynumber="5" name="wall_block_phys0xd44790">
+        <volumeref ref="block_log0xd41fb0"/>
+        <position name="wall_block_phys0xd44790_pos" unit="mm" x="-34.474332012467" y="-78.5467871681578" z="0.786089244683839"/>
+        <rotation name="wall_block_phys0xd44790_rot" unit="deg" x="-6.01787186506522" y="2.98625412179348" z="-0.314664083802861"/>
+      </physvol>
+      <physvol copynumber="6" name="wall_block_phys0xd44880">
+        <volumeref ref="block_log0xd41fb0"/>
+        <position name="wall_block_phys0xd44880_pos" unit="mm" x="34.474332012467" y="-78.5467871681578" z="0.786089244683839"/>
+        <rotation name="wall_block_phys0xd44880_rot" unit="deg" x="-6.01787186506522" y="-2.98625412179348" z="0.314664083802861"/>
+      </physvol>
+      <physvol copynumber="7" name="wall_block_phys0xd44970">
+        <volumeref ref="block_log0xd41fb0"/>
+        <position name="wall_block_phys0xd44970_pos" unit="mm" x="103.044590446142" y="-78.5467871681578" z="-6.4276427410717"/>
+        <rotation name="wall_block_phys0xd44970_rot" unit="deg" x="-6.08416157475463" y="-8.95839879792529" z="0.950898948409389"/>
+      </physvol>
+    </volume>
+    <volume name="LaBrcell_cell_log0xd454e0">
+      <materialref ref="LaBr0xd35a80"/>
+      <solidref ref="LaBrcell_cell0xd453b0"/>
+    </volume>
+    <volume name="LaBrcell_ref_log0xd45210">
+      <materialref ref="MgO0xd349d0"/>
+      <solidref ref="LaBrcell_ref0xd450f0"/>
+      <physvol name="LaBrcell_cell_phys0xd45670">
+        <volumeref ref="LaBrcell_cell_log0xd454e0"/>
+      </physvol>
+    </volume>
+    <volume name="LaBrcellshell_log0xd44fe0">
+      <materialref ref="G4_Al0xd30d30"/>
+      <solidref ref="LaBrcellshell0xd44eb0"/>
+      <physvol name="LaBrcell_ref_phys0xd45330">
+        <volumeref ref="LaBrcell_ref_log0xd45210"/>
+      </physvol>
+    </volume>
+    <volume name="expHall_log0xd36b20">
+      <materialref ref="G4_Galactic0xd30310"/>
+      <solidref ref="expHall_box0xd35e10"/>
+      <physvol name="target_phys0xd41620">
+        <volumeref ref="target_log0xd41520"/>
+      </physvol>
+      <physvol name="block_phys0xd44a60">
+        <volumeref ref="wall_log0xd41e80"/>
+        <position name="block_phys0xd44a60_pos" unit="mm" x="-417.395455402995" y="-138.155369793681" z="497.432533509015"/>
+        <rotation name="block_phys0xd44a60_rot" unit="deg" x="-15.5219366212469" y="38.9554022107169" z="80.0950239144796"/>
+      </physvol>
+      <physvol copynumber="1" name="block_phys0xd44b50">
+        <volumeref ref="wall_log0xd41e80"/>
+        <position name="block_phys0xd44b50_pos" unit="mm" x="417.395455402995" y="-138.155369793681" z="497.432533509015"/>
+        <rotation name="block_phys0xd44b50_rot" unit="deg" x="-15.5219366212469" y="-38.9554022107169" z="99.9049760855204"/>
+      </physvol>
+      <physvol copynumber="2" name="block_phys0xd44c70">
+        <volumeref ref="wall_log0xd41e80"/>
+        <position name="block_phys0xd44c70_pos" unit="mm" x="-417.395455402995" y="138.155369793681" z="497.432533509015"/>
+        <rotation name="block_phys0xd44c70_rot" unit="deg" x="15.5219366212469" y="38.9554022107169" z="99.9049760855204"/>
+      </physvol>
+      <physvol copynumber="3" name="block_phys0xd44d60">
+        <volumeref ref="wall_log0xd41e80"/>
+        <position name="block_phys0xd44d60_pos" unit="mm" x="417.395455402995" y="138.155369793681" z="497.432533509015"/>
+        <rotation name="block_phys0xd44d60_rot" unit="deg" x="15.5219366212469" y="-38.9554022107169" z="80.0950239144796"/>
+      </physvol>
+      <physvol name="lcell_phys0xd457a0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd457a0_pos" unit="mm" x="0" y="-104.188906600158" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd457a0_rot" unit="deg" x="-10" y="0" z="0"/>
+      </physvol>
+      <physvol copynumber="1" name="lcell_phys0xd45830">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd45830_pos" unit="mm" x="45.2058723702467" y="-93.8709612275354" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd45830_rot" unit="deg" x="-9.02686495588731" y="-4.32093744971626" z="-25.37304052473"/>
+      </physvol>
+      <physvol copynumber="2" name="lcell_phys0xd458f0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd458f0_pos" unit="mm" x="81.4581673039248" y="-64.9607207320107" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd458f0_rot" unit="deg" x="-6.27379280125023" y="-7.80277818766578" z="-51.0002883176275"/>
+      </physvol>
+      <physvol copynumber="3" name="lcell_phys0xd459e0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd459e0_pos" unit="mm" x="101.576673184199" y="-23.1842128045544" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd459e0_rot" unit="deg" x="-2.24693009330496" y="-9.7467997416652" z="-76.9512536892315"/>
+      </physvol>
+      <physvol copynumber="4" name="lcell_phys0xd45b60">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd45b60_pos" unit="mm" x="101.576673184199" y="23.1842128045544" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd45b60_rot" unit="deg" x="2.24693009330496" y="-9.74679974166521" z="-103.048746310768"/>
+      </physvol>
+      <physvol copynumber="5" name="lcell_phys0xd45c00">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd45c00_pos" unit="mm" x="81.4581673039248" y="64.9607207320107" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd45c00_rot" unit="deg" x="6.27379280125023" y="-7.80277818766579" z="-128.999711682373"/>
+      </physvol>
+      <physvol copynumber="6" name="lcell_phys0xd45cf0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd45cf0_pos" unit="mm" x="45.2058723702467" y="93.8709612275354" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd45cf0_rot" unit="deg" x="9.02686495588731" y="-4.32093744971627" z="-154.62695947527"/>
+      </physvol>
+      <physvol copynumber="7" name="lcell_phys0xd45de0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd45de0_pos" unit="mm" x="1.27594610974546e-14" y="104.188906600158" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd45de0_rot" unit="deg" x="10" y="0" z="-180"/>
+      </physvol>
+      <physvol copynumber="8" name="lcell_phys0xd45ed0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd45ed0_pos" unit="mm" x="-45.2058723702467" y="93.8709612275354" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd45ed0_rot" unit="deg" x="9.02686495588731" y="4.32093744971626" z="154.62695947527"/>
+      </physvol>
+      <physvol copynumber="9" name="lcell_phys0xd45fc0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd45fc0_pos" unit="mm" x="-81.4581673039248" y="64.9607207320108" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd45fc0_rot" unit="deg" x="6.27379280125023" y="7.80277818766579" z="128.999711682373"/>
+      </physvol>
+      <physvol copynumber="10" name="lcell_phys0xd460b0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd460b0_pos" unit="mm" x="-101.576673184199" y="23.1842128045544" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd460b0_rot" unit="deg" x="2.24693009330496" y="9.7467997416652" z="103.048746310768"/>
+      </physvol>
+      <physvol copynumber="11" name="lcell_phys0xd461a0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd461a0_pos" unit="mm" x="-101.576673184199" y="-23.1842128045543" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd461a0_rot" unit="deg" x="-2.24693009330495" y="9.74679974166521" z="76.9512536892316"/>
+      </physvol>
+      <physvol copynumber="12" name="lcell_phys0xd45ad0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd45ad0_pos" unit="mm" x="-81.4581673039248" y="-64.9607207320107" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd45ad0_rot" unit="deg" x="-6.27379280125023" y="7.80277818766579" z="51.0002883176275"/>
+      </physvol>
+      <physvol copynumber="13" name="lcell_phys0xd46420">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd46420_pos" unit="mm" x="-45.2058723702466" y="-93.8709612275354" z="590.884651807325"/>
+        <rotation name="lcell_phys0xd46420_rot" unit="deg" x="-9.02686495588731" y="4.32093744971626" z="25.37304052473"/>
+      </physvol>
+      <physvol copynumber="14" name="lcell_phys0xd464e0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd464e0_pos" unit="mm" x="30.6011310307248" y="-134.072315155948" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd464e0_rot" unit="deg" x="-12.929093567365" y="-2.9234611100642" z="-12.5258178943454"/>
+      </physvol>
+      <physvol copynumber="15" name="lcell_phys0xd46600">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd46600_pos" unit="mm" x="85.7424637932962" y="-107.517648850274" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd46600_rot" unit="deg" x="-10.4311772964138" y="-8.21592940415501" z="-37.8201895645061"/>
+      </physvol>
+      <physvol copynumber="16" name="lcell_phys0xd466f0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd466f0_pos" unit="mm" x="123.901450039296" y="-59.6677935723739" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd466f0_rot" unit="deg" x="-5.8334438611905" y="-11.9174632488254" z="-63.6763216159302"/>
+      </physvol>
+      <physvol copynumber="17" name="lcell_phys0xd467e0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd467e0_pos" unit="mm" x="137.520234553448" y="-8.4206857531937e-15" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd467e0_rot" unit="deg" x="0" y="-13.25" z="-90"/>
+      </physvol>
+      <physvol copynumber="18" name="lcell_phys0xd468d0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd468d0_pos" unit="mm" x="123.901450039296" y="59.6677935723738" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd468d0_rot" unit="deg" x="5.8334438611905" y="-11.9174632488254" z="-116.32367838407"/>
+      </physvol>
+      <physvol copynumber="19" name="lcell_phys0xd469c0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd469c0_pos" unit="mm" x="85.7424637932962" y="107.517648850274" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd469c0_rot" unit="deg" x="10.4311772964138" y="-8.21592940415501" z="-142.179810435494"/>
+      </physvol>
+      <physvol copynumber="20" name="lcell_phys0xd46ab0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd46ab0_pos" unit="mm" x="30.6011310307247" y="134.072315155948" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd46ab0_rot" unit="deg" x="12.929093567365" y="-2.92346111006419" z="-167.474182105655"/>
+      </physvol>
+      <physvol copynumber="21" name="lcell_phys0xd46ba0">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd46ba0_pos" unit="mm" x="-30.6011310307247" y="134.072315155948" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd46ba0_rot" unit="deg" x="12.929093567365" y="2.92346111006419" z="167.474182105655"/>
+      </physvol>
+      <physvol copynumber="22" name="lcell_phys0xd46c90">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd46c90_pos" unit="mm" x="-85.7424637932962" y="107.517648850274" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd46c90_rot" unit="deg" x="10.4311772964138" y="8.21592940415501" z="142.179810435494"/>
+      </physvol>
+      <physvol copynumber="23" name="lcell_phys0xd46d80">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd46d80_pos" unit="mm" x="-123.901450039296" y="59.6677935723739" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd46d80_rot" unit="deg" x="5.83344386119051" y="11.9174632488254" z="116.32367838407"/>
+      </physvol>
+      <physvol copynumber="24" name="lcell_phys0xd46e70">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd46e70_pos" unit="mm" x="-137.520234553448" y="2.52620572595811e-14" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd46e70_rot" unit="deg" x="0" y="13.25" z="90"/>
+      </physvol>
+      <physvol copynumber="25" name="lcell_phys0xd46f60">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd46f60_pos" unit="mm" x="-123.901450039296" y="-59.6677935723738" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd46f60_rot" unit="deg" x="-5.8334438611905" y="11.9174632488254" z="63.6763216159303"/>
+      </physvol>
+      <physvol copynumber="26" name="lcell_phys0xd47050">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd47050_pos" unit="mm" x="-85.7424637932962" y="-107.517648850274" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd47050_rot" unit="deg" x="-10.4311772964138" y="8.21592940415501" z="37.8201895645061"/>
+      </physvol>
+      <physvol copynumber="27" name="lcell_phys0xd47140">
+        <volumeref ref="LaBrcellshell_log0xd44fe0"/>
+        <position name="lcell_phys0xd47140_pos" unit="mm" x="-30.6011310307248" y="-134.072315155948" z="584.027555076269"/>
+        <rotation name="lcell_phys0xd47140_rot" unit="deg" x="-12.929093567365" y="2.9234611100642" z="12.5258178943454"/>
+      </physvol>
+    </volume>
+  </structure>
+
+  <setup name="Default" version="1.0">
+    <world ref="expHall_log0xd36b20"/>
+  </setup>
+
+</gdml>
