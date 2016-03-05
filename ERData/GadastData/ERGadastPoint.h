@@ -14,12 +14,13 @@
 
 #include "FairMCPoint.h"
 
+enum ERGadastPointType{LaBr, CsI};
 
 class ERGadastPoint : public FairMCPoint 
 {
 
  public:
-
+ 
   /** Default constructor **/
   ERGadastPoint();
 
@@ -41,7 +42,8 @@ class ERGadastPoint : public FairMCPoint
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss);
+		  Double_t tof, Double_t length, Double_t eLoss,
+      ERGadastPointType type, Int_t pdg);
 
 
   /** Copy constructor **/
@@ -68,6 +70,7 @@ class ERGadastPoint : public FairMCPoint
   Double_t GetPyOut()           const { return fPy_out; }
   Double_t GetPzOut()           const { return fPz_out; }
   Double_t GetMass()            const { return fMass; }
+  ERGadastPointType GetType()   const { return fType; }
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
@@ -92,6 +95,8 @@ class ERGadastPoint : public FairMCPoint
   Double_t fMass;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
+  ERGadastPointType fType;
+  Int_t fPDG;
 
   ClassDef(ERGadastPoint,1)
 };

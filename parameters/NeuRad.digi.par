@@ -6,7 +6,7 @@
 ERNeuRadFiberLength: Float_t 100.0
 ERNeuRadNofBundles: Int_t 49
 ERNeuRadNofFibers: Int_t 64
-ERNeuRadFiberWidth: Float_t 6.0 //mm
+ERNeuRadFiberWidth: Float_t 0.6 //cm
 ERNeuRadPMTQuantumEfficiency: Float_t  \
 	2.19979 1.91305 2.15636 1.99399 2.16485 1.98866 1.81982 1.98506 \
 	2.00158 1.91785 2.27824 1.80299 1.99021 1.71133 1.78787 1.72234 \

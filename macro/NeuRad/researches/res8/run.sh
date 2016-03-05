@@ -19,7 +19,7 @@
 #nohup root -l -q 'res8.C(500, "png","box", 2 , 100., "/home/vitaliy/er/macro/NeuRad/sim/sim500MeV10000evrc.root" , "/home/vitaliy/er/macro/NeuRad/sim/digi500MeV10000evpefull.root" )' &
 #nohup root -l -q 'res8.C(500, "png","box", 5 , 200., "/home/vitaliy/er/macro/NeuRad/sim/sim500MeV10000evrc.root" , "/home/vitaliy/er/macro/NeuRad/sim/digi500MeV10000evpefull.root" )' &
 #nohup root -l -q 'res8.C(500, "png","box", 12 , 400., "/home/vitaliy/er/macro/NeuRad/sim/sim500MeV10000evrc.root" , "/home/vitaliy/er/macro/NeuRad/sim/digi500MeV10000evpefull.root" )' &
-nohup root -l -q 'res8.C(500, "png","box", 100 , 500., "/home/vitaliy/er/macro/NeuRad/sim/sim500MeV10000evrc.root" , "/home/vitaliy/er/macro/NeuRad/sim/digi500MeV10000evpefull.root" )' &
+nohup root -l -q 'res8.C(500, "png","box", 100 , 500., "/home/vitaliy/er/macro/NeuRad/sim/sim500MeV1000evrcv2.root" , "/home/vitaliy/er/macro/NeuRad/sim/digi500MeV1000evrcv2.root" )' &
 
 #nohup root -l -q 'res1.C(500, "png","box", 2 , 100., "/home/vitaliy/er/macro/NeuRad/sim/sim500MeV100000ev.root" , "/home/vitaliy/er/macro/NeuRad/sim/digi500MeV100000ev.root" )' &
 #nohup root -l -q 'res1.C(500, "png","box", 5 , 200., "/home/vitaliy/er/macro/NeuRad/sim/sim500MeV100000ev.root" , "/home/vitaliy/er/macro/NeuRad/sim/digi500MeV100000ev.root" )' &

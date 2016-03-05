@@ -46,7 +46,7 @@ void NeuRad_sim(Int_t nEvents,TString outFile, TString parFile, Double_t Ekin){
    * SetStorePrimarySteps() - store only primary particle step
    * SetStoreAllSteps() - store all steps. WARNING - very slow
   */
-  neuRad->SetStoreAllSteps();
+  neuRad->SetStorePrimarySteps();
   run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 	

@@ -258,8 +258,19 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
       ERNeuRadFiberPoint* ffPoint = AddFiberPoint(i_point, 0, ffp_lytime - point_time, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
                           1, ffp_amplitude, 1);
       
+     /* //crosstalk realization
+      if (fRand->Rndm() > 0.1){
+         Int_t neighborNb = fRand->Integer(8);
+         Int_t neighborFiber = fNeuRadSetup->GetNeighborFiber(point_bundle,point_fiber_nb,neighborNb);
+         if (neighborFiber != -1){ //if -1 - just continue
+
+         }
+      }
+      else{
+        frontPointsPerFibers[point_bundle][point_fiber_nb].push_back(ffPoint);
+      }
+      */
       frontPointsPerFibers[point_bundle][point_fiber_nb].push_back(ffPoint);
-      
     }
     Double_t bfp_photon_count =  photon_count*(k1*exp(-(fiber_length-point_z_in_fiber)/0.5) 
                                                    + k2*exp(-(fiber_length-point_z_in_fiber)/200.));

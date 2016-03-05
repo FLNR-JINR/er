@@ -1,4 +1,4 @@
-void Gadast_sim(int nEvents = 1){
+void Gadast_sim(int nEvents = 10000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -32,25 +32,34 @@ void Gadast_sim(int nEvents = 1){
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
 
-  Int_t verbose = 1;
-  ERGadast* gadast= new ERGadast("ERGadast", kTRUE,verbose);
-  gadast->SetGeometryFileName("gadast.root");
+  ERGadast* gadast= new ERGadast("ERGadast", kTRUE);
+  gadast->SetVerboseLevel(3);
+  gadast->SetGeometryFileName("gadast.gdml");
   run->AddModule(gadast);
   // ------------------------------------------------------------------------
 	
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  Int_t pdgId = 2112; // neutron  beam
-  Double32_t theta1 = 0.;  // polar angle distribution
-  Double32_t theta2 = 7.;
-  Double32_t momentum = .400; //GeV
+  //Изотропно в ЛАБ системе
+  Int_t pdgId = 22; // gamma
+  Double32_t kin_energy = 0.001275; //GeV 1275 KeV
+  Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
+  Double32_t momentum = kin_energy; //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-  boxGen->SetThetaRange(theta1, theta1);
+  boxGen->SetThetaRange(0, 90);
   boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(90,90);
-  boxGen->SetXYZ(0.15,0.15, -51.0);
-
+  boxGen->SetPhiRange(0, 360.);
+  boxGen->SetBoxXYZ (0.0,0.,0.,0.,0.);
   primGen->AddGenerator(boxGen);
+/*
+  ERGammaGenerator* gammaGenerator = new ERGammaGenerator();
+  gammaGenerator->SetBeamEnergy(0.5*26);
+  gammaGenerator->SetGammaCMEnergy(0.0005);
+  gammaGenerator->SetGammaCMPhiRange(0., 360.);
+  gammaGenerator->SetGammaCMThetaRange(0., 90.);
+  gammaGenerator->SetIon(8, 26);
+  primGen->AddGenerator(gammaGenerator);*/
+
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
 	

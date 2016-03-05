@@ -12,10 +12,8 @@
 
 
 // -----   Default constructor   -------------------------------------------
-ERGadast::ERGadast() : FairDetector("ERGadast", kTRUE)
+ERGadast::ERGadast() : ERDetector("ERGadast", kTRUE)
 {
-  LOG(INFO) << "  DETECTOR::ERGadast()" << FairLogger::endl;
-  
   ResetParameters();
   fDetectorPoints = new TClonesArray("ERGadastPoint");
   flGeoPar = new TList();
@@ -27,12 +25,9 @@ ERGadast::ERGadast() : FairDetector("ERGadast", kTRUE)
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
-ERGadast::ERGadast(const char* name, Bool_t active, Int_t verbose) 
-  : FairDetector(name, active,verbose)
-  {
-  LOG(INFO) << "  DETECTOR::ERGadast(const char* name, Bool_t active, Int_t verbose) " 
-            << FairLogger::endl;
-  
+ERGadast::ERGadast(const char* name, Bool_t active) 
+  : ERDetector(name, active)
+{  
   ResetParameters();
   fDetectorPoints = new TClonesArray("ERGadastPoint");
   flGeoPar = new TList();
@@ -42,8 +37,6 @@ ERGadast::ERGadast(const char* name, Bool_t active, Int_t verbose)
 }
 
 ERGadast::~ERGadast() {
-  LOG(INFO) << "  DETECTOR::~ERGadast()" << FairLogger::endl;
-  
   if (fDetectorPoints) {
     fDetectorPoints->Delete();
     delete fDetectorPoints;
@@ -53,14 +46,11 @@ ERGadast::~ERGadast() {
 
 void ERGadast::Initialize()
 {
-  LOG(INFO) << "  DETECTOR::Initialize()" << FairLogger::endl;
   FairDetector::Initialize();
 }
 
 
 Bool_t ERGadast::ProcessHits(FairVolume* vol) {
-  LOG(INFO) << "  DETECTOR::ProcessHits(FairVolume* vol)" << FairLogger::endl;
-  
   static Int_t          eventID;           //!  event index
   static Int_t          trackID;           //!  track index
   static Int_t          mot0TrackID;       //!  0th mother track index
@@ -70,6 +60,8 @@ Bool_t ERGadast::ProcessHits(FairVolume* vol) {
   static Double32_t     time;              //!  time
   static Double32_t     length;            //!  length
   static Double32_t     eLoss;             //!  energy loss
+  static ERGadastPointType type;
+  static Int_t pdg;
 
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     eLoss  = 0.;
@@ -81,9 +73,16 @@ Bool_t ERGadast::ProcessHits(FairVolume* vol) {
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
+
+    if (TString(gMC->CurrentVolName()).Contains("LaBrcell_cell"))
+      type = LaBr;
+    else
+      type = CsI;
+
+    pdg = gMC->TrackPid();
   }
   
-  eLoss += gMC->Edep() * 1E+6; // keV //Return the energy lost in the current step
+  eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
   
 	if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume 
 	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
@@ -98,22 +97,19 @@ Bool_t ERGadast::ProcessHits(FairVolume* vol) {
                 TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
                 TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
                 TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                time, length, eLoss);
+                time, length, eLoss, type, pdg);
     }
   }
   
   return kTRUE;
 }
 
-// -----   Public method EndOfEvent   -----------------------------------------
+// -----   Public method BeginOfEvent   -----------------------------------------
 void ERGadast::BeginEvent() {
-  LOG(INFO) << "  DETECTOR::BeginEvent()" << FairLogger::endl;
 }
 
-
+// -----   Public method EndOfEvent   -----------------------------------------
 void ERGadast::EndOfEvent() {
-  LOG(INFO) << "  DETECTOR::EndOfEvent()" << FairLogger::endl;
-  
   if (fVerboseLevel > 1) {
     Print();
   }
@@ -123,8 +119,6 @@ void ERGadast::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void ERGadast::Register() {
-  LOG(INFO) << "  DETECTOR::Register()" << FairLogger::endl;
-  
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
 	Fatal("Init", "IO manager is not set");	
@@ -135,8 +129,6 @@ void ERGadast::Register() {
 
 // -----   Public method GetCollection   --------------------------------------
 TClonesArray* ERGadast::GetCollection(Int_t iColl) const {
-  LOG(INFO) << "  DETECTOR::GetCollection(Int_t iColl)" << FairLogger::endl;
-  
   if (iColl == 0) 
     return fDetectorPoints;
   else
@@ -148,9 +140,7 @@ TClonesArray* ERGadast::GetCollection(Int_t iColl) const {
 
 // -----   Public method Print   ----------------------------------------------
 void ERGadast::Print(Option_t *option) const
-{
-  LOG(INFO) << "  DETECTOR::Print" << FairLogger::endl;
-  
+{ 
   for (Int_t i_point = 0; i_point < fDetectorPoints->GetEntriesFast(); i_point++){
     ERGadastPoint* point = (ERGadastPoint*)fDetectorPoints->At(i_point);
     point->Print();
@@ -161,8 +151,6 @@ void ERGadast::Print(Option_t *option) const
 
 // -----   Public method Reset   ----------------------------------------------
 void ERGadast::Reset() {
-  LOG(INFO) << "  DETECTOR::Reset()" << FairLogger::endl;
-  
   fDetectorPoints->Clear();
   ResetParameters();
   
@@ -171,9 +159,6 @@ void ERGadast::Reset() {
 
 // -----   Public method CopyClones   -----------------------------------------
 void ERGadast::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
-  LOG(INFO) << "   DETECTOR::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)" 
-            << FairLogger::endl;
-  
   Int_t nEntries = cl1->GetEntriesFast();
   LOG(INFO) << "ERGadast: " << nEntries << " entries to add" << FairLogger::endl;
   TClonesArray& clref = *cl2;
@@ -196,38 +181,23 @@ ERGadastPoint* ERGadast::AddPoint(Int_t eventID, Int_t trackID,
 				    TVector3 posIn,
 				    TVector3 posOut, TVector3 momIn,
 				    TVector3 momOut, Double_t time,
-				    Double_t length, Double_t eLoss) {
+				    Double_t length, Double_t eLoss, ERGadastPointType type, Int_t pdg) {
   TClonesArray& clref = *fDetectorPoints;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) ERGadastPoint(eventID, trackID, mot0trackID, mass,
-					  posIn, posOut, momIn, momOut, time, length, eLoss);
+					  posIn, posOut, momIn, momOut, time, length, eLoss, type, pdg);
 	
-}
-
-// ----------------------------------------------------------------------------
-
-// -----   Public method ConstructGeometry   ----------------------------------
-void ERGadast::ConstructGeometry() {
-  LOG(INFO) << "  DETECTOR::ConstructGeometry()" << FairLogger::endl;
-  
-  TString fileName = GetGeometryFileName();
-  if(fileName.EndsWith(".root")) {
-    LOG(INFO) << "Constructing ERGadast geometry from ROOT file " << fileName.Data() << FairLogger::endl;
-    ConstructRootGeometry();
-  } else {
-    LOG(FATAL) << "Geometry file name is not set" << FairLogger::endl;
-  }
-  
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 Bool_t ERGadast::CheckIfSensitive(std::string name)
 {
-  LOG(INFO) << "DETECTOR::CheckIfSensitive(std::string name)" << FairLogger::endl;
-  
   TString volName = name;
-  if(volName.Contains("module")) {
+  if(volName.Contains("LaBrcell_cell")) {
+    return kTRUE;
+  }
+  if(volName.Contains("onecell_cell")) { //CsI
     return kTRUE;
   }
   
@@ -237,7 +207,6 @@ Bool_t ERGadast::CheckIfSensitive(std::string name)
 
 // ----------------------------------------------------------------------------
 void ERGadast::ResetParameters() {
-  LOG(INFO) << "   DETECTOR::ResetParameters() " << FairLogger::endl;
 };
 // ----------------------------------------------------------------------------
 ClassImp(ERGadast)

@@ -160,6 +160,8 @@ else(EXPERTROOT_MINIMAL)
   find_package(RuleChecker)
 endif(EXPERTROOT_MINIMAL)
 
+MESSAGE(STATUS "GEANT4 = "${GEANT4_INCLUDE_DIR})
+
 # set a variable which should be used in all CMakeLists.txt
 # Defines all basic include directories from fairbase
 SetBasicVariables()
@@ -203,6 +205,7 @@ add_subdirectory (passive)
 add_subdirectory (NeuRad)
 add_subdirectory (muSi)
 add_subdirectory (Gadast)
+add_subdirectory (generators)
 
 Execute_Process(COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-opengl
                 OUTPUT_VARIABLE EveIsBuild

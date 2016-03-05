@@ -134,7 +134,7 @@ void res8(int eKin, TString pngdir, TString pngname, int pe, Double_t thEdep,TSt
   int fsum_pe=0;
   FairLink link;
   int counter = 0;
-  for (int iEvent = 0; iEvent < nEvent; iEvent++){
+  for (int iEvent = 0; iEvent < 1000/* nEvent*/; iEvent++){
     //cout << iEvent << endl;
     
     modA = 0.;

@@ -7,7 +7,7 @@
 #ifndef ERGadast_H
 #define ERGadast_H
 
-#include "FairDetector.h"
+#include "ERDetector.h"
 #include "ERGadastPoint.h"
 
 #include "TLorentzVector.h"
@@ -16,7 +16,7 @@ class TClonesArray;
 class FairVolume;
 class TF1;
 
-class ERGadast : public FairDetector
+class ERGadast : public ERDetector
 {
   
 public:
@@ -28,9 +28,8 @@ public:
   /** Standard constructor.
    *@param name    ERGadast ERGadast name
    *@param active  sensitivity flag
-   *@param verbose Verbosity level. 1 - only standart logs, 2 - Print points after each event, 3 - GEANT Step information
    **/
-  ERGadast(const char* name, Bool_t active, Int_t verbose);
+  ERGadast(const char* name, Bool_t active);
   
   
   /** Destructor **/
@@ -99,7 +98,7 @@ public:
    **
    ** Constructs the ERGadast geometry
    **/
-  virtual void ConstructGeometry();
+  //virtual void ConstructGeometry();
   
    /** Virtaul method Initialize
    **
@@ -135,7 +134,9 @@ private:
 			  TVector3 posIn,
 			  TVector3 pos_out, TVector3 momIn,
 			  TVector3 momOut, Double_t time,
-			  Double_t length, Double_t eLoss);
+			  Double_t length, Double_t eLoss, 
+        ERGadastPointType type,
+        Int_t pdg);
   
   /** Private method ResetParameters
    **
