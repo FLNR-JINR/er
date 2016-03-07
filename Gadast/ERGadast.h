@@ -7,14 +7,17 @@
 #ifndef ERGadast_H
 #define ERGadast_H
 
-#include "ERDetector.h"
-#include "ERGadastPoint.h"
 
 #include "TLorentzVector.h"
 
 class TClonesArray;
 class FairVolume;
 class TF1;
+
+#include "ERDetector.h"
+#include "ERGadastCsIPoint.h"
+#include "ERGadastLaBrPoint.h"
+#include "ERGadastStep.h"
 
 class ERGadast : public ERDetector
 {
@@ -39,7 +42,7 @@ public:
   /** Virtual method ProcessHits
    **   
    ** Defines the action to be taken when a step is inside the
-   ** active volume. Creates a ERGadastPoint and adds it to the
+   ** active volume. Creates a ERGadastCsIPoint and adds it to the
    ** collection.
    *@param vol  Pointer to the active volume
    **/
@@ -120,7 +123,9 @@ public:
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
   
 private:
-  TClonesArray*  fDetectorPoints;     //!  The point collection
+  TClonesArray*  fCsIPoints;     //!  The point collection
+  TClonesArray*  fLaBrPoints;     //!  The point collection
+  TClonesArray*  fGadastSteps;      //!  The steps collection
   Int_t fVersion;                    //! geometry version
 private:
   /** Private method AddPoint
@@ -128,15 +133,37 @@ private:
    ** Adds a NeuRadPoint to the Point Collection
    **/
    
-  ERGadastPoint* AddPoint(Int_t eventID, Int_t trackID,
+  ERGadastCsIPoint* AddCsIPoint(Int_t eventID, Int_t trackID,
 			  Int_t mot0trackID,
 			  Double_t mass,
 			  TVector3 posIn,
 			  TVector3 pos_out, TVector3 momIn,
 			  TVector3 momOut, Double_t time,
 			  Double_t length, Double_t eLoss, 
-        ERGadastPointType type,
         Int_t pdg);
+
+  ERGadastLaBrPoint* AddLaBrPoint(Int_t eventID, Int_t trackID,
+        Int_t mot0trackID,
+        Double_t mass,
+        TVector3 posIn,
+        TVector3 pos_out, TVector3 momIn,
+        TVector3 momOut, Double_t time,
+        Double_t length, Double_t eLoss, 
+        Int_t pdg);
+
+  ERGadastStep* AddStep(Int_t eventID, Int_t stepNr,Int_t trackID,
+      Int_t mot0trackID,
+      Int_t fiberInBundleNb,
+      TVector3 pos, 
+      TVector3 mom, 
+      Double_t tof, 
+      Double_t length, 
+      Int_t pid,
+      Double_t mass,
+      ExpertTrackingStatus trackStatus,
+      Double_t eLoss,
+      Double_t charge,
+      TArrayI  processID);
   
   /** Private method ResetParameters
    **

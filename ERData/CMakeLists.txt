@@ -4,7 +4,7 @@
 
 set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
-${CMAKE_SOURCE_DIR}/ERData/
+${CMAKE_SOURCE_DIR}/ERData
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -26,7 +26,9 @@ NeuRadData/ERNeuRadPMTSignal.cxx
 NeuRadData/ERNeuRadDigi.cxx
 NeuRadData/ERNeuRadStep.cxx
 muSiData/ERmuSiPoint.cxx
-GadastData/ERGadastPoint.cxx
+GadastData/ERGadastCsIPoint.cxx
+GadastData/ERGadastLaBrPoint.cxx
+GadastData/ERGadastStep.cxx
 ERStack.cxx
 ERMCTrack.cxx
 )

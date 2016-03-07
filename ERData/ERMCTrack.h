@@ -24,6 +24,14 @@
 #include "TMath.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
+ 
+enum ExpertTrackingStatus{
+    Entering,
+    Exiting,
+    Inside,
+    Stop
+};
+
 
 class TParticle;
 

@@ -1,14 +1,14 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadStep header file             -----
-// -----                  Created 02/03/15  by v. Schetinin            -----
+// -----                      ERGadastStep header file             -----
+// -----                  Created 03/16  by v. Schetinin            -----
 // -------------------------------------------------------------------------
 
 
-/**  ERNeuRadStep.h
+/**  ERGadastStep.h
  **/
 
-#ifndef ERNeuRadStep_H
-#define ERNeuRadStep_H
+#ifndef ERGadastStep_H
+#define ERGadastStep_H
 
 
 #include "TObject.h"
@@ -20,12 +20,12 @@
 
 #include "ERMCTrack.h"
 
-class ERNeuRadStep : public FairMultiLinkedData
+class ERGadastStep : public FairMultiLinkedData
 {
  public:
 
   /** Default constructor **/
-  ERNeuRadStep();
+  ERGadastStep();
 
   /** Constructor with arguments
    *@param EventID  Index of Event
@@ -38,7 +38,7 @@ class ERNeuRadStep : public FairMultiLinkedData
    *@param length Track length since creation [cm]
    *@param pid   
    **/
-  ERNeuRadStep(Int_t eventID, Int_t stepNr,Int_t trackID,
+  ERGadastStep(Int_t eventID, Int_t stepNr,Int_t trackID,
 		  Int_t mot0trackID,
       Int_t fiberInBundleNb,
 		  TVector3 pos, 
@@ -54,13 +54,13 @@ class ERNeuRadStep : public FairMultiLinkedData
 
 
   /** Copy constructor **/
-  ERNeuRadStep(const ERNeuRadStep&);
+  ERGadastStep(const ERGadastStep&);
 
 
   /** Destructor **/
-  virtual ~ERNeuRadStep();
+  virtual ~ERGadastStep();
   
-  ERNeuRadStep& operator=(const ERNeuRadStep&) { return *this; }
+  ERGadastStep& operator=(const ERGadastStep&) { return *this; }
   
   /** Accessors **/
   Double_t GetFiberInBundleNb() const {return fFiberInBundleNb;}
@@ -90,6 +90,6 @@ class ERNeuRadStep : public FairMultiLinkedData
   TArrayI fProcessID;
   
 
-  ClassDef(ERNeuRadStep,1)
+  ClassDef(ERGadastStep,1)
 };
 #endif

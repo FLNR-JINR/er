@@ -23,7 +23,7 @@ class ERNeuRadFiberPoint : public FairMultiLinkedData{
 	public:
 		/** Default constructor **/
 		ERNeuRadFiberPoint();
-		ERNeuRadFiberPoint(Int_t index, Int_t side, Double_t LYTime, Double_t cathode_time, Double_t anode_time, Int_t photon_count, Int_t photoel_count, 
+		ERNeuRadFiberPoint(Int_t index, Int_t side, Double_t lyTime, Double_t cathode_time, Double_t anode_time, Int_t photon_count, Int_t photoel_count, 
 							Double_t amplitude,Int_t onePE);
 
 		/** Destructor **/

@@ -14,9 +14,9 @@ ERNeuRadFiberPoint::ERNeuRadFiberPoint():
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
-ERNeuRadFiberPoint::ERNeuRadFiberPoint(Int_t index, Int_t side,Double_t LYTime,  Double_t cathode_time, Double_t anode_time, 
+ERNeuRadFiberPoint::ERNeuRadFiberPoint(Int_t index, Int_t side,Double_t lyTime,  Double_t cathode_time, Double_t anode_time, 
 							Int_t photon_count, Int_t photoel_count, Double_t amplitude, Int_t onePE):
-	fIndex(index),fSide(side),fLYTime(LYTime), fCathodeTime(cathode_time), fAnodeTime(anode_time),fPhotonCount(photon_count),
+	fIndex(index),fSide(side),fLYTime(lyTime), fCathodeTime(cathode_time), fAnodeTime(anode_time),fPhotonCount(photon_count),
 	fPhotoElCount(photoel_count), fAmplitude(amplitude), fOnePE(onePE)
 {
 }

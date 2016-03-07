@@ -1,4 +1,4 @@
-void Gadast_sim(int nEvents = 10000){
+void Gadast_sim(int nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
