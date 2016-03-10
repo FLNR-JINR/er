@@ -21,12 +21,13 @@ ERGadastCsIPoint::ERGadastCsIPoint(Int_t eventID, Int_t trackID,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t pdg)
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t pdg,
+      Int_t wall, Int_t block, Int_t cell, Int_t meshEl)
   : FairMCPoint(trackID, -1., posIn, momIn, tof, length, eLoss),
     fEventID(eventID),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
-    fPDG(pdg)
+    fPDG(pdg), fWall(wall), fBlock(block), fCell(cell), fMeshEl(meshEl)
 {
 }
 // -------------------------------------------------------------------------
@@ -38,7 +39,7 @@ ERGadastCsIPoint::ERGadastCsIPoint(const ERGadastCsIPoint& right)
   : FairMCPoint(right),
     fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
     fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out),
-    fPDG(right.fPDG)
+    fPDG(right.fPDG), fWall(right.fWall), fBlock(right.fBlock), fCell(right.fCell), fMeshEl(right.fMeshEl)
 {
 }
 // -------------------------------------------------------------------------

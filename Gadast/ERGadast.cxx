@@ -5,10 +5,16 @@
 #include "ERGadast.h"
 
 #include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "TClonesArray.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
+#include "TVector3.h"
+#include "TGeoMatrix.h"
+
+#include "ERGadastGeoPar.h"
 
 
 // -----   Default constructor   -------------------------------------------
@@ -22,7 +28,7 @@ ERGadast::ERGadast() : ERDetector("ERGadast", kTRUE)
   flGeoPar->SetName( GetName());
   fVerboseLevel = 1;
   fVersion = 1;
-  
+  fStoreSteps = kFALSE;
 }
 //-------------------------------------------------------------------------
 
@@ -37,7 +43,7 @@ ERGadast::ERGadast(const char* name, Bool_t active)
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fVersion = 1;
-  
+  fStoreSteps = kFALSE; 
 }
 //-------------------------------------------------------------------------
 
@@ -63,97 +69,100 @@ ERGadast::~ERGadast() {
 void ERGadast::Initialize()
 {
   FairDetector::Initialize();
+  FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
+  ERGadastGeoPar* par=(ERGadastGeoPar*)(rtdb->getContainer("ERGadastGeoPar"));
+  fMesh = new ERGadastMesh();
+  fRnd = new TRandom3();
 }
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
 Bool_t ERGadast::ProcessHits(FairVolume* vol) {
-  static Int_t          eventID;           //!  event index
-  static Int_t          trackID;           //!  track index
-  static Int_t          mot0TrackID;       //!  0th mother track index
-  static Double_t       mass;              //!  mass
-  static TLorentzVector posIn, posOut;    //!  position
-  static TLorentzVector momIn, momOut;    //!  momentum
-  static Double32_t     time;              //!  time
-  static Double32_t     length;            //!  length
-  static Double32_t     eLoss;             //!  energy loss
-  static Int_t pdg;
-  static ExpertTrackingStatus trackStatus;
-  static Int_t          stepNr;            //!  current step numb in this active volumes
-  static Int_t          detectorType;      //! 0 - CsI, 1 - LaBr
-
 
   //Start point
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
-    eLoss  = 0.;
-    eventID = gMC->CurrentEvent();
-    gMC->TrackPosition(posIn);
-    gMC->TrackMomentum(momIn);
-    trackID  = gMC->GetStack()->GetCurrentTrackNumber();
-    time   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
-    length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
-    mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
-    mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
-
-    if (TString(gMC->CurrentVolName()).Contains("LaBrcell_cell"))
-      detectorType = 1;
-    else
-      detectorType = 0;
-
-    pdg = gMC->TrackPid();
-    stepNr = 0;
+    StartPoint();
   }
 
+  if (fStoreSteps){
+    AddStep();
+    return kTRUE;
+  }
 
-  //Fill step info
-  trackStatus = ERGadastStep::GetTrackStatus();
-  TArrayI processesID;
-  gMC->StepProcesses(processesID);
-  TLorentzVector curPosIn;
-  TLorentzVector curMomIn;
-  gMC->TrackPosition(curPosIn);
-  gMC->TrackMomentum(curMomIn);
-
-  //if (stepNr == 0){
-    ERGadastStep* step =  AddStep( eventID, stepNr, trackID, mot0TrackID, 0,
-                                      TVector3(curPosIn.X(),   curPosIn.Y(),   curPosIn.Z()),
-                                      TVector3(curMomIn.X(),   curMomIn.Y(),   curMomIn.Z()),  
-                                      gMC->TrackTime() * 1.0e09, gMC->TrackStep(), gMC->TrackPid(),mass, 
-                                      trackStatus, gMC->Edep(),gMC->TrackCharge(), processesID);
-  //}
-  
-
-  eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
-  stepNr++;
+  fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
   
   //finish point
-	if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume 
-	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
-	    gMC->IsTrackDisappeared()) 
-	{ 
-    gMC->TrackPosition(posOut);
-    gMC->TrackMomentum(momOut);
-    
-	  if (eLoss > 0.){
-      if(detectorType == 0) 
-        AddCsIPoint( eventID, trackID, mot0TrackID, mass,
-                TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
-                TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
-                TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
-                TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                time, length, eLoss, pdg);
-      if(detectorType == 1)
-        AddLaBrPoint( eventID, trackID, mot0TrackID, mass,
-                TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
-                TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
-                TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
-                TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                time, length, eLoss, pdg);
+	if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared()) { 
+    FinishPoint();
+  }
+
+  if (fDetectorType == CsI){
+    TLorentzVector curPosIn;
+    gMC->TrackPosition(curPosIn);
+    TGeoHMatrix m;
+    TString path(gMC->CurrentVolPath());
+    gMC->GetTransformation(path, m);
+    int curMeshElement = fMesh->GetMeshElement(&curPosIn,&m, fDetectorType);
+    if (fStepNr == 0){
+      fMeshElement = curMeshElement;
+    }
+    else {
+      if (fMeshElement != curMeshElement){
+        FinishPoint();
+        fMeshElement = curMeshElement;
+        StartPoint();
+      }
     }
   }
-  
-  return kTRUE;
+  fStepNr++;
 }
+
+// -----   Private method StartPoint   -----------------------------------------
+void ERGadast::StartPoint(){
+    fELoss  = 0.;
+    fEventID = gMC->CurrentEvent();
+    gMC->TrackPosition(fPosIn);
+    gMC->TrackMomentum(fMomIn);
+    fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
+    fTime   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
+    fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
+    fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
+    fMass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
+
+    if (TString(gMC->CurrentVolName()).Contains("LaBrcell_cell"))
+      fDetectorType = LaBr;
+    else
+      fDetectorType = CsI;
+
+    fPDG = gMC->TrackPid();
+    fStepNr = 0;
+    if(fDetectorType == CsI){
+      gMC->CurrentVolOffID(1, fCsICell);  
+      gMC->CurrentVolOffID(2, fCsIBlock);
+      gMC->CurrentVolOffID(3, fCsIWall);
+    }
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void ERGadast::FinishPoint(){
+  gMC->TrackPosition(fPosOut);
+  gMC->TrackMomentum(fMomOut);
+  
+  if (fELoss > 0.){
+    //energy resolution
+    const double E0=0.662;
+    const double FWHM= 0.08;
+    const double sigma0=0.5*FWHM*E0/sqrt(log(2.));
+    const double sigma = sigma0*sqrt(fELoss/E0);
+    fELoss = fRnd->Gaus(fELoss, sigma);
+    if(fDetectorType == 0) 
+      AddCsIPoint();
+    if(fDetectorType == 1)
+      AddLaBrPoint();
+    }
+}
+//------------------------------------------------------------------------------
 
 // -----   Public method BeginOfEvent   -----------------------------------------
 void ERGadast::BeginEvent() {
@@ -237,55 +246,49 @@ void ERGadast::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
 // ----------------------------------------------------------------------------
 
 // -----   Private method AddPoint   --------------------------------------------
-ERGadastCsIPoint* ERGadast::AddCsIPoint(Int_t eventID, Int_t trackID,
-				    Int_t mot0trackID,
-				    Double_t mass,
-				    TVector3 posIn,
-				    TVector3 posOut, TVector3 momIn,
-				    TVector3 momOut, Double_t time,
-				    Double_t length, Double_t eLoss, Int_t pdg) {
+ERGadastCsIPoint* ERGadast::AddCsIPoint(){
   TClonesArray& clref = *fCsIPoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERGadastCsIPoint(eventID, trackID, mot0trackID, mass,
-					  posIn, posOut, momIn, momOut, time, length, eLoss, pdg);
+  return new(clref[size]) ERGadastCsIPoint(fEventID, fTrackID, fMot0TrackID, fMass,
+              TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
+              TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
+              TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
+              TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+              fTime, fLength, fELoss, fPDG, fCsIWall, fCsIBlock, fCsICell, fMeshElement);
 	
 }
 // ----------------------------------------------------------------------------
 
 // -----   Private method AddPoint   --------------------------------------------
-ERGadastLaBrPoint* ERGadast::AddLaBrPoint(Int_t eventID, Int_t trackID,
-            Int_t mot0trackID,
-            Double_t mass,
-            TVector3 posIn,
-            TVector3 posOut, TVector3 momIn,
-            TVector3 momOut, Double_t time,
-            Double_t length, Double_t eLoss, Int_t pdg) {
+ERGadastLaBrPoint* ERGadast::AddLaBrPoint(){
   TClonesArray& clref = *fLaBrPoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERGadastLaBrPoint(eventID, trackID, mot0trackID, mass,
-            posIn, posOut, momIn, momOut, time, length, eLoss, pdg);
+  return new(clref[size]) ERGadastLaBrPoint(fEventID, fTrackID, fMot0TrackID, fMass,
+              TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
+              TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
+              TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
+              TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+              fTime, fLength, fELoss, fPDG, fMeshElement);
   
 }
 // ----------------------------------------------------------------------------
 
 // -----   Private method AddStep   --------------------------------------------
-ERGadastStep* ERGadast::AddStep(Int_t eventID, Int_t stepNr,Int_t trackID,
-      Int_t mot0trackID,
-      Int_t fiberInBundleNb,
-      TVector3 pos, 
-      TVector3 mom, 
-      Double_t tof, 
-      Double_t length, 
-      Int_t pid,
-      Double_t mass,
-      ExpertTrackingStatus trackStatus,
-      Double_t eLoss,
-      Double_t charge,
-      TArrayI  processID){
+ERGadastStep* ERGadast::AddStep(){
   TClonesArray& clref = *fGadastSteps;
-  return new(clref[fGadastSteps->GetEntriesFast()]) ERGadastStep(eventID,  stepNr, trackID,
-              mot0trackID, fiberInBundleNb, pos, mom, tof, length, pid, mass, trackStatus,
-              eLoss, charge, processID);        
+  //Fill step info
+  ExpertTrackingStatus trackStatus = ERGadastStep::GetTrackStatus();
+  TArrayI processesID;
+  gMC->StepProcesses(processesID);
+  TLorentzVector curPosIn;
+  TLorentzVector curMomIn;
+  gMC->TrackPosition(curPosIn);
+  gMC->TrackMomentum(curMomIn);
+  return new(clref[fGadastSteps->GetEntriesFast()]) ERGadastStep(fEventID, fStepNr, fTrackID, fMot0TrackID, 0,
+                                      TVector3(curPosIn.X(),   curPosIn.Y(),   curPosIn.Z()),
+                                      TVector3(curMomIn.X(),   curMomIn.Y(),   curMomIn.Z()),  
+                                      gMC->TrackTime() * 1.0e09, gMC->TrackStep(), gMC->TrackPid(),fMass, 
+                                      trackStatus, gMC->Edep(),gMC->TrackCharge(), processesID);        
 }
 //----------------------------------------------------------------------------
 

@@ -1,3 +1,8 @@
+// -------------------------------------------------------------------------
+// -----                  ERNeuRadDigiPar header file                 -----
+// -----                  Created 03/15  by V.Schetinin                -----
+// -------------------------------------------------------------------------
+
 #ifndef ERNEURADDIGIPAR_H
 #define ERNEURADDIGIPAR_H
 

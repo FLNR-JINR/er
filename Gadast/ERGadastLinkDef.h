@@ -5,5 +5,9 @@
 #pragma link off all functions;
 
 #pragma link C++ class ERGadast+;
+#pragma link C++ class ERGadastContFact+;
+#pragma link C++ class ERGadastDigiPar+;
+#pragma link C++ class ERGadastGeoPar+;
+#pragma link C++ class ERGadastMesh+;
 
 #endif

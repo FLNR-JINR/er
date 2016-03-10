@@ -33,7 +33,8 @@ void Gadast_sim(int nEvents = 1000){
   run->AddModule(cave);
 
   ERGadast* gadast= new ERGadast("ERGadast", kTRUE);
-  gadast->SetVerboseLevel(3);
+  gadast->SetVerboseLevel(1);
+  //gadast->SetStoreSteps();
   gadast->SetGeometryFileName("gadast.gdml");
   run->AddModule(gadast);
   // ------------------------------------------------------------------------
@@ -42,24 +43,24 @@ void Gadast_sim(int nEvents = 1000){
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   //Изотропно в ЛАБ системе
   Int_t pdgId = 22; // gamma
-  Double32_t kin_energy = 0.001275; //GeV 1275 KeV
+  Double32_t kin_energy = 0.002; //GeV 1275 KeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = kin_energy; //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-  boxGen->SetThetaRange(0, 90);
+  boxGen->SetThetaRange(49, 49);
   boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(0, 360.);
+  boxGen->SetPhiRange(25,30);
   boxGen->SetBoxXYZ (0.0,0.,0.,0.,0.);
   primGen->AddGenerator(boxGen);
 /*
   ERGammaGenerator* gammaGenerator = new ERGammaGenerator();
-  gammaGenerator->SetBeamEnergy(0.5*26);
-  gammaGenerator->SetGammaCMEnergy(0.0005);
+  gammaGenerator->SetBeamEnergy(0.54*17);
+  gammaGenerator->SetGammaCMEnergy(0.001288);
   gammaGenerator->SetGammaCMPhiRange(0., 360.);
   gammaGenerator->SetGammaCMThetaRange(0., 90.);
-  gammaGenerator->SetIon(8, 26);
-  primGen->AddGenerator(gammaGenerator);*/
-
+  gammaGenerator->SetIon(10, 17);
+  primGen->AddGenerator(gammaGenerator);
+*/
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
 	
@@ -80,6 +81,7 @@ void Gadast_sim(int nEvents = 1000){
   parOut->open(parFile.Data());
   rtdb->setOutput(parOut);
   rtdb->saveOutput();
+
   rtdb->print();
   // ---------------------------------------------------------
   

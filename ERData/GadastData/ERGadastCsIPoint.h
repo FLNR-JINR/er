@@ -40,7 +40,8 @@ class ERGadastCsIPoint : public FairMCPoint
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t pdg);
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t pdg,
+      Int_t wall, Int_t block, Int_t cell, Int_t meshEl);
 
 
   /** Copy constructor **/
@@ -67,6 +68,11 @@ class ERGadastCsIPoint : public FairMCPoint
   Double_t GetPyOut()           const { return fPy_out; }
   Double_t GetPzOut()           const { return fPz_out; }
   Double_t GetMass()            const { return fMass; }
+  Int_t GetWall()            const { return fWall; }
+  Int_t GetBlock()            const { return fBlock; }
+  Int_t GetCell()            const { return fCell; }
+  Int_t GetMeshEl()         const {return fMeshEl;}
+
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
@@ -92,6 +98,10 @@ class ERGadastCsIPoint : public FairMCPoint
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
   Int_t fPDG;
+  Int_t fWall;
+  Int_t fBlock;
+  Int_t fCell;
+  Int_t fMeshEl;
 
   ClassDef(ERGadastCsIPoint,1)
 };

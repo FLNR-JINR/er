@@ -9,6 +9,7 @@
 
 
 #include "TLorentzVector.h"
+#include "TRandom3.h"
 
 class TClonesArray;
 class FairVolume;
@@ -18,6 +19,10 @@ class TF1;
 #include "ERGadastCsIPoint.h"
 #include "ERGadastLaBrPoint.h"
 #include "ERGadastStep.h"
+#include "ERGadastMesh.h"
+#include "ERDetectorList.h"
+
+class ERGadastMesh;
 
 class ERGadast : public ERDetector
 {
@@ -122,48 +127,45 @@ public:
   **/
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
   
+  void SetStoreSteps() {fStoreSteps = kTRUE;}
 private:
   TClonesArray*  fCsIPoints;     //!  The point collection
   TClonesArray*  fLaBrPoints;     //!  The point collection
   TClonesArray*  fGadastSteps;      //!  The steps collection
   Int_t fVersion;                    //! geometry version
+  Bool_t fStoreSteps;
+
+  ERGadastMesh* fMesh;
+  TRandom3* fRnd;
+  //current point state 
+  Int_t fEventID;           //!  event index
+  Int_t fTrackID;           //!  track index
+  Int_t fMot0TrackID;       //!  0th mother track index
+  Double_t fMass;              //!  mass
+  TLorentzVector fPosIn, fPosOut;    //!  position
+  TLorentzVector fMomIn, fMomOut;    //!  momentum
+  Double32_t     fTime;              //!  time
+  Double32_t     fLength;            //!  length
+  Double32_t     fELoss;             //!  energy loss
+  Int_t fPDG;
+  Int_t  fStepNr;            //!  current step numb in this active volumes
+  ERGadastDetectorType  fDetectorType;      //! CsI, LaBr
+  Int_t fCsICell, fCsIBlock, fCsIWall;
+  Int_t fMeshElement;
 private:
   /** Private method AddPoint
    **
    ** Adds a NeuRadPoint to the Point Collection
    **/
    
-  ERGadastCsIPoint* AddCsIPoint(Int_t eventID, Int_t trackID,
-			  Int_t mot0trackID,
-			  Double_t mass,
-			  TVector3 posIn,
-			  TVector3 pos_out, TVector3 momIn,
-			  TVector3 momOut, Double_t time,
-			  Double_t length, Double_t eLoss, 
-        Int_t pdg);
+  ERGadastCsIPoint* AddCsIPoint();
 
-  ERGadastLaBrPoint* AddLaBrPoint(Int_t eventID, Int_t trackID,
-        Int_t mot0trackID,
-        Double_t mass,
-        TVector3 posIn,
-        TVector3 pos_out, TVector3 momIn,
-        TVector3 momOut, Double_t time,
-        Double_t length, Double_t eLoss, 
-        Int_t pdg);
+  ERGadastLaBrPoint* AddLaBrPoint();
 
-  ERGadastStep* AddStep(Int_t eventID, Int_t stepNr,Int_t trackID,
-      Int_t mot0trackID,
-      Int_t fiberInBundleNb,
-      TVector3 pos, 
-      TVector3 mom, 
-      Double_t tof, 
-      Double_t length, 
-      Int_t pid,
-      Double_t mass,
-      ExpertTrackingStatus trackStatus,
-      Double_t eLoss,
-      Double_t charge,
-      TArrayI  processID);
+  ERGadastStep* AddStep();
+
+  void StartPoint();
+  void FinishPoint();
   
   /** Private method ResetParameters
    **

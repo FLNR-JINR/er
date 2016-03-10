@@ -1,5 +1,10 @@
-#ifndef FAIRTUTORIALDET2CONTFACT_H
-#define FAIRTUTORIALDET2CONTFACT_H
+// -------------------------------------------------------------------------
+// -----                  ERNeuRadContFact header file             	   -----
+// -----                  Created 03/15  by V.Schetinin                -----
+// -------------------------------------------------------------------------
+
+#ifndef ERNeuRadContFact_H
+#define ERNeuRadContFact_H
 
 #include "FairContFact.h"
 
@@ -16,4 +21,4 @@ class ERNeuRadContFact : public FairContFact
     ClassDef( ERNeuRadContFact,0)
 };
 
-#endif  /* !FAIRTUTORIALDETCONTFACT_H */
+#endif  /* !ERNeuRadContFact_H */

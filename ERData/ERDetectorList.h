@@ -9,6 +9,7 @@
 #ifndef ERDETECTORLIST_H
 #define ERDETECTORLIST_H 1
 
-enum DetectorId {kNEURAD};
+enum DetectorId {kNEURAD, kGADAST, kMUSI};
+enum ERGadastDetectorType {CsI, LaBr};
 
 #endif

@@ -13,20 +13,27 @@ void res1(){
 
   	Long_t nEvent = Tsim->GetEntries();
   	
-  	TH1F* hEdepLaBr = new TH1F("hEdepLaBr", "Gadast LaBr energy deposit",100,0.,0.0015);
+  	TH1F* hEdepLaBr = new TH1F("hEdepLaBr", "Gadast LaBr energy deposit",1000,0.,0.005);
   	hEdepLaBr->GetXaxis()->SetTitle("Edep [GeV]");
 
-  	TH1F* hEdepCsI = new TH1F("hEdepCsI", "Gadast CsI energy deposit",100,0.,0.0015);
+  	TH1F* hEdepCsI = new TH1F("hEdepCsI", "Gadast CsI energy deposit",1000,0.,0.005);
   	hEdepCsI->GetXaxis()->SetTitle("Edep [GeV]");
 
   	for (int iEvent = 0; iEvent < nEvent; iEvent++){
   		double EdepCsI = 0.;
   		double EdepLaBr = 0.;
+  		int wall, block, cell;
   		Tsim->GetEntry(iEvent);
 
   		for (int iPoint=0; iPoint < CsIPoints->GetEntriesFast();  iPoint++){
   			ERGadastCsIPoint* csipoint = (ERGadastCsIPoint*)CsIPoints->At(iPoint);
-  			EdepCsI += csipoint->GetEnergyLoss();
+  			if (iPoint == 0){
+  				wall = csipoint->GetWall();
+  				block = csipoint->GetBlock();
+  				cell = csipoint->GetCell();
+  			}
+  			//if (csipoint->GetWall() == wall && csipoint->GetBlock() == block && csipoint->GetCell() == cell)
+  				EdepCsI += csipoint->GetEnergyLoss();
   		}
   		for (int iPoint=0; iPoint < LaBrPoints->GetEntriesFast();  iPoint++){
   			ERGadastLaBrPoint* labrpoint = (ERGadastLaBrPoint*)LaBrPoints->At(iPoint);

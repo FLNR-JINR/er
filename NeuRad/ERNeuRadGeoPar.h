@@ -1,5 +1,10 @@
-#ifndef ERNEURADGEOPAR_H
-#define ERNEURADGEOPAR_H
+// -------------------------------------------------------------------------
+// -----                  ERNeuRadGeoPar header file                   -----
+// -----                  Created 03/15  by V.Schetinin                -----
+// -------------------------------------------------------------------------
+
+#ifndef ERNeuRadGeoPar_H
+#define ERNeuRadGeoPar_H
 
 #include "FairParGenericSet.h"
 
@@ -17,7 +22,7 @@ class ERNeuRadGeoPar : public FairParGenericSet
     TObjArray*      fGeoPassNodes;
 
     ERNeuRadGeoPar(const char* name="ERNeuRadGeoPar",
-                           const char* title="FairTutorialDet2 Geometry Parameters",
+                           const char* title="NeuRad Geometry Parameters",
                            const char* context="TestDefaultContext");
     ~ERNeuRadGeoPar(void);
     void clear(void);
@@ -33,4 +38,4 @@ class ERNeuRadGeoPar : public FairParGenericSet
     ClassDef(ERNeuRadGeoPar,1)
 };
 
-#endif /* ERNEURADGEOPAR_H */
+#endif /* ERNeuRadGeoPar_H */

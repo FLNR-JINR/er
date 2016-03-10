@@ -30,7 +30,7 @@ ERNeuRad::ERNeuRad() : ERDetector("ERNeuRad", kTRUE),
   fVerboseLevel = 1;
   fVersion = 1;
 }
-// -------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
 ERNeuRad::ERNeuRad(const char* name, Bool_t active, Int_t verbose)
@@ -47,22 +47,21 @@ ERNeuRad::ERNeuRad(const char* name, Bool_t active, Int_t verbose)
   flGeoPar->SetName( GetName());
   fVersion = 1;
 }
-
+//-------------------------------------------------------------------------
 ERNeuRad::~ERNeuRad() {
   if (fNeuRadPoints) {
     fNeuRadPoints->Delete();
     delete fNeuRadPoints;
   }
 }
-
+//-------------------------------------------------------------------------
 void ERNeuRad::Initialize()
 {
   FairDetector::Initialize();
   FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
   ERNeuRadGeoPar* par=(ERNeuRadGeoPar*)(rtdb->getContainer("ERNeuRadGeoPar"));
 }
-
-
+//-------------------------------------------------------------------------
 Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   // Set constants for Birk's Law implentation
   static const Double_t dP = 1.032 ;
