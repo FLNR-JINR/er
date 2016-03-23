@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 
-/** Unique identifier for all Panda detector systems **/
+/** Unique identifier for all EXPERT detector systems **/
 
 #ifndef ERDETECTORLIST_H
 #define ERDETECTORLIST_H 1

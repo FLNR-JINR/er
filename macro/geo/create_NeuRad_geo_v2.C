@@ -136,7 +136,7 @@ void create_NeuRad_geo_v2()
       i_boundle++;
     }
   }
-  top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
+  top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,500., fZeroRotation));
 
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();

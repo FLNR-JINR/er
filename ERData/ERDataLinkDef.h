@@ -15,5 +15,6 @@
 #pragma link C++ class ERGadastCsIPoint+;
 #pragma link C++ class ERGadastLaBrPoint+;
 #pragma link C++ class ERGadastStep+;
+#pragma link C++ class ERMCEventHeader+;
 
 #endif

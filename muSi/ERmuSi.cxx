@@ -106,12 +106,11 @@ void ERmuSi::BeginEvent() {
 
 void ERmuSi::EndOfEvent() {
   LOG(INFO) << "  DETECTOR::EndOfEvent()" << FairLogger::endl;
-  /*
   if (fVerboseLevel > 1) {
     Print();
   }
   Reset();
-  */
+  
 }
 
 // -----   Public method Register   -------------------------------------------
@@ -151,7 +150,7 @@ void ERmuSi::Print(Option_t *option) const
 
 // -----   Public method Reset   ----------------------------------------------
 void ERmuSi::Reset() {
-  LOG(INFO) << "  DETECTOR::Reset()" << FairLogger::endl;
+ 
   fERmuSiPoints->Clear();
   ResetParameters();
 }

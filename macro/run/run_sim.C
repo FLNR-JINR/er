@@ -1,4 +1,4 @@
-void Gadast_sim(int nEvents = 1000000){
+void run_sim(int nEvents = 1){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -27,40 +27,59 @@ void Gadast_sim(int nEvents = 1000000){
   run->SetMaterials("media.geo");       // Materials
   // ------------------------------------------------------------------------
 
+  //-------- Set MC event header --------------------------------------------
+  ERMCEventHeader* header = new ERMCEventHeader();
+  run->SetMCEventHeader(header);
+  //-------------------------------------------------------------------------
+
   // -----   Create detectors  ----------------------------------------------	
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
 
+/*
+  FairModule* target = new ERTarget("Target");
+  target->SetGeometryFileName("target.geo.root");
+  run->AddModule(target);
+*/
+  // ER muSi definition
+  ERmuSi* muSi= new ERmuSi("ERmuSi", kTRUE,1);
+  muSi->SetGeometryFileName("muSi.geo.root");
+  run->AddModule(muSi);
+
+  // ER Gadast definition
   ERGadast* gadast= new ERGadast("ERGadast", kTRUE);
   gadast->SetVerboseLevel(1);
-  //gadast->SetStoreSteps();
   gadast->SetGeometryFileName("gadast.gdml");
   run->AddModule(gadast);
+
+  // ER NeuRad definition
+  /* Select verbosity level
+   * 1 - only standard logs
+   * 2 - Print points after each event
+   * 3 - - GEANT Step information
+  */
+  ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,1);
+  neuRad->SetGeometryFileName("NeuRad_v2.geo.root");
+  /* Select storing stepss
+   * not store steps
+   * SetStorePrimarySteps() - store only primary particle step
+   * SetStoreAllSteps() - store all steps. WARNING - very slow
+  */
+  //neuRad->SetStoreAllSteps();
+  run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 	
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  //Изотропно в ЛАБ системе
-  /*Int_t pdgId = 22; // gamma
-  Double32_t kin_energy = 0.002; //GeV 1275 KeV
-  Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
-  Double32_t momentum = kin_energy; //GeV
-  FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-  boxGen->SetThetaRange(49, 49);
-  boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(25,30);
-  boxGen->SetBoxXYZ (0.0,0.,0.,0.,0.);
-  primGen->AddGenerator(boxGen);*/
 
-  ERGammaGenerator* gammaGenerator = new ERGammaGenerator();
-  gammaGenerator->SetBeamEnergy(0.54*17);
-  gammaGenerator->SetGammaCMEnergy(0.001288);
-  gammaGenerator->SetGammaCMPhiRange(0., 360.);
-  gammaGenerator->SetGammaCMThetaRange(0., 180.);
-  gammaGenerator->SetIon(10, 17);
-  primGen->AddGenerator(gammaGenerator);
-
+  //Ion 27F
+  Int_t A = 10;
+  Int_t Z = 20;
+  Int_t Q = 10;
+  Double_t Pz = .5;// AGeV
+  ERGenerator* generator = new ERGenerator(A,Z,Q,0.,0.,Pz,0.,0.,0.);  
+  primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
 	
@@ -81,7 +100,6 @@ void Gadast_sim(int nEvents = 1000000){
   parOut->open(parFile.Data());
   rtdb->setOutput(parOut);
   rtdb->saveOutput();
-
   rtdb->print();
   // ---------------------------------------------------------
   
@@ -98,5 +116,4 @@ void Gadast_sim(int nEvents = 1000000){
   cout << "Parameter file is par.root" << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime
 		  << "s" << endl << endl;
-
 }

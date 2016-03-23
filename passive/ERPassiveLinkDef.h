@@ -7,6 +7,7 @@
 #pragma link C++ class ERCave+;
 #pragma link C++ class ERGeoCave;
 #pragma link C++ class ERGeoPassivePar;
+#pragma link C++ class ERTarget+;
 
 #endif
 

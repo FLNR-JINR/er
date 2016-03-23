@@ -5,5 +5,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class ERGammaGenerator+;
+#pragma link C++ class ERGenerator+;
 
 #endif

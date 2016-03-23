@@ -31,6 +31,7 @@ GadastData/ERGadastLaBrPoint.cxx
 GadastData/ERGadastStep.cxx
 ERStack.cxx
 ERMCTrack.cxx
+ERMCEventHeader.cxx
 )
 
 # fill list of header files from list of source files

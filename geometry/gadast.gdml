@@ -171,7 +171,6 @@
   </materials>
 
   <solids>
-    <tube aunit="deg" deltaphi="360" lunit="mm" name="target_tybe0xd41410" rmax="10" rmin="0" startphi="0" z="1"/>
     <trd lunit="mm" name="trd_out0xd42150" x1="60.9304552728773" x2="73.4597603292059" y1="141.679649132661" y2="166.824795555029" z="119.426153751196"/>
     <trd lunit="mm" name="trd_in0xd420b0" x1="60.3233594179232" x2="72.9301787351589" y1="141.063748296039" y2="166.234065035146" z="119.545699450647"/>
     <subtraction name="block_wrap0xd421f0">
@@ -201,10 +200,6 @@
   </solids>
 
   <structure>
-    <volume name="target_log0xd41520">
-      <materialref ref="G4_Pb0xd25810"/>
-      <solidref ref="target_tybe0xd41410"/>
-    </volume>
     <volume name="block_wrap_log0xd422a0">
       <materialref ref="PVC0xd33fc0"/>
       <solidref ref="block_wrap0xd421f0"/>
@@ -310,12 +305,9 @@
         <volumeref ref="LaBrcell_ref_log0xd45210"/>
       </physvol>
     </volume>
-    <volume name="expHall_log0xd36b20">
+    <volume name="Gadast">
       <materialref ref="G4_Galactic0xd30310"/>
       <solidref ref="expHall_box0xd35e10"/>
-      <physvol name="target_phys0xd41620">
-        <volumeref ref="target_log0xd41520"/>
-      </physvol>
       <physvol name="block_phys0xd44a60">
         <volumeref ref="wall_log0xd41e80"/>
         <position name="block_phys0xd44a60_pos" unit="mm" x="-417.395455402995" y="-138.155369793681" z="497.432533509015"/>
@@ -480,7 +472,7 @@
   </structure>
 
   <setup name="Default" version="1.0">
-    <world ref="expHall_log0xd36b20"/>
+    <world ref="Gadast"/>
   </setup>
 
 </gdml>

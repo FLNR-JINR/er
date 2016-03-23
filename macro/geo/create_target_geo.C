@@ -12,11 +12,11 @@ fZeroRotation->RotateZ(0.);
 
 Double_t transX = 0.;
 Double_t transY = 0.;
-Double_t transZ = 50.;
+Double_t transZ = 0.;
 
 TGeoManager*   gGeoMan = NULL;
 
-void create_muSi_geo()
+void create_target_geo()
 {
   // -------   Load media from media file   -----------------------------------
   FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
@@ -29,18 +29,18 @@ void create_muSi_geo()
   // --------------------------------------------------------------------------
 
   // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/muSi.geo.root";
+  TString geoFileName = geoPath + "/geometry/target.geo.root";
   // --------------------------------------------------------------------------
   
   // -----------------   Get and create the required media    -----------------
   FairGeoMedia*   geoMedia = geoFace->getMedia();
   FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
 
-  FairGeoMedium* mSi      = geoMedia->getMedium("silicon");
-  if ( ! mSi ) Fatal("Main", "FairMedium silicon not found");
-  geoBuild->createMedium(mSi);
-  TGeoMedium* pSi = gGeoMan->GetMedium("silicon");
-  if ( ! pSi ) Fatal("Main", "Medium silicon not found");
+  FairGeoMedium* mBe      = geoMedia->getMedium("beryllium");
+  if ( ! mBe ) Fatal("Main", "FairMedium beryllium not found");
+  geoBuild->createMedium(mBe);
+  TGeoMedium* pBe = gGeoMan->GetMedium("beryllium");
+  if ( ! pBe ) Fatal("Main", "Medium silicon not found");
   
   FairGeoMedium* vacuum      = geoMedia->getMedium("vacuum");
   if ( ! vacuum ) Fatal("Main", "FairMedium vacuum not found");
@@ -56,25 +56,17 @@ void create_muSi_geo()
   gGeoMan->SetName("DETgeom");
   TGeoVolume* top = new TGeoVolumeAssembly("TOP");
   gGeoMan->SetTopVolume(top);
-  TGeoVolume* muSi = new TGeoVolumeAssembly("muSi");
   // --------------------------------------------------------------------------
 
-  //------------------ muSi station -----------------------------------------
-  Double_t station_X = 6.; //cm
-  Double_t station_Y = 6.;   //cm
-  Double_t station_Z = 0.03;   //cm
-  station_X /= 2.;
-  station_Y /= 2.;
-  station_Z /= 2.;
-  TGeoVolume *station = gGeoManager->MakeBox("station", pSi, station_X, station_Y, station_Z);
+  //------------------ target -----------------------------------------
+  Double_t target_R = 2.;   //cm
+  Double_t target_Z = 2.;   //cm
+  target_Z /= 2.;
+  TGeoVolume *target = gGeoManager->MakeTube("target", pBe, 0, target_R, target_Z);
   
   //------------------ STRUCTURE  -----------------------------------------
-  //------------------ Add station to muSi -----------------------------
-  muSi->AddNode(station, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
-  muSi->AddNode(station, 2, new TGeoCombiTrans(.0,.0,10., fZeroRotation));
-  muSi->AddNode(station, 3, new TGeoCombiTrans(.0,.0,20., fZeroRotation));
-
-  top->AddNode(muSi, 1, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
+  targetAss->AddNode(target, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
+  top->AddNode(target, 1, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
 
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();
@@ -86,4 +78,4 @@ void create_muSi_geo()
   top->Write();
   geoFile->Close();
   // --------------------------------------------------------------------------
-}
+}	

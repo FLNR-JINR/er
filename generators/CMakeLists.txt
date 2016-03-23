@@ -6,6 +6,7 @@ set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
 ${GEANT4_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/generators
+${CMAKE_SOURCE_DIR}/passive
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -19,6 +20,7 @@ ${GEANT4_LIB_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
+	ERGenerator.cxx
 	ERGammaGenerator.cxx
 )
 

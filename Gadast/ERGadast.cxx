@@ -95,7 +95,7 @@ Bool_t ERGadast::ProcessHits(FairVolume* vol) {
 	if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared()) { 
     FinishPoint();
   }
-
+/*
   if (fDetectorType == CsI){
     TLorentzVector curPosIn;
     gMC->TrackPosition(curPosIn);
@@ -114,6 +114,7 @@ Bool_t ERGadast::ProcessHits(FairVolume* vol) {
       }
     }
   }
+  */
   fStepNr++;
 }
 
@@ -155,7 +156,7 @@ void ERGadast::FinishPoint(){
     const double FWHM= 0.08;
     const double sigma0=0.5*FWHM*E0/sqrt(log(2.));
     const double sigma = sigma0*sqrt(fELoss/E0);
-    fELoss = fRnd->Gaus(fELoss, sigma);
+    //fELoss = fRnd->Gaus(fELoss, sigma);
     if(fDetectorType == 0) 
       AddCsIPoint();
     if(fDetectorType == 1)
