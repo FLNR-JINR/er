@@ -1,5 +1,7 @@
 #include "ERmuSiTrackFinder.h"
 
+#include <vector>
+
 #include "TVector3.h"
 
 #include "FairRootManager.h"
@@ -9,6 +11,7 @@
 
 #include "ERDetectorList.h"
 #include "ERmuSiPoint.h"
+
 // ----------------------------------------------------------------------------
 ERmuSiTrackFinder::ERmuSiTrackFinder()
   : FairTask("ER muSi track finding scheme")
@@ -48,7 +51,7 @@ InitStatus ERmuSiTrackFinder::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
-  fmuSiHits = (TClonesArray*) ioman->GetObject("ERmuSiHit");
+  fmuSiHits = (TClonesArray*) ioman->GetObject("muSiHit");
   //todo check
 
   // Register output array fmuSiHits
@@ -62,9 +65,36 @@ InitStatus ERmuSiTrackFinder::Init()
 
 // -----   Public method Exec   --------------------------------------------
 void ERmuSiTrackFinder::Exec(Option_t* opt)
-{
-  //Генерируем синглеты
-  //for (Int_t iHit = 0; iHit < f)
+{ 
+  //Раскидываем хиты по станциям
+
+  std::vector<ERmuSiHit*> HitsByStation[3];
+
+  for (Int_t iHit = 0; iHit < fmuSiHits->GetEntriesFast(); iHit++){
+
+    ERmuSiHit* hit = (ERmuSiHit*) fmuSiHits->At(iHit);
+    HitsByStation[hit->Station()].push_back(hit);
+  }
+
+  
+  //Синглеты
+  std::vector<ERmuSiSinglet> singlets[2];
+  //Генерируем синглеты с началом на 1-й станции
+  for (std::vector<ERmuSiHit*>::iterator it0 = HitsByStation[0].begin(); it0 != HitsByStation[0].end(); ++it0 ){
+    for(std::vector<ERmuSiHit*>::iterator it1 = HitsByStation[1].begin(); it1 != HitsByStation[1].end(); ++it1){
+      ERmuSiSinglet singlet = {(*it0), (*it1)};
+      singlets[0].push_back(singlet);
+    }
+  }
+
+  //Генерируем синглеты с началом на 2-й станции
+  for (std::vector<ERmuSiHit*>::iterator it0 = HitsByStation[1].begin(); it0 != HitsByStation[1].end(); ++it0 ){
+    for(std::vector<ERmuSiHit*>::iterator it1 = HitsByStation[2].begin(); it1 != HitsByStation[2].end(); ++it1){
+      ERmuSiSinglet singlet = {(*it0), (*it1)};
+      singlets[1].push_back(singlet);
+    }
+  }
+  
 }
 //----------------------------------------------------------------------------
 

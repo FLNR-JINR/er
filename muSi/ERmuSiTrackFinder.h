@@ -55,4 +55,9 @@ private:
   ClassDef(ERmuSiTrackFinder,1)
 };
 
+struct ERmuSiSinglet {
+  ERmuSiHit* first;
+  ERmuSiHit* second;
+};
+
 #endif

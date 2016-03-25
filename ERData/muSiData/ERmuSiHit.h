@@ -15,6 +15,8 @@ public:
 	ERmuSiHit(){}
 	ERmuSiHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Int_t station);
 
+	Int_t Station() const {return fStation;}
+
 	ClassDef(ERmuSiHit, 1)
 
 };
