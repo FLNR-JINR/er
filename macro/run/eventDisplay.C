@@ -19,9 +19,9 @@ eventDisplay()
   FairMCPointDraw *NeuRadPoints =   new FairMCPointDraw ("NeuRadPoint",kOrange,  kFullSquare);
   
   fMan->AddTask(Track);
-  //fMan->AddTask(CsIPoints);
-  //fMan->AddTask(LaBrPoints);
-  //fMan->AddTask(NeuRadPoints);
+  fMan->AddTask(CsIPoints);
+  fMan->AddTask(LaBrPoints);
+  fMan->AddTask(NeuRadPoints);
   
   fMan->Init();
 }

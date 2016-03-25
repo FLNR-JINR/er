@@ -12,7 +12,7 @@ fZeroRotation->RotateZ(0.);
 
 Double_t transX = 0.;
 Double_t transY = 0.;
-Double_t transZ = 0.;
+Double_t transZ = 1.;
 
 TGeoManager*   gGeoMan = NULL;
 
@@ -62,11 +62,12 @@ void create_target_geo()
   Double_t target_R = 2.;   //cm
   Double_t target_Z = 2.;   //cm
   target_Z /= 2.;
-  TGeoVolume *target = gGeoManager->MakeTube("target", pBe, 0, target_R, target_Z);
+  TGeoVolume *target = gGeoManager->MakeTube("target_vol", pBe, 0, target_R, target_Z);
   
   //------------------ STRUCTURE  -----------------------------------------
+  TGeoVolume* targetAss = new TGeoVolumeAssembly("target");
   targetAss->AddNode(target, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
-  top->AddNode(target, 1, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
+  top->AddNode(targetAss, 1, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
 
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();

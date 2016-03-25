@@ -1,4 +1,4 @@
-void run_sim(int nEvents = 1){
+void run_sim(int nEvents = 10){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -37,18 +37,18 @@ void run_sim(int nEvents = 1){
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
 
-/*
-  FairModule* target = new ERTarget("Target");
+
+  FairModule* target = new ERTarget("Target", kTRUE,1);
   target->SetGeometryFileName("target.geo.root");
   run->AddModule(target);
-*/
+
   // ER muSi definition
   ERmuSi* muSi= new ERmuSi("ERmuSi", kTRUE,1);
   muSi->SetGeometryFileName("muSi.geo.root");
   run->AddModule(muSi);
 
   // ER Gadast definition
-  ERGadast* gadast= new ERGadast("ERGadast", kTRUE);
+  /*ERGadast* gadast= new ERGadast("ERGadast", kTRUE);
   gadast->SetVerboseLevel(1);
   gadast->SetGeometryFileName("gadast.gdml");
   run->AddModule(gadast);
@@ -74,11 +74,11 @@ void run_sim(int nEvents = 1){
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
   //Ion 27F
-  Int_t A = 10;
-  Int_t Z = 20;
-  Int_t Q = 10;
-  Double_t Pz = .5;// AGeV
-  ERGenerator* generator = new ERGenerator(A,Z,Q,0.,0.,Pz,0.,0.,0.);  
+  Int_t A = 27;
+  Int_t Z = 9;
+  Int_t Q = 9;
+  Double_t Pz = 0.7;// AGeV
+  ERGenerator* generator = new ERGenerator(Z,A,Q,0.,0.,Pz,0.,0.,-10.);  
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------

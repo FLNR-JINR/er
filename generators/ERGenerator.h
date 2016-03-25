@@ -12,6 +12,7 @@
 #include "FairPrimaryGenerator.h"       //for FairPrimaryGenerator
 
 #include "TRandom3.h"
+#include "TGenPhaseSpace.h"       //for TGenPhaseSpace 
 
 #include <iostream>
 
@@ -53,14 +54,16 @@ class ERGenerator : public FairGenerator
   Double_t fEGammaCM;
   Double_t fPhiMinCM, fPhiMaxCM;
   Double_t fThetaMinCM, fThetaMaxCM;
-  Double_t fIonMass;
+  Double_t fPrimaryIonMass;
   Int_t fGammaPDG;
 
   static Int_t fgNIon;     //! Number of the instance of this class
-  FairIon*   fIon;          // Pointer to the FairIon to be generated
+  FairIon*   fPrimaryIon;          // Pointer to the FairIon to be generated
+  FairIon*   fSecondIon;
+  FairIon*   fThirdIon;
   Double_t fPx, fPy, fPz;  // Momentum components [GeV] per nucleon
   Double_t fVx, fVy, fVz;  // Vertex coordinates [cm]
-
+  TGenPhaseSpace* fPHSpace;
   TRandom3 *fRnd;
 
   ERGenerator(const ERGenerator&);

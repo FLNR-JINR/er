@@ -1,41 +1,93 @@
 #include <iostream>
 #include <stdlib.h>
 
+#include "TVirtualMC.h"
+
 #include "FairGeoLoader.h"
 #include "FairGeoInterface.h"
 #include "FairGeoRootBuilder.h"
 #include "FairRuntimeDb.h"
 #include "TObjArray.h"
 #include "FairRun.h"
+#include "FairRunSim.h"
 #include "FairGeoVolume.h"
 #include "FairGeoNode.h"
 
 #include "ERTarget.h"
+#include "ERMCEventHeader.h"
 #include "ERGeoPassivePar.h"
 
 using namespace std;
 
+// -----   Initialsisation of static variables   --------------------------
+Double_t ERTarget::fThickness = 2.; //cm
+// ------------------------------------------------------------------------
+
+ERTarget::ERTarget(): ERDetector("ERNeuRad", kTRUE)
+{
+  fTargetPoints = new TClonesArray("ERmuSiPoint");
+}
+
+ERTarget::ERTarget(const char* name, Bool_t active, Int_t verbose):ERDetector(name, active)
+{
+  fTargetPoints = new TClonesArray("ERmuSiPoint");
+}
 
 ERTarget::~ERTarget()
 {
-  if(fTargetName) {
-    delete fTargetName;
+}
+
+Bool_t ERTarget::ProcessHits(FairVolume* vol){
+  FairRunSim* run = FairRunSim::Instance();
+
+  ERMCEventHeader* header = (ERMCEventHeader*)run->GetMCEventHeader();
+
+  Double_t targetReactionPos = header->TargetReactionPos();
+
+  TLorentzVector curPos;
+  gMC->TrackPosition(curPos);
+  if (gMC->ParticleName(gMC->TrackPid()).Contains("F27") ||
+       gMC->ParticleName(gMC->TrackPid()).Contains("ExpertPrimaryIon"))
+  {
+    if (curPos.Z() >= targetReactionPos){
+      cerr << "TargetReactionPos = " << targetReactionPos << " " << curPos.Z() << endl;
+      gMC->StopTrack();
+    }
   }
+
+  return kTRUE;
 }
 
+void ERTarget::BeginEvent(){
 
-ERTarget::ERTarget()
-{
-  fTargetName = NULL;
 }
 
+void ERTarget::EndOfEvent(){
 
-ERTarget::ERTarget(const char * name,  const char * title)
-  : FairModule(name ,title)
-{
-  fTargetName = new TString(name);
 }
 
+void ERTarget::Register(){
+
+}
+
+TClonesArray* ERTarget::GetCollection(Int_t iColl) const {
+  if (iColl == 0) 
+    return fTargetPoints;
+  else 
+    return NULL;
+}
+
+void ERTarget::Print(Option_t *option) const{
+
+}
+
+void ERTarget::Reset(){
+
+}
+
+void ERTarget::CopyClones(TClonesArray* cl1, TClonesArray* cl2,
+        Int_t offset){  
+}
 
 void ERTarget::ConstructGeometry()
 {
@@ -49,12 +101,19 @@ void ERTarget::ConstructGeometry()
   }
 }
 
+void ERTarget::Initialize(){
+  FairDetector::Initialize();
+}
+
 
 Bool_t ERTarget::CheckIfSensitive(std::string name)
 {
+  TString volName = name;
+  if(volName.Contains("target_vol")) {
+    return kTRUE;
+  }
   return kFALSE;
 }
-
 
 ClassImp(ERTarget)
 

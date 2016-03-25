@@ -12,16 +12,17 @@
 #ifndef ERMCEVENTHEADER_H_
 #define ERMCEVENTHEADER_H_
 
-#include "TVector3.h"
-
 #include "FairMCEventHeader.h"
 
 class ERMCEventHeader : public FairMCEventHeader {
 private:
-	TVector3 fTargetReactionPos;
-	TVector3 fDirectReactionPos;
+	Double_t fTargetReactionPos;
+	Double_t fDirectReactionPos;
 public:
 	ERMCEventHeader();
+	void SetTargetReactionPos(Double_t pos){fTargetReactionPos = pos;}
+	void SetDirectReactionPos(Double_t pos){fDirectReactionPos = pos;}
+	Double_t TargetReactionPos(){return fTargetReactionPos;}
 };
 
 #endif

@@ -25,7 +25,7 @@ void Config()
 /// When more than one options are selected, they should be separated with '+'
 /// character: eg. stepLimit+specialCuts.
 
-    gSystem->Load("libR3BPlist.so");
+    //gSystem->Load("libR3BPlist.so");
 
   TG4RunConfiguration* runConfiguration 
              = new TG4RunConfiguration("geomRoot", "QBBC", "stepLimiter+specialCuts+specialControls");

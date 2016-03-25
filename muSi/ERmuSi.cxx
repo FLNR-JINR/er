@@ -13,7 +13,6 @@
 // -----   Default constructor   -------------------------------------------
 ERmuSi::ERmuSi() : FairDetector("ERmuSi", kTRUE)
 {
-  LOG(INFO) << "  DETECTOR::ERmuSi()" << FairLogger::endl;
   ResetParameters();
   fERmuSiPoints = new TClonesArray("ERmuSiPoint");
   flGeoPar = new TList();
@@ -27,8 +26,6 @@ ERmuSi::ERmuSi() : FairDetector("ERmuSi", kTRUE)
 ERmuSi::ERmuSi(const char* name, Bool_t active, Int_t verbose) 
   : FairDetector(name, active,verbose)
   {
-  LOG(INFO) << "  DETECTOR::ERmuSi(const char* name, Bool_t active, Int_t verbose) " 
-            << FairLogger::endl;
   ResetParameters();
   fERmuSiPoints = new TClonesArray("ERmuSiPoint");
   flGeoPar = new TList();
@@ -37,7 +34,6 @@ ERmuSi::ERmuSi(const char* name, Bool_t active, Int_t verbose)
 }
 
 ERmuSi::~ERmuSi() {
-  LOG(INFO) << "  DETECTOR::~ERmuSi()" << FairLogger::endl;
   if (fERmuSiPoints) {
     fERmuSiPoints->Delete();
     delete fERmuSiPoints;
@@ -46,14 +42,11 @@ ERmuSi::~ERmuSi() {
 
 void ERmuSi::Initialize()
 {
-  LOG(INFO) << "  DETECTOR::Initialize()" << FairLogger::endl;
   FairDetector::Initialize();
 }
 
 
 Bool_t ERmuSi::ProcessHits(FairVolume* vol) {
-  LOG(INFO) << "  DETECTOR::ProcessHits(FairVolume* vol)" << FairLogger::endl;
-  
   static Int_t          eventID;           //!  event index
   static Int_t          trackID;           //!  track index
   static Int_t          mot0TrackID;       //!  0th mother track index
@@ -100,12 +93,10 @@ Bool_t ERmuSi::ProcessHits(FairVolume* vol) {
 
 // -----   Public method EndOfEvent   -----------------------------------------
 void ERmuSi::BeginEvent() {
-  LOG(INFO) << "  DETECTOR::BeginEvent()" << FairLogger::endl;
 }
 
 
 void ERmuSi::EndOfEvent() {
-  LOG(INFO) << "  DETECTOR::EndOfEvent()" << FairLogger::endl;
   if (fVerboseLevel > 1) {
     Print();
   }
@@ -115,7 +106,6 @@ void ERmuSi::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void ERmuSi::Register() {
-  LOG(INFO) << "  DETECTOR::Register()" << FairLogger::endl;
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
 	Fatal("Init", "IO manager is not set");	
@@ -125,7 +115,6 @@ void ERmuSi::Register() {
 
 // -----   Public method GetCollection   --------------------------------------
 TClonesArray* ERmuSi::GetCollection(Int_t iColl) const {
-  LOG(INFO) << "  DETECTOR::GetCollection(Int_t iColl)" << FairLogger::endl;
   if (iColl == 0) 
     return fERmuSiPoints;
   else 
@@ -138,7 +127,6 @@ TClonesArray* ERmuSi::GetCollection(Int_t iColl) const {
 // -----   Public method Print   ----------------------------------------------
 void ERmuSi::Print(Option_t *option) const
 {
-  LOG(INFO) << "  DETECTOR::Print" << FairLogger::endl;
   /*
   for (Int_t i_point = 0; i_point < fERmuSiPoints->GetEntriesFast(); i_point++){
     ERmuSiPoint* point = (ERmuSiPoint*)fERmuSiPoints->At(i_point);
@@ -158,9 +146,6 @@ void ERmuSi::Reset() {
 
 // -----   Public method CopyClones   -----------------------------------------
 void ERmuSi::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
-  LOG(INFO) << "   DETECTOR::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)" 
-            << FairLogger::endl;
-  
   Int_t nEntries = cl1->GetEntriesFast();
   LOG(INFO) << "decector: " << nEntries << " entries to add" << FairLogger::endl;
   TClonesArray& clref = *cl2;
@@ -195,8 +180,6 @@ ERmuSiPoint* ERmuSi::AddPoint(Int_t eventID, Int_t trackID,
 
 // -----   Public method ConstructGeometry   ----------------------------------
 void ERmuSi::ConstructGeometry() {
-  LOG(INFO) << "  DETECTOR::ConstructGeometry()" << FairLogger::endl;
-  
   TString fileName = GetGeometryFileName();
   if(fileName.EndsWith(".root")) {
     LOG(INFO) << "Constructing ERmuSi geometry from ROOT file " << fileName.Data() << FairLogger::endl;
@@ -211,7 +194,6 @@ void ERmuSi::ConstructGeometry() {
 // ----------------------------------------------------------------------------
 Bool_t ERmuSi::CheckIfSensitive(std::string name)
 {
-  LOG(INFO) << "DETECTOR::CheckIfSensitive(std::string name)" << FairLogger::endl;
   TString volName = name;
   if(volName.Contains("station")) {
     return kTRUE;
@@ -222,7 +204,6 @@ Bool_t ERmuSi::CheckIfSensitive(std::string name)
 
 // ----------------------------------------------------------------------------
 void ERmuSi::ResetParameters() {
-  LOG(INFO) << "   DETECTOR::ResetParameters() " << FairLogger::endl;
 };
 // ----------------------------------------------------------------------------
 ClassImp(ERmuSi)
