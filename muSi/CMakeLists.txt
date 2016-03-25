@@ -5,6 +5,7 @@
 set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
 ${CMAKE_SOURCE_DIR}/ERData/muSiData/
+${CMAKE_SOURCE_DIR}/ERData/
 ${CMAKE_SOURCE_DIR}/muSi/
 )
 
@@ -19,6 +20,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 ERmuSi.cxx
+ERmuSiHitProducing.cxx
 )
 
 # fill list of header files from list of source files

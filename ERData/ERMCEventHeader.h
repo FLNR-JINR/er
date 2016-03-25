@@ -23,6 +23,8 @@ public:
 	void SetTargetReactionPos(Double_t pos){fTargetReactionPos = pos;}
 	void SetDirectReactionPos(Double_t pos){fDirectReactionPos = pos;}
 	Double_t TargetReactionPos(){return fTargetReactionPos;}
+
+	ClassDef(ERMCEventHeader,1)
 };
 
 #endif
