@@ -5,6 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class ERmuSi+;
-#pragma link C++ class ERmuSiHitProducing+;
+#pragma link C++ class ERmuSiHitProducer+;
+#pragma link C++ class ERmuSiTrackFinder+;
 
 #endif

@@ -42,10 +42,10 @@ void muSi_sim(Int_t nEvents = 10){
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   Int_t pdgId = 2212; // 
   Double32_t theta1 = 0.;  // polar angle distribution
-  Double32_t theta2 = 7.;
+  Double32_t theta2 = 3.;
   Double32_t momentum = 2.; //GeV
-  FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-  boxGen->SetThetaRange(theta1, theta1);
+  FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 3);
+  boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(90,90);
   boxGen->SetXYZ(0.,0., -1.0);

@@ -1,4 +1,4 @@
-#include "ERmuSiHitProducing.h"
+#include "ERmuSiHitProducer.h"
 
 #include "TVector3.h"
 
@@ -10,27 +10,27 @@
 #include "ERDetectorList.h"
 #include "ERmuSiPoint.h"
 // ----------------------------------------------------------------------------
-ERmuSiHitProducing::ERmuSiHitProducing()
+ERmuSiHitProducer::ERmuSiHitProducer()
   : FairTask("ER muSi hit producing scheme")
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERmuSiHitProducing::ERmuSiHitProducing(Int_t verbose)
+ERmuSiHitProducer::ERmuSiHitProducer(Int_t verbose)
   : FairTask("ER muSi hit producing scheme ", verbose)
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERmuSiHitProducing::~ERmuSiHitProducing()
+ERmuSiHitProducer::~ERmuSiHitProducer()
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERmuSiHitProducing::SetParContainers()
+void ERmuSiHitProducer::SetParContainers()
 {
   // Get run and runtime database
   FairRunAna* run = FairRunAna::Instance();
@@ -42,7 +42,7 @@ void ERmuSiHitProducing::SetParContainers()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-InitStatus ERmuSiHitProducing::Init()
+InitStatus ERmuSiHitProducer::Init()
 {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
@@ -61,7 +61,7 @@ InitStatus ERmuSiHitProducing::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void ERmuSiHitProducing::Exec(Option_t* opt)
+void ERmuSiHitProducer::Exec(Option_t* opt)
 {
   //Пока что просто перегоняем поинты в хиты
   for (Int_t iPoint = 0; iPoint < fmuSiPoints->GetEntriesFast(); iPoint++){
@@ -70,13 +70,13 @@ void ERmuSiHitProducing::Exec(Option_t* opt)
                             (point->GetYIn()+point->GetYOut())/2.,
                             (point->GetZIn()+point->GetZOut())/2.);
     TVector3 dpos = TVector3(0.01, 0.01, 0.01);
-    ERmuSiHit* hit = AddHit(kMUSI, pos, dpos,iPoint);
+    ERmuSiHit* hit = AddHit(kMUSI, pos, dpos,iPoint, point->Station());
   }
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void ERmuSiHitProducing::Reset()
+void ERmuSiHitProducer::Reset()
 {
   if (fmuSiHits) {
     fmuSiHits->Delete();
@@ -85,19 +85,19 @@ void ERmuSiHitProducing::Reset()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERmuSiHitProducing::Finish()
+void ERmuSiHitProducer::Finish()
 {   
 
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERmuSiHit* ERmuSiHitProducing::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index)
+ERmuSiHit* ERmuSiHitProducer::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Int_t station)
 {
   ERmuSiHit *hit = new((*fmuSiHits)[fmuSiHits->GetEntriesFast()])
-              ERmuSiHit(detID, pos, dpos, index);
+              ERmuSiHit(detID, pos, dpos, index, station);
   return hit;
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-ClassImp(ERmuSiHitProducing)
+ClassImp(ERmuSiHitProducer)

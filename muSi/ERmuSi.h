@@ -138,7 +138,8 @@ private:
 			  TVector3 posIn,
 			  TVector3 pos_out, TVector3 momIn,
 			  TVector3 momOut, Double_t time,
-			  Double_t length, Double_t eLoss);
+			  Double_t length, Double_t eLoss, 
+        Int_t station);
   
   /** Private method ResetParameters
    **

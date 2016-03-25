@@ -16,10 +16,16 @@ void muSi_reco(Int_t nEvents = 1){
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
  
-  // ------------------------NeuRadDigitizer---------------------------------
+  // ------------------------muSi hit producer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print
-  ERmuSiHitProducing* hitProducing = new ERmuSiHitProducing(verbose);
-  fRun->AddTask(hitProducing);
+  ERmuSiHitProducer* hitProducer = new ERmuSiHitProducer(verbose);
+  fRun->AddTask(hitProducer);
+  // ------------------------------------------------------------------------
+
+  // ------------------------muSi track finder---------------------------------
+  Int_t verbose = 1; // 1 - only standard log print
+  ERmuSiTrackFinder* trackFinder = new ERmuSiTrackFinder(verbose);
+  fRun->AddTask(trackFinder);
   // ------------------------------------------------------------------------
   
   // -----------Runtime DataBase info -------------------------------------
@@ -33,7 +39,7 @@ void muSi_reco(Int_t nEvents = 1){
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
-  
+
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();

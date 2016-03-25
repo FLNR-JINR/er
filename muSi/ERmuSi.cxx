@@ -56,6 +56,7 @@ Bool_t ERmuSi::ProcessHits(FairVolume* vol) {
   static Double32_t     time;              //!  time
   static Double32_t     length;            //!  length
   static Double32_t     eLoss;             //!  energy loss
+  static Int_t          station;
 
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     eLoss  = 0.;
@@ -67,6 +68,7 @@ Bool_t ERmuSi::ProcessHits(FairVolume* vol) {
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
+    Int_t curVolId =  gMC->CurrentVolID(station);
   }
   
   eLoss += gMC->Edep(); // keV //Return the energy lost in the current step
@@ -84,7 +86,7 @@ Bool_t ERmuSi::ProcessHits(FairVolume* vol) {
                 TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
                 TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
                 TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                time, length, eLoss);
+                time, length, eLoss, station);
     }
   }
   
@@ -168,11 +170,11 @@ ERmuSiPoint* ERmuSi::AddPoint(Int_t eventID, Int_t trackID,
 				    TVector3 posIn,
 				    TVector3 posOut, TVector3 momIn,
 				    TVector3 momOut, Double_t time,
-				    Double_t length, Double_t eLoss) {
+				    Double_t length, Double_t eLoss, Int_t station) {
   TClonesArray& clref = *fERmuSiPoints;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) ERmuSiPoint(eventID, trackID, mot0trackID, mass,
-					  posIn, posOut, momIn, momOut, time, length, eLoss);
+					  posIn, posOut, momIn, momOut, time, length, eLoss, station);
 	
 }
 

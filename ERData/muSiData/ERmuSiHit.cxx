@@ -5,8 +5,9 @@
 
 #include "ERmuSiHit.h"
 
-ERmuSiHit::ERmuSiHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index):
-	FairHit(detID, pos, dpos, index)
+ERmuSiHit::ERmuSiHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Int_t station):
+	FairHit(detID, pos, dpos, index),
+	fStation(station)
 {
 
 }

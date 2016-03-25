@@ -20,7 +20,8 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 ERmuSi.cxx
-ERmuSiHitProducing.cxx
+ERmuSiHitProducer.cxx
+ERmuSiTrackFinder.cxx
 )
 
 # fill list of header files from list of source files

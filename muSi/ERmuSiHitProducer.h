@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                        ERmuSiHitProducing header file          -----
+// -----                        ERmuSiHitProducer header file          -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
@@ -12,19 +12,19 @@
 
 #include "ERmuSiHit.h"
 
-class ERmuSiHitProducing : public FairTask {
+class ERmuSiHitProducer : public FairTask {
 
 public:
   /** Default constructor **/
-  ERmuSiHitProducing();
+  ERmuSiHitProducer();
 
   /** Constructor 
   ** verbose: 1 - only standard log print, 2 - print digi information 
   **/
-  ERmuSiHitProducing(Int_t verbose);
+  ERmuSiHitProducer(Int_t verbose);
 
   /** Destructor **/
-  ~ERmuSiHitProducing();
+  ~ERmuSiHitProducer();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -47,11 +47,11 @@ protected:
   //Output arrays
   TClonesArray *fmuSiHits;
 protected:
-  ERmuSiHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index);
+  ERmuSiHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Int_t station);
 private:
   virtual void SetParContainers();
   
-  ClassDef(ERmuSiHitProducing,1)
+  ClassDef(ERmuSiHitProducer,1)
 };
 
 #endif

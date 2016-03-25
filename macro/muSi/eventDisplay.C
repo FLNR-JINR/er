@@ -13,8 +13,10 @@ eventDisplay()
   
   FairEventManager *fMan= new FairEventManager();
   FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
+  FairMCPointDraw *muSiPoints =   new FairMCPointDraw ("ERmuSiPoint",kOrange,  kFullSquare);
   
   fMan->AddTask(Track);
+  fMan->AddTask(muSiPoints);
   
   fMan->Init();
 }

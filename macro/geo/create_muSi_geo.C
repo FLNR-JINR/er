@@ -12,7 +12,7 @@ fZeroRotation->RotateZ(0.);
 
 Double_t transX = 0.;
 Double_t transY = 0.;
-Double_t transZ = 50.;
+Double_t transZ = 5.;
 
 TGeoManager*   gGeoMan = NULL;
 
@@ -71,7 +71,7 @@ void create_muSi_geo()
   //------------------ STRUCTURE  -----------------------------------------
   //------------------ Add station to muSi -----------------------------
   muSi->AddNode(station, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
-  muSi->AddNode(station, 2, new TGeoCombiTrans(.0,.0,10., fZeroRotation));
+  muSi->AddNode(station, 2, new TGeoCombiTrans(.0,.0,5., fZeroRotation));
   muSi->AddNode(station, 3, new TGeoCombiTrans(.0,.0,20., fZeroRotation));
 
   top->AddNode(muSi, 1, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
