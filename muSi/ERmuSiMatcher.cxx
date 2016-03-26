@@ -6,7 +6,10 @@
 #include "FairLogger.h"
 
 #include "ERDetectorList.h"
+
 #include "ERmuSiPoint.h"
+#include "ERmuSiHit.h"
+#include "ERmuSiTrack.h"
 // ----------------------------------------------------------------------------
 ERmuSiMatcher::ERmuSiMatcher()
   : FairTask("ER muSi matching scheme")
@@ -60,6 +63,24 @@ InitStatus ERmuSiMatcher::Init()
 void ERmuSiMatcher::Exec(Option_t* opt)
 {
  LOG(INFO) << "===================ERmuSiMatcher started!========================" << FairLogger::endl;
+ Int_t trueTracks = 0;
+ Int_t wrongTracks = 0;
+ for(Int_t iTrack = 0; iTrack < fmuSiTracks->GetEntriesFast(); iTrack++){
+ 	ERmuSiTrack* track = (ERmuSiTrack*)fmuSiTracks->At(iTrack);
+    ERmuSiHit* hit0 = track->Hit(0);
+    ERmuSiHit* hit1 = track->Hit(1);
+    ERmuSiHit* hit2 = track->Hit(2);
+
+ 	ERmuSiPoint* point0 = (ERmuSiPoint*)fmuSiPoints->At(hit0->GetRefIndex());
+ 	ERmuSiPoint* point1 = (ERmuSiPoint*)fmuSiPoints->At(hit1->GetRefIndex());
+ 	ERmuSiPoint* point2 = (ERmuSiPoint*)fmuSiPoints->At(hit2->GetRefIndex());
+ 	if ((point0->GetTrackID() == point1->GetTrackID()) && (point1->GetTrackID() == point2->GetTrackID()))
+ 		trueTracks++;
+ 	else
+ 		wrongTracks++;
+ }
+ LOG(INFO) << "=== True tracks:" << trueTracks << FairLogger::endl;
+ LOG(INFO) << "=== Wrong tracks:" << wrongTracks << FairLogger::endl;
  LOG(INFO) << "=================== ERmuSiMatcher finish!========================" << FairLogger::endl;
 }
 //----------------------------------------------------------------------------
@@ -67,9 +88,6 @@ void ERmuSiMatcher::Exec(Option_t* opt)
 //----------------------------------------------------------------------------
 void ERmuSiMatcher::Reset()
 {
-  if (fmuSiHits) {
-    fmuSiHits->Delete();
-  }
 }
 // ----------------------------------------------------------------------------
 

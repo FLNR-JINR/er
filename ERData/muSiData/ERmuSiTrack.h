@@ -15,7 +15,7 @@ public:
 	ERmuSiTrack(){}
 
 	Int_t AddHit(Int_t station, ERmuSiHit hit);
-
+	ERmuSiHit* Hit(Int_t iStation){return &(fHits[iStation]);}
 	ClassDef(ERmuSiTrack, 1)
 };
 

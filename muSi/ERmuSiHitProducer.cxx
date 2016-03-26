@@ -71,6 +71,7 @@ void ERmuSiHitProducer::Exec(Option_t* opt)
                             (point->GetZIn()+point->GetZOut())/2.);
     TVector3 dpos = TVector3(0.01, 0.01, 0.01);
     ERmuSiHit* hit = AddHit(kMUSI, pos, dpos,iPoint, point->Station());
+    hit->AddLink(FairLink("muSiPoint",iPoint));
   }
 }
 //----------------------------------------------------------------------------

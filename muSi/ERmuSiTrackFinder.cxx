@@ -103,7 +103,7 @@ void ERmuSiTrackFinder::Exec(Option_t* opt)
 void ERmuSiTrackFinder::Reset()
 {
   if (fmuSiHits) {
-    fmuSiHits->Delete();
+    fmuSiTracks->Delete();
   }
 }
 // ----------------------------------------------------------------------------
