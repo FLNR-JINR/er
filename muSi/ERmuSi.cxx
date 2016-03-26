@@ -111,7 +111,7 @@ void ERmuSi::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
 	Fatal("Init", "IO manager is not set");	
-  ioman->Register("ERmuSiPoint","ERmuSi", fERmuSiPoints, kTRUE);
+  ioman->Register("muSiPoint","ERmuSi", fERmuSiPoints, kTRUE);
 }
 // ----------------------------------------------------------------------------
 

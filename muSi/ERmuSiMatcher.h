@@ -1,30 +1,28 @@
 // -------------------------------------------------------------------------
-// -----                        ERmuSiTrackFinder header file          -----
+// -----                        ERmuSiMatcher header file              -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
-#ifndef ERMUSITRACKFINDER_H
-#define ERMUSITRACKFINDER_H
+#ifndef ERMUSIMATCHER_H
+#define ERMUSIMATCHER_H
 
 #include "TClonesArray.h"
 
 #include "FairTask.h"
 
-#include "ERmuSiHit.h"
-
-class ERmuSiTrackFinder : public FairTask {
+class ERmuSiMatcher : public FairTask {
 
 public:
   /** Default constructor **/
-  ERmuSiTrackFinder();
+  ERmuSiMatcher();
 
   /** Constructor 
-  ** verbose: 1 - only standard log print
+  ** verbose: 1 - only standard log print, 2 - print digi information 
   **/
-  ERmuSiTrackFinder(Int_t verbose);
+  ERmuSiMatcher(Int_t verbose);
 
   /** Destructor **/
-  ~ERmuSiTrackFinder();
+  ~ERmuSiMatcher();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -39,27 +37,20 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  void SetAngleCut(Double_t angle){fAngleCut = angle;}
+
   /** Accessors **/ 
 protected:
   //Input arrays
+  TClonesArray *fmuSiPoints;
   TClonesArray *fmuSiHits;
-
-  //Output arrays
   TClonesArray *fmuSiTracks;
+
 protected:
-
+  
 private:
-  Double_t fAngleCut;
-
   virtual void SetParContainers();
   
-  ClassDef(ERmuSiTrackFinder,1)
-};
-
-struct ERmuSiSinglet {
-  ERmuSiHit* first;
-  ERmuSiHit* second;
+  ClassDef(ERmuSiMatcher,1)
 };
 
 #endif

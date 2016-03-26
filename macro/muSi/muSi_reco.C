@@ -17,15 +17,19 @@ void muSi_reco(Int_t nEvents = 1){
   // ------------------------------------------------------------------------
  
   // ------------------------muSi hit producer---------------------------------
-  Int_t verbose = 1; // 1 - only standard log print
-  ERmuSiHitProducer* hitProducer = new ERmuSiHitProducer(verbose);
+  ERmuSiHitProducer* hitProducer = new ERmuSiHitProducer(1);
   fRun->AddTask(hitProducer);
   // ------------------------------------------------------------------------
 
   // ------------------------muSi track finder---------------------------------
-  Int_t verbose = 1; // 1 - only standard log print
-  ERmuSiTrackFinder* trackFinder = new ERmuSiTrackFinder(verbose);
+  ERmuSiTrackFinder* trackFinder = new ERmuSiTrackFinder(1);
+  trackFinder->SetAngleCut(0.002);
   fRun->AddTask(trackFinder);
+  // ------------------------------------------------------------------------
+
+  // ------------------------muSi matcher---------------------------------
+  ERmuSiMatcher* matcher = new ERmuSiMatcher(1);
+  fRun->AddTask(matcher);
   // ------------------------------------------------------------------------
   
   // -----------Runtime DataBase info -------------------------------------

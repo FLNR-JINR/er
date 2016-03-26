@@ -10,6 +10,7 @@
 #include "FairLogger.h"
 
 #include "ERDetectorList.h"
+#include "ERmuSiTrack.h"
 #include "ERmuSiPoint.h"
 
 // ----------------------------------------------------------------------------
@@ -66,6 +67,7 @@ InitStatus ERmuSiTrackFinder::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERmuSiTrackFinder::Exec(Option_t* opt)
 { 
+  LOG(INFO) << "===================ERmuSiTrackFinder started!========================" << FairLogger::endl;
   //Раскидываем хиты по станциям
 
   std::vector<ERmuSiHit*> HitsByStation[3];
@@ -76,25 +78,24 @@ void ERmuSiTrackFinder::Exec(Option_t* opt)
     HitsByStation[hit->Station()].push_back(hit);
   }
 
-  
-  //Синглеты
-  std::vector<ERmuSiSinglet> singlets[2];
-  //Генерируем синглеты с началом на 1-й станции
   for (std::vector<ERmuSiHit*>::iterator it0 = HitsByStation[0].begin(); it0 != HitsByStation[0].end(); ++it0 ){
     for(std::vector<ERmuSiHit*>::iterator it1 = HitsByStation[1].begin(); it1 != HitsByStation[1].end(); ++it1){
-      ERmuSiSinglet singlet = {(*it0), (*it1)};
-      singlets[0].push_back(singlet);
+      TVector3 singlet1((*it1)->GetX()-(*it0)->GetX(),(*it1)->GetY()-(*it0)->GetY(),(*it1)->GetZ()-(*it0)->GetZ());
+      for(std::vector<ERmuSiHit*>::iterator it2 = HitsByStation[2].begin(); it2 != HitsByStation[2].end(); ++it2){
+        TVector3 singlet2((*it2)->GetX()-(*it1)->GetX(),(*it2)->GetY()-(*it1)->GetY(),(*it2)->GetZ()-(*it1)->GetZ());
+        Double_t angle = singlet2.Angle(singlet1);
+        //LOG(ERROR) << angle << FairLogger::endl;
+        if (angle < fAngleCut){
+          ERmuSiTrack* track = new((*fmuSiTracks)[fmuSiTracks->GetEntriesFast()])ERmuSiTrack();
+          track->AddHit(0,*(*it0));
+          track->AddHit(1,*(*it1));
+          track->AddHit(2,*(*it2));
+        }
+      }
     }
   }
-
-  //Генерируем синглеты с началом на 2-й станции
-  for (std::vector<ERmuSiHit*>::iterator it0 = HitsByStation[1].begin(); it0 != HitsByStation[1].end(); ++it0 ){
-    for(std::vector<ERmuSiHit*>::iterator it1 = HitsByStation[2].begin(); it1 != HitsByStation[2].end(); ++it1){
-      ERmuSiSinglet singlet = {(*it0), (*it1)};
-      singlets[1].push_back(singlet);
-    }
-  }
-  
+  LOG(INFO) << "==== " << fmuSiTracks->GetEntriesFast() << " tracks founded" << FairLogger::endl;
+  LOG(INFO) << "=================== ERmuSiTrackFinder finish!========================" << FairLogger::endl;
 }
 //----------------------------------------------------------------------------
 
@@ -110,7 +111,7 @@ void ERmuSiTrackFinder::Reset()
 // ----------------------------------------------------------------------------
 void ERmuSiTrackFinder::Finish()
 {   
-
+  
 }
 // ----------------------------------------------------------------------------
 

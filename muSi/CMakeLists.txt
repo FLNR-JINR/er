@@ -22,6 +22,7 @@ set(SRCS
 ERmuSi.cxx
 ERmuSiHitProducer.cxx
 ERmuSiTrackFinder.cxx
+ERmuSiMatcher.cxx
 )
 
 # fill list of header files from list of source files
@@ -30,7 +31,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERmuSiLinkDef.h)
 Set(LIBRARY_NAME muSi)
-Set(DEPENDENCIES )
+Set(DEPENDENCIES ERData)
 
 GENERATE_LIBRARY()
 
