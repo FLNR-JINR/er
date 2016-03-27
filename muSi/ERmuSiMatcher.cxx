@@ -71,6 +71,10 @@ void ERmuSiMatcher::Exec(Option_t* opt)
     ERmuSiHit* hit1 = track->Hit(1);
     ERmuSiHit* hit2 = track->Hit(2);
 
+    if (hit0->GetRefIndex() == -1 || hit1->GetRefIndex() == -1 || hit2->GetRefIndex() == -1){ //fakes
+    	wrongTracks++;
+    	continue;
+    }
  	ERmuSiPoint* point0 = (ERmuSiPoint*)fmuSiPoints->At(hit0->GetRefIndex());
  	ERmuSiPoint* point1 = (ERmuSiPoint*)fmuSiPoints->At(hit1->GetRefIndex());
  	ERmuSiPoint* point2 = (ERmuSiPoint*)fmuSiPoints->At(hit2->GetRefIndex());

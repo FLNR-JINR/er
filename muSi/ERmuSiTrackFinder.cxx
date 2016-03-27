@@ -80,12 +80,20 @@ void ERmuSiTrackFinder::Exec(Option_t* opt)
 
   for (std::vector<ERmuSiHit*>::iterator it0 = HitsByStation[0].begin(); it0 != HitsByStation[0].end(); ++it0 ){
     for(std::vector<ERmuSiHit*>::iterator it1 = HitsByStation[1].begin(); it1 != HitsByStation[1].end(); ++it1){
+
       TVector3 singlet1((*it1)->GetX()-(*it0)->GetX(),(*it1)->GetY()-(*it0)->GetY(),(*it1)->GetZ()-(*it0)->GetZ());
+
       for(std::vector<ERmuSiHit*>::iterator it2 = HitsByStation[2].begin(); it2 != HitsByStation[2].end(); ++it2){
+
         TVector3 singlet2((*it2)->GetX()-(*it1)->GetX(),(*it2)->GetY()-(*it1)->GetY(),(*it2)->GetZ()-(*it1)->GetZ());
+
         Double_t angle = singlet2.Angle(singlet1);
-        //LOG(ERROR) << angle << FairLogger::endl;
+  
         if (angle < fAngleCut){
+          /*LOG(ERROR) << angle << " " << singlet1.Phi() << " " << singlet2.Phi() << 
+                     " " << singlet1.Theta() << " " <<  singlet2.Theta()<<  FairLogger::endl;
+          LOG(ERROR) << (*it0)->ID() << " " << (*it0)->GetX() << " " << (*it0)->GetY()  << "  " << (*it1)->ID() << " " << (*it2)->ID() <<  FairLogger::endl;
+          */
           ERmuSiTrack* track = new((*fmuSiTracks)[fmuSiTracks->GetEntriesFast()])ERmuSiTrack();
           track->AddHit(0,*(*it0));
           track->AddHit(1,*(*it1));

@@ -173,7 +173,7 @@ ERmuSiPoint* ERmuSi::AddPoint(Int_t eventID, Int_t trackID,
 				    Double_t length, Double_t eLoss, Int_t station) {
   TClonesArray& clref = *fERmuSiPoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERmuSiPoint(eventID, trackID, mot0trackID, mass,
+  return new(clref[size]) ERmuSiPoint(size, eventID, trackID, mot0trackID, mass,
 					  posIn, posOut, momIn, momOut, time, length, eLoss, station);
 	
 }

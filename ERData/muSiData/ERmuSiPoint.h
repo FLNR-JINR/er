@@ -39,7 +39,7 @@ class ERmuSiPoint : public FairMCPoint
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [KeV]
    **/
-  ERmuSiPoint(Int_t eventID, Int_t trackID,
+  ERmuSiPoint(Int_t index, Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
 		  Double_t mass,
 		  TVector3 posIn,
@@ -72,6 +72,7 @@ class ERmuSiPoint : public FairMCPoint
   Double_t GetPzOut()           const { return fPz_out; }
   Double_t GetMass()            const { return fMass; }
   Int_t Station()               const { return fStation;}
+  Int_t Index()               const { return fIndex;}
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
@@ -97,6 +98,7 @@ class ERmuSiPoint : public FairMCPoint
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
   Int_t fStation;
+  Int_t fIndex;
 
   ClassDef(ERmuSiPoint,1)
 };

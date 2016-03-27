@@ -1,4 +1,4 @@
-void muSi_reco(Int_t nEvents = 1){
+void muSi_reco(Int_t nEvents = 2){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "reco.root";
@@ -23,7 +23,7 @@ void muSi_reco(Int_t nEvents = 1){
 
   // ------------------------muSi track finder---------------------------------
   ERmuSiTrackFinder* trackFinder = new ERmuSiTrackFinder(1);
-  trackFinder->SetAngleCut(0.002);
+  trackFinder->SetAngleCut(0.001);
   fRun->AddTask(trackFinder);
   // ------------------------------------------------------------------------
 
