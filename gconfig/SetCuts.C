@@ -49,7 +49,7 @@ void SetCuts()
   //gMC->SetCut("CUTELE",281.891E-9);   /** electrons (GeV)*/
   //gMC->SetCut("CUTNEU",70E-9);   /** neutral hadrons (GeV)*/
   //gMC->SetCut("CUTHAD",70E-9);   /** charged hadrons (GeV)*/
-  gMC->SetCut("CUTGAM",cut1;   /** gammas (GeV)*/
+  gMC->SetCut("CUTGAM",cut1);   /** gammas (GeV)*/
   gMC->SetCut("CUTELE",cut1);   /** electrons (GeV)*/
   gMC->SetCut("CUTELE",cut1);   /** electrons (GeV)*/
   gMC->SetCut("CUTNEU",cut1);   /** neutral hadrons (GeV)*/

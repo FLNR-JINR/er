@@ -5,6 +5,7 @@
 #include "TDatabasePDG.h"               //for TDatabasePDG
 #include "TVector3.h"
 #include "TLorentzVector.h"				//for TLorentzVector
+#include "TVirtualMC.h"
 
 #include "G4IonTable.hh"
 #include "G4ParticleTable.hh"
@@ -74,27 +75,31 @@ Bool_t ERGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
 	    return kFALSE;
 	}
 
-  	int pdgType = thisPart->PdgCode();
+  	int primaryIonPDG = thisPart->PdgCode();
 
   	cout << "-I- ERGenerator: Generating ion of type "
-       << fPrimaryIon->GetName() << " (PDG code " << pdgType << ")" << endl;
+       << fPrimaryIon->GetName() << " (PDG code " << primaryIonPDG << ")" << endl;
   	cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz
        << ") Gev from vertex (" << fVx << ", " << fVy
        << ", " << fVz << ") cm" << endl;
 
-    primGen->AddTrack(pdgType, fPx, fPy, fPz, fVx, fVy, fVz);
+    primGen->AddTrack(primaryIonPDG, fPx, fPy, fPz, fVx, fVy, fVz);
 
 	//Разыгрование позиции взаимодействия в мишени
     Double_t targetThickness = ERTarget::Thickness();
     Double_t reactZ = fRnd->Uniform()*targetThickness;
     mcheader->SetTargetReactionPos(reactZ);
+
     //Расчет результирующей энергии
     Double_t kinEnergy = TMath::Sqrt(fPx*fPx + fPy*fPy + fPz*fPz) - 1. * reactZ/targetThickness;
     Double_t fullEnergy = fSecondIon->GetMass() + kinEnergy;
+
     //Расчет гамма фактора
     Double_t betaCM = kinEnergy/fullEnergy;
+    cerr << betaCM << endl;
     Double_t gammaCM = TMath::Sqrt( 1. / ( 1. - betaCM*betaCM) );
     //Испускание второго иона
+    
     thisPart =
     		TDatabasePDG::Instance()->GetParticle(fSecondIon->GetName());
   	if ( ! thisPart ) {
@@ -102,15 +107,14 @@ Bool_t ERGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
 	         << " not found in database!" << endl;
 	    return kFALSE;
 	}
-
-  	pdgType = thisPart->PdgCode();
+  	Int_t secondaryIonPDG = thisPart->PdgCode();
 
   	cout << "-I- ERGenerator: Generating ion of type "
-       << fPrimaryIon->GetName() << " (PDG code " << pdgType << ")" << endl;
+       << fSecondIon->GetName() << " (PDG code " << secondaryIonPDG << ")" << endl;
   	cout << "    Momentum (" << 0 << ", " << 0 << ", " << kinEnergy
        << ") Gev from vertex (" << 0. << ", " << 0.
        << ", " << reactZ << ") cm" << endl;
-	primGen->AddTrack(pdgType, 0, 0, kinEnergy, 0, 0, reactZ,-1,true,-9e9,10. /*ps*/, 0.);
+	primGen->AddTrack(secondaryIonPDG, 0, 0, kinEnergy, 0, 0, reactZ,-1,true,-9e9,10. /*ps*/, 0.);
 	//Разыгрование позиции развала нестабильного иона
     Double_t step = 0.05; //Шаг имитации проведения иона
     Double_t tauCM = 5.; // время распада 26O в системе ЦМ  тау= 5пс
@@ -168,16 +172,16 @@ Bool_t ERGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
 	    return kFALSE;
 	}
 
-  	pdgType = thisPart->PdgCode();
+  	Int_t thirdIonPDG = thisPart->PdgCode();
 
   	cout << "-I- ERGenerator: Generating ion of type "
-       << fPrimaryIon->GetName() << " (PDG code " << pdgType << ")" << endl;
+       << fThirdIon->GetName() << " (PDG code " << thirdIonPDG << ")" << endl;
   	cout << "    Momentum (" << pThirdIon->X() << ", " << pThirdIon->Y() << ", " << pThirdIon->Z()
        << ") Gev from vertex (" << 0. << ", " << 0.
        << ", " << curIonPos << ") cm" << endl;
 	
 
-	primGen->AddTrack(pdgType, pThirdIon->X(), pThirdIon->Y(), pThirdIon->Z(), 0., 0., curIonPos,-1,true,-9e9,20./*ps*/, 0.);
+	//primGen->AddTrack(thirdIonPDG, pThirdIon->X(), pThirdIon->Y(), pThirdIon->Z(), 0., 0., curIonPos,-1,true,-9e9,20./*ps*/, 0.);
 	
 	//Испускание нейтронов
 	TLorentzVector* pNeutron1 = fPHSpace->GetDecay(1);
@@ -192,8 +196,8 @@ Bool_t ERGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
        << ") Gev from vertex (" << 0. << ", " << 0.
        << ", " << curIonPos << ") cm" << endl;
 	
-	primGen->AddTrack(2112, pNeutron1->X(),pNeutron1->Y(),pNeutron1->Z(), 0, 0, curIonPos,-1,true,-9e9,20. /*ps*/, 0.);
-	primGen->AddTrack(2112, pNeutron2->X(),pNeutron2->Y(),pNeutron2->Z(), 0, 0, curIonPos,-1,true,-9e9,20. /*ps*/, 0.);
+	//primGen->AddTrack(2112, pNeutron1->X(),pNeutron1->Y(),pNeutron1->Z(), 0, 0, curIonPos,-1,true,-9e9,20. /*ps*/, 0.);
+	//primGen->AddTrack(2112, pNeutron2->X(),pNeutron2->Y(),pNeutron2->Z(), 0, 0, curIonPos,-1,true,-9e9,20. /*ps*/, 0.);
 	//Испускание гаммы.
 
 	return kTRUE;

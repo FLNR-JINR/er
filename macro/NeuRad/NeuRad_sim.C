@@ -1,4 +1,5 @@
-void NeuRad_sim(Int_t nEvents = 10{
+void NeuRad_sim(Int_t nEvents = 10)
+{
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -60,7 +61,7 @@ void NeuRad_sim(Int_t nEvents = 10{
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(90,90);
-  boxGen->SetXYZ(0.15,0.15, -51.0);
+  boxGen->SetXYZ(0.15,0.15, .0);
 
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);

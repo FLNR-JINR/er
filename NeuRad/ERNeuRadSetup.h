@@ -72,6 +72,8 @@ class ERNeuRadSetup {
 
                 static Float_t PMTGain(Int_t iBundle, Int_t iFiber);
 
+                static Float_t Z(){return 2600;}
+
                 static void    Print();
 
         ClassDef(ERNeuRadSetup,1)

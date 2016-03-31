@@ -3,11 +3,6 @@
 #include "TGeoManager.h"
 #include "TMath.h"
 
-
-// Create a global translation
-TGeoTranslation *fGlobalTrans = new TGeoTranslation();
-fGlobalTrans->SetTranslation(0.0,0.0,1000.);
-
 // Create a zero rotation
 TGeoRotation *fZeroRotation = new TGeoRotation();
 fZeroRotation->RotateX(0.);
@@ -136,7 +131,7 @@ void create_NeuRad_geo_v2()
       i_boundle++;
     }
   }
-  top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,500., fZeroRotation));
+  top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,2600., fZeroRotation));
 
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();
