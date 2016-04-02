@@ -75,9 +75,6 @@ void ERNeuRadPMTSignalD::Generate(){
 			cur_f[idT] += sig_func[idT];
 		}
 	}
-	for (int i =0; i < gdTCount; i++)
-		cerr << fResFunction[i] << " ";
-	cerr << endl;
 	fResFunctionRoot.Adopt(gdTCount,fResFunction);
 }
 
