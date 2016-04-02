@@ -37,11 +37,11 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData
 
   virtual ~ERNeuRadPMTSignal();
   
-  void AddFiberPoint(ERNeuRadFiberPoint* fpoint);
+  virtual void AddFiberPoint(ERNeuRadFiberPoint* fpoint);
 
   SignalPointsMap GetSignalPoints() {return fSignalPoints;}
   
-  bool Exist(){return (fSignalPoints.size() > 0);}
+  virtual bool Exist(){return (fSignalPoints.size() > 0);}
   Int_t FiberIndex() const {return fFiberIndex;}
   Int_t BundleIndex() const {return fBundleIndex;}
   int GetNumberOfSeparatesSignals(){return fSeparateSignals.size();};
@@ -51,8 +51,8 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData
   Double_t GetInteg(const Double_t start,const Double_t finish);
   Double_t GetFirstInteg(const Double_t window);
   Double_t GetMean(const Double_t time);
-  Double_t GetStartTime();
-  Double_t GetFinishTime();
+  virtual Double_t GetStartTime();
+  virtual Double_t GetFinishTime();
   
   ClassDef(ERNeuRadPMTSignal,1);
 };

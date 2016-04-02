@@ -23,6 +23,7 @@ set(SRCS
 NeuRadData/ERNeuRadPoint.cxx
 NeuRadData/ERNeuRadFiberPoint.cxx
 NeuRadData/ERNeuRadPMTSignal.cxx
+NeuRadData/ERNeuRadPMTSignalD.cxx
 NeuRadData/ERNeuRadDigi.cxx
 NeuRadData/ERNeuRadStep.cxx
 muSiData/ERmuSiPoint.cxx

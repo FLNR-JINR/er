@@ -24,7 +24,7 @@ set(SRCS
 ERNeuRad.cxx
 ERNeuRadDigitizer.cxx
 ERNeuRadDigitizerTS.cxx
-#ERNeuRadDigitizerFullMC.cxx
+ERNeuRadDigitizerD.cxx
 ERNeuRadPointAnalyser.cxx
 ERNeuRadDigiAnalyser.cxx
 ERNeuRadContFact.cxx

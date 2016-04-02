@@ -13,6 +13,8 @@ using std::vector;
 #include "TStopwatch.h"
 
 #include "FairTask.h"
+
+#include "ERNeuRadPoint.h"
 #include "ERNeuRadDigi.h"
 #include "ERNeuRadFiberPoint.h"
 #include "ERNeuRadPMTSignal.h"
@@ -111,7 +113,7 @@ protected:
   ERNeuRadFiberPoint* AddFiberPoint(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count, Int_t photoel_count,Double_t amplitude, Int_t onePE);
 
-  ERNeuRadPMTSignal* AddPMTSignal(Int_t iBundle, Int_t iFiber);
+  virtual ERNeuRadPMTSignal* AddPMTSignal(Int_t iBundle, Int_t iFiber);
   
   ERNeuRadDigi* AddDigi(Double_t frontTDC, Double_t backTDC, Double_t TDC, Double_t frontQDC,
                         Double_t backQDC, Double_t QDC, Int_t fiber_nr);
@@ -122,7 +124,7 @@ protected:
                           std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
                           std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
                         
-  void PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
+  virtual void PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
                                 std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
                                 std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
 
