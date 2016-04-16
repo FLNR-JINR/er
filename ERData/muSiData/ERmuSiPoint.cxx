@@ -3,6 +3,9 @@
 // -------------------------------------------------------------------------
 
 #include "ERmuSiPoint.h"
+
+#include "TMath.h"
+
 #include "FairLogger.h"
 // -----   Default constructor   -------------------------------------------
 ERmuSiPoint::ERmuSiPoint()
@@ -28,6 +31,9 @@ ERmuSiPoint::ERmuSiPoint(Int_t index, Int_t eventID, Int_t trackID,
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
     fStation(station)
 {
+
+  fPAngle = TMath::ACos((fPx_out*fPx + fPy_out*fPy+fPz_out*fPz)/TMath::Sqrt(fPx*fPx+fPy*fPy+fPz*fPz)/
+            TMath::Sqrt(fPx_out*fPx_out+fPy_out*fPy_out+fPz_out*fPz_out));
 }
 // -------------------------------------------------------------------------
 
@@ -38,7 +44,7 @@ ERmuSiPoint::ERmuSiPoint(const ERmuSiPoint& right)
   : FairMCPoint(right),
     fIndex(right.fIndex),fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
     fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out),
-    fStation(right.fStation)
+    fStation(right.fStation),fPAngle(right.fPAngle)
 {
 }
 // -------------------------------------------------------------------------

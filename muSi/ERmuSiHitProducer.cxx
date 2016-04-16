@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "TVector3.h"
+#include "TGeoMatrix.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -65,6 +66,7 @@ InitStatus ERmuSiHitProducer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERmuSiHitProducer::Exec(Option_t* opt)
 {
+  Reset();
   //Расскидываем поинты по станциям
   std::vector<ERmuSiPoint*> PointsByStation[3];
   for (Int_t iPoint = 0; iPoint < fmuSiPoints->GetEntriesFast(); iPoint++){
@@ -73,11 +75,12 @@ void ERmuSiHitProducer::Exec(Option_t* opt)
   }
   //Комбинаторно на каждой станции генерируем хиты
   TVector3 dpos = TVector3(0.01, 0.01, 0.01); //ошибка пока фиксирована
+  TVector3 *pos;
   for (Int_t iStation =0; iStation < 3; iStation++){
     for (std::vector<ERmuSiPoint*>::iterator it1 = PointsByStation[iStation].begin(); it1 != PointsByStation[iStation].end(); ++ it1){
       ERmuSiPoint* point1 = (*it1);
 
-      TVector3 *pos = new TVector3((point1->GetXIn()+point1->GetXOut())/2.,
+      pos = new TVector3((point1->GetXIn()+point1->GetXOut())/2.,
                             (point1->GetYIn()+point1->GetYOut())/2.,
                             (point1->GetZIn()+point1->GetZOut())/2.);
       ERmuSiHit* hit = AddHit(kMUSI, *pos, dpos,point1->Index(), point1->Station());
@@ -89,26 +92,41 @@ void ERmuSiHitProducer::Exec(Option_t* opt)
         }
         ERmuSiPoint* point2 = (*it2);
 
-        pos = new TVector3((point1->GetXIn()+point1->GetXOut())/2.,
-                            (point2->GetYIn()+point2->GetYOut())/2.,
-                            (point1->GetZIn()+point1->GetZOut())/2.);
+        if (iStation == 2){
+          Double_t masterPos[3], localPos[3];
+          masterPos[0] = (point1->GetXIn()+point1->GetXOut())/2.;
+          masterPos[1] = (point2->GetYIn()+point2->GetYOut())/2.;
+          masterPos[2] = (point1->GetZIn()+point1->GetZOut())/2.;
+
+          TGeoRotation *Rotation = new TGeoRotation();
+          Rotation->RotateX(0.);
+          Rotation->RotateY(30.);
+          Rotation->RotateZ(0.);
+          Rotation->MasterToLocal(masterPos, localPos);
+
+          pos = new TVector3(localPos[0],localPos[1],localPos[2]);
+        }
+        else{
+          pos = new TVector3((point1->GetXIn()+point1->GetXOut())/2.,
+                                        (point2->GetYIn()+point2->GetYOut())/2.,
+                                        (point1->GetZIn()+point1->GetZOut())/2.);
+        }
+
         hit = AddHit(kMUSI, *pos, dpos,-1,point1->Station());
         delete pos;
       }
     }
   }
-
+/*
   for (Int_t iPoint = 0; iPoint < fmuSiPoints->GetEntriesFast(); iPoint++){
     ERmuSiPoint* point = (ERmuSiPoint*)fmuSiPoints->At(iPoint);
     
     TVector3 pos = TVector3((point->GetXIn()+point->GetXOut())/2.,
                             (point->GetYIn()+point->GetYOut())/2.,
                             (point->GetZIn()+point->GetZOut())/2.);
-    
-
-    
 
   }
+  */
 }
 //----------------------------------------------------------------------------
 

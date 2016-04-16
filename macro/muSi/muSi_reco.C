@@ -1,4 +1,4 @@
-void muSi_reco(Int_t nEvents = 2){
+void muSi_reco(Int_t nEvents = 4){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "reco.root";
@@ -23,9 +23,12 @@ void muSi_reco(Int_t nEvents = 2){
 
   // ------------------------muSi track finder---------------------------------
   ERmuSiTrackFinder* trackFinder = new ERmuSiTrackFinder(1);
-  trackFinder->SetAngleCut(0.001);
+  trackFinder->SetAngleCut(0.003);
   fRun->AddTask(trackFinder);
   // ------------------------------------------------------------------------
+
+  ERmuSiVertexFinder* vertexFinder = new ERmuSiVertexFinder(1);
+  fRun->AddTask(vertexFinder);
 
   // ------------------------muSi matcher---------------------------------
   ERmuSiMatcher* matcher = new ERmuSiMatcher(1);

@@ -1,28 +1,30 @@
 // -------------------------------------------------------------------------
-// -----                        ERmuSiMatcher header file              -----
+// -----                        ERmuSiVertexFinder header file          -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
-#ifndef ERMUSIMATCHER_H
-#define ERMUSIMATCHER_H
+#ifndef ERMUSIVERTEXFINDER_H
+#define ERMUSIVERTEXFINDER_H
 
 #include "TClonesArray.h"
 
 #include "FairTask.h"
 
-class ERmuSiMatcher : public FairTask {
+#include "ERmuSiHit.h"
+
+class ERmuSiVertexFinder : public FairTask {
 
 public:
   /** Default constructor **/
-  ERmuSiMatcher();
+  ERmuSiVertexFinder();
 
   /** Constructor 
-  ** verbose: 1 - only standard log print, 2 - print digi information 
+  ** verbose: 1 - only standard log print
   **/
-  ERmuSiMatcher(Int_t verbose);
+  ERmuSiVertexFinder(Int_t verbose);
 
   /** Destructor **/
-  ~ERmuSiMatcher();
+  ~ERmuSiVertexFinder();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -37,23 +39,22 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-
+  //void SetAngleCut(Double_t angle){fAngleCut = angle;}
   /** Accessors **/ 
 protected:
   //Input arrays
-  TClonesArray *fmuSiPoints;
-  TClonesArray *fmuSiHits;
   TClonesArray *fmuSiTracks;
-  Int_t fTrueTracks;
-  Int_t fWrongTracks;
-  Int_t fMCTracks;
-  Int_t fShortMCTracks;
-protected:
+
+  //Output arrays
   
+protected:
+
 private:
+  //Double_t fAngleCut;
+
   virtual void SetParContainers();
   
-  ClassDef(ERmuSiMatcher,1)
+  ClassDef(ERmuSiVertexFinder,1)
 };
 
 #endif

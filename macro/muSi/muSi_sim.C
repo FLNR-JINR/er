@@ -1,4 +1,4 @@
-void muSi_sim(Int_t nEvents = 1){
+void muSi_sim(Int_t nEvents = 10){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -34,7 +34,7 @@ void muSi_sim(Int_t nEvents = 1){
 
   Int_t verbose = 3;
   ERmuSi* muSi= new ERmuSi("ERmuSi", kTRUE,verbose);
-  muSi->SetGeometryFileName("muSi.geo.root");
+  muSi->SetGeometryFileName("muSi.geo.rot.root");
   run->AddModule(muSi);
   // ------------------------------------------------------------------------
 	
@@ -43,8 +43,8 @@ void muSi_sim(Int_t nEvents = 1){
   Int_t pdgId = 2212; // 
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 8.;
-  Double32_t momentum = 2.; //GeV
-  FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 2);
+  Double32_t momentum = 1.; //GeV
+  FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 3);
   boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(0,360);

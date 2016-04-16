@@ -1,8 +1,11 @@
 #include "ERmuSiTrackFinder.h"
 
 #include <vector>
+#include <iostream>
+using namespace std;
 
 #include "TVector3.h"
+#include "TMath.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -67,6 +70,7 @@ InitStatus ERmuSiTrackFinder::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERmuSiTrackFinder::Exec(Option_t* opt)
 { 
+  Reset();
   LOG(INFO) << "===================ERmuSiTrackFinder started!========================" << FairLogger::endl;
   //Раскидываем хиты по станциям
 
@@ -88,7 +92,6 @@ void ERmuSiTrackFinder::Exec(Option_t* opt)
         TVector3 singlet2((*it2)->GetX()-(*it1)->GetX(),(*it2)->GetY()-(*it1)->GetY(),(*it2)->GetZ()-(*it1)->GetZ());
 
         Double_t angle = singlet2.Angle(singlet1);
-  
         if (angle < fAngleCut){
           /*LOG(ERROR) << angle << " " << singlet1.Phi() << " " << singlet2.Phi() << 
                      " " << singlet1.Theta() << " " <<  singlet2.Theta()<<  FairLogger::endl;
@@ -110,7 +113,7 @@ void ERmuSiTrackFinder::Exec(Option_t* opt)
 //----------------------------------------------------------------------------
 void ERmuSiTrackFinder::Reset()
 {
-  if (fmuSiHits) {
+  if (fmuSiTracks) {
     fmuSiTracks->Delete();
   }
 }

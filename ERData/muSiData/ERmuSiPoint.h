@@ -99,6 +99,7 @@ class ERmuSiPoint : public FairMCPoint
   Double32_t fPx_out, fPy_out, fPz_out;
   Int_t fStation;
   Int_t fIndex;
+  Double_t fPAngle;
 
   ClassDef(ERmuSiPoint,1)
 };

@@ -29,7 +29,7 @@ void create_muSi_geo()
   // --------------------------------------------------------------------------
 
   // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/muSi.geo.root";
+  TString geoFileName = geoPath + "/geometry/muSi.geo.rot.root";
   // --------------------------------------------------------------------------
   
   // -----------------   Get and create the required media    -----------------
@@ -72,7 +72,11 @@ void create_muSi_geo()
   //------------------ Add station to muSi -----------------------------
   muSi->AddNode(station, 0, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
   muSi->AddNode(station, 1, new TGeoCombiTrans(.0,.0,5., fZeroRotation));
-  muSi->AddNode(station, 2 , new TGeoCombiTrans(.0,.0,20., fZeroRotation));
+  TGeoRotation *Rotation = new TGeoRotation();
+  Rotation->RotateX(0.);
+  Rotation->RotateY(30.);
+  Rotation->RotateZ(0.);
+  muSi->AddNode(station, 2 , new TGeoCombiTrans(.0,.0,20., Rotation));
 
   top->AddNode(muSi, 1, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
 

@@ -8,5 +8,6 @@
 #pragma link C++ class ERmuSiHitProducer+;
 #pragma link C++ class ERmuSiTrackFinder+;
 #pragma link C++ class ERmuSiMatcher+;
+#pragma link C++ class ERmuSiVertexFinder+;
 
 #endif
