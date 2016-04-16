@@ -18,6 +18,7 @@
 #pragma link C++ class ERmuSiPoint+;
 #pragma link C++ class ERmuSiHit+;
 #pragma link C++ class ERmuSiTrack+;
+#pragma link C++ class ERmuSiVertex+;
 
 #pragma link C++ class ERGadastCsIPoint+;
 #pragma link C++ class ERGadastLaBrPoint+;
