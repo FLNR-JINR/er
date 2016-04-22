@@ -18,9 +18,9 @@ public:
   ERGeoCave();
   ~ERGeoCave() {}
   const char* getModuleName(Int_t) {return name.Data();}  
-  Bool_t read(fstream&,FairGeoMedia*);
+  Bool_t read(std::fstream&,FairGeoMedia*);
   void addRefNodes();
-  void write(fstream&);
+  void write(std::fstream&);
   void print();
   ClassDef(ERGeoCave,0) // Class for the geometry of CAVE
 };
