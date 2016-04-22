@@ -140,7 +140,6 @@ IF(FAIRROOT_FOUND)
 ENDIF(FAIRROOT_FOUND)
 
 SetBasicVariables()
-
 # searches for needed packages
 # REQUIRED means that cmake will stop if this packages are not found
 # For example the framework can run without GEANT4, but ROOT is
@@ -186,6 +185,7 @@ Generate_Version_Info()
 # Recurse into the given subdirectories.  This does not actually
 # cause another cmake executable to run.  The same process will walk through
 # the project's entire directory structure.
+
 
 IF(NOT FAIRROOT_FOUND)
 add_subdirectory (fairtools)
