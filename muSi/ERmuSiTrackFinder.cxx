@@ -71,7 +71,8 @@ InitStatus ERmuSiTrackFinder::Init()
 void ERmuSiTrackFinder::Exec(Option_t* opt)
 { 
   Reset();
-  LOG(INFO) << "===================ERmuSiTrackFinder started!========================" << FairLogger::endl;
+  LOG(INFO) << FairLogger::endl;
+  LOG(INFO) << "ERmuSiTrackFinder:" << FairLogger::endl;
   //Раскидываем хиты по станциям
 
   std::vector<ERmuSiHit*> HitsByStation[3];
@@ -93,10 +94,6 @@ void ERmuSiTrackFinder::Exec(Option_t* opt)
 
         Double_t angle = singlet2.Angle(singlet1);
         if (angle < fAngleCut){
-          /*LOG(ERROR) << angle << " " << singlet1.Phi() << " " << singlet2.Phi() << 
-                     " " << singlet1.Theta() << " " <<  singlet2.Theta()<<  FairLogger::endl;
-          LOG(ERROR) << (*it0)->ID() << " " << (*it0)->GetX() << " " << (*it0)->GetY()  << "  " << (*it1)->ID() << " " << (*it2)->ID() <<  FairLogger::endl;
-          */
           ERmuSiTrack* track = new((*fmuSiTracks)[fmuSiTracks->GetEntriesFast()])ERmuSiTrack();
           track->AddHit(0,*(*it0));
           track->AddHit(1,*(*it1));
@@ -105,8 +102,7 @@ void ERmuSiTrackFinder::Exec(Option_t* opt)
       }
     }
   }
-  LOG(INFO) << "==== " << fmuSiTracks->GetEntriesFast() << " tracks founded" << FairLogger::endl;
-  LOG(INFO) << "=================== ERmuSiTrackFinder finish!========================" << FairLogger::endl;
+  LOG(INFO) << "Tracks count:" << fmuSiTracks->GetEntriesFast() << FairLogger::endl;
 }
 //----------------------------------------------------------------------------
 

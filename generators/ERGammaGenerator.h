@@ -37,7 +37,7 @@ class ERGammaGenerator : public FairGenerator
   void SetBeamEnergy(Double_t en){fEBeam = en;}
   void SetGammaCMEnergy(Double_t en){fEGammaCM = en;}
   void SetGammaCMPhiRange(Double_t phiMin, Double_t phiMax){fPhiMinCM = phiMin; fPhiMaxCM= phiMax;}
-  void SetGammaCMThetaRange(Double_t thetaMin, Double_t thetaMax){fThetaMinCM = thetaMin; fThetaMaxCM= thetaMax; }
+  void SetGammaCMThetaRange(Double_t thetaMin, Double_t thetaMax);
   void SetIon(Int_t z, Int_t a){fA = a; fZ = z;}
 
   //Skip some events in file

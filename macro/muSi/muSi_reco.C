@@ -1,4 +1,4 @@
-void muSi_reco(Int_t nEvents = 4){
+void muSi_reco(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "reco.root";

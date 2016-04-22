@@ -2,12 +2,12 @@ void UserDecayConfig() {
    cerr << "Loading User Decay Config from macro"<< endl;
    FairRunSim* run = FairRunSim::Instance();
    
-   FairParticle* FirstIon = new FairParticle("FirstIon", 8, 26, 26+8, 8, kFALSE, 5.);
+  /* FairParticle* FirstIon = new FairParticle("FirstIon", 8, 26, 26+8, 8, kFALSE, 5.);
    run->AddNewParticle(FirstIon);
 
    FairParticle* SecondIon = new FairParticle("SecondIon", 8, 24, 24+8, 8, kFALSE, 5.);
    run->AddNewParticle(SecondIon);
-
+ */
    TDatabasePDG *db= TDatabasePDG::Instance();
    TParticlePDG *p=0;
 
@@ -28,7 +28,7 @@ void UserDecayConfig() {
    bratio[0] = 100.;
    mode[0][0] =2212  ;
    mode[0][1] =2212  ;
-   mode[0][2] =SecondIon->GetPDG()  ;
+   mode[0][2] =10080240;
    
-   gMC->SetDecayMode(FirstIon->GetPDG(),bratio,mode);
+   gMC->SetDecayMode(10080260,bratio,mode);
 }

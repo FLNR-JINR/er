@@ -14,6 +14,9 @@
 #include "TParticle.h"
 #include "TRefArray.h"
 
+#include <iostream>
+using namespace std;
+
 #include <list>
 
 using std::pair;
@@ -90,7 +93,7 @@ void ERStack::PushTrack(Int_t toBeDone, Int_t parentId, Int_t pdgCode,
   // --> Get TParticle array
   TClonesArray& partArray = *fParticles;
 
-
+//cerr << "PushTrack " <<endl;
   // --> Create new TParticle and add it to the TParticle array
   Int_t trackId = fNParticles;
   Int_t nPoints = 0;
@@ -113,7 +116,10 @@ void ERStack::PushTrack(Int_t toBeDone, Int_t parentId, Int_t pdgCode,
 
   // --> Push particle on the stack if toBeDone is set
 
-  if (toBeDone == 1) { fStack.push(particle); }
+  if (toBeDone == 1) {
+    fStack.push(particle);
+    //cerr << "PushTrack " << particle <<endl;
+  }
 
 }
 // -------------------------------------------------------------------------
@@ -123,7 +129,7 @@ void ERStack::PushTrack(Int_t toBeDone, Int_t parentId, Int_t pdgCode,
 // -----   Virtual method PopNextTrack   -----------------------------------
 TParticle* ERStack::PopNextTrack(Int_t& iTrack)
 {
-
+  //cerr << "PopNextTrack " << iTrack << endl;
   // If end of stack: Return empty pointer
   if (fStack.empty()) {
     iTrack = -1;
@@ -141,7 +147,7 @@ TParticle* ERStack::PopNextTrack(Int_t& iTrack)
 
   fCurrentTrack = thisParticle->GetStatusCode();
   iTrack = fCurrentTrack;
-
+  
   return thisParticle;
 
 }
@@ -152,7 +158,7 @@ TParticle* ERStack::PopNextTrack(Int_t& iTrack)
 // -----   Virtual method PopPrimaryForTracking   --------------------------
 TParticle* ERStack::PopPrimaryForTracking(Int_t iPrim)
 {
-
+  //cerr << "PopPrimaryForTracking " << iPrim << endl;
   // Get the iPrimth particle from the fStack TClonesArray. This
   // should be a primary (if the index is correct).
 
@@ -178,7 +184,9 @@ TParticle* ERStack::PopPrimaryForTracking(Int_t iPrim)
 // -----   Virtual public method GetCurrentTrack   -------------------------
 TParticle* ERStack::GetCurrentTrack() const
 {
+  
   TParticle* currentPart = GetParticle(fCurrentTrack);
+  //cerr << "GetCurrentTrack : " <<  currentPart << endl;
   if ( ! currentPart) {
     LOG(WARNING) << "Current track not found in stack!" << FairLogger::endl;
   }
@@ -191,6 +199,7 @@ TParticle* ERStack::GetCurrentTrack() const
 // -----   Public method AddParticle   -------------------------------------
 void ERStack::AddParticle(TParticle* oldPart)
 {
+  //cerr << "AddParticle " << endl;
   TClonesArray& array = *fParticles;
   TParticle* newPart = new(array[fIndex]) TParticle(*oldPart);
   newPart->SetWeight(oldPart->GetWeight());
@@ -206,7 +215,7 @@ void ERStack::FillTrackArray()
 {
 
   LOG(INFO) << "Filling MCTrack array..." << FairLogger::endl;
-
+  //cerr << fNParticles << endl;
   // --> Reset index map and number of output tracks
   fIndexMap.clear();
   fNTracks = 0;
@@ -223,6 +232,7 @@ void ERStack::FillTrackArray()
                  << " not found in storage map!" << FairLogger::endl;
     }
     Bool_t store = (*fStoreIter).second;
+    //cerr << "store = " << store << endl;
     if (store) {
       ERMCTrack* track =
         new( (*fTracks)[fNTracks]) ERMCTrack(GetParticle(iPart));
@@ -236,7 +246,7 @@ void ERStack::FillTrackArray()
     } else { fIndexMap[iPart] = -2; }
 
   }
-
+  //cerr << "fNTracks = " << fNTracks << endl;
   // --> Map index for primary mothers
   fIndexMap[-1] = -1;
 
@@ -375,8 +385,9 @@ void ERStack::AddPoint(DetectorId detId, Int_t iTrack)
 
 // -----   Virtual method GetCurrentParentTrackNumber   --------------------
 Int_t ERStack::GetCurrentParentTrackNumber() const
-{
+{ 
   TParticle* currentPart = GetCurrentTrack();
+  //cerr << "GetCurrentParentTrackNumber " <<currentPart->GetFirstMother() << endl;
   if ( currentPart ) { return currentPart->GetFirstMother(); }
   else { return -1; }
 }
@@ -387,10 +398,12 @@ Int_t ERStack::GetCurrentParentTrackNumber() const
 // -----   Public method GetParticle   -------------------------------------
 TParticle* ERStack::GetParticle(Int_t trackID) const
 {
+
   if (trackID < 0 || trackID >= fNParticles) {
     LOG(FATAL) << "Particle index " << trackID
                << " out of range." << FairLogger::endl;
   }
+  //cerr << "GetParticle: " << trackID << endl;
   return (TParticle*)fParticles->At(trackID);
 }
 // -------------------------------------------------------------------------
@@ -401,6 +414,7 @@ TParticle* ERStack::GetParticle(Int_t trackID) const
 void ERStack::SelectTracks()
 {
 
+  //cerr << "SelectTracks" << endl;
   // --> Clear storage map
   fStoreMap.clear();
 

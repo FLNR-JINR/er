@@ -35,9 +35,11 @@ ERTarget::ERTarget(const char* name, Bool_t active, Int_t verbose):ERDetector(na
 
 ERTarget::~ERTarget()
 {
+  
 }
 
 Bool_t ERTarget::ProcessHits(FairVolume* vol){
+  /*
   FairRunSim* run = FairRunSim::Instance();
 
   ERMCEventHeader* header = (ERMCEventHeader*)run->GetMCEventHeader();
@@ -54,7 +56,7 @@ Bool_t ERTarget::ProcessHits(FairVolume* vol){
       gMC->StopTrack();
     }
   }
-
+*/
   return kTRUE;
 }
 

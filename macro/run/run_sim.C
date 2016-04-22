@@ -10,7 +10,7 @@ void run_sim(int nEvents = 1){
   // ------------------------------------------------------------------------
  
   // -----   Create simulation run   ----------------------------------------
-  FairRunSim* run = new FairRunSim();
+  ERRunSim* run = new ERRunSim();
   /** Select transport engine
   * TGeant3
   * TGeant4
@@ -38,10 +38,10 @@ void run_sim(int nEvents = 1){
   run->AddModule(cave);
 
 
-  /*FairModule* target = new ERTarget("Target", kTRUE,1);
+  FairModule* target = new ERTarget("Target", kTRUE,1);
   target->SetGeometryFileName("target.geo.root");
   run->AddModule(target);
-*/
+
   // ER muSi definition
   ERmuSi* muSi= new ERmuSi("ERmuSi", kTRUE,1);
   muSi->SetGeometryFileName("muSi.geo.root");
@@ -67,22 +67,27 @@ void run_sim(int nEvents = 1){
    * SetStoreAllSteps() - store all steps. WARNING - very slow
   */
   //neuRad->SetStoreAllSteps();
-  run->AddModule(neuRad);
+  //run->AddModule(neuRad);
   // ------------------------------------------------------------------------
-	
+	FairParticle* FirstIon = new FairParticle("FirstIon", 8, 26, 26+8,8, kFALSE, .0000000005);
+  run->AddNewParticle(FirstIon);
+  FairParticle* SecondIon = new FairParticle("SecondIon", 8, 24, 24+8,8, kFALSE, .0000000005);
+  run->AddNewParticle(SecondIon);
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
   //Ion 27F
-  Int_t A = 27;
-  Int_t Z = 9;
-  Int_t Q = 9;
+  Int_t A = 26;
+  Int_t Z = 8;
+  Int_t Q = 8;
   Double_t Pz = 0.7;// AGeV
-  ERGenerator* generator = new ERGenerator(Z,A,Q,0.,0.,Pz,0.,0.,-10.); 
-  //FairIonGenerator* bgen = new FairIonGenerator(Z,A,Q,1,0.,0.,Pz,0.,0.,-10.);
+  //ERGenerator* generator = new ERGenerator(Z,A,Q,0.,0.,Pz,0.,0.,-10.); 
+  FairIonGenerator* bgen = new FairIonGenerator(Z,A,Q,1,0.,0.,Pz,0.,0.,-10.);
 
-  primGen->AddGenerator(generator);
-  //primGen->AddGenerator(bgen);
+  //primGen->AddGenerator(generator);
+  primGen->AddGenerator(bgen);
+  //primGen->AddGenerator(boxGen);
+    
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
 	
@@ -98,7 +103,9 @@ void run_sim(int nEvents = 1){
   run->Init();
   Int_t nSteps = -15000;
   gMC->SetMaxNStep(nSteps);
-	
+
+  ERDecayer* decayer = new ERDecayer();
+  run->SetDecayer(decayer);
   // -----   Runtime database   ---------------------------------------------
   Bool_t kParameterMerged = kTRUE;
   FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);

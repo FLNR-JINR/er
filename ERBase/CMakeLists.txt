@@ -5,6 +5,7 @@
 set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
 ${CMAKE_SOURCE_DIR}/ERBase
+${CMAKE_SOURCE_DIR}/passive
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -18,6 +19,9 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 ERDetector.cxx
+ERMCApplication.cxx
+ERRunSim.cxx
+ERDecayer.cxx
 )
 
 # fill list of header files from list of source files
@@ -26,7 +30,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERBaseLinkDef.h)
 Set(LIBRARY_NAME ERBase)
-Set(DEPENDENCIES )
+Set(DEPENDENCIES Base)
 
 GENERATE_LIBRARY()
 

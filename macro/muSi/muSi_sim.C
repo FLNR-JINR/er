@@ -1,4 +1,4 @@
-void muSi_sim(Int_t nEvents = 10){
+void muSi_sim(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -42,7 +42,7 @@ void muSi_sim(Int_t nEvents = 10){
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   Int_t pdgId = 2212; // 
   Double32_t theta1 = 0.;  // polar angle distribution
-  Double32_t theta2 = 8.;
+  Double32_t theta2 = 15.;
   Double32_t momentum = 1.; //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 3);
   boxGen->SetThetaRange(theta1, theta2);

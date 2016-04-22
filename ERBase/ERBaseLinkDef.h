@@ -5,5 +5,8 @@
 #pragma link off all functions;
 
 #pragma link C++ class ERDetector+;
+#pragma link C++ class ERMCApplication+;
+#pragma link C++ class ERRunSim+;
+#pragma link C++ class ERDecayer+;
 
 #endif

@@ -16,6 +16,9 @@
 
 #include "ERGadastGeoPar.h"
 
+#include <iostream>
+using namespace std;
+
 
 // -----   Default constructor   -------------------------------------------
 ERGadast::ERGadast() : ERDetector("ERGadast", kTRUE)
@@ -88,7 +91,7 @@ Bool_t ERGadast::ProcessHits(FairVolume* vol) {
     AddStep();
     return kTRUE;
   }
-
+  //cerr << "Gadast edep" << gMC->Edep() << endl;
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
   
   //finish point

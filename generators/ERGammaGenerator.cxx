@@ -26,17 +26,18 @@ ERGammaGenerator::~ERGammaGenerator(){
 Bool_t ERGammaGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
 	Double_t phiCM = fRnd->Uniform()*(fPhiMaxCM - fPhiMinCM) + fPhiMinCM;
 	phiCM *= TMath::DegToRad();
-	fThetaMinCM *= TMath::DegToRad();
-	fThetaMaxCM *= TMath::DegToRad();
-
+	cerr << fThetaMaxCM << "," << fThetaMinCM << endl;
+	cerr << "phi cm" <<  phiCM << endl;
 	G4IonTable* fIonTable =  G4IonTable::GetIonTable(); 
   	G4ParticleTable* fParticleTable = G4ParticleTable::GetParticleTable();
   	fGammaPDG = fParticleTable->FindParticle("gamma")->GetPDGEncoding();
 	fIonMass = fIonTable->GetIonMass(fZ,fA)/1000.;
 	//cerr << "fEBeam = " << fEBeam << endl;
 	Double_t fullEBeam = fEBeam + fIonMass;
+
 	Double_t cos_thetaCM = fRnd->Uniform(TMath::Cos(fThetaMaxCM), TMath::Cos(fThetaMinCM));
 	Double_t sin_thetaCM = TMath::Sqrt(1-cos_thetaCM*cos_thetaCM);
+	cerr << "cos_thetaCM: " << cos_thetaCM << endl;
 	//cerr << "Ion mass=" << fIonMass << " Full E beam = " << fullEBeam << endl;
 	Double_t pGammaCM = fEGammaCM; 
 	//cerr << "Theta CM = " << TMath::ACos(cos_thetaCM)*TMath::RadToDeg()  << "[Deg]"<< endl;
@@ -62,3 +63,11 @@ Bool_t ERGammaGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
 	return kTRUE;
 }
 
+void ERGammaGenerator::SetGammaCMThetaRange(Double_t thetaMin, Double_t thetaMax)
+{
+	fThetaMinCM = thetaMin;
+	fThetaMaxCM= thetaMax;
+	cerr << fThetaMinCM << " " << fThetaMaxCM << endl;
+	fThetaMinCM *= TMath::DegToRad();
+	fThetaMaxCM *= TMath::DegToRad();
+}

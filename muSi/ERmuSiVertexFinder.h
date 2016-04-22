@@ -10,7 +10,7 @@
 
 #include "FairTask.h"
 
-#include "ERmuSiHit.h"
+#include "ERmuSiVertex.h"
 
 class ERmuSiVertexFinder : public FairTask {
 
@@ -39,18 +39,21 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  //void SetAngleCut(Double_t angle){fAngleCut = angle;}
+  void SetTrackDistanceCut(Double_t dist){fDistanceCut = dist;}
   /** Accessors **/ 
 protected:
   //Input arrays
   TClonesArray *fmuSiTracks;
 
   //Output arrays
+  TClonesArray *fmuSiVertices;
   
+
+  ERmuSiVertex* AddVertex(Float_t x, Float_t y, Float_t z);
 protected:
 
 private:
-  //Double_t fAngleCut;
+  Double_t fDistanceCut;
 
   virtual void SetParContainers();
   

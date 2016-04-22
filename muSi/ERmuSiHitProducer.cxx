@@ -12,6 +12,8 @@
 
 #include "ERDetectorList.h"
 #include "ERmuSiPoint.h"
+
+Int_t ERmuSiHitProducer::fEvent = 0;
 // ----------------------------------------------------------------------------
 ERmuSiHitProducer::ERmuSiHitProducer()
   : FairTask("ER muSi hit producing scheme")
@@ -66,6 +68,10 @@ InitStatus ERmuSiHitProducer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERmuSiHitProducer::Exec(Option_t* opt)
 {
+  LOG(INFO) << FairLogger::endl;
+  LOG(INFO) << "####### EVENT " << fEvent++ << " #####" << FairLogger::endl;
+  LOG(INFO) << FairLogger::endl;
+  LOG(INFO) << "ERmuSiHitProducer: "<< FairLogger::endl;
   Reset();
   //Расскидываем поинты по станциям
   std::vector<ERmuSiPoint*> PointsByStation[3];
@@ -92,7 +98,7 @@ void ERmuSiHitProducer::Exec(Option_t* opt)
         }
         ERmuSiPoint* point2 = (*it2);
 
-        if (iStation == 2){
+        if (iStation == 1){
           Double_t masterPos[3], localPos[3];
           masterPos[0] = (point1->GetXIn()+point1->GetXOut())/2.;
           masterPos[1] = (point2->GetYIn()+point2->GetYOut())/2.;
@@ -100,8 +106,8 @@ void ERmuSiHitProducer::Exec(Option_t* opt)
 
           TGeoRotation *Rotation = new TGeoRotation();
           Rotation->RotateX(0.);
-          Rotation->RotateY(30.);
-          Rotation->RotateZ(0.);
+          Rotation->RotateY(0.);
+          Rotation->RotateZ(30.);
           Rotation->MasterToLocal(masterPos, localPos);
 
           pos = new TVector3(localPos[0],localPos[1],localPos[2]);
@@ -117,16 +123,7 @@ void ERmuSiHitProducer::Exec(Option_t* opt)
       }
     }
   }
-/*
-  for (Int_t iPoint = 0; iPoint < fmuSiPoints->GetEntriesFast(); iPoint++){
-    ERmuSiPoint* point = (ERmuSiPoint*)fmuSiPoints->At(iPoint);
-    
-    TVector3 pos = TVector3((point->GetXIn()+point->GetXOut())/2.,
-                            (point->GetYIn()+point->GetYOut())/2.,
-                            (point->GetZIn()+point->GetZOut())/2.);
-
-  }
-  */
+  LOG(INFO) << "Hits count: " << fmuSiHits->GetEntriesFast() << FairLogger::endl;
 }
 //----------------------------------------------------------------------------
 

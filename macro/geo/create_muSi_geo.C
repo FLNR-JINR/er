@@ -67,16 +67,24 @@ void create_muSi_geo()
   station_Y /= 2.;
   station_Z /= 2.;
   TGeoVolume *station = gGeoManager->MakeBox("station", pSi, station_X, station_Y, station_Z);
+
+  Double_t station2_X = 12.; //cm
+  Double_t station2_Y = 12.;   //cm
+  Double_t station2_Z = 0.03;   //cm
+  station2_X /= 2.;
+  station2_Y /= 2.;
+  station2_Z /= 2.;
+  TGeoVolume *station2 = gGeoManager->MakeBox("station2", pSi, station2_X, station2_Y, station2_Z);
   
   //------------------ STRUCTURE  -----------------------------------------
   //------------------ Add station to muSi -----------------------------
   muSi->AddNode(station, 0, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
-  muSi->AddNode(station, 1, new TGeoCombiTrans(.0,.0,5., fZeroRotation));
   TGeoRotation *Rotation = new TGeoRotation();
   Rotation->RotateX(0.);
-  Rotation->RotateY(30.);
+  Rotation->RotateY(0.);
   Rotation->RotateZ(0.);
-  muSi->AddNode(station, 2 , new TGeoCombiTrans(.0,.0,20., Rotation));
+  muSi->AddNode(station, 1, new TGeoCombiTrans(.0,.0,5., Rotation));
+  muSi->AddNode(station2, 2 , new TGeoCombiTrans(.0,.0,20., fZeroRotation));
 
   top->AddNode(muSi, 1, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
 

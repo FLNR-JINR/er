@@ -46,6 +46,8 @@ protected:
   TClonesArray *fmuSiPoints;
   //Output arrays
   TClonesArray *fmuSiHits;
+
+  static Int_t fEvent;
 protected:
   ERmuSiHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Int_t station);
 private:

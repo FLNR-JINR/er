@@ -7,7 +7,6 @@ using namespace std;
 #include "TVector3.h"
 #include "TMath.h"
 #include "TMatrix.h"
-#include "TLinearFitter.h"
 #include "TF3.h"
 #include "TError.h"
 #include "Fit/BinData.h"
@@ -66,9 +65,9 @@ InitStatus ERmuSiVertexFinder::Init()
   //todo check
 
   // Register output array fmuSiHits
-  //fmuSiTracks = new TClonesArray("ERmuSiTrack",1000);
+  fmuSiVertices = new TClonesArray("ERmuSiVertex",1000);
 
-  //ioman->Register("muSiTrack", "muSi tracks", fmuSiTracks, kTRUE);
+  ioman->Register("muSiVertex", "muSi", fmuSiVertices, kTRUE);
    
   return kSUCCESS;
 }
@@ -78,7 +77,8 @@ InitStatus ERmuSiVertexFinder::Init()
 void ERmuSiVertexFinder::Exec(Option_t* opt)
 { 
   Reset();
-  LOG(INFO) << "===================ERmuSiVertexFinder started!========================" << FairLogger::endl;
+  LOG(INFO) << FairLogger::endl;
+  LOG(INFO) <<  "ERmuSiVertexFinder started:" << FairLogger::endl;
   //Попарно ищем общий перепендикуляр к трекам
   for(Int_t iTrack = 0; iTrack < fmuSiTracks->GetEntriesFast(); iTrack++){
     ERmuSiTrack* track1 = (ERmuSiTrack*)fmuSiTracks->At(iTrack);
@@ -169,22 +169,50 @@ void ERmuSiVertexFinder::Exec(Option_t* opt)
       TVector3 orig2(track2->Hit(0)->GetX(), track2->Hit(0)->GetY(), track2->Hit(0)->GetZ());
       TVector3 vertex = orig + lamda(0,0)*directTrack1;
       TVector3 vertex2 = orig2 + lamda(1,0)*directTrack2;
-      cerr << lamda(2,0) <<endl;
-      if (lamda(2,0) < 0.01)
-        cerr << "vertex:" << (vertex.X() + vertex2.X())/2 << " " << (vertex.Y() + vertex2.Y())/2 << " "<< (vertex.Z() + vertex2.Z())/2 << endl;
+      if (lamda(2,0) < fDistanceCut){
+        ERmuSiVertex* vert = AddVertex((vertex.X() + vertex2.X())/2., (vertex.Y() + vertex2.Y())/2.,(vertex.Z() + vertex2.Z())/2.);
+        vert->AddTrack(iTrack);
+        vert->AddTrack(jTrack);
+      }
     }
   }
-  
-  LOG(INFO) << "=================== ERmuSiVertexFinder finish!========================" << FairLogger::endl;
+  Int_t rems = 0;
+  //merge vertices
+  for (Int_t iVert = 0; iVert < fmuSiVertices->GetEntriesFast(); iVert++){
+    ERmuSiVertex* vert1 = (ERmuSiVertex*)fmuSiVertices->At(iVert);
+    for (Int_t jVert = iVert+1; jVert < fmuSiVertices->GetEntriesFast(); jVert++){
+      ERmuSiVertex* vert2 = (ERmuSiVertex*)fmuSiVertices->At(jVert);
+      Float_t dist = TMath::Sqrt((vert2->X()-vert1->X())*(vert2->X()-vert1->X()) +  
+                                  (vert2->Y()-vert1->Y())*(vert2->Y()-vert1->Y()) + 
+                                  (vert2->Z()-vert1->Z())*(vert2->Z()-vert1->Z()));
+      if(dist < 0.5 ){
+        LOG(INFO) << "Vertecies merging!" << FairLogger::endl;
+        vert1->SetX((vert1->X()+vert2->X())/2.);
+        vert1->SetY((vert1->Y()+vert2->Y())/2.);
+        vert1->SetZ((vert1->Z()+vert2->Z())/2.);
+        for (Int_t iTrack = 0; iTrack < vert2->TrackNb(); iTrack++){
+          vert1->AddTrack(vert2->Track(iTrack));
+        }
+        rems++;
+        fmuSiVertices->RemoveAt(jVert);
+      }
+      fmuSiVertices->Compress();
+    }
+  }
+  LOG(INFO) << "Vertecies count: " << fmuSiVertices->GetEntriesFast() << FairLogger::endl;
+  for(Int_t iVert=0; iVert < fmuSiVertices->GetEntriesFast(); iVert++){
+    ERmuSiVertex* vert = (ERmuSiVertex*)fmuSiVertices->At(iVert);
+    LOG(INFO) << "Vertex "<< iVert << ": (" <<  vert->X() << "," << vert->Y() << "," << vert->Z() << ")" << FairLogger::endl;
+  }
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void ERmuSiVertexFinder::Reset()
 {
-  /*if (fmuSiTracks) {
-    fmuSiTracks->Delete();
-  }*/
+  if (fmuSiVertices) {
+    fmuSiVertices->Delete();
+  }
 }
 // ----------------------------------------------------------------------------
 
@@ -193,7 +221,15 @@ void ERmuSiVertexFinder::Finish()
 {   
   
 }
-// ----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+ERmuSiVertex* ERmuSiVertexFinder::AddVertex(Float_t x, Float_t y, Float_t z){
+  ERmuSiVertex *vertex = new((*fmuSiVertices)[fmuSiVertices->GetEntriesFast()])
+                              ERmuSiVertex(x,y,z);
+  return vertex;
+}
+//----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 ClassImp(ERmuSiVertexFinder)
