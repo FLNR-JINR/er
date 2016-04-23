@@ -201,6 +201,7 @@ ENDIF (NOT FAIRROOT_FOUND)
 
 add_subdirectory (ERBase)
 add_subdirectory (ERData)
+add_subdirectory (decayers)
 add_subdirectory (passive)
 add_subdirectory (NeuRad)
 add_subdirectory (muSi)

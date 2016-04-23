@@ -5,12 +5,12 @@
 #include "TMCProcess.h"
 
 #include "FairRunSim.h"
+#include "FairLogger.h"
+
+using namespace std;
 
 //#include "ERTarget.h"
 #include "ERMCEventHeader.h"      //for ERMCEventHeader
-
-#include <iostream>
-using namespace std;
 
 ERDecayer::ERDecayer():
   fTargetReactionFinish(kFALSE),
@@ -27,27 +27,26 @@ ERDecayer::~ERDecayer(){
 
 }
 
-void ERDecayer::Stepping(){
-
+Bool_t ERDecayer::Stepping(){
 	//Определяемся с текущим положением.
   if (gMC->TrackPid() == 1000090270 && !fTargetReactionFinish && TString(gMC->CurrentVolName()).Contains("target")){
     gMC->SetMaxStep(0.01);
 		TLorentzVector curPos;
 		gMC->TrackPosition(curPos);
 		if (curPos.Z() > fTargetReactZ){
-			cout << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
+			LOG(INFO) << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
 			FairRunSim* run = FairRunSim::Instance();
-			//Stop first ion
-			gMC->StopTrack();
 			//Create new ion
 			if (gMC->TrackPid() == 1000090270){
         fSecondIon = TDatabasePDG::Instance()->GetParticle("ExpertSecondIon");
         if ( ! fSecondIon ) {
-            cout  << "-W- ERDecayer: Ion ExpertSecondIon not found in database!" << endl;
+            LOG(ERROR)  << "-W- ERDecayer: Ion ExpertSecondIon not found in database!" << endl;
+            return kFALSE;
         }
         fThirdIon  = TDatabasePDG::Instance()->GetParticle("ExpertThirdIon");
         if ( ! fThirdIon ) {
-            cout << "-W- FairIonGenerator: Ion not ExpertThirdIon found in database!" << endl;
+            LOG(ERROR) << "-W- FairIonGenerator: Ion not ExpertThirdIon found in database!" << endl;
+            return kFALSE;
         }
 			}
 			TLorentzVector curMomentum;
@@ -68,9 +67,9 @@ void ERDecayer::Stepping(){
 		  
       fSecondaryIonPDG = fSecondIon->PdgCode();
 
-	  	cout << "-I- ERDecayer: Generating ion of type "
+	  	LOG(INFO) << "-I- ERDecayer: Generating ion of type "
 	       << fSecondIon->GetName() << " (PDG code " << fSecondaryIonPDG << ")" << endl;
-	  	cout << "    Momentum (" << curMomentum.X() << ", " <<  curMomentum.Y() << ", " <<  curMomentum.Z()
+	  	LOG(INFO) << "    Momentum (" << curMomentum.X() << ", " <<  curMomentum.Y() << ", " <<  curMomentum.Z()
 	       << ") Gev from vertex (" << curPos.X() << ", " << curPos.Y()
 	       << ", " << curPos.Z() << ") cm" << endl;
         
@@ -81,7 +80,8 @@ void ERDecayer::Stepping(){
                        fullEnergy, curPos.X(), curPos.Y(), curPos.Z(),
                        gMC->TrackTime(), 0., 0., 0.,
                        kPDecay, newTrackNb, fSecondIon->Mass(), 0);
-      cerr << "ERDecayer add track nb: " << newTrackNb << endl;
+      //Stop first ion
+      gMC->StopTrack();
       fTargetReactionFinish = kTRUE;
 		}
   }
@@ -112,6 +112,7 @@ void ERDecayer::Stepping(){
       FairRunSim* run = FairRunSim::Instance();
       ERMCEventHeader* header = (ERMCEventHeader*)run->GetMCEventHeader();
       curPos.SetZ(curPos.Z() + 1.5);
+      LOG(INFO) << "Start direct reaction. Current pos: " << curPos.Z() << " [cm] " << endl;
       header->SetDirectReactionPos(curPos.Z());
       //Результирующий импульс второго иона
       TLorentzVector pSecIon(curMomentum.X(),curMomentum.Y(),curMomentum.Z(),fullEnergy);
@@ -123,7 +124,8 @@ void ERDecayer::Stepping(){
       masses[1] = 0.939; //neutron mass
       masses[2] = 0.939; //neutron mass
       if (!fPHSpace->SetDecay(pSecIon,3,masses)){
-      	cerr << "ERDecayer: the decay is forbidden by kinematics" <<endl;
+      	LOG(ERROR) << "ERDecayer: the decay is forbidden by kinematics" <<endl;
+        return kFALSE;
       }
       fPHSpace->Generate();
 
@@ -132,9 +134,9 @@ void ERDecayer::Stepping(){
 
     	Int_t thirdIonPDG = fThirdIon->PdgCode();
 
-    	cout << "-I- ERDecayer: Generating ion of type "
+    	LOG(INFO) << "-I- ERDecayer: Generating ion of type "
          << fThirdIon->GetName() << " (PDG code " << thirdIonPDG << ")" << endl;
-    	cout << "    Momentum (" << pThirdIon->Px() << ", " << pThirdIon->Py() << ", " << pThirdIon->Pz()
+    	LOG(INFO) << "    Momentum (" << pThirdIon->Px() << ", " << pThirdIon->Py() << ", " << pThirdIon->Pz()
          << ") Gev from vertex (" << curPos.X() << ", " << curPos.Y() << ", " << curPos.Z() << ") cm" << endl;
 
       gMC->GetStack()->PushTrack(1, 1, thirdIonPDG,
@@ -146,12 +148,12 @@ void ERDecayer::Stepping(){
       TLorentzVector* pNeutron1 = fPHSpace->GetDecay(1);
       TLorentzVector* pNeutron2 = fPHSpace->GetDecay(2);
 
-    	cout << "-I- ERGenerator: Generating neutron " << endl;
-    	cout << "    Momentum (" << pNeutron1->Px() << ", " <<  pNeutron1->Py() << ", " <<  pNeutron1->Pz()
-         << ") Gev from vertex (" << curPos.X() << ", " << curPos.Y() << ", " << curPos.Z() << ") cm" << endl;
-      cout << "-I- ERGenerator: Generating neutron " << endl;
-    	cout << "    Momentum (" << pNeutron2->Px() << ", " <<  pNeutron2->Py() << ", " <<  pNeutron2->Pz()
-         << ") Gev from vertex (" << curPos.X() << ", " << curPos.Y() << ", " << curPos.Z() << ") cm" << endl;
+    	LOG(INFO) << "-I- ERGenerator: Generating neutron " << endl
+    	          << "    Momentum (" << pNeutron1->Px() << ", " <<  pNeutron1->Py() << ", " <<  pNeutron1->Pz() 
+                << ") Gev from vertex (" << curPos.X() << ", " << curPos.Y() << ", " << curPos.Z() << ") cm" << endl;
+      LOG(INFO) << "-I- ERGenerator: Generating neutron " << endl
+    	          << "    Momentum (" << pNeutron2->Px() << ", " <<  pNeutron2->Py() << ", " <<  pNeutron2->Pz()
+                << ") Gev from vertex (" << curPos.X() << ", " << curPos.Y() << ", " << curPos.Z() << ") cm" << endl;
 
       gMC->GetStack()->PushTrack(1, 1, 2112,
                            pNeutron1->Px(),pNeutron1->Py(),pNeutron1->Pz(),
@@ -168,8 +170,8 @@ void ERDecayer::Stepping(){
       //Stop second ion
       gMC->StopTrack();
     }	
-    fPreviouseStepTime = gMC->TrackTime();
   }
+  return kTRUE;
 }
 
 void ERDecayer::BeginEvent(){
@@ -181,7 +183,6 @@ void ERDecayer::BeginEvent(){
   ERMCEventHeader* header = (ERMCEventHeader*)run->GetMCEventHeader();
   header->SetTargetReactionPos(fTargetReactZ);
   fSecondaryIonPDG = -1;
-  fPreviouseStepTime = 0.;
 }
 
 void ERDecayer::FinishEvent(){

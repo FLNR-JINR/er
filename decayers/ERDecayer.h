@@ -25,12 +25,11 @@ private:
   	Bool_t fDirectReactionFinish;
 
   	Int_t fSecondaryIonPDG;
-  	Double_t fPreviouseStepTime;
 public:
 	ERDecayer();
 	~ERDecayer();
 
-	void Stepping();
+	Bool_t Stepping();
 
 	void BeginEvent();
 	void FinishEvent();

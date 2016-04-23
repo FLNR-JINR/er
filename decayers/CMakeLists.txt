@@ -1,4 +1,4 @@
-# Create a library called "libERBase" which includes the source files given in
+# Create a library called "libERDecayers" which includes the source files given in
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
@@ -21,18 +21,15 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-ERDetector.cxx
-ERMCApplication.cxx
-ERRunSim.cxx
+ERDecayer.cxx
 )
 
 # fill list of header files from list of source files
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
-Set(LINKDEF ERBaseLinkDef.h)
-Set(LIBRARY_NAME ERBase)
-Set(DEPENDENCIES Base Core ERDecayers)
+Set(LINKDEF ERDecayersLinkDef.h)
+Set(LIBRARY_NAME ERDecayers)
+Set(DEPENDENCIES Base Core)
 
 GENERATE_LIBRARY()
-

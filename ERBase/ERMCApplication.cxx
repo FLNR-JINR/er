@@ -1,5 +1,7 @@
 #include "ERMCApplication.h"
 
+#include "FairLogger.h"
+
 #include <iostream>
 using namespace std;
 
@@ -24,8 +26,10 @@ ERMCApplication::~ERMCApplication(){
 /** Define action at each step, dispatch the action to the corresponding detectors */
 void ERMCApplication::Stepping(){
 	FairMCApplication::Stepping();
-	if (fDecayer)
-		fDecayer->Stepping();
+	if (fDecayer){
+		if (!fDecayer->Stepping())
+			LOG(ERROR) << "Fatal problem in ER decayer!" << FairLogger::endl;
+	}
 }
 
 /** Define actions at the beginning of the event */
