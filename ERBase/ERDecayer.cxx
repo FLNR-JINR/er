@@ -111,6 +111,7 @@ void ERDecayer::Stepping(){
     if (fRnd->Uniform() > TMath::Exp(-(gMC->TrackTime())*(1.0e09)/tau)){
       FairRunSim* run = FairRunSim::Instance();
       ERMCEventHeader* header = (ERMCEventHeader*)run->GetMCEventHeader();
+      curPos.SetZ(curPos.Z() + 1.5);
       header->SetDirectReactionPos(curPos.Z());
       //Результирующий импульс второго иона
       TLorentzVector pSecIon(curMomentum.X(),curMomentum.Y(),curMomentum.Z(),fullEnergy);

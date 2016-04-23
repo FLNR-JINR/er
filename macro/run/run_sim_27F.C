@@ -1,4 +1,4 @@
-void run_sim_27F(int nEvents = 1000){
+void run_sim_27F(int nEvents = 100){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -67,7 +67,7 @@ void run_sim_27F(int nEvents = 1000){
    * SetStoreAllSteps() - store all steps. WARNING - very slow
   */
   //neuRad->SetStoreAllSteps();
-  //run->AddModule(neuRad);
+  run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 	FairIon* fSecondIon = new FairIon("ExpertSecondIon",8,26, 8); //26O
   run->AddNewIon(fSecondIon);
@@ -93,7 +93,12 @@ void run_sim_27F(int nEvents = 1000){
 	
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-  
+
+  //------Set magnetic field ------------------------------------------------
+  FairConstField* fMagField = new FairConstField();
+  fMagField->SetField(50.,0.,0.);//values are in kG, 1T = 10kG
+  fMagField->SetFieldRegion(-200,200.,-200.,200.,1000.,2500.); // in cm
+  run->SetField(fMagField);
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
   //-------------------------------------------------------------------------
