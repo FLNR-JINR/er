@@ -8,23 +8,34 @@
 
 #include "TRandom3.h"
 #include "TGenPhaseSpace.h"
-
-#include "FairIon.h"                    //for FairIon
+#include "TDatabasePDG.h"               //for TDatabasePDG
 
 class ERDecayer{
 private:
 	Float_t fTargetReactZ;
 	TRandom3 *fRnd;
+	Float_t fTauCM; //ps
 	
-	FairIon*   fSecondIon;
-    FairIon*   fThirdIon;
+	TParticlePDG*   fSecondIon;
+    TParticlePDG*   fThirdIon;
 
     TGenPhaseSpace* fPHSpace;
+
+    Bool_t fTargetReactionFinish;
+  	Bool_t fDirectReactionFinish;
+
+  	Int_t fSecondaryIonPDG;
+  	Double_t fPreviouseStepTime;
 public:
 	ERDecayer();
 	~ERDecayer();
 
 	void Stepping();
+
+	void BeginEvent();
+	void FinishEvent();
+
+	void SetDirectReactionTauCM(Float_t tau){fTauCM = tau;}
 };
 
 #endif

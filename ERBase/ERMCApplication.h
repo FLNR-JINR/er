@@ -27,6 +27,12 @@ public:
     /** Define action at each step, dispatch the action to the corresponding detectors */
     virtual void          Stepping();                                       // MC Application
 
+    /** Define actions at the beginning of the event */
+    virtual void          BeginEvent();                                     // MC Application
+
+    /** Define actions at the end of event */
+    virtual void          FinishEvent();                                    // MC Application
+
     void SetDecayer(ERDecayer* decayer){fDecayer = decayer;}
   private:
   	ERDecayer* fDecayer;

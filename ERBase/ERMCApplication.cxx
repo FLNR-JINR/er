@@ -28,5 +28,17 @@ void ERMCApplication::Stepping(){
 		fDecayer->Stepping();
 }
 
+/** Define actions at the beginning of the event */
+void ERMCApplication::BeginEvent(){                                     // MC Application
+	FairMCApplication::BeginEvent();
+	if (fDecayer)
+		fDecayer->BeginEvent();
+}
+    /** Define actions at the end of event */
+void ERMCApplication::FinishEvent(){                                   // MC Application
+	FairMCApplication::FinishEvent();
+	if(fDecayer)
+		fDecayer->FinishEvent();
+}
 
 ClassImp(ERMCApplication)

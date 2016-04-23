@@ -1,4 +1,4 @@
-void run_sim(int nEvents = 1){
+void run_sim_27F(int nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -48,10 +48,10 @@ void run_sim(int nEvents = 1){
   run->AddModule(muSi);
 
   // ER Gadast definition
-  /*ERGadast* gadast= new ERGadast("ERGadast", kTRUE);
+  ERGadast* gadast= new ERGadast("ERGadast", kTRUE);
   gadast->SetVerboseLevel(1);
   gadast->SetGeometryFileName("gadast.gdml");
-  run->AddModule(gadast);
+  //run->AddModule(gadast);
 
   // ER NeuRad definition
   /* Select verbosity level
@@ -69,24 +69,21 @@ void run_sim(int nEvents = 1){
   //neuRad->SetStoreAllSteps();
   //run->AddModule(neuRad);
   // ------------------------------------------------------------------------
-	FairParticle* FirstIon = new FairParticle("FirstIon", 8, 26, 26+8,8, kFALSE, .0000000005);
-  run->AddNewParticle(FirstIon);
-  FairParticle* SecondIon = new FairParticle("SecondIon", 8, 24, 24+8,8, kFALSE, .0000000005);
-  run->AddNewParticle(SecondIon);
+	FairIon* fSecondIon = new FairIon("ExpertSecondIon",8,26, 8); //26O
+  run->AddNewIon(fSecondIon);
+  FairIon* fThirdIon = new FairIon("ExpertThirdIon",8,24, 8); //24O
+  run->AddNewIon(fThirdIon);
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
   //Ion 27F
-  Int_t A = 26;
-  Int_t Z = 8;
-  Int_t Q = 8;
+  Int_t A = 27;
+  Int_t Z = 9;
+  Int_t Q = 9;
   Double_t Pz = 0.7;// AGeV
-  //ERGenerator* generator = new ERGenerator(Z,A,Q,0.,0.,Pz,0.,0.,-10.); 
-  FairIonGenerator* bgen = new FairIonGenerator(Z,A,Q,1,0.,0.,Pz,0.,0.,-10.);
+  FairIonGenerator* ionGenerator = new FairIonGenerator(Z,A,Q,1,0.,0.,Pz,0.,0.,-10.);
 
-  //primGen->AddGenerator(generator);
-  primGen->AddGenerator(bgen);
-  //primGen->AddGenerator(boxGen);
+  primGen->AddGenerator(ionGenerator);
     
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
@@ -98,14 +95,13 @@ void run_sim(int nEvents = 1){
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
   
   // -----   Initialize simulation run   ------------------------------------
-  run->SetUserDecay(kTRUE);
-  //run->SetUserDecayConfig(kTRUE);
   run->Init();
-  Int_t nSteps = -15000;
-  gMC->SetMaxNStep(nSteps);
-
+  //-------------------------------------------------------------------------
+  //------    ER Deacayer initialization ------------------------------------
   ERDecayer* decayer = new ERDecayer();
+  decayer->SetDirectReactionTauCM(100.);
   run->SetDecayer(decayer);
+  //-------------------------------------------------------------------------
   // -----   Runtime database   ---------------------------------------------
   Bool_t kParameterMerged = kTRUE;
   FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
@@ -113,11 +109,12 @@ void run_sim(int nEvents = 1){
   rtdb->setOutput(parOut);
   rtdb->saveOutput();
   rtdb->print();
-  // ---------------------------------------------------------
+  //-------------------------------------------------------------------------
   
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);
-  
+  //-------------------------------------------------------------------------
+
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
@@ -128,4 +125,5 @@ void run_sim(int nEvents = 1){
   cout << "Parameter file is par.root" << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime
 		  << "s" << endl << endl;
+  //-------------------------------------------------------------------------
 }

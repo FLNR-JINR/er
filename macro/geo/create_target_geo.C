@@ -6,9 +6,6 @@
 
 // Create a zero rotation
 TGeoRotation *fZeroRotation = new TGeoRotation();
-fZeroRotation->RotateX(0.);
-fZeroRotation->RotateY(0.);
-fZeroRotation->RotateZ(0.);
 
 Double_t transX = 0.;
 Double_t transY = 0.;
@@ -18,6 +15,9 @@ TGeoManager*   gGeoMan = NULL;
 
 void create_target_geo()
 {
+  fZeroRotation->RotateX(0.);
+  fZeroRotation->RotateY(0.);
+  fZeroRotation->RotateZ(0.);
   // -------   Load media from media file   -----------------------------------
   FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
