@@ -1,4 +1,4 @@
-void run_sim_27F(int nEvents = 100){
+void run_sim_27F(int nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -21,9 +21,11 @@ void run_sim_27F(int nEvents = 100){
   
   //------    ER Deacayer   -------------------------------------------------
   ERDecayer* decayer = new ERDecayer();
-  ERDecay* decay = new ERDecay();
-  decay->SetDirectReactionTauCM(100.);
-  decayer->AddDecay(decay);
+  ERDecay* targetDecay = new ERDecay27Fto26O();
+  decayer->AddDecay(targetDecay);
+  ERDecay26Oto24O2n* directDecay = new ERDecay26Oto24O2n();
+  directDecay->SetDirectReactionTauCM(100.);
+  decayer->AddDecay(directDecay);
   //-------------------------------------------------------------------------
 
   // -----   Runtime database   ---------------------------------------------

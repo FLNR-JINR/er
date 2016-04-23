@@ -23,6 +23,8 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 ERDecayer.cxx
 ERDecay.cxx
+ERDecay27Fto26O.cxx
+ERDecay26Oto24O2n.cxx
 )
 
 # fill list of header files from list of source files

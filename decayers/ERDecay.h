@@ -11,30 +11,14 @@
 #include "TDatabasePDG.h"               //for TDatabasePDG
 
 class ERDecay{
-private:
-	Float_t fTargetReactZ;
-	TRandom3 *fRnd;
-	Float_t fTauCM; //ps
-	
-	TParticlePDG*   fSecondIon;
-    TParticlePDG*   fThirdIon;
-
-    TGenPhaseSpace* fPHSpace;
-
-    Bool_t fTargetReactionFinish;
-  	Bool_t fDirectReactionFinish;
-
-  	Int_t fSecondaryIonPDG;
 public:
 	ERDecay();
 	~ERDecay();
 
-	Bool_t Stepping();
+	virtual Bool_t Stepping() = 0;
 
-	void BeginEvent();
-	void FinishEvent();
-
-	void SetDirectReactionTauCM(Float_t tau){fTauCM = tau;}
+	virtual void BeginEvent() = 0;
+	virtual void FinishEvent() = 0;
 
 	ClassDef(ERDecay,1)
 };
