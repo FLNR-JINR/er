@@ -19,6 +19,13 @@ void run_sim_27F(int nEvents = 100){
   run->SetOutputFile(outFile.Data());          // Output file
   // ------------------------------------------------------------------------
   
+  //------    ER Deacayer   -------------------------------------------------
+  ERDecayer* decayer = new ERDecayer();
+  ERDecay* decay = new ERDecay();
+  decay->SetDirectReactionTauCM(100.);
+  decayer->AddDecay(decay);
+  //-------------------------------------------------------------------------
+
   // -----   Runtime database   ---------------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   // ------------------------------------------------------------------------
@@ -101,10 +108,6 @@ void run_sim_27F(int nEvents = 100){
   run->SetField(fMagField);
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
-  //-------------------------------------------------------------------------
-  //------    ER Deacayer initialization ------------------------------------
-  ERDecayer* decayer = new ERDecayer();
-  decayer->SetDirectReactionTauCM(100.);
   run->SetDecayer(decayer);
   //-------------------------------------------------------------------------
   // -----   Runtime database   ---------------------------------------------

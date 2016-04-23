@@ -3,38 +3,29 @@
 // -----                  Created 04/16  by V. Schetinin               -----
 // -------------------------------------------------------------------------
 
-#ifndef ERDECAYER_H
-#define ERDECAYER_H
+#ifndef ERDECAY_H
+#define ERDECAY_H
 
-#include "TRandom3.h"
-#include "TGenPhaseSpace.h"
-#include "TDatabasePDG.h"               //for TDatabasePDG
+#include <vector>
+
+#include "ERDecay.h"
+
 
 class ERDecayer{
 private:
-	Float_t fTargetReactZ;
-	TRandom3 *fRnd;
-	Float_t fTauCM; //ps
-	
-	TParticlePDG*   fSecondIon;
-    TParticlePDG*   fThirdIon;
-
-    TGenPhaseSpace* fPHSpace;
-
-    Bool_t fTargetReactionFinish;
-  	Bool_t fDirectReactionFinish;
-
-  	Int_t fSecondaryIonPDG;
+	std::vector<ERDecay*> fDecays;
 public:
 	ERDecayer();
 	~ERDecayer();
 
 	Bool_t Stepping();
 
+	void AddDecay(ERDecay* decay) {fDecays.push_back(decay);}
+
 	void BeginEvent();
 	void FinishEvent();
 
-	void SetDirectReactionTauCM(Float_t tau){fTauCM = tau;}
+	ClassDef(ERDecayer, 1)
 };
 
 #endif
