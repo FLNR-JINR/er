@@ -1,4 +1,4 @@
-#include "ERDecay26Oto24O2n.h"
+#include "ERDecay30Arto28S2p.h"
 
 #include "TVirtualMC.h"
 #include "TLorentzVector.h"
@@ -12,31 +12,31 @@ using namespace std;
 //#include "ERTarget.h"
 #include "ERMCEventHeader.h"      //for ERMCEventHeader
 
-ERDecay26Oto24O2n::ERDecay26Oto24O2n():
+ERDecay30Arto28S2p::ERDecay30Arto28S2p():
   fDirectReactionFinish(kFALSE),
   fTauCM(100.) //ps
 {
   fRnd = new TRandom3();
   fPHSpace = new TGenPhaseSpace();
   FairRunSim* run = FairRunSim::Instance();
-  FairIon* ThirdIon = new FairIon("ExpertThirdIon",8,24, 8); //24O
+  FairIon* ThirdIon = new FairIon("ExpertThirdIon",16,28,16); //28S
   run->AddNewIon(ThirdIon);
 }
 
-ERDecay26Oto24O2n::~ERDecay26Oto24O2n(){
+ERDecay30Arto28S2p::~ERDecay30Arto28S2p(){
 
 }
 
-Bool_t ERDecay26Oto24O2n::Stepping(){
-  if(!fDirectReactionFinish && gMC->TrackPid() == 1000080260){
+Bool_t ERDecay30Arto28S2p::Stepping(){
+  if(!fDirectReactionFinish && gMC->TrackPid() == 1000180300){
   	fSecondIon = TDatabasePDG::Instance()->GetParticle("ExpertSecondIon");
     if ( ! fSecondIon ) {
-        LOG(ERROR)  << "-W- ERDecay26Oto24O2n: Ion ExpertSecondIon not found in database!" << endl;
+        LOG(ERROR)  << "-W- ERDecay30Arto28S2p: Ion ExpertSecondIon not found in database!" << endl;
         return kFALSE;
     }
     fThirdIon  = TDatabasePDG::Instance()->GetParticle("ExpertThirdIon");
     if ( ! fThirdIon ) {
-        LOG(ERROR) << "-W- ERDecay26Oto24O2n: Ion not ExpertThirdIon found in database!" << endl;
+        LOG(ERROR) << "-W- ERDecay30Arto28S2p: Ion not ExpertThirdIon found in database!" << endl;
         return kFALSE;
     }
 
@@ -73,8 +73,8 @@ Bool_t ERDecay26Oto24O2n::Stepping(){
       //Массив масс продуктов распада
       Double_t masses[3];
       masses[0] = fThirdIon->Mass();
-      masses[1] = 0.939; //neutron mass
-      masses[2] = 0.939; //neutron mass
+      masses[1] = 0.938; //proton mass
+      masses[2] = 0.938; //proton mass
       if (!fPHSpace->SetDecay(pSecIon,3,masses)){
       	LOG(ERROR) << "ERDecay: the decay is forbidden by kinematics" <<endl;
         fDirectReactionFinish = kTRUE;
@@ -108,16 +108,16 @@ Bool_t ERDecay26Oto24O2n::Stepping(){
     	          << "    Momentum (" << pNeutron2->Px() << ", " <<  pNeutron2->Py() << ", " <<  pNeutron2->Pz()
                 << ") Gev from vertex (" << curPos.X() << ", " << curPos.Y() << ", " << curPos.Z() << ") cm" << endl;
 
-      gMC->GetStack()->PushTrack(1, 1, 2112,
+      gMC->GetStack()->PushTrack(1, 1, 2212,
                            pNeutron1->Px(),pNeutron1->Py(),pNeutron1->Pz(),
                            pNeutron1->E(), curPos.X(), curPos.Y(), curPos.Z(),
                            gMC->TrackTime(), 0., 0., 0.,
-                           kPDecay, newTrackNb, 0.939, 0);
-      gMC->GetStack()->PushTrack(1, 1, 2112,
+                           kPDecay, newTrackNb, 0.938, 0);
+      gMC->GetStack()->PushTrack(1, 1, 2212,
                            pNeutron2->Px(),pNeutron2->Py(),pNeutron2->Pz(),
                            pNeutron2->E(), curPos.X(), curPos.Y(), curPos.Z(),
                            gMC->TrackTime(), 0., 0., 0.,
-                           kPDecay, newTrackNb,  0.939, 0);
+                           kPDecay, newTrackNb,  0.938, 0);
       //Испускание гаммы.
       fDirectReactionFinish = kTRUE;
       //Stop second ion
@@ -127,12 +127,12 @@ Bool_t ERDecay26Oto24O2n::Stepping(){
   return kTRUE;
 }
 
-void ERDecay26Oto24O2n::BeginEvent(){	
+void ERDecay30Arto28S2p::BeginEvent(){	
   fDirectReactionFinish = kFALSE;
 }
 
-void ERDecay26Oto24O2n::FinishEvent(){
+void ERDecay30Arto28S2p::FinishEvent(){
 
 }
 
-ClassImp(ERDecay26Oto24O2n)
+ClassImp(ERDecay30Arto28S2p)

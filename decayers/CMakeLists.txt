@@ -25,6 +25,8 @@ ERDecayer.cxx
 ERDecay.cxx
 ERDecay27Fto26O.cxx
 ERDecay26Oto24O2n.cxx
+ERDecay31Arto30Ar.cxx
+ERDecay30Arto28S2p.cxx
 )
 
 # fill list of header files from list of source files

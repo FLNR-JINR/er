@@ -36,12 +36,12 @@ void muSi_reco_proof(Int_t nEvents = 10000){
   // ------------------------------------------------------------------------
   */
   // -----------Runtime DataBase info -------------------------------------
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  /*FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   
   FairParRootFileIo*  parIo1 = new FairParRootFileIo();
   parIo1->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parIo1);
-  
+  */
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);

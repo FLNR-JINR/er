@@ -1,4 +1,4 @@
-void run_sim_27F(int nEvents = 1000){
+void run_sim_31Ar(int nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -21,10 +21,10 @@ void run_sim_27F(int nEvents = 1000){
   
   //------    ER Deacayer   -------------------------------------------------
   ERDecayer* decayer = new ERDecayer();
-  ERDecay* targetDecay = new ERDecay27Fto26O();
+  ERDecay* targetDecay = new ERDecay31Arto30Ar();
   decayer->AddDecay(targetDecay);
-  ERDecay26Oto24O2n* directDecay = new ERDecay26Oto24O2n();
-  directDecay->SetDirectReactionTauCM(100.);
+  ERDecay30Arto28S2p* directDecay = new ERDecay30Arto28S2p();
+  directDecay->SetDirectReactionTauCM(200.);
   decayer->AddDecay(directDecay);
   //-------------------------------------------------------------------------
 
@@ -76,16 +76,16 @@ void run_sim_27F(int nEvents = 1000){
    * SetStoreAllSteps() - store all steps. WARNING - very slow
   */
   //neuRad->SetStoreAllSteps();
-  run->AddModule(neuRad);
+  //run->AddModule(neuRad);
   // ------------------------------------------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
   //Ion 27F
-  Int_t A = 27;
-  Int_t Z = 9;
-  Int_t Q = 9;
-  Double_t Pz = 0.7;// AGeV
+  Int_t A = 31;
+  Int_t Z = 18;
+  Int_t Q = 18;
+  Double_t Pz = 1.;// AGeV
   FairIonGenerator* ionGenerator = new FairIonGenerator(Z,A,Q,1,0.,0.,Pz,0.,0.,-10.);
 
   primGen->AddGenerator(ionGenerator);
@@ -101,7 +101,7 @@ void run_sim_27F(int nEvents = 1000){
 
   //------Set magnetic field ------------------------------------------------
   FairConstField* fMagField = new FairConstField();
-  fMagField->SetField(50.,0.,0.);//values are in kG, 1T = 10kG
+  fMagField->SetField(10.,0.,0.);//values are in kG, 1T = 10kG
   fMagField->SetFieldRegion(-200,200.,-200.,200.,1000.,2500.); // in cm
   run->SetField(fMagField);
   // -----   Initialize simulation run   ------------------------------------

@@ -62,8 +62,6 @@ void muSi_sim(Int_t nEvents = 10000){
   
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
-  Int_t nSteps = -15000;
-  gMC->SetMaxNStep(nSteps);
 	
   // -----   Runtime database   ---------------------------------------------
   Bool_t kParameterMerged = kTRUE;

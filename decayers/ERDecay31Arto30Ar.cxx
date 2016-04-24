@@ -1,4 +1,4 @@
-#include "ERDecay27Fto26O.h"
+#include "ERDecay31Arto30Ar.h"
 
 #include "TVirtualMC.h"
 #include "TLorentzVector.h"
@@ -12,24 +12,24 @@ using namespace std;
 //#include "ERTarget.h"
 #include "ERMCEventHeader.h"      //for ERMCEventHeader
 
-ERDecay27Fto26O::ERDecay27Fto26O():
+ERDecay31Arto30Ar::ERDecay31Arto30Ar():
   fTargetReactionFinish(kFALSE),
   fTargetReactZ(0.),
   fSecondaryIonPDG(-1)
 {
   fRnd = new TRandom3();
   FairRunSim* run = FairRunSim::Instance();
-  FairIon* SecondIon = new FairIon("ExpertSecondIon",8,26, 8); //26O
+  FairIon* SecondIon = new FairIon("ExpertSecondIon",18,30, 18); //26O
   run->AddNewIon(SecondIon);
 }
 
-ERDecay27Fto26O::~ERDecay27Fto26O(){
+ERDecay31Arto30Ar::~ERDecay31Arto30Ar(){
 
 }
 
-Bool_t ERDecay27Fto26O::Stepping(){
+Bool_t ERDecay31Arto30Ar::Stepping(){
   //Определяемся с текущим положением.
-  if (gMC->TrackPid() == 1000090270 && !fTargetReactionFinish && TString(gMC->CurrentVolName()).Contains("target")){
+  if (gMC->TrackPid() == 1000180310 && !fTargetReactionFinish && TString(gMC->CurrentVolName()).Contains("target")){
     gMC->SetMaxStep(0.01);
 	TLorentzVector curPos;
 	gMC->TrackPosition(curPos);
@@ -39,7 +39,7 @@ Bool_t ERDecay27Fto26O::Stepping(){
 		//Create new ion
 	    fSecondIon = TDatabasePDG::Instance()->GetParticle("ExpertSecondIon");
 	    if ( ! fSecondIon ) {
-	        LOG(ERROR)  << "-W- ERDecay27Fto26O: Ion ExpertSecondIon not found in database!" << endl;
+	        LOG(ERROR)  << "-W- ERDecay31Arto30Ar: Ion ExpertSecondIon not found in database!" << endl;
 	        return kFALSE;
 	    }
 		TLorentzVector curMomentum;
@@ -60,7 +60,7 @@ Bool_t ERDecay27Fto26O::Stepping(){
 	  
   		fSecondaryIonPDG = fSecondIon->PdgCode();
 
-	  	LOG(INFO) << "-I- ERDecay27Fto26O: Generating ion of type "
+	  	LOG(INFO) << "-I- ERDecay31Arto30Ar: Generating ion of type "
 	       << fSecondIon->GetName() << " (PDG code " << fSecondaryIonPDG << ")" << endl;
 	  	LOG(INFO) << "    Momentum (" << curMomentum.X() << ", " <<  curMomentum.Y() << ", " <<  curMomentum.Z()
 	       << ") Gev from vertex (" << curPos.X() << ", " << curPos.Y()
@@ -81,7 +81,7 @@ Bool_t ERDecay27Fto26O::Stepping(){
   return kTRUE;
 }
 
-void ERDecay27Fto26O::BeginEvent(){
+void ERDecay31Arto30Ar::BeginEvent(){
   fTargetReactionFinish = kFALSE;
   //Double_t targetThickness = ERTarget::Thickness();
   fTargetReactZ = fRnd->Uniform()*2.;
@@ -91,8 +91,8 @@ void ERDecay27Fto26O::BeginEvent(){
   fSecondaryIonPDG = -1;
 }
 
-void ERDecay27Fto26O::FinishEvent(){
+void ERDecay31Arto30Ar::FinishEvent(){
 
 }
 
-ClassImp(ERDecay27Fto26O)
+ClassImp(ERDecay31Arto30Ar)
