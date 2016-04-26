@@ -1,4 +1,4 @@
-void NeuRad_digi(Int_t nEvents = 100){
+void NeuRad_digi(Int_t nEvents = 2){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "digi.root";

@@ -1,11 +1,11 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadPMTSignalD header file            -----
+// -----                      ERNeuRadPMTSignalF header file            -----
 // -----                  Created 02/03/15  by v. Schetinin            -----
 // -------------------------------------------------------------------------
 
 
-#ifndef ERNeuRadPMTSignalD_H
-#define ERNeuRadPMTSignalD_H
+#ifndef ERNeuRadPMTSignalF_H
+#define ERNeuRadPMTSignalF_H
 
 
 #include "TObject.h"
@@ -13,16 +13,16 @@
 #include "TArrayF.h"
 
 #include <list>
+#include <vector>
 
 #include "FairMultiLinkedData.h"
 
 #include "ERNeuRadFiberPoint.h"
 #include "ERNeuRadPMTSignal.h"
 
-class ERNeuRadPMTSignalD : public ERNeuRadPMTSignal
+class ERNeuRadPMTSignalF : public ERNeuRadPMTSignal
 {
  protected:
-    //std::list<ERNeuRadFiberPoint*> fFiberPoints;
     Double_t *fAmplitudes;
     Double_t *fAnodeTimes;
     Int_t fCurFPoint;
@@ -35,28 +35,42 @@ class ERNeuRadPMTSignalD : public ERNeuRadPMTSignal
     //constants
     static const Double_t csdT; //ns
     static const Int_t csdTCount; //count
+
+    Double_t Function(Double_t time);
  public:
 
   /** Default constructor **/
-  ERNeuRadPMTSignalD();
+  ERNeuRadPMTSignalF();
 
   /** Constructor with arguments **/
-  ERNeuRadPMTSignalD(Int_t iBundle, Int_t iFiber, Int_t fpoints_count);
+  ERNeuRadPMTSignalF(Int_t iBundle, Int_t iFiber, Int_t fpoints_count);
 
-  virtual ~ERNeuRadPMTSignalD();
+  virtual ~ERNeuRadPMTSignalF();
   
   virtual void AddFiberPoint(ERNeuRadFiberPoint* fpoint);
+
+  virtual void Generate();
   
   //virtual bool Exist(){return fFiberPoints.size() > 0;}
 
   virtual bool Exist(){return fCurFPoint > 0;}
-  void Generate();
-  Double_t Function(Double_t time);
+
+  TArrayF* ResultSignal() {return &fResFunctionRoot;}
+  
+
+  //пока заглушки
+  virtual std::vector<Double_t> GetIntersections(Double_t discriminatorThreshold) {std::vector<Double_t> v; return v;} 
+
+  virtual Double_t GetMaxInteg(const Double_t window, const Double_t dt) {return -1.;}
+  virtual Double_t GetInteg(const Double_t start,const Double_t finish) {return -1.;}
+  virtual Double_t GetFirstInteg(const Double_t window) {return -1.;}
+  virtual Double_t GetMean(const Double_t time) {return -1.;}
+
   virtual Double_t GetStartTime() {return fStartTime;} 
   virtual Double_t GetFinishTime() {return fFinishTime;} 
-  TArrayF* ResultSignal() {return &fResFunctionRoot;}
+
   Double_t  dT() {return csdT;}
-  ClassDef(ERNeuRadPMTSignalD,1);
+  ClassDef(ERNeuRadPMTSignalF,1);
 };
 
 #endif

@@ -21,11 +21,20 @@ public:
   /** Destructor **/
   ~ERNeuRadDigitizerTS();
 
+
+  /** Virtual method Init **/
+  virtual InitStatus Init();
+
 protected:
   virtual void FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
                           std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
                           std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
 
+  virtual void PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
+                                std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
+                                std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
+  
+  virtual ERNeuRadPMTSignal* AddPMTSignal(Int_t iBundle, Int_t iFiber);
   ClassDef(ERNeuRadDigitizerTS,1)
 };
 

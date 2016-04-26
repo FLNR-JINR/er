@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadPMTSignalD source file           -----
+// -----                      ERNeuRadPMTSignalF source file           -----
 // -------------------------------------------------------------------------
-#include "ERNeuRadPMTSignalD.h"
+#include "ERNeuRadPMTSignalF.h"
 
 #include "TMath.h"
 
@@ -9,14 +9,14 @@
 
 using namespace std;
 
-const Double_t ERNeuRadPMTSignalD::csdT = 0.1; //ns
-const Int_t ERNeuRadPMTSignalD::csdTCount = 30; //count
+const Double_t ERNeuRadPMTSignalF::csdT = 0.1; //ns
+const Int_t ERNeuRadPMTSignalF::csdTCount = 30; //count
 
-ERNeuRadPMTSignalD::ERNeuRadPMTSignalD(){
+ERNeuRadPMTSignalF::ERNeuRadPMTSignalF(){
 
 }
 
-ERNeuRadPMTSignalD::ERNeuRadPMTSignalD(Int_t iBundle, Int_t iFiber, Int_t fpoints_count):
+ERNeuRadPMTSignalF::ERNeuRadPMTSignalF(Int_t iBundle, Int_t iFiber, Int_t fpoints_count):
 	ERNeuRadPMTSignal(iBundle, iFiber)
 {
 	fAmplitudes = new Double_t[fpoints_count];
@@ -28,23 +28,11 @@ ERNeuRadPMTSignalD::ERNeuRadPMTSignalD(Int_t iBundle, Int_t iFiber, Int_t fpoint
     fFPointsCount = fpoints_count;
 }
 
-ERNeuRadPMTSignalD::~ERNeuRadPMTSignalD(){
+ERNeuRadPMTSignalF::~ERNeuRadPMTSignalF(){
 
 }
 
-void ERNeuRadPMTSignalD::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
-	/*if (fFiberPoints.size() == 0){
-		fFiberPoints.push_back(fpoint);
-	}
-	else{
-		ERNeuRadFiberPoint* firstFPoint = (ERNeuRadFiberPoint*)fFiberPoints.front();
-		if (firstFPoint->AnodeTime() < fpoint->AnodeTime()){
-			fFiberPoints.push_back(fpoint);
-		}
-		else{
-			fFiberPoints.push_front(fpoint);
-		}
-	}*/
+void ERNeuRadPMTSignalF::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
 	fAmplitudes[fCurFPoint]	= fpoint->Amplitude();
 	fAnodeTimes[fCurFPoint++] = fpoint->AnodeTime();
 	if (fpoint->AnodeTime() < fStartTime)
@@ -54,7 +42,7 @@ void ERNeuRadPMTSignalD::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
 }
 
 
-void ERNeuRadPMTSignalD::Generate(){
+void ERNeuRadPMTSignalF::Generate(){
 	//Поиск сдвигов относительно начала сигнала
 	for(Int_t ifpoint = 0; ifpoint < fFPointsCount; ifpoint++){
 		fTimeShifts[ifpoint] = (Int_t) ((fAnodeTimes[ifpoint]-fStartTime)/csdT);
@@ -78,18 +66,8 @@ void ERNeuRadPMTSignalD::Generate(){
 	fResFunctionRoot.Adopt(gdTCount,fResFunction);
 }
 
-Double_t ERNeuRadPMTSignalD::Function(Double_t time){
+Double_t ERNeuRadPMTSignalF::Function(Double_t time){
 	return 40.*time*TMath::Exp(-time/0.35);
 }
-/*
-Double_t ERNeuRadPMTSignalD::GetStartTime(){
-	if (this->Exist()){
-		return fFiberPoints.front()->AnodeTime();
-	}
-	else{
-		return -1.;
-	}
-}
-*/
 
-ClassImp(ERNeuRadPMTSignalD)
+ClassImp(ERNeuRadPMTSignalF)

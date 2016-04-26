@@ -1,7 +1,7 @@
-void NeuRad_digiTS(Int_t nEvents = 1000){
+void NeuRad_digiTS(Int_t nEvents = 2){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
-  TString outFile = "digi.root";
+  TString outFile = "digiTS.root";
   TString parFile = "par.root";
   // ------------------------------------------------------------------------
   
@@ -19,6 +19,7 @@ void NeuRad_digiTS(Int_t nEvents = 1000){
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizerTS* digitizer = new ERNeuRadDigitizerTS(verbose);
+  digitizer->SetScincilationDT(0.05);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   

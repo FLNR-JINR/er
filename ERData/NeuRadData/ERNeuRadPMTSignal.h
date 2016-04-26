@@ -17,16 +17,11 @@
 
 #include "ERNeuRadFiberPoint.h"
 
-typedef std::pair<double, double> SignalPoint; //<time, amplitude>
-typedef std::map<double, double> SignalPointsMap; 
-
 class ERNeuRadPMTSignal : public FairMultiLinkedData
 {
  private:
   Int_t fFiberIndex;
   Int_t fBundleIndex;
-  SignalPointsMap fSignalPoints;  //sum signal
-  std::vector<SignalPointsMap> fSeparateSignals; //points of fiberPoinsSignals
  public:
 
   /** Default constructor **/
@@ -37,22 +32,22 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData
 
   virtual ~ERNeuRadPMTSignal();
   
-  virtual void AddFiberPoint(ERNeuRadFiberPoint* fpoint);
-
-  SignalPointsMap GetSignalPoints() {return fSignalPoints;}
+  virtual void AddFiberPoint(ERNeuRadFiberPoint* fpoint) = 0;
+  virtual void Generate() = 0;
   
-  virtual bool Exist(){return (fSignalPoints.size() > 0);}
+  virtual bool Exist() = 0;
+
   Int_t FiberIndex() const {return fFiberIndex;}
   Int_t BundleIndex() const {return fBundleIndex;}
-  int GetNumberOfSeparatesSignals(){return fSeparateSignals.size();};
-  SignalPointsMap GetSeparateSignal(int i){return fSeparateSignals[i];}
-  std::vector<Double_t> GetIntersections(Double_t discriminatorThreshold);
-  Double_t GetMaxInteg(const Double_t window, const Double_t dt);
-  Double_t GetInteg(const Double_t start,const Double_t finish);
-  Double_t GetFirstInteg(const Double_t window);
-  Double_t GetMean(const Double_t time);
-  virtual Double_t GetStartTime();
-  virtual Double_t GetFinishTime();
+  
+  virtual std::vector<Double_t> GetIntersections(Double_t discriminatorThreshold) = 0;
+
+  virtual Double_t GetMaxInteg(const Double_t window, const Double_t dt) = 0;
+  virtual Double_t GetInteg(const Double_t start,const Double_t finish) = 0;
+  virtual Double_t GetFirstInteg(const Double_t window) = 0;
+  virtual Double_t GetMean(const Double_t time) = 0;
+  virtual Double_t GetStartTime() = 0;
+  virtual Double_t GetFinishTime() = 0;
   
   ClassDef(ERNeuRadPMTSignal,1);
 };

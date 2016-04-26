@@ -1,4 +1,4 @@
-void muSi_sim(Int_t nEvents = 10000){
+void muSi_sim(Int_t nEvents = 1){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -34,7 +34,7 @@ void muSi_sim(Int_t nEvents = 10000){
 
   Int_t verbose = 3;
   ERmuSi* muSi= new ERmuSi("ERmuSi", kTRUE,verbose);
-  muSi->SetGeometryFileName("muSi.geo.rot.root");
+  muSi->SetGeometryFileName("muSi.geo.root");
   run->AddModule(muSi);
   // ------------------------------------------------------------------------
 	

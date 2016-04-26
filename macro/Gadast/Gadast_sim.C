@@ -33,7 +33,7 @@ void Gadast_sim(int nEvents = 10000000){
   run->AddModule(cave);
 
   ERGadast* gadast= new ERGadast("ERGadast", kTRUE);
-  gadast->SetVerboseLevel(1);
+  //gadast->SetVerboseLevel(1);
   //gadast->SetStoreSteps();
   gadast->SetGeometryFileName("gadast.gdml");
   run->AddModule(gadast);
@@ -72,9 +72,6 @@ void Gadast_sim(int nEvents = 10000000){
   
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
-  Int_t nSteps = -15000;
-  gMC->SetMaxNStep(nSteps);
-	
   // -----   Runtime database   ---------------------------------------------
   Bool_t kParameterMerged = kTRUE;
   FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);

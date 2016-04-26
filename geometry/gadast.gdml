@@ -193,7 +193,7 @@
     </union>
     <trd lunit="mm" name="block0xd41f10" x1="60.9241843494256" x2="77.1627367837899" y1="141.667063974292" y2="174.256323858513" z="154.781757727551"/>
     <trd lunit="mm" name="wall0xd41de0" x1="242.026516713816" x2="322.964103105143" y1="284.594761459107" y2="365.58962748532" z="190.209718754012"/>
-    <tube aunit="deg" deltaphi="360" lunit="mm" name="LaBrcell_cell0xd453b0" rmax="12.7" rmin="0" startphi="0" z="50.8"/>
+    <tube aunit="deg" deltaphi="360" lunit="mm" name="LaBrcell_cell0xd453b0" rmax="12.7" rmin="0" startphi="0" z="101.6"/>
     <tube aunit="deg" deltaphi="360" lunit="mm" name="LaBrcell_ref0xd450f0" rmax="13.7" rmin="0" startphi="0" z="102.6"/>
     <tube aunit="deg" deltaphi="360" lunit="mm" name="LaBrcellshell0xd44eb0" rmax="14.2" rmin="0" startphi="0" z="103.1"/>
     <box lunit="mm" name="expHall_box0xd35e10" x="2000" y="1000" z="2000"/>

@@ -23,9 +23,9 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 ERGadast.cxx
-ERGadastDigiPar.cxx
-ERGadastGeoPar.cxx
-ERGadastContFact.cxx
+#ERGadastDigiPar.cxx
+#ERGadastGeoPar.cxx
+#ERGadastContFact.cxx
 ERGadastMesh.cxx
 )
 

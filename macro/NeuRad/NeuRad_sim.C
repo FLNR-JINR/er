@@ -1,4 +1,4 @@
-void NeuRad_sim(Int_t nEvents = 10000){
+void NeuRad_sim(Int_t nEvents = 10){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";

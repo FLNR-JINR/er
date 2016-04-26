@@ -11,15 +11,16 @@
 #include "TLorentzVector.h"
 #include "TRandom3.h"
 
-class TClonesArray;
-class FairVolume;
-class TF1;
+//class TClonesArray;
+//class FairVolume;
+//class TF1;
+class TRandom3;
 
 #include "ERDetector.h"
 #include "ERGadastCsIPoint.h"
 #include "ERGadastLaBrPoint.h"
 #include "ERGadastStep.h"
-#include "ERGadastMesh.h"
+//#include "ERGadastMesh.h"
 #include "ERDetectorList.h"
 
 class ERGadastMesh;
@@ -134,9 +135,8 @@ private:
   TClonesArray*  fGadastSteps;      //!  The steps collection
   Int_t fVersion;                    //! geometry version
   Bool_t fStoreSteps;
-
-  ERGadastMesh* fMesh;
-  TRandom3* fRnd;
+  //ERGadastMesh* fMesh;
+  //TRandom3* fRnd;
   //current point state 
   Int_t fEventID;           //!  event index
   Int_t fTrackID;           //!  track index

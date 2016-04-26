@@ -1,4 +1,4 @@
-void run_sim_31Ar(int nEvents = 1000){
+void run_sim_31Ar(int nEvents = 1){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -11,10 +11,6 @@ void run_sim_31Ar(int nEvents = 1000){
  
   // -----   Create simulation run   ----------------------------------------
   ERRunSim* run = new ERRunSim();
-  /** Select transport engine
-  * TGeant3
-  * TGeant4
-  **/
   run->SetName("TGeant4");              // Transport engine
   run->SetOutputFile(outFile.Data());          // Output file
   // ------------------------------------------------------------------------
@@ -60,23 +56,12 @@ void run_sim_31Ar(int nEvents = 1000){
   ERGadast* gadast= new ERGadast("ERGadast", kTRUE);
   gadast->SetVerboseLevel(1);
   gadast->SetGeometryFileName("gadast.gdml");
-  //run->AddModule(gadast);
+  run->AddModule(gadast);
 
   // ER NeuRad definition
-  /* Select verbosity level
-   * 1 - only standard logs
-   * 2 - Print points after each event
-   * 3 - - GEANT Step information
-  */
   ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,1);
   neuRad->SetGeometryFileName("NeuRad_v2.geo.root");
-  /* Select storing stepss
-   * not store steps
-   * SetStorePrimarySteps() - store only primary particle step
-   * SetStoreAllSteps() - store all steps. WARNING - very slow
-  */
-  //neuRad->SetStoreAllSteps();
-  //run->AddModule(neuRad);
+  run->AddModule(neuRad);
   // ------------------------------------------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
