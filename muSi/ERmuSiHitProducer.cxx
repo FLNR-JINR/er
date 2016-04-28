@@ -17,6 +17,8 @@ Int_t ERmuSiHitProducer::fEvent = 0;
 // ----------------------------------------------------------------------------
 ERmuSiHitProducer::ERmuSiHitProducer()
   : FairTask("ER muSi hit producing scheme")
+,fmuSiPoints(NULL)
+,fmuSiHits(NULL)
 {
 }
 // ----------------------------------------------------------------------------
@@ -24,6 +26,8 @@ ERmuSiHitProducer::ERmuSiHitProducer()
 // ----------------------------------------------------------------------------
 ERmuSiHitProducer::ERmuSiHitProducer(Int_t verbose)
   : FairTask("ER muSi hit producing scheme ", verbose)
+,fmuSiPoints(NULL)
+,fmuSiHits(NULL)
 {
 }
 // ----------------------------------------------------------------------------

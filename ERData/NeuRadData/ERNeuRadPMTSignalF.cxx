@@ -70,4 +70,49 @@ Double_t ERNeuRadPMTSignalF::Function(Double_t time){
 	return 40.*time*TMath::Exp(-time/0.35);
 }
 
+std::vector<Double_t> ERNeuRadPMTSignalF::GetIntersections(Double_t discriminatorThreshold)
+{
+	std::vector<Double_t> intersections;
+	
+    Bool_t startIntersect = kFALSE;
+	for (Int_t i = 0; i < fResFunctionRoot.GetSize(); i++){
+		if (!startIntersect && fResFunctionRoot[i] > discriminatorThreshold){
+			intersections.push_back(fStartTime + csdT*i);
+			startIntersect = kTRUE;
+		}
+		if (startIntersect && fResFunctionRoot[i] < discriminatorThreshold){
+			intersections.push_back(fStartTime + csdT*i);
+			startIntersect = kFALSE;
+		}
+	}
+
+	return intersections;
+} 
+
+ Double_t ERNeuRadPMTSignalF::GetInteg(const Double_t start,const Double_t finish){
+  if (finish<fStartTime)
+    return 0;
+
+  Double_t res = 0;
+  //Начальная и конечная точкиж
+  Int_t st = (Int_t)((start-fStartTime)/csdT) + 1;
+  Int_t fn = (Int_t)((finish - fStartTime)/csdT);
+  
+  if ((fStartTime+fn*csdT) > fFinishTime)
+  	fn = (Int_t)(fFinishTime- fStartTime)/csdT;
+  //Суммируем трапеции внутри промежутка
+  for(Int_t i = st; i < fn; i++){
+    res += 0.5*(fResFunctionRoot[i] + fResFunction[i+1])*(finish-start);
+  }
+  
+  return res;
+ }
+
+ Double_t ERNeuRadPMTSignalF::GetFirstInteg(const Double_t window){
+ 	if ((fStartTime + window) > fFinishTime )
+ 	  return GetInteg(fStartTime, fFinishTime);
+ 	else
+ 		return GetInteg(fStartTime, fStartTime+window);
+ }
+
 ClassImp(ERNeuRadPMTSignalF)

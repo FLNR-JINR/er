@@ -59,15 +59,17 @@ class ERNeuRadPMTSignalF : public ERNeuRadPMTSignal
   
 
   //пока заглушки
-  virtual std::vector<Double_t> GetIntersections(Double_t discriminatorThreshold) {std::vector<Double_t> v; return v;} 
+  virtual std::vector<Double_t> GetIntersections(Double_t discriminatorThreshold);
 
   virtual Double_t GetMaxInteg(const Double_t window, const Double_t dt) {return -1.;}
-  virtual Double_t GetInteg(const Double_t start,const Double_t finish) {return -1.;}
-  virtual Double_t GetFirstInteg(const Double_t window) {return -1.;}
+  virtual Double_t GetInteg(const Double_t start,const Double_t finish);
+  virtual Double_t GetFirstInteg(const Double_t window);
   virtual Double_t GetMean(const Double_t time) {return -1.;}
 
   virtual Double_t GetStartTime() {return fStartTime;} 
-  virtual Double_t GetFinishTime() {return fFinishTime;} 
+  virtual Double_t GetFinishTime() {return fFinishTime;}
+
+  virtual Double_t OnePEIntegral() {return 5.;} 
 
   Double_t  dT() {return csdT;}
   ClassDef(ERNeuRadPMTSignalF,1);

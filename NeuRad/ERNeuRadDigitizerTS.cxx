@@ -28,12 +28,13 @@ using std::endl;
 #include "ERNeuRadPoint.h"
 #include "ERNeuRadStep.h"
 #include "ERNeuRadDigitizerTS.h"
-#include "ERNeuRadPMTSignalLP.h"
+#include "ERNeuRadPMTSignalLP.h" 
 
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizerTS::ERNeuRadDigitizerTS()
   : ERNeuRadDigitizer()
 {
+  fOnePEInteg = 3.5;
 }
 // ----------------------------------------------------------------------------
 
@@ -41,6 +42,7 @@ ERNeuRadDigitizerTS::ERNeuRadDigitizerTS()
 ERNeuRadDigitizerTS::ERNeuRadDigitizerTS(Int_t verbose)
   : ERNeuRadDigitizer(verbose)
 {
+  fOnePEInteg = 3.5;
 }
 // ----------------------------------------------------------------------------
 
@@ -242,7 +244,8 @@ void ERNeuRadDigitizerTS::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *poin
 //-----------------------------------------------------------------------------
 void ERNeuRadDigitizerTS::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
                                 std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
-                                std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers)
+                                std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers,
+                                Float_t& sumFrontQDC, Float_t& sumBackQDC)
 {
   if( frontPointsPerFibers[iBundle][iFiber].size() > 0){
     ERNeuRadPMTSignal* pmtFSignal = AddPMTSignal(iBundle, iFiber);

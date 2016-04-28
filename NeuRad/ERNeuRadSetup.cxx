@@ -84,7 +84,7 @@ ERNeuRadSetup::ERNeuRadSetup(){
 
         }
 
-        LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup() "<< FairLogger::endl;
+    //LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup() "<< FairLogger::endl;
 
     LOG(INFO) << "ERNeuRadSetup initialized! "<< FairLogger::endl;
 

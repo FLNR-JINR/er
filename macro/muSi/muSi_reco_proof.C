@@ -2,7 +2,7 @@ void muSi_reco_proof(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "reco.root";
-  TString parFile = "par.root";
+  TString parFile = "/home/vitaliy/er/macro/muSi/par.root";
   // ------------------------------------------------------------------------
   
   // -----   Timer   --------------------------------------------------------
@@ -11,7 +11,7 @@ void muSi_reco_proof(Int_t nEvents = 10000){
   // ------------------------------------------------------------------------
   
   // -----   Digitization run   -------------------------------------------
-  FairRunAnaProof *fRun= new FairRunAnaProof();
+  FairRunAnaProof *fRun= new FairRunAnaProof("workers=2");
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -36,12 +36,12 @@ void muSi_reco_proof(Int_t nEvents = 10000){
   // ------------------------------------------------------------------------
   */
   // -----------Runtime DataBase info -------------------------------------
-  /*FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   
   FairParRootFileIo*  parIo1 = new FairParRootFileIo();
   parIo1->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parIo1);
-  */
+  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);

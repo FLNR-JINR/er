@@ -48,6 +48,8 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData
   virtual Double_t GetMean(const Double_t time) = 0;
   virtual Double_t GetStartTime() = 0;
   virtual Double_t GetFinishTime() = 0;
+
+  virtual Double_t OnePEIntegral() = 0;
   
   ClassDef(ERNeuRadPMTSignal,1);
 };

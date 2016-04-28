@@ -11,6 +11,7 @@ using std::vector;
 
 #include "TRandom3.h"
 #include "TStopwatch.h"
+#include "TH1F.h"
 
 #include "FairTask.h"
 
@@ -64,6 +65,10 @@ public:
   inline void SetScincilationTau(const Double_t tau)    {fScincilationTau = tau;}
   inline void SetScincilationDT(const Double_t dt)      {fScincilationDT = dt;}
 
+  inline void SetFiberThreshold(const Float_t FiberThreshold, const Float_t window)
+                                  {fFiberThreshold = FiberThreshold; fFiberThresholdWindow = window;}
+  inline void SetBundleThreshold(const Float_t BundleThreshold) {fBundleThreshold = BundleThreshold;}
+
   /** Accessors **/ 
   Int_t FiberPointCount()  const;
   Int_t PMTSignalCount()   const;
@@ -80,6 +85,12 @@ protected:
   TClonesArray *fNeuRadFiberPoint;
   TClonesArray *fNeuRadPMTSignal;
   TClonesArray *fNeuRadDigi;
+
+  //Output histos
+  TH1F* fHPECount;
+
+  //Temporary arrays
+  TClonesArray *fCurBundleDigis;
   
   //constants
   static const Double_t cSciFiLightYield; // [photons/MeV]
@@ -109,14 +120,19 @@ protected:
   Double_t fFiberPointsCreatingTime;
   TStopwatch fPMTSignalCreatingTimer;
   Double_t fPMTSignalCreatingTime;
+  Float_t fFiberThreshold;
+  Float_t fBundleThreshold;
+  Float_t fFiberThresholdWindow;
+  Float_t fOnePEInteg;
 protected:
   ERNeuRadFiberPoint* AddFiberPoint(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count, Int_t photoel_count,Double_t amplitude, Int_t onePE);
 
   virtual ERNeuRadPMTSignal* AddPMTSignal(Int_t iBundle, Int_t iFiber, Int_t fpoints_count);
   
-  ERNeuRadDigi* AddDigi(Double_t frontTDC, Double_t backTDC, Double_t TDC, Double_t frontQDC,
-                        Double_t backQDC, Double_t QDC, Int_t fiber_nr);
+  ERNeuRadDigi* AddDigi(ERNeuRadDigi* digi);
+
+  ERNeuRadDigi* AddTempDigi(Double_t frontTDC, Double_t backTDC, Double_t TDC, Double_t QDC, Int_t bundle, Int_t fiber, Int_t side);
 
   void LongPointSeparating(ERNeuRadPoint* point, std::vector<ERNeuRadPoint*> * points);
   
@@ -126,8 +142,10 @@ protected:
                         
   virtual void PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
                                 std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
-                                std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
-
+                                std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers,
+                                Float_t& sumFrontQDC, Float_t& sumBackQDC);
+  void StoreCurBundle();
+  void ClearCurBundle();
   TRandom3  *fRand;
 private:
   virtual void SetParContainers();

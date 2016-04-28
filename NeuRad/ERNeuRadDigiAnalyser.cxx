@@ -71,6 +71,7 @@ InitStatus ERNeuRadDigiAnalyser::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERNeuRadDigiAnalyser::Exec(Option_t* opt)
 {
+  /*
   if (fNeuRadDigi->GetEntriesFast() > 0){
     Double_t frontQDC_cm_x  = 0.;
     Double_t backQDC_cm_x   = 0.;
@@ -81,10 +82,10 @@ void ERNeuRadDigiAnalyser::Exec(Option_t* opt)
     
     for (Int_t i_digi =0; i_digi < fNeuRadDigi->GetEntriesFast(); i_digi++){
       ERNeuRadDigi* digi = (ERNeuRadDigi*)fNeuRadDigi->At(i_digi);
-      Int_t digi_fiber_nr = digi->GetFiberNr();
+      Int_t digi_fiber_nr = digi->FiberIndex();
       digi_fiber_nr+=1;
-      Double_t digi_frontQDC = digi->GetFrontQDC();
-      Double_t digi_backQDC = digi->GetBackQDC();
+      Double_t digi_frontQDC = digi->FrontQDC();
+      Double_t digi_backQDC = digi->BackQDC();
       Int_t x_fiber_nr = digi_fiber_nr%8; //@todo Get from Parameter class
       Int_t y_fiber_nr = digi_fiber_nr/8 + 1;
       frontQDC_cm_x += x_fiber_nr*digi_frontQDC;
@@ -112,6 +113,7 @@ void ERNeuRadDigiAnalyser::Exec(Option_t* opt)
     fhBackQDCcmXMinusFirst->Fill(TMath::Abs(backQDC_cm_x - x_fiber_nr));
     fhBackQDCcmYMinusFirst->Fill(TMath::Abs(backQDC_cm_y - y_fiber_nr));
   }
+  */
 }
 // ----------------------------------------------------------------------------
 

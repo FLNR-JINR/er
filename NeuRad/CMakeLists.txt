@@ -32,6 +32,8 @@ ERNeuRadContFact.cxx
 ERNeuRadDigiPar.cxx
 ERNeuRadGeoPar.cxx
 ERNeuRadSetup.cxx
+ERNeuRadHitProducer.cxx
+ERNeuRadMatcher.cxx
 )
 
 # fill list of header files from list of source files

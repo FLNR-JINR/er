@@ -32,8 +32,9 @@ protected:
 
   virtual void PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
                                 std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
-                                std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
-  
+                                std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers,
+                                Float_t& sumFrontQDC, Float_t& sumBackQDC);
+
   virtual ERNeuRadPMTSignal* AddPMTSignal(Int_t iBundle, Int_t iFiber);
   ClassDef(ERNeuRadDigitizerTS,1)
 };

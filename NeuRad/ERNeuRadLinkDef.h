@@ -13,5 +13,7 @@
 #pragma link C++ class ERNeuRadGeoPar+;
 #pragma link C++ class ERNeuRadSetup+;
 #pragma link C++ class ERNeuRadDigitizerTS+;
+#pragma link C++ class ERNeuRadHitProducer+;
+#pragma link C++ class ERNeuRadMatcher+;
 
 #endif
