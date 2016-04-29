@@ -87,7 +87,8 @@ protected:
   TClonesArray *fNeuRadDigi;
 
   //Output histos
-  TH1F* fHPECount;
+  TH1F* fHPECountF;
+  TH1F* fHPECountB;
 
   //Temporary arrays
   TClonesArray *fCurBundleDigis;

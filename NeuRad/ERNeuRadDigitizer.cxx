@@ -136,8 +136,10 @@ InitStatus ERNeuRadDigitizer::Init()
   fNeuRadSetup = ERNeuRadSetup::Instance();
   fNeuRadSetup->Print();
 
-  fHPECount = new TH1F("fHPECount", "PE count",100.,0.,1.);
-  fHPECount->GetXaxis()->SetTitle("pe count");
+  fHPECountF = new TH1F("fHPECountF", "PE count front",1000.,0.,100000.);
+  fHPECountF->GetXaxis()->SetTitle("pe count");
+  fHPECountB = new TH1F("fHPECountB", "PE count back",1000.,0.,100000.);
+  fHPECountB->GetXaxis()->SetTitle("pe count");
   
   return kSUCCESS;
 }
@@ -275,6 +277,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
     Double_t ffp_photon_count =  photon_count*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
 
     Double_t remainingPhotoEl = ffp_photon_count*PMTQuantumEfficiency/fScincilationTau;
+    fHPECountF->Fill(remainingPhotoEl);
     //LOG(INFO) << "LY " << point_lightYield << " PC " << photon_count << " FPC " << ffp_photon_count << " RPE " << remainingPhotoEl << FairLogger::endl; 
     if (remainingPhotoEl > 1){
       for(Int_t iOnePESignal=0;iOnePESignal<(Int_t)remainingPhotoEl;iOnePESignal++){
@@ -308,6 +311,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
                                                    + k2*exp(-(fiber_length-point_z_in_fiber)/200.));
     
     remainingPhotoEl = bfp_photon_count*PMTQuantumEfficiency/fScincilationTau;
+    fHPECountB->Fill(remainingPhotoEl);
     if (remainingPhotoEl > 1){
       for(Int_t iOnePESignal=0;iOnePESignal<(Int_t)remainingPhotoEl;iOnePESignal++){
         //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
@@ -351,8 +355,8 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
       //pmtFSignal->AddLink(FairLink("NeuRadFiberPoint",FPoint->Index()));
     }
     pmtFSignal->Generate();
-    fHPECount->Fill(pmtFSignal->GetFirstInteg(fFiberThresholdWindow));
-    if (pmtFSignal->Exist() && pmtFSignal->GetFirstInteg(fFiberThresholdWindow) > fFiberThreshold){
+    //if (pmtFSignal->Exist() && pmtFSignal->GetFirstInteg(fFiberThresholdWindow)/ > fFiberThreshold){
+    if (pmtFSignal->Exist() && pmtFSignal->PECount() > fFiberThreshold){
       //vector<Double_t> intersections = pmtFSignal->GetIntersections(fDiscriminatorThreshold);
       //for (Int_t iInter = 0; iInter < intersections.size(); iInter+=2){
         //if (intersections.size()%2 > 0)
@@ -376,8 +380,8 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
       //pmtBSignal->AddLink(FairLink("NeuRadFiberPoint",FPoint->Index()));
     }
     pmtBSignal->Generate();
-    fHPECount->Fill(pmtBSignal->GetFirstInteg(fFiberThresholdWindow));
-    if (pmtBSignal->Exist() && pmtBSignal->GetFirstInteg(fFiberThresholdWindow) > fFiberThreshold){
+    //if (pmtBSignal->Exist() && pmtBSignal->GetFirstInteg(fFiberThresholdWindow) > fFiberThreshold){
+    if (pmtBSignal->Exist() && pmtBSignal->PECount() > fFiberThreshold){
       //vector<Double_t> intersections = pmtBSignal->GetIntersections(fDiscriminatorThreshold);
       //for (Int_t iInter = 0; iInter < intersections.size(); iInter+=2){
       //  if (intersections.size()%2 > 0)
@@ -396,7 +400,8 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
 // ----------------------------------------------------------------------------
 void ERNeuRadDigitizer::Finish()
 {   
-  fHPECount->Write();
+  fHPECountF->Write();
+  fHPECountB->Write();
   LOG(INFO) << "========== Finish of ERNeuRadDigitizer =================="<< FairLogger::endl;
   LOG(INFO) << "=====  Time on FiberPoints creating : " <<  fFiberPointsCreatingTime << " s" << FairLogger::endl;
   LOG(INFO) << "=====  Time on PMT signal creating : " <<  fPMTSignalCreatingTime << " s" << FairLogger::endl;

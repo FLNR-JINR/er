@@ -13,7 +13,7 @@ const Double_t ERNeuRadPMTSignalF::csdT = 0.1; //ns
 const Int_t ERNeuRadPMTSignalF::csdTCount = 30; //count
 
 ERNeuRadPMTSignalF::ERNeuRadPMTSignalF(){
-
+	fPECount = 0;
 }
 
 ERNeuRadPMTSignalF::ERNeuRadPMTSignalF(Int_t iBundle, Int_t iFiber, Int_t fpoints_count):
@@ -26,10 +26,14 @@ ERNeuRadPMTSignalF::ERNeuRadPMTSignalF(Int_t iBundle, Int_t iFiber, Int_t fpoint
     fStartTime = 99999999.;
     fFinishTime = -1.;
     fFPointsCount = fpoints_count;
+    fPECount = 0;
 }
 
 ERNeuRadPMTSignalF::~ERNeuRadPMTSignalF(){
-
+	//delete [] fResFunction;
+	delete [] fAmplitudes;
+	delete [] fAnodeTimes;
+	delete [] fTimeShifts;
 }
 
 void ERNeuRadPMTSignalF::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
@@ -39,6 +43,7 @@ void ERNeuRadPMTSignalF::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
 		fStartTime = fpoint->AnodeTime();
 	if (fpoint->AnodeTime()+csdTCount*csdT > fFinishTime)
 		fFinishTime = fpoint->AnodeTime()+csdTCount*csdT;
+	fPECount++;
 }
 
 
@@ -52,6 +57,7 @@ void ERNeuRadPMTSignalF::Generate(){
 	for (Int_t idT = 0; idT < csdTCount; idT++){
 		sig_func[idT] = Function(idT*csdT);
 	}
+	delete [] sig_func;
 	//добавление к общему сигналу
 	Int_t gdTCount = (fFinishTime - fStartTime)/csdT;
 	fResFunction = new Float_t[gdTCount];
@@ -101,8 +107,8 @@ std::vector<Double_t> ERNeuRadPMTSignalF::GetIntersections(Double_t discriminato
   if ((fStartTime+fn*csdT) > fFinishTime)
   	fn = (Int_t)(fFinishTime- fStartTime)/csdT;
   //Суммируем трапеции внутри промежутка
-  for(Int_t i = st; i < fn; i++){
-    res += 0.5*(fResFunctionRoot[i] + fResFunction[i+1])*(finish-start);
+  for(Int_t i = st; i < fn-1; i++){
+    res += 0.5*(fResFunctionRoot[i] + fResFunctionRoot[i+1])*(finish-start);
   }
   
   return res;

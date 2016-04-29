@@ -60,6 +60,8 @@ void ERNeuRad::Initialize()
   FairDetector::Initialize();
   FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
   ERNeuRadGeoPar* par=(ERNeuRadGeoPar*)(rtdb->getContainer("ERNeuRadGeoPar"));
+  fHElossInEvent = new TH1F("fHElossInEvent", "Full Eloss in event",1000, 0., 0.5);
+  fHLYInEvent = new TH1F("fHLYInEvent", "Full LY in event",1000, 0., 0.5);
 }
 //-------------------------------------------------------------------------
 Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
@@ -216,7 +218,9 @@ void ERNeuRad::FinishNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYiel
               TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
               TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
               timeIn, timeOut, trackLength, eLoss, lightYield, gMC->TrackPid(), gMC->TrackCharge());
-  }                 
+    fFullEnergy+=eLoss;
+    fFullLY+=lightYield;
+  }                
 }
                    
 //--------------------------------------------------------------------------------------------------
@@ -226,7 +230,8 @@ void ERNeuRad::FinishNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYiel
 //--------------------------------------------------------------------------------------------------
 // -----   Public method EndOfEvent   -----------------------------------------
 void ERNeuRad::BeginEvent() {
-
+  fFullEnergy = 0.;
+  fFullLY = 0.;
 }
 
 
@@ -234,7 +239,8 @@ void ERNeuRad::EndOfEvent() {
   if (fVerbose > 1) {
     Print();
   }
-  
+  fHElossInEvent->Fill(fFullEnergy);
+  fHLYInEvent->Fill(fFullLY);
   Reset();
 }
 
@@ -367,5 +373,10 @@ Bool_t ERNeuRad::CheckIfSensitive(std::string name)
 void ERNeuRad::ResetParameters() {
   
 };
-// ----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+void ERNeuRad::WriteHistos(){
+  fHElossInEvent->Write();
+  fHLYInEvent->Write();
+}
+//----------------------------------------------------------------------------
 ClassImp(ERNeuRad)

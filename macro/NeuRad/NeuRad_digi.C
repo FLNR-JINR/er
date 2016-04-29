@@ -1,7 +1,7 @@
 void NeuRad_digi(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
-  TString outFile = "digi_2000pe.root";
+  TString outFile = "digi.root";
   TString parFile = "par.root";
   TString parOutFile = "parOut.root";
   // ------------------------------------------------------------------------
@@ -21,7 +21,7 @@ void NeuRad_digi(Int_t nEvents = 10000){
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
   //digitizer->SetDiscriminatorThreshold(20.); //Au
-  digitizer->SetFiberThreshold(2000, 5); //pe, ns
+  digitizer->SetFiberThreshold(700, 5); //pe, ns
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   

@@ -1,6 +1,6 @@
-void NeuRad_reco(Int_t nEvents = 100000){
+void NeuRad_reco(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "digi_2000pe.root";
+  TString inFile = "digi.root";
   TString simFile = "sim.root";
   TString outFile = "reco.root";
   TString parFile = "par.root";

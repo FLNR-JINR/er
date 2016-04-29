@@ -55,12 +55,15 @@ void NeuRad_sim(Int_t nEvents = 100000){
   Int_t pdgId = 2112; // neutron  beam
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 7.;
-  Double32_t momentum = .5; //GeV
+  Double32_t kin_energy = .500; //GeV
+  // /Double32_t kin_energy = Ekin; //GeV
+  Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
+  Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(90,90);
-  boxGen->SetBoxXYZ(0.,0.,0.6,0.6,200.0);
+  boxGen->SetPhiRange(90, 90);
+  boxGen->SetBoxXYZ (0.0,0.,0.6,0.6,2500.);
 
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);
@@ -90,6 +93,7 @@ void NeuRad_sim(Int_t nEvents = 100000){
   run->Run(nEvents);
   
   // -----   Finish   -------------------------------------------------------
+  neuRad->WriteHistos();
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();

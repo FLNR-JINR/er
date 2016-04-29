@@ -120,6 +120,8 @@ public:
   
   void SetStorePrimarySteps() {fStorePrimarySteps = kTRUE;}
   void SetStoreAllSteps() {fStoreAllSteps = kTRUE;}
+
+  void WriteHistos();
 private:
   TClonesArray*  fNeuRadPoints;     //!  The point collection
   TClonesArray*  fNeuRadFirstStep;  //!  The first step collection
@@ -129,6 +131,12 @@ private:
   Bool_t fStorePrimarySteps;
   Bool_t fStoreAllSteps;
   Int_t   fVerbose;
+
+  TH1F* fHElossInEvent;
+  TH1F* fHLYInEvent;
+
+  Float_t fFullEnergy;
+  Float_t fFullLY;
 private:
   /** Private method AddPoint
    **

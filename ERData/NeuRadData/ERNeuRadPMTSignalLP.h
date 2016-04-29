@@ -58,6 +58,7 @@ class ERNeuRadPMTSignalLP : public ERNeuRadPMTSignal
   virtual Double_t GetFinishTime();
 
   virtual Double_t OnePEIntegral() {return 0.5*(0.1 + 1.3)*5.;} 
+  virtual Int_t PECount() {return -1;}
   
   ClassDef(ERNeuRadPMTSignalLP,1);
 };

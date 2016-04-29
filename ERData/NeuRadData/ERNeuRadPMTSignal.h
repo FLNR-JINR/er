@@ -50,6 +50,7 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData
   virtual Double_t GetFinishTime() = 0;
 
   virtual Double_t OnePEIntegral() = 0;
+  virtual Int_t PECount() = 0;
   
   ClassDef(ERNeuRadPMTSignal,1);
 };

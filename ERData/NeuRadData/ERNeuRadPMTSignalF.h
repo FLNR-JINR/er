@@ -32,6 +32,7 @@ class ERNeuRadPMTSignalF : public ERNeuRadPMTSignal
     Int_t fFPointsCount;
     Float_t* fResFunction;
     TArrayF fResFunctionRoot;
+    Int_t fPECount;
     //constants
     static const Double_t csdT; //ns
     static const Int_t csdTCount; //count
@@ -69,7 +70,8 @@ class ERNeuRadPMTSignalF : public ERNeuRadPMTSignal
   virtual Double_t GetStartTime() {return fStartTime;} 
   virtual Double_t GetFinishTime() {return fFinishTime;}
 
-  virtual Double_t OnePEIntegral() {return 5.;} 
+  virtual Double_t OnePEIntegral() {return 5.;}
+  virtual Int_t PECount() {return fPECount;}
 
   Double_t  dT() {return csdT;}
   ClassDef(ERNeuRadPMTSignalF,1);
