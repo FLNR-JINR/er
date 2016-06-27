@@ -15,5 +15,6 @@
 #pragma link C++ class ERNeuRadDigitizerTS+;
 #pragma link C++ class ERNeuRadHitProducer+;
 #pragma link C++ class ERNeuRadMatcher+;
+#pragma link C++ class ERNeuRadHitProducerMF+;
 
 #endif

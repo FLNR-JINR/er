@@ -130,7 +130,6 @@ void ERNeuRadMatcher::Exec(Option_t* opt)
     if(dist < 0.6)
       fHdxyLess6->Fill(dist);
   }
-
 }
 //----------------------------------------------------------------------------
 

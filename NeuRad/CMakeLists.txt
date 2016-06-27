@@ -33,6 +33,7 @@ ERNeuRadDigiPar.cxx
 ERNeuRadGeoPar.cxx
 ERNeuRadSetup.cxx
 ERNeuRadHitProducer.cxx
+ERNeuRadHitProducerMF.cxx
 ERNeuRadMatcher.cxx
 )
 

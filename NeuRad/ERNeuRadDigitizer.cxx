@@ -182,7 +182,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
       PMTSignalsAndDigiCreating(iBundle, iFiber, frontPointsPerFibers,backPointsPerFibers, sumFrontQDC, sumBackQDC);
     }
     if (fCurBundleDigis->GetEntriesFast() > 0)
-      if(sumFrontQDC > fBundleThreshold*fOnePEInteg || sumBackQDC > fBundleThreshold*fOnePEInteg)
+      //if(sumFrontQDC > fBundleThreshold*fOnePEInteg || sumBackQDC > fBundleThreshold*fOnePEInteg)
         StoreCurBundle();
     ClearCurBundle();
   }
@@ -263,7 +263,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
        LOG(ERROR) << "ERNeuRadDigitizerFullMC: Too many points in one fiber: "
                   << frontPointsPerFibers[point_fiber_nb].size()<< " points" << FairLogger::endl;
     */
-    Double_t PMTQuantumEfficiency = fNeuRadSetup->PMTQuantumEfficiency(point_bundle,point_fiber_nb);
+    Double_t PMTQuantumEfficiency = 0.2;  //fNeuRadSetup->PMTQuantumEfficiency(point_bundle,point_fiber_nb);
     Double_t PMTGain = fNeuRadSetup->PMTGain(point_bundle,point_fiber_nb);
     
     //scintillator light yield - общее число рожденных фотонов
@@ -276,7 +276,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
     
     Double_t ffp_photon_count =  photon_count*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
 
-    Double_t remainingPhotoEl = ffp_photon_count*PMTQuantumEfficiency/fScincilationTau;
+    Double_t remainingPhotoEl = fRand->Poisson(ffp_photon_count*PMTQuantumEfficiency);
     fHPECountF->Fill(remainingPhotoEl);
     //LOG(INFO) << "LY " << point_lightYield << " PC " << photon_count << " FPC " << ffp_photon_count << " RPE " << remainingPhotoEl << FairLogger::endl; 
     if (remainingPhotoEl > 1){
@@ -310,7 +310,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
     Double_t bfp_photon_count =  photon_count*(k1*exp(-(fiber_length-point_z_in_fiber)/0.5) 
                                                    + k2*exp(-(fiber_length-point_z_in_fiber)/200.));
     
-    remainingPhotoEl = bfp_photon_count*PMTQuantumEfficiency/fScincilationTau;
+    remainingPhotoEl = fRand->Poisson(bfp_photon_count*PMTQuantumEfficiency);
     fHPECountB->Fill(remainingPhotoEl);
     if (remainingPhotoEl > 1){
       for(Int_t iOnePESignal=0;iOnePESignal<(Int_t)remainingPhotoEl;iOnePESignal++){
@@ -356,7 +356,7 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
     }
     pmtFSignal->Generate();
     //if (pmtFSignal->Exist() && pmtFSignal->GetFirstInteg(fFiberThresholdWindow)/ > fFiberThreshold){
-    if (pmtFSignal->Exist() && pmtFSignal->PECount() > fFiberThreshold){
+    if (pmtFSignal->Exist() /*&& pmtFSignal->PECount() > fFiberThreshold*/){
       //vector<Double_t> intersections = pmtFSignal->GetIntersections(fDiscriminatorThreshold);
       //for (Int_t iInter = 0; iInter < intersections.size(); iInter+=2){
         //if (intersections.size()%2 > 0)
@@ -367,7 +367,7 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
         Float_t backTDC = pmtFSignal->GetFinishTime();
         Float_t QDC = pmtFSignal->GetInteg(frontTDC,backTDC);
         sumFrontQDC += QDC;
-        AddTempDigi(frontTDC, backTDC,backTDC-frontTDC, QDC,iBundle,iFiber,0);
+        AddTempDigi(frontTDC, backTDC,backTDC-frontTDC, pmtFSignal->PECount(),iBundle,iFiber,0);
       //}
     }
   }
@@ -381,7 +381,7 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
     }
     pmtBSignal->Generate();
     //if (pmtBSignal->Exist() && pmtBSignal->GetFirstInteg(fFiberThresholdWindow) > fFiberThreshold){
-    if (pmtBSignal->Exist() && pmtBSignal->PECount() > fFiberThreshold){
+    if (pmtBSignal->Exist() /*&& pmtBSignal->PECount() > fFiberThreshold*/){
       //vector<Double_t> intersections = pmtBSignal->GetIntersections(fDiscriminatorThreshold);
       //for (Int_t iInter = 0; iInter < intersections.size(); iInter+=2){
       //  if (intersections.size()%2 > 0)
@@ -392,7 +392,7 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
         Float_t backTDC = pmtBSignal->GetFinishTime();
         Float_t QDC = pmtBSignal->GetInteg(frontTDC,backTDC);
         sumBackQDC+= QDC;
-        AddTempDigi(frontTDC, backTDC,backTDC-frontTDC, QDC,iBundle,iFiber,1);
+        AddTempDigi(frontTDC, backTDC,backTDC-frontTDC, pmtBSignal->PECount(),iBundle,iFiber,1);
       //}
     }
   }
