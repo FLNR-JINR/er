@@ -84,7 +84,6 @@ void ERNeuRadHitProducer::Exec(Option_t* opt)
   LOG(INFO) << "ERNeuRadHitProducer: "<< FairLogger::endl;
   Reset();
   Float_t fOnePEInteg = 4.8;
-  Float_t fThreshold = 2.;
   /*
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
   map<Int_t, Float_t> startTimes;
@@ -131,7 +130,7 @@ void ERNeuRadHitProducer::Exec(Option_t* opt)
       }
       if (founded){
         ERNeuRadDigi* digiBack = (ERNeuRadDigi*)fNeuRadDigis->At(jBackDigi);
-        if (digi->QDC() > fThreshold*fOnePEInteg && digiBack->QDC() > fThreshold*fOnePEInteg){
+        if (digi->QDC() > fPixelThreshold*fOnePEInteg && digiBack->QDC() > fPixelThreshold*fOnePEInteg){
           targetHitDigi = digi;
           hitNumber++;
         }

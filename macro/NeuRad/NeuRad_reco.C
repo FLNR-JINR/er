@@ -1,8 +1,9 @@
-void NeuRad_reco(Int_t nEvents = 1000){
+void NeuRad_reco(Int_t nEvents = 1000, Float_t ph=2.){
   //---------------------Files-----------------------------------------------
   TString inFile = "digi.root";
   TString simFile = "sim.root";
-  TString outFile = "reco.root";
+  TString outFile;
+  outFile.Form("reco_%.1f.root",ph);
   TString parFile = "par.root";
   TString parOutFile = "parOut.root";
   // ------------------------------------------------------------------------
@@ -21,6 +22,7 @@ void NeuRad_reco(Int_t nEvents = 1000){
  
   // ------------------------NeuRadHitProducer-------------------------------- 
   ERNeuRadHitProducer* hitProducer = new ERNeuRadHitProducer(1);
+  hitProducer->SetPixelThreshold(ph);
   fRun->AddTask(hitProducer);
   //------------------------------------------------------------------------
 

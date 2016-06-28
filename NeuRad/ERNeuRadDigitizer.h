@@ -69,6 +69,8 @@ public:
                                   {fFiberThreshold = FiberThreshold; fFiberThresholdWindow = window;}
   inline void SetBundleThreshold(const Float_t BundleThreshold) {fBundleThreshold = BundleThreshold;}
 
+  inline void SetPixelThreshold(const Float_t pThreshold){fPixelThreshold = pThreshold;}
+
   /** Accessors **/ 
   Int_t FiberPointCount()  const;
   Int_t PMTSignalCount()   const;
@@ -125,6 +127,7 @@ protected:
   Float_t fBundleThreshold;
   Float_t fFiberThresholdWindow;
   Float_t fOnePEInteg;
+  Float_t fPixelThreshold;
 protected:
   ERNeuRadFiberPoint* AddFiberPoint(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count, Int_t photoel_count,Double_t amplitude, Int_t onePE);

@@ -37,7 +37,7 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-
+  virtual void SetPixelThreshold(Float_t pixelThreshold){fPixelThreshold=pixelThreshold;}
   /** Accessors **/
 protected:
   //Input arrays
@@ -48,6 +48,8 @@ protected:
   ERNeuRadDigiPar* fDigiPar;
 
   static Int_t fEvent;
+
+  Float_t fPixelThreshold;
 
 protected:
   ERNeuRadHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t  BundleIndex, Int_t FiberIndex, Float_t time);

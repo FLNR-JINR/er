@@ -37,7 +37,7 @@ class ERNeuRadPMTSignalF : public ERNeuRadPMTSignal
     static const Double_t csdT; //ns
     static const Int_t csdTCount; //count
 
-    Double_t Function(Double_t time);
+    Double_t Function(Double_t time, Double_t amplitude);
  public:
 
   /** Default constructor **/
@@ -70,7 +70,10 @@ class ERNeuRadPMTSignalF : public ERNeuRadPMTSignal
   virtual Double_t GetStartTime() {return fStartTime;} 
   virtual Double_t GetFinishTime() {return fFinishTime;}
 
-  virtual Double_t OnePEIntegral() {return 5.;}
+  virtual Float_t GetThresholdTime(Float_t peThreshold);
+
+  virtual Double_t OnePEIntegral() {return 4.8;}
+
   virtual Int_t PECount() {return fPECount;}
 
   Double_t  dT() {return csdT;}

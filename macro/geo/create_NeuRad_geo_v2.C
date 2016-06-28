@@ -3,7 +3,8 @@
 #include "TGeoManager.h"
 #include "TMath.h"
 
-// Create a zero rotation
+void create_NeuRad_geo_v2()
+{
 TGeoRotation *fZeroRotation = new TGeoRotation();
 fZeroRotation->RotateX(0.);
 fZeroRotation->RotateY(0.);
@@ -11,8 +12,7 @@ fZeroRotation->RotateZ(0.);
 
 TGeoManager*   gGeoMan = NULL;
 
-void create_NeuRad_geo_v2()
-{
+
   // -------   Load media from media file   -----------------------------------
   FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
@@ -24,7 +24,7 @@ void create_NeuRad_geo_v2()
   // --------------------------------------------------------------------------
 
   // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/NeuRad_v2.geo.root";
+  TString geoFileName = geoPath + "/geometry/NeuRad_v2_0.geo.root";
   // --------------------------------------------------------------------------
   
   // -----------------   Get and create the required media    -----------------
@@ -131,7 +131,7 @@ void create_NeuRad_geo_v2()
       i_boundle++;
     }
   }
-  top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,2600., fZeroRotation));
+  top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,2600, fZeroRotation));
 
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();

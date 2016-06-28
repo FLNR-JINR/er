@@ -363,12 +363,13 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
         //  LOG(ERROR) << "Нечетное количество перечений с сигналом!" << endl;
         //Float_t frontTDC = intersections[iInter];
         //Float_t backTDC = intersections[iInter+1];
-        Float_t frontTDC = pmtFSignal->GetStartTime();
+        Float_t  frontTDC = pmtFSignal->GetThresholdTime(fPixelThreshold);
+        if (frontTDC < 0.)//если прошел порог fPixelThreshold
+          frontTDC = pmtFSignal->GetStartTime();
         Float_t backTDC = pmtFSignal->GetFinishTime();
         Float_t QDC = pmtFSignal->GetInteg(frontTDC,backTDC);
         sumFrontQDC += QDC;
         AddTempDigi(frontTDC, backTDC,backTDC-frontTDC, pmtFSignal->PECount(),iBundle,iFiber,0);
-      //}
     }
   }
 
@@ -388,12 +389,13 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
       //    LOG(ERROR) << "Нечетное количество перечений с сигналом!" << endl;
       //  Float_t frontTDC = intersections[iInter];
       //  Float_t backTDC = intersections[iInter+1];
-        Float_t frontTDC = pmtBSignal->GetStartTime();
+        Float_t frontTDC = pmtBSignal->GetThresholdTime(fPixelThreshold);
+        if (frontTDC < 0.) //если прошел порог fPixelThreshol
+          frontTDC = pmtBSignal->GetStartTime();
         Float_t backTDC = pmtBSignal->GetFinishTime();
         Float_t QDC = pmtBSignal->GetInteg(frontTDC,backTDC);
         sumBackQDC+= QDC;
         AddTempDigi(frontTDC, backTDC,backTDC-frontTDC, pmtBSignal->PECount(),iBundle,iFiber,1);
-      //}
     }
   }
 }

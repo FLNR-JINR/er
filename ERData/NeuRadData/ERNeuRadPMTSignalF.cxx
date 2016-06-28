@@ -52,28 +52,28 @@ void ERNeuRadPMTSignalF::Generate(){
 	for(Int_t ifpoint = 0; ifpoint < fFPointsCount; ifpoint++){
 		fTimeShifts[ifpoint] = (Int_t) ((fAnodeTimes[ifpoint]-fStartTime)/csdT);
 	}
-	//вычисление функции сигнала
-	Float_t *sig_func = new Float_t[csdTCount];
-	for (Int_t idT = 0; idT < csdTCount; idT++){
-		sig_func[idT] = Function(idT*csdT);
-	}
-	delete [] sig_func;
 	//добавление к общему сигналу
 	Int_t gdTCount = (fFinishTime - fStartTime)/csdT;
 	fResFunction = new Float_t[gdTCount];
 	for (Int_t i = 0; i < gdTCount; i++)
 		fResFunction[i] = 0.;
 	for (Int_t ifpoint = 0; ifpoint < fFPointsCount; ifpoint++){
+		//вычисление функции сигнала
+		Float_t *sig_func = new Float_t[csdTCount];
+		for (Int_t idT = 0; idT < csdTCount; idT++){
+			sig_func[idT] = Function(idT*csdT, fAmplitudes[ifpoint]);
+		}
 		Float_t *cur_f = fResFunction + fTimeShifts[ifpoint]; 
 		for (Int_t idT = 0; idT < csdTCount; idT++){
 			cur_f[idT] += sig_func[idT];
 		}
+		delete [] sig_func;
 	}
 	fResFunctionRoot.Adopt(gdTCount,fResFunction);
 }
 
-Double_t ERNeuRadPMTSignalF::Function(Double_t time){
-	return 40.*time*TMath::Exp(-time/0.35);
+Double_t ERNeuRadPMTSignalF::Function(Double_t time, Double_t amplitude){
+	return 8.*amplitude*time*TMath::Exp(-time/0.35);
 }
 
 std::vector<Double_t> ERNeuRadPMTSignalF::GetIntersections(Double_t discriminatorThreshold)
@@ -119,6 +119,20 @@ std::vector<Double_t> ERNeuRadPMTSignalF::GetIntersections(Double_t discriminato
  	  return GetInteg(fStartTime, fFinishTime);
  	else
  		return GetInteg(fStartTime, fStartTime+window);
+ }
+
+ Float_t ERNeuRadPMTSignalF::GetThresholdTime(Float_t peThreshold){
+ 	Int_t i = 0;
+ 	while((fResFunctionRoot[i] < peThreshold*OnePEIntegral()) && i < (fResFunctionRoot.GetSize()-1)){
+ 		i++;
+ 	}
+ 	Int_t prevI = i-1;
+ 	Int_t lastI = i;
+ 	Float_t prevT = fStartTime + prevI*csdT;
+ 	Float_t lastT = fStartTime + lastI*csdT;
+ 	if (i==fResFunctionRoot.GetSize()-1)
+ 		return -1;
+ 	return (peThreshold*OnePEIntegral()-fResFunctionRoot[prevI])/(fResFunctionRoot[lastI]-fResFunctionRoot[prevI])*(lastT-prevT)+prevT;
  }
 
 ClassImp(ERNeuRadPMTSignalF)
