@@ -20,14 +20,18 @@ using namespace std;
 Int_t ERNeuRadHitProducerMF::fEvent = 0;
 // ----------------------------------------------------------------------------
 ERNeuRadHitProducerMF::ERNeuRadHitProducerMF()
-  : FairTask("ER muSi hit producing scheme")
+  : fPixelThreshold(2.),
+    fModuleThreshold(4.),
+    FairTask("ER muSi hit producing scheme")
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 ERNeuRadHitProducerMF::ERNeuRadHitProducerMF(Int_t verbose)
-  : FairTask("ER muSi hit producing scheme ", verbose)
+  : fPixelThreshold(2.),
+    fModuleThreshold(4.), 
+    FairTask("ER muSi hit producing scheme ", verbose)
 {
 }
 // ----------------------------------------------------------------------------
@@ -84,8 +88,6 @@ void ERNeuRadHitProducerMF::Exec(Option_t* opt)
   LOG(INFO) << "ERNeuRadHitProducerMF: "<< FairLogger::endl;
   Reset();
   Float_t fOnePEInteg = 4.8;
-  Float_t fFiberThreshold = 2.;
-  Float_t fBundleThreshold = 20.;
 
   Int_t hitNumber=0;
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
@@ -99,7 +101,7 @@ void ERNeuRadHitProducerMF::Exec(Option_t* opt)
   }
   for (Int_t iDigi=0; iDigi <  fNeuRadDigis->GetEntriesFast(); iDigi++){
     ERNeuRadDigi* digi = (ERNeuRadDigi*)fNeuRadDigis->At(iDigi);
-    if (digi->Side()==0 && digi->QDC() > fFiberThreshold*fOnePEInteg && SumBundleSignals[digi->BundleIndex()] > fBundleThreshold*fOnePEInteg){
+    if (digi->Side()==0 && digi->QDC() > fPixelThreshold*fOnePEInteg && SumBundleSignals[digi->BundleIndex()] > fModuleThreshold*fOnePEInteg){
        TVector3 pos(setup->FiberX(digi->BundleIndex(), digi->FiberIndex()),
                  setup->FiberY(digi->BundleIndex(), digi->FiberIndex()),
                  setup->Z()-setup->FiberLength());

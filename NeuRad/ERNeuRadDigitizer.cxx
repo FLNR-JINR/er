@@ -264,13 +264,10 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
                   << frontPointsPerFibers[point_fiber_nb].size()<< " points" << FairLogger::endl;
     */
     Double_t PMTQuantumEfficiency = 0.2;  //fNeuRadSetup->PMTQuantumEfficiency(point_bundle,point_fiber_nb);
-    Double_t PMTGain = fNeuRadSetup->PMTGain(point_bundle,point_fiber_nb);
-    
+    Double_t PMTGain = 5.;//fNeuRadSetup->PMTGain(point_bundle,point_fiber_nb);
     //scintillator light yield - общее число рожденных фотонов
     Double_t photon_count = point_lightYield*1000.*cSciFiLightYield;
-    
     //Моделируем распространнение сигнала на передние ФЭУ
-   
     Double_t k1 = 0.5-cLightFractionInTotalIntReflection;
     Double_t k2 = cLightFractionInTotalIntReflection;
     

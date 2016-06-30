@@ -18,14 +18,18 @@ using namespace std;
 
 // ----------------------------------------------------------------------------
 ERNeuRadMatcher::ERNeuRadMatcher()
-  : FairTask("ER muSi hit producing scheme")
+  : fNeuRadHits(NULL),
+    fNeuRadFirstSteps(NULL),
+    FairTask("ER muSi hit producing scheme")
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 ERNeuRadMatcher::ERNeuRadMatcher(Int_t verbose)
-  : FairTask("ER muSi hit producing scheme ", verbose)
+  : fNeuRadHits(NULL),
+    fNeuRadFirstSteps(NULL),
+    FairTask("ER muSi hit producing scheme ", verbose)
 {
 }
 // ----------------------------------------------------------------------------
@@ -90,6 +94,7 @@ void ERNeuRadMatcher::Exec(Option_t* opt)
     ERNeuRadHit* hit = (ERNeuRadHit*)fNeuRadHits->At(0);
     Double_t dist = TMath::Sqrt((hit->GetX()-step->GetX())*(hit->GetX()-step->GetX()) + 
                                 (hit->GetY()-step->GetY())*(hit->GetY()-step->GetY()));
+    cerr << dist << endl;
     fHdxyOF->Fill(dist);
     if(dist < 0.6)
       fHdxyLess6OF->Fill(dist);

@@ -46,7 +46,7 @@ void NeuRad_sim(Int_t nEvents = 100000){
    * SetStorePrimarySteps() - store only primary particle step
    * SetStoreAllSteps() - store all steps. WARNING - very slow
   */
-  //neuRad->SetStoreAllSteps();
+  neuRad->SetStorePrimarySteps();
   run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 	
@@ -63,7 +63,7 @@ void NeuRad_sim(Int_t nEvents = 100000){
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(90, 90);
-  boxGen->SetBoxXYZ(0.,0.,0.3,0.3,2550.);
+  boxGen->SetBoxXYZ(0.,0,0.6,0.6,2550.);
 
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);
