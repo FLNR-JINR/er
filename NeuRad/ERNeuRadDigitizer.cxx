@@ -60,7 +60,17 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
   fFiberThreshold(0.),
   fFiberThresholdWindow(0.),
   fBundleThreshold(0.),
-  fOnePEInteg(4.8)
+  fOnePEInteg(4.8),
+  fDigiPar(NULL),
+  fNeuRadSetup(NULL),
+  fNeuRadPoints(NULL),
+  fNeuRadFirstStep(NULL),
+  fNeuRadFiberPoint(NULL),
+  fNeuRadPMTSignal(NULL),
+  fNeuRadDigi(NULL),
+  fHPECountF(NULL),
+  fHPECountB(NULL),
+  fCurBundleDigis(NULL)
 {
 }
 // ----------------------------------------------------------------------------
@@ -80,7 +90,17 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   fFiberThreshold(0.),
   fFiberThresholdWindow(0.),
   fBundleThreshold(0.),
-  fOnePEInteg(4.8)
+  fOnePEInteg(4.8),
+  fDigiPar(NULL),
+  fNeuRadSetup(NULL),
+  fNeuRadPoints(NULL),
+  fNeuRadFirstStep(NULL),
+  fNeuRadFiberPoint(NULL),
+  fNeuRadPMTSignal(NULL),
+  fNeuRadDigi(NULL),
+  fHPECountF(NULL),
+  fHPECountB(NULL),
+  fCurBundleDigis(NULL)
 {
 }
 // ----------------------------------------------------------------------------

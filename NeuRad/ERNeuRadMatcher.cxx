@@ -20,6 +20,12 @@ using namespace std;
 ERNeuRadMatcher::ERNeuRadMatcher()
   : fNeuRadHits(NULL),
     fNeuRadFirstSteps(NULL),
+    fHdxy(NULL),
+    fHdxyLess6(NULL),
+    fHdxyOF(NULL),
+    fHdxyLess6OF(NULL),
+    fHdxyTF(NULL),
+    fHdxyLess6TF(NULL),
     FairTask("ER muSi hit producing scheme")
 {
 }
@@ -29,6 +35,12 @@ ERNeuRadMatcher::ERNeuRadMatcher()
 ERNeuRadMatcher::ERNeuRadMatcher(Int_t verbose)
   : fNeuRadHits(NULL),
     fNeuRadFirstSteps(NULL),
+    fHdxy(NULL),
+    fHdxyLess6(NULL),
+    fHdxyOF(NULL),
+    fHdxyLess6OF(NULL),
+    fHdxyTF(NULL),
+    fHdxyLess6TF(NULL),
     FairTask("ER muSi hit producing scheme ", verbose)
 {
 }

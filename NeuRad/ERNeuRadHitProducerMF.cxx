@@ -22,6 +22,9 @@ Int_t ERNeuRadHitProducerMF::fEvent = 0;
 ERNeuRadHitProducerMF::ERNeuRadHitProducerMF()
   : fPixelThreshold(2.),
     fModuleThreshold(4.),
+    fNeuRadDigis(NULL),
+    fNeuRadHits(NULL),
+    fDigiPar(NULL),
     FairTask("ER muSi hit producing scheme")
 {
 }
@@ -30,7 +33,10 @@ ERNeuRadHitProducerMF::ERNeuRadHitProducerMF()
 // ----------------------------------------------------------------------------
 ERNeuRadHitProducerMF::ERNeuRadHitProducerMF(Int_t verbose)
   : fPixelThreshold(2.),
-    fModuleThreshold(4.), 
+    fModuleThreshold(4.),
+    fNeuRadDigis(NULL),
+    fNeuRadHits(NULL),
+    fDigiPar(NULL),
     FairTask("ER muSi hit producing scheme ", verbose)
 {
 }

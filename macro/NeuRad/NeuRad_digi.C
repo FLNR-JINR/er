@@ -19,11 +19,11 @@ void NeuRad_digi(Int_t nEvents = 10000){
  
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
-  ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
+  //ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
   //digitizer->SetDiscriminatorThreshold(20.); //Au
   //digitizer->SetFiberThreshold(4, 5); //pe, ns
-  digitizer->SetPixelThreshold(2.);
-  fRun->AddTask(digitizer);
+  //digitizer->SetPixelThreshold(2.);
+  //fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   
   // -----------Runtime DataBase info -------------------------------------
@@ -41,12 +41,13 @@ void NeuRad_digi(Int_t nEvents = 10000){
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  fRun->Run(0, nEvents);
+  /*fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
   //FairParRootFileIo*  parIo2 = new FairParRootFileIo();
   //parIo2->open(parOutFile.Data());
   rtdb->setOutput(parIo1);
   rtdb->saveOutput();
+  */
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
@@ -58,4 +59,5 @@ void NeuRad_digi(Int_t nEvents = 10000){
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
+
 }
