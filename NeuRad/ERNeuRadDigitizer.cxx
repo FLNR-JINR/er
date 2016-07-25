@@ -70,7 +70,8 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
   fNeuRadDigi(NULL),
   fHPECountF(NULL),
   fHPECountB(NULL),
-  fCurBundleDigis(NULL)
+  fCurBundleDigis(NULL),
+  fRand(NULL)
 {
 }
 // ----------------------------------------------------------------------------
@@ -100,7 +101,8 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   fNeuRadDigi(NULL),
   fHPECountF(NULL),
   fHPECountB(NULL),
-  fCurBundleDigis(NULL)
+  fCurBundleDigis(NULL),
+  fRand(NULL)
 {
 }
 // ----------------------------------------------------------------------------

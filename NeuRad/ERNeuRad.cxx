@@ -19,7 +19,12 @@
 // -----   Default constructor   -------------------------------------------
 ERNeuRad::ERNeuRad() : ERDetector("ERNeuRad", kTRUE),
   fStorePrimarySteps(kFALSE),
-  fStoreAllSteps(kFALSE)
+  fStoreAllSteps(kFALSE),
+  fNeuRadPoints(NULL),
+  fNeuRadFirstStep(NULL),
+  fNeuRadSteps(NULL),
+  fHElossInEvent(NULL),
+  fHLYInEvent(NULL)
 {
   ResetParameters();
   fNeuRadPoints = new TClonesArray("ERNeuRadPoint");

@@ -27,8 +27,8 @@ class ERNeuRadDigi : public FairMultiLinkedData
    *@param FinberIndex fiber in bundle number
    *@param BundleIndex bundle number
    **/
-  ERNeuRadDigi(Int_t id, Double_t frontTDC, Double_t backTDC, Double_t TDC,
-                  Double_t QDC, Int_t bundle, Int_t fiber, Int_t side);
+  ERNeuRadDigi(Int_t id, Double_t frontTDC, Double_t backTDC, Double_t tdc,
+                  Double_t qdc, Int_t bundle, Int_t fiber, Int_t side);
                    
   /** Copy constructor **/
   ERNeuRadDigi(const ERNeuRadDigi&);

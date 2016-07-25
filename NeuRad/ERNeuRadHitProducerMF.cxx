@@ -105,14 +105,23 @@ void ERNeuRadHitProducerMF::Exec(Option_t* opt)
     ERNeuRadDigi* digi = (ERNeuRadDigi*)fNeuRadDigis->At(iDigi);
     SumBundleSignals[digi->BundleIndex()]+=digi->QDC();
   }
-  for (Int_t iDigi=0; iDigi <  fNeuRadDigis->GetEntriesFast(); iDigi++){
-    ERNeuRadDigi* digi = (ERNeuRadDigi*)fNeuRadDigis->At(iDigi);
-    if (digi->Side()==0 && digi->QDC() > fPixelThreshold*fOnePEInteg && SumBundleSignals[digi->BundleIndex()] > fModuleThreshold*fOnePEInteg){
-       TVector3 pos(setup->FiberX(digi->BundleIndex(), digi->FiberIndex()),
-                 setup->FiberY(digi->BundleIndex(), digi->FiberIndex()),
-                 setup->Z()-setup->FiberLength());
-        TVector3 dpos(0,0,0);
-        AddHit(kNEURAD,pos, dpos,digi->BundleIndex(),digi->FiberIndex(),digi->FrontTDC());
+  
+  Int_t nofBundles = 0;
+  for (Int_t iBundle=0; iBundle < setup->NofBundles(); iBundle++){
+    if (SumBundleSignals[iBundle] > fModuleThreshold*fOnePEInteg)
+      nofBundles++;
+  }
+
+  if (nofBundles == 1){
+    for (Int_t iDigi=0; iDigi <  fNeuRadDigis->GetEntriesFast(); iDigi++){
+      ERNeuRadDigi* digi = (ERNeuRadDigi*)fNeuRadDigis->At(iDigi);
+      if (digi->Side()==0 && digi->QDC() > fPixelThreshold*fOnePEInteg && SumBundleSignals[digi->BundleIndex()] > fModuleThreshold*fOnePEInteg){
+         TVector3 pos(setup->FiberX(digi->BundleIndex(), digi->FiberIndex()),
+                   setup->FiberY(digi->BundleIndex(), digi->FiberIndex()),
+                   setup->Z()-setup->FiberLength());
+          TVector3 dpos(0,0,0);
+          AddHit(kNEURAD,pos, dpos,digi->BundleIndex(),digi->FiberIndex(),digi->FrontTDC());
+      }
     }
   }
   delete [] SumBundleSignals;

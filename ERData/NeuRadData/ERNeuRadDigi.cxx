@@ -21,13 +21,13 @@ ERNeuRadDigi::ERNeuRadDigi()
 {
 }
 
-ERNeuRadDigi::ERNeuRadDigi(Int_t id, Double_t frontTDC, Double_t backTDC, Double_t TDC,
-                  Double_t QDC, Int_t bundle, Int_t fiber, Int_t side)
+ERNeuRadDigi::ERNeuRadDigi(Int_t id, Double_t frontTDC, Double_t backTDC, Double_t tdc,
+                  Double_t qdc, Int_t bundle, Int_t fiber, Int_t side)
   :fID(id),
   fFrontTDC(frontTDC),
   fBackTDC(backTDC),
-  fTDC(TDC),
-  fQDC(QDC),
+  fTDC(tdc),
+  fQDC(qdc),
   fFiberIndex(fiber),
   fBundleIndex(bundle),
   fSide(side)

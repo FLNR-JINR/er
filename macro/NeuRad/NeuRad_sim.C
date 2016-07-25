@@ -93,7 +93,7 @@ void NeuRad_sim(Int_t nEvents = 100000){
   run->Run(nEvents);
   
   // -----   Finish   -------------------------------------------------------
-  neuRad->WriteHistos();
+  //neuRad->WriteHistos();
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
