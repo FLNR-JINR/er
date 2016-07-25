@@ -9,6 +9,7 @@ ${ROOT_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/ERData
 ${CMAKE_SOURCE_DIR}/ERData/NeuRadData
 ${CMAKE_SOURCE_DIR}/ERData/muSiData
+${CMAKE_SOURCE_DIR}/ERData/NDData
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -42,6 +43,8 @@ GadastData/ERGadastStep.cxx
 ERStack.cxx
 ERMCTrack.cxx
 ERMCEventHeader.cxx
+
+NDData/ERNDPoint.cxx
 )
 
 # fill list of header files from list of source files

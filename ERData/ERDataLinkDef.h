@@ -26,4 +26,7 @@
 #pragma link C++ class ERGadastLaBrPoint+;
 #pragma link C++ class ERGadastStep+;
 
+#pragma link C++ class ERNDPoint+;
+
+
 #endif
