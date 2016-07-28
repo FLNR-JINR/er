@@ -55,19 +55,11 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  inline void SetDiscriminatorThreshold(const Double_t discrThreshold)
-                                                        {fDiscriminatorThreshold = discrThreshold; }
   inline void SetPMTJitter(const Double_t PMTJitter)    {fPMTJitter = PMTJitter;}
   inline void SetPMTDelay(const Double_t PMTDelay)      {fPMTDelay = PMTDelay;}
-  inline void SetPECountForOneElectronsSim(const Double_t count)
-                                                        {fPECountForOneElectronsSim = count;}
   inline void SetExcessNoiseFactor(const Double_t enf)  {fExcessNoiseFactor = enf;}
   inline void SetScincilationTau(const Double_t tau)    {fScincilationTau = tau;}
   inline void SetScincilationDT(const Double_t dt)      {fScincilationDT = dt;}
-
-  inline void SetFiberThreshold(const Float_t FiberThreshold, const Float_t window)
-                                  {fFiberThreshold = FiberThreshold; fFiberThresholdWindow = window;}
-  inline void SetBundleThreshold(const Float_t BundleThreshold) {fBundleThreshold = BundleThreshold;}
 
   inline void SetPixelThreshold(const Float_t pThreshold){fPixelThreshold = pThreshold;}
 
@@ -111,10 +103,8 @@ protected:
   static const Double_t cMaxPointLength; //[cm] //старый параметр, для идеи дробления поинта в диджитизации. Будет удален в следующих версиях
   
   //Allow for user params
-  Double_t fDiscriminatorThreshold; //[mV]
   Double_t fPMTJitter; //[ns]
   Double_t fPMTDelay; //[ns]
-  Int_t fPECountForOneElectronsSim;
   Double_t fExcessNoiseFactor;
   Double_t fScincilationTau; //[ns]
   Double_t fScincilationDT;  //[ns]
@@ -123,9 +113,6 @@ protected:
   Double_t fFiberPointsCreatingTime;
   TStopwatch fPMTSignalCreatingTimer;
   Double_t fPMTSignalCreatingTime;
-  Float_t fFiberThreshold;
-  Float_t fBundleThreshold;
-  Float_t fFiberThresholdWindow;
   Float_t fOnePEInteg;
   Float_t fPixelThreshold;
 protected:
@@ -137,8 +124,6 @@ protected:
   ERNeuRadDigi* AddDigi(ERNeuRadDigi* digi);
 
   ERNeuRadDigi* AddTempDigi(Double_t frontTDC, Double_t backTDC, Double_t TDC, Double_t QDC, Int_t bundle, Int_t fiber, Int_t side);
-
-  void LongPointSeparating(ERNeuRadPoint* point, std::vector<ERNeuRadPoint*> * points);
   
   virtual void FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
                           std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,

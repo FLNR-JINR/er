@@ -11,8 +11,6 @@
 #pragma link C++ class ERNeuRadPoint+;
 #pragma link C++ class ERNeuRadFiberPoint+;
 #pragma link C++ class ERNeuRadPMTSignal+;
-#pragma link C++ class ERNeuRadPMTSignalF+;
-#pragma link C++ class ERNeuRadPMTSignalLP+;
 #pragma link C++ class ERNeuRadDigi+;
 #pragma link C++ class ERNeuRadStep+;
 #pragma link C++ class ERNeuRadHit+;

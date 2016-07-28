@@ -112,7 +112,7 @@ void ERNeuRadHitProducerMF::Exec(Option_t* opt)
       nofBundles++;
   }
 
-  if (nofBundles == 1){
+  //if (nofBundles == 1){
     for (Int_t iDigi=0; iDigi <  fNeuRadDigis->GetEntriesFast(); iDigi++){
       ERNeuRadDigi* digi = (ERNeuRadDigi*)fNeuRadDigis->At(iDigi);
       if (digi->Side()==0 && digi->QDC() > fPixelThreshold*fOnePEInteg && SumBundleSignals[digi->BundleIndex()] > fModuleThreshold*fOnePEInteg){
@@ -123,7 +123,7 @@ void ERNeuRadHitProducerMF::Exec(Option_t* opt)
           AddHit(kNEURAD,pos, dpos,digi->BundleIndex(),digi->FiberIndex(),digi->FrontTDC());
       }
     }
-  }
+  //}
   delete [] SumBundleSignals;
   LOG(INFO) << "Hits count: " << fNeuRadHits->GetEntriesFast() << FairLogger::endl;
 }

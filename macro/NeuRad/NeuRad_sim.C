@@ -1,4 +1,4 @@
-void NeuRad_sim(Int_t nEvents = 100000){
+void NeuRad_sim(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -93,7 +93,7 @@ void NeuRad_sim(Int_t nEvents = 100000){
   run->Run(nEvents);
   
   // -----   Finish   -------------------------------------------------------
-  //neuRad->WriteHistos();
+  neuRad->WriteHistos();
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();

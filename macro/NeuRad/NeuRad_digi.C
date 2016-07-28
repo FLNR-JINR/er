@@ -20,8 +20,6 @@ void NeuRad_digi(Int_t nEvents = 1000){
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
-  //digitizer->SetDiscriminatorThreshold(20.); //Au
-  //digitizer->SetFiberThreshold(4, 5); //pe, ns
   digitizer->SetPixelThreshold(2.);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
