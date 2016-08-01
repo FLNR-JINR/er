@@ -11,10 +11,11 @@
 
 
 // -----   Default constructor   -------------------------------------------
-ERmuSi::ERmuSi() : FairDetector("ERmuSi", kTRUE)
+ERmuSi::ERmuSi():
+  FairDetector("ERmuSi", kTRUE),
+  fERmuSiPoints(new TClonesArray("ERmuSiPoint"))
 {
   ResetParameters();
-  fERmuSiPoints = new TClonesArray("ERmuSiPoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fVerboseLevel = 1;
@@ -24,10 +25,10 @@ ERmuSi::ERmuSi() : FairDetector("ERmuSi", kTRUE)
 
 // -----   Standard constructor   ------------------------------------------
 ERmuSi::ERmuSi(const char* name, Bool_t active, Int_t verbose) 
-  : FairDetector(name, active,verbose)
+  : FairDetector(name, active,verbose),
+  fERmuSiPoints(new TClonesArray("ERmuSiPoint"))
   {
   ResetParameters();
-  fERmuSiPoints = new TClonesArray("ERmuSiPoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fVersion = 1;
