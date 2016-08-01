@@ -56,7 +56,6 @@ void NeuRad_sim(Int_t nEvents = 1000){
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 7.;
   Double32_t kin_energy = .500; //GeV
-  // /Double32_t kin_energy = Ekin; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
