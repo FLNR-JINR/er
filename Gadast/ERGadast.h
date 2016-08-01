@@ -11,16 +11,12 @@
 #include "TLorentzVector.h"
 #include "TRandom3.h"
 
-//class TClonesArray;
-//class FairVolume;
-//class TF1;
 class TRandom3;
 
 #include "ERDetector.h"
 #include "ERGadastCsIPoint.h"
 #include "ERGadastLaBrPoint.h"
 #include "ERGadastStep.h"
-//#include "ERGadastMesh.h"
 #include "ERDetectorList.h"
 
 class ERGadastMesh;

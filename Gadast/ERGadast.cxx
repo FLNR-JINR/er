@@ -6,49 +6,49 @@
 
 #include "FairRootManager.h"
 #include "FairRun.h"
-//#include "FairRuntimeDb.h"
+#include "FairRuntimeDb.h"
 #include "TClonesArray.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
 #include "TVector3.h"
 #include "TGeoMatrix.h"
-
-//#include "ERGadastGeoPar.h"
+#include "ERGadastGeoPar.h"
 
 #include <iostream>
 using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-ERGadast::ERGadast() : ERDetector("ERGadast", kTRUE)
+ERGadast::ERGadast(): 
+  ERDetector("ERGadast", kTRUE),
+  fCsIPoints(new TClonesArray("ERGadastCsIPoint")),
+  fLaBrPoints(new TClonesArray("ERGadastLaBrPoint")),
+  fGadastSteps(new TClonesArray("ERGadastStep")),
+  fVersion(1),
+  fStoreSteps(kFALSE)
 {
   ResetParameters();
-  fCsIPoints = new TClonesArray("ERGadastCsIPoint");
-  fLaBrPoints = new TClonesArray("ERGadastLaBrPoint");
-  fGadastSteps = new TClonesArray("ERGadastStep");
-  flGeoPar = new TList();
   flGeoPar->SetName( GetName());
+  flGeoPar = new TList();
   fVerboseLevel = 1;
-  fVersion = 1;
-
-  fStoreSteps = kFALSE;
 }
 
 //-------------------------------------------------------------------------
 
 //-----   Standard constructor   ------------------------------------------
 ERGadast::ERGadast(const char* name, Bool_t active) 
-  : ERDetector(name, active)
+  : ERDetector(name, active),
+  fCsIPoints(new TClonesArray("ERGadastCsIPoint")),
+  fLaBrPoints(new TClonesArray("ERGadastLaBrPoint")),
+  fGadastSteps(new TClonesArray("ERGadastStep")),
+  fVersion(1),
+  fStoreSteps(kFALSE)
 { 
   ResetParameters();
-  fCsIPoints = new TClonesArray("ERGadastCsIPoint");
-  fLaBrPoints = new TClonesArray("ERGadastLaBrPoint");
-  fGadastSteps = new TClonesArray("ERGadastStep");
-  flGeoPar = new TList();
   flGeoPar->SetName( GetName());
-  fVersion = 1;
-  fStoreSteps = kFALSE; 
+  flGeoPar = new TList();
+  fVerboseLevel = 1;
 }
 //-------------------------------------------------------------------------
 
@@ -73,10 +73,8 @@ ERGadast::~ERGadast() {
 void ERGadast::Initialize()
 {
   FairDetector::Initialize();
-  //FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
-  //ERGadastGeoPar* par=(ERGadastGeoPar*)(rtdb->getContainer("ERGadastGeoPar"));
-  //fMesh = new ERGadastMesh();
-  //fRnd = new TRandom3();
+  FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
+  ERGadastGeoPar* par=(ERGadastGeoPar*)(rtdb->getContainer("ERGadastGeoPar"));
 }
 //-------------------------------------------------------------------------
 
@@ -92,33 +90,12 @@ Bool_t ERGadast::ProcessHits(FairVolume* vol) {
     AddStep();
     return kTRUE;
   }
-  //cerr << "Gadast edep" << gMC->Edep() << endl;
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
   
   //finish point
 	if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared()) { 
     FinishPoint();
   }
-/*
-  if (fDetectorType == CsI){
-    TLorentzVector curPosIn;
-    gMC->TrackPosition(curPosIn);
-    TGeoHMatrix m;
-    TString path(gMC->CurrentVolPath());
-    gMC->GetTransformation(path, m);
-    int curMeshElement = fMesh->GetMeshElement(&curPosIn,&m, fDetectorType);
-    if (fStepNr == 0){
-      fMeshElement = curMeshElement;
-    }
-    else {
-      if (fMeshElement != curMeshElement){
-        FinishPoint();
-        fMeshElement = curMeshElement;
-        StartPoint();
-      }
-    }
-  }
-  */
   fStepNr++;
 }
 
@@ -155,12 +132,6 @@ void ERGadast::FinishPoint(){
   gMC->TrackMomentum(fMomOut);
   
   if (fELoss > 0.){
-    //energy resolution
-    const double E0=0.662;
-    const double FWHM= 0.08;
-    const double sigma0=0.5*FWHM*E0/sqrt(log(2.));
-    const double sigma = sigma0*sqrt(fELoss/E0);
-    //fELoss = fRnd->Gaus(fELoss, sigma);
     if(fDetectorType == 0) 
       AddCsIPoint();
     if(fDetectorType == 1)
