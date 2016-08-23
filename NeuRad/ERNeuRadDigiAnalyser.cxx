@@ -4,7 +4,7 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "FairLogger.h"
+#include<iostream>
 
 
 #include "ERNeuRadPoint.h"
@@ -43,7 +43,7 @@ void ERNeuRadDigiAnalyser::SetParContainers()
   if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
 
   if ( fVerbose /*&& fLandDigiPar*/ ) {
-    LOG(INFO) << "ERNeuRadDigiAnalyser::SetParContainers() "<< FairLogger::endl;
+    std::cout << "ERNeuRadDigiAnalyser::SetParContainers() "<< std::endl;
   }
 }
 // ----------------------------------------------------------------------------

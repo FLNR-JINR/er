@@ -14,7 +14,7 @@
 // -----   Default constructor   -------------------------------------------
 detector::detector() : FairDetector("detector", kTRUE)
 {
-  LOG(INFO) << "  DETECTOR::detector()" << FairLogger::endl;
+  std::cout << "  DETECTOR::detector()" << std::endl;
   /*
   ResetParameters();
   fDetectorPoints = new TClonesArray("detectorPoint");
@@ -30,8 +30,8 @@ detector::detector() : FairDetector("detector", kTRUE)
 detector::detector(const char* name, Bool_t active, Int_t verbose) 
   : FairDetector(name, active,verbose)
   {
-  LOG(INFO) << "  DETECTOR::detector(const char* name, Bool_t active, Int_t verbose) " 
-            << FairLogger::endl;
+  std::cout << "  DETECTOR::detector(const char* name, Bool_t active, Int_t verbose) " 
+            << std::endl;
   /*
   ResetParameters();
   fDetectorPoints = new TClonesArray("detectorPoint");
@@ -42,7 +42,7 @@ detector::detector(const char* name, Bool_t active, Int_t verbose)
 }
 
 detector::~detector() {
-  LOG(INFO) << "  DETECTOR::~detector()" << FairLogger::endl;
+  std::cout << "  DETECTOR::~detector()" << std::endl;
   /*
   if (fDetectorPoints) {
     fDetectorPoints->Delete();
@@ -53,13 +53,13 @@ detector::~detector() {
 
 void detector::Initialize()
 {
-  LOG(INFO) << "  DETECTOR::Initialize()" << FairLogger::endl;
+  std::cout << "  DETECTOR::Initialize()" << std::endl;
   FairDetector::Initialize();
 }
 
 
 Bool_t detector::ProcessHits(FairVolume* vol) {
-  LOG(INFO) << "  DETECTOR::ProcessHits(FairVolume* vol)" << FairLogger::endl;
+  std::cout << "  DETECTOR::ProcessHits(FairVolume* vol)" << std::endl;
   /*
   static Int_t          eventID;           //!  event index
   static Int_t          trackID;           //!  track index
@@ -107,12 +107,12 @@ Bool_t detector::ProcessHits(FairVolume* vol) {
 
 // -----   Public method EndOfEvent   -----------------------------------------
 void detector::BeginEvent() {
-  LOG(INFO) << "  DETECTOR::BeginEvent()" << FairLogger::endl;
+  std::cout << "  DETECTOR::BeginEvent()" << std::endl;
 }
 
 
 void detector::EndOfEvent() {
-  LOG(INFO) << "  DETECTOR::EndOfEvent()" << FairLogger::endl;
+  std::cout << "  DETECTOR::EndOfEvent()" << std::endl;
   /*
   if (fVerboseLevel > 1) {
     Print();
@@ -123,7 +123,7 @@ void detector::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void detector::Register() {
-  LOG(INFO) << "  DETECTOR::Register()" << FairLogger::endl;
+  std::cout << "  DETECTOR::Register()" << std::endl;
   /*
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
@@ -135,7 +135,7 @@ void detector::Register() {
 
 // -----   Public method GetCollection   --------------------------------------
 TClonesArray* detector::GetCollection(Int_t iColl) const {
-  LOG(INFO) << "  DETECTOR::GetCollection(Int_t iColl)" << FairLogger::endl;
+  std::cout << "  DETECTOR::GetCollection(Int_t iColl)" << std::endl;
   /*
   if (iColl == 0) 
     return fDetectorPoints;
@@ -150,7 +150,7 @@ TClonesArray* detector::GetCollection(Int_t iColl) const {
 // -----   Public method Print   ----------------------------------------------
 void detector::Print(Option_t *option) const
 {
-  LOG(INFO) << "  DETECTOR::Print" << FairLogger::endl;
+  std::cout << "  DETECTOR::Print" << std::endl;
   /*
   for (Int_t i_point = 0; i_point < fDetectorPoints->GetEntriesFast(); i_point++){
     detectorPoint* point = (detectorPoint*)fDetectorPoints->At(i_point);
@@ -162,7 +162,7 @@ void detector::Print(Option_t *option) const
 
 // -----   Public method Reset   ----------------------------------------------
 void detector::Reset() {
-  LOG(INFO) << "  DETECTOR::Reset()" << FairLogger::endl;
+  std::cout << "  DETECTOR::Reset()" << std::endl;
   /*)
   fDetectorPoints->Clear();
   ResetParameters();
@@ -172,11 +172,11 @@ void detector::Reset() {
 
 // -----   Public method CopyClones   -----------------------------------------
 void detector::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
-  LOG(INFO) << "   DETECTOR::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)" 
-            << FairLogger::endl;
+  std::cout << "   DETECTOR::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)" 
+            << std::endl;
   /*
   Int_t nEntries = cl1->GetEntriesFast();
-  LOG(INFO) << "decector: " << nEntries << " entries to add" << FairLogger::endl;
+  std::cout << "decector: " << nEntries << " entries to add" << std::endl;
   TClonesArray& clref = *cl2;
   detectorPoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
@@ -185,7 +185,7 @@ void detector::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
    oldpoint->SetTrackID(index);
    new (clref[cl2->GetEntriesFast()]) detectorPoint(*oldpoint);
   }
-  LOG(INFO) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
+  std::cout << "decector: " << cl2->GetEntriesFast() << " merged entries" << std::endl;
   */
 }
 // ----------------------------------------------------------------------------
@@ -209,14 +209,14 @@ detectorPoint* detector::AddPoint(Int_t eventID, Int_t trackID,
 
 // -----   Public method ConstructGeometry   ----------------------------------
 void detector::ConstructGeometry() {
-  LOG(INFO) << "  DETECTOR::ConstructGeometry()" << FairLogger::endl;
+  std::cout << "  DETECTOR::ConstructGeometry()" << std::endl;
   
   TString fileName = GetGeometryFileName();
   if(fileName.EndsWith(".root")) {
-    LOG(INFO) << "Constructing detector geometry from ROOT file " << fileName.Data() << FairLogger::endl;
+    std::cout << "Constructing detector geometry from ROOT file " << fileName.Data() << std::endl;
     ConstructRootGeometry();
   } else {
-    LOG(FATAL) << "Geometry file name is not set" << FairLogger::endl;
+    LOG(FATAL) << "Geometry file name is not set" << std::endl;
   }
   
 }
@@ -225,7 +225,7 @@ void detector::ConstructGeometry() {
 // ----------------------------------------------------------------------------
 Bool_t detector::CheckIfSensitive(std::string name)
 {
-  LOG(INFO) << "DETECTOR::CheckIfSensitive(std::string name)" << FairLogger::endl;
+  std::cout << "DETECTOR::CheckIfSensitive(std::string name)" << std::endl;
   /*
   TString volName = name;
   if(volName.Contains("module")) {
@@ -238,7 +238,7 @@ Bool_t detector::CheckIfSensitive(std::string name)
 
 // ----------------------------------------------------------------------------
 void detector::ResetParameters() {
-  LOG(INFO) << "   DETECTOR::ResetParameters() " << FairLogger::endl;
+  std::cout << "   DETECTOR::ResetParameters() " << std::endl;
 };
 // ----------------------------------------------------------------------------
 ClassImp(detector)

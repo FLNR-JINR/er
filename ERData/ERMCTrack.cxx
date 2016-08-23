@@ -6,7 +6,7 @@
 
 #include "ERMCTrack.h"
 
-#include "FairLogger.h"
+#include<iostream>
 
 #include "TParticle.h"
 #ifndef ROOT_TParticlePDG
@@ -111,8 +111,8 @@ ERMCTrack::~ERMCTrack() { }
 void ERMCTrack::Print(Int_t trackId) const {
   LOG(DEBUG) << "Track " << trackId << ", mother : " << fMotherId
 	     << ", Type " << fPdgCode << ", momentum (" << fPx << ", "
-	     << fPy << ", " << fPz << ") GeV" << FairLogger::endl;
-  //LOG(DEBUG) << "       Ref " << GetNPoints(kREF) << FairLogger::endl;
+	     << fPy << ", " << fPz << ") GeV" << std::endl;
+  //LOG(DEBUG) << "       Ref " << GetNPoints(kREF) << std::endl;
 }
 // -------------------------------------------------------------------------
 
@@ -163,8 +163,8 @@ Int_t ERMCTrack::GetNPoints(DetectorId detId) const {
   else if ( detId == kECAL ) return ( (fNPoints & ( 1 << 24) ) >> 24);
   else if ( detId == kPSD  ) return ( (fNPoints & ( 1 << 25) ) >> 25);
   else {
-    LOG(ERROR) << "GetNPoints: Unknown detector ID "
-	       << detId << FairLogger::endl;
+    std::cerr << "GetNPoints: Unknown detector ID "
+	       << detId << std::endl;
   */
     return 0;
   //}
@@ -230,8 +230,8 @@ void ERMCTrack::SetNPoints(Int_t iDet, Int_t nPoints) {
     fNPoints = ( fNPoints & ( ~ (  1 << 25 ) ) )  |  ( nPoints << 25 );
   }
 
-  else LOG(ERROR) << "Unknown detector ID "
-		  << iDet << FairLogger::endl;
+  else std::cerr << "Unknown detector ID "
+		  << iDet << std::endl;
 */
 }
 // -------------------------------------------------------------------------

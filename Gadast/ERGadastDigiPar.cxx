@@ -7,7 +7,7 @@
 #include "FairGenericParRootFileIo.h"
 #include "FairParAsciiFileIo.h"
 #include "FairParRootFileIo.h"
-#include "FairLogger.h"
+#include<iostream>
 
 #include "TString.h"
 #include "TMath.h"
@@ -52,18 +52,18 @@ void ERGadastDigiPar::print()
 {
   Int_t rowNofElements = (Int_t)TMath::Sqrt(fMeshElementsCount);
   
-  LOG(INFO) << "*****************************************" << FairLogger::endl;
-  LOG(INFO) << "          ERGadastDigiPar                " << FairLogger::endl;
-  LOG(INFO) << "*****************************************" << FairLogger::endl;
-  LOG(INFO) << "   ERGadastMeshElementsCount: " <<  fMeshElementsCount <<  FairLogger::endl;
-  LOG(INFO) << "   ERGadastMeshElements: " <<  FairLogger::endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "          ERGadastDigiPar                " << std::endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "   ERGadastMeshElementsCount: " <<  fMeshElementsCount <<  std::endl;
+  std::cout << "   ERGadastMeshElements: " <<  std::endl;
   for (Int_t iElement = 0; iElement < rowNofElements; iElement++){
-    LOG(INFO) << "     ";
+    std::cout << "     ";
     for (Int_t jElement = 0; jElement < rowNofElements; jElement++)
-      LOG(INFO) <<(*fMeshElements)[iElement*rowNofElements + jElement] << "\t";
-     LOG(INFO) << FairLogger::endl;
+      std::cout <<(*fMeshElements)[iElement*rowNofElements + jElement] << "\t";
+     std::cout << std::endl;
   }
-  LOG(INFO) << "*****************************************" << FairLogger::endl;
+  std::cout << "*****************************************" << std::endl;
 }
 //------------------------------------------------------
 void ERGadastDigiPar::putParams(FairParamList* l)
@@ -84,7 +84,7 @@ Bool_t ERGadastDigiPar::getParams(FairParamList* l)
 }
 //------------------------------------------------------
 Bool_t ERGadastDigiPar::init(FairParIo* input){
-	LOG(INFO) << input->getFilename() << FairLogger::endl;
+	std::cout << input->getFilename() << std::endl;
   if ( TString(input->getFilename()).Contains(".digi")){
     FairGenericParAsciiFileIo* p=new FairGenericParAsciiFileIo(((FairParAsciiFileIo*)input)->getFile());
 	return p->init(this);

@@ -6,7 +6,7 @@
 #include "FairFileHeader.h"             // for FairFileHeader
 #include "FairGeoInterface.h"           // for FairGeoInterface
 #include "FairGeoLoader.h"              // for FairGeoLoader
-#include "FairLogger.h"                 // for FairLogger, MESSAGE_ORIGIN
+#include<iostream>                 // for FairLogger, MESSAGE_ORIGIN
 #include "FairMCEventHeader.h"          // for FairMCEventHeader
 #include "FairMesh.h"                   // for FairMesh
 #include "FairModule.h"                 // for FairModule
@@ -51,7 +51,7 @@ void  ERRunSim::Init(){
   //CheckFlukaExec();
 
 //  fOutFile=fRootManager->OpenOutFile(fOutname);
-  LOG(INFO) << "==============  FairRunSim: Initialising simulation run ==============" << FairLogger::endl;
+  std::cout << "==============  FairRunSim: Initialising simulation run ==============" << std::endl;
 
   FairGeoLoader* loader=new FairGeoLoader(fLoaderName->Data(), "Geo Loader");
   FairGeoInterface* GeoInterFace=loader->getGeoInterface();
@@ -102,7 +102,7 @@ void  ERRunSim::Init(){
   }
   // on/off visualisation
   if( fStoreTraj ) {
-    LOG(INFO) << "Create visualisation manager " << FairLogger::endl;
+    std::cout << "Create visualisation manager " << std::endl;
     new FairTrajFilter();
   }
   if(fRadLength) {
@@ -172,20 +172,20 @@ void ERRunSim::SetMCConfig()
     } else {
       if (fUserConfig.Contains("/")) { AbsPath=kTRUE; }
       g4Macro = fUserConfig;
-      LOG(INFO) << "---------------User config is used: " 
-		<< g4Macro.Data() << FairLogger::endl;
+      std::cout << "---------------User config is used: " 
+		<< g4Macro.Data() << std::endl;
     }
     if (TString(gSystem->FindFile(config_dir.Data(),g4LibMacro)) != TString("")) { //be carfull after this call the string g4LibMacro is empty if not found!!!!
-      LOG(INFO) << "---User path for Configuration (g4libs.C) is used: " 
-		<< config_dir.Data() << FairLogger::endl;
+      std::cout << "---User path for Configuration (g4libs.C) is used: " 
+		<< config_dir.Data() << std::endl;
     } else {
       g4LibMacro=Lib_config+"g4libs.C";
     }
     LibMacro=g4LibMacro;
     LibFunction="g4libs()";
     if (!AbsPath && TString(gSystem->FindFile(config_dir.Data(),g4Macro)) != TString("")) {
-      LOG(INFO) << "---User path for Configuration (g4Config.C) is used: " 
-		<< config_dir.Data() << FairLogger::endl;
+      std::cout << "---User path for Configuration (g4Config.C) is used: " 
+		<< config_dir.Data() << std::endl;
       ConfigMacro=g4Macro;
     } else {
       if(AbsPath) { ConfigMacro = fUserConfig; }
@@ -198,24 +198,24 @@ void ERRunSim::SetMCConfig()
     if(fUserConfig.IsNull()) {
       g3Macro="g3Config.C";
       fUserConfig = g3Macro;
-      LOG(INFO) << "-------------- Standard Config is called ------------------------------------" << FairLogger::endl;
+      std::cout << "-------------- Standard Config is called ------------------------------------" << std::endl;
     } else {
       if (fUserConfig.Contains("/")) { AbsPath=kTRUE; }
       g3Macro = fUserConfig;
-      LOG(INFO) << "---------------User config is used: " 
-		<< g3Macro.Data() << FairLogger::endl;
+      std::cout << "---------------User config is used: " 
+		<< g3Macro.Data() << std::endl;
     }
     if (TString(gSystem->FindFile(config_dir.Data(),g3LibMacro)) != TString("")) {
-      LOG(INFO) << "---User path for Configuration (g3libs.C) is used: " 
-		<< config_dir.Data() << FairLogger::endl;
+      std::cout << "---User path for Configuration (g3libs.C) is used: " 
+		<< config_dir.Data() << std::endl;
     } else {
       g3LibMacro=work_config+"g3libs.C";
     }
     LibMacro=g3LibMacro;
     LibFunction="g3libs()";
     if (!AbsPath && TString(gSystem->FindFile(config_dir.Data(),g3Macro)) != TString("")) {
-      LOG(INFO) << "---User path for Configuration (g3Config.C) is used: "
-		<< config_dir.Data() << FairLogger::endl;
+      std::cout << "---User path for Configuration (g3Config.C) is used: "
+		<< config_dir.Data() << std::endl;
       ConfigMacro=g3Macro;
     } else {
       if(AbsPath) { ConfigMacro = fUserConfig; }
@@ -231,20 +231,20 @@ void ERRunSim::SetMCConfig()
     } else {
       if (fUserConfig.Contains("/")) { AbsPath=kTRUE; }
       flMacro = fUserConfig;
-      LOG(INFO) << "---------------User config is used: " 
-		<< flMacro.Data() << FairLogger::endl;
+      std::cout << "---------------User config is used: " 
+		<< flMacro.Data() << std::endl;
     }
     if (TString(gSystem->FindFile(config_dir.Data(), flLibMacro)) != TString("")) {
-      LOG(INFO) << "---User path for Configuration (fllibs.C) is used: "
-		<< config_dir.Data() << FairLogger::endl;
+      std::cout << "---User path for Configuration (fllibs.C) is used: "
+		<< config_dir.Data() << std::endl;
     } else {
       flLibMacro=work_config+"fllibs.C";
     }
     LibMacro=flLibMacro;
     LibFunction="fllibs()";
     if (!AbsPath && TString(gSystem->FindFile(config_dir.Data(),flMacro)) != TString("")) {
-      LOG(INFO) << "---User path for Configuration (flConfig.C) is used: " 
-		<< config_dir.Data() << FairLogger::endl;
+      std::cout << "---User path for Configuration (flConfig.C) is used: " 
+		<< config_dir.Data() << std::endl;
       ConfigMacro=flMacro;
     } else {
       if(AbsPath) { ConfigMacro = fUserConfig; }
@@ -253,8 +253,8 @@ void ERRunSim::SetMCConfig()
   }
   //----------------------------------------------SetCuts------------------------------------------------
   if (TString(gSystem->FindFile(config_dir.Data(),cuts)) != TString("")) {
-    LOG(INFO) << "---User path for Cuts and Processes (SetCuts.C) is used: "
-	      << config_dir.Data() << FairLogger::endl;
+    std::cout << "---User path for Cuts and Processes (SetCuts.C) is used: "
+	      << config_dir.Data() << std::endl;
   } else {
     cuts =work_config+ fUserCuts;
   }

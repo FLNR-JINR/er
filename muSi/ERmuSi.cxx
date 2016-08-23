@@ -150,7 +150,7 @@ void ERmuSi::Reset() {
 // -----   Public method CopyClones   -----------------------------------------
 void ERmuSi::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
   Int_t nEntries = cl1->GetEntriesFast();
-  LOG(INFO) << "decector: " << nEntries << " entries to add" << FairLogger::endl;
+  std::cout << "decector: " << nEntries << " entries to add" << std::endl;
   TClonesArray& clref = *cl2;
   ERmuSiPoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
@@ -159,7 +159,7 @@ void ERmuSi::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
    oldpoint->SetTrackID(index);
    new (clref[cl2->GetEntriesFast()]) ERmuSiPoint(*oldpoint);
   }
-  LOG(INFO) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
+  std::cout << "decector: " << cl2->GetEntriesFast() << " merged entries" << std::endl;
   
 }
 // ----------------------------------------------------------------------------
@@ -185,10 +185,10 @@ ERmuSiPoint* ERmuSi::AddPoint(Int_t eventID, Int_t trackID,
 void ERmuSi::ConstructGeometry() {
   TString fileName = GetGeometryFileName();
   if(fileName.EndsWith(".root")) {
-    LOG(INFO) << "Constructing ERmuSi geometry from ROOT file " << fileName.Data() << FairLogger::endl;
+    std::cout << "Constructing ERmuSi geometry from ROOT file " << fileName.Data() << std::endl;
     ConstructRootGeometry();
   } else {
-    LOG(FATAL) << "Geometry file name is not set" << FairLogger::endl;
+    LOG(FATAL) << "Geometry file name is not set" << std::endl;
   }
   
 }

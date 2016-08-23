@@ -177,7 +177,7 @@ TClonesArray* ERGadast::GetCollection(Int_t iColl) const {
 void ERGadast::Print(Option_t *option) const
 {
   if (fCsIPoints->GetEntriesFast() > 0){
-    LOG(INFO) << "======== CsI Points ==================" << FairLogger::endl;
+    std::cout << "======== CsI Points ==================" << std::endl;
     for (Int_t i_point = 0; i_point < fCsIPoints->GetEntriesFast(); i_point++){
       ERGadastCsIPoint* point = (ERGadastCsIPoint*)fCsIPoints->At(i_point);
       point->Print();
@@ -185,7 +185,7 @@ void ERGadast::Print(Option_t *option) const
   }
 
   if (fLaBrPoints->GetEntriesFast() > 0){
-    LOG(INFO) << "======== LaBr Points =================" << FairLogger::endl;
+    std::cout << "======== LaBr Points =================" << std::endl;
     for (Int_t i_point = 0; i_point < fLaBrPoints->GetEntriesFast(); i_point++){
       ERGadastLaBrPoint* point = (ERGadastLaBrPoint*)fLaBrPoints->At(i_point);
       point->Print();
@@ -206,7 +206,7 @@ void ERGadast::Reset() {
 // -----   Public method CopyClones   -----------------------------------------
 void ERGadast::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
   Int_t nEntries = cl1->GetEntriesFast();
-  LOG(INFO) << "ERGadast: " << nEntries << " entries to add" << FairLogger::endl;
+  std::cout << "ERGadast: " << nEntries << " entries to add" << std::endl;
   TClonesArray& clref = *cl2;
   ERGadastCsIPoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
@@ -215,7 +215,7 @@ void ERGadast::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
    oldpoint->SetTrackID(index);
    new (clref[cl2->GetEntriesFast()]) ERGadastCsIPoint(*oldpoint);
   }
-  LOG(INFO) << "ERGadast: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
+  std::cout << "ERGadast: " << cl2->GetEntriesFast() << " merged entries" << std::endl;
 }
 // ----------------------------------------------------------------------------
 

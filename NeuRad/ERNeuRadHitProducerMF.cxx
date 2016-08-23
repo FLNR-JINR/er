@@ -9,7 +9,7 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "FairLogger.h"
+#include<iostream>
 
 #include "ERDetectorList.h"
 #include "ERNeuRadDigi.h"
@@ -88,10 +88,10 @@ InitStatus ERNeuRadHitProducerMF::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERNeuRadHitProducerMF::Exec(Option_t* opt)
 {
-  LOG(INFO) << FairLogger::endl;
-  LOG(INFO) << "####### EVENT " << fEvent++ << " #####" << FairLogger::endl;
-  LOG(INFO) << FairLogger::endl;
-  LOG(INFO) << "ERNeuRadHitProducerMF: "<< FairLogger::endl;
+  std::cout << std::endl;
+  std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
+  std::cout << std::endl;
+  std::cout << "ERNeuRadHitProducerMF: "<< std::endl;
   Reset();
   Float_t fOnePEInteg = 4.8;
 
@@ -125,7 +125,7 @@ void ERNeuRadHitProducerMF::Exec(Option_t* opt)
     }
   //}
   delete [] SumBundleSignals;
-  LOG(INFO) << "Hits count: " << fNeuRadHits->GetEntriesFast() << FairLogger::endl;
+  std::cout << "Hits count: " << fNeuRadHits->GetEntriesFast() << std::endl;
 }
 //----------------------------------------------------------------------------
 

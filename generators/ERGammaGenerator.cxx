@@ -2,7 +2,7 @@
 
 #include "ERGammaGenerator.h"
 #include "TMath.h"
-#include "FairLogger.h"
+#include<iostream>
 
 #include "G4IonTable.hh"
 #include "G4ParticleTable.hh"

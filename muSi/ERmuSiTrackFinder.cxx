@@ -10,7 +10,7 @@ using namespace std;
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "FairLogger.h"
+#include<iostream>
 
 #include "ERDetectorList.h"
 #include "ERmuSiTrack.h"
@@ -71,8 +71,8 @@ InitStatus ERmuSiTrackFinder::Init()
 void ERmuSiTrackFinder::Exec(Option_t* opt)
 { 
   Reset();
-  LOG(INFO) << FairLogger::endl;
-  LOG(INFO) << "ERmuSiTrackFinder:" << FairLogger::endl;
+  std::cout << std::endl;
+  std::cout << "ERmuSiTrackFinder:" << std::endl;
   //Раскидываем хиты по станциям
 
   std::vector<ERmuSiHit*> HitsByStation[3];
@@ -102,7 +102,7 @@ void ERmuSiTrackFinder::Exec(Option_t* opt)
       }
     }
   }
-  LOG(INFO) << "Tracks count:" << fmuSiTracks->GetEntriesFast() << FairLogger::endl;
+  std::cout << "Tracks count:" << fmuSiTracks->GetEntriesFast() << std::endl;
 }
 //----------------------------------------------------------------------------
 

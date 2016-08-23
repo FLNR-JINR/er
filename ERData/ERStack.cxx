@@ -164,14 +164,14 @@ TParticle* ERStack::PopPrimaryForTracking(Int_t iPrim)
 
   // Test for index
   if (iPrim < 0 || iPrim >= fNPrimaries) {
-    LOG(FATAL) << "Primary index out of range! " << iPrim << FairLogger::endl;
+    LOG(FATAL) << "Primary index out of range! " << iPrim << std::endl;
   }
 
   // Return the iPrim-th TParticle from the fParticle array. This should be
   // a primary.
   TParticle* part = (TParticle*)fParticles->At(iPrim);
   if ( ! (part->GetMother(0) < 0) ) {
-    LOG(FATAL) << "Not a primary track! " << iPrim << FairLogger::endl;
+    LOG(FATAL) << "Not a primary track! " << iPrim << std::endl;
   }
 
   return part;
@@ -188,7 +188,7 @@ TParticle* ERStack::GetCurrentTrack() const
   TParticle* currentPart = GetParticle(fCurrentTrack);
   //cerr << "GetCurrentTrack : " <<  currentPart << endl;
   if ( ! currentPart) {
-    LOG(WARNING) << "Current track not found in stack!" << FairLogger::endl;
+    LOG(WARNING) << "Current track not found in stack!" << std::endl;
   }
   return currentPart;
 }
@@ -214,7 +214,7 @@ void ERStack::AddParticle(TParticle* oldPart)
 void ERStack::FillTrackArray()
 {
 
-  LOG(INFO) << "Filling MCTrack array..." << FairLogger::endl;
+  std::cout << "Filling MCTrack array..." << std::endl;
   //cerr << fNParticles << endl;
   // --> Reset index map and number of output tracks
   fIndexMap.clear();
@@ -229,7 +229,7 @@ void ERStack::FillTrackArray()
     fStoreIter = fStoreMap.find(iPart);
     if (fStoreIter == fStoreMap.end() ) {
       LOG(FATAL) << "Particle " << iPart
-                 << " not found in storage map!" << FairLogger::endl;
+                 << " not found in storage map!" << std::endl;
     }
     Bool_t store = (*fStoreIter).second;
     //cerr << "store = " << store << endl;
@@ -262,7 +262,7 @@ void ERStack::FillTrackArray()
 void ERStack::UpdateTrackIndex(TRefArray* detList)
 {
 
-  LOG(INFO) << "Updating track indizes..." << FairLogger::endl;
+  std::cout << "Updating track indizes..." << std::endl;
   Int_t nColl = 0;
 
   // First update mother ID in MCTracks
@@ -272,7 +272,7 @@ void ERStack::UpdateTrackIndex(TRefArray* detList)
     fIndexIter = fIndexMap.find(iMotherOld);
     if (fIndexIter == fIndexMap.end()) {
       LOG(FATAL) << "Particle index " << iMotherOld
-                 << " not found in dex map! " << FairLogger::endl;
+                 << " not found in dex map! " << std::endl;
     }
     track->SetMotherId( (*fIndexIter).second );
   }
@@ -299,7 +299,7 @@ void ERStack::UpdateTrackIndex(TRefArray* detList)
         fIndexIter = fIndexMap.find(iTrack);
         if (fIndexIter == fIndexMap.end()) {
           LOG(FATAL) << "Particle index " << iTrack
-                     << " not found in index map! " << FairLogger::endl;
+                     << " not found in index map! " << std::endl;
         }
         point->SetTrackID((*fIndexIter).second);
         point->SetLink(FairLink("MCTrack", (*fIndexIter).second));
@@ -309,7 +309,7 @@ void ERStack::UpdateTrackIndex(TRefArray* detList)
   }     // List of active detectors
 
   delete detIter;
-  LOG(INFO) << "...stack and " << nColl << " collections updated." << FairLogger::endl;
+  std::cout << "...stack and " << nColl << " collections updated." << std::endl;
 
 }
 // -------------------------------------------------------------------------
@@ -343,12 +343,12 @@ void ERStack::Register()
 // -----   Public method Print  --------------------------------------------
 void ERStack::Print(Int_t iVerbose) const
 {
-  LOG(INFO) << "Number of primaries        = "
-            << fNPrimaries << FairLogger::endl;
-  LOG(INFO) << "Total number of particles  = "
-            << fNParticles << FairLogger::endl;
-  LOG(INFO) << "Number of tracks in output = "
-            << fNTracks << FairLogger::endl;
+  std::cout << "Number of primaries        = "
+            << fNPrimaries << std::endl;
+  std::cout << "Total number of particles  = "
+            << fNParticles << std::endl;
+  std::cout << "Number of tracks in output = "
+            << fNTracks << std::endl;
   for (Int_t iTrack=0; iTrack<fNTracks; iTrack++) {
     ((ERMCTrack*) fTracks->At(iTrack))->Print(iTrack);
   }
@@ -401,7 +401,7 @@ TParticle* ERStack::GetParticle(Int_t trackID) const
 
   if (trackID < 0 || trackID >= fNParticles) {
     LOG(FATAL) << "Particle index " << trackID
-               << " out of range." << FairLogger::endl;
+               << " out of range." << std::endl;
   }
   //cerr << "GetParticle: " << trackID << endl;
   return (TParticle*)fParticles->At(trackID);

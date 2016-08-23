@@ -1,6 +1,6 @@
 #include "ERMCApplication.h"
 
-#include "FairLogger.h"
+#include<iostream>
 
 #include <iostream>
 using namespace std;
@@ -28,7 +28,7 @@ void ERMCApplication::Stepping(){
 	FairMCApplication::Stepping();
 	if (fDecayer){
 		if (!fDecayer->Stepping())
-			LOG(ERROR) << "Fatal problem in ER decayer!" << FairLogger::endl;
+			std::cerr << "Fatal problem in ER decayer!" << std::endl;
 	}
 }
 

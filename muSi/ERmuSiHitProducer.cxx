@@ -8,7 +8,7 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "FairLogger.h"
+#include<iostream>
 
 #include "ERDetectorList.h"
 #include "ERmuSiPoint.h"
@@ -72,10 +72,10 @@ InitStatus ERmuSiHitProducer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERmuSiHitProducer::Exec(Option_t* opt)
 {
-  LOG(INFO) << FairLogger::endl;
-  LOG(INFO) << "####### EVENT " << fEvent++ << " #####" << FairLogger::endl;
-  LOG(INFO) << FairLogger::endl;
-  LOG(INFO) << "ERmuSiHitProducer: "<< FairLogger::endl;
+  std::cout << std::endl;
+  std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
+  std::cout << std::endl;
+  std::cout << "ERmuSiHitProducer: "<< std::endl;
   Reset();
   //Расскидываем поинты по станциям
   std::vector<ERmuSiPoint*> PointsByStation[3];
@@ -127,7 +127,7 @@ void ERmuSiHitProducer::Exec(Option_t* opt)
       }
     }
   }
-  LOG(INFO) << "Hits count: " << fmuSiHits->GetEntriesFast() << FairLogger::endl;
+  std::cout << "Hits count: " << fmuSiHits->GetEntriesFast() << std::endl;
 }
 //----------------------------------------------------------------------------
 

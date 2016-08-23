@@ -11,7 +11,7 @@
 #include "G4ParticleTable.hh"
 
 #include "FairRunSim.h"
-#include "FairLogger.h"
+#include<iostream>
 
 #include "ERTarget.h"					//for ERTarget
 

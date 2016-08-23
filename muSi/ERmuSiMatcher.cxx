@@ -7,7 +7,7 @@ using namespace std;
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "FairLogger.h"
+#include<iostream>
 
 #include "ERDetectorList.h"
 
@@ -80,8 +80,8 @@ InitStatus ERmuSiMatcher::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERmuSiMatcher::Exec(Option_t* opt)
 {
- LOG(INFO) << FairLogger::endl;
- LOG(INFO) << "ERmuSiMatcher:" << FairLogger::endl;
+ std::cout << std::endl;
+ std::cout << "ERmuSiMatcher:" << std::endl;
  Int_t trueTracks = 0;
  Int_t wrongTracks = 0;
  for(Int_t iTrack = 0; iTrack < fmuSiTracks->GetEntriesFast(); iTrack++){
@@ -114,8 +114,8 @@ void ERmuSiMatcher::Exec(Option_t* opt)
     shortMCTracks++;
  }
 
- LOG(INFO) << "True tracks:" << trueTracks << FairLogger::endl;
- LOG(INFO) << "Wrong tracks:" << wrongTracks << FairLogger::endl;
+ std::cout << "True tracks:" << trueTracks << std::endl;
+ std::cout << "Wrong tracks:" << wrongTracks << std::endl;
  fTrueTracksNb += trueTracks;
  fWrongTracksNb += wrongTracks;
  fMCTracksNb += pointsOnTracks.size();
@@ -166,7 +166,7 @@ void ERmuSiMatcher::Exec(Option_t* opt)
       }
    }
 
-   LOG(INFO) << "Not founded primary vertecies:" << notFoundedVerteciesNb << FairLogger::endl;
+   std::cout << "Not founded primary vertecies:" << notFoundedVerteciesNb << std::endl;
    fNotFoundedVerteciesNb += notFoundedVerteciesNb;
 }
 //----------------------------------------------------------------------------
@@ -180,16 +180,16 @@ void ERmuSiMatcher::Reset()
 // ----------------------------------------------------------------------------
 void ERmuSiMatcher::Finish()
 {  
-  LOG(INFO) << FairLogger::endl;
-  LOG(INFO) << "========= ERmuSiMatcher : ================" << FairLogger::endl;
+  std::cout << std::endl;
+  std::cout << "========= ERmuSiMatcher : ================" << std::endl;
 
-  LOG(INFO) << "MC tracks: " << fMCTracksNb << FairLogger::endl;
-  LOG(INFO) << "Short MC tracks: " << fShortMCTracksNb << FairLogger::endl;
-  LOG(INFO) << "True tracks: " << fTrueTracksNb << FairLogger::endl;
-  LOG(INFO) << "Wrong tracks: " << fWrongTracksNb << FairLogger::endl;
-  LOG(INFO) << "Eff. all: " << (Float_t)fTrueTracksNb/(Float_t)fMCTracksNb << FairLogger::endl;
-  LOG(INFO) << "Eff. long: " << (Float_t)fTrueTracksNb/(Float_t)(fMCTracksNb-fShortMCTracksNb)<< FairLogger::endl;
-  LOG(INFO) << "Not founded primary vertecies: " << fNotFoundedVerteciesNb << FairLogger::endl;
+  std::cout << "MC tracks: " << fMCTracksNb << std::endl;
+  std::cout << "Short MC tracks: " << fShortMCTracksNb << std::endl;
+  std::cout << "True tracks: " << fTrueTracksNb << std::endl;
+  std::cout << "Wrong tracks: " << fWrongTracksNb << std::endl;
+  std::cout << "Eff. all: " << (Float_t)fTrueTracksNb/(Float_t)fMCTracksNb << std::endl;
+  std::cout << "Eff. long: " << (Float_t)fTrueTracksNb/(Float_t)(fMCTracksNb-fShortMCTracksNb)<< std::endl;
+  std::cout << "Not founded primary vertecies: " << fNotFoundedVerteciesNb << std::endl;
 
   fHVertexDz->Write();
   fHVertexDxy->Write();

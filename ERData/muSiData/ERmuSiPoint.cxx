@@ -6,7 +6,7 @@
 
 #include "TMath.h"
 
-#include "FairLogger.h"
+#include<iostream>
 // -----   Default constructor   -------------------------------------------
 ERmuSiPoint::ERmuSiPoint()
   : FairMCPoint(),
@@ -62,11 +62,11 @@ ERmuSiPoint::~ERmuSiPoint()
 // -----   Public method Print   -------------------------------------------
 void ERmuSiPoint::Print(const Option_t* opt /* = 0*/) const
 {
-  LOG(INFO) << "-I- ERmuSiPoint: track " << fTrackID << " mother track = " << fMot0TrackID << FairLogger::endl;
-  LOG(INFO) << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << FairLogger::endl;
-  LOG(INFO) << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << FairLogger::endl;
-  LOG(INFO) << "    Time " << fTime << " ns,  Length " << fLength << " cm" << FairLogger::endl;
-  LOG(INFO) << "    Energy loss " << fELoss << " keV "<< FairLogger::endl;
+  std::cout << "-I- ERmuSiPoint: track " << fTrackID << " mother track = " << fMot0TrackID << std::endl;
+  std::cout << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << std::endl;
+  std::cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << std::endl;
+  std::cout << "    Time " << fTime << " ns,  Length " << fLength << " cm" << std::endl;
+  std::cout << "    Energy loss " << fELoss << " keV "<< std::endl;
 }
 // -------------------------------------------------------------------------
 

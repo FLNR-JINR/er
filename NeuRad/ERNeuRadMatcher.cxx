@@ -9,7 +9,7 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "FairLogger.h"
+#include<iostream>
 
 #include "ERNeuRadHit.h"
 #include "ERNeuRadStep.h"

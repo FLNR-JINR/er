@@ -16,7 +16,7 @@ using namespace std;
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "FairLogger.h"
+#include<iostream>
 
 #include "ERDetectorList.h"
 #include "ERmuSiTrack.h"
@@ -77,8 +77,8 @@ InitStatus ERmuSiVertexFinder::Init()
 void ERmuSiVertexFinder::Exec(Option_t* opt)
 { 
   Reset();
-  LOG(INFO) << FairLogger::endl;
-  LOG(INFO) <<  "ERmuSiVertexFinder started:" << FairLogger::endl;
+  std::cout << std::endl;
+  std::cout <<  "ERmuSiVertexFinder started:" << std::endl;
   //Попарно ищем общий перепендикуляр к трекам
   for(Int_t iTrack = 0; iTrack < fmuSiTracks->GetEntriesFast(); iTrack++){
     ERmuSiTrack* track1 = (ERmuSiTrack*)fmuSiTracks->At(iTrack);
@@ -186,7 +186,7 @@ void ERmuSiVertexFinder::Exec(Option_t* opt)
                                   (vert2->Y()-vert1->Y())*(vert2->Y()-vert1->Y()) + 
                                   (vert2->Z()-vert1->Z())*(vert2->Z()-vert1->Z()));
       if(dist < 0.5 ){
-        LOG(INFO) << "Vertecies merging!" << FairLogger::endl;
+        std::cout << "Vertecies merging!" << std::endl;
         vert1->SetX((vert1->X()+vert2->X())/2.);
         vert1->SetY((vert1->Y()+vert2->Y())/2.);
         vert1->SetZ((vert1->Z()+vert2->Z())/2.);
@@ -199,10 +199,10 @@ void ERmuSiVertexFinder::Exec(Option_t* opt)
       fmuSiVertices->Compress();
     }
   }
-  LOG(INFO) << "Vertecies count: " << fmuSiVertices->GetEntriesFast() << FairLogger::endl;
+  std::cout << "Vertecies count: " << fmuSiVertices->GetEntriesFast() << std::endl;
   for(Int_t iVert=0; iVert < fmuSiVertices->GetEntriesFast(); iVert++){
     ERmuSiVertex* vert = (ERmuSiVertex*)fmuSiVertices->At(iVert);
-    LOG(INFO) << "Vertex "<< iVert << ": (" <<  vert->X() << "," << vert->Y() << "," << vert->Z() << ")" << FairLogger::endl;
+    std::cout << "Vertex "<< iVert << ": (" <<  vert->X() << "," << vert->Y() << "," << vert->Z() << ")" << std::endl;
   }
 }
 //----------------------------------------------------------------------------

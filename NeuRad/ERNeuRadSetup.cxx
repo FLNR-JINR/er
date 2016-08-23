@@ -10,7 +10,7 @@
 
 #include "FairRuntimeDb.h"
 
-#include "FairLogger.h"
+#include<iostream>
 
 ERNeuRadSetup* ERNeuRadSetup::fInstance = NULL;
 
@@ -84,9 +84,9 @@ ERNeuRadSetup::ERNeuRadSetup(){
 
         }
 
-    //LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup() "<< FairLogger::endl;
+    //std::cout << "ERNeuRadSetup::ERNeuRadSetup() "<< std::endl;
 
-    LOG(INFO) << "ERNeuRadSetup initialized! "<< FairLogger::endl;
+    std::cout << "ERNeuRadSetup initialized! "<< std::endl;
 
 }
 

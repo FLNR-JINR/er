@@ -7,7 +7,7 @@
 #include "FairGenericParRootFileIo.h"
 #include "FairParAsciiFileIo.h"
 #include "FairParRootFileIo.h"
-#include "FairLogger.h"
+#include<iostream>
 
 #include "TString.h"
 #include "TMath.h"
@@ -56,30 +56,30 @@ void ERNeuRadDigiPar::print()
 {
   Int_t rowNofFibers = (Int_t)TMath::Sqrt(fNofFibers);
   
-  LOG(INFO) << "*****************************************" << FairLogger::endl;
-  LOG(INFO) << "          ERNeuRadDigiPar                " << FairLogger::endl;
-  LOG(INFO) << "*****************************************" << FairLogger::endl;
-  LOG(INFO) << "   ERNeuRadFiberLength: " <<  fFiberLength <<  FairLogger::endl;
-  LOG(INFO) << "   ERNeuRadFiberWidth: " <<  fFiberWidth <<  FairLogger::endl;
-  LOG(INFO) << "   ERNeuRadNofBundles: " <<  fNofBundles <<  FairLogger::endl;
-  LOG(INFO) << "   ERNeuRadNofFibers: " <<  fNofFibers <<  FairLogger::endl;
-  LOG(INFO) << "   ERNeuRadPMTQuantumEfficiency: " <<  FairLogger::endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "          ERNeuRadDigiPar                " << std::endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "   ERNeuRadFiberLength: " <<  fFiberLength <<  std::endl;
+  std::cout << "   ERNeuRadFiberWidth: " <<  fFiberWidth <<  std::endl;
+  std::cout << "   ERNeuRadNofBundles: " <<  fNofBundles <<  std::endl;
+  std::cout << "   ERNeuRadNofFibers: " <<  fNofFibers <<  std::endl;
+  std::cout << "   ERNeuRadPMTQuantumEfficiency: " <<  std::endl;
   for (Int_t iFiber = 0; iFiber < rowNofFibers; iFiber++){
-    LOG(INFO) << "     ";
+    std::cout << "     ";
     for (Int_t jFiber = 0; jFiber < rowNofFibers; jFiber++)
-      LOG(INFO) <<(*fPMTQuantumEfficiency)[iFiber*rowNofFibers + jFiber] << "\t";
-     LOG(INFO) << FairLogger::endl;
+      std::cout <<(*fPMTQuantumEfficiency)[iFiber*rowNofFibers + jFiber] << "\t";
+     std::cout << std::endl;
   }
-  LOG(INFO) << "*****************************************" << FairLogger::endl;
+  std::cout << "*****************************************" << std::endl;
   
-  LOG(INFO) << "   ERNeuRadPMTGain: " <<  FairLogger::endl;
+  std::cout << "   ERNeuRadPMTGain: " <<  std::endl;
   for (Int_t iFiber = 0; iFiber < rowNofFibers; iFiber++){
-    LOG(INFO) << "     ";
+    std::cout << "     ";
     for (Int_t jFiber = 0; jFiber < rowNofFibers; jFiber++)
-      LOG(INFO) <<(*fPMTGain)[iFiber*rowNofFibers + jFiber] << "\t";
-     LOG(INFO) << FairLogger::endl;
+      std::cout <<(*fPMTGain)[iFiber*rowNofFibers + jFiber] << "\t";
+     std::cout << std::endl;
   }
-  LOG(INFO) << "*****************************************" << FairLogger::endl;
+  std::cout << "*****************************************" << std::endl;
   
 }
 //------------------------------------------------------
@@ -131,7 +131,7 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 }
 //------------------------------------------------------
 Bool_t ERNeuRadDigiPar::init(FairParIo* input){
-	LOG(INFO) << input->getFilename() << FairLogger::endl;
+	std::cout << input->getFilename() << std::endl;
   if ( TString(input->getFilename()).Contains(".digi")){
     FairGenericParAsciiFileIo* p=new FairGenericParAsciiFileIo(((FairParAsciiFileIo*)input)->getFile());
 	return p->init(this);

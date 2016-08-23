@@ -9,7 +9,7 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "FairLogger.h"
+#include<iostream>
 
 #include "ERDetectorList.h"
 #include "ERNeuRadDigi.h"
@@ -78,10 +78,10 @@ InitStatus ERNeuRadHitProducer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERNeuRadHitProducer::Exec(Option_t* opt)
 {
-  LOG(INFO) << FairLogger::endl;
-  LOG(INFO) << "####### EVENT " << fEvent++ << " #####" << FairLogger::endl;
-  LOG(INFO) << FairLogger::endl;
-  LOG(INFO) << "ERNeuRadHitProducer: "<< FairLogger::endl;
+  std::cout << std::endl;
+  std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
+  std::cout << std::endl;
+  std::cout << "ERNeuRadHitProducer: "<< std::endl;
   Reset();
   Float_t fOnePEInteg = 4.8;
   /*
@@ -146,7 +146,7 @@ void ERNeuRadHitProducer::Exec(Option_t* opt)
     TVector3 dpos(0,0,0);
     AddHit(kNEURAD,pos, dpos,targetHitDigi->BundleIndex(),targetHitDigi->FiberIndex(),targetHitDigi->FrontTDC());
   }
-  LOG(INFO) << "Hits count: " << fNeuRadHits->GetEntriesFast() << FairLogger::endl;
+  std::cout << "Hits count: " << fNeuRadHits->GetEntriesFast() << std::endl;
 }
 //----------------------------------------------------------------------------
 

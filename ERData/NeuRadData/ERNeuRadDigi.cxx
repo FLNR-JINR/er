@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 #include "ERNeuRadDigi.h"
-#include "FairLogger.h"
+#include<iostream>
 
 using namespace std;
 
@@ -56,11 +56,11 @@ ERNeuRadDigi::~ERNeuRadDigi()
 // -----   Public method Print   -------------------------------------------
 void ERNeuRadDigi::Print(const Option_t* opt /* = 0 */) const
 {
-  LOG(INFO) << "-I- ERNeuRadDigi:  " << endl;
-  LOG(INFO) << "    Fiber : " << fFiberIndex << endl;
-  LOG(INFO) << "    Bundle : " << fBundleIndex << endl;
-  LOG(INFO) << "    FrontTDC: " << fFrontTDC << " BackTDC " << fBackTDC << " TDC " << fTDC << endl;
-  LOG(INFO) << "    QDC: " << fQDC << endl;
+  std::cout << "-I- ERNeuRadDigi:  " << endl;
+  std::cout << "    Fiber : " << fFiberIndex << endl;
+  std::cout << "    Bundle : " << fBundleIndex << endl;
+  std::cout << "    FrontTDC: " << fFrontTDC << " BackTDC " << fBackTDC << " TDC " << fTDC << endl;
+  std::cout << "    QDC: " << fQDC << endl;
 }
 // -------------------------------------------------------------------------
 

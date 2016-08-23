@@ -22,7 +22,7 @@ using std::endl;
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "FairLogger.h"
+#include<iostream>
 #include "FairEventHeader.h"
 
 #include "ERNeuRadPoint.h"
@@ -115,8 +115,8 @@ void ERNeuRadDigitizer::SetParContainers()
   fDigiPar = (ERNeuRadDigiPar*)
              (rtdb->getContainer("ERNeuRadDigiPar"));
   if ( fVerbose && fDigiPar ) {
-    LOG(INFO) << "ERNeuRadDigitizer::SetParContainers() "<< FairLogger::endl;
-    LOG(INFO) << "ERNeuRadDigiPar initialized! "<< FairLogger::endl;
+    std::cout << "ERNeuRadDigitizer::SetParContainers() "<< std::endl;
+    std::cout << "ERNeuRadDigiPar initialized! "<< std::endl;
   }
 }
 // ----------------------------------------------------------------------------
@@ -137,7 +137,7 @@ InitStatus ERNeuRadDigitizer::Init()
 													//*2, because front and back
   ioman->Register("NeuRadFiberPoint", "NeuRad Fiber points", fNeuRadFiberPoint, kTRUE);
   fNeuRadPMTSignal = new TClonesArray("ERNeuRadPMTSignal", 1000);
-  LOG(INFO) << "ERNeuRadDigitizer: Use a ERNeuRadPMTSignal type of signal!" << endl;
+  std::cout << "ERNeuRadDigitizer: Use a ERNeuRadPMTSignal type of signal!" << endl;
   ioman->Register("NeuRadPMTSignal", "Signal after PMT", fNeuRadPMTSignal, kTRUE);
   fNeuRadDigi = new TClonesArray("ERNeuRadDigi",1000);
   ioman->Register("NeuRadDigi", "Digital response in NeuRad", fNeuRadDigi, kTRUE);
@@ -161,7 +161,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
 {
   Int_t iEvent =
 			FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
-  LOG(INFO) << "Event " << iEvent << FairLogger::endl;
+  std::cout << "Event " << iEvent << std::endl;
   // Reset entries in output arrays
   Reset();
   Int_t nofFibers = fNeuRadSetup->NofFibers();
@@ -334,10 +334,10 @@ void ERNeuRadDigitizer::Finish()
 {   
   fHPECountF->Write();
   fHPECountB->Write();
-  LOG(INFO) << "========== Finish of ERNeuRadDigitizer =================="<< FairLogger::endl;
-  LOG(INFO) << "=====  Time on FiberPoints creating : " <<  fFiberPointsCreatingTime << " s" << FairLogger::endl;
-  LOG(INFO) << "=====  Time on PMT signal creating : " <<  fPMTSignalCreatingTime << " s" << FairLogger::endl;
-  LOG(INFO) << "=========================================================" << FairLogger::endl;
+  std::cout << "========== Finish of ERNeuRadDigitizer =================="<< std::endl;
+  std::cout << "=====  Time on FiberPoints creating : " <<  fFiberPointsCreatingTime << " s" << std::endl;
+  std::cout << "=====  Time on PMT signal creating : " <<  fPMTSignalCreatingTime << " s" << std::endl;
+  std::cout << "=========================================================" << std::endl;
 }
 // ----------------------------------------------------------------------------
 

@@ -294,7 +294,7 @@ void ERNeuRad::Reset() {
 // -----   Public method CopyClones   -----------------------------------------
 void ERNeuRad::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
   Int_t nEntries = cl1->GetEntriesFast();
-  LOG(INFO) << "NeuRad: " << nEntries << " entries to add" << FairLogger::endl;
+  std::cout << "NeuRad: " << nEntries << " entries to add" << std::endl;
   TClonesArray& clref = *cl2;
   ERNeuRadPoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
@@ -303,7 +303,7 @@ void ERNeuRad::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
    oldpoint->SetTrackID(index);
    new (clref[cl2->GetEntriesFast()]) ERNeuRadPoint(*oldpoint);
   }
-  LOG(INFO) << "NeuRad: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
+  std::cout << "NeuRad: " << cl2->GetEntriesFast() << " merged entries" << std::endl;
 }
 // ----------------------------------------------------------------------------
 

@@ -4,11 +4,11 @@
 
 #include "ERmuSiTrack.h"
 
-#include "FairLogger.h"
+#include<iostream>
 
 Int_t ERmuSiTrack::AddHit(Int_t station, ERmuSiHit hit){
 	if (station > 2){
-		LOG(ERROR) << "Wrong station number in ERmuSiTrack::AddHit"  << FairLogger::endl;
+		std::cerr << "Wrong station number in ERmuSiTrack::AddHit"  << std::endl;
 		return -1;
 	}
 	fHits[station] = hit;

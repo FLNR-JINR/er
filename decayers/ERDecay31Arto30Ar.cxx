@@ -5,7 +5,7 @@
 #include "TMCProcess.h"
 
 #include "FairRunSim.h"
-#include "FairLogger.h"
+#include<iostream>
 
 using namespace std;
 
@@ -34,12 +34,12 @@ Bool_t ERDecay31Arto30Ar::Stepping(){
 	TLorentzVector curPos;
 	gMC->TrackPosition(curPos);
 	if (curPos.Z() > fTargetReactZ){
-		LOG(INFO) << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
+		std::cout << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
 		FairRunSim* run = FairRunSim::Instance();
 		//Create new ion
 	    fSecondIon = TDatabasePDG::Instance()->GetParticle("ExpertSecondIon");
 	    if ( ! fSecondIon ) {
-	        LOG(ERROR)  << "-W- ERDecay31Arto30Ar: Ion ExpertSecondIon not found in database!" << endl;
+	        std::cerr  << "-W- ERDecay31Arto30Ar: Ion ExpertSecondIon not found in database!" << endl;
 	        return kFALSE;
 	    }
 		TLorentzVector curMomentum;
@@ -60,9 +60,9 @@ Bool_t ERDecay31Arto30Ar::Stepping(){
 	  
   		fSecondaryIonPDG = fSecondIon->PdgCode();
 
-	  	LOG(INFO) << "-I- ERDecay31Arto30Ar: Generating ion of type "
+	  	std::cout << "-I- ERDecay31Arto30Ar: Generating ion of type "
 	       << fSecondIon->GetName() << " (PDG code " << fSecondaryIonPDG << ")" << endl;
-	  	LOG(INFO) << "    Momentum (" << curMomentum.X() << ", " <<  curMomentum.Y() << ", " <<  curMomentum.Z()
+	  	std::cout << "    Momentum (" << curMomentum.X() << ", " <<  curMomentum.Y() << ", " <<  curMomentum.Z()
 	       << ") Gev from vertex (" << curPos.X() << ", " << curPos.Y()
 	       << ", " << curPos.Z() << ") cm" << endl;
     

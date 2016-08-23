@@ -95,10 +95,10 @@ void ERTarget::ConstructGeometry()
 {
   TString fileName = GetGeometryFileName();
   if(fileName.EndsWith(".root")) {
-    LOG(INFO) << "Constructing Target geometry from ROOT file " << fileName.Data() << FairLogger::endl;
+    std::cout << "Constructing Target geometry from ROOT file " << fileName.Data() << std::endl;
     ConstructRootGeometry();
   } else {
-    LOG(FATAL) << "Target geometry file name is not set" << FairLogger::endl;
+    LOG(FATAL) << "Target geometry file name is not set" << std::endl;
     exit(1);
   }
 }

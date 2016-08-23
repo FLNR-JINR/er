@@ -5,7 +5,7 @@
 #include "TMCProcess.h"
 
 #include "FairRunSim.h"
-#include "FairLogger.h"
+#include<iostream>
 
 using namespace std;
 
@@ -31,12 +31,12 @@ Bool_t ERDecay26Oto24O2n::Stepping(){
   if(!fDirectReactionFinish && gMC->TrackPid() == 1000080260){
   	fSecondIon = TDatabasePDG::Instance()->GetParticle("ExpertSecondIon");
     if ( ! fSecondIon ) {
-        LOG(ERROR)  << "-W- ERDecay26Oto24O2n: Ion ExpertSecondIon not found in database!" << endl;
+        std::cerr  << "-W- ERDecay26Oto24O2n: Ion ExpertSecondIon not found in database!" << endl;
         return kFALSE;
     }
     fThirdIon  = TDatabasePDG::Instance()->GetParticle("ExpertThirdIon");
     if ( ! fThirdIon ) {
-        LOG(ERROR) << "-W- ERDecay26Oto24O2n: Ion not ExpertThirdIon found in database!" << endl;
+        std::cerr << "-W- ERDecay26Oto24O2n: Ion not ExpertThirdIon found in database!" << endl;
         return kFALSE;
     }
 
@@ -64,7 +64,7 @@ Bool_t ERDecay26Oto24O2n::Stepping(){
     if (fRnd->Uniform() > TMath::Exp(-(gMC->TrackTime())*(1.0e09)/tau)){
       FairRunSim* run = FairRunSim::Instance();
       ERMCEventHeader* header = (ERMCEventHeader*)run->GetMCEventHeader();
-      LOG(INFO) << "Start direct reaction. Current pos: " << curPos.Z() << " [cm] " << endl;
+      std::cout << "Start direct reaction. Current pos: " << curPos.Z() << " [cm] " << endl;
       header->SetDirectReactionPos(curPos.Z());
       //Результирующий импульс второго иона
       TLorentzVector pSecIon(curMomentum.X(),curMomentum.Y(),curMomentum.Z(),fullEnergy);
@@ -76,7 +76,7 @@ Bool_t ERDecay26Oto24O2n::Stepping(){
       masses[1] = 0.939; //neutron mass
       masses[2] = 0.939; //neutron mass
       if (!fPHSpace->SetDecay(pSecIon,3,masses)){
-      	LOG(ERROR) << "ERDecay: the decay is forbidden by kinematics" <<endl;
+      	std::cerr << "ERDecay: the decay is forbidden by kinematics" <<endl;
         fDirectReactionFinish = kTRUE;
         return kFALSE;
       }
@@ -87,9 +87,9 @@ Bool_t ERDecay26Oto24O2n::Stepping(){
 
     	Int_t thirdIonPDG = fThirdIon->PdgCode();
 
-    	LOG(INFO) << "-I- ERDecay: Generating ion of type "
+    	std::cout << "-I- ERDecay: Generating ion of type "
          << fThirdIon->GetName() << " (PDG code " << thirdIonPDG << ")" << endl;
-    	LOG(INFO) << "    Momentum (" << pThirdIon->Px() << ", " << pThirdIon->Py() << ", " << pThirdIon->Pz()
+    	std::cout << "    Momentum (" << pThirdIon->Px() << ", " << pThirdIon->Py() << ", " << pThirdIon->Pz()
          << ") Gev from vertex (" << curPos.X() << ", " << curPos.Y() << ", " << curPos.Z() << ") cm" << endl;
 
       gMC->GetStack()->PushTrack(1, 1, thirdIonPDG,
@@ -101,10 +101,10 @@ Bool_t ERDecay26Oto24O2n::Stepping(){
       TLorentzVector* pNeutron1 = fPHSpace->GetDecay(1);
       TLorentzVector* pNeutron2 = fPHSpace->GetDecay(2);
 
-    	LOG(INFO) << "-I- ERGenerator: Generating neutron " << endl
+    	std::cout << "-I- ERGenerator: Generating neutron " << endl
     	          << "    Momentum (" << pNeutron1->Px() << ", " <<  pNeutron1->Py() << ", " <<  pNeutron1->Pz() 
                 << ") Gev from vertex (" << curPos.X() << ", " << curPos.Y() << ", " << curPos.Z() << ") cm" << endl;
-      LOG(INFO) << "-I- ERGenerator: Generating neutron " << endl
+      std::cout << "-I- ERGenerator: Generating neutron " << endl
     	          << "    Momentum (" << pNeutron2->Px() << ", " <<  pNeutron2->Py() << ", " <<  pNeutron2->Pz()
                 << ") Gev from vertex (" << curPos.X() << ", " << curPos.Y() << ", " << curPos.Z() << ") cm" << endl;
 

@@ -1,4 +1,4 @@
-void muSi_sim(Int_t nEvents = 10000){
+void muSi_sim(Int_t nEvents = 100){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";

@@ -1,6 +1,6 @@
 #include "ERmuSiVertex.h"
 
-#include "FairLogger.h"
+#include<iostream>
 
 
 ERmuSiVertex::ERmuSiVertex():
@@ -28,13 +28,13 @@ void ERmuSiVertex::AddTrack(Int_t id){
 	}
 	
 	if (fTracksNb > 3){ 
-		LOG(ERROR) << "Big track count in vertex!" << FairLogger::endl;
+		std::cerr << "Big track count in vertex!" << std::endl;
 	}
 }
 
 Int_t ERmuSiVertex::Track(Int_t id) const{
 	if (id >= fTracksNb){
-		LOG(ERROR) << "There is no such number of tracks!" << FairLogger::endl;
+		std::cerr << "There is no such number of tracks!" << std::endl;
 	}
 	return fTracksID[id];
 }
