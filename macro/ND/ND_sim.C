@@ -1,4 +1,4 @@
-void ND_sim(Int_t nEvents = 11){
+void ND_sim(Int_t nEvents = 100){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
