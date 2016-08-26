@@ -207,6 +207,7 @@ add_subdirectory (NeuRad)
 add_subdirectory (muSi)
 add_subdirectory (Gadast)
 add_subdirectory (generators)
+add_subdirectory (ND)
 
 Execute_Process(COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-opengl
                 OUTPUT_VARIABLE EveIsBuild
