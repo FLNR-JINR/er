@@ -51,10 +51,10 @@ TGeoManager*   gGeoMan = NULL;
   gGeoMan->SetName("DETgeom");
   TGeoVolume* top = new TGeoVolumeAssembly("TOP");
   gGeoMan->SetTopVolume(top);
-  TGeoVolume* DSRD = new TGeoVolumeAssembly("ND");
+  TGeoVolume* DSRD = new TGeoVolumeAssembly("DSRD");
   // --------------------------------------------------------------------------
 
-  //------------------ Stilbene cladding -----------------------------------------
+  //------------------ DSRD station -----------------------------------------
   Double_t R_min = 1.2; //cm
   Double_t R_max = 4.5;   //cm
   Double_t thin = 0.1;   //cm
@@ -62,21 +62,37 @@ TGeoManager*   gGeoMan = NULL;
   R_max /= 2.;
   thin /= 2.;
   TGeoVolume *station = gGeoManager->MakeTube("station", pMed0, R_min, R_max, thin);
+
+  //------------------ DSRD sector -----------------------------------------
+  TGeoVolume *sector = gGeoManager->MakeTubs("sector", pMed0, R_min, R_max, thin,0,22.5);
   //------------------ STRUCTURE  -----------------------------------------
-  //------------------ Add claddings to fiber -----------------------------
+  //------------------ Add sensor in sector -----------------------------
+  Double_t deltaR = (R_max-R_min)/16;
+  for (Int_t iSensor=0; iSensor < 16; iSensor++){
+  	TGeoVolume *sensor = gGeoManager->MakeTubs("sensor", pSi, R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR,thin,0,22.5);
+  	sector->AddNode(sensor, 0, new TGeoCombiTrans(0,0,0,fZeroRotation));
+  }
+  //------------------ Add sectors to station -----------------------------
+  for (Int_t iSector=0; iSector < 16; iSector++){
+  	TGeoRotation *rotation = new TGeoRotation();
+	rotation->RotateX(0.);
+	rotation->RotateY(0.);
+	rotation->RotateZ(iSector*22.5);
+  	station->AddNode(sector, 0, new TGeoCombiTrans(.0,.0,0.,rotation));
+  }
   DSRD->AddNode(station, 0, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
   top->AddNode(DSRD, 0, new TGeoCombiTrans(.0,.0,-2., fZeroRotation));
-	// ---------------   Finish   -----------------------------------------------
-	gGeoMan->CloseGeometry();
-	gGeoMan->CheckOverlaps(0.001);
-	gGeoMan->PrintOverlaps();
-	gGeoMan->Test();
-	top->Draw();
+  // ---------------   Finish   -----------------------------------------------
+  gGeoMan->CloseGeometry();
+  gGeoMan->CheckOverlaps(0.001);
+  gGeoMan->PrintOverlaps();
+  gGeoMan->Test();
+  top->Draw();
 
-	TFile* geoFile = new TFile(geoFileName, "RECREATE");
-	top->Write();
-	geoFile->Close();
-	// --------------------------------------------------------------------------
+  TFile* geoFile = new TFile(geoFileName, "RECREATE");
+  top->Write();
+  geoFile->Close();
+  // --------------------------------------------------------------------------
 }
 
 

@@ -26,5 +26,6 @@
 
 #pragma link C++ class ERNDPoint+;
 
+#pragma link C++ class ERDSRDPoint+;
 
 #endif
