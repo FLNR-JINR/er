@@ -74,15 +74,13 @@ TGeoManager*   gGeoMan = NULL;
   
   //------------------ Stilbene  fiber  -----------------------------------------
   Double_t depth_Z2 = 8.;  //cm
-  R_min /= 2.;
-  R_max /= 2.;
   depth_Z2 /= 2.;
   TGeoVolume *stilbene = gGeoManager->MakeTube("Stilbene", pMed37, R_min, R_max, depth_Z2);
   //------------------ STRUCTURE  -----------------------------------------
   //------------------ Add claddings to fiber -----------------------------
   cover->AddNode(stilbene, 0, new TGeoCombiTrans(0., 0.,0., fZeroRotation));
 
-  const Double_t r = 2500;				// Sphere's radius
+  const Double_t r = 250;				// Sphere's radius
   const Double_t l = 20;				// Length of the arc between two cylinders
   Double_t alpha[3];				// Angle of rotation of cylinders around axes:  alpha = l/r
   Double_t h[3];					// h = sqrt[4*r*r*sin(alpha/2)*sin(alpha/2) - r*r*sin(alpha)*sin(alpha)]
