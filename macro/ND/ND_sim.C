@@ -1,4 +1,4 @@
-void ND_sim(Int_t nEvents = 100){
+void ND_sim(Int_t nEvents = 1){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -50,14 +50,13 @@ void ND_sim(Int_t nEvents = 100){
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 7.;
   Double32_t kin_energy = .500; //GeV
-  // /Double32_t kin_energy = Ekin; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(90, 90);
-  boxGen->SetBoxXYZ(0.,0,0.6,0.6,-50.);
+  boxGen->SetBoxXYZ(0.,0,0.0,0.0,2000.);
 
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);

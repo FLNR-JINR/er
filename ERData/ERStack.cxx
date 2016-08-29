@@ -349,9 +349,9 @@ void ERStack::Print(Int_t iVerbose) const
             << fNParticles << std::endl;
   std::cout << "Number of tracks in output = "
             << fNTracks << std::endl;
-  for (Int_t iTrack=0; iTrack<fNTracks; iTrack++) {
+  /*for (Int_t iTrack=0; iTrack<fNTracks; iTrack++) {
     ((ERMCTrack*) fTracks->At(iTrack))->Print(iTrack);
-  }
+  }*/
 }
 // -------------------------------------------------------------------------
 

@@ -34,8 +34,6 @@ ERND::ERND(const char* name, Bool_t active, Int_t verbose)
   : FairDetector(name, active,verbose),
   fNDPoints(NULL)
   {
-  LOG(INFO) << "  ERND::ERND(const char* name, Bool_t active, Int_t verbose) " 
-            << FairLogger::endl;
   ResetParameters();
   fNDPoints = new TClonesArray("ERNDPoint");
   flGeoPar = new TList();
@@ -44,7 +42,6 @@ ERND::ERND(const char* name, Bool_t active, Int_t verbose)
 }
 
 ERND::~ERND() {
-  LOG(INFO) << "  ERND::~ERND()" << FairLogger::endl;
   if (fNDPoints) {
     fNDPoints->Delete();
     delete fNDPoints;
@@ -53,14 +50,11 @@ ERND::~ERND() {
 
 void ERND::Initialize()
 {
-  LOG(INFO) << "  ERND::Initialize()" << FairLogger::endl;
   FairDetector::Initialize();
 }
 
 
-Bool_t ERND::ProcessHits(FairVolume* vol) {
-  cerr << "  ERND::ProcessHits(FairVolume* vol)" << endl;
-  
+Bool_t ERND::ProcessHits(FairVolume* vol) {  
   static Int_t          eventID;           //!  event index
   static Int_t          trackID;           //!  track index
   static Int_t          mot0TrackID;       //!  0th mother track index
@@ -81,6 +75,7 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
+    cerr << "Start point" << endl;
   }
   
   eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
@@ -93,6 +88,7 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
     gMC->TrackMomentum(momOut);
     
 	  if (eLoss > 0.){
+      cerr << "End point" << endl;
       AddPoint( eventID, trackID, mot0TrackID, mass,
                 TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                 TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
@@ -106,12 +102,10 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
 
 // -----   Public method EndOfEvent   -----------------------------------------
 void ERND::BeginEvent() {
-  LOG(INFO) << "  ERND::BeginEvent()" << FairLogger::endl;
 }
 
 
 void ERND::EndOfEvent() {
-  LOG(INFO) << "  ERND::EndOfEvent()" << FairLogger::endl;
   if (fVerboseLevel > 1) {
     Print();
   }
@@ -120,7 +114,6 @@ void ERND::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void ERND::Register() {
-  LOG(INFO) << "  ERND::Register()" << FairLogger::endl;
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
 	Fatal("Init", "IO manager is not set");	
@@ -130,7 +123,6 @@ void ERND::Register() {
 
 // -----   Public method GetCollection   --------------------------------------
 TClonesArray* ERND::GetCollection(Int_t iColl) const {
-  LOG(INFO) << "  ERND::GetCollection(Int_t iColl)" << FairLogger::endl;
   if (iColl == 0) 
     return fNDPoints;
   else 
@@ -143,7 +135,6 @@ TClonesArray* ERND::GetCollection(Int_t iColl) const {
 // -----   Public method Print   ----------------------------------------------
 void ERND::Print(Option_t *option) const
 {
-  LOG(INFO) << "  ERND::Print" << FairLogger::endl;
   for (Int_t i_point = 0; i_point < fNDPoints->GetEntriesFast(); i_point++){
     ERNDPoint* point = (ERNDPoint*)fNDPoints->At(i_point);
     point->Print();
@@ -195,14 +186,12 @@ ERNDPoint* ERND::AddPoint(Int_t eventID, Int_t trackID,
 
 // -----   Public method ConstructGeometry   ----------------------------------
 void ERND::ConstructGeometry() {
-  cerr << "  ERND::ConstructGeometry()" << endl;
-  
   TString fileName = GetGeometryFileName();
   if(fileName.EndsWith(".root")) {
-    LOG(INFO) << "Constructing ERND geometry from ROOT file " << fileName.Data() << FairLogger::endl;
+    cout << "Constructing ERND geometry from ROOT file " << fileName.Data() << FairLogger::endl;
     ConstructRootGeometry();
   } else {
-    LOG(FATAL) << "Geometry file name is not set" << FairLogger::endl;
+    cerr << "Geometry file name is not set" << FairLogger::endl;
   }
   
 }
@@ -211,10 +200,9 @@ void ERND::ConstructGeometry() {
 // ----------------------------------------------------------------------------
 Bool_t ERND::CheckIfSensitive(std::string name)
 {
-  cerr << "ERND::CheckIfSensitive(std::string name)" << endl;
-  
+  cout << name << endl;
   TString volName = name;
-  if(volName.Contains("fiber")) {
+  if(volName.Contains("Stilbene")) {
     return kTRUE;
   }
 

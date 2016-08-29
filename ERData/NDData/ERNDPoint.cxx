@@ -3,7 +3,8 @@
 // -------------------------------------------------------------------------
 
 #include "ERNDPoint.h"
-#include "FairLogger.h"
+#include <iostream>
+using namespace std;
 // -----   Default constructor   -------------------------------------------
 ERNDPoint::ERNDPoint()
   : FairMCPoint(),
@@ -54,11 +55,11 @@ ERNDPoint::~ERNDPoint()
 // -----   Public method Print   -------------------------------------------
 void ERNDPoint::Print(const Option_t* opt /* = 0*/) const
 {
-  LOG(INFO) << "-I- ERNDPoint: track " << fTrackID << " mother track = " << fMot0TrackID << FairLogger::endl;
-  LOG(INFO) << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << FairLogger::endl;
-  LOG(INFO) << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << FairLogger::endl;
-  LOG(INFO) << "    Time " << fTime << " ns,  Length " << fLength << " cm" << FairLogger::endl;
-  LOG(INFO) << "    Energy loss " << fELoss << " keV "<< FairLogger::endl;
+  cout << "-I- ERNDPoint: track " << fTrackID << " mother track = " << fMot0TrackID << endl;
+  cout << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << endl;
+  cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << endl;
+  cout << "    Time " << fTime << " ns,  Length " << fLength << " cm" << endl;
+  cout << "    Energy loss " << fELoss << " keV "<< endl;
 }
 // -------------------------------------------------------------------------
 
@@ -67,7 +68,6 @@ void ERNDPoint::Print(const Option_t* opt /* = 0*/) const
 // -----   Point x coordinate from linear extrapolation   ------------------
 Double_t ERNDPoint::GetX(Double_t z) const
 {
-  //  cout << fZ << " " << z << " " << fZ_out << endl;
   if ( (fZ_out-z)*(fZ-z) >= 0. ) return (fX_out+fX)/2.;
   Double_t dz = fZ_out - fZ;
   return ( fX + (z-fZ) / dz * (fX_out-fX) );
