@@ -76,14 +76,14 @@ Bool_t ERDSRD::ProcessHits(FairVolume* vol) {
   }
   
   eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
-  
+  cerr << eLoss << " " << gMC->TrackPid() << endl;
 	if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume 
 	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
 	    gMC->IsTrackDisappeared()) 
 	{ 
     gMC->TrackPosition(posOut);
     gMC->TrackMomentum(momOut);
-    
+    cerr << eLoss << endl;
 	  if (eLoss > 0.){
       cerr << "End point" << endl;
       AddPoint( eventID, trackID, mot0TrackID, mass,
@@ -199,10 +199,9 @@ Bool_t ERDSRD::CheckIfSensitive(std::string name)
 {
   cout << name << endl;
   TString volName = name;
-  if(volName.Contains("Stilbene")) {
+  if(volName.Contains("sector")) {
     return kTRUE;
   }
-
   return kFALSE;
 }
 // ----------------------------------------------------------------------------

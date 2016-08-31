@@ -3,16 +3,21 @@
 #include "TGeoManager.h"
 #include "TMath.h"
 
-void create_DSRD_geo()
-{
+
+// Create a zero rotation
 TGeoRotation *fZeroRotation = new TGeoRotation();
-fZeroRotation->RotateX(0.);
-fZeroRotation->RotateY(0.);
-fZeroRotation->RotateZ(0.);
+
+Double_t transX = 0.;
+Double_t transY = 0.;
+Double_t transZ = .056/2.;
 
 TGeoManager*   gGeoMan = NULL;
 
-
+void create_Li10_target_geo()
+{
+  fZeroRotation->RotateX(0.);
+  fZeroRotation->RotateY(0.);
+  fZeroRotation->RotateZ(0.);
   // -------   Load media from media file   -----------------------------------
   FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
@@ -24,18 +29,24 @@ TGeoManager*   gGeoMan = NULL;
   // --------------------------------------------------------------------------
 
   // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/DSRD.geo.root";
+  TString geoFileName = geoPath + "/geometry/Li10_target.geo.root";
   // --------------------------------------------------------------------------
   
   // -----------------   Get and create the required media    -----------------
   FairGeoMedia*   geoMedia = geoFace->getMedia();
   FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
 
-  FairGeoMedium* mSi      = geoMedia->getMedium("silicon");
-  if ( ! mSi ) Fatal("Main", "FairMedium silicon not found");
-  geoBuild->createMedium(mSi);
-  TGeoMedium* pSi = gGeoMan->GetMedium("silicon");
-  if ( ! pSi ) Fatal("Main", "Medium silicon not found");
+  FairGeoMedium* mD      = geoMedia->getMedium("deuterium");
+  if ( ! mD ) Fatal("Main", "FairMedium deuterium not found");
+  geoBuild->createMedium(mD);
+  TGeoMedium* pD = gGeoMan->GetMedium("deuterium");
+  if ( ! pD ) Fatal("Main", "Medium deuterium not found");
+
+  FairGeoMedium* mFe      = geoMedia->getMedium("ferum");
+  if ( ! mFe ) Fatal("Main", "FairMedium ferum not found");
+  geoBuild->createMedium(mFe);
+  TGeoMedium* pFe = gGeoMan->GetMedium("ferum");
+  if ( ! pFe ) Fatal("Main", "Medium ferum not found");
   
   FairGeoMedium* vacuum      = geoMedia->getMedium("vacuum");
   if ( ! vacuum ) Fatal("Main", "FairMedium vacuum not found");
@@ -51,51 +62,32 @@ TGeoManager*   gGeoMan = NULL;
   gGeoMan->SetName("DETgeom");
   TGeoVolume* top = new TGeoVolumeAssembly("TOP");
   gGeoMan->SetTopVolume(top);
-  TGeoVolume* DSRD = new TGeoVolumeAssembly("DSRD");
+  TGeoVolume* targetAss = new TGeoVolumeAssembly("target");
   // --------------------------------------------------------------------------
-
-  //------------------ DSRD station -----------------------------------------
-  Double_t R_min = 1.2; //cm
-  Double_t R_max = 4.5;   //cm
-  Double_t thin = 1.;   //cm
-  R_min /= 2.;
-  R_max /= 2.;
-  thin /= 2.;
-  TGeoVolume *station = gGeoManager->MakeTube("station", pSi, R_min, R_max, thin);
-
-  //------------------ DSRD sector -----------------------------------------
-  TGeoVolume *sector = gGeoManager->MakeTubs("sector", pSi, R_min, R_max, thin,0,22.5);
+  //------------------ target cover -----------------------------------------
+  Double_t target_cover_R = 2.;   //cm
+  Double_t target_cover_Z = 0.05+0.006;   //cm
+  target_cover_Z /= 2.;
+  TGeoVolume *target_cover = gGeoManager->MakeTube("target_cover", pFe, 0, target_cover_R, target_cover_Z);
+  
+  //------------------ target -----------------------------------------
+  Double_t target_R = 2.;   //cm
+  Double_t target_Z = 0.05;   //cm
+  target_Z /= 2.;
+  TGeoVolume *target = gGeoManager->MakeTube("target", pD, 0, target_R, target_Z);
+  
   //------------------ STRUCTURE  -----------------------------------------
-  //------------------ Add sensor in sector -----------------------------
-  Double_t deltaR = (R_max-R_min)/16;
-  for (Int_t iSensor=0; iSensor < 16; iSensor++){
-  	//TGeoVolume *sensor = gGeoManager->MakeTubs("sensor", pSi, R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR,thin,0,22.5);
-  	TGeoVolume *sensor = gGeoManager->MakeTube("sensor", pSi, R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR,thin);
-  	station->AddNode(sensor, 0, new TGeoCombiTrans(0,0,0,fZeroRotation));
-  }
-  //------------------ Add sectors to station -----------------------------
-  /*for (Int_t iSector=0; iSector < 16; iSector++){
-  	TGeoRotation *rotation = new TGeoRotation();
-	rotation->RotateX(0.);
-	rotation->RotateY(0.);
-	rotation->RotateZ(iSector*22.6);
-  	station->AddNode(sector, iSector, new TGeoCombiTrans(.0,.0,0.,rotation));
-  }*/
-  DSRD->AddNode(station, 0, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
-  top->AddNode(DSRD, 0, new TGeoCombiTrans(.0,.0,2., fZeroRotation));
+  target_cover->AddNode(target, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
+  targetAss->AddNode(target_cover, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
+  top->AddNode(targetAss, 1, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();
   gGeoMan->CheckOverlaps(0.001);
   gGeoMan->PrintOverlaps();
   gGeoMan->Test();
-  top->Draw();
 
   TFile* geoFile = new TFile(geoFileName, "RECREATE");
   top->Write();
   geoFile->Close();
   // --------------------------------------------------------------------------
-}
-
-
-
-
+}	

@@ -1,4 +1,4 @@
-void DSRD_sim(Int_t nEvents = 1){
+void run_sim_Li10(int nEvents = 1){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -10,7 +10,7 @@ void DSRD_sim(Int_t nEvents = 1){
   // ------------------------------------------------------------------------
  
   // -----   Create simulation run   ----------------------------------------
-  FairRunSim* run = new FairRunSim();
+  ERRunSim* run = new ERRunSim();
   /** Select transport engine
   * TGeant3
   * TGeant4
@@ -19,6 +19,12 @@ void DSRD_sim(Int_t nEvents = 1){
   run->SetOutputFile(outFile.Data());          // Output file
   // ------------------------------------------------------------------------
   
+  //------    ER Deacayer   -------------------------------------------------
+  ERDecayer* decayer = new ERDecayer();
+  ERDecay* targetDecay = new ERDecayLi9DetoLi10_Li9n_p();
+  decayer->AddDecay(targetDecay);
+  //-------------------------------------------------------------------------
+
   // -----   Runtime database   ---------------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   // ------------------------------------------------------------------------
@@ -27,38 +33,32 @@ void DSRD_sim(Int_t nEvents = 1){
   run->SetMaterials("media.geo");       // Materials
   // ------------------------------------------------------------------------
 
+  //-------- Set MC event header --------------------------------------------
+  ERMCEventHeader* header = new ERMCEventHeader();
+  run->SetMCEventHeader(header);
+  //-------------------------------------------------------------------------
+
   // -----   Create detectors  ----------------------------------------------	
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
-	
-  // ER NeuRad definition
-  /* Select verbosity level
-   * 1 - only standard logs
-   * 2 - Print points after each event
-   * 3 - - GEANT Step information
-  */
-  Int_t verbose = 1;
-  ERDSRD* dsrd= new ERDSRD("ERDSRD", kTRUE,verbose);
-  dsrd->SetGeometryFileName("DSRD.geo.root");
-  run->AddModule(dsrd);
+  
+  FairModule* target = new ERTarget("Target", kTRUE,1);
+  target->SetGeometryFileName("Li10_target.geo.root");
+  run->AddModule(target);
   // ------------------------------------------------------------------------
-	
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  Int_t pdgId = 2212; // proton  beam
-  Double32_t theta1 = 30;  // polar angle distribution
-  Double32_t theta2 = 30;
-  Double32_t kin_energy = .5; //GeV
-  Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
-  Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
-  FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-  boxGen->SetThetaRange(theta1, theta2);
-  boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(0,360.);
-  boxGen->SetBoxXYZ(0.,0,0.0,0.0,0.);
 
-  primGen->AddGenerator(boxGen);
+  //Ion Li9
+  Int_t A = 9;
+  Int_t Z = 3;
+  Int_t Q = 3;
+  Double_t Pz = 0.025*A;// AGeV
+  FairIonGenerator* ionGenerator = new FairIonGenerator(Z,A,Q,1,0.,0.,Pz,0.,0.,-10.);
+
+  primGen->AddGenerator(ionGenerator);
+    
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
 	
@@ -67,12 +67,10 @@ void DSRD_sim(Int_t nEvents = 1){
 	
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-  
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
-  Int_t nSteps = -15000;
-  //gMC->SetMaxNStep(nSteps);
-	
+  run->SetDecayer(decayer);
+  //-------------------------------------------------------------------------
   // -----   Runtime database   ---------------------------------------------
   Bool_t kParameterMerged = kTRUE;
   FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
@@ -80,13 +78,13 @@ void DSRD_sim(Int_t nEvents = 1){
   rtdb->setOutput(parOut);
   rtdb->saveOutput();
   rtdb->print();
-  // ---------------------------------------------------------
+  //-------------------------------------------------------------------------
   
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);
-  
+  //-------------------------------------------------------------------------
+
   // -----   Finish   -------------------------------------------------------
-  //neuRad->WriteHistos();
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
@@ -96,4 +94,5 @@ void DSRD_sim(Int_t nEvents = 1){
   cout << "Parameter file is par.root" << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime
 		  << "s" << endl << endl;
+  //-------------------------------------------------------------------------
 }
