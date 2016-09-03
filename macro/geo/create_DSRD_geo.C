@@ -68,14 +68,14 @@ TGeoManager*   gGeoMan = NULL;
   TGeoVolume *sector = new TGeoVolume("sector", tubs, pSi);
   //------------------ STRUCTURE  -----------------------------------------
   //------------------ Add sensor in sector -----------------------------
-  /*Double_t deltaR = (R_max-R_min)/16;
+  Double_t deltaR = (R_max-R_min)/16;
   for (Int_t iSensor=0; iSensor < 16; iSensor++){
   	//TGeoVolume *sensor = gGeoManager->MakeTubs("sensor", pSi, R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR,thin,0,22.5);
   	TGeoVolume *sensor = gGeoManager->MakeTube("sensor", pSi, R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR,thin);
   	station->AddNode(sensor, 0, new TGeoCombiTrans(0,0,0,fZeroRotation));
   }
   //------------------ Add sectors to station -----------------------------
-  for (Int_t iSector=0; iSector < 16; iSector++){
+  /*for (Int_t iSector=0; iSector < 16; iSector++){
   	TGeoRotation *rotation = new TGeoRotation();
 	rotation->RotateX(0.); 
 	rotation->RotateY(0.);
@@ -83,7 +83,7 @@ TGeoManager*   gGeoMan = NULL;
 	sensor->AddNode(sector, iSector, new TGeoCombiTrans(.0,.0,0.,rotation));
   }*/
   //station->AddNode(sector, 0, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
-  DSRD->AddNode(sector, 1, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
+  DSRD->AddNode(station, 1, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
   top->AddNode(DSRD, 1, new TGeoCombiTrans(.0,.0,-2., fZeroRotation));
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();
