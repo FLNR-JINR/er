@@ -58,8 +58,6 @@ TGeoManager*   gGeoMan = NULL;
   Double_t R_min = 1.2; //cm
   Double_t R_max = 4.5;   //cm
   Double_t thin = .1;   //cm
-  R_min /= 2.;
-  R_max /= 2.;
   thin /= 2.;
   TGeoVolume *station = gGeoManager->MakeTube("station", pSi, R_min, R_max, thin);
 
@@ -72,7 +70,7 @@ TGeoManager*   gGeoMan = NULL;
   for (Int_t iSensor=0; iSensor < 16; iSensor++){
   	//TGeoVolume *sensor = gGeoManager->MakeTubs("sensor", pSi, R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR,thin,0,22.5);
   	TGeoVolume *sensor = gGeoManager->MakeTube("sensor", pSi, R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR,thin);
-  	station->AddNode(sensor, 0, new TGeoCombiTrans(0,0,0,fZeroRotation));
+  	station->AddNode(sensor, iSensor, new TGeoCombiTrans(0,0,0,fZeroRotation));
   }
   //------------------ Add sectors to station -----------------------------
   /*for (Int_t iSector=0; iSector < 16; iSector++){

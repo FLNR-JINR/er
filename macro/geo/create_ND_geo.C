@@ -67,8 +67,6 @@ TGeoManager*   gGeoMan = NULL;
   Double_t R_min = 0.; //cm
   Double_t R_max = 7.62;   //cm
   Double_t depth_Z1 = 10.;   //cm
-  R_min /= 2.;
-  R_max /= 2.;
   depth_Z1 /= 2.;
   TGeoVolume *cover = gGeoManager->MakeTube("cover", pMed39, R_min, R_max, depth_Z1);
   

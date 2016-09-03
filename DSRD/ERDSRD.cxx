@@ -199,12 +199,6 @@ Bool_t ERDSRD::CheckIfSensitive(std::string name)
 {
   cout << name << endl;
   TString volName = name;
-  if(volName.Contains("sector")) {
-    return kTRUE;
-  }
-  if(volName.Contains("station")) {
-    return kTRUE;
-  }
   if(volName.Contains("sensor")) {
     return kTRUE;
   }

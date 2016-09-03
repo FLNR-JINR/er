@@ -28,6 +28,7 @@ ERDecayLi9DetoLi10_Li9n_p::ERDecayLi9DetoLi10_Li9n_p():
   FairIon* Li10Ion = new FairIon("Li10",3,10,3);
   run->AddNewIon(Li10Ion);
   FairIon* Li9Ion = new FairIon("Li9",3,9,3);
+  run->AddNewIon(Li9Ion);
 }
 
 ERDecayLi9DetoLi10_Li9n_p::~ERDecayLi9DetoLi10_Li9n_p(){
@@ -50,7 +51,7 @@ Bool_t ERDecayLi9DetoLi10_Li9n_p::Stepping(){
 	        return kFALSE;
 	    }
 
-	    fLi9 = TDatabasePDG::Instance()->GetParticle("FairIon1");
+	    fLi9 = TDatabasePDG::Instance()->GetParticle("Li9");
 	    if ( ! fLi9 ) {
 	        std::cerr  << "-W- ERDecayLi9DetoLi10_Li9n_p: Ion Li9 not found in database!" << endl;
 	        return kFALSE;
@@ -143,13 +144,13 @@ Bool_t ERDecayLi9DetoLi10_Li9n_p::Stepping(){
                            Vn.E(), curPos.X(), curPos.Y(), curPos.Z(),
                            gMC->TrackTime(), 0., 0., 0.,
                            kPDecay, newTrackNb, massn, 0);
-
+/*
 	    gMC->GetStack()->PushTrack(1, 0, fLi9->PdgCode(),
                            V9Li.Px(),V9Li.Py(),V9Li.Pz(),
                            V9Li.E(), curPos.X(), curPos.Y(), curPos.Z(),
                            gMC->TrackTime(), 0., 0., 0.,
                            kPDecay, newTrackNb, massn, 0);
-
+*/
 	  	gMC->StopTrack();
 
 
