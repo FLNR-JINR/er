@@ -149,13 +149,13 @@ Bool_t ERDecayLi9DetoLi10_Li9n_p::Stepping(){
                            V9Li.E(), curPos.X(), curPos.Y(), curPos.Z(),
                            gMC->TrackTime(), 0., 0., 0.,
                            kPDecay, newTrackNb, massn, 0);
-	    
+
 	  	gMC->StopTrack();
 
 
 
 	  	fTargetReactionFinish = kTRUE;
-	  	gMC->SetMaxStep(99999.);
+	  	gMC->SetMaxStep(100.);
 	}
   }
   return kTRUE;

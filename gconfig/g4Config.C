@@ -46,11 +46,12 @@ void Config()
    geant4->SetStack(stack);
 
  
-      
+   /*   
    if(FairRunSim::Instance()->IsExtDecayer()){
       TVirtualMCDecayer* decayer = TPythia6Decayer::Instance();
       geant4->SetExternalDecayer(decayer);
    }
+   */
   
 /// Customise Geant4 setting
 /// (verbose level, global range cut, ..)
@@ -60,7 +61,7 @@ void Config()
    cout << " -I g4Config() using g4conf  macro: " << configm1 << endl;
 
    //set geant4 specific stuff
-  geant4->SetMaxNStep(10000);  // default is 30000
+  geant4->SetMaxNStep(30000);  // default is 30000
   geant4->ProcessGeantMacro(configm1.Data());
 
 }

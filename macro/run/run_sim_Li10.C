@@ -46,6 +46,15 @@ void run_sim_Li10(int nEvents = 1){
   FairModule* target = new ERTarget("Target", kTRUE,1);
   target->SetGeometryFileName("Li10_target.geo.root");
   run->AddModule(target);
+
+  Int_t verbose = 1;
+  ERND* nd= new ERND("ERND", kTRUE,verbose);
+  nd->SetGeometryFileName("ND.geo.root");
+  run->AddModule(nd);
+
+  ERDSRD* dsrd= new ERDSRD("ERDSRD", kTRUE,verbose);
+  dsrd->SetGeometryFileName("DSRD.geo.root");
+  run->AddModule(dsrd);
   // ------------------------------------------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
