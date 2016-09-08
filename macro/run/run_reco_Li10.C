@@ -1,4 +1,4 @@
-void ND_reco(Int_t nEvents = 10000){
+void run_reco_Li10(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "reco.root";
@@ -16,16 +16,23 @@ void ND_reco(Int_t nEvents = 10000){
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
  
-  // ------------------------ND hit producer---------------------------------
-  ERNDHitFinder* hitFinder = new ERNDHitFinder(1);
-  hitFinder->SetLYSigmaA(0.0344);
-  hitFinder->SetLYSigmaB(0.0106);
-  hitFinder->SetTimeSigmaPar(0.1);
-  hitFinder->SetElossThreshold(0.005);
-  hitFinder->SetLYThreshold(0.004);
-  hitFinder->SetProbabilityB(0.1);
-  hitFinder->SetProbabilityC(0.3);
-  fRun->AddTask(hitFinder);
+  // ------------------------ND hit finder---------------------------------
+  ERNDHitFinder* NDhitFinder = new ERNDHitFinder(1);
+  NDhitFinder->SetLYSigmaA(0.0344);
+  NDhitFinder->SetLYSigmaB(0.0106);
+  NDhitFinder->SetTimeSigmaPar(0.1);
+  NDhitFinder->SetElossThreshold(0.005);
+  NDhitFinder->SetLYThreshold(0.004);
+  NDhitFinder->SetProbabilityB(0.1);
+  NDhitFinder->SetProbabilityC(0.3);
+  fRun->AddTask(NDhitFinder);
+  // ------------------------------------------------------------------------
+
+  // ------------------------DSRD hit producer---------------------------------
+  ERDSRDHitFinder* DSRDhitFinder = new ERDSRDHitFinder(1);
+  DSRDhitFinder->SetElossSigma(0.01);
+  DSRDhitFinder->SetTimeSigmaPar(0.1);
+  fRun->AddTask(DSRDhitFinder);
   // ------------------------------------------------------------------------
   
   // -----------Runtime DataBase info -------------------------------------

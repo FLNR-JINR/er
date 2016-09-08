@@ -79,7 +79,7 @@ Bool_t ERDSRD::ProcessHits(FairVolume* vol) {
   }
   
   eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
-  cerr << eLoss << " " << gMC->TrackPid() << " " << gMC->CurrentVolName()<< endl;
+  //cerr << eLoss << " " << gMC->TrackPid() << " " << gMC->CurrentVolName()<< endl;
 
 	if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume 
 	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold

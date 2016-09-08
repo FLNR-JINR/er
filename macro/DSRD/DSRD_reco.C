@@ -16,7 +16,7 @@ void DSRD_reco(Int_t nEvents = 10000){
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
  
-  // ------------------------muSi hit producer---------------------------------
+  // ------------------------DSRD hit producer---------------------------------
   ERDSRDHitFinder* hitFinder = new ERDSRDHitFinder(1);
   hitFinder->SetElossSigma(0.01);
   hitFinder->SetTimeSigmaPar(0.1);

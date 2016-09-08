@@ -41,7 +41,7 @@ Bool_t ERDecayLi9DetoLi10_Li9n_p::Stepping(){
     gMC->SetMaxStep(0.001);
 	TLorentzVector curPos;
 	gMC->TrackPosition(curPos);
-	std::cerr << curPos.Z() << " "<<  fTargetReactZ << std::endl;
+	//std::cerr << curPos.Z() << " "<<  fTargetReactZ << std::endl;
 	if (curPos.Z() > fTargetReactZ){
 		std::cout << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
 		FairRunSim* run = FairRunSim::Instance();
