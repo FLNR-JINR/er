@@ -72,7 +72,7 @@ void create_Li10_target_geo()
   
   //------------------ target -----------------------------------------
   Double_t target_R = 2.;   //cm
-  Double_t target_Z = 0.05;   //cm
+  Double_t target_Z = 0.025;   //cm
   target_Z /= 2.;
   TGeoVolume *target = gGeoManager->MakeTube("target", pD, 0, target_R, target_Z);
   

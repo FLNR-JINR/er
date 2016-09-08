@@ -61,6 +61,8 @@ Bool_t ERDSRD::ProcessHits(FairVolume* vol) {
   static Double32_t     time;              //!  time
   static Double32_t     length;            //!  length
   static Double32_t     eLoss;             //!  energy loss
+  static Int_t          sector;
+  static Int_t          sensor;
 
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     eLoss  = 0.;
@@ -72,11 +74,14 @@ Bool_t ERDSRD::ProcessHits(FairVolume* vol) {
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
-    cerr << "Start point" << endl;
+    gMC->CurrentVolID(sector);
+    sensor = TString(TString(gMC->CurrentVolName())(6,6)).Atoi();
+    cerr << "Start point " << sector << " " << sensor << endl;
   }
   
   eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
   cerr << eLoss << " " << gMC->TrackPid() << " " << gMC->CurrentVolName()<< endl;
+
 	if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume 
 	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
 	    gMC->IsTrackDisappeared()) 
@@ -91,7 +96,7 @@ Bool_t ERDSRD::ProcessHits(FairVolume* vol) {
                 TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
                 TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
                 TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                time, length, eLoss);
+                time, length, eLoss, sector, sensor);
     }
   }
   return kTRUE;
@@ -114,7 +119,7 @@ void ERDSRD::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
 	Fatal("Init", "IO manager is not set");	
-  ioman->Register("ERDSRDPoint","ERDSRD", fDSRDPoints, kTRUE);
+  ioman->Register("DSRDPoint","DSRD", fDSRDPoints, kTRUE);
 }
 // ----------------------------------------------------------------------------
 
@@ -172,11 +177,11 @@ ERDSRDPoint* ERDSRD::AddPoint(Int_t eventID, Int_t trackID,
 				    TVector3 posIn,
 				    TVector3 posOut, TVector3 momIn,
 				    TVector3 momOut, Double_t time,
-				    Double_t length, Double_t eLoss) {
+				    Double_t length, Double_t eLoss, Int_t sector,Int_t sensor) {
   TClonesArray& clref = *fDSRDPoints;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) ERDSRDPoint(eventID, trackID, mot0trackID, mass,
-					  posIn, posOut, momIn, momOut, time, length, eLoss);
+					  posIn, posOut, momIn, momOut, time, length, eLoss, sector, sensor);
 	
 }
 // ----------------------------------------------------------------------------

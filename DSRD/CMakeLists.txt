@@ -8,6 +8,7 @@ ${CMAKE_SOURCE_DIR}/ERData/DSRDData/
 ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/ERBase/
+${CMAKE_SOURCE_DIR}/ERData/
 ${CMAKE_SOURCE_DIR}/DSRD/
 )
 
@@ -22,6 +23,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 ERDSRD.cxx
+ERDSRDHitFinder.cxx
 )
 
 # fill list of header files from list of source files

@@ -119,6 +119,7 @@ class ERIonGenerator : public FairGenerator
      **/
     virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
 
+    FairIon* Ion() {return fIon;}
 
   private:
     Int_t    fMult;          // Multiplicity per event

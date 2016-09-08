@@ -5,5 +5,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class ERDSRD+;
+#pragma link C++ class ERDSRDHitFinder+;
 
 #endif

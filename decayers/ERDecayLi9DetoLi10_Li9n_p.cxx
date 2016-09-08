@@ -41,6 +41,7 @@ Bool_t ERDecayLi9DetoLi10_Li9n_p::Stepping(){
     gMC->SetMaxStep(0.001);
 	TLorentzVector curPos;
 	gMC->TrackPosition(curPos);
+	std::cerr << curPos.Z() << " "<<  fTargetReactZ << std::endl;
 	if (curPos.Z() > fTargetReactZ){
 		std::cout << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
 		FairRunSim* run = FairRunSim::Instance();
@@ -165,7 +166,7 @@ Bool_t ERDecayLi9DetoLi10_Li9n_p::Stepping(){
 void ERDecayLi9DetoLi10_Li9n_p::BeginEvent(){
   fTargetReactionFinish = kFALSE;
   //Double_t targetThickness = ERTarget::Thickness();
-  fTargetReactZ = fRnd->Uniform()*.056;
+  fTargetReactZ = fRnd->Uniform()*(.025+0.006);
   FairRunSim* run = FairRunSim::Instance();
   ERMCEventHeader* header = (ERMCEventHeader*)run->GetMCEventHeader();
   header->SetTargetReactionPos(fTargetReactZ);

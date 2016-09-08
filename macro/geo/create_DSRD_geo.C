@@ -59,30 +59,25 @@ TGeoManager*   gGeoMan = NULL;
   Double_t R_max = 4.5;   //cm
   Double_t thin = .1;   //cm
   thin /= 2.;
-  TGeoVolume *station = gGeoManager->MakeTube("station", pSi, R_min, R_max, thin);
-
-  //------------------ DSRD sector -----------------------------------------
-  TGeoTubeSeg *tubs = new TGeoTubeSeg(R_min, R_max, 20*thin,0,22.5);
-  TGeoVolume *sector = new TGeoVolume("sector", tubs, pSi);
   //------------------ STRUCTURE  -----------------------------------------
   //------------------ Add sensor in sector -----------------------------
   Double_t deltaR = (R_max-R_min)/16;
-  for (Int_t iSensor=0; iSensor < 16; iSensor++){
-  	//TGeoVolume *sensor = gGeoManager->MakeTubs("sensor", pSi, R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR,thin,0,22.5);
-  	TGeoVolume *sensor = gGeoManager->MakeTube("sensor", pSi, R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR,thin);
-  	station->AddNode(sensor, iSensor, new TGeoCombiTrans(0,0,0,fZeroRotation));
+  for (Int_t iSector=0; iSector < 16; iSector++){
+  	TString title;
+  	title.Form("sensor%d", iSector);
+  	TGeoVolume *sensor = gGeoManager->MakeSphere(title.Data(), pSi, R_min+iSector*deltaR, R_min+(iSector+1)*deltaR,87.5, 90.,0,22.5);
+  	for (Int_t iSensor=0; iSensor < 16; iSensor++){
+  		TGeoRotation *rotation = new TGeoRotation();
+		rotation->RotateX(0.); 
+		rotation->RotateY(0.);
+		rotation->RotateZ(iSensor*22.5);
+		DSRD->AddNode(sensor, iSensor, new TGeoCombiTrans(.0,.0,0., rotation));
+  	}
   }
-  //------------------ Add sectors to station -----------------------------
-  /*for (Int_t iSector=0; iSector < 16; iSector++){
-  	TGeoRotation *rotation = new TGeoRotation();
-	rotation->RotateX(0.); 
-	rotation->RotateY(0.);
-	rotation->RotateZ(iSector*22.5);
-	sensor->AddNode(sector, iSector, new TGeoCombiTrans(.0,.0,0.,rotation));
-  }*/
-  //station->AddNode(sector, 0, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
-  DSRD->AddNode(station, 1, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
-  top->AddNode(DSRD, 1, new TGeoCombiTrans(.0,.0,-2., fZeroRotation));
+  //TGeoVolume *sector = gGeoManager->MakeSphere("sector", pSi, R_min, R_max,87.5, 90. ,0,22.5);
+  //TGeoVolume *sector = gGeoManager->MakeBox("sector", pSi, 50, 50, 50);
+  //DSRD->AddNode(sector, 0, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
+  top->AddNode(DSRD, 0, new TGeoCombiTrans(.0,.0,-2., fZeroRotation));
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();
   gGeoMan->CheckOverlaps(0.001);
