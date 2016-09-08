@@ -74,10 +74,7 @@ TGeoManager*   gGeoMan = NULL;
 		DSRD->AddNode(sensor, iSensor, new TGeoCombiTrans(.0,.0,0., rotation));
   	}
   }
-  //TGeoVolume *sector = gGeoManager->MakeSphere("sector", pSi, R_min, R_max,87.5, 90. ,0,22.5);
-  //TGeoVolume *sector = gGeoManager->MakeBox("sector", pSi, 50, 50, 50);
-  //DSRD->AddNode(sector, 0, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
-  top->AddNode(DSRD, 0, new TGeoCombiTrans(.0,.0,-2., fZeroRotation));
+  top->AddNode(DSRD, 0, new TGeoCombiTrans(.0,.0,-5., fZeroRotation));
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();
   gGeoMan->CheckOverlaps(0.001);

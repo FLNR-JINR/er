@@ -47,7 +47,7 @@ void DSRD_sim(Int_t nEvents = 1){
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   Int_t pdgId = 2212; // proton  beam
-  Double32_t theta1 = 120;  // polar angle distribution
+  Double32_t theta1 = 140;  // polar angle distribution
   Double32_t theta2 = 140;
   Double32_t kin_energy = .5; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();

@@ -90,7 +90,7 @@ void ERDSRDHitFinder::Exec(Option_t* opt)
   Float_t R_max = 4.5; //cm
   Float_t dR  = (R_max-R_min)/16.;
   Float_t dPhi = 360./16.;
-  Float_t z = -2.;
+  Float_t z = -5.;
 
   for (Int_t iPoint = 0; iPoint < fDSRDPoints->GetEntriesFast(); iPoint++){
     ERDSRDPoint* point = (ERDSRDPoint*)fDSRDPoints->At(iPoint);

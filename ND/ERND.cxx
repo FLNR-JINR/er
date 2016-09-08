@@ -54,7 +54,12 @@ void ERND::Initialize()
 }
 
 
-Bool_t ERND::ProcessHits(FairVolume* vol) {  
+Bool_t ERND::ProcessHits(FairVolume* vol) { 
+  // Set constants for Birk's Law implentation
+  static const Double_t dP = 1.032 ;
+  static const Double_t BirkC1 =  0.013/dP;
+  static const Double_t BirkC2 =  9.6e-6/(dP * dP);
+
   static Int_t          eventID;           //!  event index
   static Int_t          trackID;           //!  track index
   static Int_t          mot0TrackID;       //!  0th mother track index
@@ -64,9 +69,12 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
   static Double32_t     time;              //!  time
   static Double32_t     length;            //!  length
   static Double32_t     eLoss;             //!  energy loss
+  static Int_t          stilbenNr;
+  static Double_t       lightYield; 
 
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     eLoss  = 0.;
+    lightYield = 0.;
     eventID = gMC->CurrentEvent();
     gMC->TrackPosition(posIn);
     gMC->TrackMomentum(momIn);
@@ -75,11 +83,30 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
-    cerr << "Start point" << endl;
+    gMC->CurrentVolOffID(1, stilbenNr); 
   }
   
   eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
-  
+  Double_t curLightYield = 0.;
+  // Apply Birk's law ( Adapted from G3BIRK/Geant3)
+  // Correction for all charge states
+  if (gMC->TrackCharge()!=0) { // Return the charge of the track currently transported
+    Double_t BirkC1Mod = 0;
+    // Apply correction for higher charge states
+      if (TMath::Abs(gMC->TrackCharge())>=2)
+        BirkC1Mod=BirkC1*7.2/12.6;
+      else
+        BirkC1Mod=BirkC1;
+
+    if (gMC->TrackStep()>0)
+    {
+      Double_t dedxcm=gMC->Edep()*1000./gMC->TrackStep(); //[MeV/cm]
+      curLightYield=gMC->Edep()*1000./(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
+      curLightYield /= 1000.; //[GeV]
+      lightYield+=curLightYield;
+    }
+  }
+
 	if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume 
 	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
 	    gMC->IsTrackDisappeared()) 
@@ -88,13 +115,12 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
     gMC->TrackMomentum(momOut);
     
 	  if (eLoss > 0.){
-      cerr << "End point" << endl;
       AddPoint( eventID, trackID, mot0TrackID, mass,
                 TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                 TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
                 TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
                 TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                time, length, eLoss);
+                time, length, eLoss, stilbenNr, lightYield);
     }
   }
   return kTRUE;
@@ -117,7 +143,7 @@ void ERND::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
 	Fatal("Init", "IO manager is not set");	
-  ioman->Register("ERNDPoint","ERND", fNDPoints, kTRUE);
+  ioman->Register("NDPoint","ND", fNDPoints, kTRUE);
 }
 // ----------------------------------------------------------------------------
 
@@ -129,8 +155,6 @@ TClonesArray* ERND::GetCollection(Int_t iColl) const {
     return NULL;
 }
 // ----------------------------------------------------------------------------
-
-
 
 // -----   Public method Print   ----------------------------------------------
 void ERND::Print(Option_t *option) const
@@ -175,11 +199,11 @@ ERNDPoint* ERND::AddPoint(Int_t eventID, Int_t trackID,
 				    TVector3 posIn,
 				    TVector3 posOut, TVector3 momIn,
 				    TVector3 momOut, Double_t time,
-				    Double_t length, Double_t eLoss) {
+				    Double_t length, Double_t eLoss, Int_t stilbenNr, Float_t lightYield) {
   TClonesArray& clref = *fNDPoints;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) ERNDPoint(eventID, trackID, mot0trackID, mass,
-					  posIn, posOut, momIn, momOut, time, length, eLoss);
+					  posIn, posOut, momIn, momOut, time, length, eLoss,stilbenNr,lightYield);
 	
 }
 // ----------------------------------------------------------------------------
