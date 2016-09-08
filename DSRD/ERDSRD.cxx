@@ -200,7 +200,7 @@ void ERDSRD::ConstructGeometry() {
 // ----------------------------------------------------------------------------
 Bool_t ERDSRD::CheckIfSensitive(std::string name)
 {
-  cout << name << endl;
+  //cout << name << endl;
   TString volName = name;
   if(volName.Contains("sensor")) {
     return kTRUE;

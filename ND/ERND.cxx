@@ -224,7 +224,7 @@ void ERND::ConstructGeometry() {
 // ----------------------------------------------------------------------------
 Bool_t ERND::CheckIfSensitive(std::string name)
 {
-  cout << name << endl;
+  //cout << name << endl;
   TString volName = name;
   if(volName.Contains("Stilbene")) {
     return kTRUE;

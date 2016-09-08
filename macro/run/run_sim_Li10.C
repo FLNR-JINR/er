@@ -68,7 +68,7 @@ void run_sim_Li10(int nEvents = 1){
   Double32_t theta2 = 0.0001*TMath::RadToDeg();
   ionGenerator->SetThetaRange(theta1, theta2);
   ionGenerator->SetPhiRange(0, 360);
-  ionGenerator->SetBoxXYZ(-0.4,-0.4,0.4,0.4,0.);
+  ionGenerator->SetBoxXYZ(-0.4,-0.4,0.4,0.4,-10);
   primGen->AddGenerator(ionGenerator);
 
   run->SetGenerator(primGen);
