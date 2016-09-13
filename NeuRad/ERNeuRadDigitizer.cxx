@@ -244,6 +244,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
         Double_t onePESigma = TMath::Sqrt(fExcessNoiseFactor-1)*PMTGain;
         Double_t ffp_amplitude = TMath::Abs(fRand->Gaus(PMTGain, onePESigma));
         Double_t ffp_anode_time = ffp_cathode_time + (Double_t)fRand->Gaus(fPMTDelay, fPMTJitter);
+        point_fiber_nb = Crosstalks(point_fiber_nb);
         ERNeuRadFiberPoint* ffPoint = AddFiberPoint(i_point, 0, ffp_lytime - point_time, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
                             1, ffp_amplitude, 1);
         
@@ -264,11 +265,17 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
         Double_t onePESigma = TMath::Sqrt(fExcessNoiseFactor-1)*PMTGain;
         Double_t bfp_amplitude = TMath::Abs(fRand->Gaus(PMTGain, onePESigma));
         Double_t bfp_anode_time = bfp_cathode_time + (Double_t)fRand->Gaus(fPMTDelay, fPMTJitter);
+        point_fiber_nb = Crosstalks(point_fiber_nb);
         ERNeuRadFiberPoint* bfPoint = AddFiberPoint(i_point, 1, bfp_lytime - point_time, bfp_cathode_time, bfp_anode_time, bfp_photon_count,
                             1, bfp_amplitude, 1);
         backPointsPerFibers[point_bundle][point_fiber_nb].push_back(bfPoint);
       }
     }
+}
+
+//----------------------------------------------------------------------------
+Int_t ERNeuRadDigitizer::Crosstalks(Int_t iBundle, Int_t iFiber){
+  return iFiber;
 }
 
 //----------------------------------------------------------------------------

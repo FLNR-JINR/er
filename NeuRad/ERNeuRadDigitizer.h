@@ -135,6 +135,8 @@ protected:
                                 Float_t& sumFrontQDC, Float_t& sumBackQDC);
   void StoreCurBundle();
   void ClearCurBundle();
+
+  Int_t Crosstalks(Int_t iFiber);
   TRandom3  *fRand;
 private:
   virtual void SetParContainers();
