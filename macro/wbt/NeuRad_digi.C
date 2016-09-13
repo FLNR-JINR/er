@@ -33,7 +33,7 @@ void NeuRad_digi(Int_t nEvents = 1000){
   
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
-  NeuRadDetDigiFile += "/parameters/NeuRad.digi.par";
+  NeuRadDetDigiFile += "/parameters/NeuRad_wbt.digi.par";
   parInput2->open(NeuRadDetDigiFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
   

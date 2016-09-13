@@ -40,7 +40,7 @@ void NeuRad_sim(Int_t nEvents = 1000){
   */
   Int_t verbose = 1;
   ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,verbose);
-  neuRad->SetGeometryFileName("NeuRad_v2.geo.root");
+  neuRad->SetGeometryFileName("NeuRad_wbt.geo.root");
   /* Select storing stepss
    * not store steps
    * SetStorePrimarySteps() - store only primary particle step
@@ -62,7 +62,7 @@ void NeuRad_sim(Int_t nEvents = 1000){
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(90, 90);
-  boxGen->SetBoxXYZ(0.,0,0.6,0.6,2550.);
+  boxGen->SetBoxXYZ(0.,0,0.6,0.6,-60.);
 
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);

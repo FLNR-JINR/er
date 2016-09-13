@@ -136,7 +136,7 @@ protected:
   void StoreCurBundle();
   void ClearCurBundle();
 
-  Int_t Crosstalks(Int_t iFiber);
+  Int_t Crosstalks(Int_t iBundle, Int_t iFiber);
   TRandom3  *fRand;
 private:
   virtual void SetParContainers();

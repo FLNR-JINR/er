@@ -4,20 +4,21 @@
 #include "TMath.h"
 
 
-// Create a global translation
-TGeoTranslation *fGlobalTrans = new TGeoTranslation();
-fGlobalTrans->SetTranslation(0.0,0.0,1000.);
 
-// Create a zero rotation
-TGeoRotation *fZeroRotation = new TGeoRotation();
-fZeroRotation->RotateX(0.);
-fZeroRotation->RotateY(0.);
-fZeroRotation->RotateZ(0.);
-
-TGeoManager*   gGeoMan = NULL;
 
 void create_NeuRad_geo()
 {
+  // Create a global translation
+  TGeoTranslation *fGlobalTrans = new TGeoTranslation();
+  fGlobalTrans->SetTranslation(0.0,0.0,1000.);
+
+  // Create a zero rotation
+  TGeoRotation *fZeroRotation = new TGeoRotation();
+  fZeroRotation->RotateX(0.);
+  fZeroRotation->RotateY(0.);
+  fZeroRotation->RotateZ(0.);
+
+  TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------
   FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
