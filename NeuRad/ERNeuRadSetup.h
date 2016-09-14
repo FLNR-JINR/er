@@ -30,6 +30,7 @@ class ERNeuRadSetup {
     static ERNeuRadDigiPar* fDigiPar;
     static std::vector<ERNeuRadBundle*> fBundles;
     static std::vector<std::vector<ERNeuRadFiber*> > fFibers;
+    static Float_t fZ;
     ERNeuRadSetup();
 public:
     static ERNeuRadSetup* Instance();
@@ -43,7 +44,7 @@ public:
     static Float_t FiberY(Int_t iBundle, Int_t iFiber);
     static Float_t PMTQuantumEfficiency(Int_t iBundle, Int_t iFiber);
     static Float_t PMTGain(Int_t iBundle, Int_t iFiber);
-    static Float_t Z(){return 2600;}
+    static Float_t Z(){return fZ;}
     static void    Print();
     ClassDef(ERNeuRadSetup,1)
 
