@@ -33,6 +33,7 @@ protected:
   Float_t* fResFunction;
   TArrayF fResFunctionRoot;
   Int_t fPECount;
+  Int_t fSide;
   //constants
   static const Double_t csdT; //ns
   static const Int_t csdTCount; //count
@@ -44,7 +45,7 @@ public:
   ERNeuRadPMTSignal();
 
   /** Constructor with arguments **/
-  ERNeuRadPMTSignal(Int_t iBundle, Int_t iFiber, Int_t fpoints_count);
+  ERNeuRadPMTSignal(Int_t iBundle, Int_t iFiber, Int_t fpoints_count, Int_t side);
 
   virtual ~ERNeuRadPMTSignal();
   
@@ -77,7 +78,7 @@ public:
 
   Int_t ModuleIndex() const {return fModuleIndex;}
   Int_t FiberIndex() const {return fFiberIndex;}
-  
+  Int_t Side() const {return fSide;}
   ClassDef(ERNeuRadPMTSignal,1);
 };
 

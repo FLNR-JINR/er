@@ -23,7 +23,7 @@ ERNeuRadPMTSignal::ERNeuRadPMTSignal():
 {
 }
 
-ERNeuRadPMTSignal::ERNeuRadPMTSignal(Int_t iModule, Int_t iFiber, Int_t pe_count):
+ERNeuRadPMTSignal::ERNeuRadPMTSignal(Int_t iModule, Int_t iFiber, Int_t pe_count, Int_t side):
 	fModuleIndex(iModule),
 	fFiberIndex(iFiber),
 	fPECount(pe_count),
@@ -32,7 +32,8 @@ ERNeuRadPMTSignal::ERNeuRadPMTSignal(Int_t iModule, Int_t iFiber, Int_t pe_count
 	fTimeShifts(new Int_t[pe_count]),
 	fCurFPoint(0),
 	fStartTime(99999999.),
-	fFinishTime(-1.)
+	fFinishTime(-1.),
+	fSide(side)
 {
 }
 
