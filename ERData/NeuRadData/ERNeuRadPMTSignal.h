@@ -74,6 +74,10 @@ public:
   virtual Int_t PECount() {return fPECount;}
 
   Double_t  dT() {return csdT;}
+
+  Int_t ModuleIndex() const {return fModuleIndex;}
+  Int_t FiberIndex() const {return fFiberIndex;}
+  
   ClassDef(ERNeuRadPMTSignal,1);
 };
 

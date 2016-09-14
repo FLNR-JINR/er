@@ -33,6 +33,7 @@ set(SRCS
 	ERNeuRadSetup.cxx
 	ERNeuRadHitProducer.cxx
 	ERNeuRadHitProducerMF.cxx
+	ERNeuRadHitProducerWBT.cxx
 	ERNeuRadMatcher.cxx
 )
 

@@ -14,6 +14,7 @@
 #pragma link C++ class ERNeuRadDigi+;
 #pragma link C++ class ERNeuRadStep+;
 #pragma link C++ class ERNeuRadHit+;
+#pragma link C++ class ERNeuRadHitWBT+;
 
 #pragma link C++ class ERmuSiPoint+;
 #pragma link C++ class ERmuSiHit+;
