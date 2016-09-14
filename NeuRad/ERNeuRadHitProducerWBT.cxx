@@ -60,7 +60,7 @@ InitStatus ERNeuRadHitProducerWBT::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
-  fNeuRadPMTSignals = (TClonesArray*) ioman->GetObject("NeuRadDigi");
+  fNeuRadPMTSignals = (TClonesArray*) ioman->GetObject("NeuRadPMTSignal");
   //todo check
 
   // Register output array fmuSiHits
@@ -89,11 +89,12 @@ void ERNeuRadHitProducerWBT::Exec(Option_t* opt)
 
   for (Int_t iSignal=0; iSignal <  fNeuRadPMTSignals->GetEntriesFast(); iSignal++){
     ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)fNeuRadPMTSignals->At(iSignal);
+    
+    Float_t qInteg = signal->GetInteg(signal->GetStartTime(), signal->GetFinishTime());
     TVector3 pos(setup->FiberX(signal->ModuleIndex(), signal->FiberIndex()),
                  setup->FiberY(signal->ModuleIndex(), signal->FiberIndex()),
                  setup->Z()-setup->FiberLength());
     TVector3 dpos(0,0,0);
-    Float_t qInteg = signal->GetInteg(signal->GetStartTime(), signal->GetFinishTime());
     AddHit(kNEURAD,pos, dpos,signal->ModuleIndex(),signal->FiberIndex(), -1, qInteg);
   }
   std::cout << "Hits count: " << fNeuRadHits->GetEntriesFast() << std::endl;
