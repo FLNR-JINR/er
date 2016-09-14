@@ -197,6 +197,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   }
   fPMTSignalCreatingTimer.Stop();
   fPMTSignalCreatingTime += fPMTSignalCreatingTimer.RealTime();
+  
   //освобождаем память
   for (Int_t i = 0; i<nofBundles; i++){
     delete [] frontPointsPerFibers[i];
@@ -224,8 +225,8 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
     Double_t point_time       = point->GetTimeIn();
     Double_t point_z_in_fiber = point_z + fiber_length/2. - fNeuRadSetup->Z();
 
-    Double_t PMTQuantumEfficiency = 0.2;//fNeuRadSetup->PMTQuantumEfficiency(point_bundle,point_fiber_nb);
-    Double_t PMTGain = 5.;//fNeuRadSetup->PMTGain(point_bundle,point_fiber_nb);
+    Double_t PMTQuantumEfficiency = fNeuRadSetup->PMTQuantumEfficiency(point_bundle,point_fiber_nb);
+    Double_t PMTGain = fNeuRadSetup->PMTGain(point_bundle,point_fiber_nb);
     //scintillator light yield - общее число рожденных фотонов
     Double_t photon_count = point_lightYield*1000.*cSciFiLightYield;
     //Моделируем распространнение сигнала на передние ФЭУ
@@ -244,7 +245,8 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
         Double_t onePESigma = TMath::Sqrt(fExcessNoiseFactor-1)*PMTGain;
         Double_t ffp_amplitude = TMath::Abs(fRand->Gaus(PMTGain, onePESigma));
         Double_t ffp_anode_time = ffp_cathode_time + (Double_t)fRand->Gaus(fPMTDelay, fPMTJitter);
-        point_fiber_nb = Crosstalks(point_bundle,point_fiber_nb);
+        if (fNeuRadSetup->UseCrosstalks())
+          point_fiber_nb = Crosstalks(point_bundle,point_fiber_nb);
         ERNeuRadFiberPoint* ffPoint = AddFiberPoint(i_point, 0, ffp_lytime - point_time, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
                             1, ffp_amplitude, 1);
         
@@ -265,7 +267,8 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
         Double_t onePESigma = TMath::Sqrt(fExcessNoiseFactor-1)*PMTGain;
         Double_t bfp_amplitude = TMath::Abs(fRand->Gaus(PMTGain, onePESigma));
         Double_t bfp_anode_time = bfp_cathode_time + (Double_t)fRand->Gaus(fPMTDelay, fPMTJitter);
-        point_fiber_nb = Crosstalks(point_bundle,point_fiber_nb);
+        if (fNeuRadSetup->UseCrosstalks())
+          point_fiber_nb = Crosstalks(point_bundle,point_fiber_nb);
         ERNeuRadFiberPoint* bfPoint = AddFiberPoint(i_point, 1, bfp_lytime - point_time, bfp_cathode_time, bfp_anode_time, bfp_photon_count,
                             1, bfp_amplitude, 1);
         backPointsPerFibers[point_bundle][point_fiber_nb].push_back(bfPoint);
@@ -275,7 +278,42 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
 
 //----------------------------------------------------------------------------
 Int_t ERNeuRadDigitizer::Crosstalks(Int_t iBundle, Int_t iFiber){
-  return iFiber;
+  Int_t newFiber = iFiber;
+  TArrayF crosstalks;
+  fNeuRadSetup->PMTCrosstalks(iFiber, crosstalks);
+  Float_t prob = gRandom->Uniform();
+  Float_t curProb = 0;
+  Int_t csI = -1;
+  Int_t csJ = -1;
+  for (Int_t i = 0; i < 3; i++){
+    for (Int_t j = 0; j < 3; j++){
+      if (crosstalks[i*3+j] == 0)
+        continue;
+      
+      curProb += crosstalks[i*3+j];
+
+      if (curProb > prob){
+        csI = i;
+        csJ = j;
+        break;
+      }
+    }
+    if (csI != -1)
+      break;
+  }
+  if (csI == 0){
+    newFiber-= fNeuRadSetup->RowNofFibers();
+  }
+  if (csI == 2){
+    newFiber+=fNeuRadSetup->RowNofFibers();
+  }
+  if (csJ == 0){
+    newFiber-=1;
+  }
+  if (csJ == 2){
+    newFiber+=1;
+  }
+  return newFiber;
 }
 
 //----------------------------------------------------------------------------

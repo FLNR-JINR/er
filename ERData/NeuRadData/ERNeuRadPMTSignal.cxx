@@ -104,16 +104,15 @@ std::vector<Double_t> ERNeuRadPMTSignal::GetIntersections(Double_t discriminator
  Double_t ERNeuRadPMTSignal::GetInteg(const Double_t start,const Double_t finish){
   if (finish<fStartTime)
     return 0;
-
+  
   Double_t res = 0;
   //Начальная и конечная точкиж
   Int_t st = (Int_t)((start-fStartTime)/csdT) + 1;
   Int_t fn = (Int_t)((finish - fStartTime)/csdT);
-  
   if ((fStartTime+fn*csdT) > fFinishTime)
   	fn = (Int_t)(fFinishTime- fStartTime)/csdT;
   //Суммируем трапеции внутри промежутка
-  for(Int_t i = st; i < fn-1; i++){
+  for(Int_t i = st; i < fResFunctionRoot.GetSize()-1; i++){
     res += 0.5*(fResFunctionRoot[i] + fResFunctionRoot[i+1])*(finish-start);
   }
   

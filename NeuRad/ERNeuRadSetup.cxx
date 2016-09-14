@@ -117,4 +117,16 @@ void ERNeuRadSetup::Print(){
         fDigiPar->print();
 }
 
+void ERNeuRadSetup::PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks){
+    return fDigiPar->PMTCrosstalks(iFiber, crosstalks);
+}
+
+Int_t ERNeuRadSetup::RowNofFibers(){
+    return fDigiPar->RowNofFibers();
+}
+
+Bool_t ERNeuRadSetup::UseCrosstalks(){
+    return fDigiPar->UseCrosstalks();
+}
+
 ClassImp(ERNeuRadSetup)

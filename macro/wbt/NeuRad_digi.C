@@ -39,6 +39,7 @@ void NeuRad_digi(Int_t nEvents = 1000){
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
+  FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
   //FairParRootFileIo*  parIo2 = new FairParRootFileIo();

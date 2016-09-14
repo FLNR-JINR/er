@@ -56,13 +56,19 @@ class ERNeuRadDigiPar : public FairParGenericSet
     //@todo добавить обработку выхода зза границу
     Double_t PMTQuantumEfficiency (Int_t iFiber) const {return (*fPMTQuantumEfficiency)[iFiber];}
     Double_t PMTGain (Int_t iFiber) const {return (*fPMTGain)[iFiber];}
+    Bool_t UseCrosstalks() const {return fUseCrosstalks;}
+    void PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks) const;
+    Int_t RowNofFibers() const {return fRowNofFibers;}
   private:
     Float_t fFiberLength;
 	Float_t fFiberWidth;
     TArrayF* fPMTQuantumEfficiency;
     TArrayF* fPMTGain;
+    TArrayF* fPMTCrosstalks;
     Int_t fNofFibers;
     Int_t fNofBundles;
+    Bool_t fUseCrosstalks;
+    Int_t fRowNofFibers;
 
     ERNeuRadDigiPar(const ERNeuRadDigiPar&);
     ERNeuRadDigiPar& operator=(const ERNeuRadDigiPar&);

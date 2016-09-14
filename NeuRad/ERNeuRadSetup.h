@@ -46,6 +46,9 @@ public:
     static Float_t PMTGain(Int_t iBundle, Int_t iFiber);
     static Float_t Z(){return fZ;}
     static void    Print();
+    static void PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks);
+    static Int_t RowNofFibers();
+    static Bool_t UseCrosstalks();
     ClassDef(ERNeuRadSetup,1)
 
 };
