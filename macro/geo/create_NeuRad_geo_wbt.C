@@ -9,7 +9,7 @@ void create_NeuRad_geo_wbt()
 {
   // Create a global translation
   TGeoTranslation *fGlobalTrans = new TGeoTranslation();
-  fGlobalTrans->SetTranslation(0.0,0.0,1000.);
+  fGlobalTrans->SetTranslation(0.0,0.0,0.);
 
   // Create a zero rotation
   TGeoRotation *fZeroRotation = new TGeoRotation();
@@ -72,7 +72,7 @@ void create_NeuRad_geo_wbt()
   //------------------ BC408  fiber  -----------------------------------------
   Double_t fiber_X = 0.6;   //cm
   Double_t fiber_Y = 0.6;   //cm
-  Double_t fiber_Z = 100.;  //cm
+  Double_t fiber_Z = 25.;  //cm
   fiber_X /= 2.;
   fiber_Y /= 2.;
   fiber_Z /= 2.;

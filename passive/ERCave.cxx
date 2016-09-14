@@ -37,30 +37,7 @@ void ERCave::ConstructGeometry()
 	if ( rc ) MGeo->create(loader->getGeoBuilder());
 
     TList* volList = MGeo->getListOfVolumes();
-        // store geo parameter
-	/*
-	FairRun *fRun = FairRun::Instance();
-    FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
-	
-	R3BGeoPassivePar* par=(R3BGeoPassivePar*)(rtdb->getContainer("R3BGeoPassivePar"));
-        TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
-        TObjArray *fPassNodes = par->GetGeoPassiveNodes();
-
-        TListIter iter(volList);
-        FairGeoNode* node   = NULL;
-        FairGeoVolume *aVol=NULL;
-
-        while( (node = (FairGeoNode*)iter.Next()) ) {
-            aVol = dynamic_cast<FairGeoVolume*> ( node );
-            if ( node->isSensitive()  ) {
-                fSensNodes->AddLast( aVol );
-            }else{
-                fPassNodes->AddLast( aVol );
-            }
-        }
-        par->setChanged();
-        par->setInputVersion(fRun->GetRunId(),1);
-*/
+    // store geo parameter
 
 }
 

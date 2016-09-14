@@ -3,7 +3,7 @@
 //-------------------------------------------------------------
 [ERNeuRadDigiPar]
 //-------------------------------------------------------------
-ERNeuRadFiberLength: Float_t 100.0
+ERNeuRadFiberLength: Float_t 25.0
 ERNeuRadNofBundles: Int_t 49
 ERNeuRadNofFibers: Int_t 64
 ERNeuRadFiberWidth: Float_t 0.6 //cm

@@ -31,7 +31,10 @@ void NeuRad_sim(Int_t nEvents = 1000){
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
-	
+
+  ERCollimator* collimator = new ERCollimator();
+  collimator->SetGeometryFileName("collimator.geo.root");
+	run->AddModule(collimator);
   // ER NeuRad definition
   /* Select verbosity level
    * 1 - only standard logs
@@ -62,7 +65,7 @@ void NeuRad_sim(Int_t nEvents = 1000){
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(90, 90);
-  boxGen->SetBoxXYZ(0.,0,0.6,0.6,-60.);
+  boxGen->SetBoxXYZ(0.,0,0.6,0.6,0.);
 
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);
