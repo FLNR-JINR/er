@@ -42,7 +42,7 @@ public:
   void SetLYDispersionA(Float_t sigma) {fLYDispersionA = sigma;} 
   void SetLYDispersionB(Float_t sigma) {fLYDispersionB = sigma;} 
   void SetTimeDispersionPar(Float_t sigma) {fTimeDispersionPar = sigma;}
-  void SetElossThreshold(Float_t th) {fElossThreshold = th;}
+  void SetQuenchThreshold(Float_t th) {fQuenchThreshold = th;}
   void SetLYThreshold(Float_t th) {fLYThreshold = th;}
   void SetProbabilityB(Float_t b) {fProbabilityB = b;}
   void SetProbabilityC(Float_t c) {fProbabilityC = c;}
@@ -50,7 +50,7 @@ public:
   Float_t LYDispersionA() const {return fLYDispersionA;}
   Float_t LYDispersionB() const {return fLYDispersionB;}
   Float_t TimeDispersionPar() const {return fTimeDispersionPar;}
-  Float_t ElossThreshold() const {return fElossThreshold;}
+  Float_t ElossThreshold() const {return fQuenchThreshold;}
   Float_t LYThreshold() const {return fLYThreshold;}
   Float_t ProbabilityB() const {return fProbabilityB;}
   Float_t ProbabilityC() const {return fProbabilityC;}
@@ -64,7 +64,7 @@ protected:
   Float_t fLYDispersionA;
   Float_t fLYDispersionB;
   Float_t fTimeDispersionPar;
-  Float_t fElossThreshold;
+  Float_t fQuenchThreshold;
   Float_t fLYThreshold;
   Float_t fProbabilityB;
   Float_t fProbabilityC;

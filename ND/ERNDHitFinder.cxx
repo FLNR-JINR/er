@@ -25,7 +25,7 @@ ERNDHitFinder::ERNDHitFinder()
 ,fLYDispersionA(0)
 ,fLYDispersionB(0)
 ,fTimeDispersionPar(0),
-fElossThreshold(0),
+fQuenchThreshold(0),
 fLYThreshold(0),
 fProbabilityB(0),
 fProbabilityC(0)
@@ -41,7 +41,7 @@ ERNDHitFinder::ERNDHitFinder(Int_t verbose)
 ,fLYDispersionA(0)
 ,fLYDispersionB(0)
 ,fTimeDispersionPar(0),
-fElossThreshold(0),
+fQuenchThreshold(0),
 fLYThreshold(0),
 fProbabilityB(0),
 fProbabilityC(0)
@@ -104,16 +104,17 @@ void ERNDHitFinder::Exec(Option_t* opt)
     Float_t lightYield = gRandom->Gaus(point->LightYield(), LYDispersion);
     Float_t time = gRandom->Gaus(point->GetTime(), TMath::Sqrt(fTimeDispersionPar/point->LightYield()));
     Float_t neutronProb;
-    if ((point->LightYield() > fLYThreshold) && (point->GetEnergyLoss() < fElossThreshold)){
+    Float_t quench = point->LightYield()/point->GetEnergyLoss();
+    if ((point->LightYield() > fLYThreshold) && (quench < fQuenchThreshold)){
       neutronProb = 1.;
     }
-    if ((point->LightYield() < fLYThreshold) && (point->GetEnergyLoss() < fElossThreshold)){
+    if ((point->LightYield() < fLYThreshold) && (quench < fQuenchThreshold)){
       neutronProb = fProbabilityB+(1-fProbabilityB)*(point->LightYield()/fLYThreshold);
     }
-    if ((point->LightYield() > fLYThreshold) && (point->GetEnergyLoss() > fElossThreshold)){
+    if ((point->LightYield() > fLYThreshold) && (quench > fQuenchThreshold)){
       neutronProb = 0.;
     }
-    if ((point->LightYield() < fLYThreshold) && (point->GetEnergyLoss() > fElossThreshold)){
+    if ((point->LightYield() < fLYThreshold) && (quench > fQuenchThreshold)){
       neutronProb = fProbabilityC*(1-point->LightYield()/fLYThreshold);
     }
     AddHit(kDSRD, pos, dpos,iPoint,lightYield, time, neutronProb);
