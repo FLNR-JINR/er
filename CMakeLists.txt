@@ -209,6 +209,8 @@ add_subdirectory (Gadast)
 add_subdirectory (generators)
 add_subdirectory (ND)
 add_subdirectory (DSRD)
+add_subdirectory (global)
+
 
 Execute_Process(COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-opengl
                 OUTPUT_VARIABLE EveIsBuild

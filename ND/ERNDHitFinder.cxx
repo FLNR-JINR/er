@@ -117,7 +117,7 @@ void ERNDHitFinder::Exec(Option_t* opt)
     if ((point->LightYield() < fLYThreshold) && (quench > fQuenchThreshold)){
       neutronProb = fProbabilityC*(1-point->LightYield()/fLYThreshold);
     }
-    AddHit(kDSRD, pos, dpos,iPoint,lightYield, time, neutronProb);
+    AddHit(kND, pos, dpos,iPoint,lightYield, time, neutronProb);
   }
 
   std::cout << "Hits count: " << fNDHits->GetEntriesFast() << std::endl;
