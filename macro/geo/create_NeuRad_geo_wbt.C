@@ -59,16 +59,6 @@ void create_NeuRad_geo_wbt()
   gGeoMan->SetTopVolume(top);
   TGeoVolume* NeuRad = new TGeoVolumeAssembly("NeuRad");
   // --------------------------------------------------------------------------
-
-  //------------------ BC408 cladding -----------------------------------------
-  Double_t cladding_X = 0.024; //cm
-  Double_t cladding_Y = 0.6;   //cm
-  Double_t cladding_Z = 0.6;   //cm
-  cladding_X /= 2.;
-  cladding_Y /= 2.;
-  cladding_Z /= 2.;
-  TGeoVolume *cladding = gGeoManager->MakeBox("cladding", pMed37, cladding_X, cladding_Y, cladding_Z);
-  
   //------------------ BC408  fiber  -----------------------------------------
   Double_t fiber_X = 0.6;   //cm
   Double_t fiber_Y = 0.6;   //cm
@@ -88,26 +78,7 @@ void create_NeuRad_geo_wbt()
   TGeoVolume *bundle = gGeoManager->MakeBox("bundle", pMed0,boundle_X, boundle_Y, boundle_Z);
   
   //------------------ STRUCTURE  -----------------------------------------
-  //------------------ Add claddings to fiber -----------------------------
-  
-  
-  Double_t cladding_in_fiber_X_trans = 0.;
-  Double_t cladding_in_fiber_Y_trans = 0.;
-  Double_t cladding_in_fiber_Z_trans = fiber_Z - cladding_Z;
-  
-  fiber->AddNode(cladding, 1, new TGeoCombiTrans(cladding_in_fiber_X_trans, 
-                                                  cladding_in_fiber_Y_trans, 
-                                                  cladding_in_fiber_Z_trans, 
-                                                  fZeroRotation));
-
-  cladding_in_fiber_Z_trans = -cladding_in_fiber_Z_trans;
-  
-  fiber->AddNode(cladding, 1, new TGeoCombiTrans(cladding_in_fiber_X_trans, 
-                                                  cladding_in_fiber_Y_trans, 
-                                                  cladding_in_fiber_Z_trans, 
-                                                  fZeroRotation));
-  
-  //------------------ Add fibers to bundle  -----------------------------
+  //------------------ Add fibers to bundle  ----------------------------
   Int_t i_fiber = 1;
   for (Int_t i_Y_fiber = 0; i_Y_fiber < fibers_in_boundle_Y_Nb; i_Y_fiber++){
     for (Int_t i_X_fiber = 0; i_X_fiber < fibers_in_boundle_X_Nb; i_X_fiber++){

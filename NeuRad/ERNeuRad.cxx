@@ -65,8 +65,8 @@ void ERNeuRad::Initialize()
   FairDetector::Initialize();
   FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
   ERNeuRadGeoPar* par=(ERNeuRadGeoPar*)(rtdb->getContainer("ERNeuRadGeoPar"));
-  fHElossInEvent = new TH1F("fHElossInEvent", "Full Eloss in event",1000, 0., 0.5);
-  fHLYInEvent = new TH1F("fHLYInEvent", "Full LY in event",1000, 0., 0.5);
+  fHElossInEvent = new TH1F("fHElossInEvent", "Full Eloss in event",10000, 0., 0.001);
+  fHLYInEvent = new TH1F("fHLYInEvent", "Full LY in event",10000, 0., 0.001);
 }
 //-------------------------------------------------------------------------
 Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {

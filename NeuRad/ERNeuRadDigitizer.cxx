@@ -93,6 +93,8 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   fCurBundleDigis(NULL),
   fRand(NULL)
 {
+  fFpeCount = 0;
+  fBpeCount = 0;
 }
 // ----------------------------------------------------------------------------
 
@@ -147,9 +149,9 @@ InitStatus ERNeuRadDigitizer::Init()
   fNeuRadSetup = ERNeuRadSetup::Instance();
   fNeuRadSetup->Print();
 
-  fHPECountF = new TH1F("fHPECountF", "PE count front",1000.,0.,100000.);
+  fHPECountF = new TH1F("fHPECountF", "PE count front",1000.,0.,1000.);
   fHPECountF->GetXaxis()->SetTitle("pe count");
-  fHPECountB = new TH1F("fHPECountB", "PE count back",1000.,0.,100000.);
+  fHPECountB = new TH1F("fHPECountB", "PE count back",1000.,0.,1000.);
   fHPECountB->GetXaxis()->SetTitle("pe count");
   
   return kSUCCESS;
@@ -159,6 +161,8 @@ InitStatus ERNeuRadDigitizer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERNeuRadDigitizer::Exec(Option_t* opt)
 {
+  fFpeCount = 0;
+  fBpeCount  = 0;
   Int_t iEvent =
 			FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
   std::cout << "Event " << iEvent << std::endl;
@@ -205,6 +209,9 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   }
   delete [] frontPointsPerFibers;
   delete [] backPointsPerFibers;
+
+  fHPECountF->Fill(fFpeCount);
+  fHPECountB->Fill(fBpeCount);
 }
 //----------------------------------------------------------------------------
 
@@ -236,7 +243,8 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
     Double_t ffp_photon_count =  photon_count*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
 
     Double_t remainingPhotoEl = fRand->Poisson(ffp_photon_count*PMTQuantumEfficiency);
-    fHPECountF->Fill(remainingPhotoEl);
+    //fHPECountF->Fill(remainingPhotoEl);
+    fFpeCount+=remainingPhotoEl;
     if (remainingPhotoEl > 1){
       for(Int_t iOnePESignal=0;iOnePESignal<(Int_t)remainingPhotoEl;iOnePESignal++){
         //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
@@ -258,7 +266,8 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
                                                    + k2*exp(-(fiber_length-point_z_in_fiber)/200.));
     
     remainingPhotoEl = fRand->Poisson(bfp_photon_count*PMTQuantumEfficiency);
-    fHPECountB->Fill(remainingPhotoEl);
+    //fHPECountB->Fill(remainingPhotoEl);
+    fBpeCount+=remainingPhotoEl;
     if (remainingPhotoEl > 1){
       for(Int_t iOnePESignal=0;iOnePESignal<(Int_t)remainingPhotoEl;iOnePESignal++){
         //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
@@ -337,6 +346,7 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
                                 Float_t& sumFrontQDC, Float_t& sumBackQDC)
 {
   if( frontPointsPerFibers[iBundle][iFiber].size() > 0){
+    //fFpeCount+=frontPointsPerFibers[iBundle][iFiber].size();
     ERNeuRadPMTSignal* pmtFSignal = AddPMTSignal(iBundle, iFiber,frontPointsPerFibers[iBundle][iFiber].size(),0);
     for(Int_t iFPoint = 0; iFPoint < frontPointsPerFibers[iBundle][iFiber].size(); iFPoint++){
       ERNeuRadFiberPoint* FPoint = frontPointsPerFibers[iBundle][iFiber][iFPoint];
@@ -356,6 +366,7 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
   }
 
   if (backPointsPerFibers[iBundle][iFiber].size() > 0){
+    //fBpeCount += backPointsPerFibers[iBundle][iFiber].size();
     ERNeuRadPMTSignal* pmtBSignal =  AddPMTSignal(iBundle, iFiber,backPointsPerFibers[iBundle][iFiber].size(),1);
     for(Int_t iFPoint = 0; iFPoint < backPointsPerFibers[iBundle][iFiber].size(); iFPoint++){
       ERNeuRadFiberPoint* FPoint = backPointsPerFibers[iBundle][iFiber][iFPoint];

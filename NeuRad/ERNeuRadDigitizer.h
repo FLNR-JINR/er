@@ -84,6 +84,9 @@ protected:
   TH1F* fHPECountF;
   TH1F* fHPECountB;
 
+  Int_t fFpeCount;
+  Int_t fBpeCount;
+
   //Temporary arrays
   TClonesArray *fCurBundleDigis;
   
