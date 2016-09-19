@@ -64,7 +64,7 @@ InitStatus ERNeuRadHitProducerWBT::Init()
   //todo check
 
   // Register output array fmuSiHits
-  fNeuRadHits = new TClonesArray("ERNeuRadHit",1000);
+  fNeuRadHits = new TClonesArray("ERNeuRadHitWBT",1000);
 
   ioman->Register("NeuRadHit", "NeuRad hits", fNeuRadHits, kTRUE);
 
@@ -90,7 +90,8 @@ void ERNeuRadHitProducerWBT::Exec(Option_t* opt)
   for (Int_t iSignal=0; iSignal <  fNeuRadPMTSignals->GetEntriesFast(); iSignal++){
     ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)fNeuRadPMTSignals->At(iSignal);
     if (signal->Side() == 0){
-      Float_t qInteg = signal->GetInteg(signal->GetStartTime(), signal->GetFinishTime());
+      //Float_t qInteg = signal->GetInteg(signal->GetStartTime(), signal->GetFinishTime());
+      Float_t qInteg = signal->AmplitudesSum();
       TVector3 pos(setup->FiberX(signal->ModuleIndex(), signal->FiberIndex()),
                    setup->FiberY(signal->ModuleIndex(), signal->FiberIndex()),
                    setup->Z()-setup->FiberLength());

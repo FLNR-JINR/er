@@ -19,7 +19,8 @@ ERNeuRadPMTSignal::ERNeuRadPMTSignal():
 	fTimeShifts(NULL),
 	fCurFPoint(0),
 	fStartTime(99999999.),
-	fFinishTime(-1.)
+	fFinishTime(-1.),
+	fAmplitudesSum(0.)
 {
 }
 
@@ -33,7 +34,8 @@ ERNeuRadPMTSignal::ERNeuRadPMTSignal(Int_t iModule, Int_t iFiber, Int_t pe_count
 	fCurFPoint(0),
 	fStartTime(99999999.),
 	fFinishTime(-1.),
-	fSide(side)
+	fSide(side),
+	fAmplitudesSum(0.)
 {
 }
 
@@ -51,6 +53,7 @@ void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
 		fStartTime = fpoint->AnodeTime();
 	if (fpoint->AnodeTime()+csdTCount*csdT > fFinishTime)
 		fFinishTime = fpoint->AnodeTime()+csdTCount*csdT;
+	fAmplitudesSum+=fpoint->Amplitude();
 }
 
 

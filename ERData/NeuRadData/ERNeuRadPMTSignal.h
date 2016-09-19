@@ -24,6 +24,7 @@ protected:
   Int_t fFiberIndex;
   Int_t fModuleIndex;
   Double_t *fAmplitudes;
+  Double_t fAmplitudesSum;
   Double_t *fAnodeTimes;
   Int_t fCurFPoint;
   Double_t fStartTime;
@@ -79,6 +80,8 @@ public:
   Int_t ModuleIndex() const {return fModuleIndex;}
   Int_t FiberIndex() const {return fFiberIndex;}
   Int_t Side() const {return fSide;}
+  Double_t AmplitudesSum() const {return fAmplitudesSum;}
+
   ClassDef(ERNeuRadPMTSignal,1);
 };
 
