@@ -22,8 +22,8 @@ ERDSRDHitFinder::ERDSRDHitFinder()
   : FairTask("ER muSi hit producing scheme")
 ,fDSRDPoints(NULL)
 ,fDSRDHits(NULL)
-,fElossSigma(0)
-,fTimeSigmaPar(0)
+,fElossDispersion(0)
+,fTimeDispersionPar(0)
 {
 }
 // ----------------------------------------------------------------------------
@@ -33,8 +33,8 @@ ERDSRDHitFinder::ERDSRDHitFinder(Int_t verbose)
   : FairTask("ER muSi hit producing scheme ", verbose)
 ,fDSRDPoints(NULL)
 ,fDSRDHits(NULL)
-,fElossSigma(0)
-,fTimeSigmaPar(0)
+,fElossDispersion(0)
+,fTimeDispersionPar(0)
 {
 }
 // ----------------------------------------------------------------------------
@@ -100,8 +100,8 @@ void ERDSRDHitFinder::Exec(Option_t* opt)
     Float_t x = r*TMath::Cos(phi*TMath::DegToRad());
     Float_t y = r*TMath::Sin(phi*TMath::DegToRad());
     TVector3 pos = TVector3(x, y, z);
-    Float_t eloss = gRandom->Gaus(point->GetEnergyLoss(), fElossSigma);
-    Float_t time = gRandom->Gaus(point->GetTime(), TMath::Sqrt(fTimeSigmaPar/point->GetEnergyLoss()));
+    Float_t eloss = gRandom->Gaus(point->GetEnergyLoss(), fElossDispersion);
+    Float_t time = gRandom->Gaus(point->GetTime(), TMath::Sqrt(fTimeDispersionPar/point->GetEnergyLoss()));
     AddHit(kDSRD, pos, dpos,iPoint,eloss, time);
   }
 

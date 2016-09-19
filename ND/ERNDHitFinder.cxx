@@ -22,9 +22,9 @@ ERNDHitFinder::ERNDHitFinder()
   : FairTask("ER ND hit producing scheme")
 ,fNDPoints(NULL)
 ,fNDHits(NULL)
-,fLYSigmaA(0)
-,fLYSigmaB(0)
-,fTimeSigmaPar(0),
+,fLYDispersionA(0)
+,fLYDispersionB(0)
+,fTimeDispersionPar(0),
 fElossThreshold(0),
 fLYThreshold(0),
 fProbabilityB(0),
@@ -38,9 +38,9 @@ ERNDHitFinder::ERNDHitFinder(Int_t verbose)
   : FairTask("ER ND hit producing scheme ", verbose)
 ,fNDPoints(NULL)
 ,fNDHits(NULL)
-,fLYSigmaA(0)
-,fLYSigmaB(0)
-,fTimeSigmaPar(0),
+,fLYDispersionA(0)
+,fLYDispersionB(0)
+,fTimeDispersionPar(0),
 fElossThreshold(0),
 fLYThreshold(0),
 fProbabilityB(0),
@@ -100,9 +100,9 @@ void ERNDHitFinder::Exec(Option_t* opt)
     ERNDPoint* point = (ERNDPoint*)fNDPoints->At(iPoint);
     TVector3 dpos = TVector3(0.01, 0.01, 0.01); //ошибка пока фиксирована
     TVector3 pos = TVector3(0.,0.,0.);
-    Float_t LYSigma = (fLYSigmaA*fLYSigmaA)*point->LightYield()+(fLYSigmaB*fLYSigmaB)*(point->LightYield()*point->LightYield());
-    Float_t lightYield = gRandom->Gaus(point->LightYield(), LYSigma);
-    Float_t time = gRandom->Gaus(point->GetTime(), TMath::Sqrt(fTimeSigmaPar/point->LightYield()));
+    Float_t LYDispersion = (fLYDispersionA*fLYDispersionA)*point->LightYield()+(fLYDispersionB*fLYDispersionB)*(point->LightYield()*point->LightYield());
+    Float_t lightYield = gRandom->Gaus(point->LightYield(), LYDispersion);
+    Float_t time = gRandom->Gaus(point->GetTime(), TMath::Sqrt(fTimeDispersionPar/point->LightYield()));
     Float_t neutronProb;
     if ((point->LightYield() > fLYThreshold) && (point->GetEnergyLoss() < fElossThreshold)){
       neutronProb = 1.;

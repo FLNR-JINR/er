@@ -18,9 +18,9 @@ void ND_reco(Int_t nEvents = 10000){
  
   // ------------------------ND hit producer---------------------------------
   ERNDHitFinder* hitFinder = new ERNDHitFinder(1);
-  hitFinder->SetLYSigmaA(0.0344);
-  hitFinder->SetLYSigmaB(0.0106);
-  hitFinder->SetTimeSigmaPar(0.1);
+  hitFinder->SetLYDispersionA(0.0344);
+  hitFinder->SetLYDispersionB(0.0106);
+  hitFinder->SetTimeDispersionPar(0.1);
   hitFinder->SetElossThreshold(0.005);
   hitFinder->SetLYThreshold(0.004);
   hitFinder->SetProbabilityB(0.1);

@@ -39,11 +39,11 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  void SetElossSigma(Float_t sigma) {fElossSigma = sigma;} 
-  void SetTimeSigmaPar(Float_t sigma) {fTimeSigmaPar = sigma;}
+  void SetElossDispersion(Float_t sigma) {fElossDispersion = sigma;} 
+  void SetTimeDispersionPar(Float_t sigma) {fTimeDispersionPar = sigma;}
   /** Accessors **/ 
-  Float_t ElossSigma() const {return fElossSigma;}
-  Float_t TimeSigmaPar() const {return fTimeSigmaPar;}
+  Float_t ElossDispersion() const {return fElossDispersion;}
+  Float_t TimeDispersionPar() const {return fTimeDispersionPar;}
 protected:
   //Input arrays
   TClonesArray *fDSRDPoints;
@@ -51,8 +51,8 @@ protected:
   TClonesArray *fDSRDHits;
 
   static Int_t fEvent;
-  Float_t fElossSigma;
-  Float_t fTimeSigmaPar;
+  Float_t fElossDispersion;
+  Float_t fTimeDispersionPar;
 protected:
   ERDSRDHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t point_index, Float_t eloss, Float_t time);
 private:

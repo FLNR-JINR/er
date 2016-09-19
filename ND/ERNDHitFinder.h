@@ -39,17 +39,17 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  void SetLYSigmaA(Float_t sigma) {fLYSigmaA = sigma;} 
-  void SetLYSigmaB(Float_t sigma) {fLYSigmaB = sigma;} 
-  void SetTimeSigmaPar(Float_t sigma) {fTimeSigmaPar = sigma;}
+  void SetLYDispersionA(Float_t sigma) {fLYDispersionA = sigma;} 
+  void SetLYDispersionB(Float_t sigma) {fLYDispersionB = sigma;} 
+  void SetTimeDispersionPar(Float_t sigma) {fTimeDispersionPar = sigma;}
   void SetElossThreshold(Float_t th) {fElossThreshold = th;}
   void SetLYThreshold(Float_t th) {fLYThreshold = th;}
   void SetProbabilityB(Float_t b) {fProbabilityB = b;}
   void SetProbabilityC(Float_t c) {fProbabilityC = c;}
   /** Accessors **/ 
-  Float_t LYSigmaA() const {return fLYSigmaA;}
-  Float_t LYSigmaB() const {return fLYSigmaB;}
-  Float_t TimeSigmaPar() const {return fTimeSigmaPar;}
+  Float_t LYDispersionA() const {return fLYDispersionA;}
+  Float_t LYDispersionB() const {return fLYDispersionB;}
+  Float_t TimeDispersionPar() const {return fTimeDispersionPar;}
   Float_t ElossThreshold() const {return fElossThreshold;}
   Float_t LYThreshold() const {return fLYThreshold;}
   Float_t ProbabilityB() const {return fProbabilityB;}
@@ -61,9 +61,9 @@ protected:
   TClonesArray *fNDHits;
 
   static Int_t fEvent;
-  Float_t fLYSigmaA;
-  Float_t fLYSigmaB;
-  Float_t fTimeSigmaPar;
+  Float_t fLYDispersionA;
+  Float_t fLYDispersionB;
+  Float_t fTimeDispersionPar;
   Float_t fElossThreshold;
   Float_t fLYThreshold;
   Float_t fProbabilityB;
