@@ -25,6 +25,7 @@ ERNeuRadDigiPar::ERNeuRadDigiPar(const char* name,
   : FairParGenericSet(name, title, context),
     fPMTQuantumEfficiency(new TArrayF(64)),
     fPMTGain(new TArrayF(64)),
+    fPMTSigma(new TArrayF(64)),
     fPMTCrosstalks(new TArrayF(64*9)),
     fFiberLength(0.),
     fNofFibers(-1),
@@ -83,6 +84,16 @@ void ERNeuRadDigiPar::print()
      std::cout << std::endl;
   }
   std::cout << "*****************************************" << std::endl;
+  
+  std::cout << "   ERNeuRadPMTSigma: " <<  std::endl;
+  for (Int_t iFiber = 0; iFiber < fRowNofFibers; iFiber++){
+    std::cout << "     ";
+    for (Int_t jFiber = 0; jFiber < fRowNofFibers; jFiber++)
+      std::cout <<(*fPMTSigma)[iFiber*fRowNofFibers + jFiber] << "\t";
+     std::cout << std::endl;
+  }
+
+  std::cout << "*****************************************" << std::endl;
   if (fUseCrosstalks){
     for (Int_t iFiber = 0; iFiber < fRowNofFibers*3; iFiber++){
     std::cout << "     ";
@@ -136,9 +147,11 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
   
   fPMTQuantumEfficiency->Set(fNofFibers);
   fPMTGain->Set(fNofFibers);
+  fPMTSigma->Set(fNofFibers);
   fPMTCrosstalks->Set(fNofFibers*9);
   if ( ! l->fill("ERNeuRadPMTQuantumEfficiency", fPMTQuantumEfficiency) ) { return kFALSE; }
   if ( ! l->fill("ERNeuRadPMTGain", fPMTGain) ) { return kFALSE; }
+  if ( ! l->fill("ERNeuRadPMTSigma", fPMTSigma) ) { return kFALSE; }
   if ( ! l->fill("ERNeuRadPMTCrosstalks", fPMTCrosstalks) ) { 
     std::cerr << "ERNeuRadDigiPar: can`t find ERNeuRadPMTCrosstalks" << std::endl;
   } else {

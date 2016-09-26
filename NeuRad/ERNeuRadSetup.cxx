@@ -113,6 +113,10 @@ Float_t ERNeuRadSetup::PMTGain(Int_t iBundle, Int_t iFiber){
         return fDigiPar->PMTGain(iFiber);
 }
 
+Float_t ERNeuRadSetup::PMTSigma(Int_t iBundle, Int_t iFiber){
+        return fDigiPar->PMTSigma(iFiber);
+}
+
 void ERNeuRadSetup::Print(){
         fDigiPar->print();
 }

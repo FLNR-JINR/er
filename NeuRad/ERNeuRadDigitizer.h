@@ -57,7 +57,6 @@ public:
   /** Modifiers **/
   inline void SetPMTJitter(const Double_t PMTJitter)    {fPMTJitter = PMTJitter;}
   inline void SetPMTDelay(const Double_t PMTDelay)      {fPMTDelay = PMTDelay;}
-  inline void SetExcessNoiseFactor(const Double_t enf)  {fExcessNoiseFactor = enf;}
   inline void SetScincilationTau(const Double_t tau)    {fScincilationTau = tau;}
   inline void SetScincilationDT(const Double_t dt)      {fScincilationDT = dt;}
 
@@ -84,6 +83,8 @@ protected:
   TH1F* fHPECountF;
   TH1F* fHPECountB;
 
+  TH1F* fHAmplitudesB;
+
   Int_t fFpeCount;
   Int_t fBpeCount;
 
@@ -97,7 +98,6 @@ protected:
   static const Int_t    cErrorPointsInModuleCount;
   static const Double_t cLightFractionInTotalIntReflection;
   //доля света захватываемая файбером в полное внутренне отражение в каждую сторону.
-  static const Double_t cExcessNoiseFactor;
   static const Double_t cPMTDelay; //[ns]
   static const Double_t cPMTJitter; //[ns]
   static const Int_t    cPECountForOneElectronsSim;
@@ -118,6 +118,7 @@ protected:
   Double_t fPMTSignalCreatingTime;
   Float_t fOnePEInteg;
   Float_t fPixelThreshold;
+  Float_t fSumAmplitudeB;
 protected:
   ERNeuRadFiberPoint* AddFiberPoint(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count, Int_t photoel_count,Double_t amplitude, Int_t onePE);

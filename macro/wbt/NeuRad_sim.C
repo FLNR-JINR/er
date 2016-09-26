@@ -1,4 +1,4 @@
-void NeuRad_sim(Int_t nEvents = 1000){
+void NeuRad_sim(Int_t nEvents = 100000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -58,7 +58,7 @@ void NeuRad_sim(Int_t nEvents = 1000){
   Int_t pdgId = 22; // gamma  beam
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 0.001*TMath::RadToDeg();  // degree
-  Double32_t kin_energy = .000300; //GeV
+  Double32_t kin_energy = .000660; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
