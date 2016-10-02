@@ -23,8 +23,14 @@ ERGadastDigiPar::ERGadastDigiPar(const char* name,
     const char* title,
     const char* context)
   : FairParGenericSet(name, title, context),
-    fMeshElementsCount(-1),
-    fMeshElements(new TArrayF(64))
+    fCsIMECount(-1), 
+    fLaBrMECount(-1),
+    fCsILC(new TArrayF(64)),
+    fLaBrLC(new TArrayF(4)),
+    fCsIDispA(new TArrayF(64)),
+    fLaBrDispA(new TArrayF(4)),
+    fCsIDispB(new TArrayF(64)),
+    fLaBrDispB(new TArrayF(4))
 {
 }
 // -------------------------------------------------------------------------
@@ -50,19 +56,53 @@ void ERGadastDigiPar::clear()
 // -----   Public method print ---------------------------------------
 void ERGadastDigiPar::print()
 {
-  Int_t rowNofElements = (Int_t)TMath::Sqrt(fMeshElementsCount);
-  
   std::cout << "*****************************************" << std::endl;
   std::cout << "          ERGadastDigiPar                " << std::endl;
   std::cout << "*****************************************" << std::endl;
-  std::cout << "   ERGadastMeshElementsCount: " <<  fMeshElementsCount <<  std::endl;
-  std::cout << "   ERGadastMeshElements: " <<  std::endl;
-  for (Int_t iElement = 0; iElement < rowNofElements; iElement++){
+  std::cout << "   ERGadastCsIMECount: " <<  fCsIMECount <<  std::endl;
+  std::cout << "   ERGadastLaBrMECount: " <<  fLaBrMECount <<  std::endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "   ERGadastCsILC: " <<  std::endl;
+  for (Int_t iElement = 0; iElement < 16; iElement++){
     std::cout << "     ";
-    for (Int_t jElement = 0; jElement < rowNofElements; jElement++)
-      std::cout <<(*fMeshElements)[iElement*rowNofElements + jElement] << "\t";
+    for (Int_t jElement = 0; jElement < 4; jElement++)
+      std::cout <<(*fCsILC)[iElement*4 + jElement] << "\t";
      std::cout << std::endl;
   }
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "   ERGadastCsIDispA: " <<  std::endl;
+  for (Int_t iElement = 0; iElement < 16; iElement++){
+    std::cout << "     ";
+    for (Int_t jElement = 0; jElement < 4; jElement++)
+      std::cout <<(*fCsIDispA)[iElement*4 + jElement] << "\t";
+     std::cout << std::endl;
+  }
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "   ERGadastCsIDispB: " <<  std::endl;
+  for (Int_t iElement = 0; iElement < 16; iElement++){
+    std::cout << "     ";
+    for (Int_t jElement = 0; jElement < 4; jElement++)
+      std::cout <<(*fCsIDispB)[iElement*4 + jElement] << "\t";
+     std::cout << std::endl;
+  }
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "   ERGadastLaBrLC: " <<  std::endl;
+  for (Int_t iElement = 0; iElement < 4; iElement++){
+    std::cout <<(*fLaBrLC)[iElement] << "\t";
+  }
+  std::cout << std::endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "   ERGadastLaBrDispA: " <<  std::endl;
+  for (Int_t iElement = 0; iElement < 4; iElement++){
+    std::cout <<(*fLaBrDispA)[iElement] << "\t";
+  }
+  std::cout << std::endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "   ERGadastLaBrDispB: " <<  std::endl;
+  for (Int_t iElement = 0; iElement < 4; iElement++){
+    std::cout <<(*fLaBrDispB)[iElement] << "\t";
+  }
+  std::cout << std::endl;
   std::cout << "*****************************************" << std::endl;
 }
 //------------------------------------------------------
@@ -75,11 +115,27 @@ Bool_t ERGadastDigiPar::getParams(FairParamList* l)
 {
   if (!l) { return kFALSE; }
   
-  if ( ! l->fill("ERGadastMeshElementsCount", &fMeshElementsCount) ) { return kFALSE; }
+  if ( ! l->fill("ERGadastCsIMECount", &fCsIMECount) ) { return kFALSE; }
+  if ( ! l->fill("ERGadastLaBrMECount", &fLaBrMECount) ) { return kFALSE; }
+ 
+  fCsILC->Set(fCsIMECount);
+  if ( ! l->fill("ERGadastCsILC", fCsILC) ) { return kFALSE; }
+
+  fLaBrLC->Set(fLaBrMECount);
+  if ( ! l->fill("ERGadastLaBrLC", fLaBrLC) ) { return kFALSE; }
+
+  fCsIDispA->Set(fCsIMECount);
+  if ( ! l->fill("ERGadastCsIDispA", fCsIDispA) ) { return kFALSE; }
+
+  fLaBrDispA->Set(fLaBrMECount);
+  if ( ! l->fill("ERGadastLaBrDispA", fLaBrDispA) ) { return kFALSE; }
+
+  fCsIDispB->Set(fCsIMECount);
+  if ( ! l->fill("ERGadastCsIDispB", fCsIDispB) ) { return kFALSE; }
   
-  fMeshElements->Set(fMeshElementsCount);
-  if ( ! l->fill("ERGadastMeshElements", fMeshElements) ) { return kFALSE; }
-  
+  fLaBrDispB->Set(fLaBrMECount);
+  if ( ! l->fill("ERGadastLaBrDispB", fLaBrDispB) ) { return kFALSE; }
+
   return kTRUE;
 }
 //------------------------------------------------------

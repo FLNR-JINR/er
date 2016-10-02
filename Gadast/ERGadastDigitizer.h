@@ -15,6 +15,7 @@
 
 #include "ERGadastDigi.h"
 #include "ERGadastDigiPar.h"
+#include "ERGadastMesh.h"
 
 class TObjectArray;
 class TH1F;
@@ -59,6 +60,8 @@ protected:
   //Input arrays
   TClonesArray *fGadastCsIPoints;
   TClonesArray *fGadastLaBrPoints;
+
+  ERGadastMesh* fMesh;
 
   //Output arrays
   TClonesArray *fGadastDigi;

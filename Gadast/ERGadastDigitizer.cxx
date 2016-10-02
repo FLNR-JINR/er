@@ -11,7 +11,8 @@
 ERGadastDigitizer::ERGadastDigitizer()
   : FairTask("ER Gadast Digitization scheme"),
   fHCsIElossInEvent(NULL),
-  fHLaBrElossInEvent(NULL)
+  fHLaBrElossInEvent(NULL),
+  fMesh(NULL)
 {
 }
 // ----------------------------------------------------------------------------
@@ -20,7 +21,8 @@ ERGadastDigitizer::ERGadastDigitizer()
 ERGadastDigitizer::ERGadastDigitizer(Int_t verbose)
   : FairTask("ER Gadast Digitization scheme ", verbose),
   fHCsIElossInEvent(NULL),
-  fHLaBrElossInEvent(NULL)
+  fHLaBrElossInEvent(NULL),
+  fMesh(NULL)
 {
 }
 // ----------------------------------------------------------------------------
@@ -28,6 +30,7 @@ ERGadastDigitizer::ERGadastDigitizer(Int_t verbose)
 // ----------------------------------------------------------------------------
 ERGadastDigitizer::~ERGadastDigitizer()
 {
+  delete fMesh;
 }
 // ----------------------------------------------------------------------------
 
@@ -64,10 +67,11 @@ InitStatus ERGadastDigitizer::Init()
   fGadastDigi = new TClonesArray("ERGadastDigi",1000);
   ioman->Register("GadastDigi", "Digital response in Gadast", fGadastDigi, kTRUE);
 
-  //fNeuRadSetup = ERNeuRadSetup::Instance();
-  //fNeuRadSetup->Print();
   fHCsIElossInEvent = new TH1F("fHCsIElossInEvent", "fHCsIElossInEvent",1000, 0., 0.005);
   fHLaBrElossInEvent = new TH1F("fHLaBrElossInEvent", "fHLaBrElossInEvent",1000, 0., 0.01);
+  //fDigiPar->print();
+
+  fMesh = new ERGadastMesh();
 
   return kSUCCESS;
 }
@@ -89,6 +93,10 @@ void ERGadastDigitizer::Exec(Option_t* opt)
   for (Int_t iPoint = 0; iPoint < fGadastCsIPoints->GetEntriesFast(); iPoint++){
     ERGadastCsIPoint* point = (ERGadastCsIPoint*)fGadastCsIPoints->At(iPoint);
     Float_t edep = point->GetEnergyLoss();
+
+    //fMesh->GetMeshElement(pos, gm, detType);
+
+
     Float_t disp = a*a*edep + b*b*edep*edep;
     edep = gRandom->Gaus(edep*LC, disp);
     fCsIElossInEvent += edep;
