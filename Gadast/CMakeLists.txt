@@ -23,10 +23,11 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 ERGadast.cxx
-#ERGadastDigiPar.cxx
-#ERGadastGeoPar.cxx
-#ERGadastContFact.cxx
+ERGadastDigiPar.cxx
+ERGadastGeoPar.cxx
+ERGadastContFact.cxx
 ERGadastMesh.cxx
+ERGadastDigitizer.cxx
 )
 
 # fill list of header files from list of source files
@@ -35,7 +36,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERGadastLinkDef.h)
 Set(LIBRARY_NAME ERGadast)
-Set(DEPENDENCIES ERBase Base Core)
+Set(DEPENDENCIES ERData ERBase Base Core)
 
 GENERATE_LIBRARY()
 

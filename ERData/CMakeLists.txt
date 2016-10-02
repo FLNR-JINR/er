@@ -37,6 +37,7 @@ muSiData/ERmuSiVertex.cxx
 GadastData/ERGadastCsIPoint.cxx
 GadastData/ERGadastLaBrPoint.cxx
 GadastData/ERGadastStep.cxx
+GadastData/ERGadastDigi.cxx
 
 ERStack.cxx
 ERMCTrack.cxx
