@@ -10,7 +10,8 @@
 // ----------------------------------------------------------------------------
 ERGadastDigitizer::ERGadastDigitizer()
   : FairTask("ER Gadast Digitization scheme"),
-  fRand(NULL)
+  fHCsIElossInEvent(NULL),
+  fHLaBrElossInEvent(NULL)
 {
 }
 // ----------------------------------------------------------------------------
@@ -18,7 +19,8 @@ ERGadastDigitizer::ERGadastDigitizer()
 // ----------------------------------------------------------------------------
 ERGadastDigitizer::ERGadastDigitizer(Int_t verbose)
   : FairTask("ER Gadast Digitization scheme ", verbose),
-  fRand(NULL)
+  fHCsIElossInEvent(NULL),
+  fHLaBrElossInEvent(NULL)
 {
 }
 // ----------------------------------------------------------------------------
@@ -61,11 +63,12 @@ InitStatus ERGadastDigitizer::Init()
   // Register output array NeuRadFiberPoint and NeuRadDigi
   fGadastDigi = new TClonesArray("ERGadastDigi",1000);
   ioman->Register("GadastDigi", "Digital response in Gadast", fGadastDigi, kTRUE);
-  fRand = new TRandom3();
-  
+
   //fNeuRadSetup = ERNeuRadSetup::Instance();
   //fNeuRadSetup->Print();
-  
+  fHCsIElossInEvent = new TH1F("fHCsIElossInEvent", "fHCsIElossInEvent",1000, 0., 0.005);
+  fHLaBrElossInEvent = new TH1F("fHLaBrElossInEvent", "fHLaBrElossInEvent",1000, 0., 0.01);
+
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -79,20 +82,44 @@ void ERGadastDigitizer::Exec(Option_t* opt)
   // Reset entries in output arrays
   Reset();
 
+  Float_t LC = 0.8;
+  Float_t a = 0.0344;
+  Float_t b = 0.0106;
+
   for (Int_t iPoint = 0; iPoint < fGadastCsIPoints->GetEntriesFast(); iPoint++){
     ERGadastCsIPoint* point = (ERGadastCsIPoint*)fGadastCsIPoints->At(iPoint);
+    Float_t edep = point->GetEnergyLoss();
+    Float_t disp = a*a*edep + b*b*edep*edep;
+    edep = gRandom->Gaus(edep*LC, disp);
+    fCsIElossInEvent += edep;
+    AddDigi(edep);
   }
+
+  LC = 0.8;
+  a = 0.01343;
+  b = 0.004;
 
   for (Int_t iPoint = 0; iPoint < fGadastLaBrPoints->GetEntriesFast(); iPoint++){
     ERGadastLaBrPoint* point = (ERGadastLaBrPoint*)fGadastLaBrPoints->At(iPoint);
+    Float_t edep = point->GetEnergyLoss();
+    Float_t disp = a*a*edep + b*b*edep*edep;
+    edep = gRandom->Gaus(edep*LC, disp);
+    fLaBrElossInEvent += edep;
+    AddDigi(edep);
   }
-  
+  if (fCsIElossInEvent > 0)
+    fHCsIElossInEvent->Fill(fCsIElossInEvent);
+  if (fLaBrElossInEvent > 0)
+    fHLaBrElossInEvent->Fill(fLaBrElossInEvent);
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void ERGadastDigitizer::Reset()
 {
+  fCsIElossInEvent = 0;
+  fLaBrElossInEvent = 0;
+
   if (fGadastDigi) {
     fGadastDigi->Delete();
   }
@@ -102,6 +129,8 @@ void ERGadastDigitizer::Reset()
 // ----------------------------------------------------------------------------
 void ERGadastDigitizer::Finish()
 { 
+  fHCsIElossInEvent->Write();
+  fHLaBrElossInEvent->Write();
   std::cout << "========== Finish of ERGadastDigitizer =================="<< std::endl;
 }
 // ----------------------------------------------------------------------------

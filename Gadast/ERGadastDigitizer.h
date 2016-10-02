@@ -63,11 +63,15 @@ protected:
   //Output arrays
   TClonesArray *fGadastDigi;
 
+  TH1F* fHCsIElossInEvent;
+  TH1F* fHLaBrElossInEvent;
+
+  Float_t fCsIElossInEvent;
+  Float_t fLaBrElossInEvent;
 protected:
   
   ERGadastDigi* AddDigi(Float_t Edep);
   
-  TRandom3  *fRand;
 private:
   virtual void SetParContainers();
   

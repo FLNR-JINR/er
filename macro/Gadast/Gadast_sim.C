@@ -87,6 +87,7 @@ void Gadast_sim(int nEvents = 1000){
   
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
+  gadast->WriteHistos();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   cout << endl << endl;

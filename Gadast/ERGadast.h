@@ -10,6 +10,7 @@
 
 #include "TLorentzVector.h"
 #include "TRandom3.h"
+#include "TH1F.h"
 
 class TRandom3;
 
@@ -125,6 +126,8 @@ public:
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
   
   void SetStoreSteps() {fStoreSteps = kTRUE;}
+
+  void WriteHistos();
 private:
   TClonesArray*  fCsIPoints;     //!  The point collection
   TClonesArray*  fLaBrPoints;     //!  The point collection
@@ -148,6 +151,12 @@ private:
   ERGadastDetectorType  fDetectorType;      //! CsI, LaBr
   Int_t fCsICell, fCsIBlock, fCsIWall;
   Int_t fMeshElement;
+
+  TH1F* fHCsIElossInEvent;
+  TH1F* fHLaBrElossInEvent;
+
+  Float_t fCsIElossInEvent;
+  Float_t fLaBrElossInEvent;
 private:
   /** Private method AddPoint
    **

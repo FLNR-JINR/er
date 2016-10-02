@@ -26,7 +26,9 @@ ERGadast::ERGadast():
   fLaBrPoints(new TClonesArray("ERGadastLaBrPoint")),
   fGadastSteps(new TClonesArray("ERGadastStep")),
   fVersion(1),
-  fStoreSteps(kFALSE)
+  fStoreSteps(kFALSE),
+  fHCsIElossInEvent(NULL),
+  fHLaBrElossInEvent(NULL)
 {
   ResetParameters();
   flGeoPar->SetName( GetName());
@@ -43,7 +45,9 @@ ERGadast::ERGadast(const char* name, Bool_t active)
   fLaBrPoints(new TClonesArray("ERGadastLaBrPoint")),
   fGadastSteps(new TClonesArray("ERGadastStep")),
   fVersion(1),
-  fStoreSteps(kFALSE)
+  fStoreSteps(kFALSE),
+  fHCsIElossInEvent(NULL),
+  fHLaBrElossInEvent(NULL)
 { 
   ResetParameters();
   flGeoPar->SetName( GetName());
@@ -75,6 +79,9 @@ void ERGadast::Initialize()
   FairDetector::Initialize();
   FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
   ERGadastGeoPar* par=(ERGadastGeoPar*)(rtdb->getContainer("ERGadastGeoPar"));
+
+  fHCsIElossInEvent = new TH1F("fHCsIElossInEvent", "fHCsIElossInEvent",1000, 0., 0.005);
+  fHLaBrElossInEvent = new TH1F("fHLaBrElossInEvent", "fHLaBrElossInEvent",1000, 0., 0.01);
 }
 //-------------------------------------------------------------------------
 
@@ -132,16 +139,22 @@ void ERGadast::FinishPoint(){
   gMC->TrackMomentum(fMomOut);
   
   if (fELoss > 0.){
-    if(fDetectorType == 0) 
+    if(fDetectorType == 0){
       AddCsIPoint();
-    if(fDetectorType == 1)
-      AddLaBrPoint();
+      fCsIElossInEvent += fELoss;
     }
+    if(fDetectorType == 1){
+      AddLaBrPoint();
+      fLaBrElossInEvent += fELoss;
+    }
+  }
 }
 //------------------------------------------------------------------------------
 
 // -----   Public method BeginOfEvent   -----------------------------------------
 void ERGadast::BeginEvent() {
+  fCsIElossInEvent = 0;
+  fLaBrElossInEvent = 0;
 }
 
 // -----   Public method EndOfEvent   -----------------------------------------
@@ -149,6 +162,13 @@ void ERGadast::EndOfEvent() {
   if (fVerboseLevel > 1) {
     Print();
   }
+
+  if (fCsIElossInEvent > 0)
+    fHCsIElossInEvent->Fill(fCsIElossInEvent);
+
+  if (fLaBrElossInEvent > 0)
+    fHLaBrElossInEvent->Fill(fLaBrElossInEvent);
+
   Reset();
 }
 
@@ -284,6 +304,11 @@ Bool_t ERGadast::CheckIfSensitive(std::string name)
   return kFALSE;
 }
 // ----------------------------------------------------------------------------
+
+void ERGadast::WriteHistos(){
+  fHCsIElossInEvent->Write();
+  fHLaBrElossInEvent->Write();
+}
 
 // ----------------------------------------------------------------------------
 void ERGadast::ResetParameters() {
