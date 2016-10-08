@@ -42,6 +42,7 @@ GadastData/ERGadastStep.cxx
 ERStack.cxx
 ERMCTrack.cxx
 ERMCEventHeader.cxx
+EREventHeader.cxx
 
 NDData/ERNDPoint.cxx
 )

@@ -15,7 +15,12 @@ void NeuRad_digi(Int_t nEvents = 10000){
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  // ------------------------------------------------------------------------
+  //------------------------------------------------------------------------
+
+  //-------- Set MC event header --------------------------------------------
+  EREventHeader* header = new EREventHeader();
+  fRun->SetEventHeader(header);
+  //------------------------------------------------------------------------
  
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
@@ -27,16 +32,17 @@ void NeuRad_digi(Int_t nEvents = 10000){
   // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   
-  FairParRootFileIo*  parIo1 = new FairParRootFileIo();
-  parIo1->open(parFile.Data(), "UPDATE");
-  rtdb->setFirstInput(parIo1);
-  
-  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
   TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
   NeuRadDetDigiFile += "/parameters/NeuRad_wbt.digi.par";
-  parInput2->open(NeuRadDetDigiFile.Data(),"in");
-  rtdb->setSecondInput(parInput2);
+  parInput1->open(NeuRadDetDigiFile.Data(),"in");
+
+  FairParRootFileIo*  parInput2 = new FairParRootFileIo();
+  parInput2->open(parFile.Data(), "UPDATE");
   
+
+  rtdb->setFirstInput(parInput1);
+  rtdb->setSecondInput(parInput2);
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
@@ -44,7 +50,7 @@ void NeuRad_digi(Int_t nEvents = 10000){
   // ------------------------------------------------------------------------
   //FairParRootFileIo*  parIo2 = new FairParRootFileIo();
   //parIo2->open(parOutFile.Data());
-  rtdb->setOutput(parIo1);
+  rtdb->setOutput(parInput2);
   rtdb->saveOutput();
   
   // -----   Finish   -------------------------------------------------------

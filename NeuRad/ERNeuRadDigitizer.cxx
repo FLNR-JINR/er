@@ -29,6 +29,7 @@ using std::endl;
 #include "ERNeuRadStep.h"
 #include "ERNeuRadDigitizer.h"
 #include "ERNeuRadPMTSignal.h"
+#include "EREventHeader.h"
 
 
 const Double_t ERNeuRadDigitizer::cSciFiLightYield= 8000.; // [photons/MeV]
@@ -65,6 +66,7 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
   fCurBundleDigis(NULL),
   fRand(NULL),
   fHAmplitudesB(NULL),
+  fSumAmplitudeF(0),
   fSumAmplitudeB(0)
 {
 }
@@ -92,6 +94,7 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   fCurBundleDigis(NULL),
   fRand(NULL),
   fHAmplitudesB(NULL),
+  fSumAmplitudeF(0),
   fSumAmplitudeB(0)
 {
   fFpeCount = 0;
@@ -166,6 +169,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
 {
   fFpeCount = 0;
   fBpeCount  = 0;
+  fSumAmplitudeF = 0;
   fSumAmplitudeB = 0;
   Int_t iEvent =
 			FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
@@ -214,6 +218,13 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   delete [] frontPointsPerFibers;
   delete [] backPointsPerFibers;
 
+  FairRunAna* run = FairRunAna::Instance();
+  EREventHeader* header = (EREventHeader*)run->GetEventHeader();
+  header->SetNeuRadPECountF(fFpeCount);
+  header->SetNeuRadPECountB(fBpeCount);
+  header->SetNeuRadSumAmplitudeF(fSumAmplitudeF);
+  header->SetNeuRadSumAmplitudeB(fSumAmplitudeB);
+
   fHPECountF->Fill(fFpeCount);
   fHPECountB->Fill(fBpeCount);
   fHAmplitudesB->Fill(fSumAmplitudeB);
@@ -261,7 +272,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
         Double_t ffp_anode_time = ffp_cathode_time + (Double_t)fRand->Gaus(fPMTDelay, fPMTJitter);
         ERNeuRadFiberPoint* ffPoint = AddFiberPoint(i_point, 0, ffp_lytime - point_time, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
                             1, ffp_amplitude, 1);
-        
+        fSumAmplitudeF+=ffp_amplitude;
         frontPointsPerFibers[point_bundle][point_fiber_nb].push_back(ffPoint);
       }
     }

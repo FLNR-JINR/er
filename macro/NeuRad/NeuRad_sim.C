@@ -27,6 +27,11 @@ void NeuRad_sim(Int_t nEvents = 1000){
   run->SetMaterials("media.geo");       // Materials
   // ------------------------------------------------------------------------
 
+  //-------- Set MC event header --------------------------------------------
+  ERMCEventHeader* header = new ERMCEventHeader();
+  run->SetMCEventHeader(header);
+  //-------------------------------------------------------------------------
+
   // -----   Create detectors  ----------------------------------------------	
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");

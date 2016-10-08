@@ -5,7 +5,10 @@ void NeuRad_digi(Int_t nEvents = 1000){
   TString parFile = "par.root";
   TString parOutFile = "parOut.root";
   // ------------------------------------------------------------------------
-  
+  //-------- Set MC event header --------------------------------------------
+  EREventHeader* header = new EREventHeader();
+  fRun->SetEventHeader(header);
+  //------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -27,14 +30,16 @@ void NeuRad_digi(Int_t nEvents = 1000){
   // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   
-  FairParRootFileIo*  parIo1 = new FairParRootFileIo();
-  parIo1->open(parFile.Data(), "UPDATE");
-  rtdb->setFirstInput(parIo1);
-  
-  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
   TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
   NeuRadDetDigiFile += "/parameters/NeuRad.digi.par";
-  parInput2->open(NeuRadDetDigiFile.Data(),"in");
+  parInput1->open(NeuRadDetDigiFile.Data(),"in");
+
+  FairParRootFileIo*  parInput2 = new FairParRootFileIo();
+  parInput2->open(parFile.Data(), "UPDATE");
+  
+
+  rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parInput2);
   
   // -----   Intialise and run   --------------------------------------------
@@ -43,7 +48,7 @@ void NeuRad_digi(Int_t nEvents = 1000){
   // ------------------------------------------------------------------------
   //FairParRootFileIo*  parIo2 = new FairParRootFileIo();
   //parIo2->open(parOutFile.Data());
-  rtdb->setOutput(parIo1);
+  rtdb->setOutput(parInput2);
   rtdb->saveOutput();
   
   // -----   Finish   -------------------------------------------------------

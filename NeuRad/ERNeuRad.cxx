@@ -3,8 +3,10 @@
 // -----                  Created 03/15  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 #include "ERNeuRad.h"
+
 #include "FairRootManager.h"
 #include "FairRun.h"
+#include "FairRunSim.h"
 #include "FairRuntimeDb.h"
 #include "TClonesArray.h"
 #include "TParticle.h"
@@ -12,6 +14,7 @@
 #include "TString.h"
 
 #include "ERNeuRadGeoPar.h"
+#include "ERMCEventHeader.h"
 
 #include <iostream>
 
@@ -244,6 +247,12 @@ void ERNeuRad::EndOfEvent() {
   if (fVerbose > 1) {
     Print();
   }
+
+  FairRunSim* run = FairRunSim::Instance();
+  ERMCEventHeader* header = (ERMCEventHeader*)run->GetMCEventHeader();
+  header->SetNeuRadEloss(fFullEnergy);
+  header->SetNeuRadLY(fFullLY);
+
   fHElossInEvent->Fill(fFullEnergy);
   fHLYInEvent->Fill(fFullLY);
   Reset();

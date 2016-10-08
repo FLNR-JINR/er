@@ -118,6 +118,7 @@ protected:
   Double_t fPMTSignalCreatingTime;
   Float_t fOnePEInteg;
   Float_t fPixelThreshold;
+  Float_t fSumAmplitudeF;
   Float_t fSumAmplitudeB;
 protected:
   ERNeuRadFiberPoint* AddFiberPoint(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
