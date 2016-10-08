@@ -8,7 +8,7 @@
 #define ERGadast_H
 
 
-#include "TLorentzVector.h"
+#include "TVector3.h"
 #include "TRandom3.h"
 #include "TH1F.h"
 
@@ -141,8 +141,8 @@ private:
   Int_t fTrackID;           //!  track index
   Int_t fMot0TrackID;       //!  0th mother track index
   Double_t fMass;              //!  mass
-  TLorentzVector fPosIn, fPosOut;    //!  position
-  TLorentzVector fMomIn, fMomOut;    //!  momentum
+  TVector3 fPosIn, fPosOut;    //!  position
+  TVector3 fMomIn, fMomOut;    //!  momentum
   Double32_t     fTime;              //!  time
   Double32_t     fLength;            //!  length
   Double32_t     fELoss;             //!  energy loss

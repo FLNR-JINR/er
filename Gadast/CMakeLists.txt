@@ -26,7 +26,7 @@ ERGadast.cxx
 ERGadastDigiPar.cxx
 ERGadastGeoPar.cxx
 ERGadastContFact.cxx
-ERGadastMesh.cxx
+ERGadastSetup.cxx
 ERGadastDigitizer.cxx
 )
 

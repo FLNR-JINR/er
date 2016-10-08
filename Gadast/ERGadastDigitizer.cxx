@@ -1,5 +1,7 @@
 #include "ERGadastDigitizer.h"
 
+#include "TVector3.h"
+
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairEventHeader.h"
@@ -12,7 +14,7 @@ ERGadastDigitizer::ERGadastDigitizer()
   : FairTask("ER Gadast Digitization scheme"),
   fHCsIElossInEvent(NULL),
   fHLaBrElossInEvent(NULL),
-  fMesh(NULL)
+  fSetup(NULL)
 {
 }
 // ----------------------------------------------------------------------------
@@ -22,7 +24,7 @@ ERGadastDigitizer::ERGadastDigitizer(Int_t verbose)
   : FairTask("ER Gadast Digitization scheme ", verbose),
   fHCsIElossInEvent(NULL),
   fHLaBrElossInEvent(NULL),
-  fMesh(NULL)
+  fSetup(NULL)
 {
 }
 // ----------------------------------------------------------------------------
@@ -30,7 +32,7 @@ ERGadastDigitizer::ERGadastDigitizer(Int_t verbose)
 // ----------------------------------------------------------------------------
 ERGadastDigitizer::~ERGadastDigitizer()
 {
-  delete fMesh;
+  delete fSetup;
 }
 // ----------------------------------------------------------------------------
 
@@ -53,7 +55,7 @@ void ERGadastDigitizer::SetParContainers()
 }
 // ----------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 InitStatus ERGadastDigitizer::Init()
 {
   // Get input array
@@ -69,10 +71,11 @@ InitStatus ERGadastDigitizer::Init()
 
   fHCsIElossInEvent = new TH1F("fHCsIElossInEvent", "fHCsIElossInEvent",1000, 0., 0.005);
   fHLaBrElossInEvent = new TH1F("fHLaBrElossInEvent", "fHLaBrElossInEvent",1000, 0., 0.01);
-  //fDigiPar->print();
 
-  fMesh = new ERGadastMesh();
-
+  fSetup = ERGadastSetup::Instance();
+  if (!fSetup->Init()){
+    std::cerr << "Problems with ERGadastSetup initialization!" << std::endl;
+  }
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -86,16 +89,16 @@ void ERGadastDigitizer::Exec(Option_t* opt)
   // Reset entries in output arrays
   Reset();
 
-  Float_t LC = 0.8;
-  Float_t a = 0.0344;
-  Float_t b = 0.0106;
+  
 
   for (Int_t iPoint = 0; iPoint < fGadastCsIPoints->GetEntriesFast(); iPoint++){
     ERGadastCsIPoint* point = (ERGadastCsIPoint*)fGadastCsIPoints->At(iPoint);
     Float_t edep = point->GetEnergyLoss();
+    TVector3* pos = new TVector3(point->GetXIn(), point->GetYIn(), point->GetZIn());
 
-    //fMesh->GetMeshElement(pos, gm, detType);
-
+    Float_t LC = fSetup->CsILC(pos);
+    Float_t a = fSetup->CsIDispA(pos);
+    Float_t b = fSetup->CsIDispB(pos);
 
     Float_t disp = a*a*edep + b*b*edep*edep;
     edep = gRandom->Gaus(edep*LC, disp);
@@ -103,13 +106,16 @@ void ERGadastDigitizer::Exec(Option_t* opt)
     AddDigi(edep);
   }
 
-  LC = 0.8;
-  a = 0.01343;
-  b = 0.004;
+  
 
   for (Int_t iPoint = 0; iPoint < fGadastLaBrPoints->GetEntriesFast(); iPoint++){
     ERGadastLaBrPoint* point = (ERGadastLaBrPoint*)fGadastLaBrPoints->At(iPoint);
     Float_t edep = point->GetEnergyLoss();
+
+    Float_t LC = 0.8;
+    Float_t a = 0.01343;
+    Float_t b = 0.004;
+
     Float_t disp = a*a*edep + b*b*edep*edep;
     edep = gRandom->Gaus(edep*LC, disp);
     fLaBrElossInEvent += edep;

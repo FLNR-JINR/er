@@ -15,7 +15,7 @@
 
 #include "ERGadastDigi.h"
 #include "ERGadastDigiPar.h"
-#include "ERGadastMesh.h"
+#include "ERGadastSetup.h"
 
 class TObjectArray;
 class TH1F;
@@ -56,12 +56,11 @@ public:
 protected:
   //Digitization parameters
   ERGadastDigiPar* fDigiPar;
-  //ERNeuRadSetup* fNeuRadSetup;
   //Input arrays
   TClonesArray *fGadastCsIPoints;
   TClonesArray *fGadastLaBrPoints;
 
-  ERGadastMesh* fMesh;
+  ERGadastSetup* fSetup;
 
   //Output arrays
   TClonesArray *fGadastDigi;

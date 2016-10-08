@@ -91,15 +91,10 @@ ERNeuRadSetup::ERNeuRadSetup(){
 }
 
 ERNeuRadSetup* ERNeuRadSetup::Instance(){
-
         if (fInstance == NULL)
-
                 return new ERNeuRadSetup();
-
         else
-
                 return fInstance;
-
 }
 
 Int_t  ERNeuRadSetup::NofFibers() {

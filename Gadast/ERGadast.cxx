@@ -11,8 +11,8 @@
 #include "TParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
-#include "TVector3.h"
 #include "TGeoMatrix.h"
+#include "TLorentzVector.h"
 #include "ERGadastGeoPar.h"
 
 #include <iostream>
@@ -110,8 +110,14 @@ Bool_t ERGadast::ProcessHits(FairVolume* vol) {
 void ERGadast::StartPoint(){
     fELoss  = 0.;
     fEventID = gMC->CurrentEvent();
-    gMC->TrackPosition(fPosIn);
-    gMC->TrackMomentum(fMomIn);
+
+    TLorentzVector pos, mom;
+
+    gMC->TrackPosition(pos);
+    gMC->TrackMomentum(mom);
+    fPosIn = pos.Vect();
+    fMomIn = mom.Vect();
+
     fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
     fTime   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
     fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
@@ -135,9 +141,13 @@ void ERGadast::StartPoint(){
 
 //------------------------------------------------------------------------------
 void ERGadast::FinishPoint(){
-  gMC->TrackPosition(fPosOut);
-  gMC->TrackMomentum(fMomOut);
-  
+  TLorentzVector pos, mom;
+
+  gMC->TrackPosition(pos);
+  gMC->TrackMomentum(mom);
+  fPosOut = pos.Vect();
+  fMomOut = mom.Vect();
+
   if (fELoss > 0.){
     if(fDetectorType == 0){
       AddCsIPoint();
@@ -282,6 +292,8 @@ ERGadastStep* ERGadast::AddStep(){
   TLorentzVector curMomIn;
   gMC->TrackPosition(curPosIn);
   gMC->TrackMomentum(curMomIn);
+
+
   return new(clref[fGadastSteps->GetEntriesFast()]) ERGadastStep(fEventID, fStepNr, fTrackID, fMot0TrackID, 0,
                                       TVector3(curPosIn.X(),   curPosIn.Y(),   curPosIn.Z()),
                                       TVector3(curMomIn.X(),   curMomIn.Y(),   curMomIn.Z()),  

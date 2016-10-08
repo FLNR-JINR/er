@@ -8,7 +8,7 @@
 #pragma link C++ class ERGadastContFact+;
 #pragma link C++ class ERGadastGeoPar+;
 #pragma link C++ class ERGadastDigiPar+;
-#pragma link C++ class ERGadastMesh+;
+#pragma link C++ class ERGadastSetup+;
 #pragma link C++ class ERGadastDigitizer+;
 
 #endif
