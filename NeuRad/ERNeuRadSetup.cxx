@@ -1,52 +1,27 @@
 #include "ERNeuRadSetup.h"
+
+#include<iostream>
+
+#include "TGeoBBox.h"
 #include "TError.h"
 #include "TMath.h"
 #include "TGeoManager.h"
+
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include<iostream>
 
 ERNeuRadSetup* ERNeuRadSetup::fInstance = NULL;
 ERNeuRadDigiPar* ERNeuRadSetup::fDigiPar;
 Float_t ERNeuRadSetup::fZ;
+Float_t ERNeuRadSetup::fLength;
+Float_t ERNeuRadSetup::fFiberWidth;
 
 std::vector<ERNeuRadBundle*> ERNeuRadSetup::fBundles;
 std::vector<std::vector<ERNeuRadFiber*> > ERNeuRadSetup::fFibers;
 
 ERNeuRadSetup::ERNeuRadSetup(){
-        // Get run and runtime database
-        FairRunAna* run = FairRunAna::Instance();
-        if ( ! run ) Fatal("ERNeuRadSetup", "No analysis run");
-        FairRuntimeDb* rtdb = run->GetRuntimeDb();
-        if ( ! rtdb ) Fatal("ERNeuRadSetup", "No runtime database");
-        fDigiPar = (ERNeuRadDigiPar*)
-             (rtdb->getContainer("ERNeuRadDigiPar"));
-        if ( ! fDigiPar ) Fatal("ERNeuRadSetup", "No ERNeuRadDigiPar in runtime");
-        Int_t nofFiberInRow = Int_t(TMath::Sqrt(fDigiPar->NofFibers()));
-        Int_t nofBundlesInRow = Int_t(TMath::Sqrt(fDigiPar->NofBundles()));
-        Float_t fiberWidth = fDigiPar->FiberWidth();
-        Float_t bundleWidth = nofFiberInRow*fiberWidth;
-        Float_t neuradWidth = bundleWidth*nofBundlesInRow;
-        //?????????????? ??????
-        for(Int_t iBundle = 0; iBundle < nofBundlesInRow; iBundle++ ){
-                for(Int_t jBundle = 0; jBundle < nofBundlesInRow; jBundle++ ){
-                        Float_t bundleX = neuradWidth/2. - iBundle*bundleWidth - bundleWidth/2.;
-                        Float_t bundleY = neuradWidth/2. - jBundle*bundleWidth - bundleWidth/2.;
-                        fBundles.push_back(new ERNeuRadBundle(bundleX,bundleY));
-                        std::vector<ERNeuRadFiber*> fibersInBundle;
-                        //?????????????? ??????? ? ??????
-                        for (Int_t iFiber = 0; iFiber < nofFiberInRow; iFiber++){
-                                for (Int_t jFiber = 0; jFiber < nofFiberInRow; jFiber++){
-                                        Float_t fiberX = bundleX + bundleWidth/2. - iFiber*fiberWidth - fiberWidth/2.;
-                                        Float_t fiberY = bundleY + bundleWidth/2. - jFiber*fiberWidth - fiberWidth/2.;
-                                        fibersInBundle.push_back(new ERNeuRadFiber(fiberX,fiberY));
-                                }
-                        }
-                        fFibers.push_back(fibersInBundle);
-                }
-        }
-            // --- Catch absence of TGeoManager
+    // --- Catch absence of TGeoManager
 
     if ( ! gGeoManager ) {
             std::cerr << "ERNeuRadSetup: cannot initialise without TGeoManager!"<< std::endl;
@@ -62,7 +37,47 @@ ERNeuRadSetup::ERNeuRadSetup(){
     }
     fZ = neuRad->GetMatrix()->GetTranslation()[2];
     std::cout << "NeuRad Z position:" << fZ << std::endl;
-    //std::cout << "ERNeuRadSetup::ERNeuRadSetup() "<< std::endl;
+
+    TGeoNode* module = neuRad->GetDaughter(0);
+    TGeoBBox* module_box = (TGeoBBox*)module->GetVolume()->GetShape();
+    fLength = module_box->GetDZ()*2;
+    std::cout << "NeuRad  length:" << fLength << std::endl;
+
+    TGeoNode* fiber = module->GetDaughter(0);
+    TGeoBBox* fiber_box = (TGeoBBox*)fiber->GetVolume()->GetShape();
+    fFiberWidth = fiber_box->GetDX()*2;
+    std::cout << "NeuRad  fiber width:" << fFiberWidth << std::endl;
+
+    // Get run and runtime database
+    FairRunAna* run = FairRunAna::Instance();
+    if ( ! run ) Fatal("ERNeuRadSetup", "No analysis run");
+    FairRuntimeDb* rtdb = run->GetRuntimeDb();
+    if ( ! rtdb ) Fatal("ERNeuRadSetup", "No runtime database");
+    fDigiPar = (ERNeuRadDigiPar*)
+         (rtdb->getContainer("ERNeuRadDigiPar"));
+    if ( ! fDigiPar ) Fatal("ERNeuRadSetup", "No ERNeuRadDigiPar in runtime");
+    Int_t nofFiberInRow = Int_t(TMath::Sqrt(fDigiPar->NofFibers()));
+    Int_t nofBundlesInRow = Int_t(TMath::Sqrt(fDigiPar->NofBundles()));
+    Float_t bundleWidth = nofFiberInRow*fFiberWidth;
+    Float_t neuradWidth = bundleWidth*nofBundlesInRow;
+    
+    for(Int_t iBundle = 0; iBundle < nofBundlesInRow; iBundle++ ){
+            for(Int_t jBundle = 0; jBundle < nofBundlesInRow; jBundle++ ){
+                    Float_t bundleX = neuradWidth/2. - iBundle*bundleWidth - bundleWidth/2.;
+                    Float_t bundleY = neuradWidth/2. - jBundle*bundleWidth - bundleWidth/2.;
+                    fBundles.push_back(new ERNeuRadBundle(bundleX,bundleY));
+                    std::vector<ERNeuRadFiber*> fibersInBundle;
+
+                    for (Int_t iFiber = 0; iFiber < nofFiberInRow; iFiber++){
+                            for (Int_t jFiber = 0; jFiber < nofFiberInRow; jFiber++){
+                                    Float_t fiberX = bundleX + bundleWidth/2. - iFiber*fFiberWidth - fFiberWidth/2.;
+                                    Float_t fiberY = bundleY + bundleWidth/2. - jFiber*fFiberWidth - fFiberWidth/2.;
+                                    fibersInBundle.push_back(new ERNeuRadFiber(fiberX,fiberY));
+                            }
+                    }
+                    fFibers.push_back(fibersInBundle);
+            }
+    }
     std::cout << "ERNeuRadSetup initialized! "<< std::endl;
 }
 
@@ -82,11 +97,11 @@ Int_t   ERNeuRadSetup::NofBundles() {
 }
 
 Float_t ERNeuRadSetup::FiberLength() {
-        return fDigiPar->FiberLength();
+        return fLength;
 }
 
 Float_t ERNeuRadSetup::FiberWidth() {
-        return fDigiPar->FiberWidth();
+        return fFiberWidth;
 }
 
 Float_t ERNeuRadSetup::BundleX(Int_t iBundle){

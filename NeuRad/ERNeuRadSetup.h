@@ -31,6 +31,8 @@ class ERNeuRadSetup {
     static std::vector<ERNeuRadBundle*> fBundles;
     static std::vector<std::vector<ERNeuRadFiber*> > fFibers;
     static Float_t fZ;
+    static Float_t fLength;
+    static Float_t fFiberWidth;
     ERNeuRadSetup();
 public:
     static ERNeuRadSetup* Instance();

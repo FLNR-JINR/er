@@ -27,7 +27,6 @@ ERNeuRadDigiPar::ERNeuRadDigiPar(const char* name,
     fPMTGain(new TArrayF(64)),
     fPMTSigma(new TArrayF(64)),
     fPMTCrosstalks(new TArrayF(64*9)),
-    fFiberLength(0.),
     fNofFibers(-1),
     fNofBundles(-1),
     fUseCrosstalks(kFALSE),
@@ -63,8 +62,6 @@ void ERNeuRadDigiPar::print()
   std::cout << "*****************************************" << std::endl;
   std::cout << "          ERNeuRadDigiPar                " << std::endl;
   std::cout << "*****************************************" << std::endl;
-  std::cout << "   ERNeuRadFiberLength: " <<  fFiberLength <<  std::endl;
-  std::cout << "   ERNeuRadFiberWidth: " <<  fFiberWidth <<  std::endl;
   std::cout << "   ERNeuRadNofBundles: " <<  fNofBundles <<  std::endl;
   std::cout << "   ERNeuRadNofFibers: " <<  fNofFibers <<  std::endl;
   std::cout << "   ERNeuRadPMTQuantumEfficiency: " <<  std::endl;
@@ -137,10 +134,6 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 {
   if (!l) { return kFALSE; }
   
-  if ( ! l->fill("ERNeuRadFiberLength", &fFiberLength) ) { return kFALSE; }
-  
-  if ( ! l->fill("ERNeuRadFiberWidth", &fFiberWidth) ) { return kFALSE; }
-
   if ( ! l->fill("ERNeuRadNofBundles", &fNofBundles) ) { return kFALSE; }
   
   if ( ! l->fill("ERNeuRadNofFibers", &fNofFibers) ) { return kFALSE; }

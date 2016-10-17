@@ -51,8 +51,6 @@ class ERNeuRadDigiPar : public FairParGenericSet
     /** Accessories  **/
     Int_t   NofFibers()     const {return fNofFibers;}
     Int_t   NofBundles()    const {return fNofBundles;}
-	Float_t FiberWidth()	const {return fFiberWidth;}
-    Float_t FiberLength() 	const {return fFiberLength;}
     //@todo добавить обработку выхода зза границу
     Double_t PMTQuantumEfficiency (Int_t iFiber) const {return (*fPMTQuantumEfficiency)[iFiber];}
     Double_t PMTGain (Int_t iFiber) const {return (*fPMTGain)[iFiber];}
@@ -61,8 +59,6 @@ class ERNeuRadDigiPar : public FairParGenericSet
     void PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks) const;
     Int_t RowNofFibers() const {return fRowNofFibers;}
   private:
-    Float_t fFiberLength;
-	Float_t fFiberWidth;
     TArrayF* fPMTQuantumEfficiency;
     TArrayF* fPMTGain;
     TArrayF* fPMTSigma;
