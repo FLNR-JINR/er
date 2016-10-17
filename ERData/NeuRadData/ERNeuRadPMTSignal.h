@@ -23,15 +23,15 @@ class ERNeuRadPMTSignal : public FairMultiLinkedData {
 protected:
   Int_t fFiberIndex;
   Int_t fModuleIndex;
-  Double_t *fAmplitudes;
+  Double_t *fAmplitudes;     //!
   Double_t fAmplitudesSum;
-  Double_t *fAnodeTimes;
+  Double_t *fAnodeTimes;     //!
   Int_t fCurFPoint;
   Double_t fStartTime;
   Double_t fFinishTime;
-  Int_t *fTimeShifts;
+  Int_t *fTimeShifts;       //!
   Int_t fFPointsCount;
-  Float_t* fResFunction;
+  Float_t* fResFunction;    //!
   TArrayF fResFunctionRoot;
   Int_t fPECount;
   Int_t fSide;
