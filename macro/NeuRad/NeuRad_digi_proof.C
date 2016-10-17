@@ -15,6 +15,10 @@ void NeuRad_digi_proof(Int_t nEvents = 10000){
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
+  //-------- Set MC event header --------------------------------------------
+  EREventHeader* header = new EREventHeader();
+  fRun->SetEventHeader(header);
+  //------------------------------------------------------------------------
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);

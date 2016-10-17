@@ -188,12 +188,14 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   
   Int_t points_count = fNeuRadPoints->GetEntries();
   //Формируем промежуточные сущности FiberPoints
+
   fFiberPointsCreatingTimer.Start();
   for (Int_t iPoint=0; iPoint < points_count; iPoint++) { // цикл
     ERNeuRadPoint *point = (ERNeuRadPoint*) fNeuRadPoints->At(iPoint);
     FiberPointsCreating(iPoint,point,frontPointsPerFibers,backPointsPerFibers);
   }
   fFiberPointsCreatingTimer.Stop();
+  
   fFiberPointsCreatingTime += fFiberPointsCreatingTimer.RealTime();
   //Формируем сигналы на ФЭУ и digi
   fPMTSignalCreatingTimer.Start();
@@ -217,7 +219,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   }
   delete [] frontPointsPerFibers;
   delete [] backPointsPerFibers;
-
+  
   FairRunAna* run = FairRunAna::Instance();
   EREventHeader* header = (EREventHeader*)run->GetEventHeader();
   header->SetNeuRadPECountF(fFpeCount);
@@ -253,18 +255,16 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
     //Моделируем распространнение сигнала на передние ФЭУ
     Double_t k1 = 0.5-cLightFractionInTotalIntReflection;
     Double_t k2 = cLightFractionInTotalIntReflection;
-    
     Double_t ffp_photon_count =  photon_count*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
-
     Double_t remainingPhotoEl = fRand->Poisson(ffp_photon_count*PMTQuantumEfficiency);
-    //fHPECountF->Fill(remainingPhotoEl);
+    
     fFpeCount+=remainingPhotoEl;
     if (remainingPhotoEl > 1){
       for(Int_t iOnePESignal=0;iOnePESignal<(Int_t)remainingPhotoEl;iOnePESignal++){
         //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
         Double_t ffp_lytime = point_time + (-1)*fScincilationTau*TMath::Log(1-fRand->Uniform());
         Double_t ffp_cathode_time = ffp_lytime + (point_z_in_fiber)/cMaterialSpeedOfLight;
-         if (fNeuRadSetup->UseCrosstalks())
+        if (fNeuRadSetup->UseCrosstalks())
           point_fiber_nb = Crosstalks(point_bundle,point_fiber_nb);
         Double_t PMTGain = fNeuRadSetup->PMTGain(point_bundle,point_fiber_nb);
         Double_t PMTSigma = fNeuRadSetup->PMTSigma(point_bundle,point_fiber_nb);
@@ -276,12 +276,12 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
         frontPointsPerFibers[point_bundle][point_fiber_nb].push_back(ffPoint);
       }
     }
- 
+
     Double_t bfp_photon_count =  photon_count*(k1*exp(-(fiber_length-point_z_in_fiber)/0.5) 
                                                    + k2*exp(-(fiber_length-point_z_in_fiber)/200.));
     
     remainingPhotoEl = fRand->Poisson(bfp_photon_count*PMTQuantumEfficiency);
-    //fHPECountB->Fill(remainingPhotoEl);
+  
     fBpeCount+=remainingPhotoEl;
     if (remainingPhotoEl > 1){
       for(Int_t iOnePESignal=0;iOnePESignal<(Int_t)remainingPhotoEl;iOnePESignal++){
@@ -300,6 +300,7 @@ void ERNeuRadDigitizer::FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
         backPointsPerFibers[point_bundle][point_fiber_nb].push_back(bfPoint);
       }
     }
+    
 }
 
 //----------------------------------------------------------------------------
