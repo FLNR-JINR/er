@@ -1,4 +1,4 @@
-void NeuRad_sim(Int_t nEvents = 1000){
+void NeuRad_sim(Int_t nEvents = 100000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -26,17 +26,18 @@ void NeuRad_sim(Int_t nEvents = 1000){
   // -----   Create media   -------------------------------------------------
   run->SetMaterials("media.geo");       // Materials
   // ------------------------------------------------------------------------
-
   //-------- Set MC event header --------------------------------------------
   ERMCEventHeader* header = new ERMCEventHeader();
   run->SetMCEventHeader(header);
   //-------------------------------------------------------------------------
-
   // -----   Create detectors  ----------------------------------------------	
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
-	
+
+  ERCollimator* collimator = new ERCollimator();
+  collimator->SetGeometryFileName("collimator.geo.root");
+	run->AddModule(collimator);
   // ER NeuRad definition
   /* Select verbosity level
    * 1 - only standard logs
@@ -45,7 +46,7 @@ void NeuRad_sim(Int_t nEvents = 1000){
   */
   Int_t verbose = 1;
   ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,verbose);
-  neuRad->SetGeometryFileName("NeuRad_v2.geo.root");
+  neuRad->SetGeometryFileName("NeuRad_wbt.geo.root");
   /* Select storing stepss
    * not store steps
    * SetStorePrimarySteps() - store only primary particle step
@@ -57,17 +58,18 @@ void NeuRad_sim(Int_t nEvents = 1000){
 	
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  Int_t pdgId = 2112; // neutron  beam
+  Int_t pdgId = 22; // gamma  beam
   Double32_t theta1 = 0.;  // polar angle distribution
-  Double32_t theta2 = 7.;
-  Double32_t kin_energy = .500; //GeV
+  Double32_t theta2 = 0.001*TMath::RadToDeg();  // degree
+  Double32_t kin_energy = .000660; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-  boxGen->SetThetaRange(theta1, theta1);
+  boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(90, 90);
-  boxGen->SetBoxXYZ(0.,0,0.6,0.6,2550.);
+  boxGen->SetPhiRange(0, 360);
+  //boxGen->SetXYZ(0.3,0.3,55.);
+  boxGen->SetBoxXYZ(0., 0.6,0., 0.6,0.);
 
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);

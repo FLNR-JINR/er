@@ -7,6 +7,7 @@
 #pragma link C++ class ERStack+;
 #pragma link C++ class ERMCTrack+;
 #pragma link C++ class ERMCEventHeader+;
+#pragma link C++ class EREventHeader+;
 
 #pragma link C++ class ERNeuRadPoint+;
 #pragma link C++ class ERNeuRadFiberPoint+;
@@ -14,6 +15,7 @@
 #pragma link C++ class ERNeuRadDigi+;
 #pragma link C++ class ERNeuRadStep+;
 #pragma link C++ class ERNeuRadHit+;
+#pragma link C++ class ERNeuRadHitWBT+;
 
 #pragma link C++ class ERmuSiPoint+;
 #pragma link C++ class ERmuSiHit+;

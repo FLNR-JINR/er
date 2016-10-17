@@ -23,17 +23,18 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-ERNeuRad.cxx
-ERNeuRadDigitizer.cxx
-ERNeuRadPointAnalyser.cxx
-ERNeuRadDigiAnalyser.cxx
-ERNeuRadContFact.cxx
-ERNeuRadDigiPar.cxx
-ERNeuRadGeoPar.cxx
-ERNeuRadSetup.cxx
-ERNeuRadHitProducer.cxx
-ERNeuRadHitProducerMF.cxx
-ERNeuRadMatcher.cxx
+	ERNeuRad.cxx
+	ERNeuRadDigitizer.cxx
+	ERNeuRadPointAnalyser.cxx
+	ERNeuRadDigiAnalyser.cxx
+	ERNeuRadContFact.cxx
+	ERNeuRadDigiPar.cxx
+	ERNeuRadGeoPar.cxx
+	ERNeuRadSetup.cxx
+	ERNeuRadHitProducer.cxx
+	ERNeuRadHitProducerMF.cxx
+	ERNeuRadHitProducerWBT.cxx
+	ERNeuRadMatcher.cxx
 )
 
 # fill list of header files from list of source files
@@ -42,7 +43,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERNeuRadLinkDef.h)
 Set(LIBRARY_NAME NeuRad)
-Set(DEPENDENCIES ERBase ERData Base Core)
+Set(DEPENDENCIES ERBase ERData Base Core Geom)
 
 GENERATE_LIBRARY()
 

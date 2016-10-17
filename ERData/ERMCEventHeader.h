@@ -18,11 +18,19 @@ class ERMCEventHeader : public FairMCEventHeader {
 private:
 	Double_t fTargetReactionPos;
 	Double_t fDirectReactionPos;
+	Float_t fNeuRadELoss;
+	Float_t fNeuRadLY;
 public:
 	ERMCEventHeader();
 	void SetTargetReactionPos(Double_t pos){fTargetReactionPos = pos;}
 	void SetDirectReactionPos(Double_t pos){fDirectReactionPos = pos;}
-	Double_t TargetReactionPos(){return fTargetReactionPos;}
+	void SetNeuRadEloss(Float_t eloss) {fNeuRadELoss = eloss;}
+  	void SetNeuRadLY(Float_t ly)       {fNeuRadLY = ly;}
+
+	Double_t TargetReactionPos()const {return fTargetReactionPos;}
+	Double_t DirectReactionPos()const {return fDirectReactionPos;}
+	Float_t NeuRadEloss()const {return fNeuRadELoss;}
+	Float_t NeuRadLY()const {return fNeuRadLY;}
 
 	ClassDef(ERMCEventHeader,1)
 };

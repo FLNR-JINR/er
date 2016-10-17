@@ -3,8 +3,10 @@
 // -----                  Created 03/15  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 #include "ERNeuRad.h"
+
 #include "FairRootManager.h"
 #include "FairRun.h"
+#include "FairRunSim.h"
 #include "FairRuntimeDb.h"
 #include "TClonesArray.h"
 #include "TParticle.h"
@@ -12,6 +14,7 @@
 #include "TString.h"
 
 #include "ERNeuRadGeoPar.h"
+#include "ERMCEventHeader.h"
 
 #include <iostream>
 
@@ -65,8 +68,8 @@ void ERNeuRad::Initialize()
   FairDetector::Initialize();
   FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
   ERNeuRadGeoPar* par=(ERNeuRadGeoPar*)(rtdb->getContainer("ERNeuRadGeoPar"));
-  fHElossInEvent = new TH1F("fHElossInEvent", "Full Eloss in event",1000, 0., 0.5);
-  fHLYInEvent = new TH1F("fHLYInEvent", "Full LY in event",1000, 0., 0.5);
+  fHElossInEvent = new TH1F("fHElossInEvent", "Full Eloss in event",10000, 0., 0.001);
+  fHLYInEvent = new TH1F("fHLYInEvent", "Full LY in event",10000, 0., 0.001);
 }
 //-------------------------------------------------------------------------
 Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
@@ -244,6 +247,12 @@ void ERNeuRad::EndOfEvent() {
   if (fVerbose > 1) {
     Print();
   }
+
+  FairRunSim* run = FairRunSim::Instance();
+  ERMCEventHeader* header = (ERMCEventHeader*)run->GetMCEventHeader();
+  header->SetNeuRadEloss(fFullEnergy);
+  header->SetNeuRadLY(fFullLY);
+
   fHElossInEvent->Fill(fFullEnergy);
   fHLYInEvent->Fill(fFullLY);
   Reset();

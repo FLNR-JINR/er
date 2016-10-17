@@ -1,14 +1,11 @@
-void NeuRad_digi(Int_t nEvents = 1000){
+void NeuRad_digi(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "digi.root";
   TString parFile = "par.root";
   TString parOutFile = "parOut.root";
   // ------------------------------------------------------------------------
-  //-------- Set MC event header --------------------------------------------
-  EREventHeader* header = new EREventHeader();
-  fRun->SetEventHeader(header);
-  //------------------------------------------------------------------------
+  
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -18,7 +15,12 @@ void NeuRad_digi(Int_t nEvents = 1000){
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  // ------------------------------------------------------------------------
+  //------------------------------------------------------------------------
+
+  //-------- Set MC event header --------------------------------------------
+  EREventHeader* header = new EREventHeader();
+  fRun->SetEventHeader(header);
+  //------------------------------------------------------------------------
  
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
@@ -32,7 +34,7 @@ void NeuRad_digi(Int_t nEvents = 1000){
   
   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
   TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
-  NeuRadDetDigiFile += "/parameters/NeuRad.digi.par";
+  NeuRadDetDigiFile += "/parameters/NeuRad_wbt.digi.par";
   parInput1->open(NeuRadDetDigiFile.Data(),"in");
 
   FairParRootFileIo*  parInput2 = new FairParRootFileIo();
@@ -41,9 +43,9 @@ void NeuRad_digi(Int_t nEvents = 1000){
 
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parInput2);
-  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
+  FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
   //FairParRootFileIo*  parIo2 = new FairParRootFileIo();

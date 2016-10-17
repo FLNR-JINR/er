@@ -24,6 +24,7 @@ protected:
   Int_t fFiberIndex;
   Int_t fModuleIndex;
   Double_t *fAmplitudes;
+  Double_t fAmplitudesSum;
   Double_t *fAnodeTimes;
   Int_t fCurFPoint;
   Double_t fStartTime;
@@ -33,6 +34,7 @@ protected:
   Float_t* fResFunction;
   TArrayF fResFunctionRoot;
   Int_t fPECount;
+  Int_t fSide;
   //constants
   static const Double_t csdT; //ns
   static const Int_t csdTCount; //count
@@ -44,7 +46,7 @@ public:
   ERNeuRadPMTSignal();
 
   /** Constructor with arguments **/
-  ERNeuRadPMTSignal(Int_t iBundle, Int_t iFiber, Int_t fpoints_count);
+  ERNeuRadPMTSignal(Int_t iBundle, Int_t iFiber, Int_t fpoints_count, Int_t side);
 
   virtual ~ERNeuRadPMTSignal();
   
@@ -74,6 +76,12 @@ public:
   virtual Int_t PECount() {return fPECount;}
 
   Double_t  dT() {return csdT;}
+
+  Int_t ModuleIndex() const {return fModuleIndex;}
+  Int_t FiberIndex() const {return fFiberIndex;}
+  Int_t Side() const {return fSide;}
+  Double_t AmplitudesSum() const {return fAmplitudesSum;}
+
   ClassDef(ERNeuRadPMTSignal,1);
 };
 

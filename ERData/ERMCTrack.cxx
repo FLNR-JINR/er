@@ -109,9 +109,9 @@ ERMCTrack::~ERMCTrack() { }
 
 // -----   Public method Print   -------------------------------------------
 void ERMCTrack::Print(Int_t trackId) const {
-  std::cout << "Track " << trackId << ", mother : " << fMotherId
+  /*std::cout << "Track " << trackId << ", mother : " << fMotherId
 	     << ", Type " << fPdgCode << ", momentum (" << fPx << ", "
-	     << fPy << ", " << fPz << ") GeV" << std::endl;
+	     << fPy << ", " << fPz << ") GeV" << std::endl;*/
   //std::cout << "       Ref " << GetNPoints(kREF) << std::endl;
 }
 // -------------------------------------------------------------------------
