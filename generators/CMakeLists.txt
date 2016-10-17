@@ -26,6 +26,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 	ERGenerator.cxx
 	ERGammaGenerator.cxx
+	ERIonGenerator.cxx
 )
 
 # fill list of header files from list of source files

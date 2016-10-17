@@ -13,11 +13,9 @@ void eventDisplay()
   
   FairEventManager *fMan= new FairEventManager();
   FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
-  FairMCPointDraw *ndPoints =   new FairMCPointDraw ("NDPoint",kOrange,  kFullSquare);
   FairMCPointDraw *dsrdPoints =   new FairMCPointDraw ("DSRDPoint",kOrange,  kFullSquare);
   
   fMan->AddTask(Track);
-  fMan->AddTask(ndPoints);
   fMan->AddTask(dsrdPoints);
   
   fMan->Init();

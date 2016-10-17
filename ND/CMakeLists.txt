@@ -8,6 +8,7 @@ ${CMAKE_SOURCE_DIR}/ERData/NDData/
 ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/ERBase/
+${CMAKE_SOURCE_DIR}/ERData/
 ${CMAKE_SOURCE_DIR}/ND/
 )
 
@@ -22,6 +23,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 ERND.cxx
+ERNDHitFinder.cxx
 )
 
 # fill list of header files from list of source files

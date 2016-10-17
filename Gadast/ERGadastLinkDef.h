@@ -12,7 +12,5 @@
 #pragma link C++ class ERGadastDigitizer+;
 #pragma link C++ class ERGadastContFact+;
 #pragma link C++ class ERGadastGeoPar+;
-#pragma link C++ class ERGadastMesh+;
-
 
 #endif

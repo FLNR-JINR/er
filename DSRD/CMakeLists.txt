@@ -1,14 +1,15 @@
-# Create a library called "libERDecayers" which includes the source files given in
+# Create a library called "libR3BCal" which includes the source files given in
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
 set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
+${CMAKE_SOURCE_DIR}/ERData/DSRDData/
 ${ROOT_INCLUDE_DIR}
-${CMAKE_SOURCE_DIR}/ERBase
-${CMAKE_SOURCE_DIR}/ERData
-${CMAKE_SOURCE_DIR}/passive
-${CMAKE_SOURCE_DIR}/decayers
+${Boost_INCLUDE_DIRS}
+${CMAKE_SOURCE_DIR}/ERBase/
+${CMAKE_SOURCE_DIR}/ERData/
+${CMAKE_SOURCE_DIR}/DSRD/
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -21,21 +22,17 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-ERDecayer.cxx
-ERDecay.cxx
-ERDecay27Fto26O.cxx
-ERDecay26Oto24O2n.cxx
-ERDecay31Arto30Ar.cxx
-ERDecay30Arto28S2p.cxx
-ERDecayLi9DetoLi10_Li9n_p.cxx
+ERDSRD.cxx
+ERDSRDHitFinder.cxx
 )
 
 # fill list of header files from list of source files
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
-Set(LINKDEF ERDecayersLinkDef.h)
-Set(LIBRARY_NAME ERDecayers)
-Set(DEPENDENCIES Base Core)
+Set(LINKDEF ERDSRDLinkDef.h)
+Set(LIBRARY_NAME DSRD)
+Set(DEPENDENCIES ERBase ERData Base Core)
 
 GENERATE_LIBRARY()
+

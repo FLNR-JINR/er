@@ -225,7 +225,6 @@ void ERStack::FillTrackArray()
 
   // --> Loop over fParticles array and copy selected tracks
   for (Int_t iPart=0; iPart<fNParticles; iPart++) {
-
     fStoreIter = fStoreMap.find(iPart);
     if (fStoreIter == fStoreMap.end() ) {
       LOG(FATAL) << "Particle " << iPart
@@ -414,7 +413,7 @@ TParticle* ERStack::GetParticle(Int_t trackID) const
 void ERStack::SelectTracks()
 {
 
-  //cerr << "SelectTracks" << endl;
+  cerr << "SelectTracks" << endl;
   // --> Clear storage map
   fStoreMap.clear();
 

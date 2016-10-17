@@ -46,6 +46,11 @@ ERMCEventHeader.cxx
 EREventHeader.cxx
 
 NDData/ERNDPoint.cxx
+NDData/ERNDHit.cxx
+
+DSRDData/ERDSRDPoint.cxx
+DSRDData/ERDSRDHit.cxx
+
 )
 
 # fill list of header files from list of source files

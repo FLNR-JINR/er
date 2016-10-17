@@ -1,17 +1,17 @@
 // -------------------------------------------------------------------------
-// -----                        ERND header file                   -----
+// -----                        ERDSRD header file                   -----
 // -----                  Created data  by developer name              -----
 // -------------------------------------------------------------------------
 
-/**  ERND.h
+/**  ERDSRD.h
  **/
 
 
-#ifndef ERND_H
-#define ERND_H
+#ifndef ERDSRD_H
+#define ERDSRD_H
 
 #include "ERDetector.h"
-#include "ERNDPoint.h"
+#include "ERDSRDPoint.h"
 
 #include "TLorentzVector.h"
 
@@ -19,31 +19,31 @@ class TClonesArray;
 class FairVolume;
 class TF1;
 
-class ERND : public FairDetector
+class ERDSRD : public FairDetector
 {
   
 public:
   
   /** Default constructor **/
-  ERND();
+  ERDSRD();
   
   
   /** Standard constructor.
-   *@param name    ERND ERND name
+   *@param name    ERDSRD ERDSRD name
    *@param active  sensitivity flag
    *@param verbose Verbosity level. 1 - only standart logs, 2 - Print points after each event, 3 - GEANT Step information
    **/
-  ERND(const char* name, Bool_t active, Int_t verbose);
+  ERDSRD(const char* name, Bool_t active, Int_t verbose);
   
   
   /** Destructor **/
-  virtual ~ERND();
+  virtual ~ERDSRD();
   
   
   /** Virtual method ProcessHits
    **   
    ** Defines the action to be taken when a step is inside the
-   ** active volume. Creates a ERNDPoint and adds it to the
+   ** active volume. Creates a ERDSRDPoint and adds it to the
    ** collection.
    *@param vol  Pointer to the active volume
    **/
@@ -100,13 +100,13 @@ public:
   
   /** Virtaul method Construct geometry
    **
-   ** Constructs the ERND geometry
+   ** Constructs the ERDSRD geometry
    **/
   virtual void ConstructGeometry();
   
    /** Virtaul method Initialize
    **
-   ** Initialize ERND data
+   ** Initialize ERDSRD data
    **/
   virtual void Initialize();
 
@@ -124,7 +124,7 @@ public:
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
   
 private:
-  TClonesArray*  fNDPoints;     //!  The point collection
+  TClonesArray*  fDSRDPoints;     //!  The point collection
   Int_t fVersion;                    //! geometry version
 private:
   /** Private method AddPoint
@@ -132,20 +132,21 @@ private:
    ** Adds a NeuRadPoint to the Point Collection
    **/
   
-  ERNDPoint* AddPoint(Int_t eventID, Int_t trackID,
+  ERDSRDPoint* AddPoint(Int_t eventID, Int_t trackID,
 			  Int_t mot0trackID,
 			  Double_t mass,
 			  TVector3 posIn,
 			  TVector3 pos_out, TVector3 momIn,
 			  TVector3 momOut, Double_t time,
-			  Double_t length, Double_t eLoss, Int_t stilbenNr,Float_t lightYield);
+			  Double_t length, Double_t eLoss,
+        Int_t sector,Int_t sensor);
   /** Private method ResetParameters
    **
    ** Resets the private members for the track parameters
    **/
   void ResetParameters();
   
-  ClassDef(ERND,1);
+  ClassDef(ERDSRD,1);
 };
 
 #endif 

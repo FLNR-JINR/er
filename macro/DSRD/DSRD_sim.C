@@ -1,4 +1,4 @@
-void ND_sim(Int_t nEvents = 1){
+void DSRD_sim(Int_t nEvents = 1){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -39,23 +39,23 @@ void ND_sim(Int_t nEvents = 1){
    * 3 - - GEANT Step information
   */
   Int_t verbose = 1;
-  ERND* nd= new ERND("ERND", kTRUE,verbose);
-  nd->SetGeometryFileName("ND.geo.root");
-  run->AddModule(nd);
+  ERDSRD* dsrd= new ERDSRD("ERDSRD", kTRUE,verbose);
+  dsrd->SetGeometryFileName("DSRD.geo.root");
+  run->AddModule(dsrd);
   // ------------------------------------------------------------------------
 	
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  Int_t pdgId = 2112; // neutron  beam
-  Double32_t theta1 = 0.;  // polar angle distribution
-  Double32_t theta2 = 7.;
-  Double32_t kin_energy = .500; //GeV
+  Int_t pdgId = 2212; // proton  beam
+  Double32_t theta1 = 140;  // polar angle distribution
+  Double32_t theta2 = 140;
+  Double32_t kin_energy = .5; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-  boxGen->SetThetaRange(theta1, theta1);
+  boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(90, 90);
+  boxGen->SetPhiRange(0.,360.);
   boxGen->SetBoxXYZ(0.,0,0.0,0.0,0.);
 
   primGen->AddGenerator(boxGen);

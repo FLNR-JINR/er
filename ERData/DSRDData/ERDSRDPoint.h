@@ -1,15 +1,15 @@
 // -------------------------------------------------------------------------
-// -----                      ERNDPoint header file                -----
+// -----                      ERDSRDPoint header file                -----
 // -----                  Created data  developerName                  -----
 // -------------------------------------------------------------------------
 
 
-/**  ERNDPoint.h
+/**  ERDSRDPoint.h
  **/
 
 
-#ifndef ERNDPoint_H
-#define ERNDPoint_H
+#ifndef ERDSRDPoint_H
+#define ERDSRDPoint_H
 
 
 #include "TObject.h"
@@ -18,13 +18,13 @@
 #include "FairMCPoint.h"
 
 
-class ERNDPoint : public FairMCPoint 
+class ERDSRDPoint : public FairMCPoint 
 {
 
  public:
 
   /** Default constructor **/
-  ERNDPoint();
+  ERDSRDPoint();
 
 
   /** Constructor with arguments
@@ -39,23 +39,23 @@ class ERNDPoint : public FairMCPoint
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [KeV]
    **/
-  ERNDPoint(Int_t eventID, Int_t trackID,
+  ERDSRDPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t stilbenNr, Float_t lightYield);
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t sector,Int_t sensor);
 
 
   /** Copy constructor **/
-  ERNDPoint(const ERNDPoint&);
+  ERDSRDPoint(const ERDSRDPoint&);
 
 
   /** Destructor **/
-  virtual ~ERNDPoint();
+  virtual ~ERDSRDPoint();
 
 
-  ERNDPoint& operator=(const ERNDPoint&) { return *this; }
+  ERDSRDPoint& operator=(const ERDSRDPoint&) { return *this; }
 
 
   /** Accessors **/
@@ -76,13 +76,12 @@ class ERNDPoint : public FairMCPoint
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
   void MomentumOut(TVector3& mom) { mom.SetXYZ(fPx_out,fPy_out,fPz_out); }
 
-  Int_t StilbenNr() const {return fStilbenNr;}
-  Float_t LightYield() const {return fLightYield;}
 
   /** Point coordinates at given z from linear extrapolation **/
   Double_t GetX(Double_t z) const;
   Double_t GetY(Double_t z) const;
-
+  Int_t Sector() const {return fSector;}
+  Int_t Sensor() const {return fSensor;}
 
   /** Check for distance between in and out **/
   Bool_t IsUsable() const;
@@ -97,9 +96,8 @@ class ERNDPoint : public FairMCPoint
   Double_t fMass;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
-  Int_t fStilbenNr;
-  Float_t fLightYield;
+  Int_t fSector, fSensor;
 
-  ClassDef(ERNDPoint,1)
+  ClassDef(ERDSRDPoint,1)
 };
 #endif
