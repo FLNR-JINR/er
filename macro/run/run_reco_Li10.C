@@ -15,6 +15,11 @@ void run_reco_Li10(Int_t nEvents = 10000){
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
+
+  //-------- Set event header --------------------------------------------
+  ERLi10EventHeader* header = new ERLi10EventHeader();
+  fRun->SetEventHeader(header);
+  //-------------------------------------------------------------------------
  
   // ------------------------ND hit finder---------------------------------
   ERNDHitFinder* NDhitFinder = new ERNDHitFinder(1);

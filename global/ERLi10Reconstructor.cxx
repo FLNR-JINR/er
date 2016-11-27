@@ -16,6 +16,7 @@ using namespace std;
 #include "ERDetectorList.h"
 #include "ERNDHit.h"
 #include "ERDSRDHit.h"
+#include "ERLi10EventHeader.h"
 
 // ----------------------------------------------------------------------------
 ERLi10Reconstructor::ERLi10Reconstructor()
@@ -91,6 +92,13 @@ void ERLi10Reconstructor::Exec(Option_t* opt)
     ERNDHit* hit = (ERNDHit*)fNDHits->At(iHit);
     std::cout << iHit << " Eloss:" << hit->LightYield() << " time:" << hit->Time() << " NeutronProb:"<< hit->NeutronProb() <<  std::endl; 
   }
+
+  FairRunAna* run = FairRunAna::Instance();
+  if ( ! run ) 
+    Fatal("SetParContainers", "No analysis run");
+  ERLi10EventHeader* header = (ERLi10EventHeader*)run->GetEventHeader();
+  header->SetNEnergy(0);
+  header->SetPEnergy(0);
 }
 //----------------------------------------------------------------------------
 

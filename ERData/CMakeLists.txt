@@ -44,6 +44,7 @@ ERStack.cxx
 ERMCTrack.cxx
 ERMCEventHeader.cxx
 EREventHeader.cxx
+ERLi10EventHeader.cxx
 
 NDData/ERNDPoint.cxx
 NDData/ERNDHit.cxx
