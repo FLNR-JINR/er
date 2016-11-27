@@ -41,6 +41,7 @@ public:
   /** Modifiers **/
   void SetElossDispersion(Float_t sigma) {fElossDispersion = sigma;} 
   void SetTimeDispersionPar(Float_t sigma) {fTimeDispersionPar = sigma;}
+  void SetElossThreshold(Float_t th){fElossThreshold = th;}
   /** Accessors **/ 
   Float_t ElossDispersion() const {return fElossDispersion;}
   Float_t TimeDispersionPar() const {return fTimeDispersionPar;}
@@ -53,6 +54,7 @@ protected:
   static Int_t fEvent;
   Float_t fElossDispersion;
   Float_t fTimeDispersionPar;
+  Float_t fElossThreshold;
 protected:
   ERDSRDHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t point_index, Float_t eloss, Float_t time);
 private:
