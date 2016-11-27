@@ -24,6 +24,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 ERND.cxx
 ERNDHitFinder.cxx
+ERNDSetup.cxx
 )
 
 # fill list of header files from list of source files

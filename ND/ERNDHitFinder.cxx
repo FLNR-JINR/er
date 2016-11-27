@@ -82,6 +82,8 @@ InitStatus ERNDHitFinder::Init()
   fNDHits = new TClonesArray("ERNDHit",1000);
 
   ioman->Register("NDHit", "ND hits", fNDHits, kTRUE);
+
+  fSetup = ERNDSetup::Instance();
    
   return kSUCCESS;
 }
@@ -98,8 +100,11 @@ void ERNDHitFinder::Exec(Option_t* opt)
 
   for (Int_t iPoint = 0; iPoint < fNDPoints->GetEntriesFast(); iPoint++){
     ERNDPoint* point = (ERNDPoint*)fNDPoints->At(iPoint);
+    TVector3 pointPos;
+    point->Position(pointPos);
     TVector3 dpos = TVector3(0.01, 0.01, 0.01); //ошибка пока фиксирована
-    TVector3 pos = TVector3(0.,0.,0.);
+    TVector3 pos;
+    fSetup->PMTPos(pointPos,pos);
     Float_t LYDispersion = (fLYDispersionA*fLYDispersionA)*point->LightYield()+(fLYDispersionB*fLYDispersionB)*(point->LightYield()*point->LightYield());
     Float_t lightYield = gRandom->Gaus(point->LightYield(), LYDispersion);
     Float_t time = gRandom->Gaus(point->GetTime(), TMath::Sqrt(fTimeDispersionPar/point->LightYield()));

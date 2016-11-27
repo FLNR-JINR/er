@@ -6,5 +6,6 @@
 
 #pragma link C++ class ERND+;
 #pragma link C++ class ERNDHitFinder+;
+#pragma link C++ class ERNDSetup+;
 
 #endif

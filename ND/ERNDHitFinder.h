@@ -11,6 +11,7 @@
 #include "FairTask.h"
 
 #include "ERNDHit.h"
+#include "ERNDSetup.h"
 
 class ERNDHitFinder : public FairTask {
 
@@ -68,6 +69,8 @@ protected:
   Float_t fLYThreshold;
   Float_t fProbabilityB;
   Float_t fProbabilityC;
+
+  ERNDSetup* fSetup;
 protected:
   ERNDHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, 
           Int_t point_index, Float_t lightYield, Float_t time, Float_t neutronProb);
