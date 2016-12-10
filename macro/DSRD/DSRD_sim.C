@@ -47,15 +47,15 @@ void DSRD_sim(Int_t nEvents = 1){
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   Int_t pdgId = 2212; // proton  beam
-  Double32_t theta1 = 140;  // polar angle distribution
-  Double32_t theta2 = 140;
+  Double32_t theta1 = 150;  // polar angle distribution
+  Double32_t theta2 = 150;
   Double32_t kin_energy = .5; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
   boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(0.,360.);
+  boxGen->SetPhiRange(90., 90.);
   boxGen->SetBoxXYZ(0.,0,0.0,0.0,0.);
 
   primGen->AddGenerator(boxGen);

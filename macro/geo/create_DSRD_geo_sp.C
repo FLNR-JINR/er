@@ -57,37 +57,30 @@ TGeoManager*   gGeoMan = NULL;
   //------------------ DSRD station -----------------------------------------
   Double_t R_min = 1.2; //cm
   Double_t R_max = 4.5;   //cm
-  Double_t thin = .1;   //cm
+  Double_t thin = 0.1;   //cm
   Float_t rsp_min = 200.;
-  Float_t rsp_max = 200.1;
-  //Float_t thsp_min = TMath::ATan(R_min/rsp_min)*TMath::RadToDeg();
-  //Float_t thsp_max = TMath::ATan(R_max/rsp_max)*TMath::RadToDeg();
-  thin /= 2.;
+  Float_t rsp_max = rsp_min + thin;
+  Float_t thsp_min = TMath::ATan(R_min/rsp_min)*TMath::RadToDeg();
+  Float_t thsp_max = TMath::ATan(R_max/rsp_max)*TMath::RadToDeg();
   //------------------ STRUCTURE  -----------------------------------------
   //------------------ Add sensor in sector -----------------------------
   Double_t deltaR = (R_max-R_min)/16;
   for (Int_t iSector=0; iSector < 16; iSector++){
-    //TString title;
-    //title.Form("sensor%d", iSector);
-    Float_t thsp_min = TMath::ATan((R_min+iSector*deltaR)/rsp_min)*TMath::RadToDeg();
-    Float_t thsp_max = TMath::ATan((R_min+(iSector+1)*deltaR)/rsp_max)*TMath::RadToDeg();
-    TGeoVolume *sector = gGeoManager->MakeSphere("sector",pSi,R_min,R_max,thsp_min,thsp_max,0,22.5);
+    TGeoVolume *sector = gGeoManager->MakeSphere("sector",pSi,rsp_min,rsp_max,thsp_min,thsp_max,0,22.5);
     TGeoRotation *rotation = new TGeoRotation();
     rotation->RotateX(0.); 
     rotation->RotateY(0.);
-    rotation->RotateZ(22.5);
+    rotation->RotateZ(22.5*iSector);
     DSRD->AddNode(sector, iSector, new TGeoCombiTrans(.0,.0,-200., rotation));
-    /*
-    TGeoVolume *sensor = gGeoManager->MakeSphere(title.Data(),pSi,rsp_min,rsp_max,thsp_min,thsp_max,0,22.5);
+
     for (Int_t iSensor=0; iSensor < 16; iSensor++){
-      TGeoRotation *rotation = new TGeoRotation();
-      rotation->RotateX(0.); 
-      rotation->RotateY(0.);
-      rotation->RotateZ(iSensor*22.5);
-      DSRD->AddNode(sensor, iSensor, new TGeoCombiTrans(.0,.0,-200., rotation));
+      Float_t thsp_min = TMath::ATan((R_min+iSensor*deltaR)/rsp_min)*TMath::RadToDeg();
+      Float_t thsp_max = TMath::ATan((R_min+(iSensor+1)*deltaR)/rsp_max)*TMath::RadToDeg();
+      TGeoVolume *sensor = gGeoManager->MakeSphere("sensor", pSi,rsp_min,rsp_max,thsp_min,thsp_max,0,22.5);
+      sector->AddNode(sensor, iSensor, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
     }
-    */
   }
+
   top->AddNode(DSRD, 0, new TGeoCombiTrans(.0,.0,-5, fZeroRotation));
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();

@@ -17,8 +17,8 @@ ERDSRDSetup::ERDSRDSetup(){
     fDSRDnode  = NULL;
     for (Int_t iNode = 0; iNode < cave->GetNdaughters(); iNode++) {
         TString name = cave->GetDaughter(iNode)->GetName();
-        if ( name.Contains("ND", TString::kIgnoreCase) ) {
-            fNDnode = cave->GetDaughter(iNode);
+        if ( name.Contains("DSRD", TString::kIgnoreCase) ) {
+            fDSRDnode = cave->GetDaughter(iNode);
         }
     }
 }
