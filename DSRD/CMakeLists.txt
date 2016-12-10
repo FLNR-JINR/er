@@ -24,6 +24,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 ERDSRD.cxx
 ERDSRDHitFinder.cxx
+ERDSRDSetup.cxx
 )
 
 # fill list of header files from list of source files

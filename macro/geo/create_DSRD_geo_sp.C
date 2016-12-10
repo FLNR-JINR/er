@@ -67,10 +67,17 @@ TGeoManager*   gGeoMan = NULL;
   //------------------ Add sensor in sector -----------------------------
   Double_t deltaR = (R_max-R_min)/16;
   for (Int_t iSector=0; iSector < 16; iSector++){
-    TString title;
-    title.Form("sensor%d", iSector);
+    //TString title;
+    //title.Form("sensor%d", iSector);
     Float_t thsp_min = TMath::ATan((R_min+iSector*deltaR)/rsp_min)*TMath::RadToDeg();
     Float_t thsp_max = TMath::ATan((R_min+(iSector+1)*deltaR)/rsp_max)*TMath::RadToDeg();
+    TGeoVolume *sector = gGeoManager->MakeSphere("sector",pSi,R_min,R_max,thsp_min,thsp_max,0,22.5);
+    TGeoRotation *rotation = new TGeoRotation();
+    rotation->RotateX(0.); 
+    rotation->RotateY(0.);
+    rotation->RotateZ(22.5);
+    DSRD->AddNode(sector, iSector, new TGeoCombiTrans(.0,.0,-200., rotation));
+    /*
     TGeoVolume *sensor = gGeoManager->MakeSphere(title.Data(),pSi,rsp_min,rsp_max,thsp_min,thsp_max,0,22.5);
     for (Int_t iSensor=0; iSensor < 16; iSensor++){
       TGeoRotation *rotation = new TGeoRotation();
@@ -79,6 +86,7 @@ TGeoManager*   gGeoMan = NULL;
       rotation->RotateZ(iSensor*22.5);
       DSRD->AddNode(sensor, iSensor, new TGeoCombiTrans(.0,.0,-200., rotation));
     }
+    */
   }
   top->AddNode(DSRD, 0, new TGeoCombiTrans(.0,.0,-5, fZeroRotation));
   // ---------------   Finish   -----------------------------------------------

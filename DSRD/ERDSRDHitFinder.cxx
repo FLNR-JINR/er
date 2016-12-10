@@ -94,6 +94,7 @@ void ERDSRDHitFinder::Exec(Option_t* opt)
   Float_t dPhi = 360./16.;
   Float_t z = -5.;
 
+  
   for (Int_t iPoint = 0; iPoint < fDSRDPoints->GetEntriesFast(); iPoint++){
     ERDSRDPoint* point = (ERDSRDPoint*)fDSRDPoints->At(iPoint);
     TVector3 dpos = TVector3(0.01, 0.01, 0.01); //ошибка пока фиксирована

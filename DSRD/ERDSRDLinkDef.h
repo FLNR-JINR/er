@@ -6,5 +6,6 @@
 
 #pragma link C++ class ERDSRD+;
 #pragma link C++ class ERDSRDHitFinder+;
+#pragma link C++ class ERDSRDSetup+;
 
 #endif
