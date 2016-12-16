@@ -16,13 +16,22 @@
 class ERDSRDSetup {
     static ERDSRDSetup* fInstance;
     static TGeoNode* fDSRDnode;
+    static Float_t fZ;
+    static Float_t fRmin, fRmax;
+    static Int_t fSecNb, fSenNb;
     ERDSRDSetup();
 public:
     static ERDSRDSetup* Instance();
-    ClassDef(ERDSRDSetup,1)
+    
+    Float_t SensorNb() {return fSenNb;}
+    Float_t SectorNb() {return fSecNb;}
+    Float_t Rmin() {return fRmin;}
+    Float_t Rmax() {return fRmax;}
+    Float_t Z() {return fZ;}
 
-    Float_t SensorNb();
-    Float_t SectorNb();
+    void Print();
+
+    ClassDef(ERDSRDSetup,1)
 };
 
 #endif

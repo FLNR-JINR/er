@@ -16,6 +16,7 @@ using namespace std;
 #include "ERDetectorList.h"
 #include "ERDSRDPoint.h"
 
+
 Int_t ERDSRDHitFinder::fEvent = 0;
 // ----------------------------------------------------------------------------
 ERDSRDHitFinder::ERDSRDHitFinder()
@@ -74,6 +75,9 @@ InitStatus ERDSRDHitFinder::Init()
   fDSRDHits = new TClonesArray("ERDSRDHit",1000);
 
   ioman->Register("DSRDHit", "DSRD hits", fDSRDHits, kTRUE);
+
+  fDSRDSetup = ERDSRDSetup::Instance();
+  fDSRDSetup->Print();
    
   return kSUCCESS;
 }
@@ -88,25 +92,25 @@ void ERDSRDHitFinder::Exec(Option_t* opt)
   std::cout << "ERDSRDHitFinder: "<< std::endl;
   Reset();
   //Параметры геометрии. todo - убрать отсюда.
-  Float_t R_min = 1.2; //cm
-  Float_t R_max = 4.5; //cm
-  Float_t dR  = (R_max-R_min)/16.;
-  Float_t dPhi = 360./16.;
-  Float_t z = -5.;
+  Float_t Rmin = fDSRDSetup->Rmin(); //cm
+  Float_t Rmax = fDSRDSetup->Rmax(); //cm
+  Float_t dR  = (Rmax-Rmin)/fDSRDSetup->SensorNb();
+  Float_t dPhi = 360./fDSRDSetup->SectorNb();
+  Float_t z = fDSRDSetup->Z();
 
-  
   for (Int_t iPoint = 0; iPoint < fDSRDPoints->GetEntriesFast(); iPoint++){
     ERDSRDPoint* point = (ERDSRDPoint*)fDSRDPoints->At(iPoint);
+    Float_t eloss = gRandom->Gaus(point->GetEnergyLoss(), fElossDispersion);
+    if (eloss < fElossThreshold)
+      continue;
     TVector3 dpos = TVector3(0.01, 0.01, 0.01); //ошибка пока фиксирована
-    Float_t r = (R_min+point->Sensor()*dR + R_min+(point->Sensor()+1)*dR)/2.;
+    Float_t r = (Rmin+point->Sensor()*dR + Rmin+(point->Sensor()+1)*dR)/2.;
     Float_t phi = ((0.+point->Sector()*dPhi) + (0. + (point->Sector()+1)*dPhi))/2.;
     Float_t x = r*TMath::Cos(phi*TMath::DegToRad());
     Float_t y = r*TMath::Sin(phi*TMath::DegToRad());
     TVector3 pos = TVector3(x, y, z);
-    Float_t eloss = gRandom->Gaus(point->GetEnergyLoss(), fElossDispersion);
     Float_t time = gRandom->Gaus(point->GetTime(), TMath::Sqrt(fTimeDispersionPar/point->GetEnergyLoss()));
-    if (eloss > fElossThreshold)
-      AddHit(kDSRD, pos, dpos,iPoint,eloss, time);
+    AddHit(kDSRD, pos, dpos,iPoint,eloss, time);
   }
 
   std::cout << "Hits count: " << fDSRDHits->GetEntriesFast() << std::endl;

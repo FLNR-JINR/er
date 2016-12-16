@@ -11,6 +11,7 @@
 #include "FairTask.h"
 
 #include "ERDSRDHit.h"
+#include "ERDSRDSetup.h"
 
 class ERDSRDHitFinder : public FairTask {
 
@@ -55,6 +56,8 @@ protected:
   Float_t fElossDispersion;
   Float_t fTimeDispersionPar;
   Float_t fElossThreshold;
+
+  ERDSRDSetup* fDSRDSetup;
 protected:
   ERDSRDHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t point_index, Float_t eloss, Float_t time);
 private:

@@ -58,7 +58,7 @@ TGeoManager*   gGeoMan = NULL;
   Double_t R_min = 1.2; //cm
   Double_t R_max = 4.5;   //cm
   Double_t thin = 0.1;   //cm
-  Float_t rsp_min = 200.;
+  Float_t rsp_min = 2000.;
   Float_t rsp_max = rsp_min + thin;
   Float_t thsp_min = TMath::ATan(R_min/rsp_min)*TMath::RadToDeg();
   Float_t thsp_max = TMath::ATan(R_max/rsp_max)*TMath::RadToDeg();
@@ -71,7 +71,7 @@ TGeoManager*   gGeoMan = NULL;
     rotation->RotateX(0.); 
     rotation->RotateY(0.);
     rotation->RotateZ(22.5*iSector);
-    DSRD->AddNode(sector, iSector, new TGeoCombiTrans(.0,.0,-200., rotation));
+    DSRD->AddNode(sector, iSector, new TGeoCombiTrans(.0,.0,-2000., rotation));
 
     for (Int_t iSensor=0; iSensor < 16; iSensor++){
       Float_t thsp_min = TMath::ATan((R_min+iSensor*deltaR)/rsp_min)*TMath::RadToDeg();
