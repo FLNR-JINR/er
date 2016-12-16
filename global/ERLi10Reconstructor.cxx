@@ -6,6 +6,7 @@
 #include "TGeoMatrix.h"
 #include "TMath.h"
 #include "TRandom3.h"
+#include "TDatabasePDG.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -17,6 +18,7 @@ using namespace std;
 #include "ERNDHit.h"
 #include "ERDSRDHit.h"
 #include "ERLi10EventHeader.h"
+
 
 // ----------------------------------------------------------------------------
 ERLi10Reconstructor::ERLi10Reconstructor()
@@ -69,10 +71,10 @@ InitStatus ERLi10Reconstructor::Init()
   if (!fDSRDHits)
     Fatal("Init", "Can`t find collection NDHit!"); 
 
-  // Register output array fNDHits
-  //fNDHits = new TClonesArray("ERNDHit",1000);
-
-  //ioman->Register("NDHit", "ND hits", fNDHits, kTRUE);
+  //todo Этот код должен умереть. Не может быть MC информации в реконструкции
+  fMCHeader = (ERLi10MCEventHeader*) ioman->GetObject("MCEventHeader.");
+  if (!fMCHeader)
+    Fatal("Init", "Can`t find MCEventHeader!");
    
   return kSUCCESS;
 }
@@ -97,8 +99,47 @@ void ERLi10Reconstructor::Exec(Option_t* opt)
   if ( ! run ) 
     Fatal("SetParContainers", "No analysis run");
   ERLi10EventHeader* header = (ERLi10EventHeader*)run->GetEventHeader();
-  header->SetNEnergy(0);
-  header->SetPEnergy(0);
+
+  /*
+  Энергия нейтрона находится по времени пролета. Для этого на 1 метр выше по пучку от мишени стоит
+  пластиковый сцинтиллятор (материал как нойрад) толщиной 100 микрон. Момент прохождения пластика налетающим ионом- это старт.
+  Дальше надо пересчитать время на момент взаимодействия (вычесть пролет ионом через 1 метр) , но это не сейчас.
+
+  Сейчас скорость нейтрона равна расстояние от мишени до центра Стильбена деленная на время между моментом реакции и регистрацией нейтрона в стильбене. 
+  Полная энергия нейтрона = масса нейтрона умножить на С а в квадрате и умножить на гамма-фактор, 
+  куда в качестве беты входит измеренная скорость делить на С (скорость света в вакууме).
+  */
+
+  //Пропускаем событие, если количество хитов больше одного
+  if (fNDHits->GetEntriesFast() == 1){
+    ERNDHit* hit = (ERNDHit*)fNDHits->At(0);
+    TVector3 hitPos;
+    hit->Position(hitPos);
+    TVector3 reactionPos(0.,0.,fMCHeader->ReactionPos());
+    Float_t L = (hitPos-reactionPos).Mag(); //расстояние от рекции до хита.
+    Float_t Vn = L/(hit->Time()-fMCHeader->ReactionTime());
+    Float_t Mn = TDatabasePDG::Instance()->GetParticle("neutron")->Mass();
+    Float_t beta = Vn/TMath::C();
+    Float_t gamma = 1./TMath::Sqrt(1-beta*beta);
+    Float_t NEnergy = Mn*gamma;
+  }
+  else {
+    header->SetNEnergy(-1);
+  }
+
+   /*
+  Протон в кремнии полностью поглощается. Центр сегмента говорит о направлении импульса 
+  (вектор из точки взаимодействия, пока что центр мишени, потом возможно измерение координат налетающего иона).
+   А энерговыделение в кремнии равно кинетической энергии протона. Все неидеальности прозже в дижитизации.
+  */
+
+  if (fDSRDHits->GetEntriesFast() == 1){
+    ERDSRDHit* hit = (ERDSRDHit*)fDSRDHits->At(0);
+    header->SetPEnergy(hit->Eloss());
+  }
+  else {
+    header->SetPEnergy(-1);
+  }
 }
 //----------------------------------------------------------------------------
 

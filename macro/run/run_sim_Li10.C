@@ -34,7 +34,7 @@ void run_sim_Li10(int nEvents = 1){
   // ------------------------------------------------------------------------
 
   //-------- Set MC event header --------------------------------------------
-  ERMCEventHeader* header = new ERMCEventHeader();
+  ERLi10MCEventHeader* header = new ERLi10MCEventHeader();
   run->SetMCEventHeader(header);
   //-------------------------------------------------------------------------
 

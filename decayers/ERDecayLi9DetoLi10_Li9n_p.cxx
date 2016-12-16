@@ -12,7 +12,7 @@
 using namespace std;
 
 //#include "ERTarget.h"
-#include "ERMCEventHeader.h"      //for ERMCEventHeader
+#include "ERLi10MCEventHeader.h"      //for ERMCEventHeader
 
 ERDecayLi9DetoLi10_Li9n_p::ERDecayLi9DetoLi10_Li9n_p():
   fTargetReactionFinish(kFALSE),
@@ -45,6 +45,8 @@ Bool_t ERDecayLi9DetoLi10_Li9n_p::Stepping(){
 	if (curPos.Z() > fTargetReactZ){
 		std::cout << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
 		FairRunSim* run = FairRunSim::Instance();
+  		ERLi10MCEventHeader* header = (ERLi10MCEventHeader*)run->GetMCEventHeader();
+  		header->SetReactionTime(gMC->TrackTime() * 1.0e09);
 
 	    fLi10 = TDatabasePDG::Instance()->GetParticle("Li10");
 	    if ( ! fLi10 ) {
@@ -168,8 +170,8 @@ void ERDecayLi9DetoLi10_Li9n_p::BeginEvent(){
   //Double_t targetThickness = ERTarget::Thickness();
   fTargetReactZ = fRnd->Uniform()*(.025+0.006);
   FairRunSim* run = FairRunSim::Instance();
-  ERMCEventHeader* header = (ERMCEventHeader*)run->GetMCEventHeader();
-  header->SetTargetReactionPos(fTargetReactZ);
+  ERLi10MCEventHeader* header = (ERLi10MCEventHeader*)run->GetMCEventHeader();
+  header->SetReactionPos(fTargetReactZ);
   fSecondaryIonPDG = -1;
 }
 

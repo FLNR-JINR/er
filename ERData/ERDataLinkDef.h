@@ -9,6 +9,7 @@
 #pragma link C++ class ERMCEventHeader+;
 #pragma link C++ class EREventHeader+;
 #pragma link C++ class ERLi10EventHeader+;
+#pragma link C++ class ERLi10MCEventHeader+;
 
 #pragma link C++ class ERNeuRadPoint+;
 #pragma link C++ class ERNeuRadFiberPoint+;
