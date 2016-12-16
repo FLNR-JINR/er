@@ -90,8 +90,15 @@ void ERLi10Reconstructor::Exec(Option_t* opt)
     std::cout << iHit << " Eloss:" << hit->Eloss() << " time:" << hit->Time() << std::endl; 
   }
   std::cout << "ND Hits: "<< std::endl;
+  //Ищем хит с ненулевой вероятностью нейтрона
+  Int_t NDHit = -1;
+  Int_t NDHitNb = 0;
   for (Int_t iHit = 0; iHit < fNDHits->GetEntriesFast(); iHit++){
     ERNDHit* hit = (ERNDHit*)fNDHits->At(iHit);
+    if (hit->NeutronProb() > 0){
+      NDHit = iHit;
+      NDHitNb++; 
+    }
     std::cout << iHit << " Eloss:" << hit->LightYield() << " time:" << hit->Time() << " NeutronProb:"<< hit->NeutronProb() <<  std::endl; 
   }
 
@@ -111,8 +118,8 @@ void ERLi10Reconstructor::Exec(Option_t* opt)
   */
 
   //Пропускаем событие, если количество хитов больше одного
-  if (fNDHits->GetEntriesFast() == 1){
-    ERNDHit* hit = (ERNDHit*)fNDHits->At(0);
+  if (NDHitNb == 1){
+    ERNDHit* hit = (ERNDHit*)fNDHits->At(NDHit);
     TVector3 hitPos;
     hit->Position(hitPos);
     TVector3 reactionPos(0.,0.,fMCHeader->ReactionPos());
