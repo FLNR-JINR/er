@@ -74,12 +74,11 @@ Bool_t ERDSRD::ProcessHits(FairVolume* vol) {
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
-    gMC->CurrentVolID(sector);
-    sensor = TString(TString(gMC->CurrentVolName())(6,6)).Atoi();
+    gMC->CurrentVolID(sensor);
+    gMC->CurrentVolOffID(1, sector);
   }
   
   eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
-  cerr << eLoss << " " << gMC->TrackPid() << " " << gMC->CurrentVolName()<< endl;
 
 	if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume 
 	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
@@ -87,7 +86,6 @@ Bool_t ERDSRD::ProcessHits(FairVolume* vol) {
 	{ 
     gMC->TrackPosition(posOut);
     gMC->TrackMomentum(momOut);
-    cerr << eLoss << endl;
 	  if (eLoss > 0.){
       AddPoint( eventID, trackID, mot0TrackID, mass,
                 TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
