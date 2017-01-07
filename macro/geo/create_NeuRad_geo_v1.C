@@ -3,10 +3,7 @@
 #include "TGeoManager.h"
 #include "TMath.h"
 
-
-
-
-void create_NeuRad_geo()
+void create_NeuRad_geo_v1()
 {
   // Create a global translation
   TGeoTranslation *fGlobalTrans = new TGeoTranslation();
@@ -30,7 +27,7 @@ void create_NeuRad_geo()
   // --------------------------------------------------------------------------
 
   // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/NeuRad.geo.root";
+  TString geoFileName = geoPath + "/geometry/NeuRad.v1.geo.root";
   // --------------------------------------------------------------------------
   
   // -----------------   Get and create the required media    -----------------
@@ -42,6 +39,12 @@ void create_NeuRad_geo()
   geoBuild->createMedium(mBC408);
   TGeoMedium* pMed37 = gGeoMan->GetMedium("BC408");
   if ( ! pMed37 ) Fatal("Main", "Medium BC408 not found");
+
+  FairGeoMedium* mAl      = geoMedia->getMedium("aluminium");
+  if ( ! mAl ) Fatal("Main", "FairMedium aluminium not found");
+  geoBuild->createMedium(mAl);
+  TGeoMedium* pMedAl = gGeoMan->GetMedium("aluminium");
+  if ( ! pMedAl ) Fatal("Main", "Medium aluminium not found");
   
   FairGeoMedium* vacuum      = geoMedia->getMedium("vacuum");
   if ( ! vacuum ) Fatal("Main", "FairMedium vacuum not found");
@@ -67,7 +70,7 @@ void create_NeuRad_geo()
   cladding_X /= 2.;
   cladding_Y /= 2.;
   cladding_Z /= 2.;
-  TGeoVolume *cladding = gGeoManager->MakeBox("cladding", pMed37, cladding_X, cladding_Y, cladding_Z);
+  TGeoVolume *cladding = gGeoManager->MakeBox("cladding", pMedAl, cladding_X, cladding_Y, cladding_Z);
   
   //------------------ BC408  fiber  -----------------------------------------
   Double_t fiber_X = 0.6;   //cm
@@ -78,14 +81,14 @@ void create_NeuRad_geo()
   fiber_Z /= 2.;
   TGeoVolume *fiber = gGeoManager->MakeBox("fiber", pMed37, fiber_X, fiber_Y, fiber_Z);
 
-  //------------------ vacuum  bundle  -----------------------------------------
+  //------------------ vacuum  module  -----------------------------------------
   Int_t fibers_in_boundle_X_Nb = 8;
   Int_t fibers_in_boundle_Y_Nb = 8;
   
   Double_t boundle_X = fiber_X * fibers_in_boundle_X_Nb;
   Double_t boundle_Y = fiber_Y * fibers_in_boundle_Y_Nb;
   Double_t boundle_Z = fiber_Z;
-  TGeoVolume *bundle = gGeoManager->MakeBox("bundle", pMed0,boundle_X, boundle_Y, boundle_Z);
+  TGeoVolume *module = gGeoManager->MakeBox("module", pMed0,boundle_X, boundle_Y, boundle_Z);
   
   //------------------ STRUCTURE  -----------------------------------------
   //------------------ Add claddings to fiber -----------------------------
@@ -107,14 +110,14 @@ void create_NeuRad_geo()
                                                   cladding_in_fiber_Z_trans, 
                                                   fZeroRotation));
   
-  //------------------ Add fibers to bundle  -----------------------------
+  //------------------ Add fibers to module  -----------------------------
   Int_t i_fiber = 1;
   for (Int_t i_Y_fiber = 0; i_Y_fiber < fibers_in_boundle_Y_Nb; i_Y_fiber++){
     for (Int_t i_X_fiber = 0; i_X_fiber < fibers_in_boundle_X_Nb; i_X_fiber++){
       Double_t fiber_in_boundle_X_trans = boundle_X - fiber_X*2*(i_X_fiber)-fiber_X;
       Double_t fiber_in_boundle_Y_trans = boundle_Y - fiber_Y*2*(i_Y_fiber)-fiber_Y;
       Double_t fiber_in_boundle_Z_trans = 0.;
-      bundle->AddNode( fiber, i_fiber, new TGeoCombiTrans(fiber_in_boundle_X_trans, 
+      module->AddNode( fiber, i_fiber, new TGeoCombiTrans(fiber_in_boundle_X_trans, 
                                                             fiber_in_boundle_Y_trans,
                                                             fiber_in_boundle_Z_trans, 
                                                             fZeroRotation));
@@ -122,7 +125,7 @@ void create_NeuRad_geo()
     }
   }
   
-  NeuRad->AddNode(bundle, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
+  NeuRad->AddNode(module, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
   top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,0., fZeroRotation));
 
   // ---------------   Finish   -----------------------------------------------
