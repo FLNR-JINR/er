@@ -20,10 +20,10 @@
 ~~~~~~~~~~
 #. C++
 
-	#. `Справочник по С++ <http://www.twirpx.com/file/162809>`_
-	#. `Учебник по С++ <http://www.twirpx.com/file/22656/>`_
+	#. :download:`Справочник по С++ <_bin/shildt.pdf>`
+	#. :download:`Учебник по С++ <_bin/ekkel.pdf>`
 	#. `Базовые знания по компиляции <http://knzsoft.ru/cpp-bgr-ls1/>`_ 
-	#. `Миниммальные знания, которые предъявляет ROOT <http://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuideChapters/ALittleC++.pdf>`_   
+	#. `Минимальные знания, которые предъявляет ROOT <http://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuideChapters/ALittleC++.pdf>`_   
 
 #. ROOT
 
