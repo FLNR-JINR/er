@@ -16,14 +16,33 @@
 
 Литература
 ~~~~~~~~~~
+#. C++
 
-#. http://www.twirpx.com/file/162809
-#. http://www.twirpx.com/file/22656/
+	#. `Справочник по С++ <http://www.twirpx.com/file/162809>`_
+	#. `Учебник по С++ <http://www.twirpx.com/file/22656/>`_
+	#. `Базовые знания по компиляции <http://knzsoft.ru/cpp-bgr-ls1/>`_ 
+	#. `Миниммальные знания, которые предъявляет ROOT <http://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuideChapters/ALittleC++.pdf>`_   
+
+#. ROOT
+
+	#. `Документация <https://root.cern.ch/guides/users-guide>`_ 
+	#. `A ROOT guide for beginners. <https://root.cern.ch/root/htmldoc/guides/primer/ROOTPrimerLetter.pdf>`_  
+	#. `Методичка: "Информационные методы в физике высоких энергий" <http://lib.sinp.msu.ru/static/tutorials/141_Leontiev_Zadahi_2011.pdf>`_
+
+#. GEANT 4.
+
+	#. `Документация <https://geant4.web.cern.ch/geant4/support/userdocuments.shtml>`_
+
+#. FairRoot.
+
+	#. `How to <https://fairroot.gsi.de/?q=node/27>`_ 
+	#. `Примеры <https://github.com/FairRootGroup/FairRoot/tree/master/examples>`_   
+
 
 Минимальные требования знаний по С++:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#. Компилятор g++. Компиляция программы из одного или нескольких исходных файлов. http://knzsoft.ru/cpp-bgr-ls1/
+#. Компилятор g++. Компиляция программы из одного или нескольких исходных файлов. 
 #. Инструмент cmake. Написать текст по струтуре CMakeLists. Аннотированный пример.
 #. Выражения: Основные типы. Инициализация переменных. Арифметические и логические операторы. Инкрементация и декрементация. Указатели. Операторы взятия адреса и разыменования.
 #. Функции: Объявление. Определение. Вызов. Области видимости. Аргументы функции main.
