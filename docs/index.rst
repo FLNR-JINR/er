@@ -8,7 +8,7 @@
 
 .. note::
    Основные сервисы:
-      * Redmine - http://er.jinr.ru/develop
+      * Redmine - http://er.jinr.ru/develop/
       * Gitlab - http://er.jinr.ru:90/ExpertRootGroup/er
       * Jenkins - http://er.jinr.ru:8080
 
