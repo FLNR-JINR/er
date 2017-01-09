@@ -20,7 +20,7 @@ void NeuRad_reco(Int_t nEvents = 1000){
   // ------------------------------------------------------------------------
  
   // ------------------------NeuRadHitProducer-------------------------------- 
-  ERNeuRadHitProducer* hitProducer = new ERNeuRadHitProducer(1);
+  ERNeuRadHitFinder* hitProducer = new ERNeuRadHitFinder(1);
   hitProducer->SetPixelThreshold(2.);
   fRun->AddTask(hitProducer);
   //------------------------------------------------------------------------

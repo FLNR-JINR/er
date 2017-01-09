@@ -61,7 +61,8 @@ BRANCH_NAME=v-16.06
 	cmake ../ -DUSE_DIFFERENT_COMPILER=TRUE
 	make
 
-BRANCH_NAME=v-0.3
+* BRANCH_NAME=v-0.3 - для установки последнего релиза
+* BRANCH_NAME=dev - для установки версии разработчиков
 
 Инициализация ExpertRoot
 ------------------------

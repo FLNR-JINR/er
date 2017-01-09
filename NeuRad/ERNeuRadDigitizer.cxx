@@ -60,10 +60,8 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
   fNeuRadFirstStep(NULL),
   fNeuRadFiberPoint(NULL),
   fNeuRadPMTSignal(NULL),
-  fNeuRadDigi(NULL),
   fHPECountF(NULL),
   fHPECountB(NULL),
-  fCurBundleDigis(NULL),
   fRand(NULL),
   fHAmplitudesB(NULL),
   fSumAmplitudeF(0),
@@ -88,10 +86,8 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   fNeuRadFirstStep(NULL),
   fNeuRadFiberPoint(NULL),
   fNeuRadPMTSignal(NULL),
-  fNeuRadDigi(NULL),
   fHPECountF(NULL),
   fHPECountB(NULL),
-  fCurBundleDigis(NULL),
   fRand(NULL),
   fHAmplitudesB(NULL),
   fSumAmplitudeF(0),
@@ -145,9 +141,6 @@ InitStatus ERNeuRadDigitizer::Init()
   fNeuRadPMTSignal = new TClonesArray("ERNeuRadPMTSignal", 1000);
   std::cout << "ERNeuRadDigitizer: Use a ERNeuRadPMTSignal type of signal!" << endl;
   ioman->Register("NeuRadPMTSignal", "Signal after PMT", fNeuRadPMTSignal, kTRUE);
-  fNeuRadDigi = new TClonesArray("ERNeuRadDigi",1000);
-  ioman->Register("NeuRadDigi", "Digital response in NeuRad", fNeuRadDigi, kTRUE);
-  fCurBundleDigis = new TClonesArray("ERNeuRadDigi",1000);
   fRand = new TRandom3();
   
   fNeuRadSetup = ERNeuRadSetup::Instance();
@@ -200,14 +193,11 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   //Формируем сигналы на ФЭУ и digi
   fPMTSignalCreatingTimer.Start();
   for (Int_t iBundle = 0; iBundle < nofBundles; iBundle++){
-    //Создаем signals and digi во временной коллекции и накапливаем для текущего бандла суммарный заряд с обеих сторон
+    //Создаем signals во временной коллекции
     Float_t sumFrontQDC = 0, sumBackQDC = 0;
     for (Int_t iFiber = 0; iFiber < nofFibers; iFiber++) {
-      PMTSignalsAndDigiCreating(iBundle, iFiber, frontPointsPerFibers,backPointsPerFibers, sumFrontQDC, sumBackQDC);
+      PMTSignalsCreating(iBundle, iFiber, frontPointsPerFibers,backPointsPerFibers, sumFrontQDC, sumBackQDC);
     }
-    if (fCurBundleDigis->GetEntriesFast() > 0)
-        StoreCurBundle(); //@todo
-    ClearCurBundle();
   }
   fPMTSignalCreatingTimer.Stop();
   fPMTSignalCreatingTime += fPMTSignalCreatingTimer.RealTime();
@@ -346,9 +336,6 @@ Int_t ERNeuRadDigitizer::Crosstalks(Int_t iBundle, Int_t iFiber){
 //----------------------------------------------------------------------------
 void ERNeuRadDigitizer::Reset()
 {
-  if (fNeuRadDigi) {
-    fNeuRadDigi->Delete();
-  }
   if (fNeuRadFiberPoint){
     fNeuRadFiberPoint->Delete();
   }
@@ -358,13 +345,12 @@ void ERNeuRadDigitizer::Reset()
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
+void ERNeuRadDigitizer::PMTSignalsCreating(Int_t iBundle, Int_t iFiber,
                                 std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
                                 std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers,
                                 Float_t& sumFrontQDC, Float_t& sumBackQDC)
 {
   if( frontPointsPerFibers[iBundle][iFiber].size() > 0){
-    //fFpeCount+=frontPointsPerFibers[iBundle][iFiber].size();
     ERNeuRadPMTSignal* pmtFSignal = AddPMTSignal(iBundle, iFiber,frontPointsPerFibers[iBundle][iFiber].size(),0);
     for(Int_t iFPoint = 0; iFPoint < frontPointsPerFibers[iBundle][iFiber].size(); iFPoint++){
       ERNeuRadFiberPoint* FPoint = frontPointsPerFibers[iBundle][iFiber][iFPoint];
@@ -372,19 +358,9 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
       //pmtFSignal->AddLink(FairLink("NeuRadFiberPoint",FPoint->Index()));
     }
     pmtFSignal->Generate();
-    if (pmtFSignal->Exist()){
-        Float_t  frontTDC = pmtFSignal->GetThresholdTime(fPixelThreshold);
-        if (frontTDC < 0.)//если не  прошел порог fPixelThreshold
-          frontTDC = pmtFSignal->GetStartTime();
-        Float_t backTDC = pmtFSignal->GetFinishTime();
-        Float_t QDC = pmtFSignal->GetInteg(frontTDC,backTDC);
-        sumFrontQDC += QDC;
-        AddTempDigi(frontTDC, backTDC,backTDC-frontTDC, pmtFSignal->PECount(),iBundle,iFiber,0);
-    }
   }
 
   if (backPointsPerFibers[iBundle][iFiber].size() > 0){
-    //fBpeCount += backPointsPerFibers[iBundle][iFiber].size();
     ERNeuRadPMTSignal* pmtBSignal =  AddPMTSignal(iBundle, iFiber,backPointsPerFibers[iBundle][iFiber].size(),1);
     for(Int_t iFPoint = 0; iFPoint < backPointsPerFibers[iBundle][iFiber].size(); iFPoint++){
       ERNeuRadFiberPoint* FPoint = backPointsPerFibers[iBundle][iFiber][iFPoint];
@@ -392,15 +368,6 @@ void ERNeuRadDigitizer::PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
       //pmtBSignal->AddLink(FairLink("NeuRadFiberPoint",FPoint->Index()));
     }
     pmtBSignal->Generate();
-    if (pmtBSignal->Exist()){
-        Float_t frontTDC = pmtBSignal->GetThresholdTime(fPixelThreshold);
-        if (frontTDC < 0.) //если прошел порог fPixelThreshol
-          frontTDC = pmtBSignal->GetStartTime();
-        Float_t backTDC = pmtBSignal->GetFinishTime();
-        Float_t QDC = pmtBSignal->GetInteg(frontTDC,backTDC);
-        sumBackQDC+= QDC;
-        AddTempDigi(frontTDC, backTDC,backTDC-frontTDC, pmtBSignal->PECount(),iBundle,iFiber,1);
-    }
   }
 }
 // ----------------------------------------------------------------------------
@@ -413,30 +380,6 @@ void ERNeuRadDigitizer::Finish()
   std::cout << "=====  Time on FiberPoints creating : " <<  fFiberPointsCreatingTime << " s" << std::endl;
   std::cout << "=====  Time on PMT signal creating : " <<  fPMTSignalCreatingTime << " s" << std::endl;
   std::cout << "=========================================================" << std::endl;
-}
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-ERNeuRadDigi* ERNeuRadDigitizer::AddTempDigi(Double_t frontTDC, Double_t backTDC, Double_t TDC, 
-                                            Double_t QDC, Int_t bundle, Int_t fiber, Int_t side)
-{
-  ERNeuRadDigi *digi = new((*fCurBundleDigis)[fCurBundleDigis->GetEntriesFast()])
-							ERNeuRadDigi(fCurBundleDigis->GetEntriesFast(), frontTDC, backTDC, TDC, QDC, bundle, fiber, side);
-  return digi;
-}
-// ----------------------------------------------------------------------------
-ERNeuRadDigi* ERNeuRadDigitizer::AddDigi(ERNeuRadDigi* digi)
-{
-  ERNeuRadDigi *new_digi = new((*fNeuRadDigi)[fNeuRadDigi->GetEntriesFast()])
-              ERNeuRadDigi(fNeuRadDigi->GetEntriesFast(), digi->FrontTDC(), digi->BackTDC(), digi->TDC(),
-                               digi->QDC(), digi->BundleIndex(), digi->FiberIndex(), digi->Side());
-  return new_digi;
-}
-// ----------------------------------------------------------------------------
-ERNeuRadPMTSignal* ERNeuRadDigitizer::AddPMTSignal(Int_t iBundle, Int_t iFiber, Int_t fpoints_count, Int_t side){
-  ERNeuRadPMTSignal *pmtSignal = new((*fNeuRadPMTSignal)[PMTSignalCount()])
-              ERNeuRadPMTSignal(iBundle, iFiber,fpoints_count, side);
-  return  pmtSignal;
 }
 // ----------------------------------------------------------------------------
 
@@ -462,22 +405,6 @@ Int_t ERNeuRadDigitizer::FiberPointCount()  const {
 Int_t ERNeuRadDigitizer::PMTSignalCount()   const {
   return fNeuRadPMTSignal->GetEntriesFast();
 }
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-Int_t ERNeuRadDigitizer::DigiCount()        const {
-  return fNeuRadDigi->GetEntriesFast();
-}
-//-----------------------------------------------------------------------------
-void ERNeuRadDigitizer::StoreCurBundle(){
-  for (Int_t i = 0; i < fCurBundleDigis->GetEntriesFast(); i++){
-    ERNeuRadDigi* digi = (ERNeuRadDigi*)fCurBundleDigis->At(i);
-    AddDigi(digi);
-  }
-}
-//-----------------------------------------------------------------------------
-void ERNeuRadDigitizer::ClearCurBundle(){
-  fCurBundleDigis->Delete();
-}
+//----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 ClassImp(ERNeuRadDigitizer)

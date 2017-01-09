@@ -1,10 +1,10 @@
 // -------------------------------------------------------------------------
-// -----                        ERNeuRadHitProducerMF header file          -----
+// -----                        ERNeuRadHitFinderMF header file          -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
-#ifndef ERNeuRadHitProducerMF_H
-#define ERNeuRadHitProducerMF_H
+#ifndef ERNeuRadHitFinderMF_H
+#define ERNeuRadHitFinderMF_H
 
 #include "TClonesArray.h"
 
@@ -13,16 +13,16 @@
 #include "ERNeuRadDigiPar.h"
 #include "ERNeuRadHit.h"
 
-class ERNeuRadHitProducerMF : public FairTask {
+class ERNeuRadHitFinderMF : public FairTask {
 
 public:
   /** Default constructor **/
-  ERNeuRadHitProducerMF();
+  ERNeuRadHitFinderMF();
 
-  ERNeuRadHitProducerMF(Int_t verbose);
+  ERNeuRadHitFinderMF(Int_t verbose);
 
   /** Destructor **/
-  ~ERNeuRadHitProducerMF();
+  ~ERNeuRadHitFinderMF();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -58,7 +58,7 @@ protected:
 private:
   virtual void SetParContainers();
   
-  ClassDef(ERNeuRadHitProducerMF,1)
+  ClassDef(ERNeuRadHitFinderMF,1)
 };
 
 #endif

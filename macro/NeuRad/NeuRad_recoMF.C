@@ -20,7 +20,7 @@ void NeuRad_recoMF(Int_t nEvents = 1000){
   // ------------------------------------------------------------------------
  
   // ------------------------NeuRadHitProducer-------------------------------- 
-  ERNeuRadHitProducerMF* hitProducer = new ERNeuRadHitProducerMF(1);
+  ERNeuRadHitFinderMF* hitProducer = new ERNeuRadHitFinderMF(1);
   fRun->AddTask(hitProducer);
   //------------------------------------------------------------------------
 

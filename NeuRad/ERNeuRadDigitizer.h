@@ -16,7 +16,6 @@ using std::vector;
 #include "FairTask.h"
 
 #include "ERNeuRadPoint.h"
-#include "ERNeuRadDigi.h"
 #include "ERNeuRadFiberPoint.h"
 #include "ERNeuRadPMTSignal.h"
 #include "ERNeuRadDigiPar.h"
@@ -65,7 +64,6 @@ public:
   /** Accessors **/ 
   Int_t FiberPointCount()  const;
   Int_t PMTSignalCount()   const;
-  Int_t DigiCount()        const;
 protected:
   //Digitization parameters
   ERNeuRadDigiPar* fDigiPar;
@@ -77,7 +75,6 @@ protected:
   //Output arrays
   TClonesArray *fNeuRadFiberPoint;
   TClonesArray *fNeuRadPMTSignal;
-  TClonesArray *fNeuRadDigi;
 
   //Output histos
   TH1F* fHPECountF;
@@ -87,9 +84,6 @@ protected:
 
   Int_t fFpeCount;
   Int_t fBpeCount;
-
-  //Temporary arrays
-  TClonesArray *fCurBundleDigis;
   
   //constants
   static const Double_t cSciFiLightYield; // [photons/MeV]
@@ -126,20 +120,14 @@ protected:
 
   virtual ERNeuRadPMTSignal* AddPMTSignal(Int_t iBundle, Int_t iFiber, Int_t fpoints_count, Int_t side);
   
-  ERNeuRadDigi* AddDigi(ERNeuRadDigi* digi);
-
-  ERNeuRadDigi* AddTempDigi(Double_t frontTDC, Double_t backTDC, Double_t TDC, Double_t QDC, Int_t bundle, Int_t fiber, Int_t side);
-  
   virtual void FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
                           std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
                           std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
                         
-  virtual void PMTSignalsAndDigiCreating(Int_t iBundle, Int_t iFiber,
+  virtual void PMTSignalsCreating(Int_t iBundle, Int_t iFiber,
                                 std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
                                 std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers,
                                 Float_t& sumFrontQDC, Float_t& sumBackQDC);
-  void StoreCurBundle();
-  void ClearCurBundle();
 
   Int_t Crosstalks(Int_t iBundle, Int_t iFiber);
   TRandom3  *fRand;

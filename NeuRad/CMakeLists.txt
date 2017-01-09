@@ -25,15 +25,13 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 	ERNeuRad.cxx
 	ERNeuRadDigitizer.cxx
-	ERNeuRadPointAnalyser.cxx
-	ERNeuRadDigiAnalyser.cxx
 	ERNeuRadContFact.cxx
 	ERNeuRadDigiPar.cxx
 	ERNeuRadGeoPar.cxx
 	ERNeuRadSetup.cxx
-	ERNeuRadHitProducer.cxx
-	ERNeuRadHitProducerMF.cxx
-	ERNeuRadHitProducerWBT.cxx
+	ERNeuRadHitFinder.cxx
+	ERNeuRadHitFinderMF.cxx
+	ERNeuRadHitFinderWBT.cxx
 	ERNeuRadMatcher.cxx
 )
 

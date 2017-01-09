@@ -27,3 +27,4 @@
    nd
    dsrd
    li10
+   courses

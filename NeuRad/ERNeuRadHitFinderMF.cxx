@@ -1,4 +1,4 @@
-#include "ERNeuRadHitProducerMF.h"
+#include "ERNeuRadHitFinderMF.h"
 
 #include <vector>
 #include <map>
@@ -17,9 +17,9 @@
 
 using namespace std;
 
-Int_t ERNeuRadHitProducerMF::fEvent = 0;
+Int_t ERNeuRadHitFinderMF::fEvent = 0;
 // ----------------------------------------------------------------------------
-ERNeuRadHitProducerMF::ERNeuRadHitProducerMF()
+ERNeuRadHitFinderMF::ERNeuRadHitFinderMF()
   : fPixelThreshold(2.),
     fModuleThreshold(4.),
     fNeuRadDigis(NULL),
@@ -31,7 +31,7 @@ ERNeuRadHitProducerMF::ERNeuRadHitProducerMF()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERNeuRadHitProducerMF::ERNeuRadHitProducerMF(Int_t verbose)
+ERNeuRadHitFinderMF::ERNeuRadHitFinderMF(Int_t verbose)
   : fPixelThreshold(2.),
     fModuleThreshold(4.),
     fNeuRadDigis(NULL),
@@ -43,13 +43,13 @@ ERNeuRadHitProducerMF::ERNeuRadHitProducerMF(Int_t verbose)
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERNeuRadHitProducerMF::~ERNeuRadHitProducerMF()
+ERNeuRadHitFinderMF::~ERNeuRadHitFinderMF()
 {
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void ERNeuRadHitProducerMF::SetParContainers()
+void ERNeuRadHitFinderMF::SetParContainers()
 {
   // Get run and runtime database
   FairRunAna* run = FairRunAna::Instance();
@@ -64,7 +64,7 @@ void ERNeuRadHitProducerMF::SetParContainers()
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-InitStatus ERNeuRadHitProducerMF::Init()
+InitStatus ERNeuRadHitFinderMF::Init()
 {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
@@ -86,12 +86,12 @@ InitStatus ERNeuRadHitProducerMF::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void ERNeuRadHitProducerMF::Exec(Option_t* opt)
+void ERNeuRadHitFinderMF::Exec(Option_t* opt)
 {
   std::cout << std::endl;
   std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
   std::cout << std::endl;
-  std::cout << "ERNeuRadHitProducerMF: "<< std::endl;
+  std::cout << "ERNeuRadHitFinderMF: "<< std::endl;
   Reset();
   Float_t fOnePEInteg = 4.8;
 
@@ -130,7 +130,7 @@ void ERNeuRadHitProducerMF::Exec(Option_t* opt)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void ERNeuRadHitProducerMF::Reset()
+void ERNeuRadHitFinderMF::Reset()
 {
   if (fNeuRadHits) {
     fNeuRadHits->Delete();
@@ -139,14 +139,14 @@ void ERNeuRadHitProducerMF::Reset()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERNeuRadHitProducerMF::Finish()
+void ERNeuRadHitFinderMF::Finish()
 {   
 
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERNeuRadHit* ERNeuRadHitProducerMF::AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
+ERNeuRadHit* ERNeuRadHitFinderMF::AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
                                            Int_t  BundleIndex, Int_t FiberIndex, Float_t time)
 {
   ERNeuRadHit *hit = new((*fNeuRadHits)[fNeuRadHits->GetEntriesFast()])
@@ -155,4 +155,4 @@ ERNeuRadHit* ERNeuRadHitProducerMF::AddHit(Int_t detID, TVector3& pos, TVector3&
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-ClassImp(ERNeuRadHitProducerMF)
+ClassImp(ERNeuRadHitFinderMF)

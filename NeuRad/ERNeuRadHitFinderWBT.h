@@ -1,28 +1,28 @@
 // -------------------------------------------------------------------------
-// -----                        ERNeuRadHitProducer header file          -----
+// -----                        ERNeuRadHitFinderWBT header file          -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
-#ifndef ERNeuRadHitProducer_H
-#define ERNeuRadHitProducer_H
+#ifndef ERNeuRadHitFinderWBT_H
+#define ERNeuRadHitFinderWBT_H
 
 #include "TClonesArray.h"
 
 #include "FairTask.h"
 
 #include "ERNeuRadDigiPar.h"
-#include "ERNeuRadHit.h"
+#include "ERNeuRadHitWBT.h"
 
-class ERNeuRadHitProducer : public FairTask {
+class ERNeuRadHitFinderWBT : public FairTask {
 
 public:
   /** Default constructor **/
-  ERNeuRadHitProducer();
+  ERNeuRadHitFinderWBT();
 
-  ERNeuRadHitProducer(Int_t verbose);
+  ERNeuRadHitFinderWBT(Int_t verbose);
 
   /** Destructor **/
-  ~ERNeuRadHitProducer();
+  ~ERNeuRadHitFinderWBT();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -37,11 +37,10 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  virtual void SetPixelThreshold(Float_t pixelThreshold){fPixelThreshold=pixelThreshold;}
   /** Accessors **/
 protected:
   //Input arrays
-  TClonesArray *fNeuRadDigis;
+  TClonesArray *fNeuRadPMTSignals;
   //Output arrays
   TClonesArray *fNeuRadHits;
 
@@ -49,14 +48,13 @@ protected:
 
   static Int_t fEvent;
 
-  Float_t fPixelThreshold;
-
 protected:
-  ERNeuRadHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t  BundleIndex, Int_t FiberIndex, Float_t time);
+  ERNeuRadHitWBT* AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
+                         Int_t  BundleIndex, Int_t FiberIndex, Float_t time, Float_t qInteg);
 private:
   virtual void SetParContainers();
   
-  ClassDef(ERNeuRadHitProducer,1)
+  ClassDef(ERNeuRadHitFinderWBT,1)
 };
 
 #endif

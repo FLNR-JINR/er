@@ -1,4 +1,4 @@
-#include "ERNeuRadHitProducer.h"
+#include "ERNeuRadHitFinder.h"
 
 #include <vector>
 #include <map>
@@ -17,29 +17,29 @@
 
 using namespace std;
 
-Int_t ERNeuRadHitProducer::fEvent = 0;
+Int_t ERNeuRadHitFinder::fEvent = 0;
 // ----------------------------------------------------------------------------
-ERNeuRadHitProducer::ERNeuRadHitProducer()
+ERNeuRadHitFinder::ERNeuRadHitFinder()
   : FairTask("ER muSi hit producing scheme")
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERNeuRadHitProducer::ERNeuRadHitProducer(Int_t verbose)
+ERNeuRadHitFinder::ERNeuRadHitFinder(Int_t verbose)
   : FairTask("ER muSi hit producing scheme ", verbose)
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERNeuRadHitProducer::~ERNeuRadHitProducer()
+ERNeuRadHitFinder::~ERNeuRadHitFinder()
 {
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void ERNeuRadHitProducer::SetParContainers()
+void ERNeuRadHitFinder::SetParContainers()
 {
   // Get run and runtime database
   FairRunAna* run = FairRunAna::Instance();
@@ -54,7 +54,7 @@ void ERNeuRadHitProducer::SetParContainers()
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-InitStatus ERNeuRadHitProducer::Init()
+InitStatus ERNeuRadHitFinder::Init()
 {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
@@ -76,12 +76,12 @@ InitStatus ERNeuRadHitProducer::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void ERNeuRadHitProducer::Exec(Option_t* opt)
+void ERNeuRadHitFinder::Exec(Option_t* opt)
 {
   std::cout << std::endl;
   std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
   std::cout << std::endl;
-  std::cout << "ERNeuRadHitProducer: "<< std::endl;
+  std::cout << "ERNeuRadHitFinder: "<< std::endl;
   Reset();
   Float_t fOnePEInteg = 4.8;
   /*
@@ -151,7 +151,7 @@ void ERNeuRadHitProducer::Exec(Option_t* opt)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void ERNeuRadHitProducer::Reset()
+void ERNeuRadHitFinder::Reset()
 {
   if (fNeuRadHits) {
     fNeuRadHits->Delete();
@@ -160,14 +160,14 @@ void ERNeuRadHitProducer::Reset()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERNeuRadHitProducer::Finish()
+void ERNeuRadHitFinder::Finish()
 {   
 
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERNeuRadHit* ERNeuRadHitProducer::AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
+ERNeuRadHit* ERNeuRadHitFinder::AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
                                            Int_t  BundleIndex, Int_t FiberIndex, Float_t time)
 {
   ERNeuRadHit *hit = new((*fNeuRadHits)[fNeuRadHits->GetEntriesFast()])
@@ -176,4 +176,4 @@ ERNeuRadHit* ERNeuRadHitProducer::AddHit(Int_t detID, TVector3& pos, TVector3& d
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-ClassImp(ERNeuRadHitProducer)
+ClassImp(ERNeuRadHitFinder)
