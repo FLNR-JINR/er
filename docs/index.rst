@@ -18,6 +18,7 @@
 
    install
    common
+   fairroot
    howto
    develop
    neurad
