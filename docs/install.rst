@@ -54,7 +54,7 @@ BRANCH_NAME=v-16.06
 
 	mkdir ~/expertroot
 	cd ~/expertroot
-	git clone http://er.jinr.ru/er.git .
+	git clone http://er.jinr.ru:90/ExpertRootGroup/er.git .
 	git checkout BRANCH_NAME
 	mkdir build
 	cd build
