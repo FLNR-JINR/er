@@ -27,5 +27,6 @@
    expert
    nd
    dsrd
+   detdevelopment
    li10
    courses
