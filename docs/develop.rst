@@ -34,7 +34,7 @@ QA мониторы
 Структура cmake сценария для сборки библиотеки классов
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Все директории проекта ER кроме служебных: docs, gconfig, geometry, macro, parameters, templates, являются дирикторией исходных кодов одной библиотеки. Стандартный cmake сценарий сборки библиотеки выглядит так:
+Все директории проекта ER кроме служебных: docs, gconfig, geometry, macro, parameters, templates, являются директорией исходных кодов одной библиотеки. Стандартный cmake сценарий сборки библиотеки выглядит так:
 
 ::
 
@@ -85,7 +85,74 @@ QA мониторы
 
 	GENERATE_LIBRARY()
 
-Для использования библиотеки в макросах ROOT ее нужно собрать с исопльзованием `специального инструмента и процедуры сборки. <https://root.cern.ch/root/htmldoc/guides/users-guide/AddingaClass.html>`_ Данные процесс автоматизирован с помощью функции 'GENERATE_LIBRARY()', которая находится в cmake модулях пакета FAIRroot.
+Для использования библиотеки в макросах ROOT ее нужно собрать с исопльзованием `специального инструмента и процедуры сборки. <https://root.cern.ch/root/htmldoc/guides/users-guide/AddingaClass.html>`_ Данные процесс автоматизирован с помощью функции ``GENERATE_LIBRARY()``, которая находится в cmake модулях пакета FAIRroot.
+
+Сценарий начинается с инициализации списка директорий include файлов: 
+
+::
+
+	set(INCLUDE_DIRECTORIES
+	${BASE_INCLUDE_DIRECTORIES}
+	${ROOT_INCLUDE_DIR}
+	${Boost_INCLUDE_DIRS}
+	${CMAKE_SOURCE_DIR}/ERData/NeuRadData/
+	${CMAKE_SOURCE_DIR}/ERData/
+	${CMAKE_SOURCE_DIR}/NeuRad/
+	${CMAKE_SOURCE_DIR}/ERBase/
+	)
+
+	include_directories( ${INCLUDE_DIRECTORIES})
+
+
+Переменные ``BASE_INCLUDE_DIRECTORIES, ROOT_INCLUDE_DIR, Boost_INCLUDE_DIRS`` определены в корневом cmake сценарии проекта и модулях, отвечающих за поиск соответствующих пакетов в системе. Например  ``~/fair_install/fairroot_inst/share/fairbase/cmake/modules/FindROOT.cmake``.
+
+Далее инициализируется список директорий с библиотеками для линковки.
+
+::
+
+	set(LINK_DIRECTORIES
+	${BASE_LINK_DIRECTORIES}
+	${FAIRROOT_LIBRARY_DIR}
+
+	) 
+
+	link_directories( ${LINK_DIRECTORIES})
+
+Далее инициализуется список исходников, которые будут включены в библиотеку.
+
+:: 
+	
+	set(SRCS
+		ERNeuRad.cxx
+		ERNeuRadDigitizer.cxx
+		ERNeuRadContFact.cxx
+		ERNeuRadDigiPar.cxx
+		ERNeuRadGeoPar.cxx
+		ERNeuRadSetup.cxx
+		ERNeuRadHitFinder.cxx
+		ERNeuRadHitFinderMF.cxx
+		ERNeuRadHitFinderWBT.cxx
+		ERNeuRadMatcher.cxx
+	)
+
+	# fill list of header files from list of source files
+	# by exchanging the file extension
+	CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
+
+Назначается LinkDef файл, имя библиотеки и список библиотек для линковки.
+
+:: 
+
+	Set(LINKDEF ERNeuRadLinkDef.h)
+	Set(LIBRARY_NAME NeuRad)
+	Set(DEPENDENCIES ERBase ERData Base Core Geom)
+
+Вызывается функция ``GENERATE_LIBRARY()``.
+
+::
+
+	GENERATE_LIBRARY()
+
 
 
 
