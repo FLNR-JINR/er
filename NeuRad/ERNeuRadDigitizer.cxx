@@ -382,7 +382,11 @@ void ERNeuRadDigitizer::Finish()
   std::cout << "=========================================================" << std::endl;
 }
 // ----------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------- 
+ERNeuRadPMTSignal* ERNeuRadDigitizer::AddPMTSignal(Int_t iBundle, Int_t iFiber, Int_t fpoints_count, Int_t side){ 
+  ERNeuRadPMTSignal *pmtSignal = new((*fNeuRadPMTSignal)[PMTSignalCount()]) 
+                ERNeuRadPMTSignal(iBundle, iFiber,fpoints_count, side);   return  pmtSignal; 
+}
 // ----------------------------------------------------------------------------
 ERNeuRadFiberPoint* ERNeuRadDigitizer::AddFiberPoint(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count, Int_t photoel_count, 
