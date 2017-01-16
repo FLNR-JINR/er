@@ -16,7 +16,7 @@
 
 #include "FairMultiLinkedData.h"
 
-#include "ERNeuRadFiberPoint.h"
+#include "ERNeuRadPhotoElectron.h"
 
 class ERNeuRadPMTSignal : public FairMultiLinkedData {
 
@@ -50,7 +50,7 @@ public:
 
   virtual ~ERNeuRadPMTSignal();
   
-  virtual void AddFiberPoint(ERNeuRadFiberPoint* fpoint);
+  virtual void AddPhotoElectron(ERNeuRadPhotoElectron* fpoint);
 
   virtual void Generate();
 

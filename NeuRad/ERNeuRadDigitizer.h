@@ -16,7 +16,7 @@ using std::vector;
 #include "FairTask.h"
 
 #include "ERNeuRadPoint.h"
-#include "ERNeuRadFiberPoint.h"
+#include "ERNeuRadPhotoElectron.h"
 #include "ERNeuRadPMTSignal.h"
 #include "ERNeuRadDigiPar.h"
 #include "ERNeuRadSetup.h"
@@ -62,7 +62,7 @@ public:
   inline void SetPixelThreshold(const Float_t pThreshold){fPixelThreshold = pThreshold;}
 
   /** Accessors **/ 
-  Int_t FiberPointCount()  const;
+  Int_t PhotoElectronCount()  const;
   Int_t PMTSignalCount()   const;
 protected:
   //Digitization parameters
@@ -73,7 +73,7 @@ protected:
   TClonesArray *fNeuRadFirstStep;
 
   //Output arrays
-  TClonesArray *fNeuRadFiberPoint;
+  TClonesArray *fNeuRadPhotoElectron;
   TClonesArray *fNeuRadPMTSignal;
 
   //Output histos
@@ -106,8 +106,8 @@ protected:
   Double_t fScincilationTau; //[ns]
   Double_t fScincilationDT;  //[ns]
 
-  TStopwatch fFiberPointsCreatingTimer;
-  Double_t fFiberPointsCreatingTime;
+  TStopwatch fPhotoElectronsCreatingTimer;
+  Double_t fPhotoElectronsCreatingTime;
   TStopwatch fPMTSignalCreatingTimer;
   Double_t fPMTSignalCreatingTime;
   Float_t fOnePEInteg;
@@ -115,18 +115,18 @@ protected:
   Float_t fSumAmplitudeF;
   Float_t fSumAmplitudeB;
 protected:
-  ERNeuRadFiberPoint* AddFiberPoint(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
+  ERNeuRadPhotoElectron* AddPhotoElectron(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count, Int_t photoel_count,Double_t amplitude, Int_t onePE);
 
   virtual ERNeuRadPMTSignal* AddPMTSignal(Int_t iBundle, Int_t iFiber, Int_t fpoints_count, Int_t side);
   
-  virtual void FiberPointsCreating(Int_t i_point, ERNeuRadPoint *point,
-                          std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
-                          std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers);
+  virtual void PhotoElectronsCreating(Int_t i_point, ERNeuRadPoint *point,
+                          std::vector<ERNeuRadPhotoElectron* >** frontPointsPerFibers,
+                          std::vector<ERNeuRadPhotoElectron* >** backPointsPerFibers);
                         
   virtual void PMTSignalsCreating(Int_t iBundle, Int_t iFiber,
-                                std::vector<ERNeuRadFiberPoint* >** frontPointsPerFibers,
-                                std::vector<ERNeuRadFiberPoint* >** backPointsPerFibers,
+                                std::vector<ERNeuRadPhotoElectron* >** frontPointsPerFibers,
+                                std::vector<ERNeuRadPhotoElectron* >** backPointsPerFibers,
                                 Float_t& sumFrontQDC, Float_t& sumBackQDC);
 
   Int_t Crosstalks(Int_t iBundle, Int_t iFiber);

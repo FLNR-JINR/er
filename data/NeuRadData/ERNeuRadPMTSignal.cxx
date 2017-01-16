@@ -46,7 +46,7 @@ ERNeuRadPMTSignal::~ERNeuRadPMTSignal(){
 	delete [] fTimeShifts;
 }
 
-void ERNeuRadPMTSignal::AddFiberPoint(ERNeuRadFiberPoint* fpoint){
+void ERNeuRadPMTSignal::AddPhotoElectron(ERNeuRadPhotoElectron* fpoint){
 	fAmplitudes[fCurFPoint]	= fpoint->Amplitude();
 	fAnodeTimes[fCurFPoint++] = fpoint->AnodeTime();
 	if (fpoint->AnodeTime() < fStartTime)

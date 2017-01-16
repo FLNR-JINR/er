@@ -1,12 +1,12 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadFiberPoint source file           -----
+// -----                      ERNeuRadPhotoElectron source file           -----
 // -------------------------------------------------------------------------
 
-#include "ERNeuRadFiberPoint.h"
+#include "ERNeuRadPhotoElectron.h"
 
 
 // -----   Default constructor   -------------------------------------------
-ERNeuRadFiberPoint::ERNeuRadFiberPoint():
+ERNeuRadPhotoElectron::ERNeuRadPhotoElectron():
     fSide(-1),fLYTime(0.), fCathodeTime(0.), fAnodeTime(0.),fPhotonCount(-1),
 	fPhotoElCount(-1), fAmplitude(0.), fOnePE(-1)
 {
@@ -14,7 +14,7 @@ ERNeuRadFiberPoint::ERNeuRadFiberPoint():
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
-ERNeuRadFiberPoint::ERNeuRadFiberPoint(Int_t index, Int_t side,Double_t lyTime,  Double_t cathode_time, Double_t anode_time, 
+ERNeuRadPhotoElectron::ERNeuRadPhotoElectron(Int_t index, Int_t side,Double_t lyTime,  Double_t cathode_time, Double_t anode_time, 
 							Int_t photon_count, Int_t photoel_count, Double_t amplitude, Int_t onePE):
 	fIndex(index),fSide(side),fLYTime(lyTime), fCathodeTime(cathode_time), fAnodeTime(anode_time),fPhotonCount(photon_count),
 	fPhotoElCount(photoel_count), fAmplitude(amplitude), fOnePE(onePE)
@@ -23,8 +23,8 @@ ERNeuRadFiberPoint::ERNeuRadFiberPoint(Int_t index, Int_t side,Double_t lyTime, 
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
-ERNeuRadFiberPoint::~ERNeuRadFiberPoint()
+ERNeuRadPhotoElectron::~ERNeuRadPhotoElectron()
 {
 }
 // -------------------------------------------------------------------------
-ClassImp(ERNeuRadFiberPoint)
+ClassImp(ERNeuRadPhotoElectron)

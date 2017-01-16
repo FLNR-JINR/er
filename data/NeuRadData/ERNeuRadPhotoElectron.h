@@ -1,15 +1,15 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadFiberPoint header file           -----
+// -----                      ERNeuRadPhotoElectron header file           -----
 // -----                  Created 02/03/15  by v. Schetinin            -----
 // -------------------------------------------------------------------------
 
 
-#ifndef ERNeuRadFiberPoint_H
-#define ERNeuRadFiberPoint_H
+#ifndef ERNeuRadPhotoElectron_H
+#define ERNeuRadPhotoElectron_H
 
 #include "FairMultiLinkedData.h"
 
-class ERNeuRadFiberPoint : public FairMultiLinkedData{
+class ERNeuRadPhotoElectron : public FairMultiLinkedData{
 	private:
     Int_t fIndex;
 		Int_t fSide; //0 - front , 1 - back
@@ -22,12 +22,12 @@ class ERNeuRadFiberPoint : public FairMultiLinkedData{
       Double_t fLYTime;
 	public:
 		/** Default constructor **/
-		ERNeuRadFiberPoint();
-		ERNeuRadFiberPoint(Int_t index, Int_t side, Double_t lyTime, Double_t cathode_time, Double_t anode_time, Int_t photon_count, Int_t photoel_count, 
+		ERNeuRadPhotoElectron();
+		ERNeuRadPhotoElectron(Int_t index, Int_t side, Double_t lyTime, Double_t cathode_time, Double_t anode_time, Int_t photon_count, Int_t photoel_count, 
 							Double_t amplitude,Int_t onePE);
 
 		/** Destructor **/
-		~ERNeuRadFiberPoint();
+		~ERNeuRadPhotoElectron();
 
     /** Accessors **/
     Int_t     Index()        {return fIndex;}
@@ -40,7 +40,7 @@ class ERNeuRadFiberPoint : public FairMultiLinkedData{
     Double_t  Amplitude()    {return fAmplitude;}
     Int_t     OnePE()        {return fOnePE;}
 
-	ClassDef(ERNeuRadFiberPoint,1)
+	ClassDef(ERNeuRadPhotoElectron,1)
 };
 
 #endif
