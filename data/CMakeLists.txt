@@ -1,4 +1,4 @@
-# Create a library called "libERData" which includes the source files given in
+# Create a library called "libdata" which includes the source files given in
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
@@ -6,10 +6,10 @@ set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
 ${Boost_INCLUDE_DIRS}
 ${ROOT_INCLUDE_DIR}
-${CMAKE_SOURCE_DIR}/ERData
-${CMAKE_SOURCE_DIR}/ERData/NeuRadData
-${CMAKE_SOURCE_DIR}/ERData/muSiData
-${CMAKE_SOURCE_DIR}/ERData/NDData
+${CMAKE_SOURCE_DIR}/data
+${CMAKE_SOURCE_DIR}/data/NeuRadData
+${CMAKE_SOURCE_DIR}/data/muSiData
+${CMAKE_SOURCE_DIR}/data/NDData
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
