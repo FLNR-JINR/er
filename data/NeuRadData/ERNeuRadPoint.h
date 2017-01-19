@@ -31,7 +31,7 @@ class ERNeuRadPoint : public FairMCPoint
    *@param EventID  Index of Event
    *@param trackID  Index of MCTrack
    *@param mot0trackID Index of Mother MCTrack
-   *@param fiberInBundleNb number of fiber in bundle
+   *@param fiberInModuleNb number of fiber in module
    *@param posIn    Ccoordinates at entrance of point [cm]
    *@param posOut   Coordinates at exit of point [cm]
    *@param momIn    Momentum of track at entrance [GeV]
@@ -43,7 +43,7 @@ class ERNeuRadPoint : public FairMCPoint
    **/
   ERNeuRadPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t fiberInBundleNb, Int_t bundleNb, 
+      Int_t fiberInModuleNb, Int_t moduleNb, 
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
@@ -80,8 +80,8 @@ class ERNeuRadPoint : public FairMCPoint
   Double_t GetPOut()  const;
   Double_t GetMass() const { return fMass; }
   Double_t GetLightYield() const {return fLightYield;}
-  Int_t GetBundleNb(){return fBundleNb;}
-  Int_t GetFiberInBundleNb() const {return fFiberInBundleNb;}
+  Int_t GetModuleNb(){return fModuleNb;}
+  Int_t GetFiberInModuleNb() const {return fFiberInModuleNb;}
   Int_t GetPID() const {return fPID;}
   Double_t GetCharge() const {return fCharge;}
   Double_t GetTime() const {return fTimeIn;}
@@ -121,8 +121,8 @@ class ERNeuRadPoint : public FairMCPoint
   
   Int_t fEventID;
   Int_t fMot0TrackID;
-  Int_t fFiberInBundleNb;
-  Int_t fBundleNb;
+  Int_t fFiberInModuleNb;
+  Int_t fModuleNb;
   Double_t fMass;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;

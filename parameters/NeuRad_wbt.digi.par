@@ -3,7 +3,7 @@
 //-------------------------------------------------------------
 [ERNeuRadDigiPar]
 //-------------------------------------------------------------
-ERNeuRadNofBundles: Int_t 1
+ERNeuRadNofModules: Int_t 1
 ERNeuRadNofFibers: Int_t 64
 ERNeuRadPMTQuantumEfficiency: Float_t \
  0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 \

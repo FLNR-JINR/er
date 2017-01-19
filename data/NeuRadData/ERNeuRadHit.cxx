@@ -6,9 +6,9 @@
 #include "ERNeuRadHit.h"
 
 ERNeuRadHit::ERNeuRadHit(Int_t id, Int_t detID, TVector3& pos, TVector3& dpos,
-						 Int_t refIndex, Int_t  BundleIndex, Int_t FiberIndex, Float_t time):
+						 Int_t refIndex, Int_t  ModuleIndex, Int_t FiberIndex, Float_t time):
 	FairHit(detID, pos, dpos, refIndex),
-	fFiberIndex(FiberIndex),fBundleIndex(BundleIndex),fID(id), fTime(time)
+	fFiberIndex(FiberIndex),fModuleIndex(ModuleIndex),fID(id), fTime(time)
 {
 
 }

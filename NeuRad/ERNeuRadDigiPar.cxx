@@ -28,7 +28,7 @@ ERNeuRadDigiPar::ERNeuRadDigiPar(const char* name,
     fPMTSigma(new TArrayF(64)),
     fPMTCrosstalks(new TArrayF(64*9)),
     fNofFibers(-1),
-    fNofBundles(-1),
+    fNofModules(-1),
     fUseCrosstalks(kFALSE),
     fRowNofFibers(-1)
 {
@@ -62,7 +62,7 @@ void ERNeuRadDigiPar::print()
   std::cout << "*****************************************" << std::endl;
   std::cout << "          ERNeuRadDigiPar                " << std::endl;
   std::cout << "*****************************************" << std::endl;
-  std::cout << "   ERNeuRadNofBundles: " <<  fNofBundles <<  std::endl;
+  std::cout << "   ERNeuRadNofModules: " <<  fNofModules <<  std::endl;
   std::cout << "   ERNeuRadNofFibers: " <<  fNofFibers <<  std::endl;
   std::cout << "   ERNeuRadPMTQuantumEfficiency: " <<  std::endl;
   for (Int_t iFiber = 0; iFiber < fRowNofFibers; iFiber++){
@@ -134,7 +134,7 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 {
   if (!l) { return kFALSE; }
   
-  if ( ! l->fill("ERNeuRadNofBundles", &fNofBundles) ) { return kFALSE; }
+  if ( ! l->fill("ERNeuRadNofModules", &fNofModules) ) { return kFALSE; }
   
   if ( ! l->fill("ERNeuRadNofFibers", &fNofFibers) ) { return kFALSE; }
   
@@ -168,10 +168,13 @@ Bool_t ERNeuRadDigiPar::init(FairParIo* input){
 }
 //------------------------------------------------------
 void ERNeuRadDigiPar::PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks) const{
+  //Возвращает матрицу три на три. Каждый элемент матрицы - кростолк к соответствующему соседу.
+  //Центральая ячейка - вероятность фотонов, которые останутся в волокне.
+  //Вне зависимости от того, что написано в файле параметров потом пересчитывается, чтобы суммарная вероятнсть была равна 1  
   crosstalks.Set(9);
   Int_t rowNofcs = fRowNofFibers*3;
-  Int_t fiberRow = (Int_t)(iFiber/8);
-  Int_t fiberColl = (Int_t)(iFiber%8);
+  Int_t fiberRow = (Int_t)(iFiber/fRowNofFibers);
+  Int_t fiberColl = (Int_t)(iFiber%fRowNofFibers);
   Int_t centerI =  fiberRow*3+1;
   Int_t centerJ = fiberColl*3+1;
   

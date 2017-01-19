@@ -25,7 +25,7 @@ class ERNeuRadDigi : public FairMultiLinkedData
    *@param TDC      Time to Digi Converter value [ns]
    *@param QDC      Charge to Digi Converter value [MeV]
    *@param FinberIndex fiber in bundle number
-   *@param BundleIndex bundle number
+   *@param ModuleIndex bundle number
    **/
   ERNeuRadDigi(Int_t id, Double_t frontTDC, Double_t backTDC, Double_t tdc,
                   Double_t qdc, Int_t bundle, Int_t fiber, Int_t side);
@@ -59,8 +59,8 @@ class ERNeuRadDigi : public FairMultiLinkedData
   void SetFiberIndex(Int_t fiber){fFiberIndex = fiber;}
   Int_t FiberIndex(){return fFiberIndex;}
 
-  void SetBundleIndex(Int_t bundle){fBundleIndex = bundle;}
-  Int_t BundleIndex(){return fBundleIndex;}
+  void SetModuleIndex(Int_t bundle){fModuleIndex = bundle;}
+  Int_t ModuleIndex(){return fModuleIndex;}
 
   Int_t Side() {return fSide;}
   
@@ -71,7 +71,7 @@ class ERNeuRadDigi : public FairMultiLinkedData
   Double32_t fTDC;
   Double32_t fQDC;
   Int_t fFiberIndex;
-  Int_t fBundleIndex;
+  Int_t fModuleIndex;
   Int_t fSide; //0 - front, 1 - back
 
   ClassDef(ERNeuRadDigi,1)

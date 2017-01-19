@@ -17,7 +17,7 @@ Float_t ERNeuRadSetup::fZ;
 Float_t ERNeuRadSetup::fLength;
 Float_t ERNeuRadSetup::fFiberWidth;
 
-std::vector<ERNeuRadBundle*> ERNeuRadSetup::fBundles;
+std::vector<ERNeuRadModule*> ERNeuRadSetup::fModules;
 std::vector<std::vector<ERNeuRadFiber*> > ERNeuRadSetup::fFibers;
 
 ERNeuRadSetup::ERNeuRadSetup(){
@@ -57,25 +57,25 @@ ERNeuRadSetup::ERNeuRadSetup(){
          (rtdb->getContainer("ERNeuRadDigiPar"));
     if ( ! fDigiPar ) Fatal("ERNeuRadSetup", "No ERNeuRadDigiPar in runtime");
     Int_t nofFiberInRow = Int_t(TMath::Sqrt(fDigiPar->NofFibers()));
-    Int_t nofBundlesInRow = Int_t(TMath::Sqrt(fDigiPar->NofBundles()));
-    Float_t bundleWidth = nofFiberInRow*fFiberWidth;
-    Float_t neuradWidth = bundleWidth*nofBundlesInRow;
+    Int_t nofModulesInRow = Int_t(TMath::Sqrt(fDigiPar->NofModules()));
+    Float_t moduleWidth = nofFiberInRow*fFiberWidth;
+    Float_t neuradWidth = moduleWidth*nofModulesInRow;
     
-    for(Int_t iBundle = 0; iBundle < nofBundlesInRow; iBundle++ ){
-            for(Int_t jBundle = 0; jBundle < nofBundlesInRow; jBundle++ ){
-                    Float_t bundleX = neuradWidth/2. - iBundle*bundleWidth - bundleWidth/2.;
-                    Float_t bundleY = neuradWidth/2. - jBundle*bundleWidth - bundleWidth/2.;
-                    fBundles.push_back(new ERNeuRadBundle(bundleX,bundleY));
-                    std::vector<ERNeuRadFiber*> fibersInBundle;
+    for(Int_t iModule = 0; iModule < nofModulesInRow; iModule++ ){
+            for(Int_t jModule = 0; jModule < nofModulesInRow; jModule++ ){
+                    Float_t moduleX = neuradWidth/2. - iModule*moduleWidth - moduleWidth/2.;
+                    Float_t moduleY = neuradWidth/2. - jModule*moduleWidth - moduleWidth/2.;
+                    fModules.push_back(new ERNeuRadModule(moduleX,moduleY));
+                    std::vector<ERNeuRadFiber*> fibersInModule;
 
                     for (Int_t iFiber = 0; iFiber < nofFiberInRow; iFiber++){
                             for (Int_t jFiber = 0; jFiber < nofFiberInRow; jFiber++){
-                                    Float_t fiberX = bundleX + bundleWidth/2. - iFiber*fFiberWidth - fFiberWidth/2.;
-                                    Float_t fiberY = bundleY + bundleWidth/2. - jFiber*fFiberWidth - fFiberWidth/2.;
-                                    fibersInBundle.push_back(new ERNeuRadFiber(fiberX,fiberY));
+                                    Float_t fiberX = moduleX + moduleWidth/2. - iFiber*fFiberWidth - fFiberWidth/2.;
+                                    Float_t fiberY = moduleY + moduleWidth/2. - jFiber*fFiberWidth - fFiberWidth/2.;
+                                    fibersInModule.push_back(new ERNeuRadFiber(fiberX,fiberY));
                             }
                     }
-                    fFibers.push_back(fibersInBundle);
+                    fFibers.push_back(fibersInModule);
             }
     }
     std::cout << "ERNeuRadSetup initialized! "<< std::endl;
@@ -92,8 +92,8 @@ Int_t  ERNeuRadSetup::NofFibers() {
         return fDigiPar->NofFibers();
 }
 
-Int_t   ERNeuRadSetup::NofBundles() {
-        return fDigiPar->NofBundles();
+Int_t   ERNeuRadSetup::NofModules() {
+        return fDigiPar->NofModules();
 }
 
 Float_t ERNeuRadSetup::FiberLength() {
@@ -104,31 +104,31 @@ Float_t ERNeuRadSetup::FiberWidth() {
         return fFiberWidth;
 }
 
-Float_t ERNeuRadSetup::BundleX(Int_t iBundle){
-        return fBundles[iBundle]->fX;
+Float_t ERNeuRadSetup::ModuleX(Int_t iModule){
+        return fModules[iModule]->fX;
 }
 
-Float_t ERNeuRadSetup::BundleY(Int_t iBundle){
-        return fBundles[iBundle]->fY;
+Float_t ERNeuRadSetup::ModuleY(Int_t iModule){
+        return fModules[iModule]->fY;
 }
 
-Float_t ERNeuRadSetup::FiberX(Int_t iBundle, Int_t iFiber){
-        return fFibers[iBundle][iFiber]->fX;
+Float_t ERNeuRadSetup::FiberX(Int_t iModule, Int_t iFiber){
+        return fFibers[iModule][iFiber]->fX;
 }
 
-Float_t ERNeuRadSetup::FiberY(Int_t iBundle, Int_t iFiber){
-        return fFibers[iBundle][iFiber]->fY;
+Float_t ERNeuRadSetup::FiberY(Int_t iModule, Int_t iFiber){
+        return fFibers[iModule][iFiber]->fY;
 }
 
-Float_t ERNeuRadSetup::PMTQuantumEfficiency(Int_t iBundle, Int_t iFiber){
+Float_t ERNeuRadSetup::PMTQuantumEfficiency(Int_t iModule, Int_t iFiber){
         return fDigiPar->PMTQuantumEfficiency(iFiber);
 }
 
-Float_t ERNeuRadSetup::PMTGain(Int_t iBundle, Int_t iFiber){
+Float_t ERNeuRadSetup::PMTGain(Int_t iModule, Int_t iFiber){
         return fDigiPar->PMTGain(iFiber);
 }
 
-Float_t ERNeuRadSetup::PMTSigma(Int_t iBundle, Int_t iFiber){
+Float_t ERNeuRadSetup::PMTSigma(Int_t iModule, Int_t iFiber){
         return fDigiPar->PMTSigma(iFiber);
 }
 

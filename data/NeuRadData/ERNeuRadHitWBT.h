@@ -14,7 +14,7 @@ private:
 public:
 	ERNeuRadHitWBT(){}
 	ERNeuRadHitWBT(Int_t id, Int_t detID, TVector3& pos, TVector3& dpos,  Int_t refIndex,
-				 Int_t BundleIndex, Int_t FiberIndex, Float_t time, Float_t QInteg);
+				 Int_t ModuleIndex, Int_t FiberIndex, Float_t time, Float_t QInteg);
 
 	Float_t QInteg() {return fQInteg;}
 

@@ -65,7 +65,7 @@ InitStatus ERGadastDigitizer::Init()
   fGadastCsIPoints = (TClonesArray*) ioman->GetObject("GadastCsIPoint");
   fGadastLaBrPoints = (TClonesArray*) ioman->GetObject("GadastLaBrPoint");
   
-  // Register output array
+  // Register output arrays
   fGadastDigi = new TClonesArray("ERGadastDigi",1000);
   ioman->Register("GadastDigi", "Digital response in Gadast", fGadastDigi, kTRUE);
 

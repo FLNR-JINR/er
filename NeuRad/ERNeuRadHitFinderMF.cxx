@@ -98,33 +98,33 @@ void ERNeuRadHitFinderMF::Exec(Option_t* opt)
   Int_t hitNumber=0;
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
   //Суммируем сигналы по модулям
-  Float_t* SumBundleSignals = new Float_t[setup->NofBundles()];
-  for (Int_t iBundle=0; iBundle < setup->NofBundles(); iBundle++)
-    SumBundleSignals[iBundle] =0.;
+  Float_t* SumModuleSignals = new Float_t[setup->NofModules()];
+  for (Int_t iModule=0; iModule < setup->NofModules(); iModule++)
+    SumModuleSignals[iModule] =0.;
   for (Int_t iDigi=0; iDigi <  fNeuRadDigis->GetEntriesFast(); iDigi++){
     ERNeuRadDigi* digi = (ERNeuRadDigi*)fNeuRadDigis->At(iDigi);
-    SumBundleSignals[digi->BundleIndex()]+=digi->QDC();
+    SumModuleSignals[digi->ModuleIndex()]+=digi->QDC();
   }
   
-  Int_t nofBundles = 0;
-  for (Int_t iBundle=0; iBundle < setup->NofBundles(); iBundle++){
-    if (SumBundleSignals[iBundle] > fModuleThreshold*fOnePEInteg)
-      nofBundles++;
+  Int_t nofModules = 0;
+  for (Int_t iModule=0; iModule < setup->NofModules(); iModule++){
+    if (SumModuleSignals[iModule] > fModuleThreshold*fOnePEInteg)
+      nofModules++;
   }
 
-  //if (nofBundles == 1){
+  //if (nofModules == 1){
     for (Int_t iDigi=0; iDigi <  fNeuRadDigis->GetEntriesFast(); iDigi++){
       ERNeuRadDigi* digi = (ERNeuRadDigi*)fNeuRadDigis->At(iDigi);
-      if (digi->Side()==0 && digi->QDC() > fPixelThreshold*fOnePEInteg && SumBundleSignals[digi->BundleIndex()] > fModuleThreshold*fOnePEInteg){
-         TVector3 pos(setup->FiberX(digi->BundleIndex(), digi->FiberIndex()),
-                   setup->FiberY(digi->BundleIndex(), digi->FiberIndex()),
+      if (digi->Side()==0 && digi->QDC() > fPixelThreshold*fOnePEInteg && SumModuleSignals[digi->ModuleIndex()] > fModuleThreshold*fOnePEInteg){
+         TVector3 pos(setup->FiberX(digi->ModuleIndex(), digi->FiberIndex()),
+                   setup->FiberY(digi->ModuleIndex(), digi->FiberIndex()),
                    setup->Z()-setup->FiberLength());
           TVector3 dpos(0,0,0);
-          AddHit(kNEURAD,pos, dpos,digi->BundleIndex(),digi->FiberIndex(),digi->FrontTDC());
+          AddHit(kNEURAD,pos, dpos,digi->ModuleIndex(),digi->FiberIndex(),digi->FrontTDC());
       }
     }
   //}
-  delete [] SumBundleSignals;
+  delete [] SumModuleSignals;
   std::cout << "Hits count: " << fNeuRadHits->GetEntriesFast() << std::endl;
 }
 //----------------------------------------------------------------------------
@@ -147,10 +147,10 @@ void ERNeuRadHitFinderMF::Finish()
 
 // ----------------------------------------------------------------------------
 ERNeuRadHit* ERNeuRadHitFinderMF::AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
-                                           Int_t  BundleIndex, Int_t FiberIndex, Float_t time)
+                                           Int_t  ModuleIndex, Int_t FiberIndex, Float_t time)
 {
   ERNeuRadHit *hit = new((*fNeuRadHits)[fNeuRadHits->GetEntriesFast()])
-              ERNeuRadHit(fNeuRadHits->GetEntriesFast(),detID, pos, dpos,-1, BundleIndex, FiberIndex, time);
+              ERNeuRadHit(fNeuRadHits->GetEntriesFast(),detID, pos, dpos,-1, ModuleIndex, FiberIndex, time);
   return hit;
 }
 // ----------------------------------------------------------------------------

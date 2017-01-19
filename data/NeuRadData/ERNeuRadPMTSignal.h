@@ -46,7 +46,7 @@ public:
   ERNeuRadPMTSignal();
 
   /** Constructor with arguments **/
-  ERNeuRadPMTSignal(Int_t iBundle, Int_t iFiber, Int_t fpoints_count, Int_t side);
+  ERNeuRadPMTSignal(Int_t iModule, Int_t iFiber, Int_t fpoints_count, Int_t side);
 
   virtual ~ERNeuRadPMTSignal();
   

@@ -19,14 +19,14 @@ ERNeuRadPoint::ERNeuRadPoint()
 // -----   Standard constructor   ------------------------------------------
 ERNeuRadPoint::ERNeuRadPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t fiberInBundleNb, Int_t bundleNb,
+      Int_t fiberInModuleNb, Int_t moduleNb,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
 		  Double_t timeIn, Double_t timeOut, Double_t trackLength, Double_t eLoss, Double_t lightYield, Int_t pid, Double_t charge)
   : FairMCPoint(trackID, -1., posIn, momIn, timeIn, 0., eLoss),
     fEventID(eventID),
-    fFiberInBundleNb(fiberInBundleNb), fBundleNb(bundleNb), 
+    fFiberInModuleNb(fiberInModuleNb), fModuleNb(moduleNb), 
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
     fLightYield(lightYield), fPID(pid), fCharge(charge),fTimeIn(timeIn), fTimeOut(timeOut),
@@ -40,7 +40,7 @@ ERNeuRadPoint::ERNeuRadPoint(Int_t eventID, Int_t trackID,
 // -------------------------------------------------------------------------
 ERNeuRadPoint::ERNeuRadPoint(const ERNeuRadPoint& right)
   : FairMCPoint(right),
-    fFiberInBundleNb(right.fFiberInBundleNb),
+    fFiberInModuleNb(right.fFiberInModuleNb),
     fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
     fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out),
     fLightYield(right.fLightYield), fPID(right.fPID), fCharge(right.fCharge),
@@ -67,7 +67,7 @@ void ERNeuRadPoint::Print(const Option_t* opt /* = 0*/) const
   std::cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << std::endl;
   std::cout << "    Time " << fTime << " ns,  Length " << fLength << " cm" << std::endl;
   std::cout << "    Energy loss " << fELoss << " keV, Light yield " << fLightYield << " MeV "<< std::endl;
-  std::cout << "    Fiber in bundle number " << fFiberInBundleNb << std::endl;
+  std::cout << "    Fiber in module number " << fFiberInModuleNb << std::endl;
 }
 // -------------------------------------------------------------------------
 

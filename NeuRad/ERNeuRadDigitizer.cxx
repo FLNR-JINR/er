@@ -1,48 +1,32 @@
+#include "ERNeuRadDigitizer.h"
 
-#include <string>
 #include <iostream>
-#include <fstream>
 #include <algorithm>
-#include <vector>
-#include <cmath>
 
 using std::sort;
 using std::vector;
 using std::cerr;
 using std::endl;
 
-#include "TGeoManager.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
 #include "TMath.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TF1.h"
+#include "TRandom3.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include<iostream>
-#include "FairEventHeader.h"
 
-#include "ERNeuRadPoint.h"
-#include "ERNeuRadStep.h"
-#include "ERNeuRadDigitizer.h"
-#include "ERNeuRadPMTSignal.h"
 #include "EREventHeader.h"
-
 
 const Double_t ERNeuRadDigitizer::cSciFiLightYield= 8000.; // [photons/MeV]
 const Double_t ERNeuRadDigitizer::cSpeedOfLight = 0.299792458e2;  //[cm/ns]
 const Double_t ERNeuRadDigitizer::cMaterialSpeedOfLight = ERNeuRadDigitizer::cSpeedOfLight/1.58;//[cm/ns]
-const Int_t    ERNeuRadDigitizer::cErrorPointsInModuleCount = 1000;
 const Double_t ERNeuRadDigitizer::cLightFractionInTotalIntReflection = 0.04;
 //доля света захватываемая файбером в полное внутренне отражение в каждую сторону.
-const Double_t ERNeuRadDigitizer::cPMTDelay=6.;     //[ns] (H8500)
+const Double_t ERNeuRadDigitizer::cPMTDelay=6.;//[ns] (H8500)
 const Double_t ERNeuRadDigitizer::cPMTJitter = 0.4/2.36; //[ns] (H8500)
 const Double_t ERNeuRadDigitizer::cScincilationTau = 3.2; //[ns]
-const Double_t ERNeuRadDigitizer::cScincilationDT = 0.05;  //[ns]
-const Double_t ERNeuRadDigitizer::cMaxPointLength = 4.; //[cm]
 
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer()
@@ -50,22 +34,17 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
   fPMTJitter(cPMTJitter),
   fPMTDelay(cPMTDelay),
   fScincilationTau(cScincilationTau),
-  fScincilationDT(cScincilationDT),
   fPhotoElectronsCreatingTime(0),
   fPMTSignalCreatingTime(0),
-  fOnePEInteg(4.8),
   fDigiPar(NULL),
   fNeuRadSetup(NULL),
   fNeuRadPoints(NULL),
-  fNeuRadFirstStep(NULL),
   fNeuRadPhotoElectron(NULL),
   fNeuRadPMTSignal(NULL),
-  fHPECountF(NULL),
-  fHPECountB(NULL),
-  fRand(NULL),
-  fHAmplitudesB(NULL),
   fSumAmplitudeF(0),
-  fSumAmplitudeB(0)
+  fSumAmplitudeB(0),
+  fPECountF(0),
+  fPECountB(0)
 {
 }
 // ----------------------------------------------------------------------------
@@ -76,25 +55,18 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   fPMTJitter(cPMTJitter),
   fPMTDelay(cPMTDelay),
   fScincilationTau(cScincilationTau),
-  fScincilationDT(cScincilationDT),
   fPhotoElectronsCreatingTime(0),
   fPMTSignalCreatingTime(0),
-  fOnePEInteg(4.8),
   fDigiPar(NULL),
   fNeuRadSetup(NULL),
   fNeuRadPoints(NULL),
-  fNeuRadFirstStep(NULL),
   fNeuRadPhotoElectron(NULL),
   fNeuRadPMTSignal(NULL),
-  fHPECountF(NULL),
-  fHPECountB(NULL),
-  fRand(NULL),
-  fHAmplitudesB(NULL),
   fSumAmplitudeF(0),
-  fSumAmplitudeB(0)
+  fSumAmplitudeB(0),
+  fPECountF(0),
+  fPECountB(0)
 {
-  fFpeCount = 0;
-  fBpeCount = 0;
 }
 // ----------------------------------------------------------------------------
 
@@ -131,27 +103,16 @@ InitStatus ERNeuRadDigitizer::Init()
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
   fNeuRadPoints = (TClonesArray*) ioman->GetObject("NeuRadPoint");
-  fNeuRadFirstStep = (TClonesArray*) ioman->GetObject("NeuRadFirstStep");
-  //todo check
+  if ( ! fNeuRadPoints) Fatal("ERNeuRadDigitizer::Init","No NeuRadPoint Collection");
   
   // Register output array NeuRadPhotoElectron and NeuRadDigi
-  fNeuRadPhotoElectron = new TClonesArray("ERNeuRadPhotoElectron",fNeuRadPoints->GetEntriesFast()*2);
-													//*2, because front and back
+  fNeuRadPhotoElectron = new TClonesArray("ERNeuRadPhotoElectron",1000);									
   ioman->Register("NeuRadPhotoElectron", "NeuRad Fiber points", fNeuRadPhotoElectron, kTRUE);
   fNeuRadPMTSignal = new TClonesArray("ERNeuRadPMTSignal", 1000);
-  std::cout << "ERNeuRadDigitizer: Use a ERNeuRadPMTSignal type of signal!" << endl;
-  ioman->Register("NeuRadPMTSignal", "Signal after PMT", fNeuRadPMTSignal, kTRUE);
-  fRand = new TRandom3();
+  ioman->Register("NeuRadPMTSignal", "Signal PMT", fNeuRadPMTSignal, kTRUE);
   
   fNeuRadSetup = ERNeuRadSetup::Instance();
   fNeuRadSetup->Print();
-
-  fHPECountF = new TH1F("fHPECountF", "PE count front",1000.,0.,1000.);
-  fHPECountF->GetXaxis()->SetTitle("pe count");
-  fHPECountB = new TH1F("fHPECountB", "PE count back",1000.,0.,1000.);
-  fHPECountB->GetXaxis()->SetTitle("pe count");
-
-  fHAmplitudesB = new TH1F("fHAmplitudesB", "Sum PE Amplitude",1000.,0.,1000.);
   
   return kSUCCESS;
 }
@@ -160,23 +121,24 @@ InitStatus ERNeuRadDigitizer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERNeuRadDigitizer::Exec(Option_t* opt)
 {
-  fFpeCount = 0;
-  fBpeCount  = 0;
+  fPECountF = 0;
+  fPECountB  = 0;
   fSumAmplitudeF = 0;
   fSumAmplitudeB = 0;
+
   Int_t iEvent =
 			FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
   std::cout << "Event " << iEvent << std::endl;
   // Reset entries in output arrays
   Reset();
   Int_t nofFibers = fNeuRadSetup->NofFibers();
-  Int_t nofBundles = fNeuRadSetup->NofBundles();
-  //выделяем память под хранение поинтов по файберам
-  vector<ERNeuRadPhotoElectron* >** frontPointsPerFibers = new vector<ERNeuRadPhotoElectron*>* [nofBundles];
-  vector<ERNeuRadPhotoElectron* >** backPointsPerFibers = new vector<ERNeuRadPhotoElectron*>*  [nofBundles];
-  for (Int_t i = 0; i<nofBundles; i++){
-    frontPointsPerFibers[i] = new vector<ERNeuRadPhotoElectron*>  [nofFibers];
-    backPointsPerFibers[i] = new vector<ERNeuRadPhotoElectron*>  [nofFibers];
+  Int_t nofModules = fNeuRadSetup->NofModules();
+  //выделяем память под хранение фотоэлектронов по файберам
+  vector<ERNeuRadPhotoElectron* >** peInFibersF = new vector<ERNeuRadPhotoElectron*>* [nofModules];
+  vector<ERNeuRadPhotoElectron* >** peInFibersB = new vector<ERNeuRadPhotoElectron*>*  [nofModules];
+  for (Int_t i = 0; i<nofModules; i++){
+    peInFibersF[i] = new vector<ERNeuRadPhotoElectron*>  [nofFibers];
+    peInFibersB[i] = new vector<ERNeuRadPhotoElectron*>  [nofFibers];
   }
   
   Int_t points_count = fNeuRadPoints->GetEntries();
@@ -185,126 +147,118 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   fPhotoElectronsCreatingTimer.Start();
   for (Int_t iPoint=0; iPoint < points_count; iPoint++) { // цикл
     ERNeuRadPoint *point = (ERNeuRadPoint*) fNeuRadPoints->At(iPoint);
-    PhotoElectronsCreating(iPoint,point,frontPointsPerFibers,backPointsPerFibers);
+    PhotoElectronsCreating(iPoint,point,peInFibersF,0,fPECountF,fSumAmplitudeF);
+    PhotoElectronsCreating(iPoint,point,peInFibersB,1,fPECountB,fSumAmplitudeB);
   }
   fPhotoElectronsCreatingTimer.Stop();
   
   fPhotoElectronsCreatingTime += fPhotoElectronsCreatingTimer.RealTime();
   //Формируем сигналы на ФЭУ и digi
   fPMTSignalCreatingTimer.Start();
-  for (Int_t iBundle = 0; iBundle < nofBundles; iBundle++){
-    //Создаем signals во временной коллекции
-    Float_t sumFrontQDC = 0, sumBackQDC = 0;
+  for (Int_t iModule = 0; iModule < nofModules; iModule++){
+    //Генерируем сигналы на пикселях
     for (Int_t iFiber = 0; iFiber < nofFibers; iFiber++) {
-      PMTSignalsCreating(iBundle, iFiber, frontPointsPerFibers,backPointsPerFibers, sumFrontQDC, sumBackQDC);
+      PMTSignalsCreating(iModule, iFiber, peInFibersF,0);
+      PMTSignalsCreating(iModule, iFiber, peInFibersF,1);
     }
   }
   fPMTSignalCreatingTimer.Stop();
   fPMTSignalCreatingTime += fPMTSignalCreatingTimer.RealTime();
   
   //освобождаем память
-  for (Int_t i = 0; i<nofBundles; i++){
-    delete [] frontPointsPerFibers[i];
-    delete [] backPointsPerFibers[i];
+  for (Int_t i = 0; i<nofModules; i++){
+    delete [] peInFibersF[i];
+    delete [] peInFibersB[i];
   }
-  delete [] frontPointsPerFibers;
-  delete [] backPointsPerFibers;
+  delete [] peInFibersF;
+  delete [] peInFibersB;
   
   FairRunAna* run = FairRunAna::Instance();
   EREventHeader* header = (EREventHeader*)run->GetEventHeader();
-  header->SetNeuRadPECountF(fFpeCount);
-  header->SetNeuRadPECountB(fBpeCount);
+  header->SetNeuRadPECountF(fPECountF);
+  header->SetNeuRadPECountB(fPECountB);
   header->SetNeuRadSumAmplitudeF(fSumAmplitudeF);
   header->SetNeuRadSumAmplitudeB(fSumAmplitudeB);
-
-  fHPECountF->Fill(fFpeCount);
-  fHPECountB->Fill(fBpeCount);
-  fHAmplitudesB->Fill(fSumAmplitudeB);
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t i_point, ERNeuRadPoint *point,
-                        std::vector<ERNeuRadPhotoElectron* >** frontPointsPerFibers,
-                        std::vector<ERNeuRadPhotoElectron* >** backPointsPerFibers)
+void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *point,
+                        std::vector<ERNeuRadPhotoElectron* >** peInFibers,Int_t side, Int_t& sumPECount,Float_t& sumAmplitude)
 {
-    Double_t fiber_length = fNeuRadSetup->FiberLength();
-    Int_t    point_bundle = point->GetBundleNb();
-    Int_t    point_fiber_nb  = point->GetFiberInBundleNb();
-    Double_t point_eLoss      =  point->GetEnergyLoss(); //[GeV]
-    Double_t point_lightYield = point->GetLightYield();  //[GeV]
-    Double_t point_x          = point->GetXIn();
-    Double_t point_y          = point->GetYIn();
-    Double_t point_z          = point->GetZIn();
-    Double_t point_time       = point->GetTimeIn();
-    Double_t point_z_in_fiber = point_z + fiber_length/2. - fNeuRadSetup->Z();
+    //Генерация фотоэлектронов для поинта iPoint
 
-    Double_t PMTQuantumEfficiency = fNeuRadSetup->PMTQuantumEfficiency(point_bundle,point_fiber_nb);
-    //scintillator light yield - общее число рожденных фотонов
-    Double_t photon_count = point_lightYield*1000.*cSciFiLightYield;
-    //Моделируем распространнение сигнала на передние ФЭУ
+    //Получение информации о поинте
+    Double_t fiberLength = fNeuRadSetup->FiberLength();
+    Int_t    pointModule = point->GetModuleNb();
+    Int_t    pointFiber  = point->GetFiberInModuleNb();
+    Double_t pointELoss      =  point->GetEnergyLoss(); //[GeV]
+    Double_t pointLYield = point->GetLightYield();  //[GeV]
+    Double_t pointX          = point->GetXIn();
+    Double_t pointY          = point->GetYIn();
+    Double_t pointZ          = point->GetZIn();
+    Double_t pointTime       = point->GetTimeIn();
+    Double_t pointZInFiber = pointZ + fiberLength/2. - fNeuRadSetup->Z();
+
+    //Значение квантовой эффективности для конкретного пикселе
+    Double_t PMTQuantumEfficiency = fNeuRadSetup->PMTQuantumEfficiency(pointModule,pointFiber);
+    
+    //Количество фотонов
+    Double_t photonCount = pointLYield*1000.*cSciFiLightYield;
+
+    //Две причины затухания света
     Double_t k1 = 0.5-cLightFractionInTotalIntReflection;
     Double_t k2 = cLightFractionInTotalIntReflection;
-    Double_t ffp_photon_count =  photon_count*(k1*exp(-point_z_in_fiber/0.5) + k2*exp(-point_z_in_fiber/200.));
-    Double_t remainingPhotoEl = fRand->Poisson(ffp_photon_count*PMTQuantumEfficiency);
-    
-    fFpeCount+=remainingPhotoEl;
-    if (remainingPhotoEl > 1){
-      for(Int_t iOnePESignal=0;iOnePESignal<(Int_t)remainingPhotoEl;iOnePESignal++){
-        //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
-        Double_t ffp_lytime = point_time + (-1)*fScincilationTau*TMath::Log(1-fRand->Uniform());
-        Double_t ffp_cathode_time = ffp_lytime + (point_z_in_fiber)/cMaterialSpeedOfLight;
-        if (fNeuRadSetup->UseCrosstalks())
-          point_fiber_nb = Crosstalks(point_bundle,point_fiber_nb);
-        Double_t PMTGain = fNeuRadSetup->PMTGain(point_bundle,point_fiber_nb);
-        Double_t PMTSigma = fNeuRadSetup->PMTSigma(point_bundle,point_fiber_nb);
-        Double_t ffp_amplitude = TMath::Abs(fRand->Gaus(PMTGain, PMTSigma));
-        Double_t ffp_anode_time = ffp_cathode_time + (Double_t)fRand->Gaus(fPMTDelay, fPMTJitter);
-        ERNeuRadPhotoElectron* ffPoint = AddPhotoElectron(i_point, 0, ffp_lytime - point_time, ffp_cathode_time, ffp_anode_time, ffp_photon_count,
-                            1, ffp_amplitude, 1);
-        fSumAmplitudeF+=ffp_amplitude;
-        frontPointsPerFibers[point_bundle][point_fiber_nb].push_back(ffPoint);
-      }
-    }
+    Double_t flightLength = 0;
+    if (side == 0)
+      flightLength = pointZInFiber;
+    else
+      flightLength = fiberLength-pointZInFiber;
+    Double_t pePhotonCount =  photonCount*(k1*exp(-flightLength/0.5) + k2*exp(-flightLength/200.));
 
-    Double_t bfp_photon_count =  photon_count*(k1*exp(-(fiber_length-point_z_in_fiber)/0.5) 
-                                                   + k2*exp(-(fiber_length-point_z_in_fiber)/200.));
-    
-    remainingPhotoEl = fRand->Poisson(bfp_photon_count*PMTQuantumEfficiency);
-  
-    fBpeCount+=remainingPhotoEl;
-    if (remainingPhotoEl > 1){
-      for(Int_t iOnePESignal=0;iOnePESignal<(Int_t)remainingPhotoEl;iOnePESignal++){
-        //Прогнозируем времена их появления в ФЭУ, через решение обратной задачи для экспоненциального распределения
-        Double_t bfp_lytime = point_time + (-1)*fScincilationTau*TMath::Log(1-fRand->Uniform());
-        Double_t bfp_cathode_time = bfp_lytime + (point_z_in_fiber)/cMaterialSpeedOfLight;
-        if (fNeuRadSetup->UseCrosstalks())
-          point_fiber_nb = Crosstalks(point_bundle,point_fiber_nb);
-        Double_t PMTGain = fNeuRadSetup->PMTGain(point_bundle,point_fiber_nb);
-        Double_t PMTSigma = fNeuRadSetup->PMTSigma(point_bundle,point_fiber_nb);
-        Double_t bfp_amplitude = TMath::Abs(fRand->Gaus(PMTGain, PMTSigma));
-        Double_t bfp_anode_time = bfp_cathode_time + (Double_t)fRand->Gaus(fPMTDelay, fPMTJitter);
-        ERNeuRadPhotoElectron* bfPoint = AddPhotoElectron(i_point, 1, bfp_lytime - point_time, bfp_cathode_time, bfp_anode_time, bfp_photon_count,
-                            1, bfp_amplitude, 1);
-        fSumAmplitudeB+=bfp_amplitude;
-        backPointsPerFibers[point_bundle][point_fiber_nb].push_back(bfPoint);
-      }
+    //Квантовая эффективность
+    Int_t peCount = (Int_t)gRandom->Poisson(pePhotonCount*PMTQuantumEfficiency);
+    sumPECount+=peCount;
+
+    for(Int_t iPE=0;iPE<peCount;iPE++){
+      //Экпоненциальный закон высвечивания. Обратное распределение
+      Double_t peLYTime = pointTime + (-1)*fScincilationTau*TMath::Log(1-gRandom->Uniform());
+      //Скорость света в материале.
+      Double_t peCathodeTime = peLYTime + flightLength/cMaterialSpeedOfLight;
+      //Учёт кросстолков
+      Int_t peFiber, peModule;
+      Crosstalks(pointModule,pointFiber, peModule, peFiber);
+      //Амплиту одноэлектронного сигнала
+      Double_t pmtGain = fNeuRadSetup->PMTGain(peModule,peFiber);
+      Double_t pmtSigma = fNeuRadSetup->PMTSigma(peModule,peFiber);
+      Double_t peAmplitude = TMath::Abs(gRandom->Gaus(pmtGain, pmtSigma));
+      sumAmplitude+=peAmplitude;
+      //Задержка динодной системы и джиттер
+      Double_t peAnodeTime = peCathodeTime + (Double_t)gRandom->Gaus(fPMTDelay, fPMTJitter);
+      ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, pePhotonCount,
+                          1, peAmplitude, 1);
+      peInFibers[peModule][peFiber].push_back(pe);
     }
-    
 }
 
 //----------------------------------------------------------------------------
-Int_t ERNeuRadDigitizer::Crosstalks(Int_t iBundle, Int_t iFiber){
-  Int_t newFiber = iFiber;
+Int_t ERNeuRadDigitizer::Crosstalks(Int_t pointModule, Int_t pointFiber, Int_t& peModule, Int_t& peFiber){
+  //Возвращает номер файбера в котором окажется фотоэлектрон после применения кростолков
+  //Пока для простоты ввода данных масштабирует, значение кростолков для одного модуля на все остальные
+  peFiber = pointFiber;
+  peModule = pointModule;
   TArrayF crosstalks;
-  fNeuRadSetup->PMTCrosstalks(iFiber, crosstalks);
+  fNeuRadSetup->PMTCrosstalks(peFiber, crosstalks);
   Float_t prob = gRandom->Uniform();
   Float_t curProb = 0;
   Int_t csI = -1;
   Int_t csJ = -1;
+  //Разбиваем отрезок от 0 до 1 на отрезки соответствующие веростностям кростолков. 
+  //В какой имено промежуток вероятности попадёт prob, в тот файбер и перетечет фотоэлектрон
+  //Последний отрезок соответствует, тому что фотоэлектрон останется в своём волокне
   for (Int_t i = 0; i < 3; i++){
     for (Int_t j = 0; j < 3; j++){
-      if (crosstalks[i*3+j] == 0)
+      if (crosstalks[i*3+j] == 0 || (i==1 && j==1))
         continue;
       
       curProb += crosstalks[i*3+j];
@@ -318,19 +272,20 @@ Int_t ERNeuRadDigitizer::Crosstalks(Int_t iBundle, Int_t iFiber){
     if (csI != -1)
       break;
   }
+  // Переход между строками волокон в модуле
   if (csI == 0){
-    newFiber-= fNeuRadSetup->RowNofFibers();
+    peFiber-= fNeuRadSetup->RowNofFibers();
   }
   if (csI == 2){
-    newFiber+=fNeuRadSetup->RowNofFibers();
+    peFiber+=fNeuRadSetup->RowNofFibers();
   }
+  // Переход между столбцами волокон в модуле
   if (csJ == 0){
-    newFiber-=1;
+    peFiber-=1;
   }
   if (csJ == 2){
-    newFiber+=1;
+    peFiber+=1;
   }
-  return newFiber;
 }
 
 //----------------------------------------------------------------------------
@@ -345,37 +300,21 @@ void ERNeuRadDigitizer::Reset()
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void ERNeuRadDigitizer::PMTSignalsCreating(Int_t iBundle, Int_t iFiber,
-                                std::vector<ERNeuRadPhotoElectron* >** frontPointsPerFibers,
-                                std::vector<ERNeuRadPhotoElectron* >** backPointsPerFibers,
-                                Float_t& sumFrontQDC, Float_t& sumBackQDC)
+void ERNeuRadDigitizer::PMTSignalsCreating(Int_t iModule, Int_t iFiber,
+                                std::vector<ERNeuRadPhotoElectron* >** peInFibers,Int_t side)
 {
-  if( frontPointsPerFibers[iBundle][iFiber].size() > 0){
-    ERNeuRadPMTSignal* pmtFSignal = AddPMTSignal(iBundle, iFiber,frontPointsPerFibers[iBundle][iFiber].size(),0);
-    for(Int_t iFPoint = 0; iFPoint < frontPointsPerFibers[iBundle][iFiber].size(); iFPoint++){
-      ERNeuRadPhotoElectron* FPoint = frontPointsPerFibers[iBundle][iFiber][iFPoint];
-      pmtFSignal->AddPhotoElectron(FPoint);
-      //pmtFSignal->AddLink(FairLink("NeuRadPhotoElectron",FPoint->Index()));
+  if(peInFibers[iModule][iFiber].size() > 0){
+    ERNeuRadPMTSignal* pmtSignal = AddPMTSignal(iModule, iFiber,peInFibers[iModule][iFiber].size(),side);
+    for(Int_t iPE = 0; iPE < peInFibers[iModule][iFiber].size(); iPE++){
+      ERNeuRadPhotoElectron* pe = peInFibers[iModule][iFiber][iPE];
+      pmtSignal->AddPhotoElectron(pe);
     }
-    pmtFSignal->Generate();
-  }
-
-  if (backPointsPerFibers[iBundle][iFiber].size() > 0){
-    ERNeuRadPMTSignal* pmtBSignal =  AddPMTSignal(iBundle, iFiber,backPointsPerFibers[iBundle][iFiber].size(),1);
-    for(Int_t iFPoint = 0; iFPoint < backPointsPerFibers[iBundle][iFiber].size(); iFPoint++){
-      ERNeuRadPhotoElectron* FPoint = backPointsPerFibers[iBundle][iFiber][iFPoint];
-      pmtBSignal->AddPhotoElectron(FPoint);
-      //pmtBSignal->AddLink(FairLink("NeuRadPhotoElectron",FPoint->Index()));
-    }
-    pmtBSignal->Generate();
+    pmtSignal->Generate();
   }
 }
 // ----------------------------------------------------------------------------
 void ERNeuRadDigitizer::Finish()
 {   
-  fHPECountF->Write();
-  fHPECountB->Write();
-  fHAmplitudesB->Write();
   std::cout << "========== Finish of ERNeuRadDigitizer =================="<< std::endl;
   std::cout << "=====  Time on PhotoElectrons creating : " <<  fPhotoElectronsCreatingTime << " s" << std::endl;
   std::cout << "=====  Time on PMT signal creating : " <<  fPMTSignalCreatingTime << " s" << std::endl;
@@ -383,18 +322,18 @@ void ERNeuRadDigitizer::Finish()
 }
 // ----------------------------------------------------------------------------
 // ---------------------------------------------------------------------------- 
-ERNeuRadPMTSignal* ERNeuRadDigitizer::AddPMTSignal(Int_t iBundle, Int_t iFiber, Int_t fpoints_count, Int_t side){ 
+ERNeuRadPMTSignal* ERNeuRadDigitizer::AddPMTSignal(Int_t iModule, Int_t iFiber, Int_t fpoints_count, Int_t side){ 
   ERNeuRadPMTSignal *pmtSignal = new((*fNeuRadPMTSignal)[PMTSignalCount()]) 
-                ERNeuRadPMTSignal(iBundle, iFiber,fpoints_count, side);   return  pmtSignal; 
+                ERNeuRadPMTSignal(iModule, iFiber,fpoints_count, side);   return  pmtSignal; 
 }
 // ----------------------------------------------------------------------------
-ERNeuRadPhotoElectron* ERNeuRadDigitizer::AddPhotoElectron(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
-									Int_t photon_count, Int_t photoel_count, 
+ERNeuRadPhotoElectron* ERNeuRadDigitizer::AddPhotoElectron(Int_t iPoint, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
+									Int_t photonCount, Int_t photoel_count, 
 									Double_t amplitude, Int_t onePE){
   ERNeuRadPhotoElectron *fp = new ((*fNeuRadPhotoElectron)[PhotoElectronCount()])
-								ERNeuRadPhotoElectron(PhotoElectronCount(),side, lytime, cathode_time, anode_time, photon_count, 
+								ERNeuRadPhotoElectron(PhotoElectronCount(),side, lytime, cathode_time, anode_time, photonCount, 
                                     photoel_count, amplitude, onePE);
-  fp->AddLink(FairLink("NeuRadPoint",i_point));
+  fp->AddLink(FairLink("NeuRadPoint",iPoint));
   return fp;
 }
 //-----------------------------------------------------------------------------

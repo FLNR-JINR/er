@@ -16,7 +16,7 @@ ERNeuRadDigi::ERNeuRadDigi()
   fTDC(0.),
   fQDC(0.),
   fFiberIndex(-1),
-  fBundleIndex(-1),
+  fModuleIndex(-1),
   fSide(-1)
 {
 }
@@ -29,7 +29,7 @@ ERNeuRadDigi::ERNeuRadDigi(Int_t id, Double_t frontTDC, Double_t backTDC, Double
   fTDC(tdc),
   fQDC(qdc),
   fFiberIndex(fiber),
-  fBundleIndex(bundle),
+  fModuleIndex(bundle),
   fSide(side)
 {
 }
@@ -41,7 +41,7 @@ ERNeuRadDigi::ERNeuRadDigi(const ERNeuRadDigi& right)
   fTDC(right.fTDC),
   fQDC(right.fQDC),
   fFiberIndex(right.fFiberIndex),
-  fBundleIndex(right.fBundleIndex),
+  fModuleIndex(right.fModuleIndex),
   fSide(right.fSide)
 {
 }
@@ -58,7 +58,7 @@ void ERNeuRadDigi::Print(const Option_t* opt /* = 0 */) const
 {
   std::cout << "-I- ERNeuRadDigi:  " << endl;
   std::cout << "    Fiber : " << fFiberIndex << endl;
-  std::cout << "    Bundle : " << fBundleIndex << endl;
+  std::cout << "    Module : " << fModuleIndex << endl;
   std::cout << "    FrontTDC: " << fFrontTDC << " BackTDC " << fBackTDC << " TDC " << fTDC << endl;
   std::cout << "    QDC: " << fQDC << endl;
 }

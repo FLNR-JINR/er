@@ -22,7 +22,6 @@ void NeuRad_digi(Int_t nEvents = 1000){
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
-  digitizer->SetPixelThreshold(2.);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   
@@ -37,7 +36,6 @@ void NeuRad_digi(Int_t nEvents = 1000){
   FairParRootFileIo*  parInput2 = new FairParRootFileIo();
   parInput2->open(parFile.Data(), "UPDATE");
   
-
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parInput2);
   

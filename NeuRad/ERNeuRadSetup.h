@@ -13,10 +13,10 @@
 #include "Rtypes.h"
 #include "ERNeuRadDigiPar.h"
 
-struct ERNeuRadBundle{
+struct ERNeuRadModule{
         Float_t fX;
         Float_t fY;
-        ERNeuRadBundle(Float_t x, Float_t y){fX = x; fY = y;}
+        ERNeuRadModule(Float_t x, Float_t y){fX = x; fY = y;}
 };
 
 struct ERNeuRadFiber{
@@ -28,7 +28,7 @@ struct ERNeuRadFiber{
 class ERNeuRadSetup {
     static ERNeuRadSetup* fInstance;
     static ERNeuRadDigiPar* fDigiPar;
-    static std::vector<ERNeuRadBundle*> fBundles;
+    static std::vector<ERNeuRadModule*> fModules;
     static std::vector<std::vector<ERNeuRadFiber*> > fFibers;
     static Float_t fZ;
     static Float_t fLength;
@@ -37,16 +37,16 @@ class ERNeuRadSetup {
 public:
     static ERNeuRadSetup* Instance();
     static Int_t   NofFibers();
-    static Int_t   NofBundles();
+    static Int_t   NofModules();
     static Float_t FiberLength();
     static Float_t FiberWidth();
-    static Float_t BundleX(Int_t iBundle);
-    static Float_t BundleY(Int_t iBundle);
-    static Float_t FiberX(Int_t iBundle, Int_t iFiber);
-    static Float_t FiberY(Int_t iBundle, Int_t iFiber);
-    static Float_t PMTQuantumEfficiency(Int_t iBundle, Int_t iFiber);
-    static Float_t PMTGain(Int_t iBundle, Int_t iFiber);
-    static Float_t PMTSigma(Int_t iBundle, Int_t iFiber);
+    static Float_t ModuleX(Int_t iModule);
+    static Float_t ModuleY(Int_t iModule);
+    static Float_t FiberX(Int_t iModule, Int_t iFiber);
+    static Float_t FiberY(Int_t iModule, Int_t iFiber);
+    static Float_t PMTQuantumEfficiency(Int_t iModule, Int_t iFiber);
+    static Float_t PMTGain(Int_t iModule, Int_t iFiber);
+    static Float_t PMTSigma(Int_t iModule, Int_t iFiber);
     static Float_t Z(){return fZ;}
     static void    Print();
     static void PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks);

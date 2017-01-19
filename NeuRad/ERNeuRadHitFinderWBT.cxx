@@ -121,11 +121,11 @@ void ERNeuRadHitFinderWBT::Finish()
 
 // ----------------------------------------------------------------------------
 ERNeuRadHitWBT* ERNeuRadHitFinderWBT::AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
-                                           Int_t  BundleIndex, Int_t FiberIndex, Float_t time,
+                                           Int_t  ModuleIndex, Int_t FiberIndex, Float_t time,
                                            Float_t qInteg)
 {
   ERNeuRadHitWBT *hit = new((*fNeuRadHits)[fNeuRadHits->GetEntriesFast()])
-              ERNeuRadHitWBT(fNeuRadHits->GetEntriesFast(),detID, pos, dpos,-1, BundleIndex, FiberIndex, time, 
+              ERNeuRadHitWBT(fNeuRadHits->GetEntriesFast(),detID, pos, dpos,-1, ModuleIndex, FiberIndex, time, 
                           qInteg);
   return hit;
 }

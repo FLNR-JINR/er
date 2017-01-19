@@ -52,7 +52,7 @@ protected:
   Float_t fPixelThreshold;
 
 protected:
-  ERNeuRadHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t  BundleIndex, Int_t FiberIndex, Float_t time);
+  ERNeuRadHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t  ModuleIndex, Int_t FiberIndex, Float_t time);
 private:
   virtual void SetParContainers();
   
