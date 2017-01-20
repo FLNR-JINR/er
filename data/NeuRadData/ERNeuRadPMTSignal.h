@@ -21,25 +21,37 @@
 class ERNeuRadPMTSignal : public FairMultiLinkedData {
 
 protected:
+
   Int_t fFiberIndex;
   Int_t fModuleIndex;
-  Double_t *fAmplitudes;     //!
-  Double_t fAmplitudesSum;
-  Double_t *fAnodeTimes;     //!
+  Int_t fSide;
+  //Массив амплитуд фотоэлектронов сигнала
+  Double_t *fPEAmplitudes;     //!
+  //Суммарная амплитуда фотоэлектронов сигнала
+  Double_t fPEAmplitudesSum;
+  //Массив времен прихоа на анод фотоэлектронов сигнала
+  Double_t *fPEAnodeTimes;     //!
+  //Массив длин одноэлектронных сигналов
+  Int_t *fPETimes;     //!
+  //Количество фотоэлектронов в сигнале
+  Int_t fPECount;
+
   Int_t fCurFPoint;
+
   Double_t fStartTime;
   Double_t fFinishTime;
-  Int_t *fTimeShifts;       //!
-  Int_t fFPointsCount;
-  Float_t* fResFunction;    //!
-  TArrayF fResFunctionRoot;
-  Int_t fPECount;
-  Int_t fSide;
-  //constants
-  static const Double_t csdT; //ns
-  static const Int_t csdTCount; //count
 
-  Double_t Function(Double_t time, Double_t amplitude);
+  //Используется для работы с общем сигналом. Так как была необходима адресная арифметика
+  Float_t* fResFunction;    //!
+  //Хранит результирующий сигнал, как значения функции в узлах
+  TArrayF fResFunctionRoot; 
+
+  //constants
+  //Гранулирование сигнала по времени
+  static const Double_t cdT; //ns
+
+  Double_t OnePEFunction(Double_t time, Double_t amplitude);
+  Int_t OnePETime(Double_t amplitude);
 public:
 
   /** Default constructor **/
@@ -75,12 +87,12 @@ public:
 
   virtual Int_t PECount() {return fPECount;}
 
-  Double_t  dT() {return csdT;}
+  Double_t  dT() {return cdT;}
 
   Int_t ModuleIndex() const {return fModuleIndex;}
   Int_t FiberIndex() const {return fFiberIndex;}
   Int_t Side() const {return fSide;}
-  Double_t AmplitudesSum() const {return fAmplitudesSum;}
+  Double_t AmplitudesSum() const {return fPEAmplitudesSum;}
 
   ClassDef(ERNeuRadPMTSignal,1);
 };
