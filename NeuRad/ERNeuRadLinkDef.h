@@ -14,5 +14,6 @@
 #pragma link C++ class ERNeuRadMatcher+;
 #pragma link C++ class ERNeuRadHitFinderMF+;
 #pragma link C++ class ERNeuRadHitFinderWBT+;
+#pragma link C++ class ERNeuRadViewer+;
 
 #endif

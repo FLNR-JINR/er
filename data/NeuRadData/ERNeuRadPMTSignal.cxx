@@ -49,8 +49,7 @@ void ERNeuRadPMTSignal::AddPhotoElectron(ERNeuRadPhotoElectron* pe){
 	fPEAmplitudes[fCurFPoint]	= pe->Amplitude();
 	fPEAnodeTimes[fCurFPoint] = pe->AnodeTime();
 	//Вычисление длины фотоэлектронного сигнала в количестве cdT
-	fPETimes[fCurFPoint] = OnePETime(pe->Amplitude());
-
+	fPETimes[fCurFPoint] = 40.;//OnePETime(pe->Amplitude());
 	//Сдвиг начального и коненого времени общего сигнала
 	if (pe->AnodeTime() < fStartTime)
 		fStartTime = pe->AnodeTime();
@@ -104,11 +103,23 @@ Int_t ERNeuRadPMTSignal::OnePETime(Double_t amplitude){
 	//Вычисляем время сигнала одноэлектрона в количестве cdT.
 	Int_t counts = 0;
 	//Насчитываем отрезк времени пока сигнал имеет существенное для нас значение.
-	while(OnePEFunction((counts++)*cdT, amplitude) > 0.001){}
-	return counts;
+	Bool_t find = kFALSE;
+	Double_t threshold = 0.001;
+	while(1){
+		Double_t val = OnePEFunction((counts++)*cdT, amplitude);
+		if (!find && val>threshold){ //Сигнал перевалил порог в первый раз
+			find = kTRUE;
+		}
+		if (find && val<threshold){
+			break;
+		}
+		if (counts > 100)
+			break;
+	}
+	return counts-1;
 }
 
-std::vector<Double_t> ERNeuRadPMTSignal::GetIntersections(Double_t discriminatorThreshold)
+std::vector<Double_t> ERNeuRadPMTSignal::Intersections(Double_t discriminatorThreshold)
 {
 	//Возвращает точки пересечения с сигналом порога discriminatorThreshold
 	std::vector<Double_t> intersections;
@@ -128,7 +139,7 @@ std::vector<Double_t> ERNeuRadPMTSignal::GetIntersections(Double_t discriminator
 	return intersections;
 } 
 
- Double_t ERNeuRadPMTSignal::GetInteg(const Double_t start,const Double_t finish){
+ Double_t ERNeuRadPMTSignal::Integ(const Double_t start,const Double_t finish){
   //Вычисления интеграла сигнала методом трапеций
   if (finish<fStartTime)
     return 0;
@@ -150,15 +161,15 @@ std::vector<Double_t> ERNeuRadPMTSignal::GetIntersections(Double_t discriminator
   return res;
  }
 
- Double_t ERNeuRadPMTSignal::GetFirstInteg(const Double_t window){
+ Double_t ERNeuRadPMTSignal::FirstInteg(const Double_t window){
  	//Возвращает интеграл сигнала в окне window, начиная с начального узла сигнала
  	if ((fStartTime + window) > fFinishTime )
- 	  return GetInteg(fStartTime, fFinishTime);
+ 	  return Integ(fStartTime, fFinishTime);
  	else
- 		return GetInteg(fStartTime, fStartTime+window);
+ 		return Integ(fStartTime, fStartTime+window);
  }
 
- Float_t ERNeuRadPMTSignal::GetThresholdTime(Float_t peThreshold){
+ Float_t ERNeuRadPMTSignal::ThresholdTime(Float_t peThreshold){
  	//Возвращает время пересечения сигнала порога peThreshold [количество фотоэлектронов]
  	Int_t i = 0;
  	while((fResFunctionRoot[i] < peThreshold*OnePEIntegral()) && i < (fResFunctionRoot.GetSize()-1)){

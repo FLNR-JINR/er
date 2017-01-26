@@ -159,7 +159,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
     //Генерируем сигналы на пикселях
     for (Int_t iFiber = 0; iFiber < nofFibers; iFiber++) {
       PMTSignalsCreating(iModule, iFiber, peInFibersF,0);
-      PMTSignalsCreating(iModule, iFiber, peInFibersF,1);
+      PMTSignalsCreating(iModule, iFiber, peInFibersB,1);
     }
   }
   fPMTSignalCreatingTimer.Stop();
@@ -226,8 +226,8 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
       //Скорость света в материале.
       Double_t peCathodeTime = peLYTime + flightLength/cMaterialSpeedOfLight;
       //Учёт кросстолков
-      Int_t peFiber, peModule;
-      Crosstalks(pointModule,pointFiber, peModule, peFiber);
+      Int_t peFiber = pointFiber, peModule = pointModule;
+      //Crosstalks(pointModule,pointFiber, peModule, peFiber);
       //Амплиту одноэлектронного сигнала
       Double_t pmtGain = fNeuRadSetup->PMTGain(peModule,peFiber);
       Double_t pmtSigma = fNeuRadSetup->PMTSigma(peModule,peFiber);
@@ -235,8 +235,7 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
       sumAmplitude+=peAmplitude;
       //Задержка динодной системы и джиттер
       Double_t peAnodeTime = peCathodeTime + (Double_t)gRandom->Gaus(fPMTDelay, fPMTJitter);
-      ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, pePhotonCount,
-                          1, peAmplitude, 1);
+      ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, pePhotonCount, peAmplitude);
       peInFibers[peModule][peFiber].push_back(pe);
     }
 }
@@ -328,11 +327,9 @@ ERNeuRadPMTSignal* ERNeuRadDigitizer::AddPMTSignal(Int_t iModule, Int_t iFiber, 
 }
 // ----------------------------------------------------------------------------
 ERNeuRadPhotoElectron* ERNeuRadDigitizer::AddPhotoElectron(Int_t iPoint, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
-									Int_t photonCount, Int_t photoel_count, 
-									Double_t amplitude, Int_t onePE){
+									Int_t photonCount, Double_t amplitude){
   ERNeuRadPhotoElectron *fp = new ((*fNeuRadPhotoElectron)[PhotoElectronCount()])
-								ERNeuRadPhotoElectron(PhotoElectronCount(),side, lytime, cathode_time, anode_time, photonCount, 
-                                    photoel_count, amplitude, onePE);
+								ERNeuRadPhotoElectron(PhotoElectronCount(),side, lytime, cathode_time, anode_time, photonCount, amplitude);
   fp->AddLink(FairLink("NeuRadPoint",iPoint));
   return fp;
 }

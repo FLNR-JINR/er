@@ -46,10 +46,6 @@ protected:
   //Хранит результирующий сигнал, как значения функции в узлах
   TArrayF fResFunctionRoot; 
 
-  //constants
-  //Гранулирование сигнала по времени
-  static const Double_t cdT; //ns
-
   Double_t OnePEFunction(Double_t time, Double_t amplitude);
   Int_t OnePETime(Double_t amplitude);
 public:
@@ -67,21 +63,21 @@ public:
   virtual void Generate();
 
   virtual bool Exist(){return fCurFPoint > 0;}
-
+  
   TArrayF* ResultSignal() {return &fResFunctionRoot;}
 
   //пока заглушки
-  virtual std::vector<Double_t> GetIntersections(Double_t discriminatorThreshold);
+  virtual std::vector<Double_t> Intersections(Double_t discriminatorThreshold);
 
-  virtual Double_t GetMaxInteg(const Double_t window, const Double_t dt) {return -1.;}
-  virtual Double_t GetInteg(const Double_t start,const Double_t finish);
-  virtual Double_t GetFirstInteg(const Double_t window);
-  virtual Double_t GetMean(const Double_t time) {return -1.;}
+  virtual Double_t MaxInteg(const Double_t window, const Double_t dt) {return -1.;}
+  virtual Double_t Integ(const Double_t start,const Double_t finish);
+  virtual Double_t FirstInteg(const Double_t window);
+  virtual Double_t Mean(const Double_t time) {return -1.;}
 
-  virtual Double_t GetStartTime() {return fStartTime;} 
-  virtual Double_t GetFinishTime() {return fFinishTime;}
+  virtual Double_t StartTime() {return fStartTime;} 
+  virtual Double_t FinishTime() {return fFinishTime;}
 
-  virtual Float_t GetThresholdTime(Float_t peThreshold);
+  virtual Float_t ThresholdTime(Float_t peThreshold);
 
   virtual Double_t OnePEIntegral() {return 4.8;}
 
@@ -94,6 +90,11 @@ public:
   Int_t Side() const {return fSide;}
   Double_t AmplitudesSum() const {return fPEAmplitudesSum;}
 
+
+    //constants
+  //Гранулирование сигнала по времени
+  static const Double_t cdT; //ns
+  
   ClassDef(ERNeuRadPMTSignal,1);
 };
 

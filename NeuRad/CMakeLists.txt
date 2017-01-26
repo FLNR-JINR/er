@@ -33,6 +33,7 @@ set(SRCS
 	ERNeuRadHitFinderMF.cxx
 	ERNeuRadHitFinderWBT.cxx
 	ERNeuRadMatcher.cxx
+	ERNeuRadViewer.cxx
 )
 
 # fill list of header files from list of source files
