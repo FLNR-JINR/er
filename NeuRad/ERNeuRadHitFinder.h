@@ -41,7 +41,7 @@ public:
   /** Accessors **/
 protected:
   //Input arrays
-  TClonesArray *fNeuRadDigis;
+  TClonesArray *fNeuRadPMTSignals;
   //Output arrays
   TClonesArray *fNeuRadHits;
 

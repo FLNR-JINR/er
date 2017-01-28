@@ -155,7 +155,7 @@ std::vector<Double_t> ERNeuRadPMTSignal::Intersections(Double_t discriminatorThr
 
   //Суммируем трапеции внутри промежутка
   for(Int_t i = st; i < fResFunctionRoot.GetSize()-1; i++){
-    res += 0.5*(fResFunctionRoot[i] + fResFunctionRoot[i+1])*(finish-start);
+    res += 0.5*(fResFunctionRoot[i] + fResFunctionRoot[i+1])*cdT;
   }
   
   return res;
@@ -183,5 +183,13 @@ std::vector<Double_t> ERNeuRadPMTSignal::Intersections(Double_t discriminatorThr
  		return -1;
  	return (peThreshold*OnePEIntegral()-fResFunctionRoot[prevI])/(fResFunctionRoot[lastI]-fResFunctionRoot[prevI])*(lastT-prevT)+prevT;
  }
+
+Double_t ERNeuRadPMTSignal::OnePEIntegral(){
+	Double_t res = 0.;
+	for (Int_t i=0; i<39; i++){
+		res += 0.5*(OnePEFunction(i*cdT,8.) + OnePEFunction((i+1)*cdT,8.))*cdT;
+	}
+	return res;
+}
 
 ClassImp(ERNeuRadPMTSignal)

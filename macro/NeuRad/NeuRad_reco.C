@@ -26,8 +26,8 @@ void NeuRad_reco(Int_t nEvents = 1000){
   //------------------------------------------------------------------------
 
   //------------------------------------------------------------------------
-  ERNeuRadMatcher* matcher = new ERNeuRadMatcher(1);
-  fRun->AddTask(matcher);
+  //ERNeuRadMatcher* matcher = new ERNeuRadMatcher(1);
+  //fRun->AddTask(matcher);
   //------------------------------------------------------------------------
   
   // -----------Runtime DataBase info -------------------------------------
