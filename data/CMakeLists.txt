@@ -53,6 +53,7 @@ NDData/ERNDHit.cxx
 DSRDData/ERDSRDPoint.cxx
 DSRDData/ERDSRDHit.cxx
 
+beamtime/RawEvent.cxx
 )
 
 # fill list of header files from list of source files
