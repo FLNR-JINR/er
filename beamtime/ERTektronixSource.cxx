@@ -9,12 +9,10 @@ using namespace std;
 ERTektronixSource::ERTektronixSource():
 fNPoints(1000),
 fNProcessedFiles(0),
-fNForProcFiles(0)
+fNForProcFiles(0),
+fNChanels(4),
+fRawEvents(NULL)
 {
-	fCh1 = new RawEvent(fNPoints);
-	fCh2 = new RawEvent(fNPoints);
-	fCh3 = new RawEvent(fNPoints);
-	fCh4 = new RawEvent(fNPoints);
 }
 
 ERTektronixSource::ERTektronixSource(const ERTektronixSource& source){
@@ -39,13 +37,16 @@ Bool_t ERTektronixSource::Init(){
 		}
 		fCurrentFiles[chanel] = 0;
 	}
-
-	//register data in output file
+	//Register new objects in output file
+	fRawEvents = new RawEvent*[fNChanels];
 	FairRootManager* ioman = FairRootManager::Instance();
-  	ioman->Register("ch1.", "Tektronix", fCh1, kTRUE);
-  	ioman->Register("ch2.", "Tektronix", fCh2, kTRUE);
-  	ioman->Register("ch3.", "Tektronix", fCh3, kTRUE);
-  	ioman->Register("ch4.", "Tektronix", fCh4, kTRUE);
+	for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
+		fRawEvents[iChanel] = new RawEvent(fNPoints);
+		TString bName;
+		bName.Form("ch%d.",iChanel+1);
+		ioman->Register(bName, "Tektronix", fRawEvents[iChanel], kTRUE);
+	}
+	
 	return kTRUE;
 }
 
@@ -69,14 +70,7 @@ Int_t ERTektronixSource::ReadEvent(UInt_t id){
 				break;
 			}
 			(*stream) >> data;
-			if (chanel== 1)
-				fCh1->SetAmp(data,iPoint);
-			if (chanel == 2)
-				fCh2->SetAmp(data,iPoint);
-			if (chanel == 3)
-				fCh3->SetAmp(data,iPoint);
-			if (chanel == 4)
-				fCh4->SetAmp(data,iPoint);
+			fRawEvents[chanel-1]->SetAmp(data,iPoint);
 		}
 	}
 	return 0;
@@ -86,10 +80,9 @@ void ERTektronixSource::Close(){
 }
 
 void ERTektronixSource::Reset(){
-	fCh1->Reset();
-	fCh2->Reset();
-	fCh3->Reset();
-	fCh4->Reset();
+	for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
+		fRawEvents[iChanel]->Reset();
+	}
 }
 
 void ERTektronixSource::AddFile(Int_t chanel, TString path){

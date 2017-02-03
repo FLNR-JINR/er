@@ -24,6 +24,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 	#ERDRS4Source.cxx
 	ERTektronixSource.cxx
+	ERRawToAnalyzeConverter.cxx
 )
 
 # fill list of header files from list of source files

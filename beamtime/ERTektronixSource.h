@@ -38,19 +38,18 @@ class ERTektronixSource : public FairSource
 
     void AddFile(Int_t chanel, TString path);
     void SetNPoints(Int_t pointsNb){fNPoints = pointsNb;}
+    void SetNChanels(Int_t chanels){fNChanels = chanels;}
   private:
     map<Int_t, vector<TString> > fPaths;
     map<Int_t, vector<ifstream*> > fFiles;
     Int_t fNPoints;
     Int_t fNProcessedFiles;
     Int_t fNForProcFiles;
+    Int_t fNChanels;
     map<Int_t, Int_t> fCurrentFiles;
 
     //Output data
-    RawEvent* fCh1;
-    RawEvent* fCh2;
-    RawEvent* fCh3;
-    RawEvent* fCh4;
+    RawEvent** fRawEvents;
   public:
     ClassDef(ERTektronixSource, 1)
 };

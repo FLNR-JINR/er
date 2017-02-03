@@ -6,5 +6,6 @@
 
 //#pragma link C++ class ERDRS4Source+;
 #pragma link C++ class ERTektronixSource+;
+#pragma link C++ class ERRawToAnalyzeConverter+;
 
 #endif
