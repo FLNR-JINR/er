@@ -6,7 +6,9 @@
 #include "TString.h"
 
 #include "FairSource.h"
+#include "FairRootManager.h"
 
+#include "RawEvent.h"
 
 typedef struct {
     char           tag[3];
@@ -69,8 +71,10 @@ class ERDRS4Source : public FairSource
     virtual Bool_t ReInitUnpackers(){return kTRUE;}
 
     void SetFile(TString path){fPath = path;}
+    void SetNChanels(Int_t chanels){fNChanels = chanels;}
+    void SetNPoints(Int_t points){fNPoints = points;}
   private:
-    FILE* fFile;
+    FILE* f;
     TString fPath;
     FHEADER  fh;
     THEADER  th;
@@ -90,6 +94,13 @@ class ERDRS4Source : public FairSource
 
     int ndt;
     double threshold, sumdt, sumdt2;
+
+    RawEvent** fRawEvents;
+    Int_t fNChanels;
+    Int_t fNPoints;
+
+  protected:
+    Int_t ReadHeader();
   public:
     ClassDef(ERDRS4Source, 1)
 };

@@ -1,6 +1,7 @@
 void RawToAnalyze(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "tektronix.out.root";
+  //TString inFile = "tektronix.out.root";
+  TString inFile = "drs4.out.root";
   TString outFile = "analyze.root";
   TString parFile = "par.root";
   // ------------------------------------------------------------------------
@@ -17,7 +18,7 @@ void RawToAnalyze(Int_t nEvents = 1000){
   // ---------------------------------------------------------
   Int_t verbose = 1;
   ERRawToAnalyzeConverter* converter = new ERRawToAnalyzeConverter(verbose);
-  converter->SetNPoints(1000);
+  converter->SetNPoints(1024);
   converter->SetNChanels(4);
   fRun->AddTask(converter);
   // ------------------------------------------------------------------------
