@@ -13,7 +13,8 @@ void DRS4_read()
   std::cout << ">>> output file is " << outFile << std::endl;
 
   // --- Source task
-  ERDRS4Source* source = new ERDRS4Source(inFile);
+  ERDRS4Source* source = new ERDRS4Source();
+  source->SetFile(inFile);
 
   // --- Run
   FairRunOnline *run = new FairRunOnline(source);

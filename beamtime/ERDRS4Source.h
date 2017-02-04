@@ -48,7 +48,7 @@ typedef struct {
 class ERDRS4Source : public FairSource
 {
   public:
-    ERDRS4Source(TString path);
+    ERDRS4Source();
     ERDRS4Source(const ERDRS4Source& source);
     virtual ~ERDRS4Source();
 
@@ -67,9 +67,29 @@ class ERDRS4Source : public FairSource
     virtual Bool_t InitUnpackers(){return kTRUE;}
 
     virtual Bool_t ReInitUnpackers(){return kTRUE;}
+
+    void SetFile(TString path){fPath = path;}
   private:
     FILE* fFile;
     TString fPath;
+    FHEADER  fh;
+    THEADER  th;
+    BHEADER  bh;
+    EHEADER  eh;
+    TCHEADER tch;
+    CHEADER  ch;
+
+    unsigned int scaler;
+    unsigned short voltage[1024];
+    double waveform[16][4][1024], time[16][4][1024];
+    float bin_width[16][4][1024];
+    int i, j, b, chn, n, chn_index, n_boards;
+    double t1, t2, t3, t4, dt, dt34;
+    char filename[256]; //for input binary file
+    char outroot[256];  //for output root file
+
+    int ndt;
+    double threshold, sumdt, sumdt2;
   public:
     ClassDef(ERDRS4Source, 1)
 };

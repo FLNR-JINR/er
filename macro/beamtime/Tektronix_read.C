@@ -25,6 +25,9 @@ void Tektronix_read()
 	source->AddFile(4,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch42016.12.07-08.48.05.dat");
 	source->AddFile(4,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch42016.12.07-10.03.01.dat");
 
+	source->SetNPoints(1000);
+	source->SetNChanels(4);
+
 	// --- Run
 	FairRunOnline *run = new FairRunOnline(source);
 	run->SetOutputFile(outFile);

@@ -55,7 +55,7 @@ Int_t ERTektronixSource::ReadEvent(UInt_t id){
 	if (fNForProcFiles == fNProcessedFiles)
 		return 1;
 	
-	Double_t data;
+	Double_t amplitude;
 	for (std::map<int,vector<ifstream*> >::iterator it=fFiles.begin(); it!=fFiles.end(); ++it){
 		Int_t chanel = it->first;
 		vector<ifstream*> chanelFiles= it->second;
@@ -69,8 +69,10 @@ Int_t ERTektronixSource::ReadEvent(UInt_t id){
 				fNProcessedFiles++;
 				break;
 			}
-			(*stream) >> data;
-			fRawEvents[chanel-1]->SetAmp(data,iPoint);
+			(*stream) >> amplitude;
+			fRawEvents[chanel-1]->SetAmp(amplitude,iPoint);
+			Double_t time = 5e-04+iPoint*1e-01;
+			fRawEvents[chanel-1]->SetTime(time,iPoint);
 		}
 	}
 	return 0;

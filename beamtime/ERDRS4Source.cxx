@@ -6,12 +6,10 @@
 #include <iostream>
 using namespace std;
 
-ERDRS4Source::ERDRS4Source(TString path):
-fPath(path)
+ERDRS4Source::ERDRS4Source()
 {
 }
 ERDRS4Source::ERDRS4Source(const ERDRS4Source& source){
-
 }
 
 ERDRS4Source::~ERDRS4Source(){
@@ -31,27 +29,26 @@ Bool_t ERDRS4Source::Init(){
 
 Int_t ERDRS4Source::ReadEvent(UInt_t id){
 	cerr << "ReadEvent" << endl;
-	FILE* f = fFile;
-	const char* filename = fPath.Data();
-	FHEADER  fh;
-	THEADER  th;
-	BHEADER  bh;
-	EHEADER  eh;
-	TCHEADER tch;
-	CHEADER  ch;
-
-	unsigned int scaler;
-	unsigned short voltage[1024];
-	double waveform[16][4][1024], time[16][4][1024];
-	float bin_width[16][4][1024];
-	int i, j, b, chn, n, chn_index, n_boards;
-	double t1, t2, t3, t4, dt, dt34;
-
-	int ndt;
-	double threshold, sumdt, sumdt2;
-	RawEvent* event[4];
 
 	TString bName;
+	RawEvent* event[4];
+	for (Int_t i = 0; i<4; i++) {
+	//	RawEvent* event = new RawEvent[i];
+		event[i] = new RawEvent();
+
+		//bName.Form("ch%d.", i);
+		//rtree->Bronch(bName.Data(), "RawEvent", &event[i]);
+	}
+
+	//----------------
+	strcpy(filename, fPath.Data());
+	// open the binary waveform file
+	FILE *f = fopen(filename, "r");
+	if (f == NULL) {
+		printf("Cannot find file \'%s\'\n", filename);
+		return 0;
+	}
+
 	// read file header
 	fread(&fh, sizeof(fh), 1, f);
 	if (fh.tag[0] != 'D' || fh.tag[1] != 'R' || fh.tag[2] != 'S') {
@@ -241,9 +238,13 @@ Int_t ERDRS4Source::ReadEvent(UInt_t id){
 				sumdt2 += dt*dt;
 			}
 		} //end of the boards loop
+
+//		event->SetGraphs();
+
 	} // end of the events loop
 
 	// print statistics
+	printf("dT = %1.3lfns +- %1.1lfps\n", sumdt/ndt, 1000*sqrt(1.0/(ndt-1)*(sumdt2-1.0/ndt*sumdt*sumdt)));
 	return 1;
 }
 

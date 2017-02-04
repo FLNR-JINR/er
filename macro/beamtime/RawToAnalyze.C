@@ -17,6 +17,8 @@ void RawToAnalyze(Int_t nEvents = 1000){
   // ---------------------------------------------------------
   Int_t verbose = 1;
   ERRawToAnalyzeConverter* converter = new ERRawToAnalyzeConverter(verbose);
+  converter->SetNPoints(1000);
+  converter->SetNChanels(4);
   fRun->AddTask(converter);
   // ------------------------------------------------------------------------
   
