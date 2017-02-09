@@ -1,27 +1,26 @@
 Detector development
-======
+====================
 
 NeuRad
 -------------------------
 
-Description of the prototype. Материал сцинтиллятора задан как стехиометрический эквивалент полистирола. Наличие МА ФЭУ на торцах прибора моделируется прямоугольными  пластинами из алюминия толщиной 2.4 мм.
-
-::
-
-  BC408               2  1.00794  12.0107  1.  6.  1.032  0.0764  0.916
-                      1  1  20.  .001
-                      0
-  aluminium           1  26.98 13. 2.7
-                      0  1  20.  .001
-                      0
-  vacuum              1  1.e-16  1.e-16  1.e-16
-                      0  1  20.  .001
-                      0
+Description of the prototype.
 
 Wuppertal tests
 ~~~~~~~~~~~~~~~
 
-Energy resolution measurements. Where can be experimental data found?
+Energy resolution measurements. 
+
+Experimental data
+""""""""""""""""""
+
+Raw experimental data are stored at
+
+::
+
+	exolina2.jinr.ru:/media/users_NAS/NeuRad/WPT_tests
+
+В названиях файлов «*» - всегда значит «любой символ». nxtrim1  в названии файла обозначают, что по каждому каналу выставлены индивидуальные пороги с целью более-менее выровнять скорости счета. Значение после thr говорит об общей, одинаковой для всех каналов, добавке к индивидуальным порогам. См также PDF скан логбука от Андрея Безбаха.
 
 Все измерения можно сгруппировать следующим образом.
 
@@ -32,7 +31,7 @@ Energy resolution measurements. Where can be experimental data found?
 
 
 Измерения без ФЭУ
-""""""""""""""""""
+"""""""""""""""""
 
 Это калибровочные измерения. Импульс напряжения с точного генератора посылался через резистор и плату аттеньюатор (емкостной делитель) на вход поочередно каждого из 64 использованных каналов NXyter (всего каналов 128). Электрическая схема измерений показана на рис. **X**. Если мы ничего не упустили (типа забытого шунтирующего резистора), заряд, инжектированный в канал, определяется напряжением и длительностью импульса (100ns) и составляет  
 
@@ -152,9 +151,23 @@ Energy resolution measurements. Where can be experimental data found?
 	4.7nF_12okt_measure_with_opt_grease/ HV1000_Sci_grease_Cs137_collim_inFront_15mm15mm_MetBlockatPMTside_thr50_nxtrim1_11oct_30min_4.7nF_0000.lmd
 
 
+Data processing
+"""""""""""""""
+
+Software for data processing is divided into two parts. First of them is Qt application dealing with *.lmd raw files with ability to convert them into two ROOT files. One containing histograms and second with ROOT TTree. This tool can be downloaded from
+
+	https://github.com/evovch/LMD_processor
 
 
-Description of used PMT's, employed electronics (amplifier and attenuators as well) and probably also gamma sources. Some picture from the measurements.
+
+
+
+
+available at
+
+	http://er.jinr.ru:90/vratislav.chudoba/NeuRad_tests
+
+For the moment, processing is 
 
 Something about methods used for data analysis. Pictures (single-electron spectra; unlinearity; callibration to 1e units, ...)
 
@@ -166,13 +179,22 @@ Measurement of time time resolution. Or time capabilities of the detector.
 
 Description of used setup and electronics. Difference between Tektronix and DSR4.
 
+Experimental data
+"""""""""""""
+
+Raw experimental data are stored at
+
+::
+
+	exolina2.jinr.ru:/media/users_NAS/NeuRad/NeuRad_tests_data
+
+
 Used methods for data processing (CFD, threshold of the signal)
 
-Results (summary form of the PMT signal, resolution of the front-edge, relative time between signals, ...)
+Results
+"""""""""
 
-
-Lower heading
-"""""""""""""
+(summary form of the PMT signal, resolution of the front-edge, relative time between signals, ...)
 
 Some text.
 
