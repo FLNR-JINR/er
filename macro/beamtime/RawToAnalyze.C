@@ -1,12 +1,10 @@
-void NeuRad_reco(Int_t nEvents = 1000){
+void RawToAnalyze(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "digi.root";
-  TString simFile = "sim.root";
-  TString outFile = "reco.root";
+  //TString inFile = "tektronix.out.root";
+  TString inFile = "drs4.out.root";
+  TString outFile = "analyze.root";
   TString parFile = "par.root";
-  TString parOutFile = "parOut.root";
   // ------------------------------------------------------------------------
-  
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -15,36 +13,29 @@ void NeuRad_reco(Int_t nEvents = 1000){
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
-  fRun->AddFriend(simFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
- 
-  // ------------------------NeuRadHitProducer-------------------------------- 
-  ERNeuRadHitFinder* hitProducer = new ERNeuRadHitFinder(1);
-  hitProducer->SetPixelThreshold(2.);
-  fRun->AddTask(hitProducer);
-  //------------------------------------------------------------------------
-
-  //------------------------------------------------------------------------
-  //ERNeuRadMatcher* matcher = new ERNeuRadMatcher(1);
-  //fRun->AddTask(matcher);
-  //------------------------------------------------------------------------
+  // ---------------------------------------------------------
+  Int_t verbose = 1;
+  ERRawToAnalyzeConverter* converter = new ERRawToAnalyzeConverter(verbose);
+  converter->SetNPoints(1024);
+  converter->SetNChanels(4);
+  fRun->AddTask(converter);
+  // ------------------------------------------------------------------------
   
   // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo*  parInput = new FairParRootFileIo();
+  parInput->open(parFile.Data(), "UPDATE");
   
-  FairParRootFileIo*  parIo1 = new FairParRootFileIo();
-  parIo1->open(parFile.Data(), "UPDATE");
-  rtdb->setFirstInput(parIo1);
-  
+  rtdb->setFirstInput(parInput);  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
-  //FairParRootFileIo*  parIo2 = new FairParRootFileIo();
-  //parIo2->open(parOutFile.Data());
-  rtdb->setOutput(parIo1);
+  rtdb->setOutput(parInput);
   rtdb->saveOutput();
+  
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
@@ -56,6 +47,4 @@ void NeuRad_reco(Int_t nEvents = 1000){
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-  
-  
 }

@@ -10,6 +10,7 @@ ${CMAKE_SOURCE_DIR}/data
 ${CMAKE_SOURCE_DIR}/data/NeuRadData
 ${CMAKE_SOURCE_DIR}/data/muSiData
 ${CMAKE_SOURCE_DIR}/data/NDData
+${CMAKE_SOURCE_DIR}/data/beamtime
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -53,6 +54,8 @@ NDData/ERNDHit.cxx
 DSRDData/ERDSRDPoint.cxx
 DSRDData/ERDSRDHit.cxx
 
+beamtime/RawEvent.cxx
+beamtime/AEvent.cxx
 )
 
 # fill list of header files from list of source files

@@ -72,6 +72,7 @@ public:
   virtual Double_t MaxInteg(const Double_t window, const Double_t dt) {return -1.;}
   virtual Double_t Integ(const Double_t start,const Double_t finish);
   virtual Double_t FirstInteg(const Double_t window);
+  virtual Double_t FullInteg(){return Integ(fStartTime,fFinishTime);}
   virtual Double_t Mean(const Double_t time) {return -1.;}
 
   virtual Double_t StartTime() {return fStartTime;} 
@@ -79,7 +80,7 @@ public:
 
   virtual Float_t ThresholdTime(Float_t peThreshold);
 
-  virtual Double_t OnePEIntegral() {return 4.8;}
+  virtual Double_t OnePEIntegral();
 
   virtual Int_t PECount() {return fPECount;}
 

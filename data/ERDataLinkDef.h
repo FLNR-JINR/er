@@ -35,4 +35,7 @@
 #pragma link C++ class ERDSRDPoint+;
 #pragma link C++ class ERDSRDHit+;
 
+#pragma link C++ class RawEvent+;
+#pragma link C++ class AEvent+;
+
 #endif
