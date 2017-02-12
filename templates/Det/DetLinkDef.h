@@ -4,6 +4,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class detectorPoint+;
+#pragma link C++ class Det;
+#pragma link C++ class DetPoint+;
 
 #endif
