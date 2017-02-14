@@ -17,6 +17,7 @@ using namespace std;
 DetHitFinder::DetHitFinder()
   : FairTask("Det hit producing scheme")
 {
+  fHits = new TClonesArray("DetHit",1000);
 }
 // ----------------------------------------------------------------------------
 
@@ -24,6 +25,7 @@ DetHitFinder::DetHitFinder()
 DetHitFinder::DetHitFinder(Int_t verbose)
   : FairTask("Det hit producing scheme ", verbose)
 {
+  fHits = new TClonesArray("DetHit",1000);
 }
 // ----------------------------------------------------------------------------
 
@@ -57,7 +59,6 @@ InitStatus DetHitFinder::Init()
     Fatal("Init", "Can`t find collection DetPoints!"); 
 
   // Register output array fHits
-  fHits = new TClonesArray("DetHit",1000);
   ioman->Register("DetHits", "Det", fHits, kTRUE);
 
    
@@ -70,7 +71,7 @@ void DetHitFinder::Exec(Option_t* opt)
 {
   Reset();
 
-  for (Int_t iPoint = 0; iPoint < fHits->GetEntriesFast(); iPoint++){
+  for (Int_t iPoint = 0; iPoint < fPoints->GetEntriesFast(); iPoint++){
     DetPoint* point = (DetPoint*)fPoints->At(iPoint);
     Float_t time = point->GetTime();
     Float_t eloss = point->GetEnergyLoss();

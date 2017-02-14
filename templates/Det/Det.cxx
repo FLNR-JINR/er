@@ -11,6 +11,7 @@ using namespace std;
 // -----   Default constructor   -------------------------------------------
 Det::Det() : FairDetector("Det", kTRUE)
 {
+  fPoints = new TClonesArray("DetPoint",1000);
 }
 // -------------------------------------------------------------------------
 
@@ -18,6 +19,7 @@ Det::Det() : FairDetector("Det", kTRUE)
 Det::Det(const char* name, Bool_t active, Int_t verbose) 
   : FairDetector(name, active,verbose)
 {
+  fPoints = new TClonesArray("DetPoint",1000);
 }
 
 Det::~Det(){
@@ -90,7 +92,6 @@ void Det::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
 	Fatal("Init", "IO manager is not set");
-  fPoints = new TClonesArray("DetPoint",1000);
   ioman->Register("DetPoints","Det", fPoints, kTRUE);
 }
 // ----------------------------------------------------------------------------
