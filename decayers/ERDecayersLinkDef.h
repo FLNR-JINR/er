@@ -11,6 +11,4 @@
 #pragma link C++ class ERDecay31Arto30Ar+;
 #pragma link C++ class ERDecay30Arto28S2p+;
 #pragma link C++ class ERDecayLi9DetoLi10_Li9n_p+;
-#pragma link C++ class Decay+;
-
 #endif
