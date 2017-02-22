@@ -23,9 +23,10 @@ class ERRunSim : public FairRunSim
     */
     virtual void        Init();
 
-    void SetDecayer(ERDecayer* deacyer){((ERMCApplication*)fApp)->SetDecayer(deacyer);}
+    void SetDecayer(ERDecayer* decayer){fDecayer = decayer;}
 
   private:
+    ERDecayer* fDecayer;
     ERRunSim(const ERRunSim& M);
     ERRunSim& operator= (const  ERRunSim&) {return *this;}
 

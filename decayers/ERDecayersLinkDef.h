@@ -6,6 +6,7 @@
 
 #pragma link C++ class ERDecayer+;
 #pragma link C++ class ERDecay+;
+#pragma link C++ class ERTextDecay+;
 #pragma link C++ class ERDecay27Fto26O+;
 #pragma link C++ class ERDecay26Oto24O2n+;
 #pragma link C++ class ERDecay31Arto30Ar+;

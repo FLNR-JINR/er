@@ -13,6 +13,7 @@ using namespace std;
 #include "ERMCEventHeader.h"      //for ERMCEventHeader
 
 ERDecay30Arto28S2p::ERDecay30Arto28S2p():
+  ERDecay("30Arto28S2p"),
   fDirectReactionFinish(kFALSE),
   fTauCM(100.) //ps
 {
@@ -27,18 +28,23 @@ ERDecay30Arto28S2p::~ERDecay30Arto28S2p(){
 
 }
 
+Bool_t ERDecay30Arto28S2p::Init(){
+
+  if ( ! fSecondIon ) {
+      std::cerr  << "-W- ERDecay30Arto28S2p: Ion ExpertSecondIon not found in database!" << endl;
+      return kFALSE;
+  }
+  fThirdIon  = TDatabasePDG::Instance()->GetParticle("ExpertThirdIon");
+  if ( ! fThirdIon ) {
+      std::cerr << "-W- ERDecay30Arto28S2p: Ion not ExpertThirdIon found in database!" << endl;
+      return kFALSE;
+  }
+  return kTRUE;
+}
+
 Bool_t ERDecay30Arto28S2p::Stepping(){
   if(!fDirectReactionFinish && gMC->TrackPid() == 1000180300){
   	fSecondIon = TDatabasePDG::Instance()->GetParticle("ExpertSecondIon");
-    if ( ! fSecondIon ) {
-        std::cerr  << "-W- ERDecay30Arto28S2p: Ion ExpertSecondIon not found in database!" << endl;
-        return kFALSE;
-    }
-    fThirdIon  = TDatabasePDG::Instance()->GetParticle("ExpertThirdIon");
-    if ( ! fThirdIon ) {
-        std::cerr << "-W- ERDecay30Arto28S2p: Ion not ExpertThirdIon found in database!" << endl;
-        return kFALSE;
-    }
 
     gMC->SetMaxStep(0.01);
     Int_t newTrackNb;

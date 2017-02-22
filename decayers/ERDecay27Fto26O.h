@@ -26,6 +26,7 @@ public:
 	~ERDecay27Fto26O();
 
 	Bool_t Stepping();
+	Bool_t Init();
 
 	void BeginEvent();
 	void FinishEvent();

@@ -29,6 +29,7 @@ public:
 	~ERDecay30Arto28S2p();
 
 	Bool_t Stepping();
+	Bool_t Init();
 
 	void BeginEvent();
 	void FinishEvent();

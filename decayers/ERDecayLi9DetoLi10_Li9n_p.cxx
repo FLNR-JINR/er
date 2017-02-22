@@ -15,6 +15,7 @@ using namespace std;
 #include "ERLi10MCEventHeader.h"      //for ERMCEventHeader
 
 ERDecayLi9DetoLi10_Li9n_p::ERDecayLi9DetoLi10_Li9n_p():
+  ERDecay("Li9DetoLi10_Li9n_p"),
   fTargetReactionFinish(kFALSE),
   fTargetReactZ(0.),
   fLi9(NULL),
@@ -30,6 +31,42 @@ ERDecayLi9DetoLi10_Li9n_p::ERDecayLi9DetoLi10_Li9n_p():
   FairIon* Li9Ion = new FairIon("Li9",3,9,3);
   run->AddNewIon(Li9Ion);
 }
+
+Bool_t ERDecayLi9DetoLi10_Li9n_p::Init(){
+
+    fLi10 = TDatabasePDG::Instance()->GetParticle("Li10");
+    if ( ! fLi10 ) {
+        std::cerr  << "-W- ERDecayLi9DetoLi10_Li9n_p: Ion Li10 not found in database!" << endl;
+        return kFALSE;
+    }
+
+    fLi9 = TDatabasePDG::Instance()->GetParticle("Li9");
+    if ( ! fLi9 ) {
+        std::cerr  << "-W- ERDecayLi9DetoLi10_Li9n_p: Ion Li9 not found in database!" << endl;
+        return kFALSE;
+    }
+    
+    fH2 = TDatabasePDG::Instance()->GetParticle("Deuteron");
+    if ( ! fH2 ) {
+        std::cerr  << "-W- ERDecayLi9DetoLi10_Li9n_p: Ion Deuteron not found in database!" << endl;
+        return kFALSE;
+    }
+
+    fn = TDatabasePDG::Instance()->GetParticle("neutron");
+    if ( ! fn ) {
+        std::cerr  << "-W- ERDecayLi9DetoLi10_Li9n_p: Particle neutron not found in database!" << endl;
+        return kFALSE;
+    }
+
+    fp = TDatabasePDG::Instance()->GetParticle("proton");
+    if ( ! fp ) {
+        std::cerr  << "-W- ERDecayLi9DetoLi10_Li9n_p: Particle proton not found in database!" << endl;
+        return kFALSE;
+    }
+
+  return kTRUE;
+}
+
 
 ERDecayLi9DetoLi10_Li9n_p::~ERDecayLi9DetoLi10_Li9n_p(){
 
@@ -48,35 +85,6 @@ Bool_t ERDecayLi9DetoLi10_Li9n_p::Stepping(){
   		ERLi10MCEventHeader* header = (ERLi10MCEventHeader*)run->GetMCEventHeader();
   		header->SetReactionTime(gMC->TrackTime() * 1.0e09);
 
-	    fLi10 = TDatabasePDG::Instance()->GetParticle("Li10");
-	    if ( ! fLi10 ) {
-	        std::cerr  << "-W- ERDecayLi9DetoLi10_Li9n_p: Ion Li10 not found in database!" << endl;
-	        return kFALSE;
-	    }
-
-	    fLi9 = TDatabasePDG::Instance()->GetParticle("Li9");
-	    if ( ! fLi9 ) {
-	        std::cerr  << "-W- ERDecayLi9DetoLi10_Li9n_p: Ion Li9 not found in database!" << endl;
-	        return kFALSE;
-	    }
-	    
-	    fH2 = TDatabasePDG::Instance()->GetParticle("Deuteron");
-	    if ( ! fH2 ) {
-	        std::cerr  << "-W- ERDecayLi9DetoLi10_Li9n_p: Ion Deuteron not found in database!" << endl;
-	        return kFALSE;
-	    }
-
-	    fn = TDatabasePDG::Instance()->GetParticle("neutron");
-	    if ( ! fn ) {
-	        std::cerr  << "-W- ERDecayLi9DetoLi10_Li9n_p: Particle neutron not found in database!" << endl;
-	        return kFALSE;
-	    }
-
-	    fp = TDatabasePDG::Instance()->GetParticle("proton");
-	    if ( ! fp ) {
-	        std::cerr  << "-W- ERDecayLi9DetoLi10_Li9n_p: Particle proton not found in database!" << endl;
-	        return kFALSE;
-	    }
 	    const double E10Li=600*10e-6; //600 KeV
 	    const double mass9Li=fLi9->Mass();
 	    const double mass1H=fp->Mass();

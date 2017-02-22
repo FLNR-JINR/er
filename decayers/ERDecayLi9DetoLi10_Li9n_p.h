@@ -34,6 +34,8 @@ public:
 	void BeginEvent();
 	void FinishEvent();
 
+	Bool_t Init();
+
 	ClassDef(ERDecayLi9DetoLi10_Li9n_p,1)
 };
 

@@ -20,10 +20,11 @@ public:
 
 	Bool_t Stepping();
 
-	void AddDecay(ERDecay* decay) {fDecays.push_back(decay);}
+	void AddDecay(ERDecay* decay);
 
 	void BeginEvent();
 	void FinishEvent();
+	Bool_t Init();
 
 	ClassDef(ERDecayer, 1)
 };

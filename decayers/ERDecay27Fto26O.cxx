@@ -13,6 +13,7 @@ using namespace std;
 #include "ERMCEventHeader.h"      //for ERMCEventHeader
 
 ERDecay27Fto26O::ERDecay27Fto26O():
+  ERDecay("27Fto26O"),
   fTargetReactionFinish(kFALSE),
   fTargetReactZ(0.),
   fSecondaryIonPDG(-1)
@@ -27,6 +28,16 @@ ERDecay27Fto26O::~ERDecay27Fto26O(){
 
 }
 
+Bool_t ERDecay27Fto26O::Init(){
+
+	fSecondIon = TDatabasePDG::Instance()->GetParticle("ExpertSecondIon");
+	if ( ! fSecondIon ) {
+	    std::cerr  << "-W- ERDecay27Fto26O: Ion ExpertSecondIon not found in database!" << endl;
+	    return kFALSE;
+	}
+   return kTRUE;
+}
+
 Bool_t ERDecay27Fto26O::Stepping(){
   //Определяемся с текущим положением.
   if (gMC->TrackPid() == 1000090270 && !fTargetReactionFinish && TString(gMC->CurrentVolName()).Contains("target")){
@@ -37,11 +48,6 @@ Bool_t ERDecay27Fto26O::Stepping(){
 		std::cout << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
 		FairRunSim* run = FairRunSim::Instance();
 		//Create new ion
-	    fSecondIon = TDatabasePDG::Instance()->GetParticle("ExpertSecondIon");
-	    if ( ! fSecondIon ) {
-	        std::cerr  << "-W- ERDecay27Fto26O: Ion ExpertSecondIon not found in database!" << endl;
-	        return kFALSE;
-	    }
 		TLorentzVector curMomentum;
 		gMC->TrackMomentum(curMomentum);
   

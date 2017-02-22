@@ -35,7 +35,9 @@ using std::cout;
 using std::endl;
 
 /** default ctor*/
-ERRunSim::ERRunSim(Bool_t isMaster){
+ERRunSim::ERRunSim(Bool_t isMaster):
+fDecayer(NULL)
+{
 
 }
 /** default dtor*/
@@ -139,8 +141,13 @@ void  ERRunSim::Init(){
   /**Set the configuration for MC engine*/
   SetMCConfig();
   fRootManager->WriteFileHeader(fFileHeader);
-}
 
+  if (fDecayer){
+    ((ERMCApplication*)fApp)->SetDecayer(fDecayer);
+    if (!fDecayer->Init())
+      Fatal("ERRunSim::Init", "Decayer init problem");
+  }
+}
 void ERRunSim::SetMCConfig()
 {
   /** Private method for setting simulation and/or Geane configuration and cuts*/

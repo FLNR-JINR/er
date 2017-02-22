@@ -12,7 +12,8 @@ using namespace std;
 //#include "ERTarget.h"
 #include "ERMCEventHeader.h"      //for ERMCEventHeader
 
-ERDecay::ERDecay()
+ERDecay::ERDecay(TString name):
+fName(name)
 {
 }
 
