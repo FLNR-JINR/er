@@ -34,6 +34,7 @@ public:
     virtual void          FinishEvent();                                    // MC Application
 
     void SetDecayer(ERDecayer* decayer){fDecayer = decayer;}
+    ERDecayer* GetDecayer() {return fDecayer;}
   private:
   	ERDecayer* fDecayer;
   	

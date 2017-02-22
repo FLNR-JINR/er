@@ -1,4 +1,4 @@
-void run_sim_27F(int nEvents = 1){
+void textDecay(Int_t nEvents = 10){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -11,22 +11,9 @@ void run_sim_27F(int nEvents = 1){
  
   // -----   Create simulation run   ----------------------------------------
   ERRunSim* run = new ERRunSim();
-  /** Select transport engine
-  * TGeant3
-  * TGeant4
-  **/
-  run->SetName("TGeant4");              // Transport engine
-  run->SetOutputFile(outFile.Data());          // Output file
+  run->SetName("TGeant4");
+  run->SetOutputFile(outFile.Data());
   // ------------------------------------------------------------------------
-  
-  //------    ER Deacayer   -------------------------------------------------
-  ERDecayer* decayer = new ERDecayer();
-  ERDecay* targetDecay = new ERDecay27Fto26O();
-  decayer->AddDecay(targetDecay);
-  ERDecay26Oto24O2n* directDecay = new ERDecay26Oto24O2n();
-  directDecay->SetDirectReactionTauCM(100.);
-  decayer->AddDecay(directDecay);
-  //-------------------------------------------------------------------------
 
   // -----   Runtime database   ---------------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
@@ -36,65 +23,47 @@ void run_sim_27F(int nEvents = 1){
   run->SetMaterials("media.geo");       // Materials
   // ------------------------------------------------------------------------
 
-  //-------- Set MC event header --------------------------------------------
-  ERMCEventHeader* header = new ERMCEventHeader();
-  run->SetMCEventHeader(header);
-  //-------------------------------------------------------------------------
-
   // -----   Create detectors  ----------------------------------------------	
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
-  
-  FairModule* target = new ERTarget("Target", kTRUE,1);
-  target->SetGeometryFileName("target.geo.root");
-  run->AddModule(target);
-
-  // ER muSi definition
-  ERmuSi* muSi= new ERmuSi("ERmuSi", kTRUE,1);
-  muSi->SetGeometryFileName("muSi.geo.root");
-  run->AddModule(muSi);
-
-  // ER Gadast definition
-  ERGadast* gadast= new ERGadast("ERGadast", kTRUE);
-  gadast->SetVerboseLevel(1);
-  gadast->SetGeometryFileName("gadast.gdml");
-  run->AddModule(gadast);
-
-  // ER NeuRad definition
-  ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,1);
-  neuRad->SetGeometryFileName("NeuRad.v2.geo.root");
-  run->AddModule(neuRad);
   // ------------------------------------------------------------------------
+    //------    ER Deacayer   -------------------------------------------------
+  ERDecayer* decayer = new ERDecayer();
+  ERTextDecay* decay = new ERTextDecay("Li10toLi9");
+  decay->SetInputIon(3,10,3);
+  decay->SetOutputIon(3,9,3);
+  decay->AddOutputParticle(2212);
+  decay->AddOutputParticle(2212);
+  decay->SetDecayPos(10.);
+  decayer->AddDecay(decay);
+  run->SetDecayer(decayer);
+  //-------------------------------------------------------------------------
+
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
-  //Ion 27F
-  Int_t A = 27;
-  Int_t Z = 9;
-  Int_t Q = 9;
-  Double_t Pz = 0.7;// AGeV
-  FairIonGenerator* ionGenerator = new FairIonGenerator(Z,A,Q,1,0.,0.,Pz,0.,0.,-10.);
-
+  ERIonGenerator* ionGenerator = new ERIonGenerator("Li9",3,10,3,1);
+  Double32_t kin_energy = 0.025*9; //GeV
+  Double_t mass = ionGenerator->Ion()->GetMass();
+  Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
+  ionGenerator->SetPRange(momentum, momentum);
+  Double32_t theta1 = 0.;  // polar angle distribution
+  Double32_t theta2 = 0.0001*TMath::RadToDeg();
+  ionGenerator->SetThetaRange(theta1, theta2);
+  ionGenerator->SetPhiRange(0, 360);
+  ionGenerator->SetBoxXYZ(-0.4,-0.4,0.4,0.4,-10);
   primGen->AddGenerator(ionGenerator);
-    
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
-	
+
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
 	
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-
-  //------Set magnetic field ------------------------------------------------
-  FairConstField* fMagField = new FairConstField();
-  fMagField->SetField(50.,0.,0.);//values are in kG, 1T = 10kG
-  fMagField->SetFieldRegion(-200,200.,-200.,200.,1000.,2500.); // in cm
-  run->SetField(fMagField);
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
-  run->SetDecayer(decayer);
   //-------------------------------------------------------------------------
   // -----   Runtime database   ---------------------------------------------
   Bool_t kParameterMerged = kTRUE;

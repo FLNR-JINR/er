@@ -60,7 +60,7 @@ void run_sim_31Ar(int nEvents = 1){
 
   // ER NeuRad definition
   ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,1);
-  neuRad->SetGeometryFileName("NeuRad_v2.geo.root");
+  neuRad->SetGeometryFileName("NeuRad.v2.geo.root");
   run->AddModule(neuRad);
   // ------------------------------------------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------

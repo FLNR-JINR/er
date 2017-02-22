@@ -17,6 +17,16 @@ Bool_t ERDecayer::Stepping(){
       return kFALSE;
   }
   return kTRUE;
+}
+
+Bool_t ERDecayer::Init(){
+  for (vector<ERDecay*>::iterator it = fDecays.begin(); it != fDecays.end(); ++it){
+    ERDecay* decay = (*it);
+    cout << "Decay " << decay->GetName() << " initialized!" << endl;
+    if (!decay->Init())
+      return kFALSE;
+  }
+  return kTRUE;
 } 
 
 void ERDecayer::BeginEvent(){
@@ -31,6 +41,11 @@ void ERDecayer::FinishEvent(){
     ERDecay* decay = (*it);
     decay->FinishEvent();
   }
+}
+
+void ERDecayer::AddDecay(ERDecay* decay) {
+  cout << "Decay " << decay->GetName() << " added!" << endl;
+  fDecays.push_back(decay);
 }
 
 ClassImp(ERDecayer)

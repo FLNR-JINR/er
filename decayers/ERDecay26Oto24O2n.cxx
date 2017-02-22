@@ -13,8 +13,9 @@ using namespace std;
 #include "ERMCEventHeader.h"      //for ERMCEventHeader
 
 ERDecay26Oto24O2n::ERDecay26Oto24O2n():
+  ERDecay("26Oto24O2n"),
   fDirectReactionFinish(kFALSE),
-  fTauCM(100.) //ps
+  fTauCM(100.)
 {
   fRnd = new TRandom3();
   fPHSpace = new TGenPhaseSpace();
@@ -27,9 +28,9 @@ ERDecay26Oto24O2n::~ERDecay26Oto24O2n(){
 
 }
 
-Bool_t ERDecay26Oto24O2n::Stepping(){
-  if(!fDirectReactionFinish && gMC->TrackPid() == 1000080260){
-  	fSecondIon = TDatabasePDG::Instance()->GetParticle("ExpertSecondIon");
+Bool_t ERDecay26Oto24O2n::Init(){
+
+    fSecondIon = TDatabasePDG::Instance()->GetParticle("ExpertSecondIon");
     if ( ! fSecondIon ) {
         std::cerr  << "-W- ERDecay26Oto24O2n: Ion ExpertSecondIon not found in database!" << endl;
         return kFALSE;
@@ -39,6 +40,10 @@ Bool_t ERDecay26Oto24O2n::Stepping(){
         std::cerr << "-W- ERDecay26Oto24O2n: Ion not ExpertThirdIon found in database!" << endl;
         return kFALSE;
     }
+}
+
+Bool_t ERDecay26Oto24O2n::Stepping(){
+  if(!fDirectReactionFinish && gMC->TrackPid() == 1000080260){
 
     gMC->SetMaxStep(0.01);
     Int_t newTrackNb;
