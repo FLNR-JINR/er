@@ -211,8 +211,6 @@ add_subdirectory (ND)
 add_subdirectory (DSRD)
 add_subdirectory (global)
 add_subdirectory (beamtime)
-add_subdirectory (NDet)
-add_subdirectory (PDet)
 
 Execute_Process(COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-opengl
                 OUTPUT_VARIABLE EveIsBuild
