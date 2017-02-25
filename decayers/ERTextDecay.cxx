@@ -206,7 +206,7 @@ void ERTextDecay::SetUniformPos(Double_t a, Double_t b){
   fUniformB = b;
 }
 
-void ERTextDecay::SetExponential(Double_t start, Double_t tau){
+void ERTextDecay::SetExponentialPos(Double_t start, Double_t tau){
   fExponential = kTRUE;
   fExponentialStart = start;
   fExponentialTau = tau;

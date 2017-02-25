@@ -61,7 +61,7 @@ public:
 	void AddOutputParticle(Int_t pdg);
   void SetFileName(TString name){fFileName = name;}
   void SetUniformPos(Double_t a, Double_t b);
-  void SetExponential(Double_t start, Double_t tau);
+  void SetExponentialPos(Double_t start, Double_t tau);
 	ClassDef(ERTextDecay,1)
 };
 
