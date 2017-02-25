@@ -6,6 +6,7 @@
 
 #include "TRandom3.h"
 #include "TGenPhaseSpace.h"
+#include "TLorentzVector.h"
 
 #include "FairIon.h"
 
@@ -19,13 +20,19 @@ private:
 
 	TParticlePDG*   fInputIonPDG;
 	TParticlePDG*   fOutputIonPDG;
-    std::vector<TParticlePDG*> fOutputParticlesPDG;
+  std::vector<TParticlePDG*> fOutputParticlesPDG;
 
-    Double_t fDecayPos;
-  	Bool_t fDecayFinish;
+  Double_t fDecayPos;
+  Bool_t fDecayFinish;
 
-  	FairIon* fInputIon;
-  	FairIon* fOutputIon;
+  FairIon* fInputIon;
+  FairIon* fOutputIon;
+  
+  TString fFileName;
+  Bool_t ReadFile();
+  
+  std::vector<std::vector<TLorentzVector> > fDecays;
+  Int_t fNOutputs;
 public:
 	ERTextDecay(TString name);
 	~ERTextDecay();
@@ -40,7 +47,7 @@ public:
 	void SetInputIon(Int_t A, Int_t Z, Int_t Q);
 	void SetOutputIon(Int_t A, Int_t Z, Int_t Q);
 	void AddOutputParticle(Int_t pdg);
-
+  void SetFileName(TString name){fFileName = name;}
 	ClassDef(ERTextDecay,1)
 };
 

@@ -36,6 +36,7 @@ void textDecay(Int_t nEvents = 10){
   decay->AddOutputParticle(2212);
   decay->AddOutputParticle(2212);
   decay->SetDecayPos(10.);
+  decay->SetFileName("generator_10He_decay.dat");
   decayer->AddDecay(decay);
   run->SetDecayer(decayer);
   //-------------------------------------------------------------------------
