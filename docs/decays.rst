@@ -9,3 +9,36 @@
   1. Исследователь может заложить только ту информацию о распаде, которой обладает.
   2. Распад встроен в процесс транспорта. Поэтому нет необходимости заранее наигрывать параметры
   первичного иона в момент распада.
+ 
+Класс распада
+-------------
+Реализация своего распада добавляется с помощью создания класса, унаследованного от `ERDecay`. Коды 
+распадов располодены в дириктории `decays`.
+
+В новом классе необходимо написать реализации методов: `Init`, `BeginEvent`,`FinishEvent`,`Stepping`.
+
+В методе `Init` необходимо проверить все ли ионы и частицы, которые учавствуют в распаде добавлены 
+в объект распада и в Root библиотеку частиц - `TDatabasePDG`.
+
+::
+  if (fInputIon) {
+    fInputIonPDG = TDatabasePDG::Instance()->GetParticle(fInputIonName);
+    if ( ! fInputIonPDG ) {
+        std::cerr  << "ERTextDecay: Ion " << fInputIonName << " not found in database!"<< endl;
+        return kFALSE;
+    }
+  }
+  else{
+    std::cerr  << "Input ion not defined"<< endl;
+    return kFALSE;
+  }
+  
+Так же необходимо прверить все ли входные текстовые файлы и другие настройки распада указаны.
+
+::
+  if (fFileName == ""){
+    cerr << "File for " << fName << " decay not defined!" << endl;
+    return kFALSE;
+  }
+
+
