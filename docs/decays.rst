@@ -158,6 +158,8 @@
   
 Добавить ERDecayer и добавить в него сконфигурированные распады:
 
+::
+
   //------    ER Deacayer   -------------------------------------------------
   ERDecayer* decayer = new ERDecayer();
   ERDecay* targetDecay = new ERDecayLi9DetoLi10_Li9n_p();
@@ -240,7 +242,7 @@ ERTextDecay - распад из текстового файла
 
 ::
 
-  //------    ER Deacayer   -------------------------------------------------
+  //------    ER Deacayer   -------------------------
   ERDecayer* decayer = new ERDecayer();
   ERTextDecay* decay = new ERTextDecay("10Heto8He2n");
   decay->SetInputIon(2,10,2);
