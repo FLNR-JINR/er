@@ -20,6 +20,8 @@ ERTextDecay::ERTextDecay(TString name):
   fOutputIon(NULL),
   fDecayPos(99999999.),
   fDecayFinish(kFALSE),
+  fUniform(kFALSE),
+  fExponential(kFALSE),
   fFileName(""),
   fNOutputs(0)
 {
@@ -86,7 +88,6 @@ Bool_t ERTextDecay::ReadFile(){
     f >> E;
     for (Int_t iOutput = 0; iOutput < fNOutputs; iOutput++){
       f >> Px >> Py >> Pz;
-      cout << Px << " " << Py << " " << Pz << endl;
       decay.push_back(TLorentzVector(Px,Py,Pz,0.));
       if (iOutput == fNOutputs-1)
         f >> Angle;
@@ -98,6 +99,9 @@ Bool_t ERTextDecay::ReadFile(){
 }
 
 Bool_t ERTextDecay::Stepping(){
+  if (gMC->CurrentEvent() > fDecays.size()-1)
+    Fatal("ERTextDecay::BeginEvent",TString("Events count in file") 
+                                            + fFileName + TString(" less currenet event number"));
   if(!fDecayFinish && gMC->TrackPid() == fInputIonPDG->PdgCode()){
     gMC->SetMaxStep(0.01);
     TLorentzVector curPos;
@@ -110,23 +114,31 @@ Bool_t ERTextDecay::Stepping(){
       vector<TLorentzVector> decay = fDecays[gMC->CurrentEvent()];
       TLorentzVector outputIonV = decay[0];
       outputIonV.SetE(outputIonV.Px()*outputIonV.Px() + outputIonV.Py()*outputIonV.Py() + 
-                       outputIonV.Pz()* outputIonV.Pz() + fOutputIonPDG->Mass()*fOutputIonPDG->Mass()); 
+                       outputIonV.Pz()* outputIonV.Pz() + fOutputIonPDG->Mass()*fOutputIonPDG->Mass());
+      outputIonV.Boost(-inputIonV.BoostVector());
       gMC->GetStack()->PushTrack(1,gMC->GetStack()->GetCurrentTrackNumber(), fOutputIonPDG->PdgCode(),
                            outputIonV.Px(),outputIonV.Py(),outputIonV.Pz(),
                            outputIonV.E(), curPos.X(), curPos.Y(), curPos.Z(),
                            gMC->TrackTime(), 0., 0., 0.,
                            kPDecay, newTrackNb, fOutputIonPDG->Mass(), 0);
+      cout << "ERTextDecay: Added output ion with PDG = " << fOutputIonPDG->PdgCode() << "; pos=(" 
+            << curPos.X() << "," << curPos.Y() << "," << curPos.Z() << "); mom=("
+            << outputIonV.Px() << "," << outputIonV.Py() << "," << outputIonV.Pz() << ")" << endl;
       //Add particles
       for (Int_t iParticle = 0; iParticle < fOutputParticlesPDG.size(); iParticle++){
         TParticlePDG* particle = fOutputParticlesPDG[iParticle];
         TLorentzVector particleV = decay[iParticle+1];
         particleV.SetE(particleV.Px()*particleV.Px() + particleV.Py()*particleV.Py() + 
                        particleV.Pz()* particleV.Pz() + particle->Mass()*particle->Mass());
+        particleV.Boost(-inputIonV.BoostVector());
         gMC->GetStack()->PushTrack(1,gMC->GetStack()->GetCurrentTrackNumber(), particle->PdgCode(),
                            inputIonV.Px(),inputIonV.Py(),inputIonV.Pz(),
                            inputIonV.E(), curPos.X(), curPos.Y(), curPos.Z(),
                            gMC->TrackTime(), 0., 0., 0.,
                            kPDecay, newTrackNb, particle->Mass(), 0);
+        cout << "ERTextDecay: Added output particle with PDG = " << particle->PdgCode() << "; pos=(" 
+            << curPos.X() << "," << curPos.Y() << "," << curPos.Z() << "); mom=("
+            << particleV.Px() << "," << particleV.Py() << "," << particleV.Pz() << ")" << endl;              
       }
       fDecayFinish = kTRUE;
       gMC->StopTrack();
@@ -138,6 +150,12 @@ Bool_t ERTextDecay::Stepping(){
 
 void ERTextDecay::BeginEvent(){	
   fDecayFinish = kFALSE;
+  if (fUniform){
+    fDecayPos = fRnd->Uniform(fUniformA, fUniformB);
+  }
+  if (fExponential){
+    fDecayPos = fExponentialStart + fRnd->Exp(fExponentialTau);
+  }
 }
 
 void ERTextDecay::FinishEvent(){
@@ -162,6 +180,18 @@ void ERTextDecay::SetOutputIon(Int_t A, Int_t Z, Int_t Q){
 void ERTextDecay::AddOutputParticle(Int_t pdg){
   fNOutputs++;
   fOutputParticlesPDG.push_back(TDatabasePDG::Instance()->GetParticle(pdg));
+}
+
+void ERTextDecay::SetUniformPos(Double_t a, Double_t b){
+  fUniform = kTRUE;
+  fUniformA = a;
+  fUniformB = b;
+}
+
+void ERTextDecay::SetExponential(Double_t start, Double_t tau){
+  fExponential = kTRUE;
+  fExponentialStart = start;
+  fExponentialTau = tau;
 }
 
 ClassImp(ERTextDecay)

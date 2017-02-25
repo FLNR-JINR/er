@@ -33,6 +33,14 @@ private:
   
   std::vector<std::vector<TLorentzVector> > fDecays;
   Int_t fNOutputs;
+  
+  Bool_t fUniform;
+  Float_t fUniformA;
+  Float_t fUniformB;
+  
+  Bool_t fExponential;
+  Float_t fExponentialStart;
+  Float_t fExponentialTau;
 public:
 	ERTextDecay(TString name);
 	~ERTextDecay();
@@ -48,6 +56,8 @@ public:
 	void SetOutputIon(Int_t A, Int_t Z, Int_t Q);
 	void AddOutputParticle(Int_t pdg);
   void SetFileName(TString name){fFileName = name;}
+  void SetUniformPos(Double_t a, Double_t b);
+  void SetExponential(Double_t start, Double_t tau);
 	ClassDef(ERTextDecay,1)
 };
 
