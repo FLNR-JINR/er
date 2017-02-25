@@ -21,6 +21,7 @@
    fairroot
    howto
    develop
+   decays
    neurad
    gadast
    musi
