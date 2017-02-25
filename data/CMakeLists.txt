@@ -44,6 +44,7 @@ GadastData/ERGadastDigi.cxx
 ERStack.cxx
 ERMCTrack.cxx
 ERMCEventHeader.cxx
+ERDecayMCEventHeader.cxx
 EREventHeader.cxx
 ERLi10EventHeader.cxx
 ERLi10MCEventHeader.cxx

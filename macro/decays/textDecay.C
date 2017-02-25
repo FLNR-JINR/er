@@ -22,17 +22,25 @@ void textDecay(Int_t nEvents = 10){
   // -----   Create media   -------------------------------------------------
   run->SetMaterials("media.geo");       // Materials
   // ------------------------------------------------------------------------
-
+  //-------- Set MC event header --------------------------------------------
+  ERDecayMCEventHeader* header = new ERDecayMCEventHeader();
+  run->SetMCEventHeader(header);
+  //-------------------------------------------------------------------------
   // -----   Create detectors  ----------------------------------------------	
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
+  
+  FairModule* target = new ERTarget("Target", kTRUE,1);
+  target->SetGeometryFileName("Li10_target.geo.root");
+  run->AddModule(target);
+  
   // ------------------------------------------------------------------------
-    //------    ER Deacayer   -------------------------------------------------
+  //------    ER Deacayer   -------------------------------------------------
   ERDecayer* decayer = new ERDecayer();
-  ERTextDecay* decay = new ERTextDecay("Li10toLi9");
-  decay->SetInputIon(3,10,3);
-  decay->SetOutputIon(3,9,3);
+  ERTextDecay* decay = new ERTextDecay("10Heto8He2n");
+  decay->SetInputIon(2,10,2);
+  decay->SetOutputIon(2,8,2);
   decay->AddOutputParticle(2212);
   decay->AddOutputParticle(2212);
   decay->SetUniformPos(1.,2.);
@@ -44,7 +52,7 @@ void textDecay(Int_t nEvents = 10){
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
-  ERIonGenerator* ionGenerator = new ERIonGenerator("Li9",3,10,3,1);
+  ERIonGenerator* ionGenerator = new ERIonGenerator("10He",2,10,2,1);
   Double32_t kin_energy = 0.025*9; //GeV
   Double_t mass = ionGenerator->Ion()->GetMass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV

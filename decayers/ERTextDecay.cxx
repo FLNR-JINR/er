@@ -9,6 +9,8 @@
 
 #include "FairRunSim.h"
 
+#include "ERDecayMCEventHeader.h"
+
 using namespace std;
 
 #include "ERMCEventHeader.h"      //for ERMCEventHeader
@@ -18,7 +20,7 @@ ERTextDecay::ERTextDecay(TString name):
   fRnd(new TRandom3()),
   fInputIon(NULL),
   fOutputIon(NULL),
-  fDecayPos(99999999.),
+  fDecayPosZ(99999999.),
   fDecayFinish(kFALSE),
   fUniform(kFALSE),
   fExponential(kFALSE),
@@ -104,57 +106,73 @@ Bool_t ERTextDecay::Stepping(){
                                             + fFileName + TString(" less currenet event number"));
   if(!fDecayFinish && gMC->TrackPid() == fInputIonPDG->PdgCode()){
     gMC->SetMaxStep(0.01);
-    TLorentzVector curPos;
-    gMC->TrackPosition(curPos);
-    if (curPos.Z() > fDecayPos){
-      TLorentzVector inputIonV;
-      gMC->TrackMomentum(inputIonV);
+    gMC->TrackPosition(fDecayPos);
+    if (fDecayPos.Z() > fDecayPosZ){
+      gMC->TrackMomentum(fInputIonV);
       //Add new ion
       Int_t newTrackNb;
       vector<TLorentzVector> decay = fDecays[gMC->CurrentEvent()];
       TLorentzVector outputIonV = decay[0];
       outputIonV.SetE(outputIonV.Px()*outputIonV.Px() + outputIonV.Py()*outputIonV.Py() + 
                        outputIonV.Pz()* outputIonV.Pz() + fOutputIonPDG->Mass()*fOutputIonPDG->Mass());
-      outputIonV.Boost(-inputIonV.BoostVector());
+      outputIonV.Boost(fInputIonV.BoostVector());
       gMC->GetStack()->PushTrack(1,gMC->GetStack()->GetCurrentTrackNumber(), fOutputIonPDG->PdgCode(),
                            outputIonV.Px(),outputIonV.Py(),outputIonV.Pz(),
-                           outputIonV.E(), curPos.X(), curPos.Y(), curPos.Z(),
+                           outputIonV.E(), fDecayPos.X(), fDecayPos.Y(), fDecayPos.Z(),
                            gMC->TrackTime(), 0., 0., 0.,
                            kPDecay, newTrackNb, fOutputIonPDG->Mass(), 0);
       cout << "ERTextDecay: Added output ion with PDG = " << fOutputIonPDG->PdgCode() << "; pos=(" 
-            << curPos.X() << "," << curPos.Y() << "," << curPos.Z() << "); mom=("
+            << fDecayPos.X() << "," << fDecayPos.Y() << "," << fDecayPos.Z() << "); mom=("
             << outputIonV.Px() << "," << outputIonV.Py() << "," << outputIonV.Pz() << ")" << endl;
+      decay[0] = outputIonV;
       //Add particles
       for (Int_t iParticle = 0; iParticle < fOutputParticlesPDG.size(); iParticle++){
         TParticlePDG* particle = fOutputParticlesPDG[iParticle];
         TLorentzVector particleV = decay[iParticle+1];
         particleV.SetE(particleV.Px()*particleV.Px() + particleV.Py()*particleV.Py() + 
                        particleV.Pz()* particleV.Pz() + particle->Mass()*particle->Mass());
-        particleV.Boost(-inputIonV.BoostVector());
+        particleV.Boost(fInputIonV.BoostVector());
         gMC->GetStack()->PushTrack(1,gMC->GetStack()->GetCurrentTrackNumber(), particle->PdgCode(),
-                           inputIonV.Px(),inputIonV.Py(),inputIonV.Pz(),
-                           inputIonV.E(), curPos.X(), curPos.Y(), curPos.Z(),
+                           fInputIonV.Px(),fInputIonV.Py(),fInputIonV.Pz(),
+                           fInputIonV.E(), fDecayPos.X(), fDecayPos.Y(), fDecayPos.Z(),
                            gMC->TrackTime(), 0., 0., 0.,
                            kPDecay, newTrackNb, particle->Mass(), 0);
         cout << "ERTextDecay: Added output particle with PDG = " << particle->PdgCode() << "; pos=(" 
-            << curPos.X() << "," << curPos.Y() << "," << curPos.Z() << "); mom=("
-            << particleV.Px() << "," << particleV.Py() << "," << particleV.Pz() << ")" << endl;              
+            << fDecayPos.X() << "," << fDecayPos.Y() << "," << fDecayPos.Z() << "); mom=("
+            << particleV.Px() << "," << particleV.Py() << "," << particleV.Pz() << ")" << endl;
+        decay[iParticle+1] = particleV;
       }
       fDecayFinish = kTRUE;
       gMC->StopTrack();
       gMC->SetMaxStep(10000.);
+      SaveToEventHeader();
     }
   }
   return kTRUE;
 }
 
-void ERTextDecay::BeginEvent(){	
+void ERTextDecay::SaveToEventHeader(){
+  FairRunSim* run = FairRunSim::Instance();
+  if (TString(run->GetMCEventHeader()->ClassName()).Contains("ERDecayMCEventHeader")){
+    cout << "ERDecayMCEventHeader" << endl;
+    ERDecayMCEventHeader* header = (ERDecayMCEventHeader*)run->GetMCEventHeader();
+    vector<TLorentzVector> decay = fDecays[gMC->CurrentEvent()];
+    header->SetDecayPos(fDecayPos.Vect());
+    header->SetInputIon(fInputIonV);
+    header->SetOutputIon(decay[0]);
+    for (Int_t iOutput = 0; iOutput < fNOutputs; iOutput++){
+      header->AddOutputParticle(decay[iOutput+1]);
+    }
+  }
+}
+
+void ERTextDecay::BeginEvent(){
   fDecayFinish = kFALSE;
   if (fUniform){
-    fDecayPos = fRnd->Uniform(fUniformA, fUniformB);
+    fDecayPosZ = fRnd->Uniform(fUniformA, fUniformB);
   }
   if (fExponential){
-    fDecayPos = fExponentialStart + fRnd->Exp(fExponentialTau);
+    fDecayPosZ = fExponentialStart + fRnd->Exp(fExponentialTau);
   }
 }
 

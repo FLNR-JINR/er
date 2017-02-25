@@ -22,14 +22,18 @@ private:
 	TParticlePDG*   fOutputIonPDG;
   std::vector<TParticlePDG*> fOutputParticlesPDG;
 
-  Double_t fDecayPos;
+  Double_t fDecayPosZ;
+  TLorentzVector fDecayPos;
   Bool_t fDecayFinish;
 
   FairIon* fInputIon;
   FairIon* fOutputIon;
+  TLorentzVector fInputIonV;
   
   TString fFileName;
+  
   Bool_t ReadFile();
+  void SaveToEventHeader();
   
   std::vector<std::vector<TLorentzVector> > fDecays;
   Int_t fNOutputs;
@@ -51,7 +55,7 @@ public:
 	void BeginEvent();
 	void FinishEvent();
 
-	void SetDecayPos(Double_t pos) {fDecayPos = pos;}
+	void SetDecayPosZ(Double_t pos) {fDecayPosZ = pos;}
 	void SetInputIon(Int_t A, Int_t Z, Int_t Q);
 	void SetOutputIon(Int_t A, Int_t Z, Int_t Q);
 	void AddOutputParticle(Int_t pdg);
