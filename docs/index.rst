@@ -31,3 +31,4 @@
    detdevelopment
    li10
    courses
+   faq
