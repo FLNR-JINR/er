@@ -20,7 +20,7 @@
    common
    fairroot
    howto
-   develop
+   dev
    decays
    neurad
    gadast
