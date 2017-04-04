@@ -1,4 +1,4 @@
-void RawToAnalyze(Int_t nEvents = 1000){
+void RawToAnalyze(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   //TString inFile = "tektronix.out.root";
   TString inFile = "drs4.out.root";
@@ -17,9 +17,12 @@ void RawToAnalyze(Int_t nEvents = 1000){
   // ------------------------------------------------------------------------
   // ---------------------------------------------------------
   Int_t verbose = 1;
+ // Int_t sm_flag = 1; //1 - smooth, 0 - no smooth
   ERRawToAnalyzeConverter* converter = new ERRawToAnalyzeConverter(verbose);
   converter->SetNPoints(1024);
   converter->SetNChanels(4);
+  converter->SetSmooth(1);  //1 - smooth, 0 - no smooth
+
   fRun->AddTask(converter);
   // ------------------------------------------------------------------------
   

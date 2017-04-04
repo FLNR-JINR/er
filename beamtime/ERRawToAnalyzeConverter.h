@@ -39,6 +39,8 @@ public:
 
   void SetNChanels(Int_t chanels){fNChanels = chanels;}
   void SetNPoints(Int_t points){fNPoints = points;}
+  void SetSmooth(Int_t smpar){ if (smpar == 1) fSmoothPar = kTRUE;}
+
 protected:
   //Input objects
   RawEvent** fRawEvents;
@@ -48,11 +50,13 @@ protected:
 
   Int_t fNChanels;
   Int_t fNPoints;
+  Bool_t fSmoothPar;
 
   const Double_t fRatio;
   const Double_t fTD; //in ns
   Double_t fNoiseMin;
   Double_t fNoiseMax;
+  Int_t fNumSmoothP;	//number of points to smooth
 
   Int_t fEvent;
 

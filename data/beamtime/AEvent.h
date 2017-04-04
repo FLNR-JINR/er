@@ -50,7 +50,7 @@ private:
 
 	TArrayD fAmpCFD;	//array for CFD amplitudes (attenuated, inversed and delayed)
 	Double_t fTimeCFD;			//zero-crossing time
-	Double_t fChargeCFD;	//!
+	Double_t fChargeCFD;	//
 	Double_t fChargeLED;	//charge of the signal in Coulomb
 	Double_t fChargeTF;	//
 
@@ -94,7 +94,7 @@ public:
 
 	Double_t GetOnefAmpPos(Int_t i);
 
-	void ProcessEvent(/*Bool_t bSmooth = kFALSE*/);
+	void ProcessEvent(Bool_t bSmooth = kFALSE);
 	void SetInputEvent(RawEvent** event);
 
 	void SetCFratio(Double_t ratio) { fCFratio = ratio; };	

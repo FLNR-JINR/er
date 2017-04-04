@@ -19,7 +19,9 @@ ERRawToAnalyzeConverter::ERRawToAnalyzeConverter()
   fTD(1.5), //in ns
   fNoiseMin(5),
   fNoiseMax(25),
-  fEvent(0)
+  fEvent(0),
+  fSmoothPar(kFALSE),
+  fNumSmoothP(10)
 {
 }
 // ----------------------------------------------------------------------------
@@ -35,7 +37,9 @@ ERRawToAnalyzeConverter::ERRawToAnalyzeConverter(Int_t verbose)
   fTD(1.5), //in ns
   fNoiseMin(5),
   fNoiseMax(25),
-  fEvent(0)
+  fEvent(0),
+  fSmoothPar(kFALSE),
+  fNumSmoothP(10)
 {
 }
 // ----------------------------------------------------------------------------
@@ -83,7 +87,8 @@ InitStatus ERRawToAnalyzeConverter::Init()
     bName.Form("Ach%d.",iChanel+1);
     ioman->Register(bName,"Analyze", fAEvents[iChanel], kTRUE);
   }
-
+  if (fSmoothPar == kTRUE ) { std::cout << std::endl << "SIGNALS WILL BE SMOOTHED!" << std::endl; }
+  else std::cout << std::endl << "SIGNALS WILL NOT BE SMOOTHED!" << std::endl;
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -93,6 +98,7 @@ void ERRawToAnalyzeConverter::Exec(Option_t* opt)
 {
   fEvent++;
   if ( !(fEvent%100) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
+
 /*std::cout << std::endl;
   std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
   std::cout << std::endl;*/
@@ -102,7 +108,8 @@ void ERRawToAnalyzeConverter::Exec(Option_t* opt)
     fAEvents[iChanel]->SetCFratio(fRatio);
     fAEvents[iChanel]->SetCFtimeDelay(fTD);
     fAEvents[iChanel]->SetNoiseRange(fNoiseMin, fNoiseMax);
-    fAEvents[iChanel]->ProcessEvent();
+    fAEvents[iChanel]->SetSmoothPoints(fNumSmoothP);
+    fAEvents[iChanel]->ProcessEvent(fSmoothPar);
   }
 }
 //----------------------------------------------------------------------------
