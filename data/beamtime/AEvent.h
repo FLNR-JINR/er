@@ -44,13 +44,18 @@ private:
 	Double_t fEdgeSlope;	//slope coefficient for the rising edge of the signal
 	Double_t fTime10;		//time of 10% of rising edge amplitude in ns
 	Double_t fTime90;		//time of 10% of rising edge amplitude in ns
+	Double_t fTimeMid;		//time point between fTime90 and fTime10
+	Double_t fAmpMid;		//amplitude in fTimeMid point. Used in ToT on 50% of rising edge determination
+	Double_t fToT;
 
 	TArrayD fAmpCFD;	//array for CFD amplitudes (attenuated, inversed and delayed)
 	Double_t fTimeCFD;			//zero-crossing time
 	Double_t fChargeCFD;	//!
 	Double_t fChargeLED;	//charge of the signal in Coulomb
+	Double_t fChargeTF;	//
 
 	Double_t fTimeLED;	//time of LED threshold crossing
+	Double_t fTimeFront;	//time of front fit crossing zero level
 
 	TGraph *fGraphSignal;
 	TGraph *fGraphCFD;
@@ -62,6 +67,7 @@ private:
 
 	Double_t fNoiseRangeMin;	//!
 	Double_t fNoiseRangeMax;	//!
+	Int_t fWinSize;			//!
 
 public:
 	AEvent();
@@ -82,11 +88,13 @@ public:
 
 	Double_t GetfCFD();
 
+	Double_t GetfLED();
+
 	Double_t GetOnefTime(Int_t i);
 
 	Double_t GetOnefAmpPos(Int_t i);
 
-	void ProcessEvent();
+	void ProcessEvent(/*Bool_t bSmooth = kFALSE*/);
 	void SetInputEvent(RawEvent** event);
 
 	void SetCFratio(Double_t ratio) { fCFratio = ratio; };	
@@ -97,6 +105,13 @@ public:
 
 	void SetNoiseRange(Double_t min, Double_t max) { fNoiseRangeMin = min; fNoiseRangeMax = max; };
 	//Set noise range to be used in FindZeroLevel()
+
+	void SetSmoothPoints(Int_t numofp) {fWinSize = numofp; };
+	//set number of smoothing points
+
+	void SetToT();
+	//calculate time-over-threshold. the threshold value is fTimeMid - middle point of the rising edge
+	//ToT is calculated within 15 ns range in order to consider all the weirdness of the signal form
 
 	void Reset();
 	 //Resets arrays to zeros
@@ -126,6 +141,10 @@ public:
 
 	void SetChargeLED(Int_t tmin = -3, Int_t tmax = 17);
 
+	void SetChargeTF(Int_t tmin = -3, Int_t tmax = 17);
+	//calculates charge of the signal (i.e. its integral
+	//in range of (tmin,tmax) in ns)
+	//time of front fit crossing zero is taken as a start point
 
 	//void SetLED(Double_t threshold = 0.001);
 
@@ -137,6 +156,7 @@ private:
 	void Init();
 	void SetMaxAmplitudes();
 	void SetGraphs();
+	void SmoothGraphs();
 	void SetCFD(); 	//constant fraction discriminator method
 };
 

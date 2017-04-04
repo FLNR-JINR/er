@@ -91,9 +91,11 @@ InitStatus ERRawToAnalyzeConverter::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERRawToAnalyzeConverter::Exec(Option_t* opt)
 {
-  std::cout << std::endl;
+  fEvent++;
+  if ( !(fEvent%100) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
+/*std::cout << std::endl;
   std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
-  std::cout << std::endl;
+  std::cout << std::endl;*/
 
   for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
     fAEvents[iChanel]->SetInputEvent(&fRawEvents[iChanel]); //takes raw event from RawEvent
