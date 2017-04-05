@@ -38,4 +38,6 @@
 #pragma link C++ class RawEvent+;
 #pragma link C++ class AEvent+;
 
+#pragma link C++ class TLiEvent+;
+#pragma link C++ class TGo4EventElement+;
 #endif

@@ -25,6 +25,7 @@ set(SRCS
 	ERDRS4Source.cxx
 	ERTektronixSource.cxx
 	ERRawToAnalyzeConverter.cxx
+	ERLiCalibrator.cxx
 )
 
 # fill list of header files from list of source files
