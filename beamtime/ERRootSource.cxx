@@ -49,6 +49,7 @@ Int_t ERRootSource::ReadEvent(UInt_t id){
 	//Проверяем есть ли еще события для обработки
 	if (fTree->GetEntriesFast() == fEvent+1)
 		return 1;
+	fEvent++;
 	fTree->GetEntry(fEvent);
 	return 0;
 }
