@@ -7,6 +7,8 @@
 #pragma link C++ class ERDRS4Source+;
 #pragma link C++ class ERTektronixSource+;
 #pragma link C++ class ERRawToAnalyzeConverter+;
-#pragma link C++ class ERNXyterTreeAnalyze+;
+
+#pragma link C++ class ERLiCalibrator+;
+#pragma link C++ class ERRootSource+;
 
 #endif
