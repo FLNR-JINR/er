@@ -56,6 +56,9 @@ DSRDData/ERDSRDHit.cxx
 
 beamtime/RawEvent.cxx
 beamtime/AEvent.cxx
+
+beamtime/cls_RootEvent.cxx
+beamtime/cls_RootHit.cxx
 )
 
 # fill list of header files from list of source files
