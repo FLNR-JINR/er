@@ -1,3 +1,7 @@
+#include "FairRunOnline.h"
+
+//using namespace std;
+
 void RootToAnalyze()
 {
 	TString inFile = "~/experiments/2016/he8h3_transfer/data/run.010.root_bk";

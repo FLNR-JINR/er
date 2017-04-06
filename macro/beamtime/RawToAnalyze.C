@@ -1,3 +1,5 @@
+//using namespace std;
+
 void RawToAnalyze(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   //TString inFile = "tektronix.out.root";

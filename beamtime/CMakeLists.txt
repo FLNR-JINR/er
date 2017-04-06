@@ -28,6 +28,8 @@ set(SRCS
 
 	ERLiCalibrator.cxx
 	ERRootSource.cxx
+	
+	ERNXyterTreeSource.cxx
 )
 
 # fill list of header files from list of source files
