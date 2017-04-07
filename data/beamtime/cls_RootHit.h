@@ -25,6 +25,9 @@ public: // methods
 
     cls_RootHit &operator=(const cls_RootHit &orig);
 
+    UChar_t GetChannel() {return fChannel;}
+    Int_t GetAdcVal() {return fAdcVal;}
+
 private: // data members
 
     ULong64_t fTimestamp;

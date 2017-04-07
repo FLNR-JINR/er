@@ -44,4 +44,7 @@
 #pragma link C++ class cls_RootHit+;
 #pragma link C++ class cls_RootEvent+;
 
+#pragma link C++ class WCalHit+;
+#pragma link C++ class WCalEvent+;
+
 #endif

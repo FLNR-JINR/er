@@ -14,6 +14,9 @@
 #include "TTree.h"
 
 #include "cls_RootEvent.h"
+#include "WCalEvent.h"
+
+#include <fstream>
 
 using std::cout;
 using std::endl;
@@ -38,7 +41,10 @@ public:
 	virtual Bool_t InitUnpackers(){return kTRUE;}
 	virtual Bool_t ReInitUnpackers(){return kTRUE;}
 
-	void SetFile(TString path, TString treeName, TString branchName);
+	void SetInFile(TString path, TString treeName, TString branchName);
+
+	void ImportCalParameters(const char* p_filename);
+
 
 private:
 
@@ -50,8 +56,13 @@ private:
 	TTree* fTree;
 
 	cls_RootEvent* fInEvent;
+	WCalEvent *fOutEvent;
 
-	Int_t fEvent;
+	Long64_t fEvent;
+
+	Float_t fCalPar[64];
+	const Float_t f1ePosCorrection = 1.18;
+
 };
 
 #endif /* BEAMTIME_ERNXYTERTREESOURCE_H_ */
