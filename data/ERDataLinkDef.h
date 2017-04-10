@@ -39,4 +39,13 @@
 #pragma link C++ class RawEvent+;
 #pragma link C++ class AEvent+;
 
+#pragma link C++ class TLiEvent+;
+#pragma link C++ class TGo4EventElement+;
+
+#pragma link C++ class cls_RootHit+;
+#pragma link C++ class cls_RootEvent+;
+
+#pragma link C++ class WCalHit+;
+#pragma link C++ class WCalEvent+;
+
 #endif

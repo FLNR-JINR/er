@@ -57,6 +57,15 @@ DSRDData/ERDSRDHit.cxx
 
 beamtime/RawEvent.cxx
 beamtime/AEvent.cxx
+
+beamtime/TGo4EventElement.cxx
+beamtime/TLiEvent.cxx
+
+beamtime/cls_RootHit.cxx
+beamtime/cls_RootEvent.cxx
+
+beamtime/WCalHit.cxx
+beamtime/WCalEvent.cxx
 )
 
 # fill list of header files from list of source files
