@@ -10,6 +10,9 @@
 #include "FairRootManager.h"
 #include "cls_RootHit.h"
 
+#include <iostream>
+using namespace std;
+
 ERNXyterTreeSource::ERNXyterTreeSource() :
 	fInEvent(NULL),
 	fOutEvent(NULL),
@@ -67,11 +70,12 @@ Int_t ERNXyterTreeSource::ReadEvent(UInt_t) {
 
 	fTree->GetEntry(fEvent);
 
+	
 	TClonesArray *rawHits = fInEvent->GetHits();
 	cls_RootHit *rawHit;
 	Int_t adcVal, channel;
 
-	fOutEvent->SetNumOfHits(fInEvent->GetNumOfHits());
+	//fOutEvent->SetNumOfHits(fInEvent->GetNumOfHits());
 
 	cout << "number of hits: " << rawHits->GetLast() << "\t" << fInEvent->GetNumOfHits() << endl;
 	for (Int_t i = 0; i <= rawHits->GetLast(); i++) {
@@ -86,6 +90,7 @@ Int_t ERNXyterTreeSource::ReadEvent(UInt_t) {
 	fEvent++;
 
 	cout << "end of function ReadEvent" << endl;
+	
 	return 0;
 }
 
