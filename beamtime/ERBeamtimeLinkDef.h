@@ -12,5 +12,7 @@
 #pragma link C++ class ERRootSource+;
 
 #pragma link C++ class ERNXyterTreeSource+;
+#pragma link C++ class ERNXyterCalibrator+;
+#pragma link C++ class ERpmtPixelMap+;
 
 #endif

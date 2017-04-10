@@ -30,6 +30,8 @@ set(SRCS
 	ERRootSource.cxx
 	
 	ERNXyterTreeSource.cxx
+	ERNXyterCalibrator.cxx
+	ERpmtPixelMap.cxx
 )
 
 # fill list of header files from list of source files
