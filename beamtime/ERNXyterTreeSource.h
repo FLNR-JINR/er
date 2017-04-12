@@ -12,6 +12,7 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TRandom3.h"
 
 #include "cls_RootEvent.h"
 #include "WCalEvent.h"
@@ -43,7 +44,13 @@ public:
 
 	void SetInFile(TString path, TString treeName, TString branchName);
 
-	void ImportCalParameters(const char* p_filename);
+	void SetCalParameters(const char* p_filename);
+	void SetNonLinGraphs(const char* graph_filename);
+	void PrintCalParameters();
+
+private:
+	void ImportCalParameters();
+	void ImportNonLinGraphs();
 
 
 private:
@@ -51,6 +58,9 @@ private:
 	TString fPath;
 	TString fTreeName;
 	TString fBranchName;
+
+	TString fCalParFileName;
+	TString fNonLinGraphsFileName;
 
 	TFile* fFile;
 	TTree* fTree;
@@ -62,6 +72,9 @@ private:
 
 	Float_t fCalPar[64];
 	const Float_t f1ePosCorrection = 1.18;
+	Float_t fPedestalsCorrection[64];
+
+	TRandom3 calRandom;
 
 };
 

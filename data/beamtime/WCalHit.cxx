@@ -18,11 +18,12 @@ fAdcCalibrated(0.)
 
 }
 
-WCalHit::WCalHit(UChar_t p_ch, Float_t p_adcCalib) :
+WCalHit::WCalHit(UChar_t p_ch, Int_t p_adc, Float_t p_adcNonLin, Float_t p_adcNonLinCorr, Float_t p_adcCalib) :
 //		fTimestamp(p_ts),
 		fChannel(p_ch),
-//		fRawAdcVal(p_rawAdc),
-//		fAdcVal(p_adc),
+		fAdcVal(p_adc),
+		fAdcNonLin(p_adcNonLin),
+		fAdcNonLinCorr(p_adcNonLinCorr),
 		fAdcCalibrated(p_adcCalib)
 {
 

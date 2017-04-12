@@ -21,7 +21,8 @@ public:
     void Clear(Option_t *option ="");
 
 //    cls_RootHit* AddHit(cls_RootHit* p_sourceHit);
-    WCalHit* AddHit(UChar_t p_ch, Float_t p_adcCalib);
+//    WCalHit* AddHit(UChar_t p_ch, Float_t p_adcCalib);
+    WCalHit* AddHit(UChar_t p_ch, Int_t p_adc, Float_t p_adcNonLin, Float_t p_adcNonLinCorr, Float_t p_adcCalib);
 
 //    void SetID(ULong_t p_id) { fEventID = p_id; }
 	void SetNumOfHits(UShort_t nhits) {fNumOfHits = nhits;};
