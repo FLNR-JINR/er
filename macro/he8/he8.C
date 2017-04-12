@@ -39,6 +39,10 @@ void he8(Int_t nEvents = 10)
   telCalibrator->SetParametersFile("/home/vitaliy/er/input/clb4sonya.dat");
   run->AddTask(telCalibrator);
 
+  ERTofCalibrator* tofCalibrator = new ERTofCalibrator();
+  tofCalibrator->SetParametersFile("/home/vitaliy/er/input/clb4sonya.dat");
+  run->AddTask(tofCalibrator);
+  
   // --- Start run
   TStopwatch timer;
   timer.Start();

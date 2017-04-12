@@ -29,8 +29,10 @@ set(SRCS
 	data/ERTofEvent.cxx
 	data/ERDsrdCalEvent.cxx
 	data/ERTelescopeCalEvent.cxx
+	data/ERTofCalEvent.cxx
 	ERDsrdCalibrator.cxx
 	ERTelescopeCalibrator.cxx
+	ERTofCalibrator.cxx
 )
 
 # fill list of header files from list of source files
