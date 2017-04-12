@@ -27,6 +27,8 @@ set(SRCS
 	data/ERMwpcEvent.cxx
 	data/ERDsrdEvent.cxx
 	data/ERTofEvent.cxx
+	data/ERDsrdCalEvent.cxx
+	ERDsrdCalibrator.cxx
 )
 
 # fill list of header files from list of source files

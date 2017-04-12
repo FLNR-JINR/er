@@ -26,6 +26,7 @@ public:
 	UShort_t naF4r;
 	UShort_t naF4l;
 	UShort_t ntD11;
+
 public:
 	ERTofEvent();
 	virtual ~ERTofEvent();

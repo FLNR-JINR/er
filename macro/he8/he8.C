@@ -31,6 +31,10 @@ void he8(Int_t nEvents = 10)
   ERHe8EventHeader* header = new ERHe8EventHeader();
   run->SetEventHeader(header);
 
+  ERDsrdCalibrator* dsrdCalibrator = new ERDsrdCalibrator();
+  dsrdCalibrator->SetParametersFile("/home/vitaliy/er/input/clb4sonya.dat");
+  run->AddTask(dsrdCalibrator);
+
   // --- Start run
   TStopwatch timer;
   timer.Start();

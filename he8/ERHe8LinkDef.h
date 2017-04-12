@@ -10,5 +10,8 @@
 #pragma link C++ class ERDsrdEvent+;
 #pragma link C++ class ERTofEvent+;
 #pragma link C++ class ERHe8EventHeader+;
+#pragma link C++ class ERDsrdCalEvent+;
+
+#pragma link C++ class ERDsrdCalibrator+;
 
 #endif

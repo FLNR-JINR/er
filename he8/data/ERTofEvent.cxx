@@ -17,7 +17,7 @@ Bool_t ERTofEvent::Register(TTree* tree, TString branchName){
 	tree->SetBranchAddress(branchName + TString(".QDC[16]"),QDC);
 
 	FairRootManager* ioman = FairRootManager::Instance();
-	ioman->Register("Tof	Event.", "RawEvents", this, kTRUE);
+	ioman->Register("TofEvent.", "RawEvents", this, kTRUE);
 
 	return kTRUE;
 }
