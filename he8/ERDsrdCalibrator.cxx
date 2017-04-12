@@ -95,7 +95,6 @@ void ERDsrdCalibrator::Exec(Option_t* opt)
   for(int imu=0;imu<=fInEvent->mD11;imu++)  /* D11 16 sectors */
   {
     EP=CLB[0][0][fInEvent->nD11[imu]][0]*(fInEvent->neD11[imu]+Ran.Uniform(-0.5,0.5))+CLB[0][0][fInEvent->nD11[imu]][1];
-    cout <<EP<< endl;
     if(EP>CLB[0][0][fInEvent->nD11[imu]][2])
     {
       fOutEvent->mC11++;

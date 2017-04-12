@@ -35,6 +35,10 @@ void he8(Int_t nEvents = 10)
   dsrdCalibrator->SetParametersFile("/home/vitaliy/er/input/clb4sonya.dat");
   run->AddTask(dsrdCalibrator);
 
+  ERTelescopeCalibrator* telCalibrator = new ERTelescopeCalibrator();
+  telCalibrator->SetParametersFile("/home/vitaliy/er/input/clb4sonya.dat");
+  run->AddTask(telCalibrator);
+
   // --- Start run
   TStopwatch timer;
   timer.Start();
