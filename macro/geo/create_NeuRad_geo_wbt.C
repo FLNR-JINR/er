@@ -11,6 +11,11 @@ void create_NeuRad_geo_wbt()
   TGeoTranslation *fGlobalTrans = new TGeoTranslation();
   fGlobalTrans->SetTranslation(0.0,0.0,0.);
 
+  TGeoRotation *fGlobalRotation = new TGeoRotation();
+  fGlobalRotation->RotateX(0.);
+  fGlobalRotation->RotateY(90.);
+  fGlobalRotation->RotateZ(0.);
+
   // Create a zero rotation
   TGeoRotation *fZeroRotation = new TGeoRotation();
   fZeroRotation->RotateX(0.);
@@ -94,7 +99,7 @@ void create_NeuRad_geo_wbt()
   }
   
   NeuRad->AddNode(bundle, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
-  top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,60., fZeroRotation));
+  top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,60., fGlobalRotation));
 
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();

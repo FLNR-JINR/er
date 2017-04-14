@@ -194,11 +194,10 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
     Int_t    pointFiber  = point->GetFiberInModuleNb();
     Double_t pointELoss      =  point->GetEnergyLoss(); //[GeV]
     Double_t pointLYield = point->GetLightYield();  //[GeV]
-    Double_t pointX          = point->GetXIn();
-    Double_t pointY          = point->GetYIn();
-    Double_t pointZ          = point->GetZIn();
+    Double_t pointZ          = point->GetZInLocal();
     Double_t pointTime       = point->GetTimeIn();
-    Double_t pointZInFiber = pointZ + fiberLength/2. - fNeuRadSetup->Z();
+    //Double_t pointZInFiber = pointZ + fiberLength/2. - fNeuRadSetup->Z();
+    Double_t pointZInFiber = pointZ + fiberLength/2.;
 
     //Значение квантовой эффективности для конкретного пикселе
     Double_t PMTQuantumEfficiency = fNeuRadSetup->PMTQuantumEfficiency(pointModule,pointFiber);

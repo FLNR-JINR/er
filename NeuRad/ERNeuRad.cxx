@@ -11,6 +11,7 @@
 #include "TClonesArray.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
+#include "TGeoMatrix.h"
 #include "TString.h"
 
 #include "ERNeuRadGeoPar.h"
@@ -85,6 +86,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   static Int_t          mot0TrackID;       //!  0th mother track index
   static Double_t       mass;              //!  mass
   static TLorentzVector posIn;    //!  position
+  static TVector3 posInLocal;    //!  position
   static TLorentzVector momIn;    //!  momentum
   static Double32_t     timeIn;           //!  time
   static Double32_t     trackLength;       //!  track length from his origin
@@ -104,7 +106,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   gMC->TrackMomentum(curMomIn);
   
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
-    StartNewPoint(eventID, eLoss, lightYield, stepNr, posIn, momIn, trackID, mot0TrackID,
+    StartNewPoint(eventID, eLoss, lightYield, stepNr, posIn, posInLocal, momIn, trackID, mot0TrackID,
                   trackLength, fiberInModuleNb, module, mass, timeIn);
                   
     if (fNeuRadFirstStep->GetEntriesFast() == 0){
@@ -164,14 +166,14 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
 	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
 	    gMC->IsTrackDisappeared()) 
 	{ 
-    FinishNewPoint(eventID,eLoss,lightYield,stepNr, posIn, momIn, trackID,mot0TrackID,
+    FinishNewPoint(eventID,eLoss,lightYield,stepNr, posIn,posInLocal, momIn, trackID,mot0TrackID,
                     trackLength,fiberInModuleNb, module,mass, timeIn);
 	}
   
   if (CurPointLen(posIn) > 4.){
-    FinishNewPoint(eventID,eLoss,lightYield,stepNr, posIn, momIn, trackID,mot0TrackID,
+    FinishNewPoint(eventID,eLoss,lightYield,stepNr, posIn, posInLocal, momIn, trackID,mot0TrackID,
                     trackLength,fiberInModuleNb, module,mass, timeIn);
-    StartNewPoint(eventID, eLoss, lightYield, stepNr, posIn, momIn, trackID, mot0TrackID,
+    StartNewPoint(eventID, eLoss, lightYield, stepNr, posIn,posInLocal, momIn, trackID, mot0TrackID,
                   trackLength, fiberInModuleNb, module, mass, timeIn);
   }
   
@@ -189,7 +191,7 @@ Double_t ERNeuRad::CurPointLen(TLorentzVector& posIn){
 
 //--------------------------------------------------------------------------------------------------
 void ERNeuRad::StartNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
-                            TLorentzVector& posIn, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
+                            TLorentzVector& posIn,TVector3& posInLoc, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
                             Double_t& trackLength,Int_t& fiberInModuleNb, Int_t& moduleNb, Double_t& mass, Double_t& timeIn){
   eLoss  = 0.;
   lightYield = 0.;
@@ -204,13 +206,19 @@ void ERNeuRad::StartNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield
   mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
   mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
   Int_t curVolId =  gMC->CurrentVolID(fiberInModuleNb);
-  Int_t corOffVolId = gMC->CurrentVolOffID(1, moduleNb);              
+  Int_t corOffVolId = gMC->CurrentVolOffID(1, moduleNb);
+  TGeoHMatrix matrix;
+  gMC->GetTransformation(gMC->CurrentVolPath(), matrix);
+  Double_t globalPos[3],localPos[3];
+  posIn.Vect().GetXYZ(globalPos);
+  matrix.MasterToLocal(globalPos,localPos);
+  posInLoc.SetXYZ(localPos[0],localPos[1],localPos[2]);
 }
 //--------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
 void ERNeuRad::FinishNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
-                   TLorentzVector& posIn, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
+                   TLorentzVector& posIn,TVector3& posInLoc, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
                    Double_t& trackLength,Int_t& fiberInModuleNb, Int_t& module ,Double_t& mass, Double_t& timeIn){
 
   TLorentzVector posOut, momOut;
@@ -222,6 +230,7 @@ void ERNeuRad::FinishNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYiel
   if (eLoss > 0.){
     AddPoint( eventID, trackID, mot0TrackID, fiberInModuleNb-1,module-1, mass,
               TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
+              posInLoc,
               TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
               TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
               TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
@@ -322,13 +331,14 @@ ERNeuRadPoint* ERNeuRad::AddPoint(Int_t eventID, Int_t trackID,
             Int_t fiberInModuleNb, Int_t module, 
 				    Double_t mass,
 				    TVector3 posIn,
+            TVector3 posInLoc,
 				    TVector3 posOut, TVector3 momIn,
 				    TVector3 momOut, Double_t time, Double_t timeOut,
 				    Double_t length, Double_t eLoss, Double_t lightYield, Int_t pid, Double_t charge) {
   TClonesArray& clref = *fNeuRadPoints;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) ERNeuRadPoint(eventID, trackID, mot0trackID, fiberInModuleNb, module, mass,
-					  posIn, posOut, momIn, momOut, time,timeOut, length, eLoss, lightYield, pid, charge);
+					  posIn, posInLoc, posOut, momIn, momOut, time,timeOut, length, eLoss, lightYield, pid, charge);
 	
 }
 // ----------------------------------------------------------------------------

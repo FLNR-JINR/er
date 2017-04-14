@@ -146,7 +146,7 @@ private:
 			  Int_t mot0trackID,
         Int_t fiberInModuleNb, Int_t moduleNb, 
 			  Double_t mass,
-			  TVector3 posIn,
+			  TVector3 posIn, TVector3 posInLoc,
 			  TVector3 pos_out, TVector3 momIn,
 			  TVector3 momOut, Double_t time, Double_t timeOut,
 			  Double_t trackLength, Double_t eLoss,
@@ -177,7 +177,7 @@ private:
   ERNeuRadStep* AddStep(Int_t eventID, Int_t stepNr,Int_t trackID,
 		  Int_t mot0trackID,
       Int_t fiberInModuleNb,
-		  TVector3 pos, 
+		  TVector3 pos,
       TVector3 mom, 
 		  Double_t tof, 
       Double_t length, 
@@ -195,10 +195,10 @@ private:
   void ResetParameters();
   
   void StartNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
-                            TLorentzVector& posIn, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
+                            TLorentzVector& posIn, TVector3& posInLoc, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
                             Double_t& trackLength,Int_t& fiberInModuleNb, Int_t& module, Double_t& mass, Double_t& timeIn);
   void FinishNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
-                            TLorentzVector& posIn, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
+                            TLorentzVector& posIn,TVector3& posInLoc, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
                             Double_t& trackLength,Int_t& fiberInModuleNb, Int_t& module,Double_t& mass, Double_t& timeIn);
                             
   Double_t CurPointLen(TLorentzVector& posIn);
