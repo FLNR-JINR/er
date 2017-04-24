@@ -49,43 +49,11 @@ ERNeuRadSetup::ERNeuRadSetup(){
     TGeoBBox* fiber_box = (TGeoBBox*)fiber->GetVolume()->GetShape();
     fFiberWidth = fiber_box->GetDX()*2;
     std::cout << "NeuRad  fiber width:" << fFiberWidth << std::endl;
-
-    /*
-    for (Int_t iModule = 0; iModule < neuRad->CountDaughters(); iModule++){
-        TGeoNode* module = neuRad->GetDaughter(iModule);
-        double pos[3],masterPos[3];
-        module->LocalToMaster(pos,masterPos);
-        neuRad->LocalToMaster(masterPos,pos);
-        TGeoBBox* module_box = ();
-    }
-    */
+    
     fRowNofModules = Int_t(TMath::Sqrt(neuRad->GetNdaughters()));
     fRowNofFibers = Int_t(TMath::Sqrt(module->GetNdaughters()));
     std::cout << "NeuRad  fiber in row count:" << fRowNofFibers << std::endl;
     //@TODO сделать нормальный расчет по геометрии.
-    Int_t nofFiberInRow = 8; //Int_t(TMath::Sqrt(fDigiPar->NofFibers()));
-    Int_t nofModulesInRow = 7;//Int_t(TMath::Sqrt(fDigiPar->NofModules()));
-
-    Float_t moduleWidth = nofFiberInRow*fFiberWidth;
-    Float_t neuradWidth = moduleWidth*nofModulesInRow;
-    
-    for(Int_t iModule = 0; iModule < nofModulesInRow; iModule++ ){
-            for(Int_t jModule = 0; jModule < nofModulesInRow; jModule++ ){
-                    Float_t moduleX = neuradWidth/2. - iModule*moduleWidth - moduleWidth/2.;
-                    Float_t moduleY = neuradWidth/2. - jModule*moduleWidth - moduleWidth/2.;
-                    fModules.push_back(new ERNeuRadModule(moduleX,moduleY));
-                    std::vector<ERNeuRadFiber*> fibersInModule;
-                    for (Int_t iFiber = 0; iFiber < nofFiberInRow; iFiber++){
-                            for (Int_t jFiber = 0; jFiber < nofFiberInRow; jFiber++){
-                                    Float_t fiberX = moduleX + moduleWidth/2. - iFiber*fFiberWidth - fFiberWidth/2.;
-                                    Float_t fiberY = moduleY + moduleWidth/2. - jFiber*fFiberWidth - fFiberWidth/2.;
-                                    fibersInModule.push_back(new ERNeuRadFiber(fiberX,fiberY));
-                            }
-                    }
-                    fFibers.push_back(fibersInModule);
-                    
-            }
-    }
     std::cout << "ERNeuRadSetup initialized! "<< std::endl;
 }
 

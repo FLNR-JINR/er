@@ -65,8 +65,8 @@ void create_NeuRad_geo_wbt()
   TGeoVolume* NeuRad = new TGeoVolumeAssembly("NeuRad");
   // --------------------------------------------------------------------------
   //------------------ BC408  fiber  -----------------------------------------
-  Double_t fiber_X = 0.6;   //cm
-  Double_t fiber_Y = 0.6;   //cm
+  Double_t fiber_X = 0.3;   //cm
+  Double_t fiber_Y = 0.3;   //cm
   Double_t fiber_Z = 25.;  //cm
   fiber_X /= 2.;
   fiber_Y /= 2.;
@@ -74,8 +74,8 @@ void create_NeuRad_geo_wbt()
   TGeoVolume *fiber = gGeoManager->MakeBox("fiber", pMed37, fiber_X, fiber_Y, fiber_Z);
 
   //------------------ vacuum  bundle  -----------------------------------------
-  Int_t fibers_in_boundle_X_Nb = 8;
-  Int_t fibers_in_boundle_Y_Nb = 8;
+  Int_t fibers_in_boundle_X_Nb = 16;
+  Int_t fibers_in_boundle_Y_Nb = 16;
   
   Double_t boundle_X = fiber_X * fibers_in_boundle_X_Nb;
   Double_t boundle_Y = fiber_Y * fibers_in_boundle_Y_Nb;

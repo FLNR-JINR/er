@@ -113,25 +113,20 @@ void ERNeuRadDigiPar::putParams(FairParamList* l)
 
 Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 {
-  cout << "ERNeuRadDigiPar Filling ...";
+  cout << "ERNeuRadDigiPar Filling ..." << endl;
 
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
-  Int_t nFibers = setup->RowNofFibers()*setup->RowNofFibers();
-  fPMTQuantumEfficiency = new TArrayF(nFibers);
-  fPMTGain = new TArrayF(nFibers);
-  fPMTSigma = new TArrayF(nFibers),
-  fPMTCrosstalks = new TArrayF(nFibers*9);
+  fNofFibers = setup->RowNofFibers()*setup->RowNofFibers();
+  fNofModules = setup->RowNofModules()*setup->RowNofModules();
+
+  cout << "fNofFibers " << fNofFibers << endl;
+
+  fPMTQuantumEfficiency = new TArrayF(fNofFibers);
+  fPMTGain = new TArrayF(fNofFibers);
+  fPMTSigma = new TArrayF(fNofFibers),
+  fPMTCrosstalks = new TArrayF(fNofFibers*9);
 
   if (!l) { return kFALSE; }
-  
-  if ( ! l->fill("ERNeuRadNofModules", &fNofModules) ) { return kFALSE; }
-  
-  if ( ! l->fill("ERNeuRadNofFibers", &fNofFibers) ) { return kFALSE; }
-  
-  fPMTQuantumEfficiency->Set(fNofFibers);
-  fPMTGain->Set(fNofFibers);
-  fPMTSigma->Set(fNofFibers);
-  fPMTCrosstalks->Set(fNofFibers*9);
   if ( ! l->fill("ERNeuRadPMTQuantumEfficiency", fPMTQuantumEfficiency) ) { return kFALSE; }
   if ( ! l->fill("ERNeuRadPMTGain", fPMTGain) ) { return kFALSE; }
   if ( ! l->fill("ERNeuRadPMTSigma", fPMTSigma) ) { return kFALSE; }
@@ -140,7 +135,11 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
   } else {
     fUseCrosstalks = kTRUE;
   }
-
+  fPMTQuantumEfficiency->Set(fNofFibers);
+  fPMTGain->Set(fNofFibers);
+  fPMTSigma->Set(fNofFibers),
+  fPMTCrosstalks->Set(fNofFibers*9);
+  cout << "fPMTQuantumEfficiency " << fPMTQuantumEfficiency->GetSize() << endl;
   return kTRUE;
 }
 //------------------------------------------------------

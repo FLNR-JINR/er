@@ -108,6 +108,7 @@ InitStatus ERNeuRadDigitizer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERNeuRadDigitizer::Exec(Option_t* opt)
 {
+  /*
   fPECountF = 0;
   fPECountB  = 0;
   fSumAmplitudeF = 0;
@@ -130,7 +131,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   
   Int_t points_count = fNeuRadPoints->GetEntries();
   //Формируем промежуточные сущности PhotoElectrons
-
+  
   fPhotoElectronsCreatingTimer.Start();
   for (Int_t iPoint=0; iPoint < points_count; iPoint++) { // цикл
     ERNeuRadPoint *point = (ERNeuRadPoint*) fNeuRadPoints->At(iPoint);
@@ -142,6 +143,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   fPhotoElectronsCreatingTime += fPhotoElectronsCreatingTimer.RealTime();
   //Формируем сигналы на ФЭУ и digi
   fPMTSignalCreatingTimer.Start();
+  
   for (Int_t iModule = 0; iModule < nofModules; iModule++){
     //Генерируем сигналы на пикселях
     for (Int_t iFiber = 0; iFiber < nofFibers; iFiber++) {
@@ -149,6 +151,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
       PMTSignalsCreating(iModule, iFiber, peInFibersB,1);
     }
   }
+  
   fPMTSignalCreatingTimer.Stop();
   fPMTSignalCreatingTime += fPMTSignalCreatingTimer.RealTime();
   
@@ -166,6 +169,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   header->SetNeuRadPECountB(fPECountB);
   header->SetNeuRadSumAmplitudeF(fSumAmplitudeF);
   header->SetNeuRadSumAmplitudeB(fSumAmplitudeB);
+  */
 }
 //----------------------------------------------------------------------------
 

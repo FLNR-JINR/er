@@ -49,6 +49,8 @@ class ERNeuRadDigiPar : public FairParGenericSet
 
     void putParams(FairParamList*);
     Bool_t getParams(FairParamList*);
+
+    /** Modifiers**/
     
     /** Accessories  **/
     Int_t   NofFibers()     const {return fNofFibers;}
