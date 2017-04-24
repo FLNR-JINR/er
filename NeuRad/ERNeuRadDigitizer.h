@@ -15,7 +15,6 @@
 #include "ERNeuRadPoint.h"
 #include "ERNeuRadPhotoElectron.h"
 #include "ERNeuRadPMTSignal.h"
-#include "ERNeuRadDigiPar.h"
 #include "ERNeuRadSetup.h"
 
 class TObjectArray;
@@ -56,7 +55,6 @@ public:
   Int_t PMTSignalCount()   const;
 protected:
   //Digitization parameters
-  ERNeuRadDigiPar* fDigiPar;
   ERNeuRadSetup* fNeuRadSetup;
   //Input arrays
   TClonesArray *fNeuRadPoints;

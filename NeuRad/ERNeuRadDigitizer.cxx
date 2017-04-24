@@ -7,6 +7,7 @@ using std::sort;
 using std::vector;
 using std::cerr;
 using std::endl;
+using namespace std;
 
 #include "TClonesArray.h"
 #include "TVector3.h"
@@ -36,7 +37,6 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
   fScincilationTau(cScincilationTau),
   fPhotoElectronsCreatingTime(0),
   fPMTSignalCreatingTime(0),
-  fDigiPar(NULL),
   fNeuRadSetup(NULL),
   fNeuRadPoints(NULL),
   fNeuRadPhotoElectron(NULL),
@@ -57,7 +57,6 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   fScincilationTau(cScincilationTau),
   fPhotoElectronsCreatingTime(0),
   fPMTSignalCreatingTime(0),
-  fDigiPar(NULL),
   fNeuRadSetup(NULL),
   fNeuRadPoints(NULL),
   fNeuRadPhotoElectron(NULL),
@@ -79,19 +78,8 @@ ERNeuRadDigitizer::~ERNeuRadDigitizer()
 // ----------------------------------------------------------------------------
 void ERNeuRadDigitizer::SetParContainers()
 {
-  // Get run and runtime database
-  FairRunAna* run = FairRunAna::Instance();
-  if ( ! run ) Fatal("SetParContainers", "No analysis run");
-
-  FairRuntimeDb* rtdb = run->GetRuntimeDb();
-  if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
-
-  fDigiPar = (ERNeuRadDigiPar*)
-             (rtdb->getContainer("ERNeuRadDigiPar"));
-  if ( fVerbose && fDigiPar ) {
-    std::cout << "ERNeuRadDigitizer::SetParContainers() "<< std::endl;
-    std::cout << "ERNeuRadDigiPar initialized! "<< std::endl;
-  }
+  fNeuRadSetup = ERNeuRadSetup::Instance();
+  fNeuRadSetup->SetParContainers();
 }
 // ----------------------------------------------------------------------------
 
@@ -99,6 +87,7 @@ void ERNeuRadDigitizer::SetParContainers()
 InitStatus ERNeuRadDigitizer::Init()
 {
   // Get input array
+  cout << "Init" << endl;
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
@@ -110,10 +99,8 @@ InitStatus ERNeuRadDigitizer::Init()
   ioman->Register("NeuRadPhotoElectron", "NeuRad Fiber points", fNeuRadPhotoElectron, kTRUE);
   fNeuRadPMTSignal = new TClonesArray("ERNeuRadPMTSignal", 1000);
   ioman->Register("NeuRadPMTSignal", "Signal PMT", fNeuRadPMTSignal, kTRUE);
-  
-  fNeuRadSetup = ERNeuRadSetup::Instance();
+
   fNeuRadSetup->Print();
-  
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------

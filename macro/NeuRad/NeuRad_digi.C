@@ -40,7 +40,7 @@ void NeuRad_digi(Int_t nEvents = 1000){
   rtdb->setSecondInput(parInput2);
   
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG2");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------

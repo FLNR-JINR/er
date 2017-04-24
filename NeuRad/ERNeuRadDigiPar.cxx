@@ -23,15 +23,17 @@ ERNeuRadDigiPar::ERNeuRadDigiPar(const char* name,
     const char* title,
     const char* context)
   : FairParGenericSet(name, title, context),
-    fPMTQuantumEfficiency(new TArrayF(64)),
-    fPMTGain(new TArrayF(64)),
-    fPMTSigma(new TArrayF(64)),
-    fPMTCrosstalks(new TArrayF(64*9)),
     fNofFibers(-1),
     fNofModules(-1),
     fUseCrosstalks(kFALSE),
-    fRowNofFibers(-1)
+    fRowNofFibers(-1),
+    fPMTQuantumEfficiency(NULL),
+    fPMTGain(NULL),
+    fPMTSigma(NULL),
+    fPMTCrosstalks(NULL)
 {
+cout << "ERNeuRadDigiPar" << endl;
+
 }
 // -------------------------------------------------------------------------
 
@@ -132,6 +134,12 @@ void ERNeuRadDigiPar::putParams(FairParamList* l)
 
 Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 {
+  cout << "getParams" << endl;
+  fPMTQuantumEfficiency = new TArrayF(64);
+  fPMTGain = new TArrayF(64);
+  fPMTSigma = new TArrayF(64),
+  fPMTCrosstalks = new TArrayF(64*9);
+
   if (!l) { return kFALSE; }
   
   if ( ! l->fill("ERNeuRadNofModules", &fNofModules) ) { return kFALSE; }

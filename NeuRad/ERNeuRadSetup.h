@@ -52,6 +52,7 @@ public:
     static void PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks);
     static Int_t RowNofFibers();
     static Bool_t UseCrosstalks();
+    static Int_t SetParContainers();
     ClassDef(ERNeuRadSetup,1)
 
 };
