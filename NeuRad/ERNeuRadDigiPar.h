@@ -14,9 +14,11 @@
 #include "TArrayF.h"
 #include "TArrayI.h"
 
+#include "ERNeuRadSetup.h"
+
 class FairParIo;
 class FairParamList;
-
+class ERNeuRadSetup;
 
 class ERNeuRadDigiPar : public FairParGenericSet
 {

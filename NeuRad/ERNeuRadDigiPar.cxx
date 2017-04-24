@@ -107,38 +107,20 @@ void ERNeuRadDigiPar::print()
 //------------------------------------------------------
 void ERNeuRadDigiPar::putParams(FairParamList* l)
 { 
-
-  //   print();
-  cout << " I am in ERNeuRadDigiPar::putParams " << endl;
-  /*if (!l) { return; }
-  l->add("FairTutorialDet2DigiStations", ftutdetdigiparstation);
-  l->add("FairTutorialDet2DigiSectorsPerStation", ftutdetdigiparsector);
-  Int_t count_sectors = 0;
-  for ( Int_t i=0; i< ftutdetdigiparstation; i++) {
-    count_sectors+=ftutdetdigiparsector[i];
-  }
-  Int_t array_size = (count_sectors * 10 + ftutdetdigiparstation * 3);
-  cout << "Array Size: " << array_size << endl;
-  /*   Float_t zwischen[array_size];
-     for ( Int_t i=0; i< array_size; i++) {
-       zwischen[i] = ftutdetdigipar.GetAt(i);
-     }
-   */
-   /*
-  ftutdetdigipar->Set(array_size);
-  l->add("FairTutorialDet2DigiPar",*ftutdetdigipar);
-  */
 }
 
 //------------------------------------------------------
 
 Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 {
-  cout << "getParams" << endl;
-  fPMTQuantumEfficiency = new TArrayF(64);
-  fPMTGain = new TArrayF(64);
-  fPMTSigma = new TArrayF(64),
-  fPMTCrosstalks = new TArrayF(64*9);
+  cout << "ERNeuRadDigiPar Filling ...";
+
+  ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
+  Int_t nFibers = setup->RowNofFibers()*setup->RowNofFibers();
+  fPMTQuantumEfficiency = new TArrayF(nFibers);
+  fPMTGain = new TArrayF(nFibers);
+  fPMTSigma = new TArrayF(nFibers),
+  fPMTCrosstalks = new TArrayF(nFibers*9);
 
   if (!l) { return kFALSE; }
   

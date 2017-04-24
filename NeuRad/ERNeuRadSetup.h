@@ -13,6 +13,8 @@
 #include "Rtypes.h"
 #include "ERNeuRadDigiPar.h"
 
+class ERNeuRadDigiPar;
+
 struct ERNeuRadModule{
         Float_t fX;
         Float_t fY;
@@ -33,6 +35,8 @@ class ERNeuRadSetup {
     static Float_t fZ;
     static Float_t fLength;
     static Float_t fFiberWidth;
+    static Int_t fRowNofFibers;
+    static Int_t fRowNofModules;
     ERNeuRadSetup();
 public:
     static ERNeuRadSetup* Instance();
@@ -51,6 +55,7 @@ public:
     static void    Print();
     static void PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks);
     static Int_t RowNofFibers();
+    static Int_t RowNofModules();
     static Bool_t UseCrosstalks();
     static Int_t SetParContainers();
     ClassDef(ERNeuRadSetup,1)
