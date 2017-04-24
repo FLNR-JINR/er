@@ -139,8 +139,14 @@ Int_t ERNXyterTreeSource::ReadEvent(UInt_t) {
 
 //	cout << "begin of function ReadEvent" << endl;
 
-	if (fTree->GetEntriesFast() == fEvent+1)
+	if ( !(fEvent%100000) ) {
+		std::cout << "####### EVENT " << fEvent << " #####" << std::endl;
+	}
+
+	if (fTree->GetEntriesFast() == fEvent+1) {
+		std::cout << "####### EVENT " << fEvent << " #####" << std::endl;
 		return 1;
+	}
 
 	fTree->GetEntry(fEvent);
 

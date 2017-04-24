@@ -37,6 +37,8 @@ WCalHit* WCalEvent::AddHit(UChar_t p_ch, Int_t p_adc, Float_t p_adcNonLin,
 
 	TClonesArray &hits = *fHits;
 
+//	std::cout << p_adcCalib << std::endl;
+
 	WCalHit *hit = new(hits[fNumOfHits++]) WCalHit(p_ch, p_adc, p_adcNonLin, p_adcNonLinCorr, p_adcCalib);
-		return hit;
+	return hit;
 }

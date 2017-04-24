@@ -10,6 +10,9 @@
 
 #include "TObject.h"
 
+//todo: delete
+#include <iostream>
+
 class WCalHit : public TObject {
 public:
 	WCalHit();
@@ -22,12 +25,20 @@ public:
 	WCalHit &operator=(const WCalHit &orig);
 
 private:
+	void SetXY();
+
+private:
     UChar_t fChannel;
 //    UShort_t fRawAdcVal;
     Int_t fAdcVal;			// (pedestal -raw adc val)
     Float_t fAdcNonLin;		//corrected for non-linearity
     Float_t fAdcNonLinCorr;	//corrected for non-linearity and pedestal shift
-    Float_t fAdcCalibrated;	// After calibration using LUTs
+    Float_t fAdcCal;	// After calibration using LUTs
+
+    Int_t fXpixel;			//number of x row (vertical)
+    Int_t fYpixel;			//number of x row (or column) (horizontal)
+
+    UInt_t fPixelFromFebCh[64]; //!
 };
 
 #endif /* DATA_BEAMTIME_WCALHIT_H_ */
