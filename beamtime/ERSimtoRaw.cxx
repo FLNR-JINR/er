@@ -1,4 +1,5 @@
 #include "ERSimtoRaw.h"
+#include "FairRun.h"
 
 #include "TClonesArray.h"
 
@@ -67,26 +68,51 @@ InitStatus ERSimtoRaw::Init()
 void ERSimtoRaw::Exec(Option_t* opt)
 {
   fEvent++;
-  if ( !(fEvent%100) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
-  Int_t simSize = 0;
-
+  if ( !(fEvent%100000) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
+  Int_t simSize,side,counter;
+  Double_t maxAmp;
+  
+  FairRun* run = FairRun::Instance();
+  run->MarkFill(kFALSE);
   for (Int_t iSignal = 0; iSignal < fPMTSignals->GetEntriesFast(); iSignal++){
     ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)fPMTSignals->At(iSignal);
     // if (signal->Side() !=1 || signal->FiberIndex() != 25) continue;
-    if (signal->FiberIndex() != 25) continue;
+    if ( signal->FiberIndex() != 20 ) continue;
     TArrayF* result = signal->ResultSignal();
-     simSize = result->GetSize();
+    maxAmp = 0;
+    simSize = 0;
+    simSize = result->GetSize();
+
+    if ( signal->Side() == 0 ){
+      for(Int_t i = 0; i<simSize; i++){
+        if( maxAmp < result->GetAt(i) ) {maxAmp = result->GetAt(i);}
+      }  //searching maxAmp
+      cout << maxAmp << endl;
+      if(maxAmp > 5) {
+        cout << " not NULL event found " << endl;
+        run->MarkFill(kTRUE);
+      }
+    }
+    // std::cout << "####### AMP " << maxAmp << " #####" << std::endl;
+  // Int_t FiberIndex() const {return fFiberIndex;}
+  // Int_t Side() const {return fSide;}
+
+
+
     for(Int_t nPoint = 0; nPoint< fNPoints; nPoint++){
 
       if( nPoint<=(fNPoints - simSize)/2 || nPoint>=(fNPoints + simSize)/2 ) {
-        fRawEvents[0]->SetAmp(0, nPoint);
+        if(signal->Side() == 0) {fRawEvents[0]->SetAmp(0, nPoint);}
+        if(signal->Side() == 1) {fRawEvents[1]->SetAmp(0, nPoint);}
       }
       else{
-         fRawEvents[0]->SetAmp(-result->GetAt(nPoint - (fNPoints - simSize)/2), nPoint); //fill the RawEvent
+         if(signal->Side() == 0) {fRawEvents[0]->SetAmp(-result->GetAt(nPoint - (fNPoints - simSize)/2), nPoint);} //fill the RawEvent
+         if(signal->Side() == 1) {fRawEvents[1]->SetAmp(-result->GetAt(nPoint - (fNPoints - simSize)/2), nPoint);}
         // fRawEvents[0]->SetAmp(0, nPoint); //fill the RawEvent
       }
       
-      fRawEvents[0]->SetTime(nPoint*0.1, nPoint); 
+      if(signal->Side() == 0) {fRawEvents[0]->SetTime(nPoint*0.1, nPoint);}
+      if(signal->Side() == 1) {fRawEvents[1]->SetTime(nPoint*0.1, nPoint);}
     }
   }
   //----------------------------------------------------------------------------

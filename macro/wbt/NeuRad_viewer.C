@@ -1,10 +1,10 @@
-void SimToRaw(Int_t nEvents = 200000){
+void NeuRad_viewer(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
-  TString digiFile = "myData/digi.root";
-  // TString simFile = "sim.root";
-  // TString recoFile = "reco.root";
-  TString outFile = "myData/simRaw.root";
-  TString parFile = "myData/par.root";
+  TString digiFile = "../beamtime/myData/digi.root";
+  TString simFile = "../beamtime/myData/sim.root";
+  TString recoFile = "../beamtime/myData/reco.root";
+  TString outFile = "../beamtime/myData/viewer.root";
+  TString parFile = "../beamtime/myData/par.root";
   // ------------------------------------------------------------------------
   
   // -----   Timer   --------------------------------------------------------
@@ -21,8 +21,8 @@ void SimToRaw(Int_t nEvents = 200000){
   // ------------------------------------------------------------------------
  
   // ------------------------NeuRadHitProducer-------------------------------- 
-  ERSimtoRaw* converter = new ERSimtoRaw(1);
-  fRun->AddTask(converter);
+  ERNeuRadViewer* viewer = new ERNeuRadViewer(1);
+  fRun->AddTask(viewer);
   //------------------------------------------------------------------------
   // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -46,7 +46,6 @@ void SimToRaw(Int_t nEvents = 200000){
   cout << "Output file writen:  "    << outFile << endl;
   cout << "Parameter file writen " << parFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
-  cout << nEvents <<" its a number of events" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
 
