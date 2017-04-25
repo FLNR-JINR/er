@@ -18,4 +18,6 @@
 #pragma link C++ class ERTelescopeCalibrator+;
 #pragma link C++ class ERTofCalibrator+;
 
+#pragma link C++ class ERTracker+;
+
 #endif
