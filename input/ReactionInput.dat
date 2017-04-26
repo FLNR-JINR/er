@@ -1,0 +1,27 @@
+he4+ni58->(he4)+ni58
+Tbeam=35 MeV/n
+DispersionSlit=2 %
+Mechanism	elastic
+FileName	run
+Simulation	no
+VertexSearch	no
+DetectorTune	no
+TOFis		yes
+TRACKINGis	yes
+TrackCheck	yes
+WriteRawData	yes
+WriteCalData	yes
+WriteTofData	yes
+WriteTrackData	yes
+WriteTelData	yes
+WritePhysData	yes
+WritePlayData	yes
+WriteRawTrack	yes
+GooodMbeam	1
+GooodMtrack	1
+GooodMp1	0
+GooodMp2	0
+GooodMp3	0
+DoubleCoinc	0
+WhatiFlag	0
+GooodSmthg	0

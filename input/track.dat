@@ -1,0 +1,15 @@
+window	mylar	0.005
+workgas	cf4	8.4
+cathod	steel	0.0005
+NCathodes	4
+DistX-Ywires	1.2
+WiresStep	0.125
+NumberOfWires	32
+MWPCfar:
+Distance	-80.
+XshiftYshift	0.55	0.20
+XYnumer-order	2	1
+MWPCclose:
+Distance	-27.
+XshiftYshift	0.33	0.21
+XYnumer-order	2	1
