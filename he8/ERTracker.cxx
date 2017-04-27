@@ -6,7 +6,7 @@ using namespace std;
 #include "TGeoManager.h"
 #include "TGeoMaterial.h"
 #include "TGeoMedium.h"
-
+#include "TGeoCompositeShape.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -24,7 +24,10 @@ ERTracker::ERTracker()
   NLayMax(10),
   NDetMax(20),
   NDivMax(0),
-  NDivXYMax(0)
+  NDivXYMax(0),
+  Telescope(NULL),
+  layer(NULL),
+  NDet(NULL)
 {
 }
 // ----------------------------------------------------------------------------
@@ -41,7 +44,10 @@ ERTracker::ERTracker(Int_t verbose)
   NLayMax(10),
   NDetMax(20),
   NDivMax(0),
-  NDivXYMax(0)
+  NDivXYMax(0),
+  Telescope(NULL),
+  layer(NULL),
+  NDet(NULL
 {
 }
 // ----------------------------------------------------------------------------
@@ -184,7 +190,7 @@ InitStatus ERTracker::Init()
   Particle participants[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
   Particle aux[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
   
-  char WayMass[]="/home/vitaliy/er/input/StableNuclei.dat";
+  char WayMass[]="/home/vitaliy.schetinin/er/input/StableNuclei.dat";
   projectile.ParticleID(projname,WayMass);
   target.ParticleID(tarname,WayMass);
   target.Part.SetPxPyPzE(0.,0.,0.,target.Mass);
@@ -282,7 +288,8 @@ InitStatus ERTracker::Init()
   OutAtNumber = 0;
   for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++) OutAtNumber += ejectile[0][ip][0].AtMass;
   if(InAtNumber!=OutAtNumber) {printf("In ReactionInput.dat Ain is not equal to Aout!!!\n");}
-  //CreateTelescopeGeometry();
+  
+  CreateTelescopeGeometry();
   
   return kSUCCESS;
 }
@@ -291,7 +298,6 @@ InitStatus ERTracker::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERTracker::Exec(Option_t* opt)
 {
-
 }
 //----------------------------------------------------------------------------
 
@@ -308,8 +314,10 @@ void ERTracker::Finish()
 // ----------------------------------------------------------------------------
 void ERTracker::ReadTelescopeParameters(){
 
-  int layer[NTelMax];
-  int NDet[NTelMax][NLayMax];
+  layer = new int[NTelMax];
+  NDet = new int*[NTelMax];
+  for (int i = 0; i<NTelMax;i++)
+    NDet[i] = new int[NLayMax];
 
   int it,il,id,is,imu,ip,count;
   int itx,ilx,idx,ipx;
@@ -319,7 +327,6 @@ void ERTracker::ReadTelescopeParameters(){
 
   double read_angle1,read_angle2;
   double dist,dzf,dzb,thi,szx,szy,ofx,ofy,a1,a2,a3;
-  double StripSizeX,StripSizeY,move,RingInit,RingFin,PhiInit,PhiFin;
   double ResolutionSi;
   double ResolutionCsI;
   int nx,ny;
@@ -327,7 +334,7 @@ void ERTracker::ReadTelescopeParameters(){
   char mat[12];
   char sha[12];
 
-  FILE *F1 = fopen("/home/vitaliy/er/input/detsys.prm","r");
+  FILE *F1 = fopen("/home/vitaliy.schetinin/er/input/detsys.prm","r");
   if(F1==NULL) printf("Main: File detsys.prm was not found\n");
   else
   {
@@ -356,9 +363,13 @@ void ERTracker::ReadTelescopeParameters(){
   printf("Main: Ntelescopes=%i, NLayMax=%i, NDetMax=%i\n",Ntelescopes,NLayMax,NDetMax);
   fclose(F1);
 
-  Telescope Det[Ntelescopes][NLayMax][NDetMax];
-
-  F1 = fopen("/home/vitaliy/er/input/detsys.prm","r");
+  Det = new Telescope**[Ntelescopes];
+  for (int i = 0; i < Ntelescopes; i++){
+    Det[i] = new Telescope*[NLayMax];
+    for(int j = 0; j<NLayMax; j++)
+      Det[i][j] = new Telescope[NDetMax];
+  }
+  F1 = fopen("/home/vitaliy.schetinin/er/input/detsys.prm","r");
   for(it=0;it<Ntelescopes;it++)
   {
     fscanf(F1,"%s %lf %lf\n",Zeros,&read_angle1,&read_angle2);
@@ -455,7 +466,7 @@ void ERTracker::ReadInputData()
   ReIN->WriteRawTrack = false;
 /******************** Readout ReactionInput.dat ************************/
   printf("************************************************************\n");
-  FILE *F1 = fopen("/home/vitaliy/er/input/ReactionInput.dat","r");
+  FILE *F1 = fopen("/home/vitaliy.schetinin/er/input/ReactionInput.dat","r");
   if(F1==NULL) {printf("Main: File ReactionInput.dat was not found\n");}
   else
   {
@@ -503,7 +514,7 @@ void ERTracker::ReadInputData()
   if(ReIN->Simulation)
   {
     printf("************************************************************\n");
-    F1 = fopen("/home/vitaliy/er/input/Simulation.dat","r");
+    F1 = fopen("/home/vitaliy.schetinin/er/input/Simulation.dat","r");
     if(F1==NULL) {printf("Main: File Simulation.dat was not found\n");}
     else
     {
@@ -530,7 +541,7 @@ void ERTracker::ReadInputData()
 /*********************** Readout MWPC parameters:***********************/
   if(ReIN->TRACKINGis)
   {
-    F1 = fopen("/home/vitaliy/er/input/track.dat","r");
+    F1 = fopen("/home/vitaliy.schetinin/er/input/track.dat","r");
     if(F1==NULL) {printf("Main: File track.dat was not found\n");}
     else  
     { 
@@ -557,7 +568,7 @@ void ERTracker::ReadInputData()
 /*********************** Readout TOF parameters:************************/
   if(ReIN->TOFis)
   {
-  FILE *F1 = fopen("/home/vitaliy/er/input/tof.dat","r");
+  FILE *F1 = fopen("/home/vitaliy.schetinin/er/input/tof.dat","r");
   if(F1==NULL) {printf("Main: File tof.dat was not found\n");}
   else
   { 
@@ -575,7 +586,7 @@ void ERTracker::ReadInputData()
   UpMat->PlasticThick2/=cos(UpMat->PlasticAngle2*rad);
   }
 /********************* Readout Target parameters:***********************/
-  F1 = fopen("/home/vitaliy/er/input/target.dat","r");
+  F1 = fopen("/home/vitaliy.schetinin/er/input/target.dat","r");
   if(F1==NULL) printf("Main: File target.dat was not found\n");
   else
   { 
@@ -605,7 +616,356 @@ void ERTracker::ReadInputData()
 }
 // ----------------------------------------------------------------------------
 void ERTracker::CreateTelescopeGeometry(){
+
+  cout << "CreateTelescopeGeometry started" << endl;
+  double ThickStrip=0.0001;
+
+  TGeoManager *geom=new TGeoManager("Reaction Chamber","geom"); 
+  TGeoMaterial *matVacuum=new TGeoMaterial("Vacuum",0,0,0);
+  TGeoMaterial *matSi=new TGeoMaterial("Si",24.,12,2.4);
+  TGeoMedium *Vacuum=new TGeoMedium("Vacuum",1,matVacuum);
+  TGeoMedium *Si=new TGeoMedium("Si",2,matSi);
+  TGeoVolume *top=geom->MakeSphere("Top",Vacuum,0.,100.);
+  geom->SetTopVolume(top);
+  TGeoNode *trajectory;
+
+  TGeoRotation *rot0 = new TGeoRotation("rot0",0.,90.,0.);
+  rot0->RegisterYourself();
+
+  TGeoVolume *pDet[Ntelescopes][NLayMax][NDetMax][NDivMax+1];
   
+  char DetName[128];
+  char N1[128];
+  char N0[128];
+
+  double StripSizeX,StripSizeY,RingInit,RingFin,PhiInit,PhiFin,move;
+  
+  for(int it=0;it<Ntelescopes;it++)
+  {
+    for(int il=0;il<layer[it];il++)
+    {
+      for(int id=0;id<NDet[it][il];id++)
+      {
+        TGeoRotation *labrot=new TGeoRotation();
+        TGeoTranslation *labshift=new TGeoTranslation();
+
+        TGeoRotation *detrot_a1=new TGeoRotation();
+        TGeoRotation *detrot_a2=new TGeoRotation();
+        TGeoRotation *detrot_a3=new TGeoRotation();
+
+        TGeoCombiTrans *pos0=new TGeoCombiTrans();
+        TGeoCombiTrans *pos1=new TGeoCombiTrans();
+        TGeoCombiTrans *pos2=new TGeoCombiTrans();
+        TGeoCombiTrans *pos3=new TGeoCombiTrans();
+        TGeoCombiTrans *pos4=new TGeoCombiTrans();
+
+        labrot->SetAngles(90.,Det[it][il][id].Theta/rad-90.,Det[it][il][id].Psi/rad);
+        labshift->SetTranslation(Det[it][il][id].OffsetY,-Det[it][il][id].Dist-Det[it][il][id].Thick/2.,-Det[it][il][id].OffsetX);
+        detrot_a1->SetAngles(Det[it][il][id].DeltaAlpha/rad,0.,0.);
+        detrot_a2->SetAngles(0.,Det[it][il][id].DeltaBeta/rad,0.);
+        detrot_a3->SetAngles(Det[it][il][id].DeltaGamma/rad,0.,0.);
+
+        *pos0 = *rot0*(*detrot_a3);
+        *pos1 = *detrot_a1*(*pos0);
+        *pos2 = *detrot_a2*(*pos1);
+        *pos3 = *labrot*(*labshift);
+        *pos4 = *pos3*(*pos2);
+        pos4->RegisterYourself();
+
+        Det[it][il][id].DetOwnAxisX.RotateZ(Det[it][il][id].DeltaGamma);
+        Det[it][il][id].DetOwnAxisX.RotateX(90.*rad);
+        Det[it][il][id].DetOwnAxisX.RotateZ(Det[it][il][id].DeltaAlpha);
+        Det[it][il][id].DetOwnAxisX.RotateX(Det[it][il][id].DeltaBeta);
+        Det[it][il][id].DetOwnAxisX.RotateZ(90.*rad);
+        Det[it][il][id].DetOwnAxisX.RotateZ(Det[it][il][id].Psi);
+        Det[it][il][id].DetOwnAxisX.RotateY(Det[it][il][id].Theta-90.*rad);
+
+        Det[it][il][id].DetOwnAxisY.RotateZ(Det[it][il][id].DeltaGamma);
+        Det[it][il][id].DetOwnAxisY.RotateX(90.*rad);
+        Det[it][il][id].DetOwnAxisY.RotateZ(Det[it][il][id].DeltaAlpha);
+        Det[it][il][id].DetOwnAxisY.RotateX(Det[it][il][id].DeltaBeta);
+        Det[it][il][id].DetOwnAxisY.RotateZ(90.*rad);
+        Det[it][il][id].DetOwnAxisY.RotateZ(Det[it][il][id].Psi);
+        Det[it][il][id].DetOwnAxisY.RotateY(Det[it][il][id].Theta-90.*rad);
+
+        Det[it][il][id].DetOwnAxisZ.RotateZ(Det[it][il][id].DeltaGamma);
+        Det[it][il][id].DetOwnAxisZ.RotateX(90.*rad);
+        Det[it][il][id].DetOwnAxisZ.RotateZ(Det[it][il][id].DeltaAlpha);
+        Det[it][il][id].DetOwnAxisZ.RotateX(Det[it][il][id].DeltaBeta);
+        Det[it][il][id].DetOwnAxisZ.RotateZ(90.*rad);
+        Det[it][il][id].DetOwnAxisZ.RotateZ(Det[it][il][id].Psi);
+        Det[it][il][id].DetOwnAxisZ.RotateY(Det[it][il][id].Theta-90.*rad);
+
+        Det[it][il][id].DetLabVect.RotateX(90.*rad);
+        Det[it][il][id].DetLabVect.RotateZ(90.*rad);
+        Det[it][il][id].DetLabVect.RotateZ(Det[it][il][id].Psi);
+        Det[it][il][id].DetLabVect.RotateY(Det[it][il][id].Theta-90.*rad);
+
+        strcpy(DetName,"pDet");
+        if(it<10) strcat(DetName,"0");sprintf(N1,"%d",it);strcat(DetName,N1);
+        if(il<10) strcat(DetName,"0");sprintf(N1,"%d",il);strcat(DetName,N1);
+        if(id<10) strcat(DetName,"0");sprintf(N1,"%d",id);strcat(DetName,N1);
+        strcpy(N0,DetName);
+        strcat(DetName,"00");
+        
+        if(!strcmp(Det[it][il][id].Shape,"square"))
+        {
+          pDet[it][il][id][0]=geom->MakeBox(DetName,Si,Det[it][il][id].SizeY/2.,Det[it][il][id].SizeX/2.,Det[it][il][id].Thick/2.);
+          top->AddNode(pDet[it][il][id][0],1,pos4);
+
+          for(int is=1;is<=fabs(Det[it][il][id].NstripX);is++)
+          {
+            TGeoCombiTrans *pos5=new TGeoCombiTrans();
+            TGeoTranslation *strmove=new TGeoTranslation();
+            strcpy(DetName,N0);if(is<10) strcat(DetName,"0");
+            sprintf(N1,"%d",is);strcat(DetName,N1);
+
+            StripSizeX=fabs(Det[it][il][id].SizeX/2./Det[it][il][id].NstripX);
+            StripSizeY=Det[it][il][id].SizeY/2.;
+            move=(-1.)*Det[it][il][id].SizeX*(double(is)-(fabs(Det[it][il][id].NstripX)+1)/2.)/Det[it][il][id].NstripX;
+
+            if(!strcmp(Det[it][il][id].StripFB,"XY")) strmove->SetTranslation(0.,move,-1.*(Det[it][il][id].Thick+ThickStrip)/2.);
+            if(!strcmp(Det[it][il][id].StripFB,"YX")) strmove->SetTranslation(0.,move,(Det[it][il][id].Thick+ThickStrip)/2.);
+
+            *pos5 = *pos4*(*strmove);
+            pDet[it][il][id][is]=geom->MakeBox(DetName,Si,StripSizeY,StripSizeX,ThickStrip/2.);
+            top->AddNode(pDet[it][il][id][is],1,pos5);
+          }
+          for(int is=abs(Det[it][il][id].NstripX)+1;is<=abs(Det[it][il][id].NstripX)+abs(Det[it][il][id].NstripY);is++)
+          {
+            TGeoCombiTrans *pos5=new TGeoCombiTrans();
+            TGeoTranslation *strmove1=new TGeoTranslation();
+            strcpy(DetName,N0);if(is<10) strcat(DetName,"0");
+            sprintf(N1,"%d",is);strcat(DetName,N1);
+
+            StripSizeX=Det[it][il][id].SizeX/2.;
+            StripSizeY=fabs(Det[it][il][id].SizeY/2./Det[it][il][id].NstripY);
+            move=-1*Det[it][il][id].SizeY*(double(is-fabs(Det[it][il][id].NstripX))-(fabs(Det[it][il][id].NstripY)+1)/2.)/Det[it][il][id].NstripY;
+
+            if(!strcmp(Det[it][il][id].StripFB,"XY")) strmove1->SetTranslation((-1.)*move,0.,(Det[it][il][id].Thick+ThickStrip)/2.);
+            if(!strcmp(Det[it][il][id].StripFB,"YX")) strmove1->SetTranslation((-1.)*move,0.,-(Det[it][il][id].Thick+ThickStrip)/2.);
+
+            *pos5 = *pos4*(*strmove1);
+            pDet[it][il][id][is]=geom->MakeBox(DetName,Si,StripSizeY,StripSizeX,ThickStrip/2.);
+            top->AddNode(pDet[it][il][id][is],1,pos5);
+          }
+        }
+        if(!strcmp(Det[it][il][id].Shape,"annular"))
+        {
+          pDet[it][il][id][0]=geom->MakeTube(DetName,Si,Det[it][il][id].Rin,Det[it][il][id].Rout,Det[it][il][id].Thick/2.);
+          top->AddNode(pDet[it][il][id][0],1,pos4);
+
+          for(int is=1;is<=abs(Det[it][il][id].Nring);is++)
+          {
+            TGeoCombiTrans *pos5=new TGeoCombiTrans();
+            TGeoTranslation *strmove=new TGeoTranslation();
+            strcpy(DetName,N0);if(is<10) strcat(DetName,"0");
+            sprintf(N1,"%d",is);strcat(DetName,N1);
+
+            if(Det[it][il][id].Nring>0) 
+            RingInit=Det[it][il][id].Rin+(Det[it][il][id].Rout-Det[it][il][id].Rin)*double(is-1)/Det[it][il][id].Nring;
+            else
+            RingInit=Det[it][il][id].Rin+(Det[it][il][id].Rout-Det[it][il][id].Rin)*double(is-abs(Det[it][il][id].Nring))/Det[it][il][id].Nring;
+
+            RingFin=RingInit+(Det[it][il][id].Rout-Det[it][il][id].Rin)/abs(Det[it][il][id].Nring);
+
+            if(!strcmp(Det[it][il][id].StripFB,"RS")) 
+            strmove->SetTranslation(0.,0.,-(Det[it][il][id].Thick+ThickStrip)/2.);
+            if(!strcmp(Det[it][il][id].StripFB,"SR")) strmove->SetTranslation(0.,0.,(Det[it][il][id].Thick+ThickStrip)/2.);
+
+            *pos5 = *pos4*(*strmove);
+            pDet[it][il][id][is]=geom->MakeTube(DetName,Si,RingInit,RingFin,ThickStrip/2.);
+            top->AddNode(pDet[it][il][id][is],1,pos5);
+          }
+          for(int is=abs(Det[it][il][id].Nring)+1;is<=abs(Det[it][il][id].Nring)+abs(Det[it][il][id].Nsector);is++)
+          {
+            TGeoCombiTrans *pos5=new TGeoCombiTrans();
+            TGeoTranslation *strmove1=new TGeoTranslation();
+            strcpy(DetName,N0);if(is<10) strcat(DetName,"0");
+            sprintf(N1,"%d",is);strcat(DetName,N1);
+
+            if(Det[it][il][id].Nsector>0) 
+            PhiInit=360.*double(is-abs(Det[it][il][id].Nring)-1)/Det[it][il][id].Nsector-90.;
+            else if(Det[it][il][id].Nsector<0)
+            PhiInit=360.*double(is-abs(Det[it][il][id].Nring)-abs(Det[it][il][id].Nsector))/Det[it][il][id].Nsector-90.;
+
+            PhiFin=PhiInit+360./abs(Det[it][il][id].Nsector);
+            if(!strcmp(Det[it][il][id].StripFB,"RS")) strmove1->SetTranslation(0.,0.,(Det[it][il][id].Thick+ThickStrip)/2.);
+            if(!strcmp(Det[it][il][id].StripFB,"SR")) strmove1->SetTranslation(0.,0.,-(Det[it][il][id].Thick+ThickStrip)/2.);
+
+            *pos5 = *pos4*(*strmove1);
+            pDet[it][il][id][is]=geom->MakeTubs(DetName,Si,Det[it][il][id].Rin,Det[it][il][id].Rout,ThickStrip/2.,PhiInit,PhiFin);
+            top->AddNode(pDet[it][il][id][is],1,pos5);
+          }
+        }
+        if(!strcmp(Det[it][il][id].Shape,"sector"))
+        {
+          PhiInit=-90.;
+          PhiFin=PhiInit+360./abs(Det[it][il][id].Nsector);
+          pDet[it][il][id][0]=geom->MakeTubs(DetName,Si,Det[it][il][id].Rin,Det[it][il][id].Rout,Det[it][il][id].Thick/2.,PhiInit,PhiFin);
+          top->AddNode(pDet[it][il][id][0],1,pos4);
+
+          strcpy(DetName,N0);
+          strcat(DetName,"01");
+          TGeoTranslation *strmove=new TGeoTranslation();
+          strmove->SetTranslation(0.,0.,(Det[it][il][id].Thick+ThickStrip)/2.);
+            
+          TGeoCombiTrans *pos5=new TGeoCombiTrans();
+          *pos5 = *pos4*(*strmove);
+          pDet[it][il][id][1]=geom->MakeTubs(DetName,Si,Det[it][il][id].Rin,Det[it][il][id].Rout,ThickStrip/2.,PhiInit,PhiFin);
+          top->AddNode(pDet[it][il][id][1],1,pos5);
+
+          strcpy(DetName,N0);
+          strcat(DetName,"02");
+          TGeoTranslation *strmove1=new TGeoTranslation();
+          strmove1->SetTranslation(0.,0.,-(Det[it][il][id].Thick+ThickStrip)/2.);
+
+          TGeoCombiTrans *pos6=new TGeoCombiTrans();
+          *pos6 = *pos4*(*strmove1);
+          pDet[it][il][id][2]=geom->MakeTubs(DetName,Si,Det[it][il][id].Rin,Det[it][il][id].Rout,ThickStrip/2.,PhiInit,PhiFin);
+          top->AddNode(pDet[it][il][id][2],1,pos6);
+        }
+        delete detrot_a1;
+        delete detrot_a2;
+        delete detrot_a3;
+        delete labshift;
+        delete labrot;
+      }
+    }
+  } /* (it=0;it<Ntelescopes;it++) */
+  cout << "CreateTelescopeGeometry Finished" << endl;
+  cout << "Target geometry creating started" << endl;
+  if(!strcmp(UpMat->TarShape,"SemiCylindrical"))
+  {
+    UpMat->TarThick = UpMat->TarRadius;
+    TGeoVolume *ttargetgas=geom->MakeTubs("ttargetgas",Si,0,UpMat->TarRadius,UpMat->TarHeight/2.,0.,180.);
+
+    TGeoVolume *TargetUp=geom->MakeTubs("TargetUp",Si,0,UpMat->TarRadius,UpMat->TarWallThick/2.,0.,180.);
+    TGeoTranslation *TargetUpShift=new TGeoTranslation("TargetUpShift",0.,-UpMat->TarRadius/2.,-(UpMat->TarHeight+UpMat->TarWallThick)/2.);
+    TargetUpShift->RegisterYourself();
+
+    TGeoVolume *TargetDown=geom->MakeTubs("TargetDown",Si,0,UpMat->TarRadius,UpMat->TarWallThick/2,0.,180.);
+    TGeoTranslation *TargetDownShift=new TGeoTranslation("TargetDownShift",0.,-UpMat->TarRadius/2.,(UpMat->TarHeight+UpMat->TarWallThick)/2.);
+    TargetDownShift->RegisterYourself();
+
+    TGeoVolume *TargetBack=geom->MakeBox("TargetBack",Si,UpMat->TarRadius,UpMat->TarWallThick+(UpMat->TarHeight/2.),UpMat->TarWallThick/2.);
+    TGeoTranslation *TargetBackShift=new TGeoTranslation("TargetBackShift",0.,0.,-UpMat->TarWallThick/2.-UpMat->TarRadius/2.);
+    TargetBackShift->RegisterYourself();
+
+    TGeoVolume *TargetEntrHole=geom->MakeTube("TargetEntrHole",Si,0.,UpMat->TarEntrHoleRad,(UpMat->TarWallThick+UpMat->FoilThick)/2.);
+    TGeoCompositeShape *target=new TGeoCompositeShape("target","(TargetUp:TargetUpShift+TargetDown:TargetDownShift):rot0+(TargetBack:TargetBackShift-TargetEntrHole:TargetBackShift)");
+    TGeoVolume *ttarcell=new TGeoVolume("ttarcell",target,Si);
+
+    TGeoVolume *tExitFoil=geom->MakeTubs("tExitFoil",Si,UpMat->TarRadius,UpMat->TarRadius+UpMat->FoilThick,UpMat->TarHeight/2.,0.,180.);
+    TGeoTranslation *ExitFoilShift=new TGeoTranslation("ExitFoilShift",0.,0.,-UpMat->TarRadius/2.);
+    ExitFoilShift->RegisterYourself();
+
+    TGeoVolume *tEntrFoil=geom->MakeTube("tEntrFoil",Si,0.,UpMat->TarEntrHoleRad,UpMat->FoilThick/2.);
+    TGeoTranslation *EntrFoilShift=new TGeoTranslation(0,0.,-UpMat->FoilThick/2.-UpMat->TarRadius/2.);
+
+    TGeoCombiTrans *posexf=new TGeoCombiTrans();
+    posexf->RegisterYourself();
+    *posexf = *ExitFoilShift*(*rot0);
+
+    top->AddNode(tEntrFoil,1,EntrFoilShift);
+    top->AddNode(tExitFoil,1,posexf);
+    top->AddNode(ttarcell,1);
+    top->AddNode(ttargetgas,1,posexf);
+  }
+  else if(!strcmp(UpMat->TarShape,"Cylindrical"))
+  {
+    TGeoRotation *rottar=new TGeoRotation();
+    rottar->SetAngles(90.,UpMat->TarAngle,0.);
+
+    UpMat->TarThick = UpMat->TarHeight;
+
+// making the cylindrical part of the gaseous body "ttargetgas", that afterward must be shifted backward by TargetShift
+
+    TGeoVolume *ttargetgas=geom->MakeTube("ttargetgas",Si,0,UpMat->TarEntrHoleRad,UpMat->TarThick/2.);
+    TGeoTranslation *TargetShift=new TGeoTranslation("TargetShift",0.,0.,-(UpMat->MeniskSize+UpMat->TarThick)/2.);
+    TargetShift->RegisterYourself();
+
+// making the menisk entrance part of the gaseous body "tGasMenEntr", that afterward must be shifted backward by MeniskShift
+
+    TGeoVolume *tGasMenEntr=geom->MakeParaboloid("tGasMenEntr",Si,0.,UpMat->TarEntrHoleRad,UpMat->MeniskSize/2.);
+    TGeoTranslation *MeniskShift=new TGeoTranslation("MeniskShift",0.,0.,-(UpMat->MeniskSize+UpMat->TarThick));
+    MeniskShift->RegisterYourself();
+
+// making the menisk exit part of the gaseous body "tGasMenExit", that afterward must be revolved by 180 deg by rotExitMen
+
+    TGeoVolume *tGasMenExit=geom->MakeParaboloid("tGasMenExit",Si,0.,UpMat->TarEntrHoleRad,UpMat->MeniskSize/2.);
+    TGeoRotation *rotExitMen=new TGeoRotation("rotExitMen",0.,180.,0.);
+    rotExitMen->RegisterYourself();
+
+// Unifying three previous forms into one whole gaseous body
+
+    TGeoCompositeShape *tgg=new TGeoCompositeShape("tgg","ttargetgas:TargetShift+tGasMenEntr:MeniskShift+tGasMenExit:rotExitMen");
+    TGeoVolume *tgas=new TGeoVolume("tgas",tgg,Si);
+
+// The whole gaseous body must be shifted forward to the origin of the frame by GasShift and then rotated around the Y-axis if needed
+
+    TGeoTranslation *GasShift=new TGeoTranslation("GasShift",UpMat->TarYshift,-UpMat->TarXshift,(UpMat->MeniskSize+UpMat->TarHeight)/2.+UpMat->TarZshift);
+    GasShift->RegisterYourself();
+    TGeoTranslation *Zshift=new TGeoTranslation("Zshift",UpMat->TarYshift,-UpMat->TarXshift,UpMat->TarZshift);
+    Zshift->RegisterYourself();
+    TGeoCombiTrans *postfex=new TGeoCombiTrans();
+    postfex->RegisterYourself();
+    *postfex = *rottar*(*GasShift);
+    TGeoCombiTrans *posttar=new TGeoCombiTrans();
+    posttar->RegisterYourself();
+    *posttar = *rottar*(*Zshift);
+
+// To construct the foil shell surrounding the gaseous body, we repeat the previous procedure twice, for the inner and outer shapes of the foil, and subtruct one from another
+
+    TGeoVolume *tTargetCell=geom->MakeTube("tTargetCell",Si,UpMat->TarEntrHoleRad,UpMat->TarRadius,UpMat->TarThick/2.);
+
+    TGeoVolume *tEntrFoilInt=geom->MakeParaboloid("tEntrFoilInt",Si,0.,UpMat->TarEntrHoleRad,UpMat->MeniskSize/2.);
+    TGeoVolume *tEntrFoilExt=geom->MakeParaboloid("tEntrFoilExt",Si,0.,UpMat->TarEntrHoleRad+3.*UpMat->FoilThick,UpMat->MeniskSize/2.+UpMat->FoilThick);
+    TGeoVolume *tEntrFoilHole=geom->MakeTube("tEntrFoilHole",Si,0.,UpMat->TarEntrHoleRad+3.*UpMat->FoilThick,1.01*UpMat->FoilThick/2.);
+    TGeoTranslation *HoleShift=new TGeoTranslation("HoleShift",0.,0.,UpMat->MeniskSize/2.+UpMat->FoilThick/2.);
+    HoleShift->RegisterYourself();
+
+    TGeoVolume *tExitFoilInt=geom->MakeParaboloid("tExitFoilInt",Si,0.,UpMat->TarEntrHoleRad,UpMat->MeniskSize/2.);
+    TGeoVolume *tExitFoilExt=geom->MakeParaboloid("tExitFoilExt",Si,0.,UpMat->TarEntrHoleRad+3.*UpMat->FoilThick,UpMat->MeniskSize/2.+UpMat->FoilThick);
+    TGeoVolume *tExitFoilHole=geom->MakeTube("tExitFoilHole",Si,0.,UpMat->TarEntrHoleRad+3.*UpMat->FoilThick,1.01*UpMat->FoilThick/2.);
+
+    TGeoCompositeShape *tfg1=new TGeoCompositeShape("tfg1","(tEntrFoilExt-tEntrFoilHole:HoleShift):MeniskShift-tEntrFoilInt:MeniskShift");
+    TGeoCompositeShape *tfg2=new TGeoCompositeShape("tfg2","(tExitFoilExt-tExitFoilHole:HoleShift):rotExitMen-tExitFoilInt:rotExitMen");
+    TGeoVolume *tfoilen=new TGeoVolume("tfoilen",tfg1,Si);
+    TGeoVolume *tfoilex=new TGeoVolume("tfoilex",tfg2,Si);
+
+    top->AddNode(tgas,1,postfex);
+    top->AddNode(tfoilen,1,postfex);
+    top->AddNode(tfoilex,1,postfex);
+    top->AddNode(tTargetCell,1,rottar);
+  }
+/**********************************************************************************************************************************************/
+/**************************************************** Heat screen: ****************************************************************************/
+/**********************************************************************************************************************************************/
+  if(!strcmp(UpMat->HeatScreenAns,"yes"))
+  {
+    TGeoVolume *Hscr=geom->MakeTube("Hscr",Si,UpMat->InHscrRad,UpMat->InHscrRad+UpMat->HscrWallWidth,UpMat->HscrHeight/2.);
+
+    TGeoVolume *HscrEntHole=geom->MakeTube("HscrEntHole",Si,0.,UpMat->EntrHRad,UpMat->InHscrRad);
+    TGeoTranslation *HEntHolShift=new TGeoTranslation("HEntHolShift",0.,0.,-UpMat->InHscrRad);
+    HEntHolShift->RegisterYourself();
+
+    TGeoVolume *HscrExHole=geom->MakeBox("HscrExHole",Si,UpMat->ExHX/2.,UpMat->ExHY/2.,UpMat->InHscrRad);
+    TGeoTranslation *HExHolShift=new TGeoTranslation("HExHolShift",0.,0.,UpMat->InHscrRad);
+    HExHolShift->RegisterYourself();
+
+    TGeoCompositeShape *HeatScr=new TGeoCompositeShape("HeatScr","Hscr:rot0-(HscrEntHole:HEntHolShift+HscrExHole:HExHolShift)");
+    TGeoVolume *tHeatScreen=new TGeoVolume("tHeatScreen",HeatScr,Si);
+
+    TGeoVolume *tHscrFoil=geom->MakeTube("tHscrFoil",Si,UpMat->InHscrRad-UpMat->HeatScreenThick,UpMat->InHscrRad,UpMat->HscrHeight/2.);
+
+    tHeatScreen->SetLineColor(1);
+    tHscrFoil->SetLineColor(2);
+    top->AddNode(tHeatScreen,1);
+    top->AddNode(tHscrFoil,1,rot0);
+  }
+  geom->CloseGeometry();
+  cout << "Target geometry creating finished" << endl;
 }
 //-----------------------------------------------------------------------------
 int ERTracker::HowMuchParticles(char* str)
@@ -695,4 +1055,6 @@ void Particle::ParticleID(char* name, char* path)
   fclose(F1);
   return;
 }
+
+
 ClassImp(ERTracker)

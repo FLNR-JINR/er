@@ -238,6 +238,10 @@ protected:
   int NDivMax = 0;      /* Max sUpMatm of X- and Y-strips on both sides of a detector */
   int NDivXYMax = 0;      /* Max nUpMatber of X- or Y-strips a a single side of a detector */
 
+  Telescope*** Det;
+  int* layer;
+  int** NDet;
+
   void ReadTelescopeParameters();
   void CreateTelescopeGeometry();
   void ReadInputData();
