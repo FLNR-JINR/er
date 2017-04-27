@@ -230,6 +230,7 @@ protected:
   ReactionDataInput* ReIN;
   SimulationData* SimDat;
   UpstreamMatter* UpMat;
+  DownstreamMatter** EjMat;
 
   int Ntelescopes = 0;
   int NTelMax=5;        /* Max nUpMatber of telescopes */
@@ -242,11 +243,25 @@ protected:
   int* layer;
   int** NDet;
 
+  int NofDetPart;
+  int NofInPart;
+  Particle*** ejectile;
+  Particle* target;
+  Particle* projectile;
+  double t_cm,t_cm0,tof_0,Tb,Ta,dT,Tout,Tboutput,Qreaction;
+  double BeamSpread;
+  int NofUnObsPart;
+
   void ReadTelescopeParameters();
   void CreateTelescopeGeometry();
   void ReadInputData();
+  void ReadDeDx();
   int HowMuchParticles(char* str);
   void WhatParticlesInOut(Particle* ptr,char* str,int N);
+  int ReadRint(char* Fname,double Ranges[][105]);
+  int intrp4(double* x,double* y, double* c);
+  void DefineBeamEnergy();
+  double Stepantsov(char* D,int Z,double A,double I);
 
 private:
 

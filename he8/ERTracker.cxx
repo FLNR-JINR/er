@@ -19,15 +19,18 @@ ERTracker::ERTracker()
   ReIN(new ReactionDataInput()),
   SimDat(new SimulationData()),
   UpMat (new UpstreamMatter()),
+  EjMat(NULL),
   Ntelescopes(0),
   NTelMax(5),
   NLayMax(10),
   NDetMax(20),
   NDivMax(0),
   NDivXYMax(0),
-  Telescope(NULL),
+  Det(NULL),
   layer(NULL),
-  NDet(NULL)
+  NDet(NULL),
+  target(new Particle()),
+  projectile(new Particle())
 {
 }
 // ----------------------------------------------------------------------------
@@ -39,15 +42,18 @@ ERTracker::ERTracker(Int_t verbose)
   ReIN(new ReactionDataInput()),
   SimDat(new SimulationData()),
   UpMat (new UpstreamMatter()),
+  EjMat(NULL),
   Ntelescopes(0),
   NTelMax(5),
   NLayMax(10),
   NDetMax(20),
   NDivMax(0),
   NDivXYMax(0),
-  Telescope(NULL),
+  Det(NULL),
   layer(NULL),
-  NDet(NULL
+  NDet(NULL),
+  target(new Particle()),
+  projectile(new Particle())
 {
 }
 // ----------------------------------------------------------------------------
@@ -121,7 +127,7 @@ InitStatus ERTracker::Init()
   char DetectedPart[32];
   char UnObservedPart[32];
   char zero[]="";
-  int NofUnObsPart = 0;
+  NofUnObsPart = 0;
   strcpy(DetectedPart,OutputChannel);
   plett = strtok(DetectedPart,"()");
   strcpy(DetectedPart,plett);
@@ -134,9 +140,9 @@ InitStatus ERTracker::Init()
   }
   
   cout << "How much Input and Detected particles" << endl;
-  int NofInPart = HowMuchParticles(InputChannel);
+  NofInPart = HowMuchParticles(InputChannel);
   if(NofInPart<2||NofInPart>2) {printf("Wrong number of particles in the Input channel\n");}
-  int NofDetPart = HowMuchParticles(DetectedPart);
+  NofDetPart = HowMuchParticles(DetectedPart);
   if(NofDetPart==0) {printf("Wrong number of detected particles\n");}
   
   cout  << "Define particles in the input channel" << endl;
@@ -179,25 +185,33 @@ InitStatus ERTracker::Init()
   double cy[Ntelescopes][NLayMax];
   double cz[Ntelescopes][NLayMax];
 
-  Particle projectile,target,CM0,PlayParticle;
+  Particle CM0,PlayParticle;
+
   Particle intermed[NofDetPart+NofUnObsPart];
   Particle PlayPairs[NofDetPart+NofUnObsPart+1][NofDetPart+NofUnObsPart+1];
   Particle PlayEjectile[NofDetPart+NofUnObsPart];
   Particle PlaySpectator[NofDetPart+NofUnObsPart+1][NofDetPart+NofUnObsPart+1];
-  Particle ejectile[Ntelescopes][NofDetPart+NofUnObsPart][NDivXYMax];
+
+  ejectile = new Particle**[Ntelescopes];
+  for (int i=0; i<Ntelescopes; i++){
+    ejectile[i] = new Particle*[NofDetPart+NofUnObsPart];
+    for (int j=0; j<NofDetPart+NofUnObsPart; j++)
+      ejectile[i][j] = new Particle[NDivXYMax];
+  }
+
   Particle mis[Ntelescopes][NofDetPart][NDivXYMax];
   Particle spectator[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
   Particle participants[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
   Particle aux[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
   
   char WayMass[]="/home/vitaliy.schetinin/er/input/StableNuclei.dat";
-  projectile.ParticleID(projname,WayMass);
-  target.ParticleID(tarname,WayMass);
-  target.Part.SetPxPyPzE(0.,0.,0.,target.Mass);
+  projectile->ParticleID(projname,WayMass);
+  target->ParticleID(tarname,WayMass);
+  target->Part.SetPxPyPzE(0.,0.,0.,target->Mass);
 
   WhatParticlesInOut(&intermed[0],DetectedPart,NofDetPart);
   WhatParticlesInOut(&intermed[NofDetPart],UnObservedPart,NofUnObsPart);  
-  
+
   cout << "Define particles in the output channel" << endl;
   for(int it=0;it<Ntelescopes;it++)
   {
@@ -278,18 +292,22 @@ InitStatus ERTracker::Init()
     }
   }
   cout << "Check for Zin=Zout and Ain=Aout" << endl;
-  int InAtNumber = projectile.AtNumber + target.AtNumber;
+  int InAtNumber = projectile->AtNumber + target->AtNumber;
   int OutAtNumber = 0;
   for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++) OutAtNumber += ejectile[0][ip][0].AtNumber;
 
   if(InAtNumber!=OutAtNumber) {printf("In ReactionInput.dat Zin is not equal to Zout!!!\n");}
 
-  InAtNumber = projectile.AtMass + target.AtMass;
+  InAtNumber = projectile->AtMass + target->AtMass;
   OutAtNumber = 0;
   for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++) OutAtNumber += ejectile[0][ip][0].AtMass;
   if(InAtNumber!=OutAtNumber) {printf("In ReactionInput.dat Ain is not equal to Aout!!!\n");}
   
   CreateTelescopeGeometry();
+
+  ReadDeDx();
+
+  DefineBeamEnergy();
   
   return kSUCCESS;
 }
@@ -1056,5 +1074,321 @@ void Particle::ParticleID(char* name, char* path)
   return;
 }
 
+
+void ERTracker::ReadDeDx(){
+  EjMat = new DownstreamMatter*[NofDetPart];
+  for(int i =0; i<NofDetPart;i++)
+    EjMat[i] = new DownstreamMatter();
+  char Matter[128];
+  for(int ip=0;ip<NofDetPart;ip++)
+  {   
+    strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
+    strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
+    strcat(Matter,"_");
+    strcat(Matter,"si");
+    ReadRint(Matter,EjMat[ip]->ej_si);
+  }
+  for(int ip=0;ip<NofDetPart;ip++)
+  {   
+    strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
+    strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
+    strcat(Matter,"_");
+    strcat(Matter,"csi");
+    ReadRint(Matter,EjMat[ip]->ej_csi);
+  }
+  for(int ip=0;ip<NofDetPart;ip++)
+  {   
+    strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
+    strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
+    strcat(Matter,"_");
+    strcat(Matter,UpMat->TarFoilMatter);
+    ReadRint(Matter,EjMat[ip]->ej_TARwin);
+  }
+  for(int ip=0;ip<NofDetPart;ip++)
+  {   
+    strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
+    strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
+    strcat(Matter,"_");
+    strcat(Matter,target->NameOfNucleus);
+    ReadRint(Matter,EjMat[ip]->ej_target);
+  }
+}
+
+
+int ERTracker::ReadRint(char* Fname,double Ranges[][105])
+{
+  char DummyA[256];
+  char termA[]="---";
+  char unR[10],un3[10],un4[10],dee[10],b[10],cc[10];
+  char unE[10]="begin";
+  double Energy,Rng,e,r,den;
+  double x[4],y[4],c[4];
+  int i;
+  double a[4];
+  
+  FILE *F2 = fopen(Fname,"r");
+  if(F2==NULL) {printf("ReadRint: File %s has not been read\n",Fname);
+  return 1;}
+  else
+  {
+  printf("ReadRint: File %s has been read\n",Fname);
+  while (fgets(DummyA,256,F2)) {if(strstr(DummyA,termA)) break;}
+  i=0;
+  while (strcmp(unE,"GeV"))
+  {
+  //printf("%i\n",i);
+  fscanf(F2,"%lf %s %s %lf %lf %s %s %s %s %s\n",&e,unE,dee,
+  &den,&r,unR,b,un3,cc,un4);
+  if(!strcmp(unE,"keV")) {Energy=e/1000.0;}
+  else if(!strcmp(unE,"MeV")) {Energy=e;}
+  else if(!strcmp(unE,"GeV")) {Energy=e*1000.0;}
+  else {printf("Error of reading in ReadRint a: %s %s\n",unE,unR);}
+
+  if(!strcmp(unR,"A")) {Rng=r*1.0E-8;}
+  else if(!strcmp(unR,"um")) {Rng=r/10000.0;}
+  else if(!strcmp(unR,"mm")) {Rng=r/10.0;}
+  else if(!strcmp(unR,"cm")) {Rng=r;}
+  else if(!strcmp(unR,"m")) {Rng=r*100.0;}
+  else if(!strcmp(unR,"km")) {Rng=r*100000.0;}
+  else {printf("Error of reading in ReadRint b: %s %s\n",unE,unR);}
+  
+  Ranges[0][i]=Energy;
+  Ranges[1][i]=Rng;
+  i++;
+  }
+  fclose(F2);
+  }
+  for (i=0;i<4;++i)
+  {
+    x[i]=Ranges[0][i];
+    y[i]=Ranges[1][i];
+  }
+  if(intrp4(x,y,c))
+  {printf("1 Interpolation error 1 intrp4=%i\n",intrp4(x,y,c));
+  return 1;}
+
+  Ranges[2][0]=c[0];
+  Ranges[3][0]=c[1];
+  Ranges[4][0]=c[2];
+  Ranges[5][0]=c[3];
+      
+  for (i=0;i<4;++i)
+  {
+    x[i]=Ranges[1][i];
+    y[i]=Ranges[0][i]; 
+  }
+
+  if(intrp4(x,y,c))
+  {printf("2 Interpolation error 2 intrp4=%i\n",intrp4(x,y,c));return 1;}
+
+  Ranges[6][0]= c[0];
+  Ranges[7][0]= c[1];
+  Ranges[8][0]= c[2];
+  Ranges[9][0]= c[3];
+
+  for(i=1;i<103;++i)
+  {
+    x[0] = Ranges[0][i-1];
+    x[1] = Ranges[0][i];
+    x[2] = Ranges[0][i+1];
+    x[3] = Ranges[0][i+2];
+    y[0] = Ranges[1][i-1];
+    y[1] = Ranges[1][i];
+    y[2] = Ranges[1][i+1];
+    y[3] = Ranges[1][i+2];
+
+    if(intrp4(x,y,c))
+    {printf("3 Interpolation error 3 intrp4=%i\n",intrp4(x,y,c));return 1;}
+    Ranges[2][i] = c[0];
+    Ranges[3][i] = c[1];
+    Ranges[4][i] = c[2];
+    Ranges[5][i] = c[3];
+  }
+  Ranges[2][i] = c[0];
+  Ranges[3][i] = c[1];
+  Ranges[4][i] = c[2];
+  Ranges[5][i] = c[3];
+
+  Ranges[2][i+1] = c[0];
+  Ranges[3][i+1] = c[1];
+  Ranges[4][i+1] = c[2];
+  Ranges[5][i+1] = c[3];
+  
+  for(i=1;i<103;++i)
+  {
+    y[0] = Ranges[0][i-1];
+    y[1] = Ranges[0][i];
+    y[2] = Ranges[0][i+1];
+    y[3] = Ranges[0][i+2];
+
+    x[0] = Ranges[1][i-1];
+    x[1] = Ranges[1][i];
+    x[2] = Ranges[1][i+1];
+    x[3] = Ranges[1][i+2];
+
+    if(intrp4(x,y,c))
+    {printf("4 Interpolation error 4 intrp4=%i\n",intrp4(x,y,c));return 1;}
+    Ranges[6][i] = c[0];
+    Ranges[7][i] = c[1];
+    Ranges[8][i] = c[2];
+    Ranges[9][i] = c[3];
+  }
+
+  Ranges[6][i] = c[0];
+  Ranges[7][i] = c[1];
+  Ranges[8][i] = c[2];
+  Ranges[9][i] = c[3];
+
+  Ranges[6][i+1] = c[0];
+  Ranges[7][i+1] = c[1];
+  Ranges[8][i+1] = c[2];
+  Ranges[9][i+1] = c[3];
+
+  return 0;
+};
+
+int ERTracker::intrp4(double* x,double* y, double* c)
+//______________________________________________________________________
+//  returns c0,c1,c2,c3 coeff. of y= c0 + c1*x + c2*x^2 + c3*x^3 function 
+//     passing through 4 points:
+//     x1,y1; x2,y2; x3,y3; x4,y4
+//______________________________________________________________________|
+{
+      double d0,d1,d2,d3;
+      double x12,x13,x22,x23,x32,x33,x42,x43;
+      int rp4;
+  x12 = x[0]*x[0];
+  x13 = x12*x[0];
+  x22 = x[1]*x[1];
+  x23 = x22*x[1];
+  x32 = x[2]*x[2];
+  x33 = x32*x[2];
+  x42 = x[3]*x[3];
+  x43 = x42*x[3];
+
+  d3=(x13*x22*x[2]-x12*x23*x[2]-x13*x[1]*x32+x[0]*x23*x32+x12*x[1]*x33-
+  x[0]*x22*x33-x13*x22*x[3]+x12*x23*x[3]+x13*x32*x[3]-x23*x32*x[3]-
+  x12*x33*x[3]+x22*x33*x[3]+x13*x[1]*x42-x[0]*x23*x42-x13*x[2]*x42+
+  x23*x[2]*x42+x[0]*x33*x42-x[1]*x33*x42-x12*x[1]*x43+x[0]*x22*x43+
+  x12*x[2]*x43-x22*x[2]*x43-x[0]*x32*x43+x[1]*x32*x43);
+
+  c[3]=(x22*x[2]*y[0]-x[1]*x32*y[0]-x22*x[3]*y[0]+
+  x32*x[3]*y[0]+x[1]*x42*y[0]-x[2]*x42*y[0]-
+  x12*x[2]*y[1]+x[0]*x32*y[1]+x12*x[3]*y[1]- 
+  x32*x[3]*y[1]-x[0]*x42*y[1]+x[2]*x42*y[1]+
+  x12*x[1]*y[2]-x[0]*x22*y[2]-x12*x[3]*y[2]+ 
+  x22*x[3]*y[2]+x[0]*x42*y[2]-x[1]*x42*y[2]-
+  x12*x[1]*y[3]+x[0]*x22*y[3]+x12*x[2]*y[3]- 
+  x22*x[2]*y[3]-x[0]*x32*y[3]+x[1]*x32*y[3])/d3;
+
+  d2=(x13*x22*x[2]-x12*x23*x[2]-x13*x[1]*x32+x[0]*x23*x32+x12*x[1]*x33-
+  x[0]*x22*x33-x13*x22*x[3]+x12*x23*x[3]+x13*x32*x[3]-x23*x32*x[3]-
+  x12*x33*x[3]+x22*x33*x[3]+x13*x[1]*x42-x[0]*x23*x42-x13*x[2]*x42+
+  x23*x[2]*x42+x[0]*x33*x42-x[1]*x33*x42-x12*x[1]*x43+x[0]*x22*x43+
+  x12*x[2]*x43-x22*x[2]*x43-x[0]*x32*x43+x[1]*x32*x43);
+
+  c[2]=(-(x23*x[2]*y[0])+x[1]*x33*y[0]+x23*x[3]*y[0]-x33*x[3]*y[0]-x[1]*x43*y[0]+
+  x[2]*x43*y[0]+x13*x[2]*y[1]-x[0]*x33*y[1]- 
+  x13*x[3]*y[1]+x33*x[3]*y[1]+x[0]*x43*y[1]- 
+  x[2]*x43*y[1]-x13*x[1]*y[2]+x[0]*x23*y[2]+ 
+  x13*x[3]*y[2]-x23*x[3]*y[2]-x[0]*x43*y[2]+
+  x[1]*x43*y[2]+x13*x[1]*y[3]-x[0]*x23*y[3]- 
+  x13*x[2]*y[3]+x23*x[2]*y[3]+x[0]*x33*y[3]-
+  x[1]*x33*y[3])/d2;
+
+  d1=(x13*x22*x[2]-x12*x23*x[2]-x13*x[1]*x32+x[0]*x23*x32+x12*x[1]*x33-
+  x[0]*x22*x33-x13*x22*x[3]+x12*x23*x[3]+x13*x32*x[3]-x23*x32*x[3]-
+  x12*x33*x[3]+x22*x33*x[3]+x13*x[1]*x42-x[0]*x23*x42-x13*x[2]*x42+
+  x23*x[2]*x42+x[0]*x33*x42-x[1]*x33*x42-x12*x[1]*x43+x[0]*x22*x43+
+  x12*x[2]*x43-x22*x[2]*x43-x[0]*x32*x43+x[1]*x32*x43);
+
+  c[1]=(x23*x32*y[0]-x22*x33*y[0]-x23*x42*y[0]+x33*x42*y[0]+x22*x43*y[0]-
+  x32*x43*y[0]-x13*x32*y[1]+x12*x33*y[1]+x13*x42*y[1]-x33*x42*y[1]-
+  x12*x43*y[1]+x32*x43*y[1]+x13*x22*y[2]-x12*x23*y[2]-x13*x42*y[2]+
+  x23*x42*y[2]+x12*x43*y[2]-x22*x43*y[2]-x13*x22*y[3]+x12*x23*y[3]+
+  x13*x32*y[3]-x23*x32*y[3]-x12*x33*y[3]+x22*x33*y[3])/d1;
+
+  d0=(x13*x22*x[2]-x12*x23*x[2]-x13*x[1]*x32+x[0]*x23*x32+x12*x[1]*x33-
+  x[0]*x22*x33-x13*x22*x[3]+x12*x23*x[3]+x13*x32*x[3]-x23*x32*x[3]-
+  x12*x33*x[3]+x22*x33*x[3]+x13*x[1]*x42-x[0]*x23*x42-x13*x[2]*x42+
+  x23*x[2]*x42+x[0]*x33*x42-x[1]*x33*x42-x12*x[1]*x43+x[0]*x22*x43+
+  x12*x[2]*x43-x22*x[2]*x43-x[0]*x32*x43+x[1]*x32*x43);
+
+  c[0]=(-(x23*x32*x[3]*y[0])+x22*x33*x[3]*y[0]+x23*x[2]*x42*y[0]-x[1]*x33*x42*y[0]-
+  x22*x[2]*x43*y[0]+x[1]*x32*x43*y[0]+x13*x32*x[3]*y[1]-x12*x33*x[3]*y[1]-
+  x13*x[2]*x42*y[1]+x[0]*x33*x42*y[1]+x12*x[2]*x43*y[1]-x[0]*x32*x43*y[1]-
+  x13*x22*x[3]*y[2]+x12*x23*x[3]*y[2]+x13*x[1]*x42*y[2]-x[0]*x23*x42*y[2]-
+  x12*x[1]*x43*y[2]+x[0]*x22*x43*y[2]+x13*x22*x[2]*y[3]-x12*x23*x[2]*y[3]-
+  x13*x[1]*x32*y[3]+x[0]*x23*x32*y[3]+x12*x[1]*x33*y[3]-x[0]*x22*x33*y[3])/d0;
+
+  if(d0*d1*d2*d3!=0.0) {rp4=0;}
+  else {rp4=-1;}              
+  
+  return rp4;
+};
+
+
+void ERTracker::DefineBeamEnergy(){
+  cout << "Define beam energy" << endl;
+  char RightEnUn1[]="MeV";
+  char RightEnUn2[]="MeV/n";
+  char RightEnUn3[]="A";
+  char Dipole[] = "D2";
+  char RightSpreadUn2[]="%";
+  char* plett = strchr(ReIN->AboutBeam,'=');
+  plett++;
+  Tb = atof(plett);
+  if(!strcmp(ReIN->EnergyUn,RightEnUn1)) Tb = Tb;
+  else if(!strcmp(ReIN->EnergyUn,RightEnUn2)) Tb *= projectile->AtMass;
+  else if(!strcmp(ReIN->EnergyUn,RightEnUn3)) Tb = Stepantsov(Dipole,projectile->AtNumber,projectile->Mass,Tb);
+  else printf("Main: wrong energy unit\n");
+  Tboutput = Tb;
+
+  plett = strchr(ReIN->AboutSlit,'=');
+  plett++;
+  BeamSpread = atof(plett);
+  if(!strcmp(ReIN->SlitUn,RightEnUn1)) BeamSpread = BeamSpread;
+  else if(!strcmp(ReIN->SlitUn,RightSpreadUn2)) BeamSpread *= Tb/100.; 
+  else printf("Main: wrong energy spread unit\n");
+
+  projectile->Part.SetPxPyPzE(0.,0.,sqrt(pow(Tb+projectile->Mass,2)-pow(projectile->Mass,2)),Tb+projectile->Mass);
+  
+  Qreaction = 0.;
+  for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++) Qreaction -= ejectile[0][ip][0].Mass;
+  Qreaction +=projectile->Mass + target->Mass;
+}
+
+double ERTracker::Stepantsov(char* D,int Z,double A,double I)
+{
+  double a0_2 = 20.19773;
+  double a1_2 = 265.01317;
+  double a2_2 = 54.27665;
+  double a0_3 = 17.46898;
+  double a1_3 = 272.31081;
+  double a2_3 = 50.04487;
+  double P,B,Bro,Discr,T;
+  double R = 3.;
+  double a0,a1,a2;
+  char Dipole1[]="D1";
+  char Dipole2[]="D2";
+  
+  if(!strcmp(D,Dipole1))
+  {a0 = a0_2;
+  a1 = a1_2;
+  a2 = a2_2;}
+  else if(!strcmp(D,Dipole2))
+  {a0 = a0_3;
+  a1 = a1_3;
+  a2 = a2_3;}
+  else
+  {printf("Stepantsov: one should write D1 or D2 only!!!\n"); T = 0.;}
+  Discr = sqrt(a1*a1-4.*(a0-I)*a2);
+  if(Discr>0.) {B = (-a1 + Discr)/2./a2;}
+  else {B = 0.;}
+  Bro = B*R;
+  P = Bro*Z/3.3356*1000.;
+  T = sqrt(P*P + A*A) - A;
+return T;
+};
 
 ClassImp(ERTracker)
