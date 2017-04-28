@@ -205,8 +205,15 @@ void ERNeuRad::StartNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield
   trackLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
   mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
   mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
-  Int_t curVolId =  gMC->CurrentVolID(fiberInModuleNb);
-  Int_t corOffVolId = gMC->CurrentVolOffID(1, moduleNb);
+  Int_t curVolId, corOffVolId;
+  if(TString(gMC->CurrentVolOffName(1)).Contains("dead")){ //for NeuRad geometries with dead layers between fibers
+    curVolId = gMC->CurrentVolOffID(1,fiberInModuleNb); 
+    corOffVolId = gMC->CurrentVolOffID(2, moduleNb);
+  }
+  else{
+    curVolId = gMC->CurrentVolID(fiberInModuleNb); 
+    corOffVolId = gMC->CurrentVolOffID(1, moduleNb);
+  }
   TGeoHMatrix matrix;
   gMC->GetTransformation(gMC->CurrentVolPath(), matrix);
   Double_t globalPos[3],localPos[3];
@@ -386,7 +393,7 @@ ERNeuRadStep* ERNeuRad::AddStep(Int_t eventID, Int_t stepNr,Int_t trackID,
 Bool_t ERNeuRad::CheckIfSensitive(std::string name)
 {
   TString volName = name;
-  if(volName.Contains("fiber")) {
+  if(volName.Contains("fiber") && !volName.Contains("dead") ) {
     return kTRUE;
   }
   return kFALSE;

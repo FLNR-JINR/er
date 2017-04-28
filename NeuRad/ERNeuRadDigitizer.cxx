@@ -108,7 +108,6 @@ InitStatus ERNeuRadDigitizer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERNeuRadDigitizer::Exec(Option_t* opt)
 {
-  /*
   fPECountF = 0;
   fPECountB  = 0;
   fSumAmplitudeF = 0;
@@ -169,7 +168,6 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   header->SetNeuRadPECountB(fPECountB);
   header->SetNeuRadSumAmplitudeF(fSumAmplitudeF);
   header->SetNeuRadSumAmplitudeB(fSumAmplitudeB);
-  */
 }
 //----------------------------------------------------------------------------
 
