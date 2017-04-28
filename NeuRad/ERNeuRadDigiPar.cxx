@@ -156,11 +156,16 @@ Bool_t ERNeuRadDigiPar::init(FairParIo* input){
   return kFALSE;
 }
 //------------------------------------------------------
-void ERNeuRadDigiPar::PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks) const{
+void ERNeuRadDigiPar::PMTCrosstalks(Int_t iPixel, TArrayF& crosstalks) const{
   //Возвращает матрицу три на три. Каждый элемент матрицы - кростолк к соответствующему соседу.
   //Центральая ячейка - вероятность фотонов, которые останутся в волокне.
   //Вне зависимости от того, что написано в файле параметров потом пересчитывается, чтобы суммарная вероятнсть была равна 1  
   crosstalks.Set(9);
+  Int_t shift  = iPixel*9;
+  for (Int_t i = 0; i < 9; i++){
+    crosstalks[i] = (*fPMTCrosstalks)[shift + i];
+  }
+  /*
   Int_t rowNofcs = fRowNofFibers*3;
   Int_t fiberRow = (Int_t)(iFiber/fRowNofFibers);
   Int_t fiberColl = (Int_t)(iFiber%fRowNofFibers);
@@ -178,6 +183,7 @@ void ERNeuRadDigiPar::PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks) const{
   crosstalks[6] = (*fPMTCrosstalks)[(centerI+1)*rowNofcs+(centerJ-1)];
   crosstalks[7] = (*fPMTCrosstalks)[(centerI+1)*rowNofcs+(centerJ)];
   crosstalks[8] = (*fPMTCrosstalks)[(centerI+1)*rowNofcs+(centerJ+1)];
+  */
 }
 
 ClassImp(ERNeuRadDigiPar)

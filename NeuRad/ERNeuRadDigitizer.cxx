@@ -180,7 +180,7 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
     //Получение информации о поинте
     Double_t fiberLength = fNeuRadSetup->FiberLength();
     Int_t    pointModule = point->GetModuleNb();
-    Int_t    pointFiber  = point->GetPixelNb()-1;
+    Int_t    pointFiber  = point->GetPixelNb();
     Double_t pointELoss      =  point->GetEnergyLoss(); //[GeV]
     Double_t pointLYield = point->GetLightYield();  //[GeV]
     Double_t pointZ          = point->GetZInLocal();
@@ -224,7 +224,7 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
       //Задержка динодной системы и джиттер
       Double_t peAnodeTime = peCathodeTime + (Double_t)gRandom->Gaus(fPMTDelay, fPMTJitter);
       ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, pePhotonCount, peAmplitude);
-      //peInFibers[peModule][peFiber].push_back(pe);
+      peInFibers[peModule][peFiber].push_back(pe);
     }
     
 }

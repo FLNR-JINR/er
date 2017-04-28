@@ -1,4 +1,4 @@
-void digi(Int_t nEvents = 1000){
+void digi(Int_t nEvents = 100){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "digi.root";
@@ -30,7 +30,7 @@ void digi(Int_t nEvents = 1000){
   
   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
   TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
-  NeuRadDetDigiFile += "/parameters/NeuRad.digi.par";
+  NeuRadDetDigiFile += "/parameters/NeuRad.digi.v3.par";
   parInput1->open(NeuRadDetDigiFile.Data(),"in");
 
   FairParRootFileIo*  parInput2 = new FairParRootFileIo();

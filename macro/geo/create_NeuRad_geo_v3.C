@@ -108,22 +108,22 @@ void create_NeuRad_geo_v3()
   Double_t cladding_in_fiber_Y_trans = 0.;
   Double_t cladding_in_fiber_Z_trans = fiber_Z + cladding_Z;
   
-  fiber_dead_zone->AddNode(cladding, 1, new TGeoCombiTrans(cladding_in_fiber_X_trans, 
+  fiber_dead_zone->AddNode(cladding, 0, new TGeoCombiTrans(cladding_in_fiber_X_trans, 
                                                   cladding_in_fiber_Y_trans, 
                                                   cladding_in_fiber_Z_trans, 
                                                   fZeroRotation));
 
   cladding_in_fiber_Z_trans = (-1)*cladding_in_fiber_Z_trans;
   
-  fiber_dead_zone->AddNode(cladding, 2, new TGeoCombiTrans(cladding_in_fiber_X_trans, 
+  fiber_dead_zone->AddNode(cladding, 1, new TGeoCombiTrans(cladding_in_fiber_X_trans, 
                                                   cladding_in_fiber_Y_trans, 
                                                   cladding_in_fiber_Z_trans, 
                                                   fZeroRotation));
-  fiber_dead_zone->AddNode(fiber, 1, new TGeoCombiTrans(.0,.0,.0, 
+  fiber_dead_zone->AddNode(fiber, 0, new TGeoCombiTrans(.0,.0,.0, 
                                                   fZeroRotation));
   
   //------------------ Add fibers to pixel  -----------------------------
-  Int_t i_fiber = 1;
+  Int_t i_fiber = 0;
   for (Int_t i_Y_fiber = 0; i_Y_fiber < fibers_in_pixel_Y; i_Y_fiber++){
   	for (Int_t i_X_fiber = 0; i_X_fiber < fibers_in_pixel_X; i_X_fiber++){
   		Double_t fiber_in_pixel_X_trans = pixel_X - fiber_X*2*(i_X_fiber)-fiber_X;
@@ -137,7 +137,7 @@ void create_NeuRad_geo_v3()
   	}
   }
   //------------------ Add pixel to module  -----------------------------
-  Int_t i_pixel = 1;
+  Int_t i_pixel = 0;
   for (Int_t i_Y_pixel = 0; i_Y_pixel < pixels_in_module_Y_Nb; i_Y_pixel++){
     for (Int_t i_X_pixel = 0; i_X_pixel < pixels_in_module_X_Nb; i_X_pixel++){
       Double_t pixel_in_module_X_trans = module_X - pixel_X*2*(i_X_pixel)-pixel_X;
@@ -151,8 +151,8 @@ void create_NeuRad_geo_v3()
     }
   }
   //------------------ top structure -----------------------------
-  NeuRad->AddNode(module, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
-  top->AddNode(NeuRad, 1, new TGeoCombiTrans(trans_X,trans_Y,trans_Z, fZeroRotation));
+  NeuRad->AddNode(module, 0, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
+  top->AddNode(NeuRad, 0, new TGeoCombiTrans(trans_X,trans_Y,trans_Z, fZeroRotation));
 
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();
