@@ -165,25 +165,6 @@ void ERNeuRadDigiPar::PMTCrosstalks(Int_t iPixel, TArrayF& crosstalks) const{
   for (Int_t i = 0; i < 9; i++){
     crosstalks[i] = (*fPMTCrosstalks)[shift + i];
   }
-  /*
-  Int_t rowNofcs = fRowNofFibers*3;
-  Int_t fiberRow = (Int_t)(iFiber/fRowNofFibers);
-  Int_t fiberColl = (Int_t)(iFiber%fRowNofFibers);
-  Int_t centerI =  fiberRow*3+1;
-  Int_t centerJ = fiberColl*3+1;
-  
-  crosstalks[0] = (*fPMTCrosstalks)[(centerI-1)*rowNofcs+(centerJ-1)];
-  crosstalks[1] = (*fPMTCrosstalks)[(centerI-1)*rowNofcs+(centerJ)];
-  crosstalks[2] = (*fPMTCrosstalks)[(centerI-1)*rowNofcs+(centerJ+1)];
-
-  crosstalks[3] = (*fPMTCrosstalks)[(centerI)*rowNofcs+(centerJ-1)];
-  crosstalks[4] = (*fPMTCrosstalks)[(centerI)*rowNofcs+(centerJ)];
-  crosstalks[5] = (*fPMTCrosstalks)[(centerI)*rowNofcs+(centerJ+1)];
-
-  crosstalks[6] = (*fPMTCrosstalks)[(centerI+1)*rowNofcs+(centerJ-1)];
-  crosstalks[7] = (*fPMTCrosstalks)[(centerI+1)*rowNofcs+(centerJ)];
-  crosstalks[8] = (*fPMTCrosstalks)[(centerI+1)*rowNofcs+(centerJ+1)];
-  */
 }
 
 ClassImp(ERNeuRadDigiPar)

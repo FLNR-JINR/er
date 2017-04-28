@@ -6,10 +6,10 @@ void NeuRad_params(){
 	Float_t Gain = 5.;
 	Float_t Sigma = 5.;
 	Float_t Crosstalk = 0.01;
+	Float_t DiagCrosstalk = 0.005;
 
 	TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
 	NeuRadDetDigiFile += "/parameters/NeuRad.digi.v3.par";
-
 
 	Int_t pixelsInRow = TMath::Sqrt(pixels);
 	ofstream fpar;
@@ -64,13 +64,13 @@ void NeuRad_params(){
 				if (iPixel == 0 && jPixel == 0){
 					fpar << 0. << " " << 0. << " "<< 0. << " ";
 					fpar << 0. << " " << 0. << " "<< Crosstalk << " ";
-					fpar << 0. << " " << Crosstalk << " "<< Crosstalk << " ";
+					fpar << 0. << " " << Crosstalk << " "<< DiagCrosstalk << " ";
 					continue;
 				}
 				if (iPixel == 0 && jPixel == pixelsInRow-1){
 					fpar << 0. << " " << 0. << " "<< 0. << " ";
 					fpar << Crosstalk << " " << 0. << " "<< 0. << " ";
-					fpar << Crosstalk << " " << Crosstalk << " "<< 0. << " ";
+					fpar << DiagCrosstalk << " " << Crosstalk << " "<< 0. << " ";
 					continue;
 				}
 				if (iPixel == pixelsInRow-1 && jPixel == 0){
@@ -80,7 +80,7 @@ void NeuRad_params(){
 					continue;
 				}
 				if (iPixel == pixelsInRow-1 && jPixel == pixelsInRow-1){
-					fpar << Crosstalk << " " << Crosstalk << " "<< 0. << " ";
+					fpar << DiagCrosstalk << " " << Crosstalk << " "<< 0. << " ";
 					fpar << Crosstalk << " " << 0. << " "<< 0. << " ";
 					fpar << 0. << " " << 0. << " "<< 0. << " ";
 					continue;
@@ -89,30 +89,30 @@ void NeuRad_params(){
 				if (iPixel == 0){
 					fpar << 0. << " " << 0. << " "<< 0. << " ";
 					fpar << Crosstalk << " " << 0. << " "<< Crosstalk << " ";
-					fpar << Crosstalk << " " << Crosstalk << " "<< Crosstalk << " ";
+					fpar << DiagCrosstalk << " " << Crosstalk << " "<< DiagCrosstalk << " ";
 					continue;
 				}
 				if (jPixel == 0){
-					fpar << 0. << " " << Crosstalk << " "<< Crosstalk  << " ";
+					fpar << 0. << " " << Crosstalk << " "<< DiagCrosstalk  << " ";
 					fpar << 0. << " " << 0. << " "<< Crosstalk << " ";
-					fpar << 0. << " " << Crosstalk << " "<< Crosstalk << " ";
+					fpar << 0. << " " << Crosstalk << " "<< DiagCrosstalk << " ";
 					continue;
 				}
 				if (iPixel == pixelsInRow-1){
-					fpar << Crosstalk << " " << Crosstalk << " "<< Crosstalk << " ";
+					fpar << DiagCrosstalk << " " << Crosstalk << " "<< DiagCrosstalk << " ";
 					fpar << Crosstalk << " " << 0. << " "<< Crosstalk << " ";
 					fpar << 0. << " " << 0. << " "<< 0. << " ";
 					continue;
 				}
 				if (jPixel == pixelsInRow-1){
-					fpar << Crosstalk << " " << Crosstalk << " "<< 0. << " ";
+					fpar << DiagCrosstalk << " " << Crosstalk << " "<< 0. << " ";
 					fpar << Crosstalk << " " << 0. << " "<< 0. << " ";
-					fpar << Crosstalk << " " << Crosstalk << " "<< 0. << " ";
+					fpar << DiagCrosstalk << " " << Crosstalk << " "<< 0. << " ";
 					continue;
 				}
-				fpar << Crosstalk << " " << Crosstalk << " "<< Crosstalk << " ";
+				fpar << DiagCrosstalk << " " << Crosstalk << " "<< DiagCrosstalk << " ";
 				fpar << Crosstalk << " " << 0. << " "<< Crosstalk << " ";
-				fpar << Crosstalk << " " << Crosstalk << " "<< Crosstalk << " ";
+				fpar << DiagCrosstalk << " " << Crosstalk << " "<< DiagCrosstalk << " ";
 			}
 			if (iPixel == pixelsInRow-1)
 				fpar << endl;

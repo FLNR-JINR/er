@@ -49,6 +49,7 @@ public:
   inline void SetPMTJitter(const Double_t PMTJitter)    {fPMTJitter = PMTJitter;}
   inline void SetPMTDelay(const Double_t PMTDelay)      {fPMTDelay = PMTDelay;}
   inline void SetScincilationTau(const Double_t tau)    {fScincilationTau = tau;}
+  inline void SetUseCrosstalks(const Bool_t use)        {fUseCrosstalks = use;}
 
   /** Accessors **/ 
   Int_t PhotoElectronCount()  const;
@@ -89,6 +90,7 @@ protected:
   Double_t fPhotoElectronsCreatingTime;
   TStopwatch fPMTSignalCreatingTimer;
   Double_t fPMTSignalCreatingTime;
+  Bool_t fUseCrosstalks;
 protected:
   ERNeuRadPhotoElectron* AddPhotoElectron(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count,Double_t amplitudes);

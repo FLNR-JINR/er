@@ -44,7 +44,8 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
   fSumAmplitudeF(0),
   fSumAmplitudeB(0),
   fPECountF(0),
-  fPECountB(0)
+  fPECountB(0),
+  fUseCrosstalks(kTRUE)
 {
 }
 // ----------------------------------------------------------------------------
@@ -64,7 +65,8 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   fSumAmplitudeF(0),
   fSumAmplitudeB(0),
   fPECountF(0),
-  fPECountB(0)
+  fPECountB(0),
+  fUseCrosstalks(kTRUE)
 {
 }
 // ----------------------------------------------------------------------------
@@ -215,7 +217,8 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
       Double_t peCathodeTime = peLYTime + flightLength/cMaterialSpeedOfLight;
       //Учёт кросстолков
       Int_t peFiber = pointFiber, peModule = pointModule;
-      Crosstalks(pointModule,pointFiber, peModule, peFiber);
+      if (fUseCrosstalks)
+        Crosstalks(pointModule,pointFiber, peModule, peFiber);
       //Амплиту одноэлектронного сигнала
       Double_t pmtGain = fNeuRadSetup->PMTGain(peModule,peFiber);
       Double_t pmtSigma = fNeuRadSetup->PMTSigma(peModule,peFiber);
