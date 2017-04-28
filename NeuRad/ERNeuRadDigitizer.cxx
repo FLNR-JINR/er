@@ -118,7 +118,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   std::cout << "Event " << iEvent << std::endl;
   // Reset entries in output arrays
   Reset();
-  Int_t nofFibers = fNeuRadSetup->NofFibers();
+  Int_t nofFibers = fNeuRadSetup->NofPixels();
   Int_t nofModules = fNeuRadSetup->NofModules();
   //выделяем память под хранение фотоэлектронов по файберам
   vector<ERNeuRadPhotoElectron* >** peInFibersF = new vector<ERNeuRadPhotoElectron*>* [nofModules];
@@ -180,7 +180,7 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
     //Получение информации о поинте
     Double_t fiberLength = fNeuRadSetup->FiberLength();
     Int_t    pointModule = point->GetModuleNb();
-    Int_t    pointFiber  = point->GetFiberInModuleNb();
+    Int_t    pointFiber  = point->GetPixelNb()-1;
     Double_t pointELoss      =  point->GetEnergyLoss(); //[GeV]
     Double_t pointLYield = point->GetLightYield();  //[GeV]
     Double_t pointZ          = point->GetZInLocal();
@@ -207,7 +207,7 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
     //Квантовая эффективность
     Int_t peCount = (Int_t)gRandom->Poisson(pePhotonCount*PMTQuantumEfficiency);
     sumPECount+=peCount;
-
+    
     for(Int_t iPE=0;iPE<peCount;iPE++){
       //Экпоненциальный закон высвечивания. Обратное распределение
       Double_t peLYTime = pointTime + (-1)*fScincilationTau*TMath::Log(1-gRandom->Uniform());
@@ -224,8 +224,9 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
       //Задержка динодной системы и джиттер
       Double_t peAnodeTime = peCathodeTime + (Double_t)gRandom->Gaus(fPMTDelay, fPMTJitter);
       ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, pePhotonCount, peAmplitude);
-      peInFibers[peModule][peFiber].push_back(pe);
+      //peInFibers[peModule][peFiber].push_back(pe);
     }
+    
 }
 
 //----------------------------------------------------------------------------

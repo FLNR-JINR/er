@@ -43,7 +43,7 @@ class ERNeuRadPoint : public FairMCPoint
    **/
   ERNeuRadPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t fiberInModuleNb, Int_t moduleNb, 
+      Int_t fiberNb, Int_t pixelNb, Int_t moduleNb, 
 		  Double_t mass,
 		  TVector3 posIn, TVector3 posInLoc,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
@@ -84,7 +84,8 @@ class ERNeuRadPoint : public FairMCPoint
   Double_t GetMass() const { return fMass; }
   Double_t GetLightYield() const {return fLightYield;}
   Int_t GetModuleNb(){return fModuleNb;}
-  Int_t GetFiberInModuleNb() const {return fFiberInModuleNb;}
+  Int_t GetPixelNb(){return fPixelNb;}
+  Int_t GetFiberNb() const {return fFiberNb;}
   Int_t GetPID() const {return fPID;}
   Double_t GetCharge() const {return fCharge;}
   Double_t GetTime() const {return fTimeIn;}
@@ -124,7 +125,8 @@ class ERNeuRadPoint : public FairMCPoint
   
   Int_t fEventID;
   Int_t fMot0TrackID;
-  Int_t fFiberInModuleNb;
+  Int_t fFiberNb;
+  Int_t fPixelNb;
   Int_t fModuleNb;
   Double_t fMass;
   Double32_t fXlocal,  fYlocal,  fZlocal;

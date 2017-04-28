@@ -116,7 +116,7 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
   cout << "ERNeuRadDigiPar Filling ..." << endl;
 
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
-  fNofFibers = setup->RowNofFibers()*setup->RowNofFibers();
+  fNofFibers = setup->RowNofPixels()*setup->RowNofPixels();
   fNofModules = setup->RowNofModules()*setup->RowNofModules();
 
   cout << "fNofFibers " << fNofFibers << endl;

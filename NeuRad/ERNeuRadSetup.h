@@ -37,10 +37,12 @@ class ERNeuRadSetup {
     static Float_t fFiberWidth;
     static Int_t fRowNofFibers;
     static Int_t fRowNofModules;
+    static Int_t fRowNofPixels;
     ERNeuRadSetup();
 public:
     static ERNeuRadSetup* Instance();
     static Int_t   NofFibers();
+    static Int_t   NofPixels();
     static Int_t   NofModules();
     static Float_t FiberLength();
     static Float_t FiberWidth();
@@ -55,6 +57,7 @@ public:
     static void    Print();
     static void PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks);
     static Int_t RowNofFibers();
+    static Int_t RowNofPixels();
     static Int_t RowNofModules();
     static Bool_t UseCrosstalks();
     static Int_t SetParContainers();

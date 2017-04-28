@@ -132,61 +132,52 @@ private:
   Bool_t fStoreAllSteps;
   Int_t   fVerbose;
 
-  TH1F* fHElossInEvent;
-  TH1F* fHLYInEvent;
-
   Float_t fFullEnergy;
   Float_t fFullLY;
+
+  /* current step information*/
+  Int_t fEventID;                   //!  event index
+  Int_t fTrackID;                   //!  track index
+  Int_t fMot0TrackID;               //!  0th mother track index
+  Double_t fMass;                   //!  mass
+  TLorentzVector fPosIn;            //!  point start  position
+  TLorentzVector fPosOut;            //!  point finish  position
+  TLorentzVector fCurPosIn;         //!  current step position
+  TVector3 fPosInLocal;             //!  position
+  TLorentzVector fMomIn;            //!  point start momentum
+  TLorentzVector fMomOut;            //!  point start momentum
+  TLorentzVector fCurMomIn;         //!  current step momentum
+  Double32_t     fTimeIn;           //!  point start time
+  Double32_t     fTimeOut;           //!  point finish time
+  Double32_t     fTrackLength;      //!  track length from his origin
+  Double32_t     fELoss;            //!  energy loss
+  Double_t       fLightYield;       //!  light yield
+  Int_t          fFiberNb;          //!  number of fiber in pixel
+  Int_t          fPixelNb;          //!  number of pixel in module
+  Int_t          fModuleNb;         //!  number of module in NeuRad
+  Int_t          fStepNb;           //!  current step numb in this active volumes
+  ExpertTrackingStatus fTrackStatus; //!  
+  TArrayI  fProcessesID;              //!  VMC prcess IDs in step
+
+
 private:
   /** Private method AddPoint
    **
    ** Adds a NeuRadPoint to the Point Collection
    **/
-  ERNeuRadPoint* AddPoint(Int_t eventID, Int_t trackID,
-			  Int_t mot0trackID,
-        Int_t fiberInModuleNb, Int_t moduleNb, 
-			  Double_t mass,
-			  TVector3 posIn, TVector3 posInLoc,
-			  TVector3 pos_out, TVector3 momIn,
-			  TVector3 momOut, Double_t time, Double_t timeOut,
-			  Double_t trackLength, Double_t eLoss,
-        Double_t lightYield, Int_t pid, Double_t charge);
+  ERNeuRadPoint* AddPoint();
   
   /** Private method AddFirstStep
   **
   ** Adds a NeuRadStep to the FirstStep Collection
   **/
-  ERNeuRadStep* AddFirstStep(Int_t eventID, Int_t stepNr,Int_t trackID,
-		  Int_t mot0trackID,
-      Int_t fiberInModuleNb,
-		  TVector3 pos, 
-      TVector3 mom, 
-		  Double_t tof, 
-      Double_t length, 
-      Int_t pid,
-      Double_t mass,
-      ExpertTrackingStatus trackStatus,
-      Double_t eLoss,
-      Double_t charge,
-      TArrayI  processID);
+  ERNeuRadStep* AddFirstStep();
         
   /** Private method AddStep
   **
   ** Adds a NeuRadStep to the Steps Collection
   **/      
-  ERNeuRadStep* AddStep(Int_t eventID, Int_t stepNr,Int_t trackID,
-		  Int_t mot0trackID,
-      Int_t fiberInModuleNb,
-		  TVector3 pos,
-      TVector3 mom, 
-		  Double_t tof, 
-      Double_t length, 
-      Int_t pid,
-      Double_t mass,
-      ExpertTrackingStatus trackStatus,
-      Double_t eLoss,
-      Double_t charge,
-      TArrayI  processID);
+  ERNeuRadStep* AddStep();
   
   /** Private method ResetParameters
    **
@@ -194,12 +185,8 @@ private:
    **/
   void ResetParameters();
   
-  void StartNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
-                            TLorentzVector& posIn, TVector3& posInLoc, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
-                            Double_t& trackLength,Int_t& fiberInModuleNb, Int_t& module, Double_t& mass, Double_t& timeIn);
-  void FinishNewPoint(Int_t& eventID,Double_t& eLoss,Double_t& lightYield,Int_t& stepNr,
-                            TLorentzVector& posIn,TVector3& posInLoc, TLorentzVector& momIn, Int_t& trackID,Int_t& mot0TrackID,
-                            Double_t& trackLength,Int_t& fiberInModuleNb, Int_t& module,Double_t& mass, Double_t& timeIn);
+  void StartNewPoint();
+  void FinishNewPoint();
                             
   Double_t CurPointLen(TLorentzVector& posIn);
   

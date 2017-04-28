@@ -10,16 +10,27 @@
 
 void create_NeuRad_geo_v3()
 {
+  // ---------------  INIT ----------------------------------------------------
   // Create a global translation
-  TGeoTranslation *fGlobalTrans = new TGeoTranslation();
-  fGlobalTrans->SetTranslation(0.0,0.0,1000.);
-
+  Float_t trans_X = 0,trans_Y = 0,trans_Z = 50.; 
   // Create a zero rotation
   TGeoRotation *fZeroRotation = new TGeoRotation();
   fZeroRotation->RotateX(0.);
   fZeroRotation->RotateY(0.);
   fZeroRotation->RotateZ(0.);
 
+  Double_t fiber_dead = 0.005; //cm dead layer between fibers
+  Double_t fiber_X = 0.3; //cm
+  Double_t fiber_Y = 0.3; //cm
+  Double_t fiber_Z = 25.; //cm
+  Double_t cladding_Z = 0.024; //cm pmt simulation
+
+  Int_t fibers_in_pixel_X = 2;
+  Int_t fibers_in_pixel_Y = 2;
+
+  Int_t pixels_in_module_X_Nb = 8;
+  Int_t pixels_in_module_Y_Nb = 8;
+  // --------------------------------------------------------------------------
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------
   FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
@@ -68,41 +79,34 @@ void create_NeuRad_geo_v3()
   TGeoVolume* NeuRad = new TGeoVolumeAssembly("NeuRad");
   // --------------------------------------------------------------------------
 
-  //------------------ BC408 cladding -----------------------------------------
-  Double_t cladding_X = 0.3; //cm
-  Double_t cladding_Y = 0.3;   //cm
-  Double_t cladding_Z = 0.024;   //cm
-  cladding_X /= 2.;
-  cladding_Y /= 2.;
-  cladding_Z /= 2.;
-  TGeoVolume *cladding = gGeoManager->MakeBox("cladding", pMedAl, cladding_X, cladding_Y, cladding_Z);
-  
-  //------------------ BC408  fiber  -----------------------------------------
-  Double_t fiber_dead = 0.005;
-  Double_t fiber_X = 0.3;   //cm
-  Double_t fiber_Y = 0.3;   //cm
-  Double_t fiber_Z = 25.;  //cm
+ //------------------ BC408  fiber  -----------------------------------------
   fiber_X /= 2.;
   fiber_Y /= 2.;
   fiber_Z /= 2.;
-  TGeoVolume *fiber = gGeoManager->MakeBox("fiber", pMed37, fiber_X-fiber_dead, fiber_Y-fiber_dead, fiber_Z-cladding_Z*2);
-  TGeoVolume *fiber_dead_zone = gGeoManager->MakeBox("fiber_dead_zone", pMed37, fiber_X, fiber_Y, fiber_Z);
-  //------------------ vacuum  module  -----------------------------------------
-  Int_t fibers_in_boundle_X_Nb = 16;
-  Int_t fibers_in_boundle_Y_Nb = 16;
+  TGeoVolume *fiber = gGeoManager->MakeBox("fiber", pMed37, fiber_X-fiber_dead, fiber_Y-fiber_dead, fiber_Z);
+  TGeoVolume *fiber_dead_zone = gGeoManager->MakeBox("fiber_dead_zone", pMed37, fiber_X, fiber_Y, fiber_Z+cladding_Z*2);
+
+  //------------------ al cladding -----------------------------------------
+  Double_t cladding_X = fiber_X; //cm
+  Double_t cladding_Y = fiber_Y;   //cm
+  cladding_Z /= 2.;
+  TGeoVolume *cladding = gGeoManager->MakeBox("cladding", pMedAl, cladding_X, cladding_Y, cladding_Z);
   
-  Double_t boundle_X = fiber_X * fibers_in_boundle_X_Nb;
-  Double_t boundle_Y = fiber_Y * fibers_in_boundle_Y_Nb;
-  Double_t boundle_Z = fiber_Z;
-  TGeoVolume *module = gGeoManager->MakeBox("module", pMed0,boundle_X, boundle_Y, boundle_Z);
+  //------------------ assembly  pixel  -----------------------------------------
+  TGeoVolume* pixel = new TGeoVolumeAssembly("pixel");
+  Double_t pixel_X = fiber_X *fibers_in_pixel_X;
+  Double_t pixel_Y = fiber_Y *fibers_in_pixel_Y;
+  //------------------ vacuum  module  -----------------------------------------
+  Double_t module_X = pixel_X*pixels_in_module_X_Nb;
+  Double_t module_Y = pixel_Y*pixels_in_module_Y_Nb;
+  Double_t module_Z = fiber_Z;
+  TGeoVolume *module = new TGeoVolumeAssembly("module");
   
   //------------------ STRUCTURE  -----------------------------------------
-  //------------------ Add claddings to fiber -----------------------------
-  
-  
+  //------------------ Add claddings and sens fiber in dead zone container-
   Double_t cladding_in_fiber_X_trans = 0.;
   Double_t cladding_in_fiber_Y_trans = 0.;
-  Double_t cladding_in_fiber_Z_trans = fiber_Z - cladding_Z;
+  Double_t cladding_in_fiber_Z_trans = fiber_Z + cladding_Z;
   
   fiber_dead_zone->AddNode(cladding, 1, new TGeoCombiTrans(cladding_in_fiber_X_trans, 
                                                   cladding_in_fiber_Y_trans, 
@@ -117,23 +121,38 @@ void create_NeuRad_geo_v3()
                                                   fZeroRotation));
   fiber_dead_zone->AddNode(fiber, 1, new TGeoCombiTrans(.0,.0,.0, 
                                                   fZeroRotation));
-  //------------------ Add fibers to module  -----------------------------
+  
+  //------------------ Add fibers to pixel  -----------------------------
   Int_t i_fiber = 1;
-  for (Int_t i_Y_fiber = 0; i_Y_fiber < fibers_in_boundle_Y_Nb; i_Y_fiber++){
-    for (Int_t i_X_fiber = 0; i_X_fiber < fibers_in_boundle_X_Nb; i_X_fiber++){
-      Double_t fiber_in_boundle_X_trans = boundle_X - fiber_X*2*(i_X_fiber)-fiber_X;
-      Double_t fiber_in_boundle_Y_trans = boundle_Y - fiber_Y*2*(i_Y_fiber)-fiber_Y;
-      Double_t fiber_in_boundle_Z_trans = 0.;
-      module->AddNode( fiber_dead_zone, i_fiber, new TGeoCombiTrans(fiber_in_boundle_X_trans, 
-                                                            fiber_in_boundle_Y_trans,
-                                                            fiber_in_boundle_Z_trans, 
+  for (Int_t i_Y_fiber = 0; i_Y_fiber < fibers_in_pixel_Y; i_Y_fiber++){
+  	for (Int_t i_X_fiber = 0; i_X_fiber < fibers_in_pixel_X; i_X_fiber++){
+  		Double_t fiber_in_pixel_X_trans = pixel_X - fiber_X*2*(i_X_fiber)-fiber_X;
+	    Double_t fiber_in_pixel_Y_trans = pixel_Y - fiber_Y*2*(i_Y_fiber)-fiber_Y;
+	    Double_t fiber_in_pixel_Z_trans = 0.;
+	    pixel->AddNode( fiber_dead_zone, i_fiber, new TGeoCombiTrans(fiber_in_pixel_X_trans, 
+                                                            fiber_in_pixel_Y_trans,
+                                                            fiber_in_pixel_Z_trans, 
                                                             fZeroRotation));
-      i_fiber++;
+	    i_fiber++;
+  	}
+  }
+  //------------------ Add pixel to module  -----------------------------
+  Int_t i_pixel = 1;
+  for (Int_t i_Y_pixel = 0; i_Y_pixel < pixels_in_module_Y_Nb; i_Y_pixel++){
+    for (Int_t i_X_pixel = 0; i_X_pixel < pixels_in_module_X_Nb; i_X_pixel++){
+      Double_t pixel_in_module_X_trans = module_X - pixel_X*2*(i_X_pixel)-pixel_X;
+      Double_t pixel_in_module_Y_trans = module_Y - pixel_Y*2*(i_Y_pixel)-pixel_Y;
+      Double_t pixel_in_module_Z_trans = 0.;
+      module->AddNode( pixel, i_pixel, new TGeoCombiTrans(pixel_in_module_X_trans, 
+                                                            pixel_in_module_Y_trans,
+                                                            pixel_in_module_Z_trans, 
+                                                            fZeroRotation));
+      i_pixel++;
     }
   }
-  
+  //------------------ top structure -----------------------------
   NeuRad->AddNode(module, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
-  top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,50., fZeroRotation));
+  top->AddNode(NeuRad, 1, new TGeoCombiTrans(trans_X,trans_Y,trans_Z, fZeroRotation));
 
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();

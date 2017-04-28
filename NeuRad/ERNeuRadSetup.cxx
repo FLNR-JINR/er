@@ -19,6 +19,7 @@ Float_t ERNeuRadSetup::fLength;
 Float_t ERNeuRadSetup::fFiberWidth;
 Int_t ERNeuRadSetup::fRowNofFibers;
 Int_t ERNeuRadSetup::fRowNofModules;
+Int_t ERNeuRadSetup::fRowNofPixels;
 
 std::vector<ERNeuRadModule*> ERNeuRadSetup::fModules;
 std::vector<std::vector<ERNeuRadFiber*> > ERNeuRadSetup::fFibers;
@@ -45,15 +46,20 @@ ERNeuRadSetup::ERNeuRadSetup(){
     fLength = module_box->GetDZ()*2;
     std::cout << "NeuRad  length:" << fLength << std::endl;
 
-    TGeoNode* fiber = module->GetDaughter(0);
+    TGeoNode* pixel = module->GetDaughter(0);
+    TGeoNode* fiber = pixel->GetDaughter(0); // fiber with clading and dead zone
     TGeoBBox* fiber_box = (TGeoBBox*)fiber->GetVolume()->GetShape();
     fFiberWidth = fiber_box->GetDX()*2;
     std::cout << "NeuRad  fiber width:" << fFiberWidth << std::endl;
     
     fRowNofModules = Int_t(TMath::Sqrt(neuRad->GetNdaughters()));
-    fRowNofFibers = Int_t(TMath::Sqrt(module->GetNdaughters()));
-    std::cout << "NeuRad  fiber in row count:" << fRowNofFibers << std::endl;
-    //@TODO сделать нормальный расчет по геометрии.
+    fRowNofPixels = Int_t(TMath::Sqrt(module->GetNdaughters()));
+    fRowNofFibers = Int_t(TMath::Sqrt(pixel->GetNdaughters()));
+
+    std::cout << "NeuRad  modules in row count:" << fRowNofModules << std::endl;
+    std::cout << "NeuRad  pixels in row count:" << fRowNofPixels << std::endl;
+    std::cout << "NeuRad  fibers in row count:" << fRowNofFibers << std::endl;
+
     std::cout << "ERNeuRadSetup initialized! "<< std::endl;
 }
 
@@ -82,11 +88,15 @@ Int_t ERNeuRadSetup::SetParContainers(){
 }
 
 Int_t  ERNeuRadSetup::NofFibers() {
-        return fDigiPar->NofFibers();
+        return fRowNofFibers*fRowNofFibers;
+}
+
+Int_t   ERNeuRadSetup::NofPixels(){
+        return fRowNofPixels*fRowNofPixels;
 }
 
 Int_t   ERNeuRadSetup::NofModules() {
-        return fDigiPar->NofModules();
+        return fRowNofModules*fRowNofModules;
 }
 
 Float_t ERNeuRadSetup::FiberLength() {
@@ -135,6 +145,10 @@ void ERNeuRadSetup::PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks){
 
 Int_t ERNeuRadSetup::RowNofFibers(){
     return fRowNofFibers;
+}
+
+Int_t ERNeuRadSetup::RowNofPixels(){
+  return fRowNofPixels;
 }
 
 Int_t ERNeuRadSetup::RowNofModules(){
