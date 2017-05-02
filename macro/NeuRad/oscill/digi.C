@@ -30,7 +30,7 @@ void digi(Int_t nEvents = 100){
   
   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
   TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
-  NeuRadDetDigiFile += "/parameters/NeuRad.digi.v3.par";
+  NeuRadDetDigiFile += "/parameters/NeuRad.digi.v4.par";
   parInput1->open(NeuRadDetDigiFile.Data(),"in");
 
   FairParRootFileIo*  parInput2 = new FairParRootFileIo();
@@ -58,4 +58,5 @@ void digi(Int_t nEvents = 100){
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
+
 }
