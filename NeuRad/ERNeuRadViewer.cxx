@@ -14,7 +14,7 @@ using namespace std;
 #include "FairRuntimeDb.h"
 #include "FairEventHeader.h"
 
-#include "ERNeuRadPMTSignal.h"
+#include "ERNeuRadPixelSignal.h"
 
 // ----------------------------------------------------------------------------
 ERNeuRadViewer::ERNeuRadViewer()
@@ -73,7 +73,7 @@ void ERNeuRadViewer::Exec(Option_t* opt)
   TDirectory* front = dir->mkdir("front");
   TDirectory* back = dir->mkdir("back");
   for (Int_t iSignal = 0; iSignal < fNeuRadPMTSignals->GetEntriesFast(); iSignal++){
-    ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)fNeuRadPMTSignals->At(iSignal);
+    ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fNeuRadPMTSignals->At(iSignal);
     
     TArrayF* result = signal->ResultSignal();
     Int_t count = (Int_t)(signal->FinishTime()-signal->StartTime())/signal->dT();
@@ -84,7 +84,7 @@ void ERNeuRadViewer::Exec(Option_t* opt)
     TGraph* gr = new TGraph(count,times,result->GetArray());
     TString title;
     title.Form("PMT Signal, side %d,%d fiber, %d module, %d pe, %d", signal->Side(),
-                        signal->FiberIndex(), signal->ModuleIndex(), signal->PECount(),
+                        signal->PixelNb(), signal->ModuleNb(), signal->PECount(),
                         FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber());
     gr->SetTitle(title);
     if (signal->Side() == 0)

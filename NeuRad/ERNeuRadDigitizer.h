@@ -14,7 +14,7 @@
 
 #include "ERNeuRadPoint.h"
 #include "ERNeuRadPhotoElectron.h"
-#include "ERNeuRadPMTSignal.h"
+#include "ERNeuRadPixelSignal.h"
 #include "ERNeuRadSetup.h"
 
 class TObjectArray;
@@ -95,15 +95,15 @@ protected:
   ERNeuRadPhotoElectron* AddPhotoElectron(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count,Double_t amplitudes);
 
-  virtual ERNeuRadPMTSignal* AddPMTSignal(Int_t iModule, Int_t iFiber, Int_t fpoints_count, Int_t side);
+  virtual ERNeuRadPixelSignal* AddPMTSignal(Int_t iModule, Int_t iPixel, Int_t fpoints_count, Int_t side);
   
   virtual void PhotoElectronsCreating(Int_t i_point, ERNeuRadPoint *point,
-                          std::vector<ERNeuRadPhotoElectron* >** pePerFibers, Int_t side, Int_t& sumPECount,Float_t& sumAmplitude);
+                          std::vector<ERNeuRadPhotoElectron* >** pePerPixels, Int_t side, Int_t& sumPECount,Float_t& sumAmplitude);
                         
-  virtual void PMTSignalsCreating(Int_t iModule, Int_t iFiber,
-                                std::vector<ERNeuRadPhotoElectron* >** pePerFibers, Int_t side);
+  virtual void PMTSignalsCreating(Int_t iModule, Int_t iPixel,
+                                std::vector<ERNeuRadPhotoElectron* >** pePerPixels, Int_t side);
 
-  Int_t Crosstalks(Int_t pointModule, Int_t pointFiber, Int_t& peModule, Int_t& peFiber);
+  Int_t Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& peModule, Int_t& pePixel);
 private:
   virtual void SetParContainers();
   

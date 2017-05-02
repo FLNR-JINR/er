@@ -8,7 +8,7 @@
 
 #include "FairTask.h"
 
-#include "../data/NeuRadData/ERNeuRadPMTSignal.h"
+#include "ERNeuRadPixelSignal.h"
 #include "RawEvent.h"
 #include "AEvent.h"
 

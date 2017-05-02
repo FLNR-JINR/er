@@ -46,7 +46,7 @@ InitStatus ERSimtoRaw::Init()
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
   //Get input objects
-  // fPMTSignals = (ERNeuRadPMTSignal*) ioman->GetObject("NeuRadPMTSignal");
+  // fPMTSignals = (ERNeuRadPixelSignal*) ioman->GetObject("NeuRadPMTSignal");
   fPMTSignals = (TClonesArray*) ioman->GetObject("NeuRadPMTSignal");
     if (!fPMTSignals)
       Fatal("Init", "Can`t find branch in input file!");
@@ -75,9 +75,9 @@ void ERSimtoRaw::Exec(Option_t* opt)
   FairRun* run = FairRun::Instance();
   run->MarkFill(kFALSE);
   for (Int_t iSignal = 0; iSignal < fPMTSignals->GetEntriesFast(); iSignal++){
-    ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)fPMTSignals->At(iSignal);
-    // if (signal->Side() !=1 || signal->FiberIndex() != 25) continue;
-    if ( signal->FiberIndex() != 20 ) continue;
+    ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fPMTSignals->At(iSignal);
+    // if (signal->Side() !=1 || signal->PixelNb() != 25) continue;
+    if ( signal->PixelNb() != 20 ) continue;
     TArrayF* result = signal->ResultSignal();
     maxAmp = 0;
     simSize = 0;
@@ -94,7 +94,7 @@ void ERSimtoRaw::Exec(Option_t* opt)
       }
     }
     // std::cout << "####### AMP " << maxAmp << " #####" << std::endl;
-  // Int_t FiberIndex() const {return fFiberIndex;}
+  // Int_t PixelNb() const {return fPixelNb;}
   // Int_t Side() const {return fSide;}
 
 
@@ -116,7 +116,7 @@ void ERSimtoRaw::Exec(Option_t* opt)
     }
   }
   //----------------------------------------------------------------------------
-    //cout << signal->Side() << "\t" << signal->FiberIndex() << endl;
+    //cout << signal->Side() << "\t" << signal->PixelNb() << endl;
     // Int_t count = (Int_t)(signal->FinishTime()-signal->StartTime())/signal->dT();
     // Float_t* times = new Float_t[count];
     // for (Int_t i = 0; i < count; i++){
@@ -125,7 +125,7 @@ void ERSimtoRaw::Exec(Option_t* opt)
     // TGraph* gr = new TGraph(count,times,result->GetArray());
     // TString title;
     // title.Form("PMT Signal, side %d,%d fiber, %d module, %d pe, %d", signal->Side(),
-    //                     signal->FiberIndex(), signal->ModuleIndex(), signal->PECount(),
+    //                     signal->PixelNb(), signal->ModuleNb(), signal->PECount(),
     //                     FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber());
     // gr->SetTitle(title);
     // if (signal->Side() == 0)
@@ -139,7 +139,7 @@ void ERSimtoRaw::Exec(Option_t* opt)
 
 
   // for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
-  //   //ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)fPMTSignals->At(iChanel);
+  //   //ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fPMTSignals->At(iChanel);
   //   TArrayF* result = fPMTSignals->ResultSignal();
   //   for(Int_t nPoint = 0; nPoint< fNPoints; nPoint++){
   //     fRawEvents[iChanel]->SetAmp(result->GetAt(nPoint), nPoint); //fill the RawEvent

@@ -1,11 +1,11 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadPMTSignal header file            -----
+// -----                      ERNeuRadPixelSignal header file            -----
 // -----                  Created 02/03/15  by v. Schetinin            -----
 // -------------------------------------------------------------------------
 
 
-#ifndef ERNeuRadPMTSignal_H
-#define ERNeuRadPMTSignal_H
+#ifndef ERNeuRadPixelSignal_H
+#define ERNeuRadPixelSignal_H
 
 
 #include "TObject.h"
@@ -18,12 +18,12 @@
 
 #include "ERNeuRadPhotoElectron.h"
 
-class ERNeuRadPMTSignal : public FairMultiLinkedData {
+class ERNeuRadPixelSignal : public FairMultiLinkedData {
 
 protected:
 
-  Int_t fFiberIndex;
-  Int_t fModuleIndex;
+  Int_t fPixelNb;
+  Int_t fModuleNb;
   Int_t fSide;
   //Массив амплитуд фотоэлектронов сигнала
   Double_t *fPEAmplitudes;     //!
@@ -51,12 +51,12 @@ protected:
 public:
 
   /** Default constructor **/
-  ERNeuRadPMTSignal();
+  ERNeuRadPixelSignal();
 
   /** Constructor with arguments **/
-  ERNeuRadPMTSignal(Int_t iModule, Int_t iFiber, Int_t fpoints_count, Int_t side);
+  ERNeuRadPixelSignal(Int_t iModule, Int_t iPixel, Int_t fpoints_count, Int_t side);
 
-  virtual ~ERNeuRadPMTSignal();
+  virtual ~ERNeuRadPixelSignal();
   
   virtual void AddPhotoElectron(ERNeuRadPhotoElectron* fpoint);
 
@@ -86,8 +86,8 @@ public:
 
   Double_t  dT() {return cdT;}
 
-  Int_t ModuleIndex() const {return fModuleIndex;}
-  Int_t FiberIndex() const {return fFiberIndex;}
+  Int_t ModuleNb() const {return fModuleNb;}
+  Int_t PixelNb() const {return fPixelNb;}
   Int_t Side() const {return fSide;}
   Double_t AmplitudesSum() const {return fPEAmplitudesSum;}
 
@@ -96,7 +96,7 @@ public:
   //Гранулирование сигнала по времени
   static const Double_t cdT; //ns
   
-  ClassDef(ERNeuRadPMTSignal,1);
+  ClassDef(ERNeuRadPixelSignal,1);
 };
 
 #endif
