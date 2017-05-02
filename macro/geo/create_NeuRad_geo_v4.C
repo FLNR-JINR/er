@@ -8,7 +8,7 @@
 #include "TGeoManager.h"
 #include "TMath.h"
 
-void create_NeuRad_geo_v3()
+void create_NeuRad_geo_v4()
 {
   // ---------------  INIT ----------------------------------------------------
   // Create a global translation
@@ -25,12 +25,12 @@ void create_NeuRad_geo_v3()
   Double_t fiber_Z = 25.; //cm
   Double_t cladding_Z = 0.024; //cm pmt simulation
 
-  Int_t fibers_in_pixel_X = 2;
-  Int_t fibers_in_pixel_Y = 2;
+  Int_t fibers_in_pixel_X = 1;
+  Int_t fibers_in_pixel_Y = 1;
 
-  Int_t pixels_in_module_X_Nb = 8;
-  Int_t pixels_in_module_Y_Nb = 8;
-  // --------------------------------------------------------------------------
+  Int_t pixels_in_module_X_Nb = 16;
+  Int_t pixels_in_module_Y_Nb = 16;
+ // --------------------------------------------------------------------------
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------
   FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
@@ -105,16 +105,16 @@ void create_NeuRad_geo_v3()
   //------------------ Add fibers to pixel  -----------------------------
   Int_t i_fiber = 0;
   for (Int_t i_Y_fiber = 0; i_Y_fiber < fibers_in_pixel_Y; i_Y_fiber++){
-  	for (Int_t i_X_fiber = 0; i_X_fiber < fibers_in_pixel_X; i_X_fiber++){
-  		Double_t fiber_in_pixel_X_trans = pixel_X - fiber_X*2*(i_X_fiber)-fiber_X;
-	    Double_t fiber_in_pixel_Y_trans = pixel_Y - fiber_Y*2*(i_Y_fiber)-fiber_Y;
-	    Double_t fiber_in_pixel_Z_trans = 0.;
-	    pixel->AddNode( fiber_dead_zone, i_fiber, new TGeoCombiTrans(fiber_in_pixel_X_trans, 
+    for (Int_t i_X_fiber = 0; i_X_fiber < fibers_in_pixel_X; i_X_fiber++){
+      Double_t fiber_in_pixel_X_trans = pixel_X - fiber_X*2*(i_X_fiber)-fiber_X;
+      Double_t fiber_in_pixel_Y_trans = pixel_Y - fiber_Y*2*(i_Y_fiber)-fiber_Y;
+      Double_t fiber_in_pixel_Z_trans = 0.;
+      pixel->AddNode( fiber_dead_zone, i_fiber, new TGeoCombiTrans(fiber_in_pixel_X_trans, 
                                                             fiber_in_pixel_Y_trans,
                                                             fiber_in_pixel_Z_trans, 
                                                             fZeroRotation));
-	    i_fiber++;
-  	}
+      i_fiber++;
+    }
   }
   //------------------ Add claddings in pixel
   Double_t cladding_in_fiber_X_trans = 0.;
