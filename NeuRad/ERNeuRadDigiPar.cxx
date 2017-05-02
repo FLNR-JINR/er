@@ -30,7 +30,8 @@ ERNeuRadDigiPar::ERNeuRadDigiPar(const char* name,
     fPMTQuantumEfficiency(NULL),
     fPMTGain(NULL),
     fPMTSigma(NULL),
-    fPMTCrosstalks(NULL)
+    fPMTCrosstalks(NULL),
+    fFiberCrosstalks(NULL)
 {
 cout << "ERNeuRadDigiPar" << endl;
 
@@ -93,16 +94,6 @@ void ERNeuRadDigiPar::print()
   }
 
   std::cout << "*****************************************" << std::endl;
-  if (fUseCrosstalks){
-    for (Int_t iFiber = 0; iFiber < fRowNofFibers*3; iFiber++){
-    std::cout << "     ";
-    for (Int_t jFiber = 0; jFiber < fRowNofFibers*3; jFiber++)
-      std::cout <<(*fPMTCrosstalks)[iFiber*(fRowNofFibers*3) + jFiber] << "  ";
-     std::cout << std::endl;
-    }
-  }
-
-  std::cout << "*****************************************" << std::endl;
 }
 //------------------------------------------------------
 void ERNeuRadDigiPar::putParams(FairParamList* l)
@@ -125,6 +116,7 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
   fPMTGain = new TArrayF(fNofFibers);
   fPMTSigma = new TArrayF(fNofFibers),
   fPMTCrosstalks = new TArrayF(fNofFibers*9);
+  fFiberCrosstalks = new TArrayF(fNofFibers*9);
 
   if (!l) { return kFALSE; }
   if ( ! l->fill("ERNeuRadPMTQuantumEfficiency", fPMTQuantumEfficiency) ) { return kFALSE; }
@@ -135,10 +127,17 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
   } else {
     fUseCrosstalks = kTRUE;
   }
+  if ( ! l->fill("ERNeuRadFiberCrosstalks", fFiberCrosstalks) ) { 
+    std::cerr << "ERNeuRadDigiPar: can`t find ERNeuRadFiberCrosstalks" << std::endl;
+  } else {
+    fUseCrosstalks = kTRUE;
+  }
+
   fPMTQuantumEfficiency->Set(fNofFibers);
   fPMTGain->Set(fNofFibers);
   fPMTSigma->Set(fNofFibers),
   fPMTCrosstalks->Set(fNofFibers*9);
+  fFiberCrosstalks->Set(fNofFibers*9);
   cout << "fPMTQuantumEfficiency " << fPMTQuantumEfficiency->GetSize() << endl;
   return kTRUE;
 }
@@ -156,14 +155,14 @@ Bool_t ERNeuRadDigiPar::init(FairParIo* input){
   return kFALSE;
 }
 //------------------------------------------------------
-void ERNeuRadDigiPar::PMTCrosstalks(Int_t iPixel, TArrayF& crosstalks) const{
+void ERNeuRadDigiPar::Crosstalks(Int_t iPixel, TArrayF& crosstalks) const{
   //Возвращает матрицу три на три. Каждый элемент матрицы - кростолк к соответствующему соседу.
   //Центральая ячейка - вероятность фотонов, которые останутся в волокне.
   //Вне зависимости от того, что написано в файле параметров потом пересчитывается, чтобы суммарная вероятнсть была равна 1  
   crosstalks.Set(9);
   Int_t shift  = iPixel*9;
   for (Int_t i = 0; i < 9; i++){
-    crosstalks[i] = (*fPMTCrosstalks)[shift + i];
+    crosstalks[i] = (*fPMTCrosstalks)[shift + i]+(*fFiberCrosstalks)[shift + i];
   }
 }
 

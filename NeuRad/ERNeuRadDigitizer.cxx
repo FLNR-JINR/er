@@ -239,7 +239,7 @@ Int_t ERNeuRadDigitizer::Crosstalks(Int_t pointModule, Int_t pointFiber, Int_t& 
   peFiber = pointFiber;
   peModule = pointModule;
   TArrayF crosstalks;
-  fNeuRadSetup->PMTCrosstalks(peFiber, crosstalks);
+  fNeuRadSetup->Crosstalks(peFiber, crosstalks);
   Float_t prob = gRandom->Uniform();
   Float_t curProb = 0;
   Int_t csI = -1;

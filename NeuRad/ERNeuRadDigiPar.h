@@ -60,13 +60,14 @@ class ERNeuRadDigiPar : public FairParGenericSet
     Double_t PMTGain (Int_t iFiber) const {return (*fPMTGain)[iFiber];}
     Double_t PMTSigma (Int_t iFiber) const {return (*fPMTSigma)[iFiber];}
     Bool_t UseCrosstalks() const {return fUseCrosstalks;}
-    void PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks) const;
+    void Crosstalks(Int_t iFiber, TArrayF& crosstalks) const;
     Int_t RowNofFibers() const {return fRowNofFibers;}
   private:
     TArrayF* fPMTQuantumEfficiency;
     TArrayF* fPMTGain;
     TArrayF* fPMTSigma;
     TArrayF* fPMTCrosstalks;
+    TArrayF* fFiberCrosstalks;
     Int_t fNofFibers;
     Int_t fNofModules;
     Bool_t fUseCrosstalks;

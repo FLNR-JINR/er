@@ -55,7 +55,7 @@ public:
     static Float_t PMTSigma(Int_t iModule, Int_t iFiber);
     static Float_t Z(){return fZ;}
     static void    Print();
-    static void PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks);
+    static void Crosstalks(Int_t iFiber, TArrayF& crosstalks);
     static Int_t RowNofFibers();
     static Int_t RowNofPixels();
     static Int_t RowNofModules();
