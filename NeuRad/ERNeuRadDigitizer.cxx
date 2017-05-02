@@ -25,22 +25,22 @@ const Double_t ERNeuRadDigitizer::cSpeedOfLight = 0.299792458e2;  //[cm/ns]
 const Double_t ERNeuRadDigitizer::cMaterialSpeedOfLight = ERNeuRadDigitizer::cSpeedOfLight/1.58;//[cm/ns]
 const Double_t ERNeuRadDigitizer::cLightFractionInTotalIntReflection = 0.04;
 //доля света захватываемая файбером в полное внутренне отражение в каждую сторону.
-const Double_t ERNeuRadDigitizer::cPMTDelay=6.;//[ns] (H8500)
-const Double_t ERNeuRadDigitizer::cPMTJitter = 0.4/2.36; //[ns] (H8500)
+const Double_t ERNeuRadDigitizer::cPixelDelay=6.;//[ns] (H8500)
+const Double_t ERNeuRadDigitizer::cPixelJitter = 0.4/2.36; //[ns] (H8500)
 const Double_t ERNeuRadDigitizer::cScincilationTau = 3.2; //[ns]
 
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer()
   : FairTask("ER NeuRad Digitization scheme"),
-  fPMTJitter(cPMTJitter),
-  fPMTDelay(cPMTDelay),
+  fPixelJitter(cPixelJitter),
+  fPixelDelay(cPixelDelay),
   fScincilationTau(cScincilationTau),
   fPhotoElectronsCreatingTime(0),
-  fPMTSignalCreatingTime(0),
+  fPixelSignalCreatingTime(0),
   fNeuRadSetup(NULL),
   fNeuRadPoints(NULL),
   fNeuRadPhotoElectron(NULL),
-  fNeuRadPMTSignal(NULL),
+  fNeuRadPixelSignal(NULL),
   fSumAmplitudeF(0),
   fSumAmplitudeB(0),
   fPECountF(0),
@@ -53,15 +53,15 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   : FairTask("ER NeuRad Digitization scheme ", verbose),
-  fPMTJitter(cPMTJitter),
-  fPMTDelay(cPMTDelay),
+  fPixelJitter(cPixelJitter),
+  fPixelDelay(cPixelDelay),
   fScincilationTau(cScincilationTau),
   fPhotoElectronsCreatingTime(0),
-  fPMTSignalCreatingTime(0),
+  fPixelSignalCreatingTime(0),
   fNeuRadSetup(NULL),
   fNeuRadPoints(NULL),
   fNeuRadPhotoElectron(NULL),
-  fNeuRadPMTSignal(NULL),
+  fNeuRadPixelSignal(NULL),
   fSumAmplitudeF(0),
   fSumAmplitudeB(0),
   fPECountF(0),
@@ -99,8 +99,8 @@ InitStatus ERNeuRadDigitizer::Init()
   // Register output array NeuRadPhotoElectron and NeuRadDigi
   fNeuRadPhotoElectron = new TClonesArray("ERNeuRadPhotoElectron",1000);									
   ioman->Register("NeuRadPhotoElectron", "NeuRad photoelectrons", fNeuRadPhotoElectron, kTRUE);
-  fNeuRadPMTSignal = new TClonesArray("ERNeuRadPixelSignal", 1000);
-  ioman->Register("NeuRadPMTSignal", "Signal PMT", fNeuRadPMTSignal, kTRUE);
+  fNeuRadPixelSignal = new TClonesArray("ERNeuRadPixelSignal", 1000);
+  ioman->Register("NeuRadPixelSignal", "Signal Pixel", fNeuRadPixelSignal, kTRUE);
 
   fNeuRadSetup->Print();
   return kSUCCESS;
@@ -143,18 +143,18 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   
   fPhotoElectronsCreatingTime += fPhotoElectronsCreatingTimer.RealTime();
   //Формируем сигналы на ФЭУ и digi
-  fPMTSignalCreatingTimer.Start();
+  fPixelSignalCreatingTimer.Start();
   
   for (Int_t iModule = 0; iModule < nofModules; iModule++){
     //Генерируем сигналы на пикселях
     for (Int_t iPixel = 0; iPixel < nofPixels; iPixel++) {
-      PMTSignalsCreating(iModule, iPixel, peInPixelsF,0);
-      PMTSignalsCreating(iModule, iPixel, peInPixelsB,1);
+      PixelSignalsCreating(iModule, iPixel, peInPixelsF,0);
+      PixelSignalsCreating(iModule, iPixel, peInPixelsB,1);
     }
   }
   
-  fPMTSignalCreatingTimer.Stop();
-  fPMTSignalCreatingTime += fPMTSignalCreatingTimer.RealTime();
+  fPixelSignalCreatingTimer.Stop();
+  fPixelSignalCreatingTime += fPixelSignalCreatingTimer.RealTime();
   
   //освобождаем память
   for (Int_t i = 0; i<nofModules; i++){
@@ -191,7 +191,7 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
     Double_t pointZInFiber = pointZ + fiberLength/2.;
 
     //Значение квантовой эффективности для конкретного пикселе
-    Double_t PMTQuantumEfficiency = fNeuRadSetup->PMTQuantumEfficiency(pointModule,pointPixel);
+    Double_t PixelQuantumEfficiency = fNeuRadSetup->PixelQuantumEfficiency(pointModule,pointPixel);
     
     //Количество фотонов
     Double_t photonCount = pointLYield*1000.*cSciFiLightYield;
@@ -207,7 +207,7 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
     Double_t pePhotonCount =  photonCount*(k1*exp(-flightLength/0.5) + k2*exp(-flightLength/200.));
 
     //Квантовая эффективность
-    Int_t peCount = (Int_t)gRandom->Poisson(pePhotonCount*PMTQuantumEfficiency);
+    Int_t peCount = (Int_t)gRandom->Poisson(pePhotonCount*PixelQuantumEfficiency);
     sumPECount+=peCount;
     
     for(Int_t iPE=0;iPE<peCount;iPE++){
@@ -220,12 +220,12 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
       if (fUseCrosstalks)
         Crosstalks(pointModule,pointPixel, peModule, pePixel);
       //Амплиту одноэлектронного сигнала
-      Double_t pmtGain = fNeuRadSetup->PMTGain(peModule,pePixel);
-      Double_t pmtSigma = fNeuRadSetup->PMTSigma(peModule,pePixel);
-      Double_t peAmplitude = TMath::Abs(gRandom->Gaus(pmtGain, pmtSigma));
+      Double_t PixelGain = fNeuRadSetup->PixelGain(peModule,pePixel);
+      Double_t PixelSigma = fNeuRadSetup->PixelSigma(peModule,pePixel);
+      Double_t peAmplitude = TMath::Abs(gRandom->Gaus(PixelGain, PixelSigma));
       sumAmplitude+=peAmplitude;
       //Задержка динодной системы и джиттер
-      Double_t peAnodeTime = peCathodeTime + (Double_t)gRandom->Gaus(fPMTDelay, fPMTJitter);
+      Double_t peAnodeTime = peCathodeTime + (Double_t)gRandom->Gaus(fPixelDelay, fPixelJitter);
       ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, pePhotonCount, peAmplitude);
       peInPixels[peModule][pePixel].push_back(pe);
     }
@@ -285,22 +285,22 @@ void ERNeuRadDigitizer::Reset()
   if (fNeuRadPhotoElectron){
     fNeuRadPhotoElectron->Delete();
   }
-  if (fNeuRadPMTSignal){
-    fNeuRadPMTSignal->Delete();
+  if (fNeuRadPixelSignal){
+    fNeuRadPixelSignal->Delete();
   }
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void ERNeuRadDigitizer::PMTSignalsCreating(Int_t iModule, Int_t iPixel,
+void ERNeuRadDigitizer::PixelSignalsCreating(Int_t iModule, Int_t iPixel,
                                 std::vector<ERNeuRadPhotoElectron* >** peInPixels,Int_t side)
 {
   if(peInPixels[iModule][iPixel].size() > 0){
-    ERNeuRadPixelSignal* pmtSignal = AddPMTSignal(iModule, iPixel,peInPixels[iModule][iPixel].size(),side);
+    ERNeuRadPixelSignal* PixelSignal = AddPixelSignal(iModule, iPixel,peInPixels[iModule][iPixel].size(),side);
     for(Int_t iPE = 0; iPE < peInPixels[iModule][iPixel].size(); iPE++){
       ERNeuRadPhotoElectron* pe = peInPixels[iModule][iPixel][iPE];
-      pmtSignal->AddPhotoElectron(pe);
+      PixelSignal->AddPhotoElectron(pe);
     }
-    pmtSignal->Generate();
+    PixelSignal->Generate();
   }
 }
 // ----------------------------------------------------------------------------
@@ -308,14 +308,14 @@ void ERNeuRadDigitizer::Finish()
 {   
   std::cout << "========== Finish of ERNeuRadDigitizer =================="<< std::endl;
   std::cout << "=====  Time on PhotoElectrons creating : " <<  fPhotoElectronsCreatingTime << " s" << std::endl;
-  std::cout << "=====  Time on PMT signal creating : " <<  fPMTSignalCreatingTime << " s" << std::endl;
+  std::cout << "=====  Time on Pixel signal creating : " <<  fPixelSignalCreatingTime << " s" << std::endl;
   std::cout << "=========================================================" << std::endl;
 }
 // ----------------------------------------------------------------------------
 // ---------------------------------------------------------------------------- 
-ERNeuRadPixelSignal* ERNeuRadDigitizer::AddPMTSignal(Int_t iModule, Int_t iPixel, Int_t fpoints_count, Int_t side){ 
-  ERNeuRadPixelSignal *pmtSignal = new((*fNeuRadPMTSignal)[PMTSignalCount()]) 
-                ERNeuRadPixelSignal(iModule, iPixel,fpoints_count, side);   return  pmtSignal; 
+ERNeuRadPixelSignal* ERNeuRadDigitizer::AddPixelSignal(Int_t iModule, Int_t iPixel, Int_t fpoints_count, Int_t side){ 
+  ERNeuRadPixelSignal *PixelSignal = new((*fNeuRadPixelSignal)[PixelSignalCount()]) 
+                ERNeuRadPixelSignal(iModule, iPixel,fpoints_count, side);   return  PixelSignal; 
 }
 // ----------------------------------------------------------------------------
 ERNeuRadPhotoElectron* ERNeuRadDigitizer::AddPhotoElectron(Int_t iPoint, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
@@ -334,8 +334,8 @@ Int_t ERNeuRadDigitizer::PhotoElectronCount()  const {
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-Int_t ERNeuRadDigitizer::PMTSignalCount()   const {
-  return fNeuRadPMTSignal->GetEntriesFast();
+Int_t ERNeuRadDigitizer::PixelSignalCount()   const {
+  return fNeuRadPixelSignal->GetEntriesFast();
 }
 //----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

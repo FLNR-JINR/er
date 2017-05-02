@@ -34,7 +34,7 @@ public:
 
 protected:
   //Input objects
-  TClonesArray *fPMTSignals;
+  TClonesArray *fPixelSignals;
 
   //Output arrays
   RawEvent** fRawEvents;

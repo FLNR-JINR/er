@@ -50,9 +50,9 @@ public:
     static Float_t ModuleY(Int_t iModule);
     static Float_t FiberX(Int_t iModule, Int_t iFiber);
     static Float_t FiberY(Int_t iModule, Int_t iFiber);
-    static Float_t PMTQuantumEfficiency(Int_t iModule, Int_t iFiber);
-    static Float_t PMTGain(Int_t iModule, Int_t iFiber);
-    static Float_t PMTSigma(Int_t iModule, Int_t iFiber);
+    static Float_t PixelQuantumEfficiency(Int_t iModule, Int_t iFiber);
+    static Float_t PixelGain(Int_t iModule, Int_t iFiber);
+    static Float_t PixelSigma(Int_t iModule, Int_t iFiber);
     static Float_t Z(){return fZ;}
     static void    Print();
     static void Crosstalks(Int_t iFiber, TArrayF& crosstalks);

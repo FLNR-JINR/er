@@ -27,10 +27,10 @@ ERNeuRadDigiPar::ERNeuRadDigiPar(const char* name,
     fNofModules(-1),
     fUseCrosstalks(kFALSE),
     fRowNofFibers(-1),
-    fPMTQuantumEfficiency(NULL),
-    fPMTGain(NULL),
-    fPMTSigma(NULL),
-    fPMTCrosstalks(NULL),
+    fPixelQuantumEfficiency(NULL),
+    fPixelGain(NULL),
+    fPixelSigma(NULL),
+    fPixelCrosstalks(NULL),
     fFiberCrosstalks(NULL)
 {
 cout << "ERNeuRadDigiPar" << endl;
@@ -67,29 +67,29 @@ void ERNeuRadDigiPar::print()
   std::cout << "*****************************************" << std::endl;
   std::cout << "   ERNeuRadNofModules: " <<  fNofModules <<  std::endl;
   std::cout << "   ERNeuRadNofFibers: " <<  fNofFibers <<  std::endl;
-  std::cout << "   ERNeuRadPMTQuantumEfficiency: " <<  std::endl;
+  std::cout << "   ERNeuRadPixelQuantumEfficiency: " <<  std::endl;
   for (Int_t iFiber = 0; iFiber < fRowNofFibers; iFiber++){
     std::cout << "     ";
     for (Int_t jFiber = 0; jFiber < fRowNofFibers; jFiber++)
-      std::cout <<(*fPMTQuantumEfficiency)[iFiber*fRowNofFibers + jFiber] << "\t";
+      std::cout <<(*fPixelQuantumEfficiency)[iFiber*fRowNofFibers + jFiber] << "\t";
      std::cout << std::endl;
   }
   std::cout << "*****************************************" << std::endl;
   
-  std::cout << "   ERNeuRadPMTGain: " <<  std::endl;
+  std::cout << "   ERNeuRadPixelGain: " <<  std::endl;
   for (Int_t iFiber = 0; iFiber < fRowNofFibers; iFiber++){
     std::cout << "     ";
     for (Int_t jFiber = 0; jFiber < fRowNofFibers; jFiber++)
-      std::cout <<(*fPMTGain)[iFiber*fRowNofFibers + jFiber] << "\t";
+      std::cout <<(*fPixelGain)[iFiber*fRowNofFibers + jFiber] << "\t";
      std::cout << std::endl;
   }
   std::cout << "*****************************************" << std::endl;
   
-  std::cout << "   ERNeuRadPMTSigma: " <<  std::endl;
+  std::cout << "   ERNeuRadPixelSigma: " <<  std::endl;
   for (Int_t iFiber = 0; iFiber < fRowNofFibers; iFiber++){
     std::cout << "     ";
     for (Int_t jFiber = 0; jFiber < fRowNofFibers; jFiber++)
-      std::cout <<(*fPMTSigma)[iFiber*fRowNofFibers + jFiber] << "\t";
+      std::cout <<(*fPixelSigma)[iFiber*fRowNofFibers + jFiber] << "\t";
      std::cout << std::endl;
   }
 
@@ -112,18 +112,18 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 
   cout << "fNofFibers " << fNofFibers << endl;
 
-  fPMTQuantumEfficiency = new TArrayF(fNofFibers);
-  fPMTGain = new TArrayF(fNofFibers);
-  fPMTSigma = new TArrayF(fNofFibers),
-  fPMTCrosstalks = new TArrayF(fNofFibers*9);
+  fPixelQuantumEfficiency = new TArrayF(fNofFibers);
+  fPixelGain = new TArrayF(fNofFibers);
+  fPixelSigma = new TArrayF(fNofFibers),
+  fPixelCrosstalks = new TArrayF(fNofFibers*9);
   fFiberCrosstalks = new TArrayF(fNofFibers*9);
 
   if (!l) { return kFALSE; }
-  if ( ! l->fill("ERNeuRadPMTQuantumEfficiency", fPMTQuantumEfficiency) ) { return kFALSE; }
-  if ( ! l->fill("ERNeuRadPMTGain", fPMTGain) ) { return kFALSE; }
-  if ( ! l->fill("ERNeuRadPMTSigma", fPMTSigma) ) { return kFALSE; }
-  if ( ! l->fill("ERNeuRadPMTCrosstalks", fPMTCrosstalks) ) { 
-    std::cerr << "ERNeuRadDigiPar: can`t find ERNeuRadPMTCrosstalks" << std::endl;
+  if ( ! l->fill("ERNeuRadPixelQuantumEfficiency", fPixelQuantumEfficiency) ) { return kFALSE; }
+  if ( ! l->fill("ERNeuRadPixelGain", fPixelGain) ) { return kFALSE; }
+  if ( ! l->fill("ERNeuRadPixelSigma", fPixelSigma) ) { return kFALSE; }
+  if ( ! l->fill("ERNeuRadPixelCrosstalks", fPixelCrosstalks) ) { 
+    std::cerr << "ERNeuRadDigiPar: can`t find ERNeuRadPixelCrosstalks" << std::endl;
   } else {
     fUseCrosstalks = kTRUE;
   }
@@ -133,12 +133,12 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
     fUseCrosstalks = kTRUE;
   }
 
-  fPMTQuantumEfficiency->Set(fNofFibers);
-  fPMTGain->Set(fNofFibers);
-  fPMTSigma->Set(fNofFibers),
-  fPMTCrosstalks->Set(fNofFibers*9);
+  fPixelQuantumEfficiency->Set(fNofFibers);
+  fPixelGain->Set(fNofFibers);
+  fPixelSigma->Set(fNofFibers),
+  fPixelCrosstalks->Set(fNofFibers*9);
   fFiberCrosstalks->Set(fNofFibers*9);
-  cout << "fPMTQuantumEfficiency " << fPMTQuantumEfficiency->GetSize() << endl;
+  cout << "fPixelQuantumEfficiency " << fPixelQuantumEfficiency->GetSize() << endl;
   return kTRUE;
 }
 //------------------------------------------------------
@@ -162,7 +162,7 @@ void ERNeuRadDigiPar::Crosstalks(Int_t iPixel, TArrayF& crosstalks) const{
   crosstalks.Set(9);
   Int_t shift  = iPixel*9;
   for (Int_t i = 0; i < 9; i++){
-    crosstalks[i] = (*fPMTCrosstalks)[shift + i]+(*fFiberCrosstalks)[shift + i];
+    crosstalks[i] = (*fPixelCrosstalks)[shift + i]+(*fFiberCrosstalks)[shift + i];
   }
 }
 

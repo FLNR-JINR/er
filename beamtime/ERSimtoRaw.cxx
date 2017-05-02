@@ -14,7 +14,7 @@ ERSimtoRaw::ERSimtoRaw(Int_t NEvents)
 fNChanels(4),
 fEvent(0),
 fNPoints(1000),
-fPMTSignals(NULL),
+fPixelSignals(NULL),
 fRawEvents(NULL)
 {
 }
@@ -26,7 +26,7 @@ ERSimtoRaw::ERSimtoRaw()
 fNChanels(4),
 fEvent(0),
 fNPoints(1000),
-fPMTSignals(NULL),
+fPixelSignals(NULL),
 fRawEvents(NULL)
 {
 }
@@ -46,9 +46,9 @@ InitStatus ERSimtoRaw::Init()
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
   //Get input objects
-  // fPMTSignals = (ERNeuRadPixelSignal*) ioman->GetObject("NeuRadPMTSignal");
-  fPMTSignals = (TClonesArray*) ioman->GetObject("NeuRadPMTSignal");
-    if (!fPMTSignals)
+  // fPixelSignals = (ERNeuRadPixelSignal*) ioman->GetObject("NeuRadPixelSignal");
+  fPixelSignals = (TClonesArray*) ioman->GetObject("NeuRadPixelSignal");
+    if (!fPixelSignals)
       Fatal("Init", "Can`t find branch in input file!");
 
   //Register output objects
@@ -74,8 +74,8 @@ void ERSimtoRaw::Exec(Option_t* opt)
   
   FairRun* run = FairRun::Instance();
   run->MarkFill(kFALSE);
-  for (Int_t iSignal = 0; iSignal < fPMTSignals->GetEntriesFast(); iSignal++){
-    ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fPMTSignals->At(iSignal);
+  for (Int_t iSignal = 0; iSignal < fPixelSignals->GetEntriesFast(); iSignal++){
+    ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fPixelSignals->At(iSignal);
     // if (signal->Side() !=1 || signal->PixelNb() != 25) continue;
     if ( signal->PixelNb() != 20 ) continue;
     TArrayF* result = signal->ResultSignal();
@@ -124,7 +124,7 @@ void ERSimtoRaw::Exec(Option_t* opt)
     // }
     // TGraph* gr = new TGraph(count,times,result->GetArray());
     // TString title;
-    // title.Form("PMT Signal, side %d,%d fiber, %d module, %d pe, %d", signal->Side(),
+    // title.Form("Pixel Signal, side %d,%d fiber, %d module, %d pe, %d", signal->Side(),
     //                     signal->PixelNb(), signal->ModuleNb(), signal->PECount(),
     //                     FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber());
     // gr->SetTitle(title);
@@ -139,8 +139,8 @@ void ERSimtoRaw::Exec(Option_t* opt)
 
 
   // for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
-  //   //ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fPMTSignals->At(iChanel);
-  //   TArrayF* result = fPMTSignals->ResultSignal();
+  //   //ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fPixelSignals->At(iChanel);
+  //   TArrayF* result = fPixelSignals->ResultSignal();
   //   for(Int_t nPoint = 0; nPoint< fNPoints; nPoint++){
   //     fRawEvents[iChanel]->SetAmp(result->GetAt(nPoint), nPoint); //fill the RawEvent
   //     fRawEvents[iChanel]->SetTime(nPoint*0.1, nPoint); 

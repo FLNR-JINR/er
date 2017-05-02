@@ -22,6 +22,7 @@ void digi(Int_t nEvents = 100){
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
   //digitizer->SetUseCrosstalks(kFALSE);
+  digitizer->SetPixelJitter(0.4/2.36);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   

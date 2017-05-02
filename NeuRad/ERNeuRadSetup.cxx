@@ -123,16 +123,16 @@ Float_t ERNeuRadSetup::FiberY(Int_t iModule, Int_t iFiber){
         return fFibers[iModule][iFiber]->fY;
 }
 
-Float_t ERNeuRadSetup::PMTQuantumEfficiency(Int_t iModule, Int_t iFiber){
-        return fDigiPar->PMTQuantumEfficiency(iFiber);
+Float_t ERNeuRadSetup::PixelQuantumEfficiency(Int_t iModule, Int_t iFiber){
+        return fDigiPar->PixelQuantumEfficiency(iFiber);
 }
 
-Float_t ERNeuRadSetup::PMTGain(Int_t iModule, Int_t iFiber){
-        return fDigiPar->PMTGain(iFiber);
+Float_t ERNeuRadSetup::PixelGain(Int_t iModule, Int_t iFiber){
+        return fDigiPar->PixelGain(iFiber);
 }
 
-Float_t ERNeuRadSetup::PMTSigma(Int_t iModule, Int_t iFiber){
-        return fDigiPar->PMTSigma(iFiber);
+Float_t ERNeuRadSetup::PixelSigma(Int_t iModule, Int_t iFiber){
+        return fDigiPar->PixelSigma(iFiber);
 }
 
 void ERNeuRadSetup::Print(){
