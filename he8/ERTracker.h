@@ -12,11 +12,15 @@
 
 #include "FairTask.h"
 
+#include "ERMwpcEvent.h"
+#include "ERTofCalEvent.h"
+
 #define pi 3.14159265358979323846
 #define rad 0.01745329252 /* pi/180 */
 #define slight 29.9792458 /* light speed (cm/nsec) */
 #define hc 197.3425 /* Plank*c (MeV*fm) */
-#define amu 931.494028 /* atomic mass unit (MeV) */
+#define AMU 931.494028 /* atomic mass unit (MeV) */
+#define TempNorm 293.16 /* Normal temperature (K) */
 
 class Telescope
 {
@@ -200,6 +204,35 @@ public:
   TLorentzVector Part;
 };
 
+class RawTrack
+{
+public:
+  RawTrack(){}
+  ~RawTrack(){}
+  int mMW11;
+  int mMW12;
+  int mMW21;
+  int mMW22;
+  int mcMW11;
+  int mcMW12;
+  int mcMW21;
+  int mcMW22;
+  int nMW11[32];
+  int nMW12[32];
+  int nMW21[32];
+  int nMW22[32];
+  short mwpc[8];
+};
+
+class TrackData
+{
+public:
+  TrackData(){}
+  ~TrackData(){}
+  double xmw1,ymw1,xmw2,ymw2,xbt,ybt,zbt,thb,phib;
+  double xbd1,ybd1,xbd2,ybd2,xbd3,ybd3,xbd4,ybd4,xbd5,ybd5,xbd6,ybd6;
+};
+
 class ERTracker : public FairTask {
 
 public:
@@ -248,9 +281,33 @@ protected:
   Particle*** ejectile;
   Particle* target;
   Particle* projectile;
+  Particle* CM0;
   double t_cm,t_cm0,tof_0,Tb,Ta,dT,Tout,Tboutput,Qreaction;
   double BeamSpread;
   int NofUnObsPart;
+  double beta_b,gamma_b,p_beam,range;
+  double procur,promax,thscm,phiscm,thtp,Tp1,Tp2,Tp3;
+
+  TVector3 Vbeam;
+  TVector3 VmwFa,VmwCl,VbeamPlay,Vert1,Vert2;
+
+  double MdistX,MdistY,MdistZ,Rdist,PdistX,PdistY,PdistZ;
+
+  int good_mw1 = 0;
+  int badclu_mw1 = 0;
+  int goodclu_mw1 = 0;
+  int good_mw2 = 0;
+  int badclu_mw2 = 0;
+  int goodclu_mw2 = 0;
+  int good_mw = 0;
+  int badclu_mw = 0;
+  int goodclu_mw = 0;
+  //in
+  ERMwpcEvent* fMwpcEvent;
+  ERTofCalEvent* fTofEvent;
+  //out
+  RawTrack* RawT;
+  TrackData* trackD;
 
   void ReadTelescopeParameters();
   void CreateTelescopeGeometry();
@@ -262,7 +319,15 @@ protected:
   int intrp4(double* x,double* y, double* c);
   void DefineBeamEnergy();
   double Stepantsov(char* D,int Z,double A,double I);
-
+  void TelescopeThresholds();
+  double EiEo(double tableER[][105],double Tp,double Rp);
+  void PrintReaction();
+  void ElossTOFaMWPCaTarget();
+  double UpstreamEnergyLoss(UpstreamMatter* pU,Particle* pP,bool Cond1,
+    bool Cond2,char* Show);
+  void MWPC();
+  int mcluMW(int mMW,int* nMW);
+  double coordMW(UpstreamMatter* pT,RawTrack* pR,char* MWid,char* XY);
 private:
 
   virtual void SetParContainers();

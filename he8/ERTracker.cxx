@@ -12,6 +12,8 @@ using namespace std;
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 
+#include "ERHe8EventHeader.h"
+
 // ----------------------------------------------------------------------------
 ERTracker::ERTracker()
   : FairTask("ERTracker"),
@@ -30,7 +32,11 @@ ERTracker::ERTracker()
   layer(NULL),
   NDet(NULL),
   target(new Particle()),
-  projectile(new Particle())
+  projectile(new Particle()),
+  CM0(new Particle()),
+  fMwpcEvent(NULL),
+  RawT(new RawTrack()),
+  trackD(new TrackData())
 {
 }
 // ----------------------------------------------------------------------------
@@ -53,7 +59,11 @@ ERTracker::ERTracker(Int_t verbose)
   layer(NULL),
   NDet(NULL),
   target(new Particle()),
-  projectile(new Particle())
+  projectile(new Particle()),
+  CM0(new Particle()),
+  fMwpcEvent(NULL),
+  RawT(new RawTrack()),
+  trackD(new TrackData())
 {
 }
 // ----------------------------------------------------------------------------
@@ -73,6 +83,19 @@ void ERTracker::SetParContainers()
 // ----------------------------------------------------------------------------
 InitStatus ERTracker::Init()
 {
+
+  FairRootManager* ioman = FairRootManager::Instance();
+  if ( ! ioman ) Fatal("Init", "No FairRootManager");
+  
+  //Get input objects
+  fMwpcEvent = (ERMwpcEvent*)ioman->GetObject("MwpcEvent.");
+  if (!fMwpcEvent)
+      Fatal("Init", "Can`t find branch in input file!");
+
+  fTofEvent = (ERTofCalEvent*)ioman->GetObject("TofCalEvent.");
+  if (!fTofEvent)
+      Fatal("Init", "Can`t find branch in input file!");
+
   ReadInputData();
   
   ReadTelescopeParameters();
@@ -153,7 +176,7 @@ InitStatus ERTracker::Init()
   plett = strtok(NULL,"+");
   strcpy(tarname,plett);
 
-  TVector3 VmwFa,VmwCl,Vbeam,VbeamPlay,Vert1,Vert2;
+  
   TVector3 AngleDet[Ntelescopes][NLayMax];
 
   int mp[Ntelescopes];
@@ -185,7 +208,7 @@ InitStatus ERTracker::Init()
   double cy[Ntelescopes][NLayMax];
   double cz[Ntelescopes][NLayMax];
 
-  Particle CM0,PlayParticle;
+  Particle PlayParticle;
 
   Particle intermed[NofDetPart+NofUnObsPart];
   Particle PlayPairs[NofDetPart+NofUnObsPart+1][NofDetPart+NofUnObsPart+1];
@@ -204,7 +227,7 @@ InitStatus ERTracker::Init()
   Particle participants[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
   Particle aux[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
   
-  char WayMass[]="/home/vitaliy.schetinin/er/input/StableNuclei.dat";
+  char WayMass[]="/home/vitaliy/er/input/StableNuclei.dat";
   projectile->ParticleID(projname,WayMass);
   target->ParticleID(tarname,WayMass);
   target->Part.SetPxPyPzE(0.,0.,0.,target->Mass);
@@ -308,11 +331,374 @@ InitStatus ERTracker::Init()
   ReadDeDx();
 
   DefineBeamEnergy();
-  
+
+  TelescopeThresholds();
+
+  PrintReaction();
+
+  ElossTOFaMWPCaTarget();
+
+  for(int it=0;it<Ntelescopes;it++)
+      {
+        mp[it] = 0;
+        for(int itx=0;itx<Ntelescopes;itx++)
+        {
+          if(it!=itx)
+          {
+            for(int ip=0;ip<NofDetPart;ip++)
+            {
+              for(int ipx=0;ipx<NofDetPart;ipx++)
+              {
+                if(ip!=ipx)
+                {
+                  participants[it][ip][itx][ipx].Excitation = -1000.;
+                  spectator[it][ip][itx][ipx].Excitation = -1000.;
+                }
+              }
+            }
+          }
+        }
+        for(int il=0;il<layer[it];il++)
+        {
+          TCheck[it][il] = 0;
+          for(int ip=0;ip<NofDetPart;ip++)
+          {
+            for(int imu=0;imu<NDivXYMax;imu++)
+            {
+              al[it][il][ip][imu] = -1000.;
+            }
+          }
+          for(int id=0;id<NDetMax;id++)
+          {
+            mpd[it][il][id] = 0;
+            MuX[it][il][id] = -1;
+            MuY[it][il][id] = -1;
+            MuXT[it][il][id] = -1;
+            MuYT[it][il][id] = -1;
+            xbdet0[it][il][id] = -100.;
+            ybdet0[it][il][id] = -100.;
+            for(int imu=0;imu<NDivXYMax;imu++)
+            {
+              NhitX[it][il][id][imu] = 0;
+              NhitY[it][il][id][imu] = 0;
+              NhitXT[it][il][id][imu] = 0;
+              NhitYT[it][il][id][imu] = 0;
+              DepoX[it][il][id][imu] = 0.;
+              DepoY[it][il][id][imu] = 0.;
+              cx[it][il] = 0.;
+              cy[it][il] = 0.;
+              cz[it][il] = 0.;
+              deposit[it][il][id][imu] = 0.;
+            }
+            for(int ip=0;ip<NofDetPart;ip++)
+            {
+              HitX[it][il][id][ip] = -1;
+              HitXT[it][il][id][ip] = -1;
+              HitY[it][il][id][ip] = -1;
+              HitYT[it][il][id][ip] = -1;
+            }
+          }
+        }
+      }
+
+
+  MWPC();
+  Tof();
   return kSUCCESS;
 }
-// -------------------------------------------------------------------------
 
+
+ERTracker::Tof(){
+      double tof_offset = 87.98;
+//      double tof_offset = 84.;
+      double dt_F3,dt_F4,t_F3,t_F4;
+      FairRun* run = FairRun::Instance();
+      ERHe8EventHeader* header = (ERHe8EventHeader*)run->GetEventHeader();
+      header->mtrack = i_flag_MW;
+//RawD.mtrack = 1;i_flag_MW = 1;
+
+      if(ReIN.TOFis&&i_flag_MW)
+      {
+        RawD.mbeam = 0;
+// ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
+//        fTofEvent->tF3l = fTofEvent->tF3l - fTofEvent->tF4r+ParD.CLB[3][0][0][1];
+//        fTofEvent->tF3r = fTofEvent->tF3r - fTofEvent->tF4r+ParD.CLB[3][1][0][1];
+//        fTofEvent->tF4l = fTofEvent->tF4l - fTofEvent->tF4r+ParD.CLB[4][1][0][1];
+//        fTofEvent->tF4r = fTofEvent->tF4r - fTofEvent->tF4r+ParD.CLB[4][0][0][1];
+// ****************************************************************************************************************************************
+      
+        dt_F3 = (fTofEvent->tF3l-fTofEvent->tF3r);
+        dt_F4 = (fTofEvent->tF4l-fTofEvent->tF4r);
+
+//        if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt&&
+//        fabs(fTofEvent->tF3l)<=UpMat->tF3l_rng&&fabs(fTofEvent->tF3r)<=UpMat->tF3r_rng&&
+//        fabs(fTofEvent->tF4l)<=UpMat->tF4l_rng&&fabs(fTofEvent->tF4r)<=UpMat->tF4r_rng)
+//        if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt)
+//        {
+//printf("*********************************\n");
+//          t_F3 = (Rnd.Gaus(fTofEvent->tF3l,UpMat->TofRes/2.35)+Rnd.Gaus(fTofEvent->tF3r,UpMat->TofRes/2.35))/2;
+//          t_F4 = (Rnd.Gaus(fTofEvent->tF4l,UpMat->TofRes/2.35)+Rnd.Gaus(fTofEvent->tF4r,UpMat->TofRes/2.35))/2.;
+          t_F4 = Rnd.Gaus(fTofEvent->tF4l,UpMat->TofRes/2.35);
+          t_F3 = Rnd.Gaus(fTofEvent->tF3r,UpMat->TofRes/2.35);
+//          t_F4 = Rnd.Gaus((fTofEvent->tF4l+fTofEvent->tF4r)/2,UpMat->TofRes/2.35);
+// ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
+//          fTofEvent->tofb = t_F4 - t_F3 + tof_0;
+// ********************************* measurement of absolute TOF value tof_offset = dT1-L0*(dT1-dT0)/(L1-L0)*******************************
+          fTofEvent->tofb = t_F4 - t_F3 + tof_offset;
+//if(fTofEvent->tofb<130.) 
+//{printf("ntF3l=%i,ntF3r=%i,ntF4l=%i,ntF4r=%i\n",RawD.ntF3l,RawD.ntF3r,RawD.ntF4l,RawD.ntF4r);
+//printf("tF3l=%lf,tF3r=%lf,tF4l=%lf,tF4r=%lf,  TOF=%lf\n",fTofEvent->tF3l,fTofEvent->tF3r,fTofEvent->tF4l,fTofEvent->tF4r,fTofEvent->tofb);
+//printf("t_F3=%lf,t_F4=%lf,(fTofEvent->tF3l+fTofEvent->tF3r)/2=%lf,(fTofEvent->tF4l+fTofEvent->tF4r)/2=%lf,  TOF=%lf\n",t_F3,t_F4,(fTofEvent->tF3l+fTofEvent->tF3r)/2,
+//(fTofEvent->tF4l+fTofEvent->tF4r)/2,(fTofEvent->tF4l+fTofEvent->tF4r-fTofEvent->tF3l-fTofEvent->tF3r)/2+ tof_offset);}
+// ****************************************************************************************************************************************
+          if(fTofEvent->aF4r+fTofEvent->aF4l>500.&&fTofEvent->tofb<150.&&fTofEvent->tofb>60.)
+          {
+
+            beta_b = UpMat->PlasticDist/fTofEvent->tofb/slight;
+
+            if(beta_b>0.&&beta_b<=1.)
+            {
+              header->mbeam = 1;
+              strcpy(ShowTrack,"invisible");
+              gamma_b = 1./sqrt(1.-beta_b*beta_b);
+              p_beam  = beta_b*projectile->Mass*gamma_b;
+              projectile->Part.SetPxPyPzE(p_beam*sin(Vbeam.Theta())*cos(Vbeam.Phi()),
+                p_beam*sin(Vbeam.Theta())*sin(Vbeam.Phi()),p_beam*cos(Vbeam.Theta()),
+                p_beam/beta_b);
+
+              Tb = UpstreamEnergyLoss(&UpMat,&projectile,ReIN.TOFis,ReIN.TRACKINGis,ShowTrack);
+              if(Tb>0.1&&!strcmp(UpMat->HeatScreenAns,"yes")) 
+                Tb = EiEo(UpMat->beam_TARwin,Tb,UpMat->HeatScreenThick/cos(Vbeam.Theta()));
+              if(Tb>0.1) Tb = EiEo(UpMat->beam_TARwin,Tb,UpMat->FoilThick/cos(Vbeam.Theta()));
+              else Tb = 0.;
+              range = UpMat->TarThick*UpMat->TarPress*TempNorm/UpMat->TarTemp/cos(Vbeam.Theta())/2.;
+              if(Tb>0.1) Tb = EiEo(UpMat->beam_target,Tb,range);
+              else Tb = 0.;
+              p_beam = sqrt(pow(Tb+projectile->Mass,2)-pow(projectile->Mass,2));
+              projectile->Part.SetPxPyPzE(p_beam*sin(Vbeam.Theta())*
+                cos(Vbeam.Phi()),p_beam*sin(Vbeam.Theta())*sin(Vbeam.Phi()),
+                p_beam*cos(Vbeam.Theta()),Tb+projectile->Mass);
+              CM0->Part = projectile->Part + target->Part;
+              projectile->Part.Boost(-CM0->Part.BoostVector());
+              target->Part.Boost(-CM0->Part.BoostVector());
+              t_cm0 = projectile->Part.E()+target->Part.E()-projectile->Mass-target->Mass;
+              t_cm = t_cm0 + Qreaction;
+              projectile->Part.Boost(CM0->Part.BoostVector());
+              target->Part.Boost(CM0->Part.BoostVector());
+              if(t_cm>0.) good_mbeam++;
+              else header->mbeam = 0;
+              fTofEvent->tb = projectile->Part.E()-projectile->Mass;
+              fTofEvent->tcm = t_cm;              
+
+              trackD->xbt = MdistX+(-UpMat->MWgasThick/2-UpMat->MWclosDist+UpMat->TarZshift)*sin(Vbeam.Theta())*cos(Vbeam.Phi())/cos(Vbeam.Theta());
+              trackD->ybt = MdistY+(-UpMat->MWgasThick/2-UpMat->MWclosDist+UpMat->TarZshift)*sin(Vbeam.Theta())*sin(Vbeam.Phi())/cos(Vbeam.Theta());
+              trackD->zbt = UpMat->TarZshift;
+            } /* if(beta_b>0.&&beta_b<=1.) */  
+          } /* if(fTofEvent->aF4r+fTofEvent->aF4l>500.) */
+//        } /* if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt&& */
+      } /* if(ReIN.TOFis) */
+      if(i_flag_MW==1&&sqrt(pow(trackD->xbt,2)+pow(trackD->ybt,2))<UpMat->TarEntrHoleRad) RawD.mtrack = 1;
+}
+
+
+// -------------------------------------------------------------------------
+void ERTracker::MWPC(){
+  int i_flag_MW = 0;
+  double tarcoord[3];
+  if(ReIN->TRACKINGis)
+      {
+        for(int iMW=0;iMW<UpMat->MWNwires;iMW++)
+        {
+          RawT->nMW11[iMW] = 0;RawT->nMW12[iMW] = 0;
+          RawT->nMW21[iMW] = 0;RawT->nMW22[iMW] = 0;
+        }
+        RawT->mMW12 = fMwpcEvent->nx1;
+        RawT->mMW11 = fMwpcEvent->ny1;
+        RawT->mMW22 = fMwpcEvent->nx2;
+        RawT->mMW21 = fMwpcEvent->ny2;
+        
+        if(RawT->mMW11>=1&&RawT->mMW12>=1) good_mw1++;
+        if(RawT->mMW21>=1&&RawT->mMW22>=1) good_mw2++;
+        if(RawT->mMW11>=1&&RawT->mMW12>=1&&RawT->mMW21>=1&&RawT->mMW22>=1) good_mw++;
+
+        for(int iMW=1;iMW<=RawT->mMW11;iMW++) RawT->nMW11[iMW-1] = fMwpcEvent->y1[iMW-1];
+        for(int iMW=1;iMW<=RawT->mMW12;iMW++) RawT->nMW12[iMW-1] = fMwpcEvent->x1[iMW-1];
+        for(int iMW=1;iMW<=RawT->mMW21;iMW++) RawT->nMW21[iMW-1] = fMwpcEvent->y2[iMW-1];
+        for(int iMW=1;iMW<=RawT->mMW22;iMW++) RawT->nMW22[iMW-1] = fMwpcEvent->x2[iMW-1];
+
+        RawT->mcMW11 = mcluMW(RawT->mMW11,RawT->nMW11);
+        RawT->mcMW12 = mcluMW(RawT->mMW12,RawT->nMW12);
+        RawT->mcMW21 = mcluMW(RawT->mMW21,RawT->nMW21);
+        RawT->mcMW22 = mcluMW(RawT->mMW22,RawT->nMW22);
+        
+        int i_flag_MW1 = 0;
+        int i_flag_MW2 = 0;
+
+        if(RawT->mcMW11==1&&RawT->mcMW12==1) {i_flag_MW1 = 1;goodclu_mw1++;}
+        else if(RawT->mcMW11>1||RawT->mcMW12>1) badclu_mw1++;
+        if(RawT->mcMW21==1&&RawT->mcMW22==1) {i_flag_MW2 = 1;goodclu_mw2++;}
+        else if(RawT->mcMW21>1||RawT->mcMW22>1) badclu_mw2++;
+        if(i_flag_MW1&&i_flag_MW2) {i_flag_MW = 1;goodclu_mw++;}
+        else badclu_mw++;
+
+        if(i_flag_MW)
+        {
+          char MWid[]="MWfar";
+          char XY[]="X";
+          trackD->xmw1=coordMW(UpMat,RawT,MWid,XY);
+          strcpy(XY,"Y");
+          trackD->ymw1=coordMW(UpMat,RawT,MWid,XY);
+          strcpy(MWid,"MWclo");
+          strcpy(XY,"X");
+          trackD->xmw2=coordMW(UpMat,RawT,MWid,XY);
+          strcpy(XY,"Y");
+          trackD->ymw2=coordMW(UpMat,RawT,MWid,XY);
+          
+          trackD->ymw1 += (trackD->ymw2-trackD->ymw1)*(UpMat->MWXYdist)/(UpMat->MWclosDist-UpMat->MWfarDist);
+          trackD->ymw2 = trackD->ymw1 + (trackD->ymw2-trackD->ymw1)*
+            (UpMat->MWclosDist-UpMat->MWfarDist+UpMat->MWXYdist/2+UpMat->MWgasThick/2)/(UpMat->MWclosDist-UpMat->MWfarDist);
+          trackD->xmw2 = trackD->xmw1 + (trackD->xmw2-trackD->xmw1)*
+            (UpMat->MWclosDist-UpMat->MWfarDist-UpMat->MWXYdist/2+UpMat->MWgasThick/2)/(UpMat->MWclosDist-UpMat->MWfarDist);
+          VmwCl.SetXYZ(trackD->xmw2,trackD->ymw2,UpMat->MWclosDist);
+          VmwFa.SetXYZ(trackD->xmw1,trackD->ymw1,UpMat->MWfarDist);
+          Vbeam = (VmwCl - VmwFa);
+          trackD->thb = Vbeam.Theta()/rad;
+          trackD->phib = Vbeam.Phi()/rad;
+          Vbeam.GetXYZ(tarcoord);
+          MdistX = trackD->xmw2;
+          MdistY = trackD->ymw2;
+          MdistZ = UpMat->MWclosDist+UpMat->MWgasThick/2;
+//**** xbdet and ybdet are useful in the case when beam particles can get in the detector ************************************/
+//          for(it=0;it<Ntelescopes;it++)
+//          {
+//            for(il=0;il<layer[it];il++)
+//            {
+//              for(id=0;id<NDet[it][il];id++)
+//              {
+//                Vbeam = (VmwCl - VmwFa)*((abs(UpMat->MWfarDist)-UpMat->MWXYdist/2+Det[it][il][id].Dist)/(UpMat->MWclosDist-UpMat->MWfarDist-
+//                  UpMat->MWXYdist/2+UpMat->MWgasThick/2));
+//                Vbeam.GetXYZ(tarcoord);
+//                xbdet0[it][il][id] = trackD->xmw1 + tarcoord[0];
+//                ybdet0[it][il][id] = trackD->ymw1 + tarcoord[1];
+//              }
+//            }
+//          }
+/**** when simulating XY are randomized twice: as a result we have coorinates played out and reconstructed *******************/
+/**** when simulating both thb and rthb are witten down. Difference thb-rthb gives the accuracy of measurement ***************/
+          /*
+          if(ReIN->Simulation)
+          {
+            strcpy(MWid,"MWfar");
+            strcpy(XY,"X");
+            PlayXmw1=coordMW(&UpMat,&RawT,MWid,XY);
+            strcpy(XY,"Y");
+            PlayYmw1=coordMW(&UpMat,&RawT,MWid,XY);
+            strcpy(MWid,"MWclos");
+            strcpy(XY,"X");
+            PlayXmw2=coordMW(&UpMat,&RawT,MWid,XY);
+            strcpy(XY,"Y");
+            PlayYmw2=coordMW(&UpMat,&RawT,MWid,XY);
+
+            PlayYmw1 += (PlayYmw2-PlayYmw1)*(UpMat->MWXYdist)/(UpMat->MWclosDist-UpMat->MWfarDist);
+            PlayYmw2 = PlayYmw1 + (PlayYmw2-PlayYmw1)*(UpMat->MWclosDist-UpMat->MWfarDist+UpMat->MWXYdist/2+UpMat->MWgasThick/2)/
+              (UpMat->MWclosDist-UpMat->MWfarDist);
+            PlayXmw2 = PlayXmw1 + (PlayXmw2-PlayXmw1)*(UpMat->MWclosDist-UpMat->MWfarDist-UpMat->MWXYdist/2+UpMat->MWgasThick/2)/
+              (UpMat->MWclosDist-UpMat->MWfarDist);
+            VmwCl.SetXYZ(PlayXmw2,PlayYmw2,UpMat->MWclosDist);
+            VmwFa.SetXYZ(PlayXmw1,PlayYmw1,UpMat->MWfarDist);
+            VbeamPlay = (VmwCl - VmwFa);
+            Play.rthb = VbeamPlay.Theta()/rad;
+            Play.rphib = VbeamPlay.Phi()/rad;
+            VbeamPlay.GetXYZ(tarcoord);
+            PdistX = PlayXmw2;
+            PdistY = PlayYmw2;
+            PdistZ = UpMat->MWclosDist+UpMat->MWgasThick/2;
+          }*/
+        } /* i_flag_MW */
+      } /* ReIN.TRACKINGis */
+}
+
+double ERTracker::coordMW(UpstreamMatter* pT,RawTrack* pR,char* MWid,char* XY)
+{
+  double co = -1000.;
+  double offset;
+  double Sn;
+  int iMW;
+  int mMW;
+  int nMW[16];
+  char Xchoice[]="X";
+  char Ychoice[]="Y";
+  TRandom Rnd;
+  if(!strcmp(MWid,"MWfar"))
+  {
+    if(!strcmp(XY,Xchoice))
+    {
+      iMW = pT->MWfarXNum/abs(pT->MWfarXNum);
+      offset = pT->MWfarXshift;
+      mMW = pR->mMW12;
+      for(int k=0;k<16;k++) {nMW[k] = pR->nMW12[k];}
+    }
+    else if(!strcmp(XY,Ychoice))
+    {
+      iMW = pT->MWfarYNum/abs(pT->MWfarYNum);
+      offset = pT->MWfarYshift;
+      mMW = pR->mMW11;
+      for(int k=0;k<16;k++) {nMW[k] = pR->nMW11[k];}
+    }
+    else
+    {printf("hMW: it's not neither X nor Y\n");return co;}    
+  }
+  else if(!strcmp(MWid,"MWclos"))
+  {
+    if(!strcmp(XY,Xchoice))
+    {
+      iMW = pT->MWclosXNum/abs(pT->MWclosXNum);
+      offset = pT->MWclosXshift;
+      mMW = pR->mMW22;
+      for(int k=0;k<16;k++) {nMW[k] = pR->nMW22[k];}
+    }
+    else if(!strcmp(XY,Ychoice))
+    {
+      iMW = pT->MWclosYNum/abs(pT->MWclosYNum);
+      offset = pT->MWclosYshift;
+      mMW = pR->mMW21;
+      for(int k=0;k<16;k++) {nMW[k] = pR->nMW21[k];}
+    }
+    else
+    {printf("hMW: it's not neither X nor Y\n");return co;}    
+  }
+  else
+  {printf("hMW: bad number of MWPC\n");return co;}
+  
+  if(mMW<1) {return co;}
+  if(mMW==1) {Sn = (double)nMW[mMW-1];}
+  if(mMW>1)
+  {
+    int n = 0;
+    for(int k=1;k<=mMW;k++)
+    {n += nMW[k-1];}
+    Sn = (double)n/(double)mMW;
+  }
+  Sn += (rand() %10000)/10000.-0.5;
+  co = pT->MWstep*iMW*(Sn-(double)(pT->MWNwires+1)/2.)+offset;
+  return co;
+};
+
+// -------------------------------------------------------------------------
+int ERTracker::mcluMW(int mMW,int* nMW)
+{
+  int i;
+  if(mMW<=1) {i = mMW;}
+  else
+  {
+    i = 1;
+    for(int j=2;j<=mMW;j++)
+    {
+      if(nMW[j]-nMW[j-1]>1) {i++;}
+    }
+  }
+  return i;
+};
 // -----   Public method Exec   --------------------------------------------
 void ERTracker::Exec(Option_t* opt)
 {
@@ -352,7 +738,7 @@ void ERTracker::ReadTelescopeParameters(){
   char mat[12];
   char sha[12];
 
-  FILE *F1 = fopen("/home/vitaliy.schetinin/er/input/detsys.prm","r");
+  FILE *F1 = fopen("/home/vitaliy/er/input/detsys.prm","r");
   if(F1==NULL) printf("Main: File detsys.prm was not found\n");
   else
   {
@@ -387,7 +773,7 @@ void ERTracker::ReadTelescopeParameters(){
     for(int j = 0; j<NLayMax; j++)
       Det[i][j] = new Telescope[NDetMax];
   }
-  F1 = fopen("/home/vitaliy.schetinin/er/input/detsys.prm","r");
+  F1 = fopen("/home/vitaliy/er/input/detsys.prm","r");
   for(it=0;it<Ntelescopes;it++)
   {
     fscanf(F1,"%s %lf %lf\n",Zeros,&read_angle1,&read_angle2);
@@ -484,7 +870,7 @@ void ERTracker::ReadInputData()
   ReIN->WriteRawTrack = false;
 /******************** Readout ReactionInput.dat ************************/
   printf("************************************************************\n");
-  FILE *F1 = fopen("/home/vitaliy.schetinin/er/input/ReactionInput.dat","r");
+  FILE *F1 = fopen("/home/vitaliy/er/input/ReactionInput.dat","r");
   if(F1==NULL) {printf("Main: File ReactionInput.dat was not found\n");}
   else
   {
@@ -532,7 +918,7 @@ void ERTracker::ReadInputData()
   if(ReIN->Simulation)
   {
     printf("************************************************************\n");
-    F1 = fopen("/home/vitaliy.schetinin/er/input/Simulation.dat","r");
+    F1 = fopen("/home/vitaliy/er/input/Simulation.dat","r");
     if(F1==NULL) {printf("Main: File Simulation.dat was not found\n");}
     else
     {
@@ -559,7 +945,7 @@ void ERTracker::ReadInputData()
 /*********************** Readout MWPC parameters:***********************/
   if(ReIN->TRACKINGis)
   {
-    F1 = fopen("/home/vitaliy.schetinin/er/input/track.dat","r");
+    F1 = fopen("/home/vitaliy/er/input/track.dat","r");
     if(F1==NULL) {printf("Main: File track.dat was not found\n");}
     else  
     { 
@@ -586,7 +972,7 @@ void ERTracker::ReadInputData()
 /*********************** Readout TOF parameters:************************/
   if(ReIN->TOFis)
   {
-  FILE *F1 = fopen("/home/vitaliy.schetinin/er/input/tof.dat","r");
+  FILE *F1 = fopen("/home/vitaliy/er/input/tof.dat","r");
   if(F1==NULL) {printf("Main: File tof.dat was not found\n");}
   else
   { 
@@ -604,7 +990,7 @@ void ERTracker::ReadInputData()
   UpMat->PlasticThick2/=cos(UpMat->PlasticAngle2*rad);
   }
 /********************* Readout Target parameters:***********************/
-  F1 = fopen("/home/vitaliy.schetinin/er/input/target.dat","r");
+  F1 = fopen("/home/vitaliy/er/input/target.dat","r");
   if(F1==NULL) printf("Main: File target.dat was not found\n");
   else
   { 
@@ -1035,7 +1421,7 @@ double Particle::ReturnMass(char* NON,char* WayMass)
   {
     fscanf(F1,"%s %d %d %lf %s %lf\n",Name,&z,&a,&MassExcess,TimeUnit,&LifeTime);
     if (!strcmp(NON,Name))
-    {massa=amu*(double)a+MassExcess;break;}
+    {massa=AMU*(double)a+MassExcess;break;}
   }
   fclose(F1);
   }
@@ -1061,7 +1447,7 @@ void Particle::ParticleID(char* name, char* path)
         TimeUnit,&LifeTime);
       if (!strcmp(name,nucl))
       {
-        Mass=amu*(double)a+MassExcess;
+        Mass=AMU*(double)a+MassExcess;
         NameOfNucleus = new char [strlen(nucl)+1];
         strcpy(NameOfNucleus,nucl);
         AtNumber = z;
@@ -1082,7 +1468,7 @@ void ERTracker::ReadDeDx(){
   char Matter[128];
   for(int ip=0;ip<NofDetPart;ip++)
   {   
-    strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
+    strcpy(Matter,"/home/vitaliy/er/input/eloss/");
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
     strcat(Matter,"_");
     strcat(Matter,"si");
@@ -1090,7 +1476,7 @@ void ERTracker::ReadDeDx(){
   }
   for(int ip=0;ip<NofDetPart;ip++)
   {   
-    strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
+    strcpy(Matter,"/home/vitaliy/er/input/eloss/");
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
     strcat(Matter,"_");
     strcat(Matter,"csi");
@@ -1098,7 +1484,7 @@ void ERTracker::ReadDeDx(){
   }
   for(int ip=0;ip<NofDetPart;ip++)
   {   
-    strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
+    strcpy(Matter,"/home/vitaliy/er/input/eloss/");
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
     strcat(Matter,"_");
     strcat(Matter,UpMat->TarFoilMatter);
@@ -1106,12 +1492,56 @@ void ERTracker::ReadDeDx(){
   }
   for(int ip=0;ip<NofDetPart;ip++)
   {   
-    strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
+    strcpy(Matter,"/home/vitaliy/er/input/eloss/");
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
     strcat(Matter,"_");
     strcat(Matter,target->NameOfNucleus);
     ReadRint(Matter,EjMat[ip]->ej_target);
   }
+
+  /********************* For the TOF plastic *****************************/
+  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcat(Matter,projectile->NameOfNucleus);
+  strcat(Matter,"_");
+  strcat(Matter,UpMat->PlasticMatter1);
+  ReadRint(Matter,UpMat->beam_TOF);
+/********************* For the MWPC windows ****************************/
+  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcat(Matter,projectile->NameOfNucleus);
+  strcat(Matter,"_");
+  strcat(Matter,UpMat->MWwinMatter);
+  ReadRint(Matter,UpMat->beam_MWwin);
+/************************ For the MWPC gas *****************************/
+  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcat(Matter,projectile->NameOfNucleus);
+  strcat(Matter,"_");
+  strcat(Matter,UpMat->MWgasMatter);
+  ReadRint(Matter,UpMat->beam_MWgas);
+/********************* For the MWPC cathodes ***************************/
+  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcat(Matter,projectile->NameOfNucleus);
+  strcat(Matter,"_");
+  strcat(Matter,UpMat->MWcathMatter);
+  ReadRint(Matter,UpMat->beam_MWcathod);
+/********************* For the heat screen **************************/
+//  strcpy(Matter,"../../../include/eloss/");
+//  strcat(Matter,projectile->NameOfNucleus);
+//  strcat(Matter,"_");
+//  strcat(Matter,UpMat->TarFoilMatter);
+//  ReadRint(Matter,UpMat->beam_heatscreen);
+/********************* For the target windows **************************/
+  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcat(Matter,projectile->NameOfNucleus);
+  strcat(Matter,"_");
+  strcat(Matter,UpMat->TarFoilMatter);
+  ReadRint(Matter,UpMat->beam_TARwin);
+/********************* For the target material *************************/
+  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcat(Matter,projectile->NameOfNucleus);
+  strcat(Matter,"_");
+  strcat(Matter,target->NameOfNucleus);
+  ReadRint(Matter,UpMat->beam_target);
+/*************************************************************************/
 }
 
 
@@ -1389,6 +1819,180 @@ double ERTracker::Stepantsov(char* D,int Z,double A,double I)
   P = Bro*Z/3.3356*1000.;
   T = sqrt(P*P + A*A) - A;
 return T;
+};
+
+void ERTracker::TelescopeThresholds(){
+  double Threshold[Ntelescopes][NofDetPart];
+  printf("Telescope thresholds:\n");
+  for(int it=0;it<Ntelescopes;it++)
+  {
+    for(int ip=0;ip<NofDetPart;ip++)
+    {
+      dT = (projectile->Part.E()-projectile->Mass)/5000.;
+      Tb = 0.;
+      Ta = 10.*dT;
+      for(int id=0;id<NDet[it][0];id++)
+      {
+        do
+        {
+          Tb = EiEo(EjMat[ip]->ej_si,Ta,Det[it][0][id].Thick);
+          Ta += dT;
+        } while(Tb<=0.&&Ta<999.);
+      }
+      Threshold[it][ip] = Ta;
+      printf("Tel%i. %s: threshold %lf MeV\n",it,ejectile[it][ip][0].NameOfNucleus,Threshold[it][ip]);
+    } 
+  }
+  printf("************************************************************\n");
+}
+
+double ERTracker::EiEo(double tableER[][105],double Tp,double Rp)
+{
+  if(Tp<0.1||Tp>1000.)
+  {printf("Energy is out of range\n"); return -1.;}
+  
+  int look=0;
+  while (Tp>tableER[0][look]) {look++;}
+
+  double R1=tableER[2][look-1]+
+  +tableER[3][look-1]*Tp+
+  +tableER[4][look-1]*Tp*Tp+
+  +tableER[5][look-1]*Tp*Tp*Tp;
+  
+  double R2 = R1 - Rp;
+  
+  if(Rp>0.)
+  {if(R2<tableER[1][0]) {return 0.;}}
+  else
+  {if(R2>=tableER[1][104]) {return -2.;
+  printf("table is out of range\n");}}
+  
+  look=0;
+  while (R2>tableER[1][look]) {look++;}
+  
+  double E1=tableER[6][look-1]+
+  +tableER[7][look-1]*R2+
+  +tableER[8][look-1]*R2*R2+
+  +tableER[9][look-1]*R2*R2*R2;
+  
+  return E1;
+};
+
+void ERTracker::PrintReaction(){
+  printf("************ ReactionInput is decoded **********************\n");
+  printf("So we're studying the following reaction:\n");
+  printf("Projectile %s (M=%lf MeV)\n",projectile->NameOfNucleus,projectile->Mass);
+  printf("interacts with the target nucleus %s (M=%lf MeV)\n",
+  target->NameOfNucleus,target->Mass);
+  printf(" \n");
+  printf("As a result of the %s reaction we have:\n",ReIN->Mechanism);
+  printf("%i detected particles:\n",NofDetPart);
+  for(int ip=0;ip<NofDetPart;ip++) printf("%s (M=%lf MeV)\n",ejectile[0][ip][0].NameOfNucleus,ejectile[0][ip][0].Mass);
+  printf("And %i unobserved particles:\n",NofUnObsPart);
+  for(int ip=NofDetPart;ip<NofDetPart+NofUnObsPart;ip++) printf("%s (M=%lf MeV)\n",ejectile[0][ip][0].NameOfNucleus,ejectile[0][ip][0].Mass);
+  printf(" \n");
+  /*
+  if(NofPartRes>1)
+  {
+    printf("There is a %i-body nucleon unstable resonance in %s:\n",NofPartRes,ResonanceDecay[0].NameOfNucleus);
+    for(int ip=1;ip<=NofPartRes;ip++) printf("%s (M=%lf MeV)\n",ResonanceDecay[ip].NameOfNucleus,ResonanceDecay[ip].Mass);
+  }
+  else printf("%i particles in resonance\n",NofPartRes);*/
+  printf(" \n");
+  printf("Qreaction=%lf MeV\n",Qreaction);
+  printf("************************************************************\n");
+  printf("Energy of projectile:\n");
+  printf("DIPOLE2: E=%lf +/- %lf MeV (%lfA MeV)\n",projectile->Part.E()-projectile->Mass,
+    BeamSpread,(projectile->Part.E()-projectile->Mass)/projectile->AtMass);
+}
+
+void ERTracker::ElossTOFaMWPCaTarget(){
+  char ShowTrack[10];
+  range = UpMat->PlasticThick2;
+  Tb = EiEo(UpMat->beam_TOF,projectile->Part.E()-projectile->Mass,UpMat->PlasticThick2);
+  p_beam = sqrt(pow(Tb+projectile->Mass,2)-pow(projectile->Mass,2));
+  projectile->Part.SetPxPyPzE(0.,0.,p_beam,Tb+projectile->Mass);
+  if(ReIN->TOFis)
+  {
+    tof_0 = UpMat->PlasticDist/sqrt(1-pow(projectile->Mass/projectile->Part.E(),2))/slight;
+    printf("\n");
+    printf("TOF measured between two plastics on the base of %lf cm is %lf ns\n",UpMat->PlasticDist,tof_0);
+  }
+  strcpy(ShowTrack,"visible");
+  Tb = UpstreamEnergyLoss(UpMat,projectile,ReIN->TOFis,ReIN->TRACKINGis,ShowTrack);
+  p_beam = sqrt(pow(Tb+projectile->Mass,2)-pow(projectile->Mass,2));
+  projectile->Part.SetPxPyPzE(0.,0.,p_beam,Tb+projectile->Mass);
+
+  //target
+  if(!strcmp(UpMat->HeatScreenAns,"yes")) Tb = EiEo(UpMat->beam_TARwin,Tb,UpMat->HeatScreenThick);
+  if(Tb>0.1) Tb = EiEo(UpMat->beam_TARwin,Tb,UpMat->FoilThick);
+  if(Tb>0.1) Tb = EiEo(UpMat->beam_target,Tb,UpMat->TarThick*UpMat->TarPress*TempNorm/UpMat->TarTemp/2.);
+  p_beam = sqrt(pow(Tb+projectile->Mass,2)-pow(projectile->Mass,2));
+  projectile->Part.SetPxPyPzE(0.,0.,p_beam,Tb+projectile->Mass);
+
+  CM0->Part = projectile->Part + target->Part;
+  projectile->Part.Boost(-CM0->Part.BoostVector());
+  target->Part.Boost(-CM0->Part.BoostVector());
+
+  t_cm0 = projectile->Part.E()+target->Part.E()-projectile->Mass-target->Mass;
+  t_cm = t_cm0 + Qreaction;
+
+  projectile->Part.Boost(CM0->Part.BoostVector());
+  target->Part.Boost(CM0->Part.BoostVector());
+
+  printf("\n");
+  printf("TARGET: %s H=%lf cm (T=%lf K, P=%lf bar) with %s entance window H=%lf cm\n",
+    target->NameOfNucleus,UpMat->TarThick,UpMat->TarTemp,UpMat->TarPress,UpMat->TarFoilMatter,UpMat->FoilThick);
+  printf("In the center of the target: %lf MeV (%lfA MeV)\n",
+    projectile->Part.E()-projectile->Mass,(projectile->Part.E()-projectile->Mass)/projectile->AtMass);
+  printf("Ecm+Q = %lf, Ecm = %lf MeV\n",t_cm,t_cm0);
+  printf("************************************************************\n");
+  Tp1 = projectile->Part.E()-projectile->Mass;
+  Tp2 = (projectile->Part.E()-projectile->Mass)/projectile->AtMass;
+  Tp3 = t_cm;
+}
+
+double ERTracker::UpstreamEnergyLoss(UpstreamMatter* pU,Particle* pP,bool Cond1,
+    bool Cond2,char* Show)
+{
+  char Matter[32]="visible";
+  double Tb,range;
+  if(Cond1)
+  {
+    range = pU->PlasticThick2;
+    Tb = EiEo(pU->beam_TOF,pP->Part.E()-pP->Mass,range);  /*Energy after 2nd plastic*/
+    if(!strcmp(Show,Matter))
+    {
+      printf("TOF PLASTIC2 (%s), Thickness=%lf cm\n",pU->PlasticMatter2,pU->PlasticThick2);
+      printf("%lf MeV (%lfA MeV)\n",Tb,Tb/pP->AtMass);
+    }
+  }
+  if(Cond2)
+  {
+    for(int i=1;i<3;i++)
+    {
+      range = pU->MWwinThick;
+      Tb = EiEo(pU->beam_MWwin,Tb,range); /*Energy after entrance MWPC window*/
+
+      range = pU->MWgasThick;
+      Tb = EiEo(pU->beam_MWgas,Tb,range); /*Energy after MWPC gas*/
+
+      range = pU->MWcathThick;
+      Tb = EiEo(pU->beam_MWcathod,Tb,range);  /*Energy after MWPC cathodes*/
+
+      range = pU->MWwinThick;
+      Tb = EiEo(pU->beam_MWwin,Tb,range); /*Energy after exit MWPC window*/
+
+      if(!strcmp(Show,Matter))
+      {
+        printf("MWPC%i: 2 %s windows (%lf cm), %s cathodes (%lf cm), gas %s (%lf cm)\n",
+          i,pU->MWwinMatter,pU->MWwinThick,pU->MWcathMatter,
+          pU->MWcathThick,pU->MWgasMatter,pU->MWgasThick);
+        printf("%lf MeV (%lfA MeV)\n",Tb,Tb/pP->AtMass);
+      }
+    }
+  }
+  return Tb;
 };
 
 ClassImp(ERTracker)

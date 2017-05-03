@@ -18,6 +18,8 @@ public:
 	Int_t HE8Event_subevents;
 	Int_t HE8Event_evsize;
 	UInt_t HE8Event_time;
+	int mbeam;
+	int mtrack;
 public:
 	ERHe8EventHeader();
 

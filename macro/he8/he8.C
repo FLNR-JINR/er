@@ -42,6 +42,9 @@ void he8(Int_t nEvents = 10)
   ERTofCalibrator* tofCalibrator = new ERTofCalibrator();
   tofCalibrator->SetParametersFile("/home/vitaliy/er/input/clb4sonya.dat");
   run->AddTask(tofCalibrator);
+
+  ERTracker* tracker = new ERTracker(1);
+  run->AddTask(tracker);
   
   // --- Start run
   TStopwatch timer;
