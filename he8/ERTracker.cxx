@@ -35,8 +35,14 @@ ERTracker::ERTracker()
   projectile(new Particle()),
   CM0(new Particle()),
   fMwpcEvent(NULL),
+  fTofEvent(NULL),
+  fDsrdEvent(NULL),
+  fTelescopeEvent(NULL),
   RawT(new RawTrack()),
-  trackD(new TrackData())
+  trackD(new TrackData()),
+  tel(new TelData()),
+  inclu(new InclusiveData()),
+  dcoin(new DoubleCoincidence())
 {
 }
 // ----------------------------------------------------------------------------
@@ -62,8 +68,14 @@ ERTracker::ERTracker(Int_t verbose)
   projectile(new Particle()),
   CM0(new Particle()),
   fMwpcEvent(NULL),
+  fTofEvent(NULL),
+  fDsrdEvent(NULL),
+  fTelescopeEvent(NULL),
   RawT(new RawTrack()),
-  trackD(new TrackData())
+  trackD(new TrackData()),
+  tel(new TelData()),
+  inclu(new InclusiveData()),
+  dcoin(new DoubleCoincidence())
 {
 }
 // ----------------------------------------------------------------------------
@@ -94,6 +106,14 @@ InitStatus ERTracker::Init()
 
   fTofEvent = (ERTofCalEvent*)ioman->GetObject("TofCalEvent.");
   if (!fTofEvent)
+      Fatal("Init", "Can`t find branch in input file!");
+
+  fDsrdEvent = (ERDsrdCalEvent*)ioman->GetObject("DsrdCalEvent.");
+  if (!fDsrdEvent)
+      Fatal("Init", "Can`t find branch in input file!");
+
+  fTelescopeEvent = (ERTelescopeCalEvent*)ioman->GetObject("TelescopeCalEvent.");
+  if (!fTelescopeEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
   ReadInputData();
@@ -176,37 +196,8 @@ InitStatus ERTracker::Init()
   plett = strtok(NULL,"+");
   strcpy(tarname,plett);
 
-  
-  TVector3 AngleDet[Ntelescopes][NLayMax];
-
-  int mp[Ntelescopes];
-  int mpd[Ntelescopes][NLayMax][NDetMax];
-  int MuX[Ntelescopes][NLayMax][NDetMax];
-  int MuY[Ntelescopes][NLayMax][NDetMax];
-  int MuXT[Ntelescopes][NLayMax][NDetMax];
-  int MuYT[Ntelescopes][NLayMax][NDetMax];
-  int HitX[Ntelescopes][NLayMax][NDetMax][NofDetPart];
-  int HitY[Ntelescopes][NLayMax][NDetMax][NofDetPart];
-  int HitXT[Ntelescopes][NLayMax][NDetMax][NofDetPart];
-  int HitYT[Ntelescopes][NLayMax][NDetMax][NofDetPart];
-  int NhitX[Ntelescopes][NLayMax][NDetMax][NDivXYMax];
-  int NhitY[Ntelescopes][NLayMax][NDetMax][NDivXYMax];
-  int NhitXT[Ntelescopes][NLayMax][NDetMax][NDivXYMax];
-  int NhitYT[Ntelescopes][NLayMax][NDetMax][NDivXYMax];
-
-  int TCheck[Ntelescopes][NLayMax];
-
-  double xbdet0[Ntelescopes][NLayMax][NDetMax];
-  double ybdet0[Ntelescopes][NLayMax][NDetMax];
-  double deposit[Ntelescopes][NLayMax][NDetMax][NDivXYMax];
-  double DepoX[Ntelescopes][NLayMax][NDetMax][NDivXYMax];
-  double DepoY[Ntelescopes][NLayMax][NDetMax][NDivXYMax];
-  double al[Ntelescopes][NLayMax][NofDetPart][NDivXYMax];
+  InitMemory();
   double thty[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
-
-  double cx[Ntelescopes][NLayMax];
-  double cy[Ntelescopes][NLayMax];
-  double cz[Ntelescopes][NLayMax];
 
   Particle PlayParticle;
 
@@ -215,19 +206,10 @@ InitStatus ERTracker::Init()
   Particle PlayEjectile[NofDetPart+NofUnObsPart];
   Particle PlaySpectator[NofDetPart+NofUnObsPart+1][NofDetPart+NofUnObsPart+1];
 
-  ejectile = new Particle**[Ntelescopes];
-  for (int i=0; i<Ntelescopes; i++){
-    ejectile[i] = new Particle*[NofDetPart+NofUnObsPart];
-    for (int j=0; j<NofDetPart+NofUnObsPart; j++)
-      ejectile[i][j] = new Particle[NDivXYMax];
-  }
-
   Particle mis[Ntelescopes][NofDetPart][NDivXYMax];
-  Particle spectator[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
-  Particle participants[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
   Particle aux[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
   
-  char WayMass[]="/home/vitaliy/er/input/StableNuclei.dat";
+  char WayMass[]="/home/vitaliy.schetinin/er/input/StableNuclei.dat";
   projectile->ParticleID(projname,WayMass);
   target->ParticleID(tarname,WayMass);
   target->Part.SetPxPyPzE(0.,0.,0.,target->Mass);
@@ -236,6 +218,7 @@ InitStatus ERTracker::Init()
   WhatParticlesInOut(&intermed[NofDetPart],UnObservedPart,NofUnObsPart);  
 
   cout << "Define particles in the output channel" << endl;
+  
   for(int it=0;it<Ntelescopes;it++)
   {
     for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++)
@@ -255,6 +238,7 @@ InitStatus ERTracker::Init()
       PlayEjectile[ip].Mass = ejectile[0][ip][0].Mass;
     }
   }
+
   for(int it=0;it<Ntelescopes;it++)
   {
     for(int ip=0;ip<NofDetPart;ip++)
@@ -337,78 +321,427 @@ InitStatus ERTracker::Init()
   PrintReaction();
 
   ElossTOFaMWPCaTarget();
+  //=======================================================================================================
+ 
 
-  for(int it=0;it<Ntelescopes;it++)
-      {
-        mp[it] = 0;
-        for(int itx=0;itx<Ntelescopes;itx++)
-        {
-          if(it!=itx)
-          {
-            for(int ip=0;ip<NofDetPart;ip++)
-            {
-              for(int ipx=0;ipx<NofDetPart;ipx++)
-              {
-                if(ip!=ipx)
-                {
-                  participants[it][ip][itx][ipx].Excitation = -1000.;
-                  spectator[it][ip][itx][ipx].Excitation = -1000.;
-                }
-              }
-            }
-          }
-        }
-        for(int il=0;il<layer[it];il++)
-        {
-          TCheck[it][il] = 0;
-          for(int ip=0;ip<NofDetPart;ip++)
-          {
-            for(int imu=0;imu<NDivXYMax;imu++)
-            {
-              al[it][il][ip][imu] = -1000.;
-            }
-          }
-          for(int id=0;id<NDetMax;id++)
-          {
-            mpd[it][il][id] = 0;
-            MuX[it][il][id] = -1;
-            MuY[it][il][id] = -1;
-            MuXT[it][il][id] = -1;
-            MuYT[it][il][id] = -1;
-            xbdet0[it][il][id] = -100.;
-            ybdet0[it][il][id] = -100.;
-            for(int imu=0;imu<NDivXYMax;imu++)
-            {
-              NhitX[it][il][id][imu] = 0;
-              NhitY[it][il][id][imu] = 0;
-              NhitXT[it][il][id][imu] = 0;
-              NhitYT[it][il][id][imu] = 0;
-              DepoX[it][il][id][imu] = 0.;
-              DepoY[it][il][id][imu] = 0.;
-              cx[it][il] = 0.;
-              cy[it][il] = 0.;
-              cz[it][il] = 0.;
-              deposit[it][il][id][imu] = 0.;
-            }
-            for(int ip=0;ip<NofDetPart;ip++)
-            {
-              HitX[it][il][id][ip] = -1;
-              HitXT[it][il][id][ip] = -1;
-              HitY[it][il][id][ip] = -1;
-              HitYT[it][il][id][ip] = -1;
-            }
-          }
-        }
-      }
-
-
-  MWPC();
-  Tof();
   return kSUCCESS;
 }
 
+void ERTracker::InitMemory(){
+  mp = new int[Ntelescopes];
+  cout << Ntelescopes << " " <<  NLayMax << " " <<  NDetMax << endl;
+  // Ntelescopes NLayMax NDetMax
+  mpd = new int**[Ntelescopes];
+  MuX = new int**[Ntelescopes];
+  MuY = new int**[Ntelescopes];
+  MuXT = new int**[Ntelescopes];
+  MuYT = new int**[Ntelescopes];
+  xbdet0 = new double**[Ntelescopes];
+  ybdet0 = new double**[Ntelescopes];
+  for (int i =0; i < Ntelescopes; i++){
+    mpd[i] = new int*[NLayMax];
+    MuX[i] = new int*[NLayMax];
+    MuY[i] = new int*[NLayMax];
+    MuXT[i] = new int*[NLayMax];
+    MuYT[i] = new int*[NLayMax];
+    xbdet0[i] = new double*[NLayMax];
+    ybdet0[i] = new double*[NLayMax];
+    for (int j = 0; j < NLayMax; j++){
+      mpd[i][j] = new int[NDetMax];
+      MuX[i][j] = new int[NDetMax];
+      MuY[i][j] = new int[NDetMax];
+      MuXT[i][j] = new int[NDetMax];
+      MuYT[i][j] = new int[NDetMax];
+      xbdet0[i][j] = new double[NDetMax];
+      ybdet0[i][j] = new double[NDetMax];
+    }
+  }
+  //Ntelescopes NLayMax
+  TCheck = new int*[Ntelescopes];
+  cx = new double*[Ntelescopes];
+  cy = new double*[Ntelescopes];
+  cz = new double*[Ntelescopes];
+  AngleDet = new TVector3*[Ntelescopes];
+  for (int i = 0; i < Ntelescopes;i++){
+    TCheck[i] = new int[NLayMax];
+    cx[i] = new double[NLayMax];
+    cy[i] = new double[NLayMax];
+    cz[i] = new double[NLayMax];
+    AngleDet[i] = new TVector3[NLayMax];
+  }
+  //Ntelescopes NLayMax NDetMax NDivXYMax
+  
+  deposit = new double***[Ntelescopes];
+  DepoX = new double***[Ntelescopes];
+  DepoY = new double***[Ntelescopes];
+  NhitX = new int***[Ntelescopes];
+  NhitY = new int***[Ntelescopes];
+  NhitXT = new int***[Ntelescopes];
+  NhitYT = new int***[Ntelescopes];
+  for (int i =0; i <Ntelescopes; i++){
+    deposit[i] = new double**[NLayMax];
+    DepoX[i] = new double**[NLayMax];
+    DepoY[i] = new double**[NLayMax];
+    NhitX[i] = new int**[NLayMax];
+    NhitY[i] = new int**[NLayMax];
+    NhitXT[i] = new int**[NLayMax];
+    NhitYT[i] = new int**[NLayMax];
+    for (int j = 0; j < NLayMax; j++){
+      deposit[i][j] = new double*[NDetMax];
+      DepoX[i][j] = new double*[NDetMax];
+      DepoY[i][j] = new double*[NDetMax];
+      NhitX[i][j] = new int*[NDetMax];
+      NhitY[i][j] = new int*[NDetMax];
+      NhitXT[i][j] = new int*[NDetMax];
+      NhitYT[i][j] = new int*[NDetMax];
+      for (int k = 0; k < NDetMax; k++){
+        deposit[i][j][k] = new double[NDivXYMax];
+        DepoX[i][j][k] = new double[NDivXYMax];
+        DepoY[i][j][k] = new double[NDivXYMax];
+        NhitX[i][j][k] = new int[NDivXYMax];
+        NhitY[i][j][k] = new int[NDivXYMax];
+        NhitXT[i][j][k] = new int[NDivXYMax];
+        NhitYT[i][j][k] = new int[NDivXYMax];
+      }
+    }
+  }
 
-ERTracker::Tof(){
+  //Ntelescopes NLayMax NofDetPart NDivXYMax
+  al = new double***[Ntelescopes];
+  for (int i =0; i <Ntelescopes; i++){
+    al[i] = new double**[NLayMax];
+    for (int j = 0; j < NLayMax; j++){
+      al[i][j] = new double*[NofDetPart];
+      for (int k = 0; k < NofDetPart; k++){
+        al[i][j][k] = new double[NDivXYMax];
+      }
+    }
+  }
+
+  // Ntelescopes NofDetPart Ntelescopes NofDetPart
+  spectator = new Particle***[Ntelescopes];
+  participants = new Particle***[Ntelescopes];
+  for (int i = 0; i<Ntelescopes; i++){
+    spectator[i] = new Particle**[NofDetPart];
+    participants[i] = new Particle**[NofDetPart];
+    for (int j = 0; j < NofDetPart; j++){
+      spectator[i][j] = new Particle*[Ntelescopes];
+      participants[i][j] = new Particle*[Ntelescopes];
+      for (int k = 0; k < Ntelescopes; k++){
+        spectator[i][j][k] = new Particle[NofDetPart];
+        participants[i][j][k] = new Particle[NofDetPart];
+      }
+    }
+  }
+
+  //Ntelescopes NLayMax NDetMax NofDetPart
+  HitX = new int***[Ntelescopes];
+  HitY = new int***[Ntelescopes];
+  HitXT = new int***[Ntelescopes];
+  HitYT = new int***[Ntelescopes];
+  for (int i = 0; i<Ntelescopes; i++){
+    HitX[i] = new int**[NLayMax];
+    HitY[i] = new int**[NLayMax];
+    HitXT[i] = new int**[NLayMax];
+    HitYT[i] = new int**[NLayMax];
+    for (int j = 0; j < NLayMax; j++){
+      HitX[i][j] = new int*[NDetMax];
+      HitY[i][j] = new int*[NDetMax];
+      HitXT[i][j] = new int*[NDetMax];
+      HitYT[i][j] = new int*[NDetMax];
+      for (int k = 0; k < NDetMax; k++){
+        HitX[i][j][k] = new int[NofDetPart];
+        HitY[i][j][k] = new int[NofDetPart];
+        HitXT[i][j][k] = new int[NofDetPart];
+        HitYT[i][j][k] = new int[NofDetPart];
+      }
+    }
+  }
+  //Ntelescopes NofDetPart+NofUnObsPart
+  ejectile = new Particle**[Ntelescopes];
+  for (int i=0; i<Ntelescopes; i++){
+    ejectile[i] = new Particle*[NofDetPart+NofUnObsPart];
+    for (int j=0; j<NofDetPart+NofUnObsPart; j++)
+      ejectile[i][j] = new Particle[NDivXYMax];
+  }
+}
+
+
+TVector3 ERTracker::VertexPosition(TVector3 V1,TVector3 V2,TVector3 V3,TVector3 V4)
+{
+  double x1 = V3.X();
+  double y1 = V3.Y();
+  double z1 = V3.Z();
+
+  double x2 = V4.X();
+  double y2 = V4.Y();
+  double z2 = V4.Z();
+
+  double axn = (V1.Cross(V2)).Unit().X();
+  double ayn = (V1.Cross(V2)).Unit().Y();
+  double azn = (V1.Cross(V2)).Unit().Z();
+
+  double ax1 = V1.Unit().X();
+  double ay1 = V1.Unit().Y();
+  double az1 = V1.Unit().Z();
+
+  double ax2 = V2.Unit().X();
+  double ay2 = V2.Unit().Y();
+  double az2 = V2.Unit().Z();
+
+  double A = ((az2*axn-ax2*azn)*(axn*ay1-ax1*ayn)/(axn*ay2-ax2*ayn) + (ax1*azn-axn*az1))/axn;
+  double B = (ayn*(az2*axn-ax2*azn)/(axn*ay2-ax2*ayn)-azn)*(x2-x1)/axn;
+  B = B+z2-z1-(az2*axn-ax2*azn)*(y2-y1)/(axn*ay2-ax2*ayn);
+  double t0 = -B/A;
+  double s0 = ((axn*ay1-ax1*ayn)*t0+ayn*(x2-x1)-axn*(y2-y1))/(axn*ay2-ax2*ayn);
+
+  V1.SetXYZ((ax1*t0+x1+ax2*s0+x2)/2.,(ay1*t0+y1+ay2*s0+y2)/2.,(az1*t0+z1+az2*s0+z2)/2.);
+  return V1;
+};
+
+
+TVector3 ERTracker::Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 Vint)
+{
+  TVector3 Px,Py,VecDX,VecDY;
+  double x,y,x0,x1,x2,x3,y0,y1,y2,y3,z0,z1,z2,z3,arba;
+  double R,Phi,x_1,y_1,z_1,x_2,y_2,z_2,x_3,y_3,z_3;
+  double t11,t12,t13,t21,t22,t23,t31,t32,t33,A,B,D;
+
+  TRandom Xrnd;
+  if(Nx>0&&Ny>0&&Nx<=abs(Dx->NstripX)&&Ny<=abs(Dy->NstripY))
+  {
+    x3 = Vint.X();y3 = Vint.Y();z3 = Vint.Z();
+
+    if(Dx->DetLabVect.Mag()==Dy->DetLabVect.Mag())
+    {
+      if(!strcmp(Dx->StripFB,"XY")||!strcmp(Dx->StripFB,"RS"))
+      {
+        VecDX = Dx->DetLabVect - Vint;
+        VecDY = Dx->DetLabVect + Dx->Thick*Dx->DetOwnAxisZ.Unit() - Vint;
+      }
+      if(!strcmp(Dy->StripFB,"YX")||!strcmp(Dy->StripFB,"SR"))
+      {
+        VecDY = Dx->DetLabVect - Vint;
+        VecDX = Dx->DetLabVect + Dx->Thick*Dx->DetOwnAxisZ.Unit() - Vint;
+      }
+    }
+    if(Dx->DetLabVect.Mag()!=Dy->DetLabVect.Mag())
+    {
+      if(!strcmp(Dx->StripFB,"XY")||!strcmp(Dx->StripFB,"RS")) VecDX = Dx->DetLabVect - Vint;
+      if(!strcmp(Dx->StripFB,"YX")||!strcmp(Dx->StripFB,"SR")) VecDX=Dx->DetLabVect+Dx->Thick*Dx->DetOwnAxisZ.Unit() - Vint;
+      if(!strcmp(Dy->StripFB,"YX")||!strcmp(Dy->StripFB,"SR")) VecDY = Dy->DetLabVect - Vint;
+      if(!strcmp(Dy->StripFB,"XY")||!strcmp(Dy->StripFB,"RS")) VecDY=Dy->DetLabVect+Dy->Thick*Dy->DetOwnAxisZ.Unit() - Vint;
+    }
+    if(!strcmp(Dy->Shape,"square"))
+    {
+      arba = (rand() %10000)/10000.;
+      y = (double(Ny)-abs(Dy->NstripY)/2.-1.+arba)*Dy->SizeY/Dy->NstripY;
+      Py = y*Dy->DetOwnAxisY.Unit() + VecDY + Vint;
+      x1 = Py.X();y1 = Py.Y();z1 = Py.Z();
+      Py += Dy->DetOwnAxisX.Unit();
+      x2 = Py.X();y2 = Py.Y();z2 = Py.Z();
+    }
+    if(!strcmp(Dy->Shape,"sector")||!strcmp(Dy->Shape,"annular"))
+    {
+
+      arba = (rand() %10000)/10000.;
+      if(Dy->Nsector>0) Phi = (double(Ny)-1.+arba)*360./Dy->Nsector;
+      else if(Dy->Nsector<0) Phi = 360.+(double(Ny)-1.+arba)*360./Dy->Nsector;
+
+      Py = cos(Phi*rad)*Dy->DetOwnAxisX + sin(Phi*rad)*Dy->DetOwnAxisY;
+      Px = Py + VecDY + Vint;
+      x1 = Px.X();y1 = Px.Y();z1 = Px.Z();
+      Px -= Py;
+      x2 = Px.X();y2 = Px.Y();z2 = Px.Z();
+    }
+    Px = VecDX + Vint;
+    x0 = Px.X();y0 = Px.Y();z0 = Px.Z();
+    t11 = Dx->DetOwnAxisX.Unit().X();
+    t21 = Dx->DetOwnAxisX.Unit().Y();
+    t31 = Dx->DetOwnAxisX.Unit().Z();
+    t12 = Dx->DetOwnAxisY.Unit().X();
+    t22 = Dx->DetOwnAxisY.Unit().Y();
+    t32 = Dx->DetOwnAxisY.Unit().Z();
+    t13 = Dx->DetOwnAxisZ.Unit().X();
+    t23 = Dx->DetOwnAxisZ.Unit().Y();
+    t33 = Dx->DetOwnAxisZ.Unit().Z();
+    x_1 = t11*(x1-x0) + t21*(y1-y0) + t31*(z1-z0);
+    y_1 = t12*(x1-x0) + t22*(y1-y0) + t32*(z1-z0);
+    z_1 = t13*(x1-x0) + t23*(y1-y0) + t33*(z1-z0);
+    x_2 = t11*(x2-x0) + t21*(y2-y0) + t31*(z2-z0);
+    y_2 = t12*(x2-x0) + t22*(y2-y0) + t32*(z2-z0);
+    z_2 = t13*(x2-x0) + t23*(y2-y0) + t33*(z2-z0);
+    x_3 = t11*(x3-x0) + t21*(y3-y0) + t31*(z3-z0);
+    y_3 = t12*(x3-x0) + t22*(y3-y0) + t32*(z3-z0);
+    z_3 = t13*(x3-x0) + t23*(y3-y0) + t33*(z3-z0);
+    A = y_1*(z_2-z_3) - y_2*(z_1-z_3) + y_3*(z_1-z_2);
+    B = z_1*(x_2-x_3) - z_2*(x_1-x_3) + z_3*(x_1-x_2);
+    D = x_1*(y_2*z_3-y_3*z_2)-x_2*(y_1*z_3-y_3*z_1)+x_3*(y_1*z_2-y_2*z_1);
+    A = -A/B; B = D/B;
+    if(!strcmp(Dx->Shape,"annular")||!strcmp(Dx->Shape,"sector"))
+    {
+      arba = (rand() %10000)/10000.;
+      if(Dx->Nring>0) R=(double(Nx)-1.+arba)*(Dx->Rout-Dx->Rin)/Dx->Nring+Dx->Rin;
+      else if(Dx->Nring<0) R=(double(abs(Dx->Nring)-Nx)+arba)*(Dx->Rout-Dx->Rin)/abs(Dx->Nring)+Dx->Rin;
+      x1 = (-A*B+sqrt(R*R*(1+A*A)-B*B))/(1+A*A);
+      y1 = A*x1 + B;
+      x2 = (-A*B-sqrt(R*R*(1+A*A)-B*B))/(1+A*A);
+      y2 = A*x2 + B;
+      Px = x1*Dx->DetOwnAxisX.Unit() + y1*Dx->DetOwnAxisY.Unit();
+      if(Px*Py<0) Px = x2*Dx->DetOwnAxisX.Unit() + y2*Dx->DetOwnAxisY.Unit();
+    }
+    if(!strcmp(Dx->Shape,"square"))
+    {
+      arba = (rand() %10000)/10000.;
+      x = (double(Nx)-abs(Dx->NstripX)/2.-1.+arba)*Dx->SizeX/Dx->NstripX;
+      y = A*x + B;
+      Px = x*Dx->DetOwnAxisX.Unit() + y*Dx->DetOwnAxisY.Unit();
+    }
+    Px += VecDX;
+//**** Px is a vector coinciding with a particle trajectory!!!
+  } 
+  return Px;
+};
+
+void ERTracker::InitOutputs(){
+  tel->dep11=0.;tel->dep12=0.;tel->dep13=0.;tel->dep21=0.;tel->dep22=0.;tel->dep23=0.;tel->dep31=0.;tel->dep32=0.;tel->dep33=0.;
+
+  tel->x11 = -1000.;tel->y11 = -1000.;tel->z11 = -1000.;
+  tel->x21 = -1000.;tel->y21 = -1000.;tel->z21 = -1000.;
+  tel->x31 = -1000.;tel->y31 = -1000.;tel->z31 = -1000.;
+
+  tel->al111 = -1000.;tel->al121 = -1000.;tel->al131 = -1000.;
+  tel->al112 = -1000.;tel->al122 = -1000.;tel->al132 = -1000.;
+  tel->al113 = -1000.;tel->al123 = -1000.;tel->al133 = -1000.;
+  tel->al211 = -1000.;tel->al221 = -1000.;tel->al231 = -1000.;
+  tel->al212 = -1000.;tel->al222 = -1000.;tel->al232 = -1000.;
+  tel->al213 = -1000.;tel->al223 = -1000.;tel->al233 = -1000.;
+  tel->al311 = -1000.;tel->al321 = -1000.;tel->al331 = -1000.;
+  tel->al312 = -1000.;tel->al322 = -1000.;tel->al332 = -1000.;
+  tel->al313 = -1000.;tel->al323 = -1000.;tel->al333 = -1000.;
+
+  tel->tcheck11 = -1;tel->tcheck12 = -1;tel->tcheck13 = -1;
+  tel->tcheck21 = -1;tel->tcheck22 = -1;tel->tcheck23 = -1;
+  tel->tcheck31 = -1;tel->tcheck32 = -1;tel->tcheck33 = -1;
+
+  tel->t11 = -1000.;tel->t12 = -1000.;tel->t13 = -1000.;
+  tel->t21 = -1000.;tel->t22 = -1000.;tel->t23 = -1000.;
+  tel->t31 = -1000.;tel->t32 = -1000.;tel->t33 = -1000.;
+  
+  tel->th11 = -1000.;tel->th12 = -1000.;tel->th13 = -1000.;tel->phi11 = -1000.;tel->phi12 = -1000.;tel->phi13 = -1000.;
+  tel->th21 = -1000.;tel->th22 = -1000.;tel->th23 = -1000.;tel->phi21 = -1000.;tel->phi22 = -1000.;tel->phi23 = -1000.;
+  tel->th31 = -1000.;tel->th32 = -1000.;tel->th33 = -1000.;tel->phi31 = -1000.;tel->phi32 = -1000.;tel->phi33 = -1000.;
+  
+  tel->t11cm0 = -1000.;tel->t12cm0 = -1000.;tel->t13cm0 = -1000.;
+  tel->t21cm0 = -1000.;tel->t22cm0 = -1000.;tel->t23cm0 = -1000.;
+  tel->t31cm0 = -1000.;tel->t32cm0 = -1000.;tel->t33cm0 = -1000.;
+
+  tel->th11cm0 = -1000.;tel->th12cm0 = -1000.;tel->th13cm0 = -1000.;
+  tel->th21cm0 = -1000.;tel->th22cm0 = -1000.;tel->th23cm0 = -1000.;
+  tel->th31cm0 = -1000.;tel->th32cm0 = -1000.;tel->th33cm0 = -1000.;
+
+  tel->t11cmp = -1000.;tel->t12cmp = -1000.;tel->t13cmp = -1000.;
+  tel->t21cmp = -1000.;tel->t22cmp = -1000.;tel->t23cmp = -1000.;
+  tel->t31cmp = -1000.;tel->t32cmp = -1000.;tel->t33cmp = -1000.;
+
+  tel->th11cmp = -1000.;tel->th12cmp = -1000.;tel->th13cmp = -1000.;
+  tel->th21cmp = -1000.;tel->th22cmp = -1000.;tel->th23cmp = -1000.;
+  tel->th31cmp = -1000.;tel->th32cmp = -1000.;tel->th33cmp = -1000.;
+
+  inclu->tmis11 = -1000.;inclu->tmis12 = -1000.;inclu->tmis13 = -1000.;
+  inclu->tmis21 = -1000.;inclu->tmis22 = -1000.;inclu->tmis23 = -1000.;
+  inclu->tmis31 = -1000.;inclu->tmis32 = -1000.;inclu->tmis33 = -1000.;
+  
+  inclu->thmis11 = -1000.;inclu->thmis12 = -1000.;inclu->thmis13 = -1000.;
+  inclu->thmis21 = -1000.;inclu->thmis22 = -1000.;inclu->thmis23 = -1000.;
+  inclu->thmis31 = -1000.;inclu->thmis32 = -1000.;inclu->thmis33 = -1000.;
+  
+  inclu->phimis11 = -1000.;inclu->phimis12 = -1000.;inclu->phimis13 = -1000.;
+  inclu->phimis21 = -1000.;inclu->phimis22 = -1000.;inclu->phimis23 = -1000.;
+  inclu->phimis31 = -1000.;inclu->phimis32 = -1000.;inclu->phimis33 = -1000.;
+
+  inclu->exmis11 = -1000.;inclu->exmis12 = -1000.;inclu->exmis13 = -1000.;
+  inclu->exmis21 = -1000.;inclu->exmis22 = -1000.;inclu->exmis23 = -1000.;
+  inclu->exmis31 = -1000.;inclu->exmis32 = -1000.;inclu->exmis33 = -1000.;
+
+  inclu->tmis11cm0 = -1000.;inclu->tmis12cm0 = -1000.;inclu->tmis13cm0 = -1000.;
+  inclu->tmis21cm0 = -1000.;inclu->tmis22cm0 = -1000.;inclu->tmis23cm0 = -1000.;
+  inclu->tmis31cm0 = -1000.;inclu->tmis32cm0 = -1000.;inclu->tmis33cm0 = -1000.;
+  
+  inclu->thmis11cm0 = -1000.;inclu->thmis12cm0 = -1000.;inclu->thmis13cm0 = -1000.;
+  inclu->thmis21cm0 = -1000.;inclu->thmis22cm0 = -1000.;inclu->thmis23cm0 = -1000.;
+  inclu->thmis31cm0 = -1000.;inclu->thmis32cm0 = -1000.;inclu->thmis33cm0 = -1000.;
+  
+  inclu->tmis11cmp = -1000.;inclu->tmis12cmp = -1000.;inclu->tmis13cmp = -1000.;
+  inclu->tmis21cmp = -1000.;inclu->tmis22cmp = -1000.;inclu->tmis23cmp = -1000.;
+  inclu->tmis31cmp = -1000.;inclu->tmis32cmp = -1000.;inclu->tmis33cmp = -1000.;
+  
+  inclu->thmis11cmp = -1000.;inclu->thmis12cmp = -1000.;inclu->thmis13cmp = -1000.;
+  inclu->thmis21cmp = -1000.;inclu->thmis22cmp = -1000.;inclu->thmis23cmp = -1000.;
+  inclu->thmis31cmp = -1000.;inclu->thmis32cmp = -1000.;inclu->thmis33cmp = -1000.;
+  
+  dcoin->tpar1122=-1000.;dcoin->tpar1223=-1000.;dcoin->tpar1132=-1000.;dcoin->tpar1133=-1000.;
+  dcoin->tpar1221=-1000.;dcoin->tpar1223=-1000.;dcoin->tpar1231=-1000.;dcoin->tpar1233=-1000.;
+  dcoin->tpar1321=-1000.;dcoin->tpar1322=-1000.;dcoin->tpar1331=-1000.;dcoin->tpar1332=-1000.;
+  
+  dcoin->thpar1122=-1000.;dcoin->thpar1223=-1000.;dcoin->thpar1132=-1000.;dcoin->thpar1133=-1000.;
+  dcoin->thpar1221=-1000.;dcoin->thpar1223=-1000.;dcoin->thpar1231=-1000.;dcoin->thpar1233=-1000.;
+  dcoin->thpar1321=-1000.;dcoin->thpar1322=-1000.;dcoin->thpar1331=-1000.;dcoin->thpar1332=-1000.;
+
+  dcoin->phipar1122=-1000.;dcoin->phipar1223=-1000.;dcoin->phipar1132=-1000.;dcoin->phipar1133=-1000.;
+  dcoin->phipar1221=-1000.;dcoin->phipar1223=-1000.;dcoin->phipar1231=-1000.;dcoin->phipar1233=-1000.;
+  dcoin->phipar1321=-1000.;dcoin->phipar1322=-1000.;dcoin->phipar1331=-1000.;dcoin->phipar1332=-1000.;
+
+  dcoin->expar1122=-1000.;dcoin->expar1223=-1000.;dcoin->expar1132=-1000.;dcoin->expar1133=-1000.;
+  dcoin->expar1221=-1000.;dcoin->expar1223=-1000.;dcoin->expar1231=-1000.;dcoin->expar1233=-1000.;
+  dcoin->expar1321=-1000.;dcoin->expar1322=-1000.;dcoin->expar1331=-1000.;dcoin->expar1332=-1000.;
+  
+  dcoin->tspe1122=-1000.;dcoin->tspe1223=-1000.;dcoin->tspe1132=-1000.;dcoin->tspe1133=-1000.;
+  dcoin->tspe1221=-1000.;dcoin->tspe1223=-1000.;dcoin->tspe1231=-1000.;dcoin->tspe1233=-1000.;
+  dcoin->tspe1321=-1000.;dcoin->tspe1322=-1000.;dcoin->tspe1331=-1000.;dcoin->tspe1332=-1000.;
+  
+  dcoin->thspe1122=-1000.;dcoin->thspe1223=-1000.;dcoin->thspe1132=-1000.;dcoin->thspe1133=-1000.;
+  dcoin->thspe1221=-1000.;dcoin->thspe1223=-1000.;dcoin->thspe1231=-1000.;dcoin->thspe1233=-1000.;
+  dcoin->thspe1321=-1000.;dcoin->thspe1322=-1000.;dcoin->thspe1331=-1000.;dcoin->thspe1332=-1000.;
+  
+  dcoin->phispe1122=-1000.;dcoin->phispe1223=-1000.;dcoin->phispe1132=-1000.;dcoin->phispe1133=-1000.;
+  dcoin->phispe1221=-1000.;dcoin->phispe1223=-1000.;dcoin->phispe1231=-1000.;dcoin->phispe1233=-1000.;
+  dcoin->phispe1321=-1000.;dcoin->phispe1322=-1000.;dcoin->phispe1331=-1000.;dcoin->phispe1332=-1000.;
+
+  dcoin->exspe1122=-1000.;dcoin->exspe1223=-1000.;dcoin->exspe1132=-1000.;dcoin->exspe1133=-1000.;
+  dcoin->exspe1221=-1000.;dcoin->exspe1223=-1000.;dcoin->exspe1231=-1000.;dcoin->exspe1233=-1000.;
+  dcoin->exspe1321=-1000.;dcoin->exspe1322=-1000.;dcoin->exspe1331=-1000.;dcoin->exspe1332=-1000.;
+  
+  dcoin->th1122cmpp=-1000.;dcoin->th1223cmpp=-1000.;dcoin->th1132cmpp=-1000.;dcoin->th1133cmpp=-1000.;
+  dcoin->th1221cmpp=-1000.;dcoin->th1223cmpp=-1000.;dcoin->th1231cmpp=-1000.;dcoin->th1233cmpp=-1000.;
+  dcoin->th1321cmpp=-1000.;dcoin->th1322cmpp=-1000.;dcoin->th1331cmpp=-1000.;dcoin->th1332cmpp=-1000.;
+
+  dcoin->pspe1122cmp=-1000.;dcoin->pspe1223cmp=-1000.;dcoin->pspe1132cmp=-1000.;dcoin->pspe1133cmp=-1000.;
+  dcoin->pspe1221cmp=-1000.;dcoin->pspe1223cmp=-1000.;dcoin->pspe1231cmp=-1000.;dcoin->pspe1233cmp=-1000.;
+  dcoin->pspe1321cmp=-1000.;dcoin->pspe1322cmp=-1000.;dcoin->pspe1331cmp=-1000.;dcoin->pspe1332cmp=-1000.;
+
+  dcoin->pxspe1122cmp=-1000.;dcoin->pxspe1223cmp=-1000.;dcoin->pxspe1132cmp=-1000.;dcoin->pxspe1133cmp=-1000.;
+  dcoin->pxspe1221cmp=-1000.;dcoin->pxspe1223cmp=-1000.;dcoin->pxspe1231cmp=-1000.;dcoin->pxspe1233cmp=-1000.;
+  dcoin->pxspe1321cmp=-1000.;dcoin->pxspe1322cmp=-1000.;dcoin->pxspe1331cmp=-1000.;dcoin->pxspe1332cmp=-1000.;
+
+  dcoin->pyspe1122cmp=-1000.;dcoin->pyspe1223cmp=-1000.;dcoin->pyspe1132cmp=-1000.;dcoin->pyspe1133cmp=-1000.;
+  dcoin->pyspe1221cmp=-1000.;dcoin->pyspe1223cmp=-1000.;dcoin->pyspe1231cmp=-1000.;dcoin->pyspe1233cmp=-1000.;
+  dcoin->pyspe1321cmp=-1000.;dcoin->pyspe1322cmp=-1000.;dcoin->pyspe1331cmp=-1000.;dcoin->pyspe1332cmp=-1000.;
+
+  dcoin->pzspe1122cmp=-1000.;dcoin->pzspe1223cmp=-1000.;dcoin->pzspe1132cmp=-1000.;dcoin->pzspe1133cmp=-1000.;
+  dcoin->pzspe1221cmp=-1000.;dcoin->pzspe1223cmp=-1000.;dcoin->pzspe1231cmp=-1000.;dcoin->pzspe1233cmp=-1000.;
+  dcoin->pzspe1321cmp=-1000.;dcoin->pzspe1322cmp=-1000.;dcoin->pzspe1331cmp=-1000.;dcoin->pzspe1332cmp=-1000.;
+
+  dcoin->thspe1122cmp=-1000.;dcoin->thspe1223cmp=-1000.;dcoin->thspe1132cmp=-1000.;dcoin->thspe1133cmp=-1000.;
+  dcoin->thspe1221cmp=-1000.;dcoin->thspe1223cmp=-1000.;dcoin->thspe1231cmp=-1000.;dcoin->thspe1233cmp=-1000.;
+  dcoin->thspe1321cmp=-1000.;dcoin->thspe1322cmp=-1000.;dcoin->thspe1331cmp=-1000.;dcoin->thspe1332cmp=-1000.;
+  
+  dcoin->expar1122pri=-1000.;dcoin->expar1123pri=-1000.;dcoin->expar1132pri=-1000.;dcoin->expar1133pri=-1000.;
+}
+
+void ERTracker::Tof(){
+      TRandom Rnd;
+      char ShowTrack[10];
       double tof_offset = 87.98;
 //      double tof_offset = 84.;
       double dt_F3,dt_F4,t_F3,t_F4;
@@ -417,9 +750,9 @@ ERTracker::Tof(){
       header->mtrack = i_flag_MW;
 //RawD.mtrack = 1;i_flag_MW = 1;
 
-      if(ReIN.TOFis&&i_flag_MW)
+      if(ReIN->TOFis&&i_flag_MW)
       {
-        RawD.mbeam = 0;
+        header->mbeam = 0;
 // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
 //        fTofEvent->tF3l = fTofEvent->tF3l - fTofEvent->tF4r+ParD.CLB[3][0][0][1];
 //        fTofEvent->tF3r = fTofEvent->tF3r - fTofEvent->tF4r+ParD.CLB[3][1][0][1];
@@ -466,7 +799,7 @@ ERTracker::Tof(){
                 p_beam*sin(Vbeam.Theta())*sin(Vbeam.Phi()),p_beam*cos(Vbeam.Theta()),
                 p_beam/beta_b);
 
-              Tb = UpstreamEnergyLoss(&UpMat,&projectile,ReIN.TOFis,ReIN.TRACKINGis,ShowTrack);
+              Tb = UpstreamEnergyLoss(UpMat,projectile,ReIN->TOFis,ReIN->TRACKINGis,ShowTrack);
               if(Tb>0.1&&!strcmp(UpMat->HeatScreenAns,"yes")) 
                 Tb = EiEo(UpMat->beam_TARwin,Tb,UpMat->HeatScreenThick/cos(Vbeam.Theta()));
               if(Tb>0.1) Tb = EiEo(UpMat->beam_TARwin,Tb,UpMat->FoilThick/cos(Vbeam.Theta()));
@@ -497,13 +830,13 @@ ERTracker::Tof(){
           } /* if(fTofEvent->aF4r+fTofEvent->aF4l>500.) */
 //        } /* if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt&& */
       } /* if(ReIN.TOFis) */
-      if(i_flag_MW==1&&sqrt(pow(trackD->xbt,2)+pow(trackD->ybt,2))<UpMat->TarEntrHoleRad) RawD.mtrack = 1;
+      if(i_flag_MW==1&&sqrt(pow(trackD->xbt,2)+pow(trackD->ybt,2))<UpMat->TarEntrHoleRad) header->mtrack = 1;
 }
 
 
 // -------------------------------------------------------------------------
 void ERTracker::MWPC(){
-  int i_flag_MW = 0;
+  i_flag_MW = 0;
   double tarcoord[3];
   if(ReIN->TRACKINGis)
       {
@@ -702,12 +1035,299 @@ int ERTracker::mcluMW(int mMW,int* nMW)
 // -----   Public method Exec   --------------------------------------------
 void ERTracker::Exec(Option_t* opt)
 {
+  Reset();
+  MWPC();
+  Tof();
+  InitOutputs();
+  for(int it=0;it<Ntelescopes;it++)
+  {
+    for(int il=0;il<layer[it];il++)
+    {
+      for(int id=0;id<NDet[it][il];id++)
+      {
+        for(int ip=0;ip<NDivXYMax;ip++) deposit[it][il][id][ip] = 0.;
+      }
+    }
+  }
+
+  MuY[0][0][0]=fDsrdEvent->mC11;MuX[0][1][0]=fDsrdEvent->mC12;//MuX[0][2][0]=fDsrdEvent->mC13;
+  MuY[1][0][0]=fTelescopeEvent->mC21;MuX[1][1][0]=fTelescopeEvent->mC22;MuX[1][2][0]=fTelescopeEvent->mC23;
+  //MuX[2][0][0]=fTelescopeEvent->mC31;MuY[2][1][0]=fTelescopeEvent->mC32;MuX[2][2][0]=fTelescopeEvent->mC33;
+
+  for(int imu=0;imu<=MuY[0][0][0];imu++)
+  {
+    DepoX[0][0][0][imu] = fDsrdEvent->eC11[imu];
+    NhitY[0][0][0][imu] = fDsrdEvent->nC11[imu];
+    NhitX[0][0][0][imu] = 1;
+  }
+  for(int imu=0;imu<=MuX[0][1][0];imu++)
+  {
+    DepoX[0][1][0][imu] = fDsrdEvent->eC12[imu];
+    NhitX[0][1][0][imu] = fDsrdEvent->nC12[imu];
+    NhitY[0][1][0][imu] = 1;
+  }
+  /*
+  for(int imu=0;imu<=MuX[0][2][0];imu++)
+  {
+    DepoX[0][2][0][imu] = fDsrdEvent->eC13[imu];
+    NhitX[0][2][0][imu] = fDsrdEvent->nC13[imu];
+  }*/
+//////////////////////////////////////////////////////////////////////////////////
+  for(int imu=0;imu<=MuY[1][0][0];imu++)
+  {
+    DepoX[1][0][0][imu] = fTelescopeEvent->eC21[imu];
+    NhitY[1][0][0][imu] = fTelescopeEvent->nC21[imu];
+    NhitX[1][0][0][imu] = 1;
+  }
+  for(int imu=0;imu<=MuX[1][1][0];imu++)
+  {
+    DepoX[1][1][0][imu] = fTelescopeEvent->eC22[imu];
+    NhitX[1][1][0][imu] = fTelescopeEvent->nC22[imu];
+    NhitY[1][1][0][imu] = 1;
+  }
+  for(int imu=0;imu<=MuX[1][2][0];imu++)
+  {
+    DepoX[1][2][0][imu] = fTelescopeEvent->eC23[imu];
+    NhitX[1][2][0][imu] = fTelescopeEvent->nC23[imu];
+  }
+//////////////////////////////////////////////////////////////////////////////////
+  /*
+  for(int imu=0;imu<=MuX[2][0][0];imu++)
+  {
+    DepoX[2][0][0][imu] = fTelescopeEvent->eC31[imu];
+    NhitX[2][0][0][imu] = fTelescopeEvent->nC31[imu];
+  }
+  for(int imu=0;imu<=MuY[2][1][0];imu++)
+  {
+    DepoX[2][1][0][imu] = fTelescopeEvent->eC32[imu];
+    NhitY[2][1][0][imu] = fTelescopeEvent->nC32[imu];
+  }
+  for(int imu=0;imu<=MuX[2][2][0];imu++)
+  {
+    DepoX[2][2][0][imu] = fTelescopeEvent->eC33[imu];
+    NhitX[2][2][0][imu] = fTelescopeEvent->nC33[imu];
+  }*/
+  cout << "Condition" << endl;
+  if(MuY[0][0][0]==0&&NhitY[0][0][0][0]>0&&NhitY[0][0][0][0]<=abs(Det[0][0][0].NstripY)&&DepoX[0][0][0][0]>0.) mpd[0][0][0]=MuY[0][0][0]+1;
+
+  if(MuX[0][1][0]==0&&NhitX[0][1][0][0]>0&&NhitX[0][1][0][0]<=abs(Det[0][1][0].NstripX)&&DepoX[0][1][0][0]>0.) mpd[0][1][0]=MuX[0][1][0]+1;
+
+  if(MuY[1][0][0]==0&&NhitY[1][0][0][0]>0&&NhitY[1][0][0][0]<=abs(Det[1][0][0].NstripY)&&DepoX[1][0][0][0]>0.) mpd[1][0][0]=MuY[1][0][0]+1;
+  
+  if(MuX[1][1][0]==0&&NhitX[1][1][0][0]>0&&NhitX[1][1][0][0]<=abs(Det[1][1][0].NstripX)&&DepoX[1][1][0][0]>0.) mpd[1][1][0]=MuX[1][1][0]+1;
+/*
+  if(MuX[2][0][0]==0&&NhitX[2][0][0][0]>0&&NhitX[2][0][0][0]<=abs(Det[2][0][0].NstripX)&&DepoX[2][0][0][0]>0.&&
+
+  MuY[2][1][0]==0&&NhitY[2][1][0][0]>0&&NhitY[2][1][0][0]<=abs(Det[2][0][0].NstripY)&&DepoX[2][2][0][0]>0.) mpd[2][0][0]=MuX[2][0][0]+1;
+  */
+  if(mpd[0][0][0]==1&&mpd[0][1][0]==1) mp[0] = mpd[0][0][0];
+  if(mpd[1][0][0]==1&&mpd[1][1][0]==1) mp[1] = mpd[1][0][0];
+  //if(mpd[2][0][0]==1) mp[2] = mpd[2][0][0];
+
+  FairRun* run = FairRun::Instance();
+  ERHe8EventHeader* header = (ERHe8EventHeader*)run->GetEventHeader();
+  header->mp1 = mp[0]; header->mp2 = mp[1]; header->mp3 = mp[2];
+  if(mp[0]&&header->mtrack&&header->mbeam) good_mp0++;
+  if(mp[1]&&header->mtrack&&header->mbeam) good_mp1++;
+  //if(mp[2]&&header->mtrack&&header->mbeam) good_mp2++;
+
+  cout << " Vertex Reconstruction " << endl;
+  int NxX1,NyX1,NxY1,NyY1,NxX2,NyX2,NxY2,NyY2;
+  double dst,minX1,minY1,minX2,minY2;
+  double dstmin = 1000.;
+  int Nstep = 20;
+  double Delta = 0.05;
+  if(ReIN->DetectorTune)
+  {
+    Telescope DtempX1,DtempY1,DtempX2,DtempY2;
+    DtempX1 = Det[0][0][0];
+    NxX1 = NhitX[0][0][0][0];
+    NyX1 = NhitY[0][0][0][0];
+    DtempY1 = Det[0][1][0];
+    NxY1 = NhitX[0][1][0][0];
+    NyY1 = NhitY[0][1][0][0];
+    
+    DtempX2 = Det[1][0][0];
+    NxX2 = NhitX[1][0][0][0];
+    NyX2 = NhitY[1][0][0][0];
+    DtempY2 = Det[1][1][0];
+    NxY2 = NhitX[1][1][0][0];
+    NyY2 = NhitY[1][1][0][0];
+
+    if(mpd[0][0][0]&&mpd[0][1][0]&&mpd[1][0][0]&&mpd[1][1][0]&&header->mtrack&&header->mbeam)
+    {
+      DtempX2.OffsetX = Det[1][0][0].OffsetX - Nstep*Delta;
+      for(int it=0;it<=2*Nstep;it++)
+      {
+        DtempY2.OffsetX = Det[1][1][0].OffsetX - Nstep*Delta;
+        for(int il=0;il<=2*Nstep;il++)
+        {
+          DtempY1.OffsetX = Det[0][1][0].OffsetX - Nstep*Delta;
+          for(int id=0;id<=2*Nstep;id++)
+          {
+            DtempX1.OffsetX = Det[0][0][0].OffsetX - Nstep*Delta;
+            for(int is=0;is<=2*Nstep;is++)
+            {
+              Vert1.SetXYZ(0.,0.,0.);
+              AngleDet[0][0] = Traject(&DtempX1,&DtempX1,NxX1,NyX1,Vert1);
+              Vert1.SetXYZ(AngleDet[0][0].X(),AngleDet[0][0].Y(),AngleDet[0][0].Z());
+              AngleDet[0][0] = Traject(&DtempY1,&DtempY1,NxY1,NyY1,AngleDet[0][0]);
+
+              Vert2.SetXYZ(0.,0.,0.);
+              AngleDet[1][1] = Traject(&DtempX2,&DtempX2,NxX2,NyX2,Vert2);
+              Vert2.SetXYZ(AngleDet[1][1].X(),AngleDet[1][1].Y(),AngleDet[1][1].Z());
+              AngleDet[1][1] = Traject(&DtempY2,&DtempY2,NxY2,NyY2,AngleDet[1][1]);
+        
+              dst = (AngleDet[0][0].Cross(AngleDet[1][1])*(Vert1-Vert2))/
+                (AngleDet[0][0].Cross(AngleDet[1][1])).Mag();
+              if(dst<dstmin) 
+              {
+                dstmin = dst;
+                minX1 = DtempX1.OffsetX;
+                minY1 = DtempY1.OffsetX;
+                minX2 = DtempX2.OffsetX;
+                minY2 = DtempY2.OffsetX;
+              }
+              DtempX1.OffsetX += Delta;
+            }
+            DtempY1.OffsetX += Delta;
+          }
+          DtempX2.OffsetX += Delta;
+        }
+        DtempY2.OffsetX += Delta;
+      }
+      printf("dst=%lf at DtempX1.OffseX=%lf,DtempY1.OffseX=%lf,DtempX2.OffseX=%lf,DtempY2.OffseX=%lf\n",dstmin,minX1,minY1,minX2,minY2);
+    }
+  }
+  
+
+  cerr << " Trajectory reconstruction" << endl;
+  double tarcoord[3];
+  if(ReIN->Vertex&&!ReIN->DetectorTune)
+      {
+        if(mp[0]==1&&mp[1]==1)
+        {
+          // Very specific case: 11Li(or9Li) QFS or QFR with 2 muDSSD telescopes:
+          Vert1.SetXYZ(0.,0.,0.);
+          AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitX[0][0][0][0],NhitY[0][0][0][0],Vert1);
+          AngleDet[0][0].GetXYZ(tarcoord);
+          cx[0][0] = tarcoord[0];
+          cy[0][0] = tarcoord[1];
+          cz[0][0] = tarcoord[2];
+          Vert1.SetXYZ(cx[0][0],cy[0][0],cz[0][0]);
+          if(MuX[0][1][0]) AngleDet[0][0] = Traject(&Det[0][1][0],&Det[0][1][0],NhitX[0][1][0][0],NhitY[0][1][0][0],Vert1);
+          else if(MuX[0][1][1]) AngleDet[0][0] = Traject(&Det[0][1][1],&Det[0][1][1],NhitX[0][1][1][0],NhitY[0][1][1][0],Vert1);
+
+          Vert2.SetXYZ(0.,0.,0.);
+          AngleDet[1][0] = Traject(&Det[1][0][0],&Det[1][0][0],NhitX[1][0][0][0],NhitY[1][0][0][0],Vert2);
+          cx[1][0] = AngleDet[1][0].X();
+          cy[1][0] = AngleDet[1][0].Y();
+          cz[1][0] = AngleDet[1][0].Z();
+          Vert2.SetXYZ(cx[1][0],cy[1][0],cz[1][0]);
+          if(MuX[1][1][0]) AngleDet[1][0] = Traject(&Det[1][1][0],&Det[1][1][0],NhitX[1][1][0][0],NhitY[1][1][0][0],Vert2);
+          else if(MuX[1][1][1]) AngleDet[1][0] = Traject(&Det[1][1][1],&Det[1][1][1],NhitX[1][1][1][0],NhitY[1][1][1][0],Vert2);
+
+          Vert1 = VertexPosition(AngleDet[0][0],AngleDet[1][0],Vert1,Vert2);
+          trackD->xbt = Vert1.X();
+          trackD->ybt = Vert1.Y();
+          trackD->zbt = Vert1.Z();
+        }
+          
+        if(mp[2]==1)
+        {
+          Vert2.SetXYZ(trackD->xbt,trackD->ybt,trackD->zbt);
+          AngleDet[2][0] = Traject(&Det[2][0][0],&Det[2][1][0],NhitX[2][0][0][0],NhitY[2][1][0][0],Vert2);
+          cx[2][0] = AngleDet[2][0].X();
+          cy[2][0] = AngleDet[2][0].Y();
+          cz[2][0] = AngleDet[2][0].Z();
+        }
+      } /* if(ReIN.Vertex&&!ReIN.DetectorTune) */
+      if(!ReIN->Vertex&&!ReIN->DetectorTune)
+      {
+      // Typical case: no vertices:
+        for(int it=0;it<Ntelescopes;it++)
+        {
+          if(mp[it]==1)
+          {
+            Vert1.SetXYZ(trackD->xbt,trackD->ybt,trackD->zbt);
+            if(it==2) AngleDet[it][0] = Traject(&Det[it][0][0],&Det[it][0][0],NhitX[it][0][0][0],NhitY[it][1][0][0],Vert1);
+            else AngleDet[it][0] = Traject(&Det[it][1][0],&Det[it][0][0],NhitX[it][1][0][0],NhitY[it][0][0][0],Vert1);
+            cx[it][0] = (Vert1+AngleDet[it][0]).X();
+            cy[it][0] = (Vert1+AngleDet[it][0]).Y();
+            cz[it][0] = (Vert1+AngleDet[it][0]).Z();
+          }
+        }
+      } /* if(!ReIN.Vertex&&!ReIN.DetectorTune) */
+
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void ERTracker::Reset()
 {
+  for(int it=0;it<Ntelescopes;it++)
+      {
+        mp[it] = 0;
+        for(int itx=0;itx<Ntelescopes;itx++)
+        {
+          if(it!=itx)
+          {
+            for(int ip=0;ip<NofDetPart;ip++)
+            {
+              for(int ipx=0;ipx<NofDetPart;ipx++)
+              {
+                if(ip!=ipx)
+                {
+                  participants[it][ip][itx][ipx].Excitation = -1000.;
+                  spectator[it][ip][itx][ipx].Excitation = -1000.;
+                }
+              }
+            }
+          }
+        }
+        
+        for(int il=0;il<layer[it];il++)
+        {
+          TCheck[it][il] = 0;
+          for(int ip=0;ip<NofDetPart;ip++)
+          {
+            for(int imu=0;imu<NDivXYMax;imu++)
+            {
+              al[it][il][ip][imu] = -1000.;
+            }
+          }
+          for(int id=0;id<NDetMax;id++)
+          {
+            mpd[it][il][id] = 0;
+            MuX[it][il][id] = -1;
+            MuY[it][il][id] = -1;
+            MuXT[it][il][id] = -1;
+            MuYT[it][il][id] = -1;
+            xbdet0[it][il][id] = -100.;
+            ybdet0[it][il][id] = -100.;
+            for(int imu=0;imu<NDivXYMax;imu++)
+            {
+              NhitX[it][il][id][imu] = 0;
+              NhitY[it][il][id][imu] = 0;
+              NhitXT[it][il][id][imu] = 0;
+              NhitYT[it][il][id][imu] = 0;
+              DepoX[it][il][id][imu] = 0.;
+              DepoY[it][il][id][imu] = 0.;
+              cx[it][il] = 0.;
+              cy[it][il] = 0.;
+              cz[it][il] = 0.;
+              deposit[it][il][id][imu] = 0.;
+            }
+            for(int ip=0;ip<NofDetPart;ip++)
+            {
+              HitX[it][il][id][ip] = -1;
+              HitXT[it][il][id][ip] = -1;
+              HitY[it][il][id][ip] = -1;
+              HitYT[it][il][id][ip] = -1;
+            }
+          }
+        }
+      }
 }
 // ----------------------------------------------------------------------------
 
@@ -738,7 +1358,7 @@ void ERTracker::ReadTelescopeParameters(){
   char mat[12];
   char sha[12];
 
-  FILE *F1 = fopen("/home/vitaliy/er/input/detsys.prm","r");
+  FILE *F1 = fopen("/home/vitaliy.schetinin/er/input/detsys.prm","r");
   if(F1==NULL) printf("Main: File detsys.prm was not found\n");
   else
   {
@@ -773,7 +1393,7 @@ void ERTracker::ReadTelescopeParameters(){
     for(int j = 0; j<NLayMax; j++)
       Det[i][j] = new Telescope[NDetMax];
   }
-  F1 = fopen("/home/vitaliy/er/input/detsys.prm","r");
+  F1 = fopen("/home/vitaliy.schetinin/er/input/detsys.prm","r");
   for(it=0;it<Ntelescopes;it++)
   {
     fscanf(F1,"%s %lf %lf\n",Zeros,&read_angle1,&read_angle2);
@@ -870,7 +1490,7 @@ void ERTracker::ReadInputData()
   ReIN->WriteRawTrack = false;
 /******************** Readout ReactionInput.dat ************************/
   printf("************************************************************\n");
-  FILE *F1 = fopen("/home/vitaliy/er/input/ReactionInput.dat","r");
+  FILE *F1 = fopen("/home/vitaliy.schetinin/er/input/ReactionInput.dat","r");
   if(F1==NULL) {printf("Main: File ReactionInput.dat was not found\n");}
   else
   {
@@ -918,7 +1538,7 @@ void ERTracker::ReadInputData()
   if(ReIN->Simulation)
   {
     printf("************************************************************\n");
-    F1 = fopen("/home/vitaliy/er/input/Simulation.dat","r");
+    F1 = fopen("/home/vitaliy.schetinin/er/input/Simulation.dat","r");
     if(F1==NULL) {printf("Main: File Simulation.dat was not found\n");}
     else
     {
@@ -945,7 +1565,7 @@ void ERTracker::ReadInputData()
 /*********************** Readout MWPC parameters:***********************/
   if(ReIN->TRACKINGis)
   {
-    F1 = fopen("/home/vitaliy/er/input/track.dat","r");
+    F1 = fopen("/home/vitaliy.schetinin/er/input/track.dat","r");
     if(F1==NULL) {printf("Main: File track.dat was not found\n");}
     else  
     { 
@@ -972,7 +1592,7 @@ void ERTracker::ReadInputData()
 /*********************** Readout TOF parameters:************************/
   if(ReIN->TOFis)
   {
-  FILE *F1 = fopen("/home/vitaliy/er/input/tof.dat","r");
+  FILE *F1 = fopen("/home/vitaliy.schetinin/er/input/tof.dat","r");
   if(F1==NULL) {printf("Main: File tof.dat was not found\n");}
   else
   { 
@@ -990,7 +1610,7 @@ void ERTracker::ReadInputData()
   UpMat->PlasticThick2/=cos(UpMat->PlasticAngle2*rad);
   }
 /********************* Readout Target parameters:***********************/
-  F1 = fopen("/home/vitaliy/er/input/target.dat","r");
+  F1 = fopen("/home/vitaliy.schetinin/er/input/target.dat","r");
   if(F1==NULL) printf("Main: File target.dat was not found\n");
   else
   { 
@@ -1468,7 +2088,7 @@ void ERTracker::ReadDeDx(){
   char Matter[128];
   for(int ip=0;ip<NofDetPart;ip++)
   {   
-    strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+    strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
     strcat(Matter,"_");
     strcat(Matter,"si");
@@ -1476,7 +2096,7 @@ void ERTracker::ReadDeDx(){
   }
   for(int ip=0;ip<NofDetPart;ip++)
   {   
-    strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+    strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
     strcat(Matter,"_");
     strcat(Matter,"csi");
@@ -1484,7 +2104,7 @@ void ERTracker::ReadDeDx(){
   }
   for(int ip=0;ip<NofDetPart;ip++)
   {   
-    strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+    strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
     strcat(Matter,"_");
     strcat(Matter,UpMat->TarFoilMatter);
@@ -1492,7 +2112,7 @@ void ERTracker::ReadDeDx(){
   }
   for(int ip=0;ip<NofDetPart;ip++)
   {   
-    strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+    strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
     strcat(Matter,"_");
     strcat(Matter,target->NameOfNucleus);
@@ -1500,25 +2120,25 @@ void ERTracker::ReadDeDx(){
   }
 
   /********************* For the TOF plastic *****************************/
-  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->PlasticMatter1);
   ReadRint(Matter,UpMat->beam_TOF);
 /********************* For the MWPC windows ****************************/
-  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->MWwinMatter);
   ReadRint(Matter,UpMat->beam_MWwin);
 /************************ For the MWPC gas *****************************/
-  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->MWgasMatter);
   ReadRint(Matter,UpMat->beam_MWgas);
 /********************* For the MWPC cathodes ***************************/
-  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->MWcathMatter);
@@ -1530,13 +2150,13 @@ void ERTracker::ReadDeDx(){
 //  strcat(Matter,UpMat->TarFoilMatter);
 //  ReadRint(Matter,UpMat->beam_heatscreen);
 /********************* For the target windows **************************/
-  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->TarFoilMatter);
   ReadRint(Matter,UpMat->beam_TARwin);
 /********************* For the target material *************************/
-  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,target->NameOfNucleus);

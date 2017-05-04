@@ -20,6 +20,7 @@ public:
 	UInt_t HE8Event_time;
 	int mbeam;
 	int mtrack;
+	int mp1,mp2,mp3;
 public:
 	ERHe8EventHeader();
 

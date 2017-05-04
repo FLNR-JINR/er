@@ -32,15 +32,15 @@ void he8(Int_t nEvents = 10)
   run->SetEventHeader(header);
 
   ERDsrdCalibrator* dsrdCalibrator = new ERDsrdCalibrator();
-  dsrdCalibrator->SetParametersFile("/home/vitaliy/er/input/clb4sonya.dat");
+  dsrdCalibrator->SetParametersFile("/home/vitaliy.schetinin/er/input/clb4sonya.dat");
   run->AddTask(dsrdCalibrator);
 
   ERTelescopeCalibrator* telCalibrator = new ERTelescopeCalibrator();
-  telCalibrator->SetParametersFile("/home/vitaliy/er/input/clb4sonya.dat");
+  telCalibrator->SetParametersFile("/home/vitaliy.schetinin/er/input/clb4sonya.dat");
   run->AddTask(telCalibrator);
 
   ERTofCalibrator* tofCalibrator = new ERTofCalibrator();
-  tofCalibrator->SetParametersFile("/home/vitaliy/er/input/clb4sonya.dat");
+  tofCalibrator->SetParametersFile("/home/vitaliy.schetinin/er/input/clb4sonya.dat");
   run->AddTask(tofCalibrator);
 
   ERTracker* tracker = new ERTracker(1);
