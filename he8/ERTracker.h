@@ -9,6 +9,7 @@
 #include "TRandom.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"
+#include "TGeoManager.h"
 
 #include "FairTask.h"
 
@@ -403,6 +404,8 @@ protected:
   int**** NhitY;
   int**** NhitXT;
   int**** NhitYT;
+  //объект, куда пишутся разности лоренц-векторов между тем, что было в начальной системе (target+projectile) и тем, что зарегистрировано.
+  Particle*** mis;
 
 
   double tof_0;
@@ -484,6 +487,9 @@ protected:
   InclusiveData* inclu;
   DoubleCoincidence* dcoin;
 
+  TGeoManager *geom;
+  TGeoNode *trajectory;
+
   void ReadTelescopeParameters();
   void CreateTelescopeGeometry();
   void ReadInputData();
@@ -508,6 +514,7 @@ protected:
   TVector3 Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 Vint);
   TVector3 VertexPosition(TVector3 V1,TVector3 V2,TVector3 V3,TVector3 V4);
   void InitMemory();
+  void InLabFrame();
 private:
 
   virtual void SetParContainers();

@@ -3,7 +3,6 @@
 #include<iostream>
 using namespace std;
 
-#include "TGeoManager.h"
 #include "TGeoMaterial.h"
 #include "TGeoMedium.h"
 #include "TGeoCompositeShape.h"
@@ -38,6 +37,7 @@ ERTracker::ERTracker()
   fTofEvent(NULL),
   fDsrdEvent(NULL),
   fTelescopeEvent(NULL),
+  mis(NULL),
   RawT(new RawTrack()),
   trackD(new TrackData()),
   tel(new TelData()),
@@ -70,6 +70,7 @@ ERTracker::ERTracker(Int_t verbose)
   fMwpcEvent(NULL),
   fTofEvent(NULL),
   fDsrdEvent(NULL),
+  mis(NULL),
   fTelescopeEvent(NULL),
   RawT(new RawTrack()),
   trackD(new TrackData()),
@@ -95,6 +96,7 @@ void ERTracker::SetParContainers()
 // ----------------------------------------------------------------------------
 InitStatus ERTracker::Init()
 {
+
 
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
@@ -195,8 +197,8 @@ InitStatus ERTracker::Init()
   strcpy(projname,plett);
   plett = strtok(NULL,"+");
   strcpy(tarname,plett);
-
   InitMemory();
+  
   /*
   Угол между некими фрагментами в определенном механизме реакции:
   */
@@ -208,9 +210,6 @@ InitStatus ERTracker::Init()
   Particle PlayPairs[NofDetPart+NofUnObsPart+1][NofDetPart+NofUnObsPart+1];
   Particle PlayEjectile[NofDetPart+NofUnObsPart];
   Particle PlaySpectator[NofDetPart+NofUnObsPart+1][NofDetPart+NofUnObsPart+1];
-
-  //объект, куда пишутся разности лоренц-векторов между тем, что было в начальной системе (target+projectile) и тем, что зарегистрировано.
-  Particle mis[Ntelescopes][NofDetPart][NDivXYMax]; 
   //запасной объект класса частица.
   Particle aux[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
   
@@ -234,7 +233,6 @@ InitStatus ERTracker::Init()
         ejectile[it][ip][imu].NameOfNucleus = new char [strlen(intermed[ip].NameOfNucleus)+1];
         strcpy(ejectile[it][ip][imu].NameOfNucleus,intermed[ip].NameOfNucleus);
         ejectile[it][ip][imu].ParticleID(ejectile[it][ip][imu].NameOfNucleus,WayMass);
-        
         mis[it][ip][imu].NameOfNucleus = new char [2];
         strcpy(mis[it][ip][imu].NameOfNucleus,"mi");
       }
@@ -331,7 +329,7 @@ InitStatus ERTracker::Init()
 
   return kSUCCESS;
 }
-
+// -------------------------------------------------------------------------
 void ERTracker::InitMemory(){
   mp = new int[Ntelescopes];
   cout << Ntelescopes << " " <<  NLayMax << " " <<  NDetMax << endl;
@@ -469,9 +467,18 @@ void ERTracker::InitMemory(){
     for (int j=0; j<NofDetPart+NofUnObsPart; j++)
       ejectile[i][j] = new Particle[NDivXYMax];
   }
+  //Ntelescopes NofDetPart+NofUnObsPart NDivXYMax
+  mis = new Particle**[Ntelescopes];
+  for (int i = 0; i<Ntelescopes; i++){
+    mis[i] = new Particle*[NofDetPart+NofUnObsPart];
+    for (int j = 0; j<NofDetPart+NofUnObsPart; j++){
+      mis[i][j] = new Particle[NDivXYMax];
+    }
+  }
+
+  cout << "Memory inited" << endl;
 }
-
-
+// -------------------------------------------------------------------------
 TVector3 ERTracker::VertexPosition(TVector3 V1,TVector3 V2,TVector3 V3,TVector3 V4)
 {
   double x1 = V3.X();
@@ -503,8 +510,7 @@ TVector3 ERTracker::VertexPosition(TVector3 V1,TVector3 V2,TVector3 V3,TVector3 
   V1.SetXYZ((ax1*t0+x1+ax2*s0+x2)/2.,(ay1*t0+y1+ay2*s0+y2)/2.,(az1*t0+z1+az2*s0+z2)/2.);
   return V1;
 };
-
-
+// -------------------------------------------------------------------------
 TVector3 ERTracker::Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 Vint)
 {
   TVector3 Px,Py,VecDX,VecDY;
@@ -603,11 +609,11 @@ TVector3 ERTracker::Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 V
       Px = x*Dx->DetOwnAxisX.Unit() + y*Dx->DetOwnAxisY.Unit();
     }
     Px += VecDX;
-//**** Px is a vector coinciding with a particle trajectory!!!
+    //**** Px is a vector coinciding with a particle trajectory!!!
   } 
   return Px;
 };
-
+// -------------------------------------------------------------------------
 void ERTracker::InitOutputs(){
   tel->dep11=0.;tel->dep12=0.;tel->dep13=0.;tel->dep21=0.;tel->dep22=0.;tel->dep23=0.;tel->dep31=0.;tel->dep32=0.;tel->dep33=0.;
 
@@ -743,52 +749,52 @@ void ERTracker::InitOutputs(){
   
   dcoin->expar1122pri=-1000.;dcoin->expar1123pri=-1000.;dcoin->expar1132pri=-1000.;dcoin->expar1133pri=-1000.;
 }
-
+// -------------------------------------------------------------------------
 void ERTracker::Tof(){
-      TRandom Rnd;
-      char ShowTrack[10];
-      double tof_offset = 87.98;
-//      double tof_offset = 84.;
-      double dt_F3,dt_F4,t_F3,t_F4;
-      FairRun* run = FairRun::Instance();
-      ERHe8EventHeader* header = (ERHe8EventHeader*)run->GetEventHeader();
-      header->mtrack = i_flag_MW;
-//RawD.mtrack = 1;i_flag_MW = 1;
+  TRandom Rnd;
+  char ShowTrack[10];
+  double tof_offset = 87.98;
+  //      double tof_offset = 84.;
+  double dt_F3,dt_F4,t_F3,t_F4;
+  FairRun* run = FairRun::Instance();
+  ERHe8EventHeader* header = (ERHe8EventHeader*)run->GetEventHeader();
+  header->mtrack = i_flag_MW;
+  //RawD.mtrack = 1;i_flag_MW = 1;
 
-      if(ReIN->TOFis&&i_flag_MW)
-      {
-        header->mbeam = 0;
-// ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
-//        fTofEvent->tF3l = fTofEvent->tF3l - fTofEvent->tF4r+ParD.CLB[3][0][0][1];
-//        fTofEvent->tF3r = fTofEvent->tF3r - fTofEvent->tF4r+ParD.CLB[3][1][0][1];
-//        fTofEvent->tF4l = fTofEvent->tF4l - fTofEvent->tF4r+ParD.CLB[4][1][0][1];
-//        fTofEvent->tF4r = fTofEvent->tF4r - fTofEvent->tF4r+ParD.CLB[4][0][0][1];
-// ****************************************************************************************************************************************
-      
-        dt_F3 = (fTofEvent->tF3l-fTofEvent->tF3r);
-        dt_F4 = (fTofEvent->tF4l-fTofEvent->tF4r);
+  if(ReIN->TOFis&&i_flag_MW)
+  {
+    header->mbeam = 0;
+    // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
+    //        fTofEvent->tF3l = fTofEvent->tF3l - fTofEvent->tF4r+ParD.CLB[3][0][0][1];
+    //        fTofEvent->tF3r = fTofEvent->tF3r - fTofEvent->tF4r+ParD.CLB[3][1][0][1];
+    //        fTofEvent->tF4l = fTofEvent->tF4l - fTofEvent->tF4r+ParD.CLB[4][1][0][1];
+    //        fTofEvent->tF4r = fTofEvent->tF4r - fTofEvent->tF4r+ParD.CLB[4][0][0][1];
+    // ****************************************************************************************************************************************
+          
+            dt_F3 = (fTofEvent->tF3l-fTofEvent->tF3r);
+            dt_F4 = (fTofEvent->tF4l-fTofEvent->tF4r);
 
-//        if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt&&
-//        fabs(fTofEvent->tF3l)<=UpMat->tF3l_rng&&fabs(fTofEvent->tF3r)<=UpMat->tF3r_rng&&
-//        fabs(fTofEvent->tF4l)<=UpMat->tF4l_rng&&fabs(fTofEvent->tF4r)<=UpMat->tF4r_rng)
-//        if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt)
-//        {
-//printf("*********************************\n");
-//          t_F3 = (Rnd.Gaus(fTofEvent->tF3l,UpMat->TofRes/2.35)+Rnd.Gaus(fTofEvent->tF3r,UpMat->TofRes/2.35))/2;
-//          t_F4 = (Rnd.Gaus(fTofEvent->tF4l,UpMat->TofRes/2.35)+Rnd.Gaus(fTofEvent->tF4r,UpMat->TofRes/2.35))/2.;
+    //        if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt&&
+    //        fabs(fTofEvent->tF3l)<=UpMat->tF3l_rng&&fabs(fTofEvent->tF3r)<=UpMat->tF3r_rng&&
+    //        fabs(fTofEvent->tF4l)<=UpMat->tF4l_rng&&fabs(fTofEvent->tF4r)<=UpMat->tF4r_rng)
+    //        if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt)
+    //        {
+    //printf("*********************************\n");
+    //          t_F3 = (Rnd.Gaus(fTofEvent->tF3l,UpMat->TofRes/2.35)+Rnd.Gaus(fTofEvent->tF3r,UpMat->TofRes/2.35))/2;
+    //          t_F4 = (Rnd.Gaus(fTofEvent->tF4l,UpMat->TofRes/2.35)+Rnd.Gaus(fTofEvent->tF4r,UpMat->TofRes/2.35))/2.;
           t_F4 = Rnd.Gaus(fTofEvent->tF4l,UpMat->TofRes/2.35);
           t_F3 = Rnd.Gaus(fTofEvent->tF3r,UpMat->TofRes/2.35);
-//          t_F4 = Rnd.Gaus((fTofEvent->tF4l+fTofEvent->tF4r)/2,UpMat->TofRes/2.35);
-// ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
-//          fTofEvent->tofb = t_F4 - t_F3 + tof_0;
-// ********************************* measurement of absolute TOF value tof_offset = dT1-L0*(dT1-dT0)/(L1-L0)*******************************
+    //          t_F4 = Rnd.Gaus((fTofEvent->tF4l+fTofEvent->tF4r)/2,UpMat->TofRes/2.35);
+    // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
+    //          fTofEvent->tofb = t_F4 - t_F3 + tof_0;
+    // ********************************* measurement of absolute TOF value tof_offset = dT1-L0*(dT1-dT0)/(L1-L0)*******************************
           fTofEvent->tofb = t_F4 - t_F3 + tof_offset;
-//if(fTofEvent->tofb<130.) 
-//{printf("ntF3l=%i,ntF3r=%i,ntF4l=%i,ntF4r=%i\n",RawD.ntF3l,RawD.ntF3r,RawD.ntF4l,RawD.ntF4r);
-//printf("tF3l=%lf,tF3r=%lf,tF4l=%lf,tF4r=%lf,  TOF=%lf\n",fTofEvent->tF3l,fTofEvent->tF3r,fTofEvent->tF4l,fTofEvent->tF4r,fTofEvent->tofb);
-//printf("t_F3=%lf,t_F4=%lf,(fTofEvent->tF3l+fTofEvent->tF3r)/2=%lf,(fTofEvent->tF4l+fTofEvent->tF4r)/2=%lf,  TOF=%lf\n",t_F3,t_F4,(fTofEvent->tF3l+fTofEvent->tF3r)/2,
-//(fTofEvent->tF4l+fTofEvent->tF4r)/2,(fTofEvent->tF4l+fTofEvent->tF4r-fTofEvent->tF3l-fTofEvent->tF3r)/2+ tof_offset);}
-// ****************************************************************************************************************************************
+    //if(fTofEvent->tofb<130.) 
+    //{printf("ntF3l=%i,ntF3r=%i,ntF4l=%i,ntF4r=%i\n",RawD.ntF3l,RawD.ntF3r,RawD.ntF4l,RawD.ntF4r);
+    //printf("tF3l=%lf,tF3r=%lf,tF4l=%lf,tF4r=%lf,  TOF=%lf\n",fTofEvent->tF3l,fTofEvent->tF3r,fTofEvent->tF4l,fTofEvent->tF4r,fTofEvent->tofb);
+    //printf("t_F3=%lf,t_F4=%lf,(fTofEvent->tF3l+fTofEvent->tF3r)/2=%lf,(fTofEvent->tF4l+fTofEvent->tF4r)/2=%lf,  TOF=%lf\n",t_F3,t_F4,(fTofEvent->tF3l+fTofEvent->tF3r)/2,
+    //(fTofEvent->tF4l+fTofEvent->tF4r)/2,(fTofEvent->tF4l+fTofEvent->tF4r-fTofEvent->tF3l-fTofEvent->tF3r)/2+ tof_offset);}
+    // ****************************************************************************************************************************************
           if(fTofEvent->aF4r+fTofEvent->aF4l>500.&&fTofEvent->tofb<150.&&fTofEvent->tofb>60.)
           {
 
@@ -833,12 +839,10 @@ void ERTracker::Tof(){
               trackD->zbt = UpMat->TarZshift;
             } /* if(beta_b>0.&&beta_b<=1.) */  
           } /* if(fTofEvent->aF4r+fTofEvent->aF4l>500.) */
-//        } /* if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt&& */
+          //        } /* if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt&& */
       } /* if(ReIN.TOFis) */
       if(i_flag_MW==1&&sqrt(pow(trackD->xbt,2)+pow(trackD->ybt,2))<UpMat->TarEntrHoleRad) header->mtrack = 1;
 }
-
-
 // -------------------------------------------------------------------------
 void ERTracker::MWPC(){
   i_flag_MW = 0;
@@ -906,56 +910,56 @@ void ERTracker::MWPC(){
           MdistX = trackD->xmw2;
           MdistY = trackD->ymw2;
           MdistZ = UpMat->MWclosDist+UpMat->MWgasThick/2;
-//**** xbdet and ybdet are useful in the case when beam particles can get in the detector ************************************/
-//          for(it=0;it<Ntelescopes;it++)
-//          {
-//            for(il=0;il<layer[it];il++)
-//            {
-//              for(id=0;id<NDet[it][il];id++)
-//              {
-//                Vbeam = (VmwCl - VmwFa)*((abs(UpMat->MWfarDist)-UpMat->MWXYdist/2+Det[it][il][id].Dist)/(UpMat->MWclosDist-UpMat->MWfarDist-
-//                  UpMat->MWXYdist/2+UpMat->MWgasThick/2));
-//                Vbeam.GetXYZ(tarcoord);
-//                xbdet0[it][il][id] = trackD->xmw1 + tarcoord[0];
-//                ybdet0[it][il][id] = trackD->ymw1 + tarcoord[1];
-//              }
-//            }
-//          }
-/**** when simulating XY are randomized twice: as a result we have coorinates played out and reconstructed *******************/
-/**** when simulating both thb and rthb are witten down. Difference thb-rthb gives the accuracy of measurement ***************/
-          /*
-          if(ReIN->Simulation)
-          {
-            strcpy(MWid,"MWfar");
-            strcpy(XY,"X");
-            PlayXmw1=coordMW(&UpMat,&RawT,MWid,XY);
-            strcpy(XY,"Y");
-            PlayYmw1=coordMW(&UpMat,&RawT,MWid,XY);
-            strcpy(MWid,"MWclos");
-            strcpy(XY,"X");
-            PlayXmw2=coordMW(&UpMat,&RawT,MWid,XY);
-            strcpy(XY,"Y");
-            PlayYmw2=coordMW(&UpMat,&RawT,MWid,XY);
+    //**** xbdet and ybdet are useful in the case when beam particles can get in the detector ************************************/
+    //          for(it=0;it<Ntelescopes;it++)
+    //          {
+    //            for(il=0;il<layer[it];il++)
+    //            {
+    //              for(id=0;id<NDet[it][il];id++)
+    //              {
+    //                Vbeam = (VmwCl - VmwFa)*((abs(UpMat->MWfarDist)-UpMat->MWXYdist/2+Det[it][il][id].Dist)/(UpMat->MWclosDist-UpMat->MWfarDist-
+    //                  UpMat->MWXYdist/2+UpMat->MWgasThick/2));
+    //                Vbeam.GetXYZ(tarcoord);
+    //                xbdet0[it][il][id] = trackD->xmw1 + tarcoord[0];
+    //                ybdet0[it][il][id] = trackD->ymw1 + tarcoord[1];
+    //              }
+    //            }
+    //          }
+    /**** when simulating XY are randomized twice: as a result we have coorinates played out and reconstructed *******************/
+    /**** when simulating both thb and rthb are witten down. Difference thb-rthb gives the accuracy of measurement ***************/
+              /*
+              if(ReIN->Simulation)
+              {
+                strcpy(MWid,"MWfar");
+                strcpy(XY,"X");
+                PlayXmw1=coordMW(&UpMat,&RawT,MWid,XY);
+                strcpy(XY,"Y");
+                PlayYmw1=coordMW(&UpMat,&RawT,MWid,XY);
+                strcpy(MWid,"MWclos");
+                strcpy(XY,"X");
+                PlayXmw2=coordMW(&UpMat,&RawT,MWid,XY);
+                strcpy(XY,"Y");
+                PlayYmw2=coordMW(&UpMat,&RawT,MWid,XY);
 
-            PlayYmw1 += (PlayYmw2-PlayYmw1)*(UpMat->MWXYdist)/(UpMat->MWclosDist-UpMat->MWfarDist);
-            PlayYmw2 = PlayYmw1 + (PlayYmw2-PlayYmw1)*(UpMat->MWclosDist-UpMat->MWfarDist+UpMat->MWXYdist/2+UpMat->MWgasThick/2)/
-              (UpMat->MWclosDist-UpMat->MWfarDist);
-            PlayXmw2 = PlayXmw1 + (PlayXmw2-PlayXmw1)*(UpMat->MWclosDist-UpMat->MWfarDist-UpMat->MWXYdist/2+UpMat->MWgasThick/2)/
-              (UpMat->MWclosDist-UpMat->MWfarDist);
-            VmwCl.SetXYZ(PlayXmw2,PlayYmw2,UpMat->MWclosDist);
-            VmwFa.SetXYZ(PlayXmw1,PlayYmw1,UpMat->MWfarDist);
-            VbeamPlay = (VmwCl - VmwFa);
-            Play.rthb = VbeamPlay.Theta()/rad;
-            Play.rphib = VbeamPlay.Phi()/rad;
-            VbeamPlay.GetXYZ(tarcoord);
-            PdistX = PlayXmw2;
-            PdistY = PlayYmw2;
-            PdistZ = UpMat->MWclosDist+UpMat->MWgasThick/2;
-          }*/
+                PlayYmw1 += (PlayYmw2-PlayYmw1)*(UpMat->MWXYdist)/(UpMat->MWclosDist-UpMat->MWfarDist);
+                PlayYmw2 = PlayYmw1 + (PlayYmw2-PlayYmw1)*(UpMat->MWclosDist-UpMat->MWfarDist+UpMat->MWXYdist/2+UpMat->MWgasThick/2)/
+                  (UpMat->MWclosDist-UpMat->MWfarDist);
+                PlayXmw2 = PlayXmw1 + (PlayXmw2-PlayXmw1)*(UpMat->MWclosDist-UpMat->MWfarDist-UpMat->MWXYdist/2+UpMat->MWgasThick/2)/
+                  (UpMat->MWclosDist-UpMat->MWfarDist);
+                VmwCl.SetXYZ(PlayXmw2,PlayYmw2,UpMat->MWclosDist);
+                VmwFa.SetXYZ(PlayXmw1,PlayYmw1,UpMat->MWfarDist);
+                VbeamPlay = (VmwCl - VmwFa);
+                Play.rthb = VbeamPlay.Theta()/rad;
+                Play.rphib = VbeamPlay.Phi()/rad;
+                VbeamPlay.GetXYZ(tarcoord);
+                PdistX = PlayXmw2;
+                PdistY = PlayYmw2;
+                PdistZ = UpMat->MWclosDist+UpMat->MWgasThick/2;
+            }*/
         } /* i_flag_MW */
       } /* ReIN.TRACKINGis */
 }
-
+// -------------------------------------------------------------------------
 double ERTracker::coordMW(UpstreamMatter* pT,RawTrack* pR,char* MWid,char* XY)
 {
   double co = -1000.;
@@ -986,7 +990,7 @@ double ERTracker::coordMW(UpstreamMatter* pT,RawTrack* pR,char* MWid,char* XY)
     else
     {printf("hMW: it's not neither X nor Y\n");return co;}    
   }
-  else if(!strcmp(MWid,"MWclos"))
+  else if(!strcmp(MWid,"MWclo"))
   {
     if(!strcmp(XY,Xchoice))
     {
@@ -1021,7 +1025,6 @@ double ERTracker::coordMW(UpstreamMatter* pT,RawTrack* pR,char* MWid,char* XY)
   co = pT->MWstep*iMW*(Sn-(double)(pT->MWNwires+1)/2.)+offset;
   return co;
 };
-
 // -------------------------------------------------------------------------
 int ERTracker::mcluMW(int mMW,int* nMW)
 {
@@ -1077,40 +1080,40 @@ void ERTracker::Exec(Option_t* opt)
     DepoX[0][2][0][imu] = fDsrdEvent->eC13[imu];
     NhitX[0][2][0][imu] = fDsrdEvent->nC13[imu];
   }*/
-//////////////////////////////////////////////////////////////////////////////////
-  for(int imu=0;imu<=MuY[1][0][0];imu++)
-  {
-    DepoX[1][0][0][imu] = fTelescopeEvent->eC21[imu];
-    NhitY[1][0][0][imu] = fTelescopeEvent->nC21[imu];
-    NhitX[1][0][0][imu] = 1;
-  }
-  for(int imu=0;imu<=MuX[1][1][0];imu++)
-  {
-    DepoX[1][1][0][imu] = fTelescopeEvent->eC22[imu];
-    NhitX[1][1][0][imu] = fTelescopeEvent->nC22[imu];
-    NhitY[1][1][0][imu] = 1;
-  }
-  for(int imu=0;imu<=MuX[1][2][0];imu++)
-  {
-    DepoX[1][2][0][imu] = fTelescopeEvent->eC23[imu];
-    NhitX[1][2][0][imu] = fTelescopeEvent->nC23[imu];
-  }
-//////////////////////////////////////////////////////////////////////////////////
-  /*
-  for(int imu=0;imu<=MuX[2][0][0];imu++)
-  {
-    DepoX[2][0][0][imu] = fTelescopeEvent->eC31[imu];
-    NhitX[2][0][0][imu] = fTelescopeEvent->nC31[imu];
-  }
-  for(int imu=0;imu<=MuY[2][1][0];imu++)
-  {
-    DepoX[2][1][0][imu] = fTelescopeEvent->eC32[imu];
-    NhitY[2][1][0][imu] = fTelescopeEvent->nC32[imu];
-  }
-  for(int imu=0;imu<=MuX[2][2][0];imu++)
-  {
-    DepoX[2][2][0][imu] = fTelescopeEvent->eC33[imu];
-    NhitX[2][2][0][imu] = fTelescopeEvent->nC33[imu];
+  //////////////////////////////////////////////////////////////////////////////////
+    for(int imu=0;imu<=MuY[1][0][0];imu++)
+    {
+      DepoX[1][0][0][imu] = fTelescopeEvent->eC21[imu];
+      NhitY[1][0][0][imu] = fTelescopeEvent->nC21[imu];
+      NhitX[1][0][0][imu] = 1;
+    }
+    for(int imu=0;imu<=MuX[1][1][0];imu++)
+    {
+      DepoX[1][1][0][imu] = fTelescopeEvent->eC22[imu];
+      NhitX[1][1][0][imu] = fTelescopeEvent->nC22[imu];
+      NhitY[1][1][0][imu] = 1;
+    }
+    for(int imu=0;imu<=MuX[1][2][0];imu++)
+    {
+      DepoX[1][2][0][imu] = fTelescopeEvent->eC23[imu];
+      NhitX[1][2][0][imu] = fTelescopeEvent->nC23[imu];
+    }
+  //////////////////////////////////////////////////////////////////////////////////
+    /*
+    for(int imu=0;imu<=MuX[2][0][0];imu++)
+    {
+      DepoX[2][0][0][imu] = fTelescopeEvent->eC31[imu];
+      NhitX[2][0][0][imu] = fTelescopeEvent->nC31[imu];
+    }
+    for(int imu=0;imu<=MuY[2][1][0];imu++)
+    {
+      DepoX[2][1][0][imu] = fTelescopeEvent->eC32[imu];
+      NhitY[2][1][0][imu] = fTelescopeEvent->nC32[imu];
+    }
+    for(int imu=0;imu<=MuX[2][2][0];imu++)
+    {
+      DepoX[2][2][0][imu] = fTelescopeEvent->eC33[imu];
+      NhitX[2][2][0][imu] = fTelescopeEvent->nC33[imu];
   }*/
   cout << "Condition" << endl;
   if(MuY[0][0][0]==0&&NhitY[0][0][0][0]>0&&NhitY[0][0][0][0]<=abs(Det[0][0][0].NstripY)&&DepoX[0][0][0][0]>0.) mpd[0][0][0]=MuY[0][0][0]+1;
@@ -1120,7 +1123,7 @@ void ERTracker::Exec(Option_t* opt)
   if(MuY[1][0][0]==0&&NhitY[1][0][0][0]>0&&NhitY[1][0][0][0]<=abs(Det[1][0][0].NstripY)&&DepoX[1][0][0][0]>0.) mpd[1][0][0]=MuY[1][0][0]+1;
   
   if(MuX[1][1][0]==0&&NhitX[1][1][0][0]>0&&NhitX[1][1][0][0]<=abs(Det[1][1][0].NstripX)&&DepoX[1][1][0][0]>0.) mpd[1][1][0]=MuX[1][1][0]+1;
-/*
+  /*
   if(MuX[2][0][0]==0&&NhitX[2][0][0][0]>0&&NhitX[2][0][0][0]<=abs(Det[2][0][0].NstripX)&&DepoX[2][0][0][0]>0.&&
 
   MuY[2][1][0]==0&&NhitY[2][1][0][0]>0&&NhitY[2][1][0][0]<=abs(Det[2][0][0].NstripY)&&DepoX[2][2][0][0]>0.) mpd[2][0][0]=MuX[2][0][0]+1;
@@ -1136,7 +1139,7 @@ void ERTracker::Exec(Option_t* opt)
   if(mp[1]&&header->mtrack&&header->mbeam) good_mp1++;
   //if(mp[2]&&header->mtrack&&header->mbeam) good_mp2++;
 
-  cout << " Vertex Reconstruction " << endl;
+  
   int NxX1,NyX1,NxY1,NyY1,NxX2,NyX2,NxY2,NyY2;
   double dst,minX1,minY1,minX2,minY2;
   double dstmin = 1000.;
@@ -1144,6 +1147,7 @@ void ERTracker::Exec(Option_t* opt)
   double Delta = 0.05;
   if(ReIN->DetectorTune)
   {
+    cout << " Vertex Reconstruction " << endl;
     Telescope DtempX1,DtempY1,DtempX2,DtempY2;
     DtempX1 = Det[0][0][0];
     NxX1 = NhitX[0][0][0][0];
@@ -1205,11 +1209,10 @@ void ERTracker::Exec(Option_t* opt)
     }
   }
   
-
-  cerr << " Trajectory reconstruction" << endl;
   double tarcoord[3];
   if(ReIN->Vertex&&!ReIN->DetectorTune)
       {
+        cerr << " Trajectory reconstruction" << endl;
         if(mp[0]==1&&mp[1]==1)
         {
           // Very specific case: 11Li(or9Li) QFS or QFR with 2 muDSSD telescopes:
@@ -1264,8 +1267,248 @@ void ERTracker::Exec(Option_t* opt)
         }
       } /* if(!ReIN.Vertex&&!ReIN.DetectorTune) */
 
+  cout << "Now we know trajectories" << endl;
+  char* plett;
+  int itx,ilx,idx,ipx,is,count;
+  char OutputChannelTemp[32];
+  for(int it=0;it<Ntelescopes;it++)
+      {
+        if(mp[it]==1&&header->mbeam&&header->mtrack)
+        {
+          trajectory = geom->InitTrack(trackD->xbt,trackD->ybt,trackD->zbt,
+            AngleDet[it][0].Unit().X(),AngleDet[it][0].Unit().Y(),AngleDet[it][0].Unit().Z());
+          while(!geom->IsOutside())
+          {
+            itx=-1;ilx=-1;idx=-1;is=-1;
+            const char *path=geom->GetPath();
+            trajectory = geom->FindNextBoundary();
+            if(strcmp(path,"/Top_1")) 
+            {
+              range = geom->GetStep();
+              plett=const_cast<char*>(strchr(path,'t')); plett++;
+              plett=strtok(plett,"_");
+              strcpy(OutputChannelTemp,plett);
+              if(strcmp(OutputChannelTemp,"gas")&&strcmp(OutputChannelTemp,"foilex")&&
+                strcmp(OutputChannelTemp,"foilen")&&strcmp(OutputChannelTemp,"TargetCell")&&
+                strcmp(OutputChannelTemp,"HscrFoil")&&strcmp(OutputChannelTemp,"HeatScreen"))
+              {
+                itx = int(atoi(OutputChannelTemp)/pow(10,strlen(OutputChannelTemp)-2));
+                ilx = int((atoi(OutputChannelTemp)-itx*pow(10,strlen(OutputChannelTemp)-2))/
+                  pow(10,strlen(OutputChannelTemp)-4));
+                idx = int((atoi(OutputChannelTemp)-itx*pow(10,strlen(OutputChannelTemp)-2)-ilx*
+                  pow(10,strlen(OutputChannelTemp)-4))/pow(10,strlen(OutputChannelTemp)-6));
+                is = int(atoi(OutputChannelTemp)-itx*pow(10,strlen(OutputChannelTemp)-2)-ilx*
+                  pow(10,strlen(OutputChannelTemp)-4)-idx*pow(10,strlen(OutputChannelTemp)-6));
+                if(is==0&&DepoX[itx][ilx][0][0]>0.1) deposit[itx][ilx][idx][0] = range;
+              }
+              if(!strcmp(OutputChannelTemp,"gas")) deposit[0][0][0][1] = range*UpMat->TarPress*TempNorm/UpMat->TarTemp;
+              if(!strcmp(OutputChannelTemp,"foilex")) deposit[0][0][0][2] = range;
+              if(!strcmp(OutputChannelTemp,"foilen")) deposit[0][0][0][3] = range;
+              if(!strcmp(OutputChannelTemp,"TargetCell")) deposit[0][0][0][4] = range;
+              if(!strcmp(OutputChannelTemp,"HscrFoil")) deposit[0][0][0][5] = range;
+            }
+            trajectory = geom->Step();
+          } /* while(!geom->IsOutside) */
+          for(int ip=0;ip<NofDetPart;ip++)
+          {
+            ilx = -1;count=-1;Tb = 0.;Ta=0.;
+            for(int il=layer[it]-1;il>=0;il--)
+            {
+              for(int id=0;id<NDet[it][il];id++)
+              {
+                if(!strcmp(Det[it][il][id].Matt,"si")&&deposit[it][il][id][0]!=0.) idx = id;
+              }
+              if(count==-1) Tb = DepoX[it][il][0][0];
+
+              if(count==-1&&!strcmp(Det[it][il][idx].Matt,"si"))
+                Tb = EiEo(EjMat[ip]->ej_si,Tb,-deposit[it][il][idx][0]*Det[it][il][idx].DeadZoneF/Det[it][il][idx].Thick);
+
+              if(count>-1&&Tb>0.1)
+              {
+                Tb = EiEo(EjMat[ip]->ej_si,Tb,-deposit[it][il][idx][0]*Det[it][il][idx].DeadZoneB/Det[it][il][idx].Thick);
+                Tb += DepoX[it][il][0][0];
+                Tb = EiEo(EjMat[ip]->ej_si,Tb,-deposit[it][il][idx][0]*Det[it][il][idx].DeadZoneF/Det[it][il][idx].Thick);
+              }
+              if(Tb>0.1) count++;
+            } /* for(il=layer[it]-1;il=0;il--) */
+            if(deposit[0][0][0][5]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][5]);
+            if(deposit[0][0][0][3]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][3]);
+            if(deposit[0][0][0][2]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][2]);
+            if(deposit[0][0][0][4]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][4]);
+            if(deposit[0][0][0][1]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_target,Tb,-deposit[0][0][0][1]);
+            if(Tb>0.1)
+            {
+              Ta = sqrt(pow(Tb+ejectile[it][ip][0].Mass,2)-pow(ejectile[it][ip][0].Mass,2));
+              ejectile[it][ip][0].Part.SetPxPyPzE(Ta*sin(AngleDet[it][0].Theta())*cos(AngleDet[it][0].Phi()),
+                Ta*sin(AngleDet[it][0].Theta())*sin(AngleDet[it][0].Phi()),Ta*cos(AngleDet[it][0].Theta()),Tb+ejectile[it][ip][0].Mass);
+            }
+            // Calibration
+            Tb = ejectile[it][ip][0].Part.E()-ejectile[it][ip][0].Mass;
+            trajectory = geom->InitTrack(trackD->xbt,trackD->ybt,trackD->zbt,
+              AngleDet[it][0].Unit().X(),AngleDet[it][0].Unit().Y(),AngleDet[it][0].Unit().Z());
+            while(!geom->IsOutside())
+            {
+              itx=-1;ilx=-1;idx=-1;Ta=0.;
+              const char *path=geom->GetPath();
+              trajectory = geom->FindNextBoundary();
+              if(strcmp(path,"/Top_1")) 
+              {
+                range = geom->GetStep();
+                plett=const_cast<char*>(strchr(path,'t')); plett++;
+                plett=strtok(plett,"_");
+                strcpy(OutputChannelTemp,plett);
+                if(strcmp(OutputChannelTemp,"gas")&&strcmp(OutputChannelTemp,"foilex")&&
+                  strcmp(OutputChannelTemp,"foilen")&&strcmp(OutputChannelTemp,"TargetCell")&&
+                  strcmp(OutputChannelTemp,"HscrFoil")&&strcmp(OutputChannelTemp,"HeatScreen"))
+                {
+                  itx = int(atoi(OutputChannelTemp)/pow(10,strlen(OutputChannelTemp)-2));
+                  ilx = int((atoi(OutputChannelTemp)-itx*pow(10,strlen(OutputChannelTemp)-2))/
+                    pow(10,strlen(OutputChannelTemp)-4));
+                  idx = int((atoi(OutputChannelTemp)-itx*pow(10,strlen(OutputChannelTemp)-2)-ilx*
+                    pow(10,strlen(OutputChannelTemp)-4))/pow(10,strlen(OutputChannelTemp)-6));
+                  is = int(atoi(OutputChannelTemp)-itx*pow(10,strlen(OutputChannelTemp)-2)-ilx*
+                    pow(10,strlen(OutputChannelTemp)-4)-idx*pow(10,strlen(OutputChannelTemp)-6));
+                  if(!strcmp(Det[itx][ilx][idx].Matt,"si")&&is==0) 
+                  {
+                    if(Tb>0.1) Tb = EiEo(EjMat[ip]->ej_si,Tb,range*Det[itx][ilx][idx].DeadZoneF/Det[itx][ilx][idx].Thick);
+                    if(Tb>0.1) Ta = EiEo(EjMat[ip]->ej_si,Tb,range*(Det[itx][ilx][idx].Thick-Det[itx][ilx][idx].DeadZoneF-
+                      Det[itx][ilx][idx].DeadZoneB)/Det[itx][ilx][idx].Thick);
+                    if(al[itx][ilx][ip][0]==-1000.) al[itx][ilx][ip][0] = Tb-Ta;
+                    else al[itx][ilx][ip][0] += Tb-Ta;
+                    Tb = Ta;
+                    if(Tb>0.1) Tb = EiEo(EjMat[ip]->ej_si,Tb,range*Det[itx][ilx][idx].DeadZoneB/Det[itx][ilx][idx].Thick);
+                  }
+                  if(!strcmp(Det[itx][ilx][idx].Matt,"csi")&&is==0) 
+                  {
+                    if(Tb>0.1) Ta = EiEo(EjMat[ip]->ej_csi,Tb,range);
+                    if(al[itx][ilx][ip][0]==-1000.) al[itx][ilx][ip][0] = Tb-Ta;
+                    else al[itx][ilx][ip][0] += Tb-Ta;
+                  }
+                }
+                if(!strcmp(OutputChannelTemp,"gas")&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_target,Tb,range*UpMat->TarPress*TempNorm/UpMat->TarTemp);
+                if(!strcmp(OutputChannelTemp,"foilex")&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,range); 
+                if(!strcmp(OutputChannelTemp,"foilen")&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,range); 
+                if(!strcmp(OutputChannelTemp,"TargetCell")&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,range); 
+                if(!strcmp(OutputChannelTemp,"HscrFoil")&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,range); 
+              }
+              trajectory = geom->Step();
+            } /* while(!geom->IsOutside) */
+          } /* for(ip=0;ip<NofObsPart;ip++) */
+        } /* if(mp[it]==1&&RawD.mbeam&&RawD.mtrack) */
+      } /* for(it=0;it<Ntelescopes;it++) */
+  
+  cout << "Inclusive events calculations" << endl;
+  for(int it=0;it<Ntelescopes;it++)
+      {
+        if(mp[it]==1&&header->mbeam&&header->mtrack)
+        {
+          for(int ip=0;ip<NofDetPart;ip++)
+          {
+            for(int imu=0;imu<mp[it];imu++)
+            {
+              Tb = 0.;Tout=0.;
+              Tb = sqrt(pow(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),2)+
+                pow(projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),2)+
+                pow(projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),2)+
+                pow(mis[it][ip][imu].Mass,2))-mis[it][ip][imu].Mass;
+              Tout = projectile->Part.E()+target->Mass-ejectile[it][ip][imu].Part.E()-Tb-mis[it][ip][imu].Mass;
+              Tb = sqrt(pow(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),2)+
+                pow(projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),2)+
+                pow(projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),2)+
+                pow(mis[it][ip][imu].Mass+Tout,2))-mis[it][ip][imu].Mass-Tout;
+              Tout = projectile->Part.E()+target->Mass-ejectile[it][ip][imu].Part.E()-Tb-mis[it][ip][imu].Mass;
+              mis[it][ip][imu].Excitation = Tout;
+              mis[it][ip][imu].Part.SetPxPyPzE(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),
+              projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),
+              Tb+Tout+mis[it][ip][imu].Mass);
+              
+            }/* for(imu=0;imu<Mu[it][0];imu++) */
+          } /* for(ip==0;ip<NofDetPart;ip++) */
+        } /* if(mp[it]==1&&RawD.mbeam&&RawD.mtrack) */
+      } /* for(it==0;it<Ntelescopes) */
+  InLabFrame();
 }
 //----------------------------------------------------------------------------
+void ERTracker::InLabFrame(){
+  cout << "In Laboratory frame" << endl;
+  tel->dep11 = DepoX[0][0][0][0];tel->dep12 = DepoX[0][1][0][0];tel->dep13 = DepoX[0][2][0][0];      
+  tel->dep21 = DepoX[1][0][0][0];tel->dep22 = DepoX[1][1][0][0];tel->dep23 = DepoX[1][2][0][0];
+  //tel->dep31 = DepoX[2][0][0][0];tel->dep32 = DepoX[2][1][0][0];tel->dep33 = DepoX[2][2][0][0];
+  /*
+  tel->x11 = cx[0][0];tel->x21 = cx[1][0];tel->x31 = cx[2][0];
+  tel->y11 = cy[0][0];tel->y21 = cy[1][0];tel->y31 = cy[2][0];
+  tel->z11 = cz[0][0];tel->z21 = cz[1][0];tel->z31 = cz[2][0];
+  /*
+  tel->al111 = al[0][0][0][0];tel->al121 = al[0][1][0][0];//tel->al131 = al[0][2][0][0];
+  //tel->al112 = al[0][0][1][0];tel->al122 = al[0][1][1][0];//tel->al132 = al[0][2][1][0];
+  //tel->al113 = al[0][0][2][0];tel->al123 = al[0][1][2][0];//tel->al133 = al[0][2][2][0];
+/*
+  tel->al211 = al[1][0][0][0];tel->al221 = al[1][1][0][0];tel->al231 = al[1][2][0][0];
+  tel->al212 = al[1][0][1][0];tel->al222 = al[1][1][1][0];tel->al232 = al[1][2][1][0];
+  tel->al213 = al[1][0][2][0];tel->al223 = al[1][1][2][0];tel->al233 = al[1][2][2][0];
+
+  /*
+  tel->al311 = al[2][0][0][0];tel->al321 = al[2][1][0][0];tel->al331 = al[2][2][0][0];
+  tel->al312 = al[2][0][1][0];tel->al322 = al[2][1][1][0];tel->al332 = al[2][2][1][0];
+  tel->al313 = al[2][0][2][0];tel->al323 = al[2][1][2][0];tel->al333 = al[2][2][2][0];
+  */
+/*
+//      if(Mu[0][0][0]==0) {tel->tcheck11+=1.;if(TCheck[0][0]==Nhit[0][0][0]) tel->tcheck11+=1.;}
+//      if(Mu[0][1][0]==0) {tel->tcheck12+=1.;if(TCheck[0][1]==Nhit[0][1][0]) tel->tcheck12+=1.;}
+//      if(Mu[0][2][0]==0) {tel->tcheck13+=1.;if(TCheck[0][2]==Nhit[0][2][0]) tel->tcheck13+=1.;}
+
+//      if(Mu[1][0][0]==0) {tel->tcheck21+=1.;if(
+//      if(Mu[1][0][0]==0) {tel->tcheck21+=1.;if(TCheck[1][0]==Nhit[1][0][0]) tel->tcheck21+=1.;}
+//      if(Mu[1][1][0]==0) {tel->tcheck22+=1.;if(TCheck[1][1]==Nhit[1][1][0]) tel->tcheck22+=1.;}
+//      if(Mu[1][2][0]==0) {tel->tcheck23+=1.;if(TCheck[1][2]==Nhit[1][2][0]) tel->tcheck23+=1.;}
+
+//      if(Mu[2][0][0]==0) {tel->tcheck31+=1.;if(TCheck[2][0]==Nhit[2][0][0]) tel->tcheck31+=1.;}
+//      if(Mu[2][1][0]==0) {tel->tcheck32+=1.;if(TCheck[2][1]==Nhit[2][1][0]) tel->tcheck32+=1.;}
+//      if(Mu[2][2][0]==0) {tel->tcheck33+=1.;if(TCheck[2][2]==Nhit[2][2][0]) tel->tcheck33+=1.;}
+
+  tel->t11 = ejectile[0][0][0].Part.E()-ejectile[0][0][0].Mass;
+  tel->t12 = ejectile[0][1][0].Part.E()-ejectile[0][1][0].Mass;
+  tel->t13 = ejectile[0][2][0].Part.E()-ejectile[0][2][0].Mass;
+  tel->t21 = ejectile[1][0][0].Part.E()-ejectile[1][0][0].Mass;
+  tel->t22 = ejectile[1][1][0].Part.E()-ejectile[1][1][0].Mass;
+  tel->t23 = ejectile[1][2][0].Part.E()-ejectile[1][2][0].Mass;
+  tel->t31 = ejectile[2][0][0].Part.E()-ejectile[2][0][0].Mass;
+  tel->t32 = ejectile[2][1][0].Part.E()-ejectile[2][1][0].Mass;
+  tel->t33 = ejectile[2][2][0].Part.E()-ejectile[2][2][0].Mass;
+
+  tel->th11 = ejectile[0][0][0].Part.Theta()/rad;tel->phi11 = ejectile[0][0][0].Part.Phi()/rad;
+  tel->th12 = ejectile[0][1][0].Part.Theta()/rad;tel->phi12 = ejectile[0][1][0].Part.Phi()/rad;
+  tel->th13 = ejectile[0][2][0].Part.Theta()/rad;tel->phi13 = ejectile[0][0][0].Part.Phi()/rad;
+  tel->th21 = ejectile[1][0][0].Part.Theta()/rad;tel->phi21 = ejectile[1][0][0].Part.Phi()/rad;
+  tel->th22 = ejectile[1][1][0].Part.Theta()/rad;tel->phi22 = ejectile[1][1][0].Part.Phi()/rad;
+  tel->th23 = ejectile[1][2][0].Part.Theta()/rad;tel->phi23 = ejectile[1][2][0].Part.Phi()/rad;
+  tel->th31 = ejectile[2][0][0].Part.Theta()/rad;tel->phi31 = ejectile[2][0][0].Part.Phi()/rad;
+  tel->th32 = ejectile[2][1][0].Part.Theta()/rad;tel->phi32 = ejectile[2][1][0].Part.Phi()/rad;
+  tel->th33 = ejectile[2][2][0].Part.Theta()/rad;tel->phi33 = ejectile[2][2][0].Part.Phi()/rad;
+
+  inclu->tmis11 = mis[0][0][0].Part.E()-mis[0][0][0].Mass-mis[0][0][0].Excitation;
+  inclu->tmis12 = mis[0][1][0].Part.E()-mis[0][1][0].Mass-mis[0][1][0].Excitation;
+  inclu->tmis13 = mis[0][2][0].Part.E()-mis[0][2][0].Mass-mis[0][2][0].Excitation;
+  inclu->tmis21 = mis[1][0][0].Part.E()-mis[1][0][0].Mass-mis[1][0][0].Excitation;
+  inclu->tmis22 = mis[1][1][0].Part.E()-mis[1][1][0].Mass-mis[1][1][0].Excitation;
+  inclu->tmis23 = mis[1][2][0].Part.E()-mis[1][2][0].Mass-mis[1][2][0].Excitation;
+  inclu->tmis31 = mis[2][0][0].Part.E()-mis[2][0][0].Mass-mis[2][0][0].Excitation;
+  inclu->tmis32 = mis[2][1][0].Part.E()-mis[2][1][0].Mass-mis[2][1][0].Excitation;
+  inclu->tmis33 = mis[2][2][0].Part.E()-mis[2][2][0].Mass-mis[2][2][0].Excitation;
+  
+  inclu->thmis11 = mis[0][0][0].Part.Theta()/rad;inclu->thmis21 = mis[1][0][0].Part.Theta()/rad;inclu->thmis31 = mis[2][0][0].Part.Theta()/rad;
+  inclu->thmis12 = mis[0][1][0].Part.Theta()/rad;inclu->thmis22 = mis[1][1][0].Part.Theta()/rad;inclu->thmis32 = mis[2][1][0].Part.Theta()/rad;
+  inclu->thmis13 = mis[0][2][0].Part.Theta()/rad;inclu->thmis23 = mis[1][2][0].Part.Theta()/rad;inclu->thmis33 = mis[2][2][0].Part.Theta()/rad;
+      
+  inclu->phimis11 = mis[0][0][0].Part.Phi()/rad;inclu->phimis21 = mis[1][0][0].Part.Phi()/rad;inclu->phimis31 = mis[2][0][0].Part.Phi()/rad;
+  inclu->phimis12 = mis[0][1][0].Part.Phi()/rad;inclu->phimis22 = mis[1][1][0].Part.Phi()/rad;inclu->phimis32 = mis[2][1][0].Part.Phi()/rad;
+  inclu->phimis13 = mis[0][2][0].Part.Phi()/rad;inclu->phimis23 = mis[1][2][0].Part.Phi()/rad;inclu->phimis33 = mis[2][2][0].Part.Phi()/rad;
+
+  inclu->exmis11 = mis[0][0][0].Excitation;inclu->exmis21 = mis[1][0][0].Excitation;inclu->exmis31 = mis[2][0][0].Excitation;
+//      inclu->exmis12 = mis[0][1][0].Excitation;inclu->exmis22 = mis[1][1][0].Excitation;inclu->exmis32 = mis[2][1][0].Excitation;
+//      inclu->exmis13 = mis[0][2][0].Excitation;inclu->exmis23 = mis[1][2][0].Excitation;inclu->exmis33 = mis[2][2][0].Excitation;
+*/
+}
 
 //----------------------------------------------------------------------------
 void ERTracker::Reset()
@@ -1493,7 +1736,7 @@ void ERTracker::ReadInputData()
   ReIN->WritePhysData = false;
   ReIN->WritePlayData = false;
   ReIN->WriteRawTrack = false;
-/******************** Readout ReactionInput.dat ************************/
+  /******************** Readout ReactionInput.dat ************************/
   printf("************************************************************\n");
   FILE *F1 = fopen("/home/vitaliy.schetinin/er/input/ReactionInput.dat","r");
   if(F1==NULL) {printf("Main: File ReactionInput.dat was not found\n");}
@@ -1539,7 +1782,7 @@ void ERTracker::ReadInputData()
     }
     printf("Main: File ReactionInput.dat has been read\n");
   }
-/******************** Readout Simulation.dat ************************/
+  /******************** Readout Simulation.dat ************************/
   if(ReIN->Simulation)
   {
     printf("************************************************************\n");
@@ -1567,7 +1810,7 @@ void ERTracker::ReadInputData()
     else {SimDat->AngleMax=SimDat->thtpmax;SimDat->AngleMin=SimDat->thtpmin;}
   }   
   fclose(F1);
-/*********************** Readout MWPC parameters:***********************/
+  /*********************** Readout MWPC parameters:***********************/
   if(ReIN->TRACKINGis)
   {
     F1 = fopen("/home/vitaliy.schetinin/er/input/track.dat","r");
@@ -1594,7 +1837,7 @@ void ERTracker::ReadInputData()
   fclose(F1);
   }
   UpMat->MWcathThick *= UpMat->MWNcathodes;
-/*********************** Readout TOF parameters:************************/
+  /*********************** Readout TOF parameters:************************/
   if(ReIN->TOFis)
   {
   FILE *F1 = fopen("/home/vitaliy.schetinin/er/input/tof.dat","r");
@@ -1614,7 +1857,7 @@ void ERTracker::ReadInputData()
   UpMat->PlasticThick1/=cos(UpMat->PlasticAngle1*rad);
   UpMat->PlasticThick2/=cos(UpMat->PlasticAngle2*rad);
   }
-/********************* Readout Target parameters:***********************/
+    /********************* Readout Target parameters:***********************/
   F1 = fopen("/home/vitaliy.schetinin/er/input/target.dat","r");
   if(F1==NULL) printf("Main: File target.dat was not found\n");
   else
@@ -1645,18 +1888,15 @@ void ERTracker::ReadInputData()
 }
 // ----------------------------------------------------------------------------
 void ERTracker::CreateTelescopeGeometry(){
-
   cout << "CreateTelescopeGeometry started" << endl;
   double ThickStrip=0.0001;
-
-  TGeoManager *geom=new TGeoManager("Reaction Chamber","geom"); 
+  geom=new TGeoManager("Reaction Chamber","geom"); 
   TGeoMaterial *matVacuum=new TGeoMaterial("Vacuum",0,0,0);
   TGeoMaterial *matSi=new TGeoMaterial("Si",24.,12,2.4);
   TGeoMedium *Vacuum=new TGeoMedium("Vacuum",1,matVacuum);
   TGeoMedium *Si=new TGeoMedium("Si",2,matSi);
   TGeoVolume *top=geom->MakeSphere("Top",Vacuum,0.,100.);
   geom->SetTopVolume(top);
-  TGeoNode *trajectory;
 
   TGeoRotation *rot0 = new TGeoRotation("rot0",0.,90.,0.);
   rot0->RegisterYourself();
@@ -1908,30 +2148,30 @@ void ERTracker::CreateTelescopeGeometry(){
 
     UpMat->TarThick = UpMat->TarHeight;
 
-// making the cylindrical part of the gaseous body "ttargetgas", that afterward must be shifted backward by TargetShift
+  // making the cylindrical part of the gaseous body "ttargetgas", that afterward must be shifted backward by TargetShift
 
     TGeoVolume *ttargetgas=geom->MakeTube("ttargetgas",Si,0,UpMat->TarEntrHoleRad,UpMat->TarThick/2.);
     TGeoTranslation *TargetShift=new TGeoTranslation("TargetShift",0.,0.,-(UpMat->MeniskSize+UpMat->TarThick)/2.);
     TargetShift->RegisterYourself();
 
-// making the menisk entrance part of the gaseous body "tGasMenEntr", that afterward must be shifted backward by MeniskShift
+  // making the menisk entrance part of the gaseous body "tGasMenEntr", that afterward must be shifted backward by MeniskShift
 
     TGeoVolume *tGasMenEntr=geom->MakeParaboloid("tGasMenEntr",Si,0.,UpMat->TarEntrHoleRad,UpMat->MeniskSize/2.);
     TGeoTranslation *MeniskShift=new TGeoTranslation("MeniskShift",0.,0.,-(UpMat->MeniskSize+UpMat->TarThick));
     MeniskShift->RegisterYourself();
 
-// making the menisk exit part of the gaseous body "tGasMenExit", that afterward must be revolved by 180 deg by rotExitMen
+  // making the menisk exit part of the gaseous body "tGasMenExit", that afterward must be revolved by 180 deg by rotExitMen
 
     TGeoVolume *tGasMenExit=geom->MakeParaboloid("tGasMenExit",Si,0.,UpMat->TarEntrHoleRad,UpMat->MeniskSize/2.);
     TGeoRotation *rotExitMen=new TGeoRotation("rotExitMen",0.,180.,0.);
     rotExitMen->RegisterYourself();
 
-// Unifying three previous forms into one whole gaseous body
+  // Unifying three previous forms into one whole gaseous body
 
     TGeoCompositeShape *tgg=new TGeoCompositeShape("tgg","ttargetgas:TargetShift+tGasMenEntr:MeniskShift+tGasMenExit:rotExitMen");
     TGeoVolume *tgas=new TGeoVolume("tgas",tgg,Si);
 
-// The whole gaseous body must be shifted forward to the origin of the frame by GasShift and then rotated around the Y-axis if needed
+  // The whole gaseous body must be shifted forward to the origin of the frame by GasShift and then rotated around the Y-axis if needed
 
     TGeoTranslation *GasShift=new TGeoTranslation("GasShift",UpMat->TarYshift,-UpMat->TarXshift,(UpMat->MeniskSize+UpMat->TarHeight)/2.+UpMat->TarZshift);
     GasShift->RegisterYourself();
@@ -1944,7 +2184,7 @@ void ERTracker::CreateTelescopeGeometry(){
     posttar->RegisterYourself();
     *posttar = *rottar*(*Zshift);
 
-// To construct the foil shell surrounding the gaseous body, we repeat the previous procedure twice, for the inner and outer shapes of the foil, and subtruct one from another
+  // To construct the foil shell surrounding the gaseous body, we repeat the previous procedure twice, for the inner and outer shapes of the foil, and subtruct one from another
 
     TGeoVolume *tTargetCell=geom->MakeTube("tTargetCell",Si,UpMat->TarEntrHoleRad,UpMat->TarRadius,UpMat->TarThick/2.);
 
@@ -1968,9 +2208,9 @@ void ERTracker::CreateTelescopeGeometry(){
     top->AddNode(tfoilex,1,postfex);
     top->AddNode(tTargetCell,1,rottar);
   }
-/**********************************************************************************************************************************************/
-/**************************************************** Heat screen: ****************************************************************************/
-/**********************************************************************************************************************************************/
+  /**********************************************************************************************************************************************/
+  /**************************************************** Heat screen: ****************************************************************************/
+  /**********************************************************************************************************************************************/
   if(!strcmp(UpMat->HeatScreenAns,"yes"))
   {
     TGeoVolume *Hscr=geom->MakeTube("Hscr",Si,UpMat->InHscrRad,UpMat->InHscrRad+UpMat->HscrWallWidth,UpMat->HscrHeight/2.);
@@ -2028,7 +2268,6 @@ void ERTracker::WhatParticlesInOut(Particle* ptr,char* str,int N)
   }
 }
 //-----------------------------------------------------------------------------
-
 double Particle::ReturnMass(char* NON,char* WayMass)
 {
   double MassExcess;
@@ -2050,9 +2289,9 @@ double Particle::ReturnMass(char* NON,char* WayMass)
   }
   fclose(F1);
   }
-return massa;
+  return massa;
 }
-
+//-----------------------------------------------------------------------------
 void Particle::ParticleID(char* name, char* path)
 {
   char nucl[5];
@@ -2084,8 +2323,7 @@ void Particle::ParticleID(char* name, char* path)
   fclose(F1);
   return;
 }
-
-
+//-----------------------------------------------------------------------------
 void ERTracker::ReadDeDx(){
   EjMat = new DownstreamMatter*[NofDetPart];
   for(int i =0; i<NofDetPart;i++)
@@ -2130,46 +2368,45 @@ void ERTracker::ReadDeDx(){
   strcat(Matter,"_");
   strcat(Matter,UpMat->PlasticMatter1);
   ReadRint(Matter,UpMat->beam_TOF);
-/********************* For the MWPC windows ****************************/
+  /********************* For the MWPC windows ****************************/
   strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->MWwinMatter);
   ReadRint(Matter,UpMat->beam_MWwin);
-/************************ For the MWPC gas *****************************/
+  /************************ For the MWPC gas *****************************/
   strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->MWgasMatter);
   ReadRint(Matter,UpMat->beam_MWgas);
-/********************* For the MWPC cathodes ***************************/
+  /********************* For the MWPC cathodes ***************************/
   strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->MWcathMatter);
   ReadRint(Matter,UpMat->beam_MWcathod);
-/********************* For the heat screen **************************/
-//  strcpy(Matter,"../../../include/eloss/");
-//  strcat(Matter,projectile->NameOfNucleus);
-//  strcat(Matter,"_");
-//  strcat(Matter,UpMat->TarFoilMatter);
-//  ReadRint(Matter,UpMat->beam_heatscreen);
-/********************* For the target windows **************************/
+  /********************* For the heat screen **************************/
+  //  strcpy(Matter,"../../../include/eloss/");
+  //  strcat(Matter,projectile->NameOfNucleus);
+  //  strcat(Matter,"_");
+  //  strcat(Matter,UpMat->TarFoilMatter);
+  //  ReadRint(Matter,UpMat->beam_heatscreen);
+  /********************* For the target windows **************************/
   strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->TarFoilMatter);
   ReadRint(Matter,UpMat->beam_TARwin);
-/********************* For the target material *************************/
+  /********************* For the target material *************************/
   strcpy(Matter,"/home/vitaliy.schetinin/er/input/eloss/");
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,target->NameOfNucleus);
   ReadRint(Matter,UpMat->beam_target);
-/*************************************************************************/
+  /*************************************************************************/
 }
-
-
+//-----------------------------------------------------------------------------
 int ERTracker::ReadRint(char* Fname,double Ranges[][105])
 {
   char DummyA[256];
@@ -2300,15 +2537,15 @@ int ERTracker::ReadRint(char* Fname,double Ranges[][105])
   Ranges[9][i+1] = c[3];
 
   return 0;
-};
-
-int ERTracker::intrp4(double* x,double* y, double* c)
-//______________________________________________________________________
-//  returns c0,c1,c2,c3 coeff. of y= c0 + c1*x + c2*x^2 + c3*x^3 function 
-//     passing through 4 points:
-//     x1,y1; x2,y2; x3,y3; x4,y4
-//______________________________________________________________________|
+}
+//-----------------------------------------------------------------------------
+int ERTracker::intrp4(double* x,double* y, double* c)  
 {
+  //______________________________________________________________________
+  //  returns c0,c1,c2,c3 coeff. of y= c0 + c1*x + c2*x^2 + c3*x^3 function 
+  //     passing through 4 points:
+  //     x1,y1; x2,y2; x3,y3; x4,y4
+  //______________________________________________________________________|
       double d0,d1,d2,d3;
       double x12,x13,x22,x23,x32,x33,x42,x43;
       int rp4;
@@ -2380,9 +2617,8 @@ int ERTracker::intrp4(double* x,double* y, double* c)
   else {rp4=-1;}              
   
   return rp4;
-};
-
-
+}
+//-----------------------------------------------------------------------------
 void ERTracker::DefineBeamEnergy(){
   cout << "Define beam energy" << endl;
   char RightEnUn1[]="MeV";
@@ -2412,7 +2648,7 @@ void ERTracker::DefineBeamEnergy(){
   for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++) Qreaction -= ejectile[0][ip][0].Mass;
   Qreaction +=projectile->Mass + target->Mass;
 }
-
+//-----------------------------------------------------------------------------
 double ERTracker::Stepantsov(char* D,int Z,double A,double I)
 {
   double a0_2 = 20.19773;
@@ -2443,9 +2679,9 @@ double ERTracker::Stepantsov(char* D,int Z,double A,double I)
   Bro = B*R;
   P = Bro*Z/3.3356*1000.;
   T = sqrt(P*P + A*A) - A;
-return T;
-};
-
+  return T;
+}
+//-----------------------------------------------------------------------------
 void ERTracker::TelescopeThresholds(){
   double Threshold[Ntelescopes][NofDetPart];
   printf("Telescope thresholds:\n");
@@ -2470,7 +2706,7 @@ void ERTracker::TelescopeThresholds(){
   }
   printf("************************************************************\n");
 }
-
+//-----------------------------------------------------------------------------
 double ERTracker::EiEo(double tableER[][105],double Tp,double Rp)
 {
   if(Tp<0.1||Tp>1000.)
@@ -2502,7 +2738,7 @@ double ERTracker::EiEo(double tableER[][105],double Tp,double Rp)
   
   return E1;
 };
-
+//-----------------------------------------------------------------------------
 void ERTracker::PrintReaction(){
   printf("************ ReactionInput is decoded **********************\n");
   printf("So we're studying the following reaction:\n");
@@ -2530,7 +2766,7 @@ void ERTracker::PrintReaction(){
   printf("DIPOLE2: E=%lf +/- %lf MeV (%lfA MeV)\n",projectile->Part.E()-projectile->Mass,
     BeamSpread,(projectile->Part.E()-projectile->Mass)/projectile->AtMass);
 }
-
+//-----------------------------------------------------------------------------
 void ERTracker::ElossTOFaMWPCaTarget(){
   /*
   Есть два способа определения энергии конкретного
@@ -2593,7 +2829,7 @@ void ERTracker::ElossTOFaMWPCaTarget(){
   Tp2 = (projectile->Part.E()-projectile->Mass)/projectile->AtMass;
   Tp3 = t_cm;
 }
-
+//-----------------------------------------------------------------------------
 double ERTracker::UpstreamEnergyLoss(UpstreamMatter* pU,Particle* pP,bool Cond1,
     bool Cond2,char* Show)
 {
@@ -2636,5 +2872,5 @@ double ERTracker::UpstreamEnergyLoss(UpstreamMatter* pU,Particle* pP,bool Cond1,
   }
   return Tb;
 };
-
+//-----------------------------------------------------------------------------
 ClassImp(ERTracker)
