@@ -197,16 +197,21 @@ InitStatus ERTracker::Init()
   strcpy(tarname,plett);
 
   InitMemory();
+  /*
+  Угол между некими фрагментами в определенном механизме реакции:
+  */
   double thty[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
 
   Particle PlayParticle;
 
-  Particle intermed[NofDetPart+NofUnObsPart];
+  Particle intermed[NofDetPart+NofUnObsPart]; // любая промежуточная частица
   Particle PlayPairs[NofDetPart+NofUnObsPart+1][NofDetPart+NofUnObsPart+1];
   Particle PlayEjectile[NofDetPart+NofUnObsPart];
   Particle PlaySpectator[NofDetPart+NofUnObsPart+1][NofDetPart+NofUnObsPart+1];
 
-  Particle mis[Ntelescopes][NofDetPart][NDivXYMax];
+  //объект, куда пишутся разности лоренц-векторов между тем, что было в начальной системе (target+projectile) и тем, что зарегистрировано.
+  Particle mis[Ntelescopes][NofDetPart][NDivXYMax]; 
+  //запасной объект класса частица.
   Particle aux[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
   
   char WayMass[]="/home/vitaliy.schetinin/er/input/StableNuclei.dat";
@@ -2527,6 +2532,23 @@ void ERTracker::PrintReaction(){
 }
 
 void ERTracker::ElossTOFaMWPCaTarget(){
+  /*
+  Есть два способа определения энергии конкретного
+  налетающего иона по времени пролета. Более прогрессивный, но пока не
+  работавший - с абсолютной калибровкой времени и пересчетом энергии из
+  скорости. Более древний и реально использующийся - В дипольном магните
+  на входе и выходе стоят щели, которые пропускают частицы с определенным
+  отношением импульса к заряду. Величина, характеризующая это отношение -
+  магнитная жесткость B*rho - где B вертикальная проекция магнитного поля,
+  а rho - радиус кривизны траектории в горизонтальной плоскости. Связь
+  между B*rho и энергией дается "формулой Степанцова" (Stepantsov.cpp).
+  Производятся имзерения времени прорлета ионов без калибровки разности
+  времен. Получается пик с некоторым центром. Положение центра пика
+  сопоставляется энергии, вычисленной через B*rho/ энергия каждого
+  конкретного иона считается через его ТОF - в зависимости от положения
+  измерннного TOF относительно центра пика. Так вот, положение центра
+  пика измеренных некалиброванных TOF- называется tof_0.
+  */
   char ShowTrack[10];
   range = UpMat->PlasticThick2;
   Tb = EiEo(UpMat->beam_TOF,projectile->Part.E()-projectile->Mass,UpMat->PlasticThick2);

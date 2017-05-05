@@ -327,6 +327,12 @@ protected:
   int Ntelescopes = 0;
   int NTelMax=5;        /* Max nUpMatber of telescopes */
   int NLayMax=10;       /* Max nUpMatber of layers in telescopes */
+  /*индекс NDetMax на случай если посде телескопа площадь разбита на
+  несколько детекторов, например,
+  за кольцевым кремнием, стоят CsI, разбитые на кусочки - каждвй кусочек -
+  это детектор. Получается, гранулярность,
+  независящая от стрипов.
+  */
   int NDetMax=20;       /* Max nUpMatber of detectors in layer */
   int NDivMax = 0;      /* Max sUpMatm of X- and Y-strips on both sides of a detector */
   int NDivXYMax = 0;      /* Max nUpMatber of X- or Y-strips a a single side of a detector */
@@ -334,6 +340,7 @@ protected:
   Telescope*** Det;
   int* layer;
   int** NDet;
+  // ПРИЗНАК КАЧЕСТВА ДАННЫХ
   int* mp;
 
   int NofDetPart;
@@ -342,23 +349,52 @@ protected:
   Particle* target;
   Particle* projectile;
   Particle* CM0;
+  /*
+  некая совокупность нуклонов в налетающем ядре, которая,
+  согласно рассматриваемому механизму, не участвует в реакции, а просто
+  просто продолжает движение.
+  */
   Particle**** spectator;
+  /*
+  некая совокупность нуклонов в налетающем ядре, которая,
+  согласно рассматриваемому механизму, участвует в реакции.
+  */
   Particle**** participants;
-  int** TCheck;
+  int** TCheck; //рудимент
+  /*
+  Разница между измеренным (сумма детекторов) и вычисленным выделением
+  энергии. вычисления делаются с учетом средних потерь в мертвых слоях.
+  Если отклонение не велико - событие принимается, если велико -
+  отбрасывается:
+  */
   double**** al;
+  /*
+  Эти переменные заполняются в симуляции. В обработке данных они тоже
+  используются для унификации вида данных из симуляций и и з измерений:
+  */
   double**** deposit;
   double**** DepoX;
   double**** DepoY;
   int*** mpd;
+  /*
+  Mu - всегда множественность (количество частиц, пойманных в детекторе).
+  MuYT - временная множественность - timestamps в событии могут
+  группироваться в несколько кластеров.
+  */
   int*** MuX;
   int*** MuY;
   int*** MuXT;
   int*** MuYT;
+  /*
+  проекция на плоскость детекторов траектории налетающего
+  иона, определенной с помощью mwpc:*/
   double*** xbdet0;
   double*** ybdet0;
+  /*Координаты - любые промежуточные:*/
   double** cx;
   double** cy;
   double** cz;
+  //все переменные с hit ниже - для симуляций.
   int**** HitX;
   int**** HitY;
   int**** HitXT;
@@ -367,19 +403,55 @@ protected:
   int**** NhitY;
   int**** NhitXT;
   int**** NhitYT;
-  double t_cm,t_cm0,tof_0,Tb,Ta,dT,Tout,Tboutput,Qreaction;
+
+
+  double tof_0;
+  //кинетическая энергия target + projectile в центре масс.
+  double t_cm;
+  // энергетический эффект реакции - сколько энергии высвобождается, если "+", сколько поглощается, если "-"
+  double Qreaction;
+  //t_cm0 = t_cm+Qreaction это кинетическая энергия, доступная продуктам реакции в ЦМ.
+  double t_cm0;
+  //кинетическая энергия налетающей частицы (beam)
+  double Tb;
+  // различные промежуточные кинетические энергии
+  double Ta,dT,Tout,Tboutput;
   double BeamSpread;
   int NofUnObsPart;
-  double beta_b,gamma_b,p_beam,range;
-  double procur,promax,thscm,phiscm,thtp,Tp1,Tp2,Tp3;
+  // релятивистский гамма-фактор.
+  double beta_b,gamma_b,p_beam;
+  // пробег в толще вещества
+  double range;
+  // это для симуляций
+  double procur,promax;
+  // тэта и фи в ЦМ для спектатора
+  double thscm,phiscm;
+  // угол тэта в ЦМ между векторами скорости target и participant
+  double thtp;
+  // вспомогательные переменные для кин энергии
+  double Tp1,Tp2,Tp3;
 
   TVector3** AngleDet;
-
+  /*
+  Это единичные (? так ли это?) радиус-вектора (обычные, идущие из начала
+  отсчета не лоренц) которые показывают направления полета иона из пучка
+  (Vbeam); направление на точку пересечения ионом дальней от мишени
+  станции MWPC (far -VmwFa ) и ближней станции MWPc(close-VmwCl):
+  */
   TVector3 Vbeam;
   TVector3 VmwFa,VmwCl,VbeamPlay,Vert1,Vert2;
 
+  /*
+  Это некие расстояния, нужные при определении точки входа налетающего иона в мишень. M - measured P-played
+  */
   double MdistX,MdistY,MdistZ,Rdist,PdistX,PdistY,PdistZ;
 
+  /*
+  Ниже кусок неактуальный - посвящен анализу числа кластеров в детекторе.
+  кластер - это непрерывная последовательность зажЖенных стрипов. Нам пока
+  что достаточно рассматривать события, где сработал ровно один стрип в
+  каждой плоскости детектора.
+  */
   int good_mw1 = 0;
   int badclu_mw1 = 0;
   int goodclu_mw1 = 0;
