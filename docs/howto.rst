@@ -69,6 +69,7 @@ How-to
 Некоторый костыль. Превращение объекта материала FairRoot в объект материала Root.
 	  
 ::
+
 	  // -----------------   Get and create the required media    -----------------
 	  FairGeoMedia*   geoMedia = geoFace->getMedia();
 	  FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
@@ -89,6 +90,7 @@ How-to
 Создаем объемы геометрии. Верхний объем всегда Assembly и называется TOP. Объем детектра тоже Assembly.
 	  
 ::
+
 	  //------------------------- VOLUMES -----------------------------------------
 	  
 	  // --------------   Create geometry and top volume  -------------------------
@@ -138,6 +140,7 @@ How-to
 Проверяем ошибки в геометрии. Записываем ее в файл.
 
 ::
+
 	  // ---------------   Finish   -----------------------------------------------
 	  gGeoMan->CloseGeometry();
 	  gGeoMan->CheckOverlaps(0.001);
@@ -431,6 +434,7 @@ How-to
 Типовые реализации методов приведены далее. Их необходимо добавить в файл ERDet.cxx.
 
 ::
+
 	#include "ERDet.h"
 
 	#include "TVirtualMC.h"
@@ -1009,6 +1013,7 @@ sim.C:
 Создаем базу данных параметров
 
 ::
+
 	  // -----   Runtime database   ---------------------------------------------
 	  FairRuntimeDb* rtdb = run->GetRuntimeDb();
 	  // ------------------------------------------------------------------------
@@ -1025,6 +1030,7 @@ sim.C:
 Добавляем пассивный объем пещеры и активный детектор.
 
 ::
+
 	  // -----   Create detectors  ----------------------------------------------	
 	  FairModule* cave= new ERCave("CAVE");
 	  cave->SetGeometryFileName("cave.geo");
