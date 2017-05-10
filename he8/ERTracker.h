@@ -17,6 +17,8 @@
 #include "ERTofCalEvent.h"
 #include "ERDsrdCalEvent.h"
 #include "ERTelescopeCalEvent.h"
+#include "ERTelData.h"
+#include "ERInclusiveData.h"
 
 #define pi 3.14159265358979323846
 #define rad 0.01745329252 /* pi/180 */
@@ -207,7 +209,7 @@ public:
   TLorentzVector Part;
 };
 
-class RawTrack
+class RawTrack : public TNamed
 {
 public:
   RawTrack(){}
@@ -225,72 +227,17 @@ public:
   int nMW21[32];
   int nMW22[32];
   short mwpc[8];
+  ClassDef(RawTrack,1)
 };
 
-class TrackData
+class TrackData : public TNamed
 {
 public:
   TrackData(){}
   ~TrackData(){}
   double xmw1,ymw1,xmw2,ymw2,xbt,ybt,zbt,thb,phib;
   double xbd1,ybd1,xbd2,ybd2,xbd3,ybd3,xbd4,ybd4,xbd5,ybd5,xbd6,ybd6;
-};
-
-class TelData
-{
-public:
-  TelData(){}
-  ~TelData(){}
-  double dep11,dep12,dep13,dep21,dep22,dep23,dep31,dep32,dep33;
-  double x11,y11,z11,x21,y21,z21,x31,y31,z31;
-  double al111,al112,al113,al121,al122,al123,al131,al132,al133,al211,al212,al213,al221,al222;
-  double al223,al231,al232,al233,al311,al312,al313,al321,al322,al323,al331,al332,al333;
-  double tcheck11,tcheck12,tcheck13,tcheck21,tcheck22,tcheck23,tcheck31,tcheck32,tcheck33;
-  double t11,t12,t13,t21,t22,t23,t31,t32,t33,th11,phi11,th12,phi12,th13,phi13;
-  double th21,phi21,th22,phi22,th23,phi23,th31,phi31,th32,phi32,th33,phi33;
-  double t11cm0,t12cm0,t13cm0,t21cm0,t22cm0,t23cm0,t31cm0,t32cm0,t33cm0;
-  double th11cm0,th12cm0,th13cm0,th21cm0,th22cm0,th23cm0,th31cm0,th32cm0,th33cm0;
-  double t11cmp,t12cmp,t13cmp,t21cmp,t22cmp,t23cmp,t31cmp,t32cmp,t33cmp;
-  double th11cmp,th12cmp,th13cmp,th21cmp,th22cmp,th23cmp,th31cmp,th32cmp,th33cmp;
-  double pz11cmp,pz12cmp,pz13cmp,pz21cmp,pz22cmp,pz23cmp,pz31cmp,pz32cmp,pz33cmp;
-};
-
-
-class InclusiveData
-{
-public:
-  InclusiveData(){}
-  ~InclusiveData(){}
-  double tmis11,tmis12,tmis13,tmis21,tmis22,tmis23,tmis31,tmis32,tmis33;
-  double thmis11,thmis12,thmis13,thmis21,thmis22,thmis23,thmis31,thmis32,thmis33;
-  double phimis11,phimis12,phimis13,phimis21,phimis22,phimis23,phimis31,phimis32,phimis33;
-  double exmis11,exmis12,exmis13,exmis21,exmis22,exmis23,exmis31,exmis32,exmis33;
-  double tmis11cm0,tmis12cm0,tmis13cm0,tmis21cm0,tmis22cm0,tmis23cm0,tmis31cm0,tmis32cm0,tmis33cm0;
-  double thmis11cm0,thmis12cm0,thmis13cm0,thmis21cm0,thmis22cm0,thmis23cm0,thmis31cm0,thmis32cm0,thmis33cm0;
-  double tmis11cmp,tmis12cmp,tmis13cmp,tmis21cmp,tmis22cmp,tmis23cmp,tmis31cmp,tmis32cmp,tmis33cmp;
-  double thmis11cmp,thmis12cmp,thmis13cmp,thmis21cmp,thmis22cmp,thmis23cmp,thmis31cmp,thmis32cmp,thmis33cmp;
-};
-
-class DoubleCoincidence
-{
-public:
-  DoubleCoincidence(){}
-  ~DoubleCoincidence(){}
-  double tpar1122,tpar1123,tpar1132,tpar1133,tpar1221,tpar1223,tpar1231,tpar1233,tpar1321,tpar1322,tpar1331,tpar1332;
-  double thpar1122,thpar1123,thpar1132,thpar1133,thpar1221,thpar1223,thpar1231,thpar1233,thpar1321,thpar1322,thpar1331,thpar1332;
-  double phipar1122,phipar1123,phipar1132,phipar1133,phipar1221,phipar1223,phipar1231,phipar1233,phipar1321,phipar1322,phipar1331,phipar1332;
-  double expar1122,expar1123,expar1132,expar1133,expar1221,expar1223,expar1231,expar1233,expar1321,expar1322,expar1331,expar1332;
-  double tspe1122,tspe1123,tspe1132,tspe1133,tspe1221,tspe1223,tspe1231,tspe1233,tspe1321,tspe1322,tspe1331,tspe1332;
-  double thspe1122,thspe1123,thspe1132,thspe1133,thspe1221,thspe1223,thspe1231,thspe1233,thspe1321,thspe1322,thspe1331,thspe1332;
-  double phispe1122,phispe1123,phispe1132,phispe1133,phispe1221,phispe1223,phispe1231,phispe1233,phispe1321,phispe1322,phispe1331,phispe1332;
-  double exspe1122,exspe1123,exspe1132,exspe1133,exspe1221,exspe1223,exspe1231,exspe1233,exspe1321,exspe1322,exspe1331,exspe1332;
-  double th1122cmpp,th1123cmpp,th1132cmpp,th1133cmpp,th1221cmpp,th1223cmpp,th1231cmpp,th1233cmpp,th1321cmpp,th1322cmpp,th1331cmpp,th1332cmpp;
-  double pspe1122cmp,pspe1123cmp,pspe1132cmp,pspe1133cmp,pspe1221cmp,pspe1223cmp,pspe1231cmp,pspe1233cmp,pspe1321cmp,pspe1322cmp,pspe1331cmp,pspe1332cmp;
-  double pxspe1122cmp,pxspe1123cmp,pxspe1132cmp,pxspe1133cmp,pxspe1221cmp,pxspe1223cmp,pxspe1231cmp,pxspe1233cmp,pxspe1321cmp,pxspe1322cmp,pxspe1331cmp,pxspe1332cmp;
-  double pyspe1122cmp,pyspe1123cmp,pyspe1132cmp,pyspe1133cmp,pyspe1221cmp,pyspe1223cmp,pyspe1231cmp,pyspe1233cmp,pyspe1321cmp,pyspe1322cmp,pyspe1331cmp,pyspe1332cmp;
-  double pzspe1122cmp,pzspe1123cmp,pzspe1132cmp,pzspe1133cmp,pzspe1221cmp,pzspe1223cmp,pzspe1231cmp,pzspe1233cmp,pzspe1321cmp,pzspe1322cmp,pzspe1331cmp,pzspe1332cmp;
-  double thspe1122cmp,thspe1123cmp,thspe1132cmp,thspe1133cmp,thspe1221cmp,thspe1223cmp,thspe1231cmp,thspe1233cmp,thspe1321cmp,thspe1322cmp,thspe1331cmp,thspe1332cmp;
-  double thty1122,thty1123,expar1122pri,expar1123pri,expar1132pri,expar1133pri;
+  ClassDef(TrackData,1)
 };
 
 class ERTracker : public FairTask {
@@ -483,9 +430,8 @@ protected:
   //out
   RawTrack* RawT;
   TrackData* trackD;
-  TelData* tel;
-  InclusiveData* inclu;
-  DoubleCoincidence* dcoin;
+  ERTelData* tel;
+  ERInclusiveData* inclu;
 
   TGeoManager *geom;
   TGeoNode *trajectory;
@@ -515,6 +461,8 @@ protected:
   TVector3 VertexPosition(TVector3 V1,TVector3 V2,TVector3 V3,TVector3 V4);
   void InitMemory();
   void InLabFrame();
+  void InReactionCM();
+  void InProjectileFrame();
 private:
 
   virtual void SetParContainers();

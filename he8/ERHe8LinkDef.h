@@ -19,5 +19,9 @@
 #pragma link C++ class ERTofCalibrator+;
 
 #pragma link C++ class ERTracker+;
+#pragma link C++ class ERTelData+;
+#pragma link C++ class ERInclusiveData+;
+#pragma link C++ class RawTrack+;
+#pragma link C++ class TrackData+;
 
 #endif

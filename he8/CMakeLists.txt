@@ -30,6 +30,8 @@ set(SRCS
 	data/ERDsrdCalEvent.cxx
 	data/ERTelescopeCalEvent.cxx
 	data/ERTofCalEvent.cxx
+	data/ERTelData.cxx
+	data/ERInclusiveData.cxx
 	ERDsrdCalibrator.cxx
 	ERTelescopeCalibrator.cxx
 	ERTofCalibrator.cxx
