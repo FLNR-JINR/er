@@ -13,6 +13,7 @@ class ERInclusiveData : public TNamed
 public:
   ERInclusiveData();
   ~ERInclusiveData();
+  void Reset();
   double tmis11,tmis12,tmis13,tmis21,tmis22,tmis23,tmis31,tmis32,tmis33;
   double thmis11,thmis12,thmis13,thmis21,thmis22,thmis23,thmis31,thmis32,thmis33;
   double phimis11,phimis12,phimis13,phimis21,phimis22,phimis23,phimis31,phimis32,phimis33;

@@ -18,7 +18,7 @@
 #pragma link C++ class ERTelescopeCalibrator+;
 #pragma link C++ class ERTofCalibrator+;
 
-#pragma link C++ class ERTracker+;
+#pragma link C++ class ERHe8Analyzer+;
 #pragma link C++ class ERTelData+;
 #pragma link C++ class ERInclusiveData+;
 #pragma link C++ class RawTrack+;

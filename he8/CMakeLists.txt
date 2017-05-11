@@ -35,7 +35,7 @@ set(SRCS
 	ERDsrdCalibrator.cxx
 	ERTelescopeCalibrator.cxx
 	ERTofCalibrator.cxx
-	ERTracker.cxx
+	ERHe8Analyzer.cxx
 )
 
 # fill list of header files from list of source files

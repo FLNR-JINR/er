@@ -13,6 +13,7 @@ class ERTelData : public TNamed
 public:
   ERTelData();
   ~ERTelData();
+  void Reset();
   double dep11,dep12,dep13,dep21,dep22,dep23,dep31,dep32,dep33;
   double x11,y11,z11,x21,y21,z21,x22,y22,z22,x23,y23,z23,x24,y24,z24,x25,y25,z25,x26,y26,z26;
   double al111,al112,al113,al121,al122,al123,al131,al132,al133,al211,al212,al213,al221,al222;

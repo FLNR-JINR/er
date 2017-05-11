@@ -1,10 +1,10 @@
 // -------------------------------------------------------------------------
-// -----                  ERTracker header file          -----
+// -----                  ERHe8Analyzer header file          -----
 // -----                  Created 04/17  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
-#ifndef ERTracker_H
-#define ERTracker_H
+#ifndef ERHe8Analyzer_H
+#define ERHe8Analyzer_H
 
 #include "TRandom.h"
 #include "TLorentzVector.h"
@@ -240,19 +240,19 @@ public:
   ClassDef(TrackData,1)
 };
 
-class ERTracker : public FairTask {
+class ERHe8Analyzer : public FairTask {
 
 public:
   /** Default constructor **/
-  ERTracker();
+  ERHe8Analyzer();
 
   /** Constructor 
   ** verbose: 1 - only standard log print
   **/
-  ERTracker(Int_t verbose);
+  ERHe8Analyzer(Int_t verbose);
 
   /** Destructor **/
-  ~ERTracker();
+  ~ERHe8Analyzer();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -271,6 +271,11 @@ protected:
   SimulationData* SimDat;
   UpstreamMatter* UpMat;
   DownstreamMatter** EjMat;
+
+  char projname[5];
+  char tarname[5];  
+  char DetectedPart[32];
+  char UnObservedPart[32];
 
   int Ntelescopes = 0;
   int NTelMax=5;        /* Max nUpMatber of telescopes */
@@ -456,18 +461,20 @@ protected:
   int mcluMW(int mMW,int* nMW);
   double coordMW(UpstreamMatter* pT,RawTrack* pR,char* MWid,char* XY);
   void Tof();
-  void InitOutputs();
   TVector3 Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 Vint);
   TVector3 VertexPosition(TVector3 V1,TVector3 V2,TVector3 V3,TVector3 V4);
   void InitMemory();
   void InLabFrame();
   void InReactionCM();
   void InProjectileFrame();
+  void ReactionPreparation();
+  void InitParticlesInOutputs();
+  void CheckInOutAZ();
 private:
 
   virtual void SetParContainers();
   
-  ClassDef(ERTracker,1)
+  ClassDef(ERHe8Analyzer,1)
 };
 
 #endif

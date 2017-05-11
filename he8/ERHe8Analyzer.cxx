@@ -1,4 +1,4 @@
-#include "ERTracker.h"
+#include "ERHe8Analyzer.h"
 
 #include<iostream>
 using namespace std;
@@ -13,9 +13,9 @@ using namespace std;
 
 #include "ERHe8EventHeader.h"
 
-// ----------------------------------------------------------------------------
-ERTracker::ERTracker()
-  : FairTask("ERTracker"),
+//----------------------------------------------------------------------------
+ERHe8Analyzer::ERHe8Analyzer()
+  : FairTask("ERHe8Analyzer"),
   fEvent(0),
   ReIN(new ReactionDataInput()),
   SimDat(new SimulationData()),
@@ -44,11 +44,9 @@ ERTracker::ERTracker()
   inclu(new ERInclusiveData())
 {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-ERTracker::ERTracker(Int_t verbose)
-  : FairTask("ERTracker", verbose),
+//----------------------------------------------------------------------------
+ERHe8Analyzer::ERHe8Analyzer(Int_t verbose)
+  : FairTask("ERHe8Analyzer", verbose),
   fEvent(0),
   ReIN(new ReactionDataInput()),
   SimDat(new SimulationData()),
@@ -77,25 +75,16 @@ ERTracker::ERTracker(Int_t verbose)
   inclu(new ERInclusiveData())
 {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-ERTracker::~ERTracker()
-{
+//----------------------------------------------------------------------------
+ERHe8Analyzer::~ERHe8Analyzer(){
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-void ERTracker::SetParContainers()
-{
+//----------------------------------------------------------------------------
+void ERHe8Analyzer::SetParContainers(){
 }
-// ----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+InitStatus ERHe8Analyzer::Init(){
 
-// ----------------------------------------------------------------------------
-InitStatus ERTracker::Init()
-{
-
-
+  //Register input/output objects
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
@@ -124,7 +113,121 @@ InitStatus ERTracker::Init()
   ReadInputData();
   
   ReadTelescopeParameters();
+
+  ReactionPreparation();
+
+  InitMemory();
+
+  InitParticlesInOutputs();
+
+  CheckInOutAZ();
   
+  CreateTelescopeGeometry();
+
+  ReadDeDx();
+
+  DefineBeamEnergy();
+
+  TelescopeThresholds();
+
+  PrintReaction();
+
+  ElossTOFaMWPCaTarget();
+
+  return kSUCCESS;
+}
+//----------------------------------------------------------------------------
+void ERHe8Analyzer::CheckInOutAZ(){
+  cout << "Check for Zin=Zout and Ain=Aout" << endl;
+  int InAtNumber = projectile->AtNumber + target->AtNumber;
+  int OutAtNumber = 0;
+  for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++) OutAtNumber += ejectile[0][ip][0].AtNumber;
+
+  if(InAtNumber!=OutAtNumber) {printf("In ReactionInput.dat Zin is not equal to Zout!!!\n");}
+
+  InAtNumber = projectile->AtMass + target->AtMass;
+  OutAtNumber = 0;
+  for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++) OutAtNumber += ejectile[0][ip][0].AtMass;
+  if(InAtNumber!=OutAtNumber) {printf("In ReactionInput.dat Ain is not equal to Aout!!!\n");}
+}
+//----------------------------------------------------------------------------
+void ERHe8Analyzer::InitParticlesInOutputs(){
+    Particle intermed[NofDetPart+NofUnObsPart]; // любая промежуточная частица
+    TString filePath  = gSystem->Getenv("VMCWORKDIR") + TString("/input/StableNuclei.dat");
+    char* WayMass= const_cast<char*>(filePath.Data());
+    projectile->ParticleID(projname,WayMass);
+    target->ParticleID(tarname,WayMass);
+    target->Part.SetPxPyPzE(0.,0.,0.,target->Mass);
+
+    WhatParticlesInOut(&intermed[0],DetectedPart,NofDetPart);
+    WhatParticlesInOut(&intermed[NofDetPart],UnObservedPart,NofUnObsPart);  
+
+    cout << "Define particles in the output channel" << endl;
+    
+    for(int it=0;it<Ntelescopes;it++)
+    {
+      for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++)
+      {
+        for(int imu=0;imu<NDivXYMax;imu++)
+        {
+          //cout << intermed[ip].NameOfNucleus << endl;
+          ejectile[it][ip][imu].NameOfNucleus = new char [strlen(intermed[ip].NameOfNucleus)+1];
+          strcpy(ejectile[it][ip][imu].NameOfNucleus,intermed[ip].NameOfNucleus);
+          ejectile[it][ip][imu].ParticleID(ejectile[it][ip][imu].NameOfNucleus,WayMass);
+          mis[it][ip][imu].NameOfNucleus = new char [2];
+          strcpy(mis[it][ip][imu].NameOfNucleus,"mi");
+        }
+        //PlayEjectile[ip].NameOfNucleus = new char [5];
+        //strcpy(PlayEjectile[ip].NameOfNucleus,ejectile[0][ip][0].NameOfNucleus);
+        //PlayEjectile[ip].Mass = ejectile[0][ip][0].Mass;
+      }
+    }
+
+    for(int it=0;it<Ntelescopes;it++)
+    {
+      for(int ip=0;ip<NofDetPart;ip++)
+      {
+        for(int imu=0;imu<NDivXYMax;imu++)
+        {
+          for(int ipx=0;ipx<NofDetPart+NofUnObsPart;ipx++)
+          {
+            if(ip!=ipx) mis[it][ip][imu].Mass += ejectile[0][ipx][0].Mass;
+          }
+        }
+      }
+    }
+    for(int it=0;it<Ntelescopes;it++)
+    {
+      for(int itx=0;itx<Ntelescopes;itx++)
+      {
+        if(it!=itx)
+        {
+          for(int ip=0;ip<NofDetPart;ip++)
+          {
+            for(int ipx=0;ipx<NofDetPart;ipx++)
+            {
+              if(ip!=ipx)
+              {
+                participants[it][ip][itx][ipx].NameOfNucleus = new char [2];
+                strcpy(participants[it][ip][itx][ipx].NameOfNucleus,"pa");
+                spectator[it][ip][itx][ipx].NameOfNucleus = new char [2];
+                strcpy(spectator[it][ip][itx][ipx].NameOfNucleus,"sp");
+                participants[it][ip][itx][ipx].Mass = 
+                  ejectile[0][ip][0].Mass + ejectile[0][ipx][0].Mass;
+                for(int ipy=0;ipy<NofDetPart+NofUnObsPart;ipy++)
+                {
+                  if(ipy!=ipx&&ipy!=ip)
+                  spectator[it][ip][itx][ipx].Mass += ejectile[0][ipy][0].Mass;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+}
+// -------------------------------------------------------------------------
+void ERHe8Analyzer::ReactionPreparation(){
   cout << " Separate Input and Output channels " << endl;
   char ReaNa[32];
   char InputChannel[32];
@@ -140,7 +243,7 @@ InitStatus ERTracker::Init()
   strcpy(ResonanceTemp,plett);
   plett = strtok(ReIN->ReactionName,"-");
   strcpy(InputChannel,plett);
-  
+
   cout << "Define if there is any resonance in the Output channel" << endl;
   int NofPartRes = 0;
   plett = strchr(OutputChannelTemp,'[');
@@ -172,8 +275,6 @@ InitStatus ERTracker::Init()
   else strcpy(OutputChannel,OutputChannelTemp);
   
   cout << "Separate Detected and Unobserved particles in the Output channel" << endl;
-  char DetectedPart[32];
-  char UnObservedPart[32];
   char zero[]="";
   NofUnObsPart = 0;
   strcpy(DetectedPart,OutputChannel);
@@ -192,150 +293,17 @@ InitStatus ERTracker::Init()
   if(NofInPart<2||NofInPart>2) {printf("Wrong number of particles in the Input channel\n");}
   NofDetPart = HowMuchParticles(DetectedPart);
   if(NofDetPart==0) {printf("Wrong number of detected particles\n");}
-  
+
   cout  << "Define particles in the input channel" << endl;
-  char projname[5];
-  char tarname[5];
+
   plett = strtok(InputChannel,"+");
   strcpy(projname,plett);
   plett = strtok(NULL,"+");
   strcpy(tarname,plett);
-  InitMemory();
-  
-  /*
-  Угол между некими фрагментами в определенном механизме реакции:
-  */
-  double thty[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
-
-  Particle PlayParticle;
-
-  Particle intermed[NofDetPart+NofUnObsPart]; // любая промежуточная частица
-  Particle PlayPairs[NofDetPart+NofUnObsPart+1][NofDetPart+NofUnObsPart+1];
-  Particle PlayEjectile[NofDetPart+NofUnObsPart];
-  Particle PlaySpectator[NofDetPart+NofUnObsPart+1][NofDetPart+NofUnObsPart+1];
-  //запасной объект класса частица.
-  Particle aux[Ntelescopes][NofDetPart][Ntelescopes][NofDetPart];
-  
-  char WayMass[]="/home/vitaliy/er/input/StableNuclei.dat";
-  projectile->ParticleID(projname,WayMass);
-  target->ParticleID(tarname,WayMass);
-  target->Part.SetPxPyPzE(0.,0.,0.,target->Mass);
-
-  WhatParticlesInOut(&intermed[0],DetectedPart,NofDetPart);
-  WhatParticlesInOut(&intermed[NofDetPart],UnObservedPart,NofUnObsPart);  
-
-  cout << "Define particles in the output channel" << endl;
-  
-  for(int it=0;it<Ntelescopes;it++)
-  {
-    for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++)
-    {
-      for(int imu=0;imu<NDivXYMax;imu++)
-      {
-        //cout << intermed[ip].NameOfNucleus << endl;
-        ejectile[it][ip][imu].NameOfNucleus = new char [strlen(intermed[ip].NameOfNucleus)+1];
-        strcpy(ejectile[it][ip][imu].NameOfNucleus,intermed[ip].NameOfNucleus);
-        ejectile[it][ip][imu].ParticleID(ejectile[it][ip][imu].NameOfNucleus,WayMass);
-        mis[it][ip][imu].NameOfNucleus = new char [2];
-        strcpy(mis[it][ip][imu].NameOfNucleus,"mi");
-      }
-      PlayEjectile[ip].NameOfNucleus = new char [5];
-      strcpy(PlayEjectile[ip].NameOfNucleus,ejectile[0][ip][0].NameOfNucleus);
-      PlayEjectile[ip].Mass = ejectile[0][ip][0].Mass;
-    }
-  }
-
-  for(int it=0;it<Ntelescopes;it++)
-  {
-    for(int ip=0;ip<NofDetPart;ip++)
-    {
-      for(int imu=0;imu<NDivXYMax;imu++)
-      {
-        for(int ipx=0;ipx<NofDetPart+NofUnObsPart;ipx++)
-        {
-          if(ip!=ipx) mis[it][ip][imu].Mass += ejectile[0][ipx][0].Mass;
-        }
-      }
-    }
-  }
-  for(int it=0;it<Ntelescopes;it++)
-  {
-    for(int itx=0;itx<Ntelescopes;itx++)
-    {
-      if(it!=itx)
-      {
-        for(int ip=0;ip<NofDetPart;ip++)
-        {
-          for(int ipx=0;ipx<NofDetPart;ipx++)
-          {
-            if(ip!=ipx)
-            {
-              participants[it][ip][itx][ipx].NameOfNucleus = new char [2];
-              strcpy(participants[it][ip][itx][ipx].NameOfNucleus,"pa");
-              spectator[it][ip][itx][ipx].NameOfNucleus = new char [2];
-              strcpy(spectator[it][ip][itx][ipx].NameOfNucleus,"sp");
-              participants[it][ip][itx][ipx].Mass = 
-                ejectile[0][ip][0].Mass + ejectile[0][ipx][0].Mass;
-              for(int ipy=0;ipy<NofDetPart+NofUnObsPart;ipy++)
-              {
-                if(ipy!=ipx&&ipy!=ip)
-                spectator[it][ip][itx][ipx].Mass += ejectile[0][ipy][0].Mass;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  int NPS=NofDetPart+NofUnObsPart-2;
-  for(int ip=0;ip<NofDetPart+NofUnObsPart+1;ip++)
-  {
-    for(int ipx=0;ipx<NofDetPart+NofUnObsPart+1;ipx++)
-    {
-      if(ip!=ipx)
-      {
-        PlayPairs[ip][ipx].NameOfNucleus = new char [2];
-        PlaySpectator[ip][ipx].NameOfNucleus = new char [2];
-        strcpy(PlayPairs[ip][ipx].NameOfNucleus,"ps");
-        strcpy(PlaySpectator[ip][ipx].NameOfNucleus,"ps");
-        PlayPairs[ip][ipx].Excitation = 0.;
-        PlaySpectator[ip][ipx].Excitation = 0.;
-      }
-    }
-  }
-  cout << "Check for Zin=Zout and Ain=Aout" << endl;
-  int InAtNumber = projectile->AtNumber + target->AtNumber;
-  int OutAtNumber = 0;
-  for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++) OutAtNumber += ejectile[0][ip][0].AtNumber;
-
-  if(InAtNumber!=OutAtNumber) {printf("In ReactionInput.dat Zin is not equal to Zout!!!\n");}
-
-  InAtNumber = projectile->AtMass + target->AtMass;
-  OutAtNumber = 0;
-  for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++) OutAtNumber += ejectile[0][ip][0].AtMass;
-  if(InAtNumber!=OutAtNumber) {printf("In ReactionInput.dat Ain is not equal to Aout!!!\n");}
-  
-  CreateTelescopeGeometry();
-
-  ReadDeDx();
-
-  DefineBeamEnergy();
-
-  TelescopeThresholds();
-
-  PrintReaction();
-
-  ElossTOFaMWPCaTarget();
-  //=======================================================================================================
- 
-
-  return kSUCCESS;
 }
-// -------------------------------------------------------------------------
-void ERTracker::InitMemory(){
+//----------------------------------------------------------------------------
+void ERHe8Analyzer::InitMemory(){
   mp = new int[Ntelescopes];
-  cout << Ntelescopes << " " <<  NLayMax << " " <<  NDetMax << endl;
   // Ntelescopes NLayMax NDetMax
   mpd = new int**[Ntelescopes];
   MuX = new int**[Ntelescopes];
@@ -481,9 +449,8 @@ void ERTracker::InitMemory(){
 
   cout << "Memory inited" << endl;
 }
-// -------------------------------------------------------------------------
-TVector3 ERTracker::VertexPosition(TVector3 V1,TVector3 V2,TVector3 V3,TVector3 V4)
-{
+//----------------------------------------------------------------------------
+TVector3 ERHe8Analyzer::VertexPosition(TVector3 V1,TVector3 V2,TVector3 V3,TVector3 V4){
   double x1 = V3.X();
   double y1 = V3.Y();
   double z1 = V3.Z();
@@ -512,10 +479,9 @@ TVector3 ERTracker::VertexPosition(TVector3 V1,TVector3 V2,TVector3 V3,TVector3 
 
   V1.SetXYZ((ax1*t0+x1+ax2*s0+x2)/2.,(ay1*t0+y1+ay2*s0+y2)/2.,(az1*t0+z1+az2*s0+z2)/2.);
   return V1;
-};
+}
 // -------------------------------------------------------------------------
-TVector3 ERTracker::Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 Vint)
-{
+TVector3 ERHe8Analyzer::Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 Vint){
   TVector3 Px,Py,VecDX,VecDY;
   double x,y,x0,x1,x2,x3,y0,y1,y2,y3,z0,z1,z2,z3,arba;
   double R,Phi,x_1,y_1,z_1,x_2,y_2,z_2,x_3,y_3,z_3;
@@ -615,86 +581,9 @@ TVector3 ERTracker::Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 V
     //**** Px is a vector coinciding with a particle trajectory!!!
   } 
   return Px;
-};
-// -------------------------------------------------------------------------
-void ERTracker::InitOutputs(){
-  tel->dep11=0.;tel->dep12=0.;tel->dep13=0.;tel->dep21=0.;tel->dep22=0.;tel->dep23=0.;tel->dep31=0.;tel->dep32=0.;tel->dep33=0.;
-
-  tel->x11 = -1000.;tel->y11 = -1000.;tel->z11 = -1000.;
-  tel->x21 = -1000.;tel->y21 = -1000.;tel->z21 = -1000.;
-  
-  tel->al111 = -1000.;tel->al121 = -1000.;tel->al131 = -1000.;
-  tel->al112 = -1000.;tel->al122 = -1000.;tel->al132 = -1000.;
-  tel->al113 = -1000.;tel->al123 = -1000.;tel->al133 = -1000.;
-  tel->al211 = -1000.;tel->al221 = -1000.;tel->al231 = -1000.;
-  tel->al212 = -1000.;tel->al222 = -1000.;tel->al232 = -1000.;
-  tel->al213 = -1000.;tel->al223 = -1000.;tel->al233 = -1000.;
-  tel->al311 = -1000.;tel->al321 = -1000.;tel->al331 = -1000.;
-  tel->al312 = -1000.;tel->al322 = -1000.;tel->al332 = -1000.;
-  tel->al313 = -1000.;tel->al323 = -1000.;tel->al333 = -1000.;
-
-  tel->tcheck11 = -1;tel->tcheck12 = -1;tel->tcheck13 = -1;
-  tel->tcheck21 = -1;tel->tcheck22 = -1;tel->tcheck23 = -1;
-  tel->tcheck31 = -1;tel->tcheck32 = -1;tel->tcheck33 = -1;
-
-  tel->t11 = -1000.;tel->t12 = -1000.;tel->t13 = -1000.;
-  tel->t21 = -1000.;tel->t22 = -1000.;tel->t23 = -1000.;
-  
-  
-  tel->th11 = -1000.;tel->th12 = -1000.;tel->th13 = -1000.;tel->phi11 = -1000.;tel->phi12 = -1000.;tel->phi13 = -1000.;
-  tel->th21 = -1000.;tel->th22 = -1000.;tel->th23 = -1000.;tel->phi21 = -1000.;tel->phi22 = -1000.;tel->phi23 = -1000.;
-  tel->th31 = -1000.;tel->th32 = -1000.;tel->th33 = -1000.;tel->phi31 = -1000.;tel->phi32 = -1000.;tel->phi33 = -1000.;
-  
-  tel->t11cm0 = -1000.;tel->t12cm0 = -1000.;tel->t13cm0 = -1000.;
-  tel->t21cm0 = -1000.;tel->t22cm0 = -1000.;tel->t23cm0 = -1000.;
-  tel->t31cm0 = -1000.;tel->t32cm0 = -1000.;tel->t33cm0 = -1000.;
-
-  tel->th11cm0 = -1000.;tel->th12cm0 = -1000.;tel->th13cm0 = -1000.;
-  tel->th21cm0 = -1000.;tel->th22cm0 = -1000.;tel->th23cm0 = -1000.;
-  tel->th31cm0 = -1000.;tel->th32cm0 = -1000.;tel->th33cm0 = -1000.;
-
-  tel->t11cmp = -1000.;tel->t12cmp = -1000.;tel->t13cmp = -1000.;
-  tel->t21cmp = -1000.;tel->t22cmp = -1000.;tel->t23cmp = -1000.;
-  tel->t31cmp = -1000.;tel->t32cmp = -1000.;tel->t33cmp = -1000.;
-
-  tel->th11cmp = -1000.;tel->th12cmp = -1000.;tel->th13cmp = -1000.;
-  tel->th21cmp = -1000.;tel->th22cmp = -1000.;tel->th23cmp = -1000.;
-  tel->th31cmp = -1000.;tel->th32cmp = -1000.;tel->th33cmp = -1000.;
-
-  inclu->tmis11 = -1000.;inclu->tmis12 = -1000.;inclu->tmis13 = -1000.;
-  inclu->tmis21 = -1000.;inclu->tmis22 = -1000.;inclu->tmis23 = -1000.;
-  inclu->tmis31 = -1000.;inclu->tmis32 = -1000.;inclu->tmis33 = -1000.;
-  
-  inclu->thmis11 = -1000.;inclu->thmis12 = -1000.;inclu->thmis13 = -1000.;
-  inclu->thmis21 = -1000.;inclu->thmis22 = -1000.;inclu->thmis23 = -1000.;
-  inclu->thmis31 = -1000.;inclu->thmis32 = -1000.;inclu->thmis33 = -1000.;
-  
-  inclu->phimis11 = -1000.;inclu->phimis12 = -1000.;inclu->phimis13 = -1000.;
-  inclu->phimis21 = -1000.;inclu->phimis22 = -1000.;inclu->phimis23 = -1000.;
-  inclu->phimis31 = -1000.;inclu->phimis32 = -1000.;inclu->phimis33 = -1000.;
-
-  inclu->exmis11 = -1000.;inclu->exmis12 = -1000.;inclu->exmis13 = -1000.;
-  inclu->exmis21 = -1000.;inclu->exmis22 = -1000.;inclu->exmis23 = -1000.;
-  inclu->exmis31 = -1000.;inclu->exmis32 = -1000.;inclu->exmis33 = -1000.;
-
-  inclu->tmis11cm0 = -1000.;inclu->tmis12cm0 = -1000.;inclu->tmis13cm0 = -1000.;
-  inclu->tmis21cm0 = -1000.;inclu->tmis22cm0 = -1000.;inclu->tmis23cm0 = -1000.;
-  inclu->tmis31cm0 = -1000.;inclu->tmis32cm0 = -1000.;inclu->tmis33cm0 = -1000.;
-  
-  inclu->thmis11cm0 = -1000.;inclu->thmis12cm0 = -1000.;inclu->thmis13cm0 = -1000.;
-  inclu->thmis21cm0 = -1000.;inclu->thmis22cm0 = -1000.;inclu->thmis23cm0 = -1000.;
-  inclu->thmis31cm0 = -1000.;inclu->thmis32cm0 = -1000.;inclu->thmis33cm0 = -1000.;
-  
-  inclu->tmis11cmp = -1000.;inclu->tmis12cmp = -1000.;inclu->tmis13cmp = -1000.;
-  inclu->tmis21cmp = -1000.;inclu->tmis22cmp = -1000.;inclu->tmis23cmp = -1000.;
-  inclu->tmis31cmp = -1000.;inclu->tmis32cmp = -1000.;inclu->tmis33cmp = -1000.;
-  
-  inclu->thmis11cmp = -1000.;inclu->thmis12cmp = -1000.;inclu->thmis13cmp = -1000.;
-  inclu->thmis21cmp = -1000.;inclu->thmis22cmp = -1000.;inclu->thmis23cmp = -1000.;
-  inclu->thmis31cmp = -1000.;inclu->thmis32cmp = -1000.;inclu->thmis33cmp = -1000.;
 }
-// -------------------------------------------------------------------------
-void ERTracker::Tof(){
+//----------------------------------------------------------------------------
+void ERHe8Analyzer::Tof(){
   TRandom Rnd;
   char ShowTrack[10];
   double tof_offset = 87.98;
@@ -787,8 +676,8 @@ void ERTracker::Tof(){
       } /* if(ReIN.TOFis) */
       if(i_flag_MW==1&&sqrt(pow(trackD->xbt,2)+pow(trackD->ybt,2))<UpMat->TarEntrHoleRad) header->mtrack = 1;
 }
-// -------------------------------------------------------------------------
-void ERTracker::MWPC(){
+//----------------------------------------------------------------------------
+void ERHe8Analyzer::MWPC(){
   i_flag_MW = 0;
   double tarcoord[3];
   if(ReIN->TRACKINGis)
@@ -903,9 +792,8 @@ void ERTracker::MWPC(){
         } /* i_flag_MW */
       } /* ReIN.TRACKINGis */
 }
-// -------------------------------------------------------------------------
-double ERTracker::coordMW(UpstreamMatter* pT,RawTrack* pR,char* MWid,char* XY)
-{
+//----------------------------------------------------------------------------
+double ERHe8Analyzer::coordMW(UpstreamMatter* pT,RawTrack* pR,char* MWid,char* XY){
   double co = -1000.;
   double offset;
   double Sn;
@@ -968,10 +856,9 @@ double ERTracker::coordMW(UpstreamMatter* pT,RawTrack* pR,char* MWid,char* XY)
   Sn += (rand() %10000)/10000.-0.5;
   co = pT->MWstep*iMW*(Sn-(double)(pT->MWNwires+1)/2.)+offset;
   return co;
-};
-// -------------------------------------------------------------------------
-int ERTracker::mcluMW(int mMW,int* nMW)
-{
+}
+//----------------------------------------------------------------------------
+int ERHe8Analyzer::mcluMW(int mMW,int* nMW){
   int i;
   if(mMW<=1) {i = mMW;}
   else
@@ -983,14 +870,13 @@ int ERTracker::mcluMW(int mMW,int* nMW)
     }
   }
   return i;
-};
-// -----   Public method Exec   --------------------------------------------
-void ERTracker::Exec(Option_t* opt)
-{
+}
+//----------------------------------------------------------------------------
+void ERHe8Analyzer::Exec(Option_t* opt){
+  cout << "Event "  << fEvent++ << endl; 
   Reset();
   MWPC();
   Tof();
-  InitOutputs();
   for(int it=0;it<Ntelescopes;it++)
   {
     for(int il=0;il<layer[it];il++)
@@ -1059,7 +945,7 @@ void ERTracker::Exec(Option_t* opt)
       DepoX[2][2][0][imu] = fTelescopeEvent->eC33[imu];
       NhitX[2][2][0][imu] = fTelescopeEvent->nC33[imu];
   }*/
-  cout << "Condition" << endl;
+  //cout << "Condition" << endl;
   if(MuY[0][0][0]==0&&NhitY[0][0][0][0]>0&&NhitY[0][0][0][0]<=abs(Det[0][0][0].NstripY)&&DepoX[0][0][0][0]>0.) mpd[0][0][0]=MuY[0][0][0]+1;
 
   if(MuX[0][1][0]==0&&NhitX[0][1][0][0]>0&&NhitX[0][1][0][0]<=abs(Det[0][1][0].NstripX)&&DepoX[0][1][0][0]>0.) mpd[0][1][0]=MuX[0][1][0]+1;
@@ -1091,7 +977,7 @@ void ERTracker::Exec(Option_t* opt)
   double Delta = 0.05;
   if(ReIN->DetectorTune)
   {
-    cout << " Vertex Reconstruction " << endl;
+    //cout << " Vertex Reconstruction " << endl;
     Telescope DtempX1,DtempY1,DtempX2,DtempY2;
     DtempX1 = Det[0][0][0];
     NxX1 = NhitX[0][0][0][0];
@@ -1156,7 +1042,7 @@ void ERTracker::Exec(Option_t* opt)
   double tarcoord[3];
   if(ReIN->Vertex&&!ReIN->DetectorTune)
       {
-        cerr << " Trajectory reconstruction" << endl;
+        //cerr << " Trajectory reconstruction" << endl;
         if(mp[0]==1&&mp[1]==1)
         {
           // Very specific case: 11Li(or9Li) QFS or QFR with 2 muDSSD telescopes:
@@ -1211,7 +1097,7 @@ void ERTracker::Exec(Option_t* opt)
         }
       } /* if(!ReIN.Vertex&&!ReIN.DetectorTune) */
 
-  cout << "Now we know trajectories" << endl;
+  //cout << "Now we know trajectories" << endl;
   char* plett;
   int itx,ilx,idx,ipx,is,count;
   char OutputChannelTemp[32];
@@ -1341,7 +1227,7 @@ void ERTracker::Exec(Option_t* opt)
         } /* if(mp[it]==1&&RawD.mbeam&&RawD.mtrack) */
       } /* for(it=0;it<Ntelescopes;it++) */
   
-  cout << "Inclusive events calculations" << endl;
+  //cout << "Inclusive events calculations" << endl;
   for(int it=0;it<Ntelescopes;it++)
       {
         if(mp[it]==1&&header->mbeam&&header->mtrack)
@@ -1375,8 +1261,8 @@ void ERTracker::Exec(Option_t* opt)
   InProjectileFrame();
 }
 //----------------------------------------------------------------------------
-void ERTracker::InLabFrame(){
-  cout << "In Laboratory frame" << endl;
+void ERHe8Analyzer::InLabFrame(){
+  //cout << "In Laboratory frame" << endl;
   FairRun* run = FairRun::Instance();
   ERHe8EventHeader* header = (ERHe8EventHeader*)run->GetEventHeader();
 
@@ -1420,8 +1306,8 @@ void ERTracker::InLabFrame(){
   inclu->exmis22 = mis[1][1][0].Excitation;
 }
 //----------------------------------------------------------------------------
-void ERTracker::InReactionCM(){
-  cout << "In Reaction CM" << endl;
+void ERHe8Analyzer::InReactionCM(){
+  //cout << "In Reaction CM" << endl;
   FairRun* run = FairRun::Instance();
   ERHe8EventHeader* header = (ERHe8EventHeader*)run->GetEventHeader();
   for(int it=0;it<Ntelescopes;it++)
@@ -1452,8 +1338,8 @@ void ERTracker::InReactionCM(){
   inclu->thmis22cm0 = mis[1][1][0].Part.Theta()/rad;
 }
 //----------------------------------------------------------------------------
-void ERTracker::InProjectileFrame(){
-  cout << "In Projectile CM" << endl;
+void ERHe8Analyzer::InProjectileFrame(){
+  //cout << "In Projectile CM" << endl;
   FairRun* run = FairRun::Instance();
   ERHe8EventHeader* header = (ERHe8EventHeader*)run->GetEventHeader();
   for(int it=0;it<Ntelescopes;it++)
@@ -1502,8 +1388,9 @@ void ERTracker::InProjectileFrame(){
   }
 }
 //----------------------------------------------------------------------------
-void ERTracker::Reset()
-{
+void ERHe8Analyzer::Reset(){
+  tel->Reset();
+  inclu->Reset();
   for(int it=0;it<Ntelescopes;it++)
       {
         mp[it] = 0;
@@ -1569,13 +1456,11 @@ void ERTracker::Reset()
       }
 }
 // ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-void ERTracker::Finish()
+void ERHe8Analyzer::Finish()
 {   
 }
 // ----------------------------------------------------------------------------
-void ERTracker::ReadTelescopeParameters(){
+void ERHe8Analyzer::ReadTelescopeParameters(){
 
   layer = new int[NTelMax];
   NDet = new int*[NTelMax];
@@ -1597,7 +1482,8 @@ void ERTracker::ReadTelescopeParameters(){
   char mat[12];
   char sha[12];
 
-  FILE *F1 = fopen("/home/vitaliy/er/input/detsys.prm","r");
+  TString filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/detsys.prm");
+  FILE *F1 = fopen(filePath.Data(),"r");
   if(F1==NULL) printf("Main: File detsys.prm was not found\n");
   else
   {
@@ -1632,7 +1518,7 @@ void ERTracker::ReadTelescopeParameters(){
     for(int j = 0; j<NLayMax; j++)
       Det[i][j] = new Telescope[NDetMax];
   }
-  F1 = fopen("/home/vitaliy/er/input/detsys.prm","r");
+  F1 = fopen(filePath.Data(),"r");
   for(it=0;it<Ntelescopes;it++)
   {
     fscanf(F1,"%s %lf %lf\n",Zeros,&read_angle1,&read_angle2);
@@ -1710,7 +1596,7 @@ void ERTracker::ReadTelescopeParameters(){
   printf("************************************************************\n");
 }
 // ----------------------------------------------------------------------------
-void ERTracker::ReadInputData()
+void ERHe8Analyzer::ReadInputData()
 {
   char Zeros[32];
   ReIN->Simulation = false;
@@ -1729,7 +1615,8 @@ void ERTracker::ReadInputData()
   ReIN->WriteRawTrack = false;
   /******************** Readout ReactionInput.dat ************************/
   printf("************************************************************\n");
-  FILE *F1 = fopen("/home/vitaliy/er/input/ReactionInput.dat","r");
+  TString filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/ReactionInput.dat");
+  FILE *F1 = fopen(filePath.Data(),"r");
   if(F1==NULL) {printf("Main: File ReactionInput.dat was not found\n");}
   else
   {
@@ -1777,7 +1664,8 @@ void ERTracker::ReadInputData()
   if(ReIN->Simulation)
   {
     printf("************************************************************\n");
-    F1 = fopen("/home/vitaliy/er/input/Simulation.dat","r");
+    filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/Simulation.dat");
+    F1 = fopen(filePath.Data(),"r");
     if(F1==NULL) {printf("Main: File Simulation.dat was not found\n");}
     else
     {
@@ -1804,7 +1692,8 @@ void ERTracker::ReadInputData()
   /*********************** Readout MWPC parameters:***********************/
   if(ReIN->TRACKINGis)
   {
-    F1 = fopen("/home/vitaliy/er/input/track.dat","r");
+    filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/track.dat");
+    F1 = fopen(filePath.Data(),"r");
     if(F1==NULL) {printf("Main: File track.dat was not found\n");}
     else  
     { 
@@ -1831,7 +1720,8 @@ void ERTracker::ReadInputData()
   /*********************** Readout TOF parameters:************************/
   if(ReIN->TOFis)
   {
-  FILE *F1 = fopen("/home/vitaliy/er/input/tof.dat","r");
+  filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/tof.dat");
+  FILE *F1 = fopen(filePath.Data(),"r");
   if(F1==NULL) {printf("Main: File tof.dat was not found\n");}
   else
   { 
@@ -1848,8 +1738,9 @@ void ERTracker::ReadInputData()
   UpMat->PlasticThick1/=cos(UpMat->PlasticAngle1*rad);
   UpMat->PlasticThick2/=cos(UpMat->PlasticAngle2*rad);
   }
-    /********************* Readout Target parameters:***********************/
-  F1 = fopen("/home/vitaliy/er/input/target.dat","r");
+  /********************* Readout Target parameters:***********************/
+  filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/target.dat");
+  F1 = fopen(filePath.Data(),"r");
   if(F1==NULL) printf("Main: File target.dat was not found\n");
   else
   { 
@@ -1878,7 +1769,7 @@ void ERTracker::ReadInputData()
   if(UpMat->MeniskSize==0.) UpMat->MeniskSize=0.00001;
 }
 // ----------------------------------------------------------------------------
-void ERTracker::CreateTelescopeGeometry(){
+void ERHe8Analyzer::CreateTelescopeGeometry(){
   cout << "CreateTelescopeGeometry started" << endl;
   double ThickStrip=0.0001;
   geom=new TGeoManager("Reaction Chamber","geom"); 
@@ -2228,8 +2119,7 @@ void ERTracker::CreateTelescopeGeometry(){
   cout << "Target geometry creating finished" << endl;
 }
 //-----------------------------------------------------------------------------
-int ERTracker::HowMuchParticles(char* str)
-{
+int ERHe8Analyzer::HowMuchParticles(char* str){
   char xname[32];
   char* ptr;
   strcpy(xname,str);
@@ -2245,8 +2135,7 @@ int ERTracker::HowMuchParticles(char* str)
 }
 //-----------------------------------------------------------------------------
 
-void ERTracker::WhatParticlesInOut(Particle* ptr,char* str,int N)
-{
+void ERHe8Analyzer::WhatParticlesInOut(Particle* ptr,char* str,int N){
   char* poi;
   ptr->NameOfNucleus = new char [strlen(str)+1];
   poi = strtok(str,"+");
@@ -2283,8 +2172,7 @@ double Particle::ReturnMass(char* NON,char* WayMass)
   return massa;
 }
 //-----------------------------------------------------------------------------
-void Particle::ParticleID(char* name, char* path)
-{
+void Particle::ParticleID(char* name, char* path){
   char nucl[5];
   double MassExcess;
   int z;
@@ -2315,14 +2203,15 @@ void Particle::ParticleID(char* name, char* path)
   return;
 }
 //-----------------------------------------------------------------------------
-void ERTracker::ReadDeDx(){
+void ERHe8Analyzer::ReadDeDx(){
   EjMat = new DownstreamMatter*[NofDetPart];
   for(int i =0; i<NofDetPart;i++)
     EjMat[i] = new DownstreamMatter();
   char Matter[128];
+  TString filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/eloss/");
   for(int ip=0;ip<NofDetPart;ip++)
   {   
-    strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+    strcpy(Matter,filePath.Data());
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
     strcat(Matter,"_");
     strcat(Matter,"si");
@@ -2330,7 +2219,7 @@ void ERTracker::ReadDeDx(){
   }
   for(int ip=0;ip<NofDetPart;ip++)
   {   
-    strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+    strcpy(Matter,filePath.Data());
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
     strcat(Matter,"_");
     strcat(Matter,"csi");
@@ -2338,7 +2227,7 @@ void ERTracker::ReadDeDx(){
   }
   for(int ip=0;ip<NofDetPart;ip++)
   {   
-    strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+    strcpy(Matter,filePath.Data());
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
     strcat(Matter,"_");
     strcat(Matter,UpMat->TarFoilMatter);
@@ -2346,7 +2235,7 @@ void ERTracker::ReadDeDx(){
   }
   for(int ip=0;ip<NofDetPart;ip++)
   {   
-    strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+    strcpy(Matter,filePath.Data());
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
     strcat(Matter,"_");
     strcat(Matter,target->NameOfNucleus);
@@ -2354,25 +2243,25 @@ void ERTracker::ReadDeDx(){
   }
 
   /********************* For the TOF plastic *****************************/
-  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcpy(Matter,filePath.Data());
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->PlasticMatter1);
   ReadRint(Matter,UpMat->beam_TOF);
   /********************* For the MWPC windows ****************************/
-  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcpy(Matter,filePath.Data());
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->MWwinMatter);
   ReadRint(Matter,UpMat->beam_MWwin);
   /************************ For the MWPC gas *****************************/
-  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcpy(Matter,filePath.Data());
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->MWgasMatter);
   ReadRint(Matter,UpMat->beam_MWgas);
   /********************* For the MWPC cathodes ***************************/
-  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcpy(Matter,filePath.Data());
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->MWcathMatter);
@@ -2384,13 +2273,13 @@ void ERTracker::ReadDeDx(){
   //  strcat(Matter,UpMat->TarFoilMatter);
   //  ReadRint(Matter,UpMat->beam_heatscreen);
   /********************* For the target windows **************************/
-  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcpy(Matter,filePath.Data());
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,UpMat->TarFoilMatter);
   ReadRint(Matter,UpMat->beam_TARwin);
   /********************* For the target material *************************/
-  strcpy(Matter,"/home/vitaliy/er/input/eloss/");
+  strcpy(Matter,filePath.Data());
   strcat(Matter,projectile->NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,target->NameOfNucleus);
@@ -2398,8 +2287,7 @@ void ERTracker::ReadDeDx(){
   /*************************************************************************/
 }
 //-----------------------------------------------------------------------------
-int ERTracker::ReadRint(char* Fname,double Ranges[][105])
-{
+int ERHe8Analyzer::ReadRint(char* Fname,double Ranges[][105]){
   char DummyA[256];
   char termA[]="---";
   char unR[10],un3[10],un4[10],dee[10],b[10],cc[10];
@@ -2530,8 +2418,7 @@ int ERTracker::ReadRint(char* Fname,double Ranges[][105])
   return 0;
 }
 //-----------------------------------------------------------------------------
-int ERTracker::intrp4(double* x,double* y, double* c)  
-{
+int ERHe8Analyzer::intrp4(double* x,double* y, double* c){
   //______________________________________________________________________
   //  returns c0,c1,c2,c3 coeff. of y= c0 + c1*x + c2*x^2 + c3*x^3 function 
   //     passing through 4 points:
@@ -2610,7 +2497,7 @@ int ERTracker::intrp4(double* x,double* y, double* c)
   return rp4;
 }
 //-----------------------------------------------------------------------------
-void ERTracker::DefineBeamEnergy(){
+void ERHe8Analyzer::DefineBeamEnergy(){
   cout << "Define beam energy" << endl;
   char RightEnUn1[]="MeV";
   char RightEnUn2[]="MeV/n";
@@ -2640,8 +2527,7 @@ void ERTracker::DefineBeamEnergy(){
   Qreaction +=projectile->Mass + target->Mass;
 }
 //-----------------------------------------------------------------------------
-double ERTracker::Stepantsov(char* D,int Z,double A,double I)
-{
+double ERHe8Analyzer::Stepantsov(char* D,int Z,double A,double I){
   double a0_2 = 20.19773;
   double a1_2 = 265.01317;
   double a2_2 = 54.27665;
@@ -2673,7 +2559,7 @@ double ERTracker::Stepantsov(char* D,int Z,double A,double I)
   return T;
 }
 //-----------------------------------------------------------------------------
-void ERTracker::TelescopeThresholds(){
+void ERHe8Analyzer::TelescopeThresholds(){
   double Threshold[Ntelescopes][NofDetPart];
   printf("Telescope thresholds:\n");
   for(int it=0;it<Ntelescopes;it++)
@@ -2698,8 +2584,7 @@ void ERTracker::TelescopeThresholds(){
   printf("************************************************************\n");
 }
 //-----------------------------------------------------------------------------
-double ERTracker::EiEo(double tableER[][105],double Tp,double Rp)
-{
+double ERHe8Analyzer::EiEo(double tableER[][105],double Tp,double Rp){
   if(Tp<0.1||Tp>1000.)
   {printf("Energy is out of range\n"); return -1.;}
   
@@ -2730,7 +2615,7 @@ double ERTracker::EiEo(double tableER[][105],double Tp,double Rp)
   return E1;
 };
 //-----------------------------------------------------------------------------
-void ERTracker::PrintReaction(){
+void ERHe8Analyzer::PrintReaction(){
   printf("************ ReactionInput is decoded **********************\n");
   printf("So we're studying the following reaction:\n");
   printf("Projectile %s (M=%lf MeV)\n",projectile->NameOfNucleus,projectile->Mass);
@@ -2758,7 +2643,7 @@ void ERTracker::PrintReaction(){
     BeamSpread,(projectile->Part.E()-projectile->Mass)/projectile->AtMass);
 }
 //-----------------------------------------------------------------------------
-void ERTracker::ElossTOFaMWPCaTarget(){
+void ERHe8Analyzer::ElossTOFaMWPCaTarget(){
   /*
   Есть два способа определения энергии конкретного
   налетающего иона по времени пролета. Более прогрессивный, но пока не
@@ -2821,9 +2706,7 @@ void ERTracker::ElossTOFaMWPCaTarget(){
   Tp3 = t_cm;
 }
 //-----------------------------------------------------------------------------
-double ERTracker::UpstreamEnergyLoss(UpstreamMatter* pU,Particle* pP,bool Cond1,
-    bool Cond2,char* Show)
-{
+double ERHe8Analyzer::UpstreamEnergyLoss(UpstreamMatter* pU,Particle* pP,bool Cond1, bool Cond2,char* Show){
   char Matter[32]="visible";
   double Tb,range;
   if(Cond1)
@@ -2864,6 +2747,6 @@ double ERTracker::UpstreamEnergyLoss(UpstreamMatter* pU,Particle* pP,bool Cond1,
   return Tb;
 };
 //-----------------------------------------------------------------------------
-ClassImp(ERTracker)
+ClassImp(ERHe8Analyzer)
 ClassImp(RawTrack)
 ClassImp(TrackData)

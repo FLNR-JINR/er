@@ -1,6 +1,7 @@
 void he8(Int_t nEvents = 10)
 {
-	TString inFile = "~/er/input/t_8he_026.root";
+  TString workdir = gSystem->Getenv("VMCWORKDIR");
+	TString inFile = workdir + "/input/t_8he_026.root";
 
 	// --- Specify output file name (this is just an example)
 	TString outFile = "out.root";
@@ -32,18 +33,18 @@ void he8(Int_t nEvents = 10)
   run->SetEventHeader(header);
 
   ERDsrdCalibrator* dsrdCalibrator = new ERDsrdCalibrator();
-  dsrdCalibrator->SetParametersFile("/home/vitaliy/er/input/clb4sonya.dat");
+  dsrdCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
   run->AddTask(dsrdCalibrator);
 
   ERTelescopeCalibrator* telCalibrator = new ERTelescopeCalibrator();
-  telCalibrator->SetParametersFile("/home/vitaliy/er/input/clb4sonya.dat");
+  telCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
   run->AddTask(telCalibrator);
 
   ERTofCalibrator* tofCalibrator = new ERTofCalibrator();
-  tofCalibrator->SetParametersFile("/home/vitaliy/er/input/clb4sonya.dat");
+  tofCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
   run->AddTask(tofCalibrator);
 
-  ERTracker* tracker = new ERTracker(1);
+  ERHe8Analyzer* tracker = new ERHe8Analyzer(1);
   run->AddTask(tracker);
   
   // --- Start run
