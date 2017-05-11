@@ -877,6 +877,7 @@ void ERHe8Analyzer::Exec(Option_t* opt){
   Reset();
   MWPC();
   Tof();
+
   for(int it=0;it<Ntelescopes;it++)
   {
     for(int il=0;il<layer[it];il++)
@@ -888,9 +889,8 @@ void ERHe8Analyzer::Exec(Option_t* opt){
     }
   }
 
-  MuY[0][0][0]=fDsrdEvent->mC11;MuX[0][1][0]=fDsrdEvent->mC12;//MuX[0][2][0]=fDsrdEvent->mC13;
+  MuY[0][0][0]=fDsrdEvent->mC11;MuX[0][1][0]=fDsrdEvent->mC12;
   MuY[1][0][0]=fTelescopeEvent->mC21;MuX[1][1][0]=fTelescopeEvent->mC22;MuX[1][2][0]=fTelescopeEvent->mC23;
-  //MuX[2][0][0]=fTelescopeEvent->mC31;MuY[2][1][0]=fTelescopeEvent->mC32;MuX[2][2][0]=fTelescopeEvent->mC33;
 
   for(int imu=0;imu<=MuY[0][0][0];imu++)
   {
@@ -904,47 +904,23 @@ void ERHe8Analyzer::Exec(Option_t* opt){
     NhitX[0][1][0][imu] = fDsrdEvent->nC12[imu];
     NhitY[0][1][0][imu] = 1;
   }
-  /*
-  for(int imu=0;imu<=MuX[0][2][0];imu++)
+  for(int imu=0;imu<=MuY[1][0][0];imu++)
   {
-    DepoX[0][2][0][imu] = fDsrdEvent->eC13[imu];
-    NhitX[0][2][0][imu] = fDsrdEvent->nC13[imu];
-  }*/
-  //////////////////////////////////////////////////////////////////////////////////
-    for(int imu=0;imu<=MuY[1][0][0];imu++)
-    {
-      DepoX[1][0][0][imu] = fTelescopeEvent->eC21[imu];
-      NhitY[1][0][0][imu] = fTelescopeEvent->nC21[imu];
-      NhitX[1][0][0][imu] = 1;
-    }
-    for(int imu=0;imu<=MuX[1][1][0];imu++)
-    {
-      DepoX[1][1][0][imu] = fTelescopeEvent->eC22[imu];
-      NhitX[1][1][0][imu] = fTelescopeEvent->nC22[imu];
-      NhitY[1][1][0][imu] = 1;
-    }
-    for(int imu=0;imu<=MuX[1][2][0];imu++)
-    {
-      DepoX[1][2][0][imu] = fTelescopeEvent->eC23[imu];
-      NhitX[1][2][0][imu] = fTelescopeEvent->nC23[imu];
-    }
-  //////////////////////////////////////////////////////////////////////////////////
-    /*
-    for(int imu=0;imu<=MuX[2][0][0];imu++)
-    {
-      DepoX[2][0][0][imu] = fTelescopeEvent->eC31[imu];
-      NhitX[2][0][0][imu] = fTelescopeEvent->nC31[imu];
-    }
-    for(int imu=0;imu<=MuY[2][1][0];imu++)
-    {
-      DepoX[2][1][0][imu] = fTelescopeEvent->eC32[imu];
-      NhitY[2][1][0][imu] = fTelescopeEvent->nC32[imu];
-    }
-    for(int imu=0;imu<=MuX[2][2][0];imu++)
-    {
-      DepoX[2][2][0][imu] = fTelescopeEvent->eC33[imu];
-      NhitX[2][2][0][imu] = fTelescopeEvent->nC33[imu];
-  }*/
+    DepoX[1][0][0][imu] = fTelescopeEvent->eC21[imu];
+    NhitY[1][0][0][imu] = fTelescopeEvent->nC21[imu];
+    NhitX[1][0][0][imu] = 1;
+  }
+  for(int imu=0;imu<=MuX[1][1][0];imu++)
+  {
+    DepoX[1][1][0][imu] = fTelescopeEvent->eC22[imu];
+    NhitX[1][1][0][imu] = fTelescopeEvent->nC22[imu];
+    NhitY[1][1][0][imu] = 1;
+  }
+  for(int imu=0;imu<=MuX[1][2][0];imu++)
+  {
+    DepoX[1][2][0][imu] = fTelescopeEvent->eC23[imu];
+    NhitX[1][2][0][imu] = fTelescopeEvent->nC23[imu];
+  }
   //cout << "Condition" << endl;
   if(MuY[0][0][0]==0&&NhitY[0][0][0][0]>0&&NhitY[0][0][0][0]<=abs(Det[0][0][0].NstripY)&&DepoX[0][0][0][0]>0.) mpd[0][0][0]=MuY[0][0][0]+1;
 
@@ -953,23 +929,16 @@ void ERHe8Analyzer::Exec(Option_t* opt){
   if(MuY[1][0][0]==0&&NhitY[1][0][0][0]>0&&NhitY[1][0][0][0]<=abs(Det[1][0][0].NstripY)&&DepoX[1][0][0][0]>0.) mpd[1][0][0]=MuY[1][0][0]+1;
   
   if(MuX[1][1][0]==0&&NhitX[1][1][0][0]>0&&NhitX[1][1][0][0]<=abs(Det[1][1][0].NstripX)&&DepoX[1][1][0][0]>0.) mpd[1][1][0]=MuX[1][1][0]+1;
-  /*
-  if(MuX[2][0][0]==0&&NhitX[2][0][0][0]>0&&NhitX[2][0][0][0]<=abs(Det[2][0][0].NstripX)&&DepoX[2][0][0][0]>0.&&
 
-  MuY[2][1][0]==0&&NhitY[2][1][0][0]>0&&NhitY[2][1][0][0]<=abs(Det[2][0][0].NstripY)&&DepoX[2][2][0][0]>0.) mpd[2][0][0]=MuX[2][0][0]+1;
-  */
   if(mpd[0][0][0]==1&&mpd[0][1][0]==1) mp[0] = mpd[0][0][0];
   if(mpd[1][0][0]==1&&mpd[1][1][0]==1) mp[1] = mpd[1][0][0];
-  //if(mpd[2][0][0]==1) mp[2] = mpd[2][0][0];
 
   FairRun* run = FairRun::Instance();
   ERHe8EventHeader* header = (ERHe8EventHeader*)run->GetEventHeader();
   header->mp1 = mp[0]; header->mp2 = mp[1]; header->mp3 = mp[2];
   if(mp[0]&&header->mtrack&&header->mbeam) good_mp0++;
   if(mp[1]&&header->mtrack&&header->mbeam) good_mp1++;
-  //if(mp[2]&&header->mtrack&&header->mbeam) good_mp2++;
 
-  
   int NxX1,NyX1,NxY1,NyY1,NxX2,NyX2,NxY2,NyY2;
   double dst,minX1,minY1,minX2,minY2;
   double dstmin = 1000.;
@@ -1038,64 +1007,65 @@ void ERHe8Analyzer::Exec(Option_t* opt){
       printf("dst=%lf at DtempX1.OffseX=%lf,DtempY1.OffseX=%lf,DtempX2.OffseX=%lf,DtempY2.OffseX=%lf\n",dstmin,minX1,minY1,minX2,minY2);
     }
   }
-  
   double tarcoord[3];
   if(ReIN->Vertex&&!ReIN->DetectorTune)
-      {
-        //cerr << " Trajectory reconstruction" << endl;
-        if(mp[0]==1&&mp[1]==1)
-        {
-          // Very specific case: 11Li(or9Li) QFS or QFR with 2 muDSSD telescopes:
-          Vert1.SetXYZ(0.,0.,0.);
-          AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitX[0][0][0][0],NhitY[0][0][0][0],Vert1);
-          AngleDet[0][0].GetXYZ(tarcoord);
-          cx[0][0] = tarcoord[0];
-          cy[0][0] = tarcoord[1];
-          cz[0][0] = tarcoord[2];
-          Vert1.SetXYZ(cx[0][0],cy[0][0],cz[0][0]);
-          if(MuX[0][1][0]) AngleDet[0][0] = Traject(&Det[0][1][0],&Det[0][1][0],NhitX[0][1][0][0],NhitY[0][1][0][0],Vert1);
-          else if(MuX[0][1][1]) AngleDet[0][0] = Traject(&Det[0][1][1],&Det[0][1][1],NhitX[0][1][1][0],NhitY[0][1][1][0],Vert1);
+  {
+    //cerr << " Trajectory reconstruction" << endl;
+    if(mp[0]==1&&mp[1]==1)
+    {
+      // Very specific case: 11Li(or9Li) QFS or QFR with 2 muDSSD telescopes:
+      Vert1.SetXYZ(0.,0.,0.);
+      AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitX[0][0][0][0],NhitY[0][0][0][0],Vert1);
+      AngleDet[0][0].GetXYZ(tarcoord);
+      cx[0][0] = tarcoord[0];
+      cy[0][0] = tarcoord[1];
+      cz[0][0] = tarcoord[2];
+      Vert1.SetXYZ(cx[0][0],cy[0][0],cz[0][0]);
+      if(MuX[0][1][0]) AngleDet[0][0] = Traject(&Det[0][1][0],&Det[0][1][0],NhitX[0][1][0][0],NhitY[0][1][0][0],Vert1);
+      else if(MuX[0][1][1]) AngleDet[0][0] = Traject(&Det[0][1][1],&Det[0][1][1],NhitX[0][1][1][0],NhitY[0][1][1][0],Vert1);
 
-          Vert2.SetXYZ(0.,0.,0.);
-          AngleDet[1][0] = Traject(&Det[1][0][0],&Det[1][0][0],NhitX[1][0][0][0],NhitY[1][0][0][0],Vert2);
-          cx[1][0] = AngleDet[1][0].X();
-          cy[1][0] = AngleDet[1][0].Y();
-          cz[1][0] = AngleDet[1][0].Z();
-          Vert2.SetXYZ(cx[1][0],cy[1][0],cz[1][0]);
-          if(MuX[1][1][0]) AngleDet[1][0] = Traject(&Det[1][1][0],&Det[1][1][0],NhitX[1][1][0][0],NhitY[1][1][0][0],Vert2);
-          else if(MuX[1][1][1]) AngleDet[1][0] = Traject(&Det[1][1][1],&Det[1][1][1],NhitX[1][1][1][0],NhitY[1][1][1][0],Vert2);
+      Vert2.SetXYZ(0.,0.,0.);
+      AngleDet[1][0] = Traject(&Det[1][0][0],&Det[1][0][0],NhitX[1][0][0][0],NhitY[1][0][0][0],Vert2);
+      cx[1][0] = AngleDet[1][0].X();
+      cy[1][0] = AngleDet[1][0].Y();
+      cz[1][0] = AngleDet[1][0].Z();
+      Vert2.SetXYZ(cx[1][0],cy[1][0],cz[1][0]);
+      if(MuX[1][1][0]) AngleDet[1][0] = Traject(&Det[1][1][0],&Det[1][1][0],NhitX[1][1][0][0],NhitY[1][1][0][0],Vert2);
+      else if(MuX[1][1][1]) AngleDet[1][0] = Traject(&Det[1][1][1],&Det[1][1][1],NhitX[1][1][1][0],NhitY[1][1][1][0],Vert2);
 
-          Vert1 = VertexPosition(AngleDet[0][0],AngleDet[1][0],Vert1,Vert2);
-          trackD->xbt = Vert1.X();
-          trackD->ybt = Vert1.Y();
-          trackD->zbt = Vert1.Z();
-        }
-          
-        if(mp[2]==1)
-        {
-          Vert2.SetXYZ(trackD->xbt,trackD->ybt,trackD->zbt);
-          AngleDet[2][0] = Traject(&Det[2][0][0],&Det[2][1][0],NhitX[2][0][0][0],NhitY[2][1][0][0],Vert2);
-          cx[2][0] = AngleDet[2][0].X();
-          cy[2][0] = AngleDet[2][0].Y();
-          cz[2][0] = AngleDet[2][0].Z();
-        }
-      } /* if(ReIN.Vertex&&!ReIN.DetectorTune) */
-      if(!ReIN->Vertex&&!ReIN->DetectorTune)
+      Vert1 = VertexPosition(AngleDet[0][0],AngleDet[1][0],Vert1,Vert2);
+      trackD->xbt = Vert1.X();
+      trackD->ybt = Vert1.Y();
+      trackD->zbt = Vert1.Z();
+    }
+      
+    if(mp[2]==1)
+    {
+      Vert2.SetXYZ(trackD->xbt,trackD->ybt,trackD->zbt);
+      AngleDet[2][0] = Traject(&Det[2][0][0],&Det[2][1][0],NhitX[2][0][0][0],NhitY[2][1][0][0],Vert2);
+      cx[2][0] = AngleDet[2][0].X();
+      cy[2][0] = AngleDet[2][0].Y();
+      cz[2][0] = AngleDet[2][0].Z();
+    }
+  } /* if(ReIN.Vertex&&!ReIN.DetectorTune) */
+
+  //this one for He8 experiment
+  if(!ReIN->Vertex&&!ReIN->DetectorTune)
+  {
+    // Typical case: no vertices:
+    for(int it=0;it<Ntelescopes;it++)
+    {
+      if(mp[it]==1)
       {
-      // Typical case: no vertices:
-        for(int it=0;it<Ntelescopes;it++)
-        {
-          if(mp[it]==1)
-          {
-            Vert1.SetXYZ(trackD->xbt,trackD->ybt,trackD->zbt);
-            if(it==2) AngleDet[it][0] = Traject(&Det[it][0][0],&Det[it][0][0],NhitX[it][0][0][0],NhitY[it][1][0][0],Vert1);
-            else AngleDet[it][0] = Traject(&Det[it][1][0],&Det[it][0][0],NhitX[it][1][0][0],NhitY[it][0][0][0],Vert1);
-            cx[it][0] = (Vert1+AngleDet[it][0]).X();
-            cy[it][0] = (Vert1+AngleDet[it][0]).Y();
-            cz[it][0] = (Vert1+AngleDet[it][0]).Z();
-          }
+          Vert1.SetXYZ(trackD->xbt,trackD->ybt,trackD->zbt);
+          if(it==2) AngleDet[it][0] = Traject(&Det[it][0][0],&Det[it][0][0],NhitX[it][0][0][0],NhitY[it][1][0][0],Vert1);
+          else AngleDet[it][0] = Traject(&Det[it][1][0],&Det[it][0][0],NhitX[it][1][0][0],NhitY[it][0][0][0],Vert1);
+          cx[it][0] = (Vert1+AngleDet[it][0]).X();
+          cy[it][0] = (Vert1+AngleDet[it][0]).Y();
+          cz[it][0] = (Vert1+AngleDet[it][0]).Z();
         }
-      } /* if(!ReIN.Vertex&&!ReIN.DetectorTune) */
+      }
+  } /* if(!ReIN.Vertex&&!ReIN.DetectorTune) */
 
   //cout << "Now we know trajectories" << endl;
   char* plett;
@@ -1229,33 +1199,33 @@ void ERHe8Analyzer::Exec(Option_t* opt){
   
   //cout << "Inclusive events calculations" << endl;
   for(int it=0;it<Ntelescopes;it++)
+  {
+    if(mp[it]==1&&header->mbeam&&header->mtrack)
+    {
+      for(int ip=0;ip<NofDetPart;ip++)
       {
-        if(mp[it]==1&&header->mbeam&&header->mtrack)
+        for(int imu=0;imu<mp[it];imu++)
         {
-          for(int ip=0;ip<NofDetPart;ip++)
-          {
-            for(int imu=0;imu<mp[it];imu++)
-            {
-              Tb = 0.;Tout=0.;
-              Tb = sqrt(pow(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),2)+
-                pow(projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),2)+
-                pow(projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),2)+
-                pow(mis[it][ip][imu].Mass,2))-mis[it][ip][imu].Mass;
-              Tout = projectile->Part.E()+target->Mass-ejectile[it][ip][imu].Part.E()-Tb-mis[it][ip][imu].Mass;
-              Tb = sqrt(pow(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),2)+
-                pow(projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),2)+
-                pow(projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),2)+
-                pow(mis[it][ip][imu].Mass+Tout,2))-mis[it][ip][imu].Mass-Tout;
-              Tout = projectile->Part.E()+target->Mass-ejectile[it][ip][imu].Part.E()-Tb-mis[it][ip][imu].Mass;
-              mis[it][ip][imu].Excitation = Tout;
-              mis[it][ip][imu].Part.SetPxPyPzE(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),
-              projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),
-              Tb+Tout+mis[it][ip][imu].Mass);
-              
-            }/* for(imu=0;imu<Mu[it][0];imu++) */
-          } /* for(ip==0;ip<NofDetPart;ip++) */
-        } /* if(mp[it]==1&&RawD.mbeam&&RawD.mtrack) */
-      } /* for(it==0;it<Ntelescopes) */
+          Tb = 0.;Tout=0.;
+          Tb = sqrt(pow(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),2)+
+            pow(projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),2)+
+            pow(projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),2)+
+            pow(mis[it][ip][imu].Mass,2))-mis[it][ip][imu].Mass;
+          Tout = projectile->Part.E()+target->Mass-ejectile[it][ip][imu].Part.E()-Tb-mis[it][ip][imu].Mass;
+          Tb = sqrt(pow(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),2)+
+            pow(projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),2)+
+            pow(projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),2)+
+            pow(mis[it][ip][imu].Mass+Tout,2))-mis[it][ip][imu].Mass-Tout;
+          Tout = projectile->Part.E()+target->Mass-ejectile[it][ip][imu].Part.E()-Tb-mis[it][ip][imu].Mass;
+          mis[it][ip][imu].Excitation = Tout;
+          mis[it][ip][imu].Part.SetPxPyPzE(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),
+          projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),
+          Tb+Tout+mis[it][ip][imu].Mass);
+          
+        }/* for(imu=0;imu<Mu[it][0];imu++) */
+      } /* for(ip==0;ip<NofDetPart;ip++) */
+    } /* if(mp[it]==1&&RawD.mbeam&&RawD.mtrack) */
+  } /* for(it==0;it<Ntelescopes) */
   InLabFrame();
   InReactionCM();
   InProjectileFrame();
