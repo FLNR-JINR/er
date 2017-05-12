@@ -9,7 +9,7 @@ ERTelData::~ERTelData(){
 }
 
 void ERTelData::Reset(){
-  dep11=0.;dep12=0.;dep13=0.;dep21=0.;dep22=0.;dep23=0.;dep31=0.;dep32=0.;dep33=0.;
+  dep11=0.;dep12=0.;dep21=0.;dep22=0.;dep23=0.;dep24=0.;dep25=0.;dep26=0.;
 
   x11 = -1000.;y11 = -1000.;z11 = -1000.;
   x21 = -1000.;y21 = -1000.;z21 = -1000.;

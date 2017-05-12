@@ -14,7 +14,7 @@ public:
   ERTelData();
   ~ERTelData();
   void Reset();
-  double dep11,dep12,dep13,dep21,dep22,dep23,dep31,dep32,dep33;
+  double dep11,dep12,dep21,dep22,dep23,dep24,dep25,dep26;
   double x11,y11,z11,x21,y21,z21,x22,y22,z22,x23,y23,z23,x24,y24,z24,x25,y25,z25,x26,y26,z26;
   double al111,al112,al113,al121,al122,al123,al131,al132,al133,al211,al212,al213,al221,al222;
   double al223,al231,al232,al233,al242,al252,al262,al311,al312,al313,al321,al322,al323,al331,al332,al333;

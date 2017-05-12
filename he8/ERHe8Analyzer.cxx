@@ -1238,6 +1238,7 @@ void ERHe8Analyzer::InLabFrame(){
 
   tel->dep11 = DepoX[0][0][0][0];tel->dep12 = DepoX[0][1][0][0];     
   tel->dep21 = DepoX[1][0][0][0];tel->dep22 = DepoX[1][1][0][0];tel->dep23 = DepoX[1][2][0][0];
+  tel->dep24 = DepoX[1][3][0][0];tel->dep25 = DepoX[1][4][0][0];tel->dep26 = DepoX[1][5][0][0];
   
   tel->t11 = ejectile[0][0][0].Part.E()-ejectile[0][0][0].Mass;
   tel->t22 = ejectile[1][1][0].Part.E()-ejectile[1][1][0].Mass;
