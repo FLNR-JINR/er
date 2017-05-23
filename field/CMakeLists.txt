@@ -24,6 +24,7 @@ set(SRCS
 	ERFieldConst.cxx
 	ERFieldPar.cxx
 	ERFieldContFact.cxx
+	ERFieldMap.cxx
 )
 
 # fill list of header files from list of source files

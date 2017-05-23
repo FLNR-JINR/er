@@ -7,5 +7,6 @@
 #pragma link C++ class ERFieldConst+;
 #pragma link C++ class ERFieldPar+;
 #pragma link C++ class ERFieldContFact+;
+#pragma link C++ class ERFieldMap+;
 
 #endif
