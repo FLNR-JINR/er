@@ -50,7 +50,7 @@ InitStatus ERTofCalibrator::Init()
 
   FILE *F2 = fopen(fPath.Data(),"r");
   if(F2==NULL) 
-    Fatal("Init", TString("RDsrdCalibrator: file ") + fPath + TString(" is not found"));
+    Fatal("Init", TString("ERTofCalibrator: file ") + fPath + TString(" is not found"));
   else
   {
     double a,b,t;
@@ -87,6 +87,7 @@ void ERTofCalibrator::Exec(Option_t* opt)
 {
   //std::cout << std::endl;
   //std::cout << "####### ERTofCalibrator EVENT " << fEvent++ << " #####" << std::endl;
+  Reset();
   fOutEvent->tF3l = (fInEvent->ntF3l+Ran.Uniform(-0.5,0.5))*CLB[2][0][0][0];
   fOutEvent->tF3r = (fInEvent->ntF3r+Ran.Uniform(-0.5,0.5))*CLB[2][1][0][0];
   fOutEvent->tF4r = (fInEvent->ntF4r+Ran.Uniform(-0.5,0.5))*CLB[3][0][0][0];
@@ -95,8 +96,6 @@ void ERTofCalibrator::Exec(Option_t* opt)
   fOutEvent->aF3r = (fInEvent->naF3r+Ran.Uniform(-0.5,0.5));
   fOutEvent->aF4r = (fInEvent->naF4r+Ran.Uniform(-0.5,0.5));
   fOutEvent->aF4l = (fInEvent->naF4l+Ran.Uniform(-0.5,0.5));
-  Reset();
-
 }
 //----------------------------------------------------------------------------
 
