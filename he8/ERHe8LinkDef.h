@@ -26,4 +26,6 @@
 #pragma link C++ class ERBeamDetRecoEvent+;
 #pragma link C++ class ERBeamDetReconstructor+;
 
+#pragma link C++ class ERParticle+;
+
 #endif

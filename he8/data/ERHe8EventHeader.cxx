@@ -6,7 +6,7 @@ using namespace std;
 ERHe8EventHeader::ERHe8EventHeader(){
 
 }
-
+//-----------------------------------------------------------------------------
 Bool_t ERHe8EventHeader::Register(TTree* tree, TString branchName){
 	tree->SetMakeClass(1);
 	tree->SetBranchAddress(branchName + TString(".nevent"),&this->HE8Event_nevent);
@@ -16,10 +16,11 @@ Bool_t ERHe8EventHeader::Register(TTree* tree, TString branchName){
 	tree->SetBranchAddress(branchName + TString(".time"),&HE8Event_time);
 
 	ReadInputFile();
-
+  ReactionPreparation();
+  
 	return kTRUE;
 }
-
+//-----------------------------------------------------------------------------
 void ERHe8EventHeader::ReadInputFile(){
   cout << "Filling header from input files" << endl;
   char Zeros[32];
@@ -165,5 +166,96 @@ void ERHe8EventHeader::ReadInputFile(){
   fclose(F1);
   if(UpMat.MeniskSize==0.) UpMat.MeniskSize=0.00001;
 }
+//-----------------------------------------------------------------------------
+void ERHe8EventHeader::ReactionPreparation(){
+  cout << " Separate Input and Output channels " << endl;
+  char ReaNa[32];
+  char InputChannel[32];
+  char OutputChannel[32];
+  char OutputChannelTemp[32];
+  char Resonance[32];
+  char ResonanceTemp[32];
+  strcpy(ReaNa,ReIN.ReactionName);
+  char* plett;
+  plett = strchr(ReIN.ReactionName,'-');
+  plett+=2;
+  strcpy(OutputChannelTemp,plett);
+  strcpy(ResonanceTemp,plett);
+  plett = strtok(ReIN.ReactionName,"-");
+  strcpy(InputChannel,plett);
 
+  cout << "Define if there is any resonance in the Output channel" << endl;
+  int NofPartRes = 0;
+  plett = strchr(OutputChannelTemp,'[');
+  if(plett!=NULL)
+  {
+    plett = strtok(OutputChannelTemp,"[");
+    strcpy(OutputChannel,plett);
+    plett = strtok(NULL,"]");
+    strcat(OutputChannel,plett);
+    plett = strchr(ResonanceTemp,']');plett++;
+    if(plett!=NULL) strcat(OutputChannel,plett);
+    plett = strtok(ResonanceTemp,"[");
+    plett = strtok(NULL,"]");
+    strcpy(ResonanceTemp,plett);
+    plett = strtok(ResonanceTemp,"[");
+    strcpy(ResonanceTemp,plett);
+    plett = strchr(ResonanceTemp,')');
+    if(plett!=NULL)
+    {
+      plett = strtok(ResonanceTemp,")");
+      strcpy(Resonance,plett);
+      plett = strtok(NULL,")");
+      strcat(Resonance,plett);
+    }
+    else strcpy(Resonance,ResonanceTemp);
+    NofPartRes = HowMuchParticles(Resonance);
+    printf("Resonance is %s\n",Resonance);
+  }
+  else strcpy(OutputChannel,OutputChannelTemp);
+  
+  cout << "Separate Detected and Unobserved particles in the Output channel" << endl;
+  char zero[]="";
+  NofUnObsPart = 0;
+  strcpy(DetectedPart,OutputChannel);
+  plett = strtok(DetectedPart,"()");
+  strcpy(DetectedPart,plett);
+  plett = strchr(OutputChannel,')');
+  plett++;
+  if(strcmp(plett,zero)) 
+  {
+    plett++;strcpy(UnObservedPart,plett);
+    NofUnObsPart = HowMuchParticles(UnObservedPart);
+  }
+  
+  cout << "How much Input and Detected particles" << endl;
+  NofInPart = HowMuchParticles(InputChannel);
+  if(NofInPart<2||NofInPart>2) {printf("Wrong number of particles in the Input channel\n");}
+  NofDetPart = HowMuchParticles(DetectedPart);
+  if(NofDetPart==0) {printf("Wrong number of detected particles\n");}
+
+  cout  << "Define particles in the input channel" << endl;
+
+  plett = strtok(InputChannel,"+");
+  strcpy(projname,plett);
+  plett = strtok(NULL,"+");
+  strcpy(tarname,plett);
+}
+
+//-----------------------------------------------------------------------------
+int ERHe8EventHeader::HowMuchParticles(char* str){
+  char xname[32];
+  char* ptr;
+  strcpy(xname,str);
+  int N = 0;
+  do
+  {
+    ptr = strchr(xname,'+');
+    if(ptr!=NULL)
+    {N++;ptr++;strcpy(xname,ptr);}
+  } while(ptr!=NULL);
+  N++;
+  return N;
+}
+//-----------------------------------------------------------------------------
 ClassImp(ERHe8EventHeader)

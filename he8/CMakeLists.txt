@@ -38,7 +38,9 @@ set(SRCS
 	ERTelescopeCalibrator.cxx
 	beamdet/ERBeamDetCalibrator.cxx
 	beamdet/ERBeamDetReconstructor.cxx
-	ERHe8Analyzer.cxx
+	data/ERParticle.cxx
+	ERSupport.cxx
+	#ERHe8Analyzer.cxx
 )
 
 # fill list of header files from list of source files

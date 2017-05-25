@@ -34,7 +34,6 @@ ERHe8Analyzer::ERHe8Analyzer()
   fDsrdEvent(NULL),
   fTelescopeEvent(NULL),
   mis(NULL),
-  RawT(new RawTrack()),
   trackD(new TrackData()),
   tel(new ERTelData()),
   inclu(new ERInclusiveData())
@@ -62,7 +61,6 @@ ERHe8Analyzer::ERHe8Analyzer(Int_t verbose)
   fDsrdEvent(NULL),
   mis(NULL),
   fTelescopeEvent(NULL),
-  RawT(new RawTrack()),
   trackD(new TrackData()),
   tel(new ERTelData()),
   inclu(new ERInclusiveData())
@@ -98,7 +96,6 @@ InitStatus ERHe8Analyzer::Init(){
   if (!fTelescopeEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
-  ioman->Register("RawT.", "Analys",RawT, kTRUE);
   ioman->Register("trackD.", "Analys",trackD, kTRUE);
   ioman->Register("tel.", "Analys",tel, kTRUE);
   ioman->Register("inclu.", "Analys",inclu, kTRUE);
@@ -107,8 +104,6 @@ InitStatus ERHe8Analyzer::Init(){
   header = (ERHe8EventHeader*)run->GetEventHeader();
   
   ReadTelescopeParameters();
-
-  ReactionPreparation();
 
   InitMemory();
 
@@ -135,32 +130,32 @@ void ERHe8Analyzer::CheckInOutAZ(){
   cout << "Check for Zin=Zout and Ain=Aout" << endl;
   int InAtNumber = projectile->AtNumber + target->AtNumber;
   int OutAtNumber = 0;
-  for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++) OutAtNumber += ejectile[0][ip][0].AtNumber;
+  for(int ip=0;ip<header->NofDetPart+header->NofUnObsPart;ip++) OutAtNumber += ejectile[0][ip][0].AtNumber;
 
   if(InAtNumber!=OutAtNumber) {printf("In ReactionInput.dat Zin is not equal to Zout!!!\n");}
 
   InAtNumber = projectile->AtMass + target->AtMass;
   OutAtNumber = 0;
-  for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++) OutAtNumber += ejectile[0][ip][0].AtMass;
+  for(int ip=0;ip<header->NofDetPart+header->NofUnObsPart;ip++) OutAtNumber += ejectile[0][ip][0].AtMass;
   if(InAtNumber!=OutAtNumber) {printf("In ReactionInput.dat Ain is not equal to Aout!!!\n");}
 }
 //----------------------------------------------------------------------------
 void ERHe8Analyzer::InitParticlesInOutputs(){
-    Particle intermed[NofDetPart+NofUnObsPart]; // любая промежуточная частица
+    Particle intermed[header->NofDetPart+header->NofUnObsPart]; // любая промежуточная частица
     TString filePath  = gSystem->Getenv("VMCWORKDIR") + TString("/input/StableNuclei.dat");
     char* WayMass= const_cast<char*>(filePath.Data());
-    projectile->ParticleID(projname,WayMass);
-    target->ParticleID(tarname,WayMass);
+    projectile->ParticleID(header->projname,WayMass);
+    target->ParticleID(header->tarname,WayMass);
     target->Part.SetPxPyPzE(0.,0.,0.,target->Mass);
 
-    WhatParticlesInOut(&intermed[0],DetectedPart,NofDetPart);
-    WhatParticlesInOut(&intermed[NofDetPart],UnObservedPart,NofUnObsPart);  
+    WhatParticlesInOut(&intermed[0],header->DetectedPart,header->NofDetPart);
+    WhatParticlesInOut(&intermed[header->NofDetPart],header->UnObservedPart,header->NofUnObsPart);  
 
     cout << "Define particles in the output channel" << endl;
     
     for(int it=0;it<Ntelescopes;it++)
     {
-      for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++)
+      for(int ip=0;ip<header->NofDetPart+header->NofUnObsPart;ip++)
       {
         for(int imu=0;imu<NDivXYMax;imu++)
         {
@@ -179,11 +174,11 @@ void ERHe8Analyzer::InitParticlesInOutputs(){
 
     for(int it=0;it<Ntelescopes;it++)
     {
-      for(int ip=0;ip<NofDetPart;ip++)
+      for(int ip=0;ip<header->NofDetPart;ip++)
       {
         for(int imu=0;imu<NDivXYMax;imu++)
         {
-          for(int ipx=0;ipx<NofDetPart+NofUnObsPart;ipx++)
+          for(int ipx=0;ipx<header->NofDetPart+header->NofUnObsPart;ipx++)
           {
             if(ip!=ipx) mis[it][ip][imu].Mass += ejectile[0][ipx][0].Mass;
           }
@@ -196,9 +191,9 @@ void ERHe8Analyzer::InitParticlesInOutputs(){
       {
         if(it!=itx)
         {
-          for(int ip=0;ip<NofDetPart;ip++)
+          for(int ip=0;ip<header->NofDetPart;ip++)
           {
-            for(int ipx=0;ipx<NofDetPart;ipx++)
+            for(int ipx=0;ipx<header->NofDetPart;ipx++)
             {
               if(ip!=ipx)
               {
@@ -208,7 +203,7 @@ void ERHe8Analyzer::InitParticlesInOutputs(){
                 strcpy(spectator[it][ip][itx][ipx].NameOfNucleus,"sp");
                 participants[it][ip][itx][ipx].Mass = 
                   ejectile[0][ip][0].Mass + ejectile[0][ipx][0].Mass;
-                for(int ipy=0;ipy<NofDetPart+NofUnObsPart;ipy++)
+                for(int ipy=0;ipy<header->NofDetPart+header->NofUnObsPart;ipy++)
                 {
                   if(ipy!=ipx&&ipy!=ip)
                   spectator[it][ip][itx][ipx].Mass += ejectile[0][ipy][0].Mass;
@@ -220,82 +215,7 @@ void ERHe8Analyzer::InitParticlesInOutputs(){
       }
     }
 }
-// -------------------------------------------------------------------------
-void ERHe8Analyzer::ReactionPreparation(){
-  cout << " Separate Input and Output channels " << endl;
-  char ReaNa[32];
-  char InputChannel[32];
-  char OutputChannel[32];
-  char OutputChannelTemp[32];
-  char Resonance[32];
-  char ResonanceTemp[32];
-  strcpy(ReaNa,header->ReIN.ReactionName);
-  char* plett;
-  plett = strchr(header->ReIN.ReactionName,'-');
-  plett+=2;
-  strcpy(OutputChannelTemp,plett);
-  strcpy(ResonanceTemp,plett);
-  plett = strtok(header->ReIN.ReactionName,"-");
-  strcpy(InputChannel,plett);
-
-  cout << "Define if there is any resonance in the Output channel" << endl;
-  int NofPartRes = 0;
-  plett = strchr(OutputChannelTemp,'[');
-  if(plett!=NULL)
-  {
-    plett = strtok(OutputChannelTemp,"[");
-    strcpy(OutputChannel,plett);
-    plett = strtok(NULL,"]");
-    strcat(OutputChannel,plett);
-    plett = strchr(ResonanceTemp,']');plett++;
-    if(plett!=NULL) strcat(OutputChannel,plett);
-    plett = strtok(ResonanceTemp,"[");
-    plett = strtok(NULL,"]");
-    strcpy(ResonanceTemp,plett);
-    plett = strtok(ResonanceTemp,"[");
-    strcpy(ResonanceTemp,plett);
-    plett = strchr(ResonanceTemp,')');
-    if(plett!=NULL)
-    {
-      plett = strtok(ResonanceTemp,")");
-      strcpy(Resonance,plett);
-      plett = strtok(NULL,")");
-      strcat(Resonance,plett);
-    }
-    else strcpy(Resonance,ResonanceTemp);
-    NofPartRes = HowMuchParticles(Resonance);
-    printf("Resonance is %s\n",Resonance);
-  }
-  else strcpy(OutputChannel,OutputChannelTemp);
-  
-  cout << "Separate Detected and Unobserved particles in the Output channel" << endl;
-  char zero[]="";
-  NofUnObsPart = 0;
-  strcpy(DetectedPart,OutputChannel);
-  plett = strtok(DetectedPart,"()");
-  strcpy(DetectedPart,plett);
-  plett = strchr(OutputChannel,')');
-  plett++;
-  if(strcmp(plett,zero)) 
-  {
-    plett++;strcpy(UnObservedPart,plett);
-    NofUnObsPart = HowMuchParticles(UnObservedPart);
-  }
-  
-  cout << "How much Input and Detected particles" << endl;
-  NofInPart = HowMuchParticles(InputChannel);
-  if(NofInPart<2||NofInPart>2) {printf("Wrong number of particles in the Input channel\n");}
-  NofDetPart = HowMuchParticles(DetectedPart);
-  if(NofDetPart==0) {printf("Wrong number of detected particles\n");}
-
-  cout  << "Define particles in the input channel" << endl;
-
-  plett = strtok(InputChannel,"+");
-  strcpy(projname,plett);
-  plett = strtok(NULL,"+");
-  strcpy(tarname,plett);
-}
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
 void ERHe8Analyzer::InitMemory(){
   mp = new int[Ntelescopes];
   // Ntelescopes NLayMax NDetMax
@@ -374,35 +294,35 @@ void ERHe8Analyzer::InitMemory(){
     }
   }
 
-  //Ntelescopes NLayMax NofDetPart NDivXYMax
+  //Ntelescopes NLayMax header->NofDetPart NDivXYMax
   al = new double***[Ntelescopes];
   for (int i =0; i <Ntelescopes; i++){
     al[i] = new double**[NLayMax];
     for (int j = 0; j < NLayMax; j++){
-      al[i][j] = new double*[NofDetPart];
-      for (int k = 0; k < NofDetPart; k++){
+      al[i][j] = new double*[header->NofDetPart];
+      for (int k = 0; k < header->NofDetPart; k++){
         al[i][j][k] = new double[NDivXYMax];
       }
     }
   }
 
-  // Ntelescopes NofDetPart Ntelescopes NofDetPart
+  // Ntelescopes header->NofDetPart Ntelescopes header->NofDetPart
   spectator = new Particle***[Ntelescopes];
   participants = new Particle***[Ntelescopes];
   for (int i = 0; i<Ntelescopes; i++){
-    spectator[i] = new Particle**[NofDetPart];
-    participants[i] = new Particle**[NofDetPart];
-    for (int j = 0; j < NofDetPart; j++){
+    spectator[i] = new Particle**[header->NofDetPart];
+    participants[i] = new Particle**[header->NofDetPart];
+    for (int j = 0; j < header->NofDetPart; j++){
       spectator[i][j] = new Particle*[Ntelescopes];
       participants[i][j] = new Particle*[Ntelescopes];
       for (int k = 0; k < Ntelescopes; k++){
-        spectator[i][j][k] = new Particle[NofDetPart];
-        participants[i][j][k] = new Particle[NofDetPart];
+        spectator[i][j][k] = new Particle[header->NofDetPart];
+        participants[i][j][k] = new Particle[header->NofDetPart];
       }
     }
   }
 
-  //Ntelescopes NLayMax NDetMax NofDetPart
+  //Ntelescopes NLayMax NDetMax header->NofDetPart
   HitX = new int***[Ntelescopes];
   HitY = new int***[Ntelescopes];
   HitXT = new int***[Ntelescopes];
@@ -418,25 +338,25 @@ void ERHe8Analyzer::InitMemory(){
       HitXT[i][j] = new int*[NDetMax];
       HitYT[i][j] = new int*[NDetMax];
       for (int k = 0; k < NDetMax; k++){
-        HitX[i][j][k] = new int[NofDetPart];
-        HitY[i][j][k] = new int[NofDetPart];
-        HitXT[i][j][k] = new int[NofDetPart];
-        HitYT[i][j][k] = new int[NofDetPart];
+        HitX[i][j][k] = new int[header->NofDetPart];
+        HitY[i][j][k] = new int[header->NofDetPart];
+        HitXT[i][j][k] = new int[header->NofDetPart];
+        HitYT[i][j][k] = new int[header->NofDetPart];
       }
     }
   }
-  //Ntelescopes NofDetPart+NofUnObsPart
+  //Ntelescopes header->NofDetPart+header->NofUnObsPart
   ejectile = new Particle**[Ntelescopes];
   for (int i=0; i<Ntelescopes; i++){
-    ejectile[i] = new Particle*[NofDetPart+NofUnObsPart];
-    for (int j=0; j<NofDetPart+NofUnObsPart; j++)
+    ejectile[i] = new Particle*[header->NofDetPart+header->NofUnObsPart];
+    for (int j=0; j<header->NofDetPart+header->NofUnObsPart; j++)
       ejectile[i][j] = new Particle[NDivXYMax];
   }
-  //Ntelescopes NofDetPart+NofUnObsPart NDivXYMax
+  //Ntelescopes header->NofDetPart+header->NofUnObsPart NDivXYMax
   mis = new Particle**[Ntelescopes];
   for (int i = 0; i<Ntelescopes; i++){
-    mis[i] = new Particle*[NofDetPart+NofUnObsPart];
-    for (int j = 0; j<NofDetPart+NofUnObsPart; j++){
+    mis[i] = new Particle*[header->NofDetPart+header->NofUnObsPart];
+    for (int j = 0; j<header->NofDetPart+header->NofUnObsPart; j++){
       mis[i][j] = new Particle[NDivXYMax];
     }
   }
@@ -577,298 +497,10 @@ TVector3 ERHe8Analyzer::Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVecto
   return Px;
 }
 //----------------------------------------------------------------------------
-void ERHe8Analyzer::Tof(){
-  TRandom Rnd;
-  char ShowTrack[10];
-  double tof_offset = 87.98;
-  //      double tof_offset = 84.;
-  double dt_F3,dt_F4,t_F3,t_F4;
-  header->mtrack = i_flag_MW;
-  //RawD.mtrack = 1;i_flag_MW = 1;
-
-  if(header->ReIN.TOFis&&i_flag_MW)
-  {
-    header->mbeam = 0;
-    // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
-    //        fBeamDetCalEvent->tF3l = fBeamDetCalEvent->tF3l - fBeamDetCalEvent->tF4r+ParD.CLB[3][0][0][1];
-    //        fBeamDetCalEvent->tF3r = fBeamDetCalEvent->tF3r - fBeamDetCalEvent->tF4r+ParD.CLB[3][1][0][1];
-    //        fBeamDetCalEvent->tF4l = fBeamDetCalEvent->tF4l - fBeamDetCalEvent->tF4r+ParD.CLB[4][1][0][1];
-    //        fBeamDetCalEvent->tF4r = fBeamDetCalEvent->tF4r - fBeamDetCalEvent->tF4r+ParD.CLB[4][0][0][1];
-    // ****************************************************************************************************************************************
-          
-            dt_F3 = (fBeamDetCalEvent->tF3l-fBeamDetCalEvent->tF3r);
-            dt_F4 = (fBeamDetCalEvent->tF4l-fBeamDetCalEvent->tF4r);
-
-    //        if(fabs(dt_F4)<=header->UpMat.tF4_dlt&&fabs(dt_F3)<=header->UpMat.tF3_dlt&&
-    //        fabs(fBeamDetCalEvent->tF3l)<=header->UpMat.tF3l_rng&&fabs(fBeamDetCalEvent->tF3r)<=header->UpMat.tF3r_rng&&
-    //        fabs(fBeamDetCalEvent->tF4l)<=header->UpMat.tF4l_rng&&fabs(fBeamDetCalEvent->tF4r)<=header->UpMat.tF4r_rng)
-    //        if(fabs(dt_F4)<=header->UpMat.tF4_dlt&&fabs(dt_F3)<=header->UpMat.tF3_dlt)
-    //        {
-    //printf("*********************************\n");
-    //          t_F3 = (Rnd.Gaus(fBeamDetCalEvent->tF3l,header->UpMat.TofRes/2.35)+Rnd.Gaus(fBeamDetCalEvent->tF3r,header->UpMat.TofRes/2.35))/2;
-    //          t_F4 = (Rnd.Gaus(fBeamDetCalEvent->tF4l,header->UpMat.TofRes/2.35)+Rnd.Gaus(fBeamDetCalEvent->tF4r,header->UpMat.TofRes/2.35))/2.;
-          t_F4 = Rnd.Gaus(fBeamDetCalEvent->tF4l,header->UpMat.TofRes/2.35);
-          t_F3 = Rnd.Gaus(fBeamDetCalEvent->tF3r,header->UpMat.TofRes/2.35);
-    //          t_F4 = Rnd.Gaus((fBeamDetCalEvent->tF4l+fBeamDetCalEvent->tF4r)/2,header->UpMat.TofRes/2.35);
-    // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
-    //          fBeamDetCalEvent->tofb = t_F4 - t_F3 + tof_0;
-    // ********************************* measurement of absolute TOF value tof_offset = dT1-L0*(dT1-dT0)/(L1-L0)*******************************
-          fBeamDetCalEvent->tofb = t_F4 - t_F3 + tof_offset;
-    //if(fBeamDetCalEvent->tofb<130.) 
-    //{printf("ntF3l=%i,ntF3r=%i,ntF4l=%i,ntF4r=%i\n",RawD.ntF3l,RawD.ntF3r,RawD.ntF4l,RawD.ntF4r);
-    //printf("tF3l=%lf,tF3r=%lf,tF4l=%lf,tF4r=%lf,  TOF=%lf\n",fBeamDetCalEvent->tF3l,fBeamDetCalEvent->tF3r,fBeamDetCalEvent->tF4l,fBeamDetCalEvent->tF4r,fBeamDetCalEvent->tofb);
-    //printf("t_F3=%lf,t_F4=%lf,(fBeamDetCalEvent->tF3l+fBeamDetCalEvent->tF3r)/2=%lf,(fBeamDetCalEvent->tF4l+fBeamDetCalEvent->tF4r)/2=%lf,  TOF=%lf\n",t_F3,t_F4,(fBeamDetCalEvent->tF3l+fBeamDetCalEvent->tF3r)/2,
-    //(fBeamDetCalEvent->tF4l+fBeamDetCalEvent->tF4r)/2,(fBeamDetCalEvent->tF4l+fBeamDetCalEvent->tF4r-fBeamDetCalEvent->tF3l-fBeamDetCalEvent->tF3r)/2+ tof_offset);}
-    // ****************************************************************************************************************************************
-          if(fBeamDetCalEvent->aF4r+fBeamDetCalEvent->aF4l>500.&&fBeamDetCalEvent->tofb<150.&&fBeamDetCalEvent->tofb>60.)
-          {
-
-            beta_b = header->UpMat.PlasticDist/fBeamDetCalEvent->tofb/slight;
-
-            if(beta_b>0.&&beta_b<=1.)
-            {
-              header->mbeam = 1;
-              strcpy(ShowTrack,"invisible");
-              gamma_b = 1./sqrt(1.-beta_b*beta_b);
-              p_beam  = beta_b*projectile->Mass*gamma_b;
-              projectile->Part.SetPxPyPzE(p_beam*sin(Vbeam.Theta())*cos(Vbeam.Phi()),
-                p_beam*sin(Vbeam.Theta())*sin(Vbeam.Phi()),p_beam*cos(Vbeam.Theta()),
-                p_beam/beta_b);
-
-              Tb = UpstreamEnergyLoss(&(header->UpMat),projectile,header->ReIN.TOFis,header->ReIN.TRACKINGis,ShowTrack);
-              if(Tb>0.1&&!strcmp(header->UpMat.HeatScreenAns,"yes")) 
-                Tb = EiEo(header->UpMat.beam_TARwin,Tb,header->UpMat.HeatScreenThick/cos(Vbeam.Theta()));
-              if(Tb>0.1) Tb = EiEo(header->UpMat.beam_TARwin,Tb,header->UpMat.FoilThick/cos(Vbeam.Theta()));
-              else Tb = 0.;
-              range = header->UpMat.TarThick*header->UpMat.TarPress*TempNorm/header->UpMat.TarTemp/cos(Vbeam.Theta())/2.;
-              if(Tb>0.1) Tb = EiEo(header->UpMat.beam_target,Tb,range);
-              else Tb = 0.;
-              p_beam = sqrt(pow(Tb+projectile->Mass,2)-pow(projectile->Mass,2));
-              projectile->Part.SetPxPyPzE(p_beam*sin(Vbeam.Theta())*
-                cos(Vbeam.Phi()),p_beam*sin(Vbeam.Theta())*sin(Vbeam.Phi()),
-                p_beam*cos(Vbeam.Theta()),Tb+projectile->Mass);
-              CM0->Part = projectile->Part + target->Part;
-              projectile->Part.Boost(-CM0->Part.BoostVector());
-              target->Part.Boost(-CM0->Part.BoostVector());
-              t_cm0 = projectile->Part.E()+target->Part.E()-projectile->Mass-target->Mass;
-              t_cm = t_cm0 + Qreaction;
-              projectile->Part.Boost(CM0->Part.BoostVector());
-              target->Part.Boost(CM0->Part.BoostVector());
-              if(t_cm>0.) good_mbeam++;
-              else header->mbeam = 0;
-              fBeamDetCalEvent->tb = projectile->Part.E()-projectile->Mass;
-              fBeamDetCalEvent->tcm = t_cm;              
-
-              trackD->xbt = MdistX+(-header->UpMat.MWgasThick/2-header->UpMat.MWclosDist+header->UpMat.TarZshift)*sin(Vbeam.Theta())*cos(Vbeam.Phi())/cos(Vbeam.Theta());
-              trackD->ybt = MdistY+(-header->UpMat.MWgasThick/2-header->UpMat.MWclosDist+header->UpMat.TarZshift)*sin(Vbeam.Theta())*sin(Vbeam.Phi())/cos(Vbeam.Theta());
-              trackD->zbt = header->UpMat.TarZshift;
-            } /* if(beta_b>0.&&beta_b<=1.) */  
-          } /* if(fBeamDetCalEvent->aF4r+fBeamDetCalEvent->aF4l>500.) */
-          //        } /* if(fabs(dt_F4)<=header->UpMat.tF4_dlt&&fabs(dt_F3)<=header->UpMat.tF3_dlt&& */
-      } /* if(ReIN.TOFis) */
-      if(i_flag_MW==1&&sqrt(pow(trackD->xbt,2)+pow(trackD->ybt,2))<header->UpMat.TarEntrHoleRad) header->mtrack = 1;
-}
-//----------------------------------------------------------------------------
-void ERHe8Analyzer::MWPC(){
-  i_flag_MW = 0;
-  double tarcoord[3];
-  if(header->ReIN.TRACKINGis)
-      {
-        for(int iMW=0;iMW<header->UpMat.MWNwires;iMW++)
-        {
-          RawT->nMW11[iMW] = 0;RawT->nMW12[iMW] = 0;
-          RawT->nMW21[iMW] = 0;RawT->nMW22[iMW] = 0;
-        }
-        RawT->mMW12 = fBeamDetEvent->nx1;
-        RawT->mMW11 = fBeamDetEvent->ny1;
-        RawT->mMW22 = fBeamDetEvent->nx2;
-        RawT->mMW21 = fBeamDetEvent->ny2;
-        
-        if(RawT->mMW11>=1&&RawT->mMW12>=1) good_mw1++;
-        if(RawT->mMW21>=1&&RawT->mMW22>=1) good_mw2++;
-        if(RawT->mMW11>=1&&RawT->mMW12>=1&&RawT->mMW21>=1&&RawT->mMW22>=1) good_mw++;
-
-        for(int iMW=1;iMW<=RawT->mMW11;iMW++) RawT->nMW11[iMW-1] = fBeamDetEvent->y1[iMW-1];
-        for(int iMW=1;iMW<=RawT->mMW12;iMW++) RawT->nMW12[iMW-1] = fBeamDetEvent->x1[iMW-1];
-        for(int iMW=1;iMW<=RawT->mMW21;iMW++) RawT->nMW21[iMW-1] = fBeamDetEvent->y2[iMW-1];
-        for(int iMW=1;iMW<=RawT->mMW22;iMW++) RawT->nMW22[iMW-1] = fBeamDetEvent->x2[iMW-1];
-
-        RawT->mcMW11 = mcluMW(RawT->mMW11,RawT->nMW11);
-        RawT->mcMW12 = mcluMW(RawT->mMW12,RawT->nMW12);
-        RawT->mcMW21 = mcluMW(RawT->mMW21,RawT->nMW21);
-        RawT->mcMW22 = mcluMW(RawT->mMW22,RawT->nMW22);
-        
-        int i_flag_MW1 = 0;
-        int i_flag_MW2 = 0;
-
-        if(RawT->mcMW11==1&&RawT->mcMW12==1) {i_flag_MW1 = 1;goodclu_mw1++;}
-        else if(RawT->mcMW11>1||RawT->mcMW12>1) badclu_mw1++;
-        if(RawT->mcMW21==1&&RawT->mcMW22==1) {i_flag_MW2 = 1;goodclu_mw2++;}
-        else if(RawT->mcMW21>1||RawT->mcMW22>1) badclu_mw2++;
-        if(i_flag_MW1&&i_flag_MW2) {i_flag_MW = 1;goodclu_mw++;}
-        else badclu_mw++;
-
-        if(i_flag_MW)
-        {
-          char MWid[]="MWfar";
-          char XY[]="X";
-          trackD->xmw1=coordMW(&(header->UpMat),RawT,MWid,XY);
-          strcpy(XY,"Y");
-          trackD->ymw1=coordMW(&(header->UpMat),RawT,MWid,XY);
-          strcpy(MWid,"MWclo");
-          strcpy(XY,"X");
-          trackD->xmw2=coordMW(&(header->UpMat),RawT,MWid,XY);
-          strcpy(XY,"Y");
-          trackD->ymw2=coordMW(&(header->UpMat),RawT,MWid,XY);
-          
-          trackD->ymw1 += (trackD->ymw2-trackD->ymw1)*(header->UpMat.MWXYdist)/(header->UpMat.MWclosDist-header->UpMat.MWfarDist);
-          trackD->ymw2 = trackD->ymw1 + (trackD->ymw2-trackD->ymw1)*
-            (header->UpMat.MWclosDist-header->UpMat.MWfarDist+header->UpMat.MWXYdist/2+header->UpMat.MWgasThick/2)/(header->UpMat.MWclosDist-header->UpMat.MWfarDist);
-          trackD->xmw2 = trackD->xmw1 + (trackD->xmw2-trackD->xmw1)*
-            (header->UpMat.MWclosDist-header->UpMat.MWfarDist-header->UpMat.MWXYdist/2+header->UpMat.MWgasThick/2)/(header->UpMat.MWclosDist-header->UpMat.MWfarDist);
-          VmwCl.SetXYZ(trackD->xmw2,trackD->ymw2,header->UpMat.MWclosDist);
-          VmwFa.SetXYZ(trackD->xmw1,trackD->ymw1,header->UpMat.MWfarDist);
-          Vbeam = (VmwCl - VmwFa);
-          trackD->thb = Vbeam.Theta()/rad;
-          trackD->phib = Vbeam.Phi()/rad;
-          Vbeam.GetXYZ(tarcoord);
-          MdistX = trackD->xmw2;
-          MdistY = trackD->ymw2;
-          MdistZ = header->UpMat.MWclosDist+header->UpMat.MWgasThick/2;
-    //**** xbdet and ybdet are useful in the case when beam particles can get in the detector ************************************/
-    //          for(it=0;it<Ntelescopes;it++)
-    //          {
-    //            for(il=0;il<layer[it];il++)
-    //            {
-    //              for(id=0;id<NDet[it][il];id++)
-    //              {
-    //                Vbeam = (VmwCl - VmwFa)*((abs(header->UpMat.MWfarDist)-header->UpMat.MWXYdist/2+Det[it][il][id].Dist)/(header->UpMat.MWclosDist-header->UpMat.MWfarDist-
-    //                  header->UpMat.MWXYdist/2+header->UpMat.MWgasThick/2));
-    //                Vbeam.GetXYZ(tarcoord);
-    //                xbdet0[it][il][id] = trackD->xmw1 + tarcoord[0];
-    //                ybdet0[it][il][id] = trackD->ymw1 + tarcoord[1];
-    //              }
-    //            }
-    //          }
-    /**** when simulating XY are randomized twice: as a result we have coorinates played out and reconstructed *******************/
-    /**** when simulating both thb and rthb are witten down. Difference thb-rthb gives the accuracy of measurement ***************/
-              /*
-              if(header->ReIN.Simulation)
-              {
-                strcpy(MWid,"MWfar");
-                strcpy(XY,"X");
-                PlayXmw1=coordMW(&UpMat,&RawT,MWid,XY);
-                strcpy(XY,"Y");
-                PlayYmw1=coordMW(&UpMat,&RawT,MWid,XY);
-                strcpy(MWid,"MWclos");
-                strcpy(XY,"X");
-                PlayXmw2=coordMW(&UpMat,&RawT,MWid,XY);
-                strcpy(XY,"Y");
-                PlayYmw2=coordMW(&UpMat,&RawT,MWid,XY);
-
-                PlayYmw1 += (PlayYmw2-PlayYmw1)*(header->UpMat.MWXYdist)/(header->UpMat.MWclosDist-header->UpMat.MWfarDist);
-                PlayYmw2 = PlayYmw1 + (PlayYmw2-PlayYmw1)*(header->UpMat.MWclosDist-header->UpMat.MWfarDist+header->UpMat.MWXYdist/2+header->UpMat.MWgasThick/2)/
-                  (header->UpMat.MWclosDist-header->UpMat.MWfarDist);
-                PlayXmw2 = PlayXmw1 + (PlayXmw2-PlayXmw1)*(header->UpMat.MWclosDist-header->UpMat.MWfarDist-header->UpMat.MWXYdist/2+header->UpMat.MWgasThick/2)/
-                  (header->UpMat.MWclosDist-header->UpMat.MWfarDist);
-                VmwCl.SetXYZ(PlayXmw2,PlayYmw2,header->UpMat.MWclosDist);
-                VmwFa.SetXYZ(PlayXmw1,PlayYmw1,header->UpMat.MWfarDist);
-                VbeamPlay = (VmwCl - VmwFa);
-                Play.rthb = VbeamPlay.Theta()/rad;
-                Play.rphib = VbeamPlay.Phi()/rad;
-                VbeamPlay.GetXYZ(tarcoord);
-                PdistX = PlayXmw2;
-                PdistY = PlayYmw2;
-                PdistZ = header->UpMat.MWclosDist+header->UpMat.MWgasThick/2;
-            }*/
-        } /* i_flag_MW */
-      } /* ReIN.TRACKINGis */
-}
-//----------------------------------------------------------------------------
-double ERHe8Analyzer::coordMW(UpstreamMatter* pT,RawTrack* pR,char* MWid,char* XY){
-  double co = -1000.;
-  double offset;
-  double Sn;
-  int iMW;
-  int mMW;
-  int nMW[16];
-  char Xchoice[]="X";
-  char Ychoice[]="Y";
-  TRandom Rnd;
-  if(!strcmp(MWid,"MWfar"))
-  {
-    if(!strcmp(XY,Xchoice))
-    {
-      iMW = pT->MWfarXNum/abs(pT->MWfarXNum);
-      offset = pT->MWfarXshift;
-      mMW = pR->mMW12;
-      for(int k=0;k<16;k++) {nMW[k] = pR->nMW12[k];}
-    }
-    else if(!strcmp(XY,Ychoice))
-    {
-      iMW = pT->MWfarYNum/abs(pT->MWfarYNum);
-      offset = pT->MWfarYshift;
-      mMW = pR->mMW11;
-      for(int k=0;k<16;k++) {nMW[k] = pR->nMW11[k];}
-    }
-    else
-    {printf("hMW: it's not neither X nor Y\n");return co;}    
-  }
-  else if(!strcmp(MWid,"MWclo"))
-  {
-    if(!strcmp(XY,Xchoice))
-    {
-      iMW = pT->MWclosXNum/abs(pT->MWclosXNum);
-      offset = pT->MWclosXshift;
-      mMW = pR->mMW22;
-      for(int k=0;k<16;k++) {nMW[k] = pR->nMW22[k];}
-    }
-    else if(!strcmp(XY,Ychoice))
-    {
-      iMW = pT->MWclosYNum/abs(pT->MWclosYNum);
-      offset = pT->MWclosYshift;
-      mMW = pR->mMW21;
-      for(int k=0;k<16;k++) {nMW[k] = pR->nMW21[k];}
-    }
-    else
-    {printf("hMW: it's not neither X nor Y\n");return co;}    
-  }
-  else
-  {printf("hMW: bad number of MWPC\n");return co;}
-  
-  if(mMW<1) {return co;}
-  if(mMW==1) {Sn = (double)nMW[mMW-1];}
-  if(mMW>1)
-  {
-    int n = 0;
-    for(int k=1;k<=mMW;k++)
-    {n += nMW[k-1];}
-    Sn = (double)n/(double)mMW;
-  }
-  Sn += (rand() %10000)/10000.-0.5;
-  co = pT->MWstep*iMW*(Sn-(double)(pT->MWNwires+1)/2.)+offset;
-  return co;
-}
-//----------------------------------------------------------------------------
-int ERHe8Analyzer::mcluMW(int mMW,int* nMW){
-  int i;
-  if(mMW<=1) {i = mMW;}
-  else
-  {
-    i = 1;
-    for(int j=2;j<=mMW;j++)
-    {
-      if(nMW[j]-nMW[j-1]>1) {i++;}
-    }
-  }
-  return i;
-}
-//----------------------------------------------------------------------------
 void ERHe8Analyzer::Exec(Option_t* opt){
-  cout << "Event "  << fEvent++ << endl; 
+  cout << "Event "  << fEvent++ << endl;
+
   Reset();
-  MWPC();
-  Tof();
 
   for(int it=0;it<Ntelescopes;it++)
   {
@@ -934,111 +566,7 @@ void ERHe8Analyzer::Exec(Option_t* opt){
   double dstmin = 1000.;
   int Nstep = 20;
   double Delta = 0.05;
-  if(header->ReIN.DetectorTune)
-  {
-    //cout << " Vertex Reconstruction " << endl;
-    Telescope DtempX1,DtempY1,DtempX2,DtempY2;
-    DtempX1 = Det[0][0][0];
-    NxX1 = NhitX[0][0][0][0];
-    NyX1 = NhitY[0][0][0][0];
-    DtempY1 = Det[0][1][0];
-    NxY1 = NhitX[0][1][0][0];
-    NyY1 = NhitY[0][1][0][0];
-    
-    DtempX2 = Det[1][0][0];
-    NxX2 = NhitX[1][0][0][0];
-    NyX2 = NhitY[1][0][0][0];
-    DtempY2 = Det[1][1][0];
-    NxY2 = NhitX[1][1][0][0];
-    NyY2 = NhitY[1][1][0][0];
-
-    if(mpd[0][0][0]&&mpd[0][1][0]&&mpd[1][0][0]&&mpd[1][1][0]&&header->mtrack&&header->mbeam)
-    {
-      DtempX2.OffsetX = Det[1][0][0].OffsetX - Nstep*Delta;
-      for(int it=0;it<=2*Nstep;it++)
-      {
-        DtempY2.OffsetX = Det[1][1][0].OffsetX - Nstep*Delta;
-        for(int il=0;il<=2*Nstep;il++)
-        {
-          DtempY1.OffsetX = Det[0][1][0].OffsetX - Nstep*Delta;
-          for(int id=0;id<=2*Nstep;id++)
-          {
-            DtempX1.OffsetX = Det[0][0][0].OffsetX - Nstep*Delta;
-            for(int is=0;is<=2*Nstep;is++)
-            {
-              Vert1.SetXYZ(0.,0.,0.);
-              AngleDet[0][0] = Traject(&DtempX1,&DtempX1,NxX1,NyX1,Vert1);
-              Vert1.SetXYZ(AngleDet[0][0].X(),AngleDet[0][0].Y(),AngleDet[0][0].Z());
-              AngleDet[0][0] = Traject(&DtempY1,&DtempY1,NxY1,NyY1,AngleDet[0][0]);
-
-              Vert2.SetXYZ(0.,0.,0.);
-              AngleDet[1][1] = Traject(&DtempX2,&DtempX2,NxX2,NyX2,Vert2);
-              Vert2.SetXYZ(AngleDet[1][1].X(),AngleDet[1][1].Y(),AngleDet[1][1].Z());
-              AngleDet[1][1] = Traject(&DtempY2,&DtempY2,NxY2,NyY2,AngleDet[1][1]);
-        
-              dst = (AngleDet[0][0].Cross(AngleDet[1][1])*(Vert1-Vert2))/
-                (AngleDet[0][0].Cross(AngleDet[1][1])).Mag();
-              if(dst<dstmin) 
-              {
-                dstmin = dst;
-                minX1 = DtempX1.OffsetX;
-                minY1 = DtempY1.OffsetX;
-                minX2 = DtempX2.OffsetX;
-                minY2 = DtempY2.OffsetX;
-              }
-              DtempX1.OffsetX += Delta;
-            }
-            DtempY1.OffsetX += Delta;
-          }
-          DtempX2.OffsetX += Delta;
-        }
-        DtempY2.OffsetX += Delta;
-      }
-      printf("dst=%lf at DtempX1.OffseX=%lf,DtempY1.OffseX=%lf,DtempX2.OffseX=%lf,DtempY2.OffseX=%lf\n",dstmin,minX1,minY1,minX2,minY2);
-    }
-  }
   double tarcoord[3];
-  if(header->ReIN.Vertex&&!header->ReIN.DetectorTune)
-  {
-    //cerr << " Trajectory reconstruction" << endl;
-    if(mp[0]==1&&mp[1]==1)
-    {
-      // Very specific case: 11Li(or9Li) QFS or QFR with 2 muDSSD telescopes:
-      Vert1.SetXYZ(0.,0.,0.);
-      AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitX[0][0][0][0],NhitY[0][0][0][0],Vert1);
-      AngleDet[0][0].GetXYZ(tarcoord);
-      cx[0][0] = tarcoord[0];
-      cy[0][0] = tarcoord[1];
-      cz[0][0] = tarcoord[2];
-      Vert1.SetXYZ(cx[0][0],cy[0][0],cz[0][0]);
-      if(MuX[0][1][0]) AngleDet[0][0] = Traject(&Det[0][1][0],&Det[0][1][0],NhitX[0][1][0][0],NhitY[0][1][0][0],Vert1);
-      else if(MuX[0][1][1]) AngleDet[0][0] = Traject(&Det[0][1][1],&Det[0][1][1],NhitX[0][1][1][0],NhitY[0][1][1][0],Vert1);
-
-      Vert2.SetXYZ(0.,0.,0.);
-      AngleDet[1][0] = Traject(&Det[1][0][0],&Det[1][0][0],NhitX[1][0][0][0],NhitY[1][0][0][0],Vert2);
-      cx[1][0] = AngleDet[1][0].X();
-      cy[1][0] = AngleDet[1][0].Y();
-      cz[1][0] = AngleDet[1][0].Z();
-      Vert2.SetXYZ(cx[1][0],cy[1][0],cz[1][0]);
-      if(MuX[1][1][0]) AngleDet[1][0] = Traject(&Det[1][1][0],&Det[1][1][0],NhitX[1][1][0][0],NhitY[1][1][0][0],Vert2);
-      else if(MuX[1][1][1]) AngleDet[1][0] = Traject(&Det[1][1][1],&Det[1][1][1],NhitX[1][1][1][0],NhitY[1][1][1][0],Vert2);
-
-      Vert1 = VertexPosition(AngleDet[0][0],AngleDet[1][0],Vert1,Vert2);
-      trackD->xbt = Vert1.X();
-      trackD->ybt = Vert1.Y();
-      trackD->zbt = Vert1.Z();
-    }
-      
-    if(mp[2]==1)
-    {
-      Vert2.SetXYZ(trackD->xbt,trackD->ybt,trackD->zbt);
-      AngleDet[2][0] = Traject(&Det[2][0][0],&Det[2][1][0],NhitX[2][0][0][0],NhitY[2][1][0][0],Vert2);
-      cx[2][0] = AngleDet[2][0].X();
-      cy[2][0] = AngleDet[2][0].Y();
-      cz[2][0] = AngleDet[2][0].Z();
-    }
-  } /* if(ReIN.Vertex&&!ReIN.DetectorTune) */
-
   //this one for He8 experiment
   if(!header->ReIN.Vertex&&!header->ReIN.DetectorTune)
   {
@@ -1099,7 +627,7 @@ void ERHe8Analyzer::Exec(Option_t* opt){
             }
             trajectory = geom->Step();
           } /* while(!geom->IsOutside) */
-          for(int ip=0;ip<NofDetPart;ip++)
+          for(int ip=0;ip<header->NofDetPart;ip++)
           {
             ilx = -1;count=-1;Tb = 0.;Ta=0.;
             for(int il=layer[it]-1;il>=0;il--)
@@ -1192,7 +720,7 @@ void ERHe8Analyzer::Exec(Option_t* opt){
   {
     if(mp[it]==1&&header->mbeam&&header->mtrack)
     {
-      for(int ip=0;ip<NofDetPart;ip++)
+      for(int ip=0;ip<header->NofDetPart;ip++)
       {
         for(int imu=0;imu<mp[it];imu++)
         {
@@ -1213,7 +741,7 @@ void ERHe8Analyzer::Exec(Option_t* opt){
           Tb+Tout+mis[it][ip][imu].Mass);
           
         }/* for(imu=0;imu<Mu[it][0];imu++) */
-      } /* for(ip==0;ip<NofDetPart;ip++) */
+      } /* for(ip==0;ip<header->NofDetPart;ip++) */
     } /* if(mp[it]==1&&RawD.mbeam&&RawD.mtrack) */
   } /* for(it==0;it<Ntelescopes) */
   InLabFrame();
@@ -1271,7 +799,7 @@ void ERHe8Analyzer::InReactionCM(){
     {
       if(mp[it]==1&&header->mbeam&&header->mtrack)
       {
-        for(int ip=0;ip<NofDetPart;ip++)
+        for(int ip=0;ip<header->NofDetPart;ip++)
         {
           for(int imu=0;imu<=mp[it];imu++)
           {
@@ -1302,7 +830,7 @@ void ERHe8Analyzer::InProjectileFrame(){
   {
     if(mp[it]==1&&header->mbeam&&header->mtrack)
     {
-      for(int ip=0;ip<NofDetPart;ip++)
+      for(int ip=0;ip<header->NofDetPart;ip++)
       {
         for(int imu=0;imu<=mp[it];imu++)
         {
@@ -1333,7 +861,7 @@ void ERHe8Analyzer::InProjectileFrame(){
   {
     if(mp[it]==1&&header->mbeam&&header->mtrack)
     {
-      for(int ip=0;ip<NofDetPart;ip++)
+      for(int ip=0;ip<header->NofDetPart;ip++)
       {
         for(int imu=0;imu<=mp[it];imu++)
         {
@@ -1354,9 +882,9 @@ void ERHe8Analyzer::Reset(){
         {
           if(it!=itx)
           {
-            for(int ip=0;ip<NofDetPart;ip++)
+            for(int ip=0;ip<header->NofDetPart;ip++)
             {
-              for(int ipx=0;ipx<NofDetPart;ipx++)
+              for(int ipx=0;ipx<header->NofDetPart;ipx++)
               {
                 if(ip!=ipx)
                 {
@@ -1371,7 +899,7 @@ void ERHe8Analyzer::Reset(){
         for(int il=0;il<layer[it];il++)
         {
           TCheck[it][il] = 0;
-          for(int ip=0;ip<NofDetPart;ip++)
+          for(int ip=0;ip<header->NofDetPart;ip++)
           {
             for(int imu=0;imu<NDivXYMax;imu++)
             {
@@ -1400,7 +928,7 @@ void ERHe8Analyzer::Reset(){
               cz[it][il] = 0.;
               deposit[it][il][id][imu] = 0.;
             }
-            for(int ip=0;ip<NofDetPart;ip++)
+            for(int ip=0;ip<header->NofDetPart;ip++)
             {
               HitX[it][il][id][ip] = -1;
               HitXT[it][il][id][ip] = -1;
@@ -1902,21 +1430,6 @@ void ERHe8Analyzer::CreateTelescopeGeometry(){
   cout << "Target geometry creating finished" << endl;
 }
 //-----------------------------------------------------------------------------
-int ERHe8Analyzer::HowMuchParticles(char* str){
-  char xname[32];
-  char* ptr;
-  strcpy(xname,str);
-  int N = 0;
-  do
-  {
-    ptr = strchr(xname,'+');
-    if(ptr!=NULL)
-    {N++;ptr++;strcpy(xname,ptr);}
-  } while(ptr!=NULL);
-  N++;
-  return N;
-}
-//-----------------------------------------------------------------------------
 
 void ERHe8Analyzer::WhatParticlesInOut(Particle* ptr,char* str,int N){
   char* poi;
@@ -1931,68 +1444,14 @@ void ERHe8Analyzer::WhatParticlesInOut(Particle* ptr,char* str,int N){
   }
 }
 //-----------------------------------------------------------------------------
-double Particle::ReturnMass(char* NON,char* WayMass)
-{
-  double MassExcess;
-  double LifeTime;
-  double massa;
-  int z;
-  int a;
-  char Name[5];
-  char TimeUnit [6];
-  FILE *F1 = fopen(WayMass,"r");
-  if(F1==NULL) {printf("ReturnMass: File %s is not found\n",WayMass);}
-  else 
-  {
-  while(!feof(F1))
-  {
-    fscanf(F1,"%s %d %d %lf %s %lf\n",Name,&z,&a,&MassExcess,TimeUnit,&LifeTime);
-    if (!strcmp(NON,Name))
-    {massa=AMU*(double)a+MassExcess;break;}
-  }
-  fclose(F1);
-  }
-  return massa;
-}
-//-----------------------------------------------------------------------------
-void Particle::ParticleID(char* name, char* path){
-  char nucl[5];
-  double MassExcess;
-  int z;
-  int a;
-  char TimeUnit[6];
-  double LifeTime;
-
-  FILE *F1 = fopen(path,"r");
-  if(F1==NULL) {printf("IdParticle: File %s is not found\n",path);}
-  else 
-  {
-    while(!feof(F1))
-    {
-      fscanf(F1,"%s %d %d %lf %s %lf\n",nucl,&z,&a,&MassExcess,
-        TimeUnit,&LifeTime);
-      if (!strcmp(name,nucl))
-      {
-        Mass=AMU*(double)a+MassExcess;
-        NameOfNucleus = new char [strlen(nucl)+1];
-        strcpy(NameOfNucleus,nucl);
-        AtNumber = z;
-        AtMass = a;
-        break;
-      }
-    }
-  }
-  fclose(F1);
-  return;
-}
 //-----------------------------------------------------------------------------
 void ERHe8Analyzer::ReadDeDx(){
-  EjMat = new DownstreamMatter*[NofDetPart];
-  for(int i =0; i<NofDetPart;i++)
+  EjMat = new DownstreamMatter*[header->NofDetPart];
+  for(int i =0; i<header->NofDetPart;i++)
     EjMat[i] = new DownstreamMatter();
   char Matter[128];
   TString filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/eloss/");
-  for(int ip=0;ip<NofDetPart;ip++)
+  for(int ip=0;ip<header->NofDetPart;ip++)
   {   
     strcpy(Matter,filePath.Data());
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
@@ -2000,7 +1459,7 @@ void ERHe8Analyzer::ReadDeDx(){
     strcat(Matter,"si");
     ReadRint(Matter,EjMat[ip]->ej_si);
   }
-  for(int ip=0;ip<NofDetPart;ip++)
+  for(int ip=0;ip<header->NofDetPart;ip++)
   {   
     strcpy(Matter,filePath.Data());
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
@@ -2008,7 +1467,7 @@ void ERHe8Analyzer::ReadDeDx(){
     strcat(Matter,"csi");
     ReadRint(Matter,EjMat[ip]->ej_csi);
   }
-  for(int ip=0;ip<NofDetPart;ip++)
+  for(int ip=0;ip<header->NofDetPart;ip++)
   {   
     strcpy(Matter,filePath.Data());
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
@@ -2016,7 +1475,7 @@ void ERHe8Analyzer::ReadDeDx(){
     strcat(Matter,header->UpMat.TarFoilMatter);
     ReadRint(Matter,EjMat[ip]->ej_TARwin);
   }
-  for(int ip=0;ip<NofDetPart;ip++)
+  for(int ip=0;ip<header->NofDetPart;ip++)
   {   
     strcpy(Matter,filePath.Data());
     strcat(Matter,ejectile[0][ip][0].NameOfNucleus);
@@ -2306,7 +1765,7 @@ void ERHe8Analyzer::DefineBeamEnergy(){
   projectile->Part.SetPxPyPzE(0.,0.,sqrt(pow(Tb+projectile->Mass,2)-pow(projectile->Mass,2)),Tb+projectile->Mass);
   
   Qreaction = 0.;
-  for(int ip=0;ip<NofDetPart+NofUnObsPart;ip++) Qreaction -= ejectile[0][ip][0].Mass;
+  for(int ip=0;ip<header->NofDetPart+header->NofUnObsPart;ip++) Qreaction -= ejectile[0][ip][0].Mass;
   Qreaction +=projectile->Mass + target->Mass;
 }
 //-----------------------------------------------------------------------------
@@ -2343,11 +1802,11 @@ double ERHe8Analyzer::Stepantsov(char* D,int Z,double A,double I){
 }
 //-----------------------------------------------------------------------------
 void ERHe8Analyzer::TelescopeThresholds(){
-  double Threshold[Ntelescopes][NofDetPart];
+  double Threshold[Ntelescopes][header->NofDetPart];
   printf("Telescope thresholds:\n");
   for(int it=0;it<Ntelescopes;it++)
   {
-    for(int ip=0;ip<NofDetPart;ip++)
+    for(int ip=0;ip<header->NofDetPart;ip++)
     {
       dT = (projectile->Part.E()-projectile->Mass)/5000.;
       Tb = 0.;
@@ -2367,37 +1826,6 @@ void ERHe8Analyzer::TelescopeThresholds(){
   printf("************************************************************\n");
 }
 //-----------------------------------------------------------------------------
-double ERHe8Analyzer::EiEo(double tableER[][105],double Tp,double Rp){
-  if(Tp<0.1||Tp>1000.)
-  {printf("Energy is out of range\n"); return -1.;}
-  
-  int look=0;
-  while (Tp>tableER[0][look]) {look++;}
-
-  double R1=tableER[2][look-1]+
-  +tableER[3][look-1]*Tp+
-  +tableER[4][look-1]*Tp*Tp+
-  +tableER[5][look-1]*Tp*Tp*Tp;
-  
-  double R2 = R1 - Rp;
-  
-  if(Rp>0.)
-  {if(R2<tableER[1][0]) {return 0.;}}
-  else
-  {if(R2>=tableER[1][104]) {return -2.;
-  printf("table is out of range\n");}}
-  
-  look=0;
-  while (R2>tableER[1][look]) {look++;}
-  
-  double E1=tableER[6][look-1]+
-  +tableER[7][look-1]*R2+
-  +tableER[8][look-1]*R2*R2+
-  +tableER[9][look-1]*R2*R2*R2;
-  
-  return E1;
-};
-//-----------------------------------------------------------------------------
 void ERHe8Analyzer::PrintReaction(){
   printf("************ ReactionInput is decoded **********************\n");
   printf("So we're studying the following reaction:\n");
@@ -2406,10 +1834,10 @@ void ERHe8Analyzer::PrintReaction(){
   target->NameOfNucleus,target->Mass);
   printf(" \n");
   printf("As a result of the %s reaction we have:\n",header->ReIN.Mechanism);
-  printf("%i detected particles:\n",NofDetPart);
-  for(int ip=0;ip<NofDetPart;ip++) printf("%s (M=%lf MeV)\n",ejectile[0][ip][0].NameOfNucleus,ejectile[0][ip][0].Mass);
-  printf("And %i unobserved particles:\n",NofUnObsPart);
-  for(int ip=NofDetPart;ip<NofDetPart+NofUnObsPart;ip++) printf("%s (M=%lf MeV)\n",ejectile[0][ip][0].NameOfNucleus,ejectile[0][ip][0].Mass);
+  printf("%i detected particles:\n",header->NofDetPart);
+  for(int ip=0;ip<header->NofDetPart;ip++) printf("%s (M=%lf MeV)\n",ejectile[0][ip][0].NameOfNucleus,ejectile[0][ip][0].Mass);
+  printf("And %i unobserved particles:\n",header->NofUnObsPart);
+  for(int ip=header->NofDetPart;ip<header->NofDetPart+header->NofUnObsPart;ip++) printf("%s (M=%lf MeV)\n",ejectile[0][ip][0].NameOfNucleus,ejectile[0][ip][0].Mass);
   printf(" \n");
   /*
   if(NofPartRes>1)
@@ -2426,110 +1854,4 @@ void ERHe8Analyzer::PrintReaction(){
     BeamSpread,(projectile->Part.E()-projectile->Mass)/projectile->AtMass);
 }
 //-----------------------------------------------------------------------------
-void ERHe8Analyzer::ElossTOFaMWPCaTarget(){
-  /*
-  Есть два способа определения энергии конкретного
-  налетающего иона по времени пролета. Более прогрессивный, но пока не
-  работавший - с абсолютной калибровкой времени и пересчетом энергии из
-  скорости. Более древний и реально использующийся - В дипольном магните
-  на входе и выходе стоят щели, которые пропускают частицы с определенным
-  отношением импульса к заряду. Величина, характеризующая это отношение -
-  магнитная жесткость B*rho - где B вертикальная проекция магнитного поля,
-  а rho - радиус кривизны траектории в горизонтальной плоскости. Связь
-  между B*rho и энергией дается "формулой Степанцова" (Stepantsov.cpp).
-  Производятся имзерения времени прорлета ионов без калибровки разности
-  времен. Получается пик с некоторым центром. Положение центра пика
-  сопоставляется энергии, вычисленной через B*rho/ энергия каждого
-  конкретного иона считается через его ТОF - в зависимости от положения
-  измерннного TOF относительно центра пика. Так вот, положение центра
-  пика измеренных некалиброванных TOF- называется tof_0.
-  */
-  char ShowTrack[10];
-  range = header->UpMat.PlasticThick2;
-  Tb = EiEo(header->UpMat.beam_TOF,projectile->Part.E()-projectile->Mass,header->UpMat.PlasticThick2);
-  p_beam = sqrt(pow(Tb+projectile->Mass,2)-pow(projectile->Mass,2));
-  projectile->Part.SetPxPyPzE(0.,0.,p_beam,Tb+projectile->Mass);
-  if(header->ReIN.TOFis)
-  {
-    tof_0 = header->UpMat.PlasticDist/sqrt(1-pow(projectile->Mass/projectile->Part.E(),2))/slight;
-    printf("\n");
-    printf("TOF measured between two plastics on the base of %lf cm is %lf ns\n",header->UpMat.PlasticDist,tof_0);
-  }
-  strcpy(ShowTrack,"visible");
-  Tb = UpstreamEnergyLoss(&(header->UpMat),projectile,header->ReIN.TOFis,header->ReIN.TRACKINGis,ShowTrack);
-  p_beam = sqrt(pow(Tb+projectile->Mass,2)-pow(projectile->Mass,2));
-  projectile->Part.SetPxPyPzE(0.,0.,p_beam,Tb+projectile->Mass);
-
-  //target
-  if(!strcmp(header->UpMat.HeatScreenAns,"yes")) Tb = EiEo(header->UpMat.beam_TARwin,Tb,header->UpMat.HeatScreenThick);
-  if(Tb>0.1) Tb = EiEo(header->UpMat.beam_TARwin,Tb,header->UpMat.FoilThick);
-  if(Tb>0.1) Tb = EiEo(header->UpMat.beam_target,Tb,header->UpMat.TarThick*header->UpMat.TarPress*TempNorm/header->UpMat.TarTemp/2.);
-  p_beam = sqrt(pow(Tb+projectile->Mass,2)-pow(projectile->Mass,2));
-  projectile->Part.SetPxPyPzE(0.,0.,p_beam,Tb+projectile->Mass);
-
-  CM0->Part = projectile->Part + target->Part;
-  projectile->Part.Boost(-CM0->Part.BoostVector());
-  target->Part.Boost(-CM0->Part.BoostVector());
-
-  t_cm0 = projectile->Part.E()+target->Part.E()-projectile->Mass-target->Mass;
-  t_cm = t_cm0 + Qreaction;
-
-  projectile->Part.Boost(CM0->Part.BoostVector());
-  target->Part.Boost(CM0->Part.BoostVector());
-
-  printf("\n");
-  printf("TARGET: %s H=%lf cm (T=%lf K, P=%lf bar) with %s entance window H=%lf cm\n",
-    target->NameOfNucleus,header->UpMat.TarThick,header->UpMat.TarTemp,header->UpMat.TarPress,header->UpMat.TarFoilMatter,header->UpMat.FoilThick);
-  printf("In the center of the target: %lf MeV (%lfA MeV)\n",
-    projectile->Part.E()-projectile->Mass,(projectile->Part.E()-projectile->Mass)/projectile->AtMass);
-  printf("Ecm+Q = %lf, Ecm = %lf MeV\n",t_cm,t_cm0);
-  printf("************************************************************\n");
-  Tp1 = projectile->Part.E()-projectile->Mass;
-  Tp2 = (projectile->Part.E()-projectile->Mass)/projectile->AtMass;
-  Tp3 = t_cm;
-}
-//-----------------------------------------------------------------------------
-double ERHe8Analyzer::UpstreamEnergyLoss(UpstreamMatter* pU,Particle* pP,bool Cond1, bool Cond2,char* Show){
-  char Matter[32]="visible";
-  double Tb,range;
-  if(Cond1)
-  {
-    range = pU->PlasticThick2;
-    Tb = EiEo(pU->beam_TOF,pP->Part.E()-pP->Mass,range);  /*Energy after 2nd plastic*/
-    if(!strcmp(Show,Matter))
-    {
-      printf("TOF PLASTIC2 (%s), Thickness=%lf cm\n",pU->PlasticMatter2,pU->PlasticThick2);
-      printf("%lf MeV (%lfA MeV)\n",Tb,Tb/pP->AtMass);
-    }
-  }
-  if(Cond2)
-  {
-    for(int i=1;i<3;i++)
-    {
-      range = pU->MWwinThick;
-      Tb = EiEo(pU->beam_MWwin,Tb,range); /*Energy after entrance MWPC window*/
-
-      range = pU->MWgasThick;
-      Tb = EiEo(pU->beam_MWgas,Tb,range); /*Energy after MWPC gas*/
-
-      range = pU->MWcathThick;
-      Tb = EiEo(pU->beam_MWcathod,Tb,range);  /*Energy after MWPC cathodes*/
-
-      range = pU->MWwinThick;
-      Tb = EiEo(pU->beam_MWwin,Tb,range); /*Energy after exit MWPC window*/
-
-      if(!strcmp(Show,Matter))
-      {
-        printf("MWPC%i: 2 %s windows (%lf cm), %s cathodes (%lf cm), gas %s (%lf cm)\n",
-          i,pU->MWwinMatter,pU->MWwinThick,pU->MWcathMatter,
-          pU->MWcathThick,pU->MWgasMatter,pU->MWgasThick);
-        printf("%lf MeV (%lfA MeV)\n",Tb,Tb/pP->AtMass);
-      }
-    }
-  }
-  return Tb;
-};
-//-----------------------------------------------------------------------------
 ClassImp(ERHe8Analyzer)
-ClassImp(RawTrack)
-ClassImp(TrackData)

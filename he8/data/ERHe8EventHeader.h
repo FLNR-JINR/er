@@ -134,9 +134,17 @@ public:
 public:
 	ReactionDataInput ReIN;		//!
 	UpstreamMatter UpMat;		//!
+	int NofUnObsPart; 			//!
+	char projname[5];			//!
+  	char tarname[5];  			//!
+  	char DetectedPart[32];		//!
+  	char UnObservedPart[32];	//!
+  	int NofDetPart;				//!
+    int NofInPart;				//!
 protected:
 	void ReadInputFile();
-
+	void ReactionPreparation();
+	int HowMuchParticles(char* str);
 	ClassDef(ERHe8EventHeader, 1)
 
 };

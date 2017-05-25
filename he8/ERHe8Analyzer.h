@@ -21,10 +21,7 @@
 #include "ERHe8EventHeader.h"
 
 #define pi 3.14159265358979323846
-#define slight 29.9792458 /* light speed (cm/nsec) */
 #define hc 197.3425 /* Plank*c (MeV*fm) */
-#define AMU 931.494028 /* atomic mass unit (MeV) */
-#define TempNorm 293.16 /* Normal temperature (K) */
 
 class Telescope
 {
@@ -89,22 +86,6 @@ public:
   double ej_heatscreen[10][105];
 };
 
-class Particle
-{
-public:
-  Particle(){};
-  ~Particle(){};
-  char* NameOfNucleus;
-  double Mass;
-  double Excitation;
-  int AtNumber;
-  int AtMass;
-  void ParticleID(char* name, char* path);
-  double ReturnMass(char* NON,char* WayMass);
-  char* ReactionInput(char* WayReaction);
-  TLorentzVector Part;
-};
-
 class RawTrack : public TNamed
 {
 public:
@@ -167,11 +148,6 @@ protected:
   Int_t fEvent;
   DownstreamMatter** EjMat;
 
-  char projname[5];
-  char tarname[5];  
-  char DetectedPart[32];
-  char UnObservedPart[32];
-
   int Ntelescopes = 0;
   int NTelMax=5;        /* Max nUpMatber of telescopes */
   int NLayMax=10;       /* Max nUpMatber of layers in telescopes */
@@ -191,8 +167,6 @@ protected:
   // ПРИЗНАК КАЧЕСТВА ДАННЫХ
   int* mp;
 
-  int NofDetPart;
-  int NofInPart;
   Particle*** ejectile;
   Particle* target;
   Particle* projectile;
@@ -254,22 +228,10 @@ protected:
   //объект, куда пишутся разности лоренц-векторов между тем, что было в начальной системе (target+projectile) и тем, что зарегистрировано.
   Particle*** mis;
 
-
-  double tof_0;
-  //кинетическая энергия target + projectile в центре масс.
-  double t_cm;
-  // энергетический эффект реакции - сколько энергии высвобождается, если "+", сколько поглощается, если "-"
-  double Qreaction;
-  //t_cm0 = t_cm+Qreaction это кинетическая энергия, доступная продуктам реакции в ЦМ.
-  double t_cm0;
-  //кинетическая энергия налетающей частицы (beam)
   double Tb;
   // различные промежуточные кинетические энергии
   double Ta,dT,Tout,Tboutput;
   double BeamSpread;
-  int NofUnObsPart;
-  // релятивистский гамма-фактор.
-  double beta_b,gamma_b,p_beam;
   // пробег в толще вещества
   double range;
   // это для симуляций
@@ -278,8 +240,6 @@ protected:
   double thscm,phiscm;
   // угол тэта в ЦМ между векторами скорости target и participant
   double thtp;
-  // вспомогательные переменные для кин энергии
-  double Tp1,Tp2,Tp3;
 
   TVector3** AngleDet;
   /*
@@ -288,31 +248,13 @@ protected:
   (Vbeam); направление на точку пересечения ионом дальней от мишени
   станции MWPC (far -VmwFa ) и ближней станции MWPc(close-VmwCl):
   */
-  TVector3 Vbeam;
-  TVector3 VmwFa,VmwCl,VbeamPlay,Vert1,Vert2;
+  TVector3 Vert1,Vert2;
 
   /*
   Это некие расстояния, нужные при определении точки входа налетающего иона в мишень. M - measured P-played
   */
-  double MdistX,MdistY,MdistZ,Rdist,PdistX,PdistY,PdistZ;
+  double Rdist,PdistX,PdistY,PdistZ;
 
-  /*
-  Ниже кусок неактуальный - посвящен анализу числа кластеров в детекторе.
-  кластер - это непрерывная последовательность зажЖенных стрипов. Нам пока
-  что достаточно рассматривать события, где сработал ровно один стрип в
-  каждой плоскости детектора.
-  */
-  int good_mw1 = 0;
-  int badclu_mw1 = 0;
-  int goodclu_mw1 = 0;
-  int good_mw2 = 0;
-  int badclu_mw2 = 0;
-  int goodclu_mw2 = 0;
-  int good_mw = 0;
-  int badclu_mw = 0;
-  int goodclu_mw = 0;
-
-  int good_mbeam = 0;
   int good_he6 = 0;
   int good_mp0 = 0;
   int good_mp1 = 0;
@@ -320,16 +262,12 @@ protected:
   int nread_tot = 0;
   int FlagCounter1 = 0;
   int FlagCounter2 = 0;
-
-  int i_flag_MW;
   //in
   ERBeamDetEvent* fBeamDetEvent;
   ERBeamDetCalEvent* fBeamDetCalEvent;
   ERDsrdCalEvent* fDsrdEvent;
   ERTelescopeCalEvent* fTelescopeEvent;
   //out
-  RawTrack* RawT;
-  TrackData* trackD;
   ERTelData* tel;
   ERInclusiveData* inclu;
 
@@ -339,29 +277,19 @@ protected:
   void ReadTelescopeParameters();
   void CreateTelescopeGeometry();
   void ReadDeDx();
-  int HowMuchParticles(char* str);
   void WhatParticlesInOut(Particle* ptr,char* str,int N);
   int ReadRint(char* Fname,double Ranges[][105]);
   int intrp4(double* x,double* y, double* c);
   void DefineBeamEnergy();
   double Stepantsov(char* D,int Z,double A,double I);
   void TelescopeThresholds();
-  double EiEo(double tableER[][105],double Tp,double Rp);
   void PrintReaction();
-  void ElossTOFaMWPCaTarget();
-  double UpstreamEnergyLoss(UpstreamMatter* pU,Particle* pP,bool Cond1,
-    bool Cond2,char* Show);
-  void MWPC();
-  int mcluMW(int mMW,int* nMW);
-  double coordMW(UpstreamMatter* pT,RawTrack* pR,char* MWid,char* XY);
-  void Tof();
   TVector3 Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 Vint);
   TVector3 VertexPosition(TVector3 V1,TVector3 V2,TVector3 V3,TVector3 V4);
   void InitMemory();
   void InLabFrame();
   void InReactionCM();
   void InProjectileFrame();
-  void ReactionPreparation();
   void InitParticlesInOutputs();
   void CheckInOutAZ();
 private:

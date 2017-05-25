@@ -41,8 +41,8 @@ void he8(Int_t nEvents = 10)
   beamDetCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
   run->AddTask(beamDetCalibrator);
 
-  ERHe8Analyzer* reconstructor = new ERHe8Analyzer(1);
-  run->AddTask(reconstructor);
+  ERBeamDetReconstructor* beamDetRecon = new ERBeamDetReconstructor(1);
+  run->AddTask(beamDetRecon);
   
   // --- Start run
   TStopwatch timer;
