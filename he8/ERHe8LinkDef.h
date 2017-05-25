@@ -23,4 +23,7 @@
 #pragma link C++ class RawTrack+;
 #pragma link C++ class TrackData+;
 
+#pragma link C++ class ERBeamDetRecoEvent+;
+#pragma link C++ class ERBeamDetReconstructor+;
+
 #endif

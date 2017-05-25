@@ -25,6 +25,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 	beamdet/data/ERBeamDetEvent.cxx
 	beamdet/data/ERBeamDetCalEvent.cxx
+	beamdet/data/ERBeamDetRecoEvent.cxx
 	data/ERHe8EventHeader.cxx
 	data/ERRawEvent.cxx
 	data/ERTelescopeEvent.cxx
@@ -36,6 +37,7 @@ set(SRCS
 	ERDsrdCalibrator.cxx
 	ERTelescopeCalibrator.cxx
 	beamdet/ERBeamDetCalibrator.cxx
+	beamdet/ERBeamDetReconstructor.cxx
 	ERHe8Analyzer.cxx
 )
 

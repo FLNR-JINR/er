@@ -18,9 +18,9 @@
 #include "ERTelescopeCalEvent.h"
 #include "ERTelData.h"
 #include "ERInclusiveData.h"
+#include "ERHe8EventHeader.h"
 
 #define pi 3.14159265358979323846
-#define rad 0.01745329252 /* pi/180 */
 #define slight 29.9792458 /* light speed (cm/nsec) */
 #define hc 197.3425 /* Plank*c (MeV*fm) */
 #define AMU 931.494028 /* atomic mass unit (MeV) */
@@ -77,109 +77,6 @@ public:
   double ResS0;
   double MomP0;
   double MomS0;
-};
-
-class ReactionDataInput 
-{
-public:
-  ReactionDataInput(){};
-  ~ReactionDataInput(){}
-  char ReactionName[32];
-  char Mechanism[32];
-  char AboutBeam[32];
-  char AboutSlit[32];
-  char EnergyUn[32];
-  char SlitUn[32];
-  char Fname[32];
-  bool Simulation;
-  bool Vertex;
-  bool DetectorTune;
-  bool TOFis;
-  bool TRACKINGis;
-  bool TrackCheck;
-  bool WriteRawData;
-  bool WriteCalData;
-  bool WriteTofData;
-  bool WriteTrackData;
-  bool WriteTelData;
-  bool WritePhysData;
-  bool WritePlayData;
-  bool WriteRawTrack;
-  int ifill[8];
-};
-
-class UpstreamMatter 
-{
-public:
-  UpstreamMatter(){};
-  ~UpstreamMatter(){}
-  char PlasticMatter1[16];
-  char PlasticMatter2[16];
-  char MWwinMatter[16];
-  char MWcathMatter[16];
-  char MWgasMatter[16];
-  char HeatScreenAns[16];
-  char HeatScreenMatter[16];
-  char TarShape[16];
-  char TarFoilMatter[16];
-  int MWclosXNum;
-  int MWclosYNum;
-  double MWXYdist;
-  double MWstep;
-  int MWNcathodes;
-  int MWNwires;
-  double MWfarDist;
-  double MWfarXshift;
-  double MWfarYshift;
-  int MWfarXNum;
-  int MWfarYNum;
-  double MWclosDist;
-  double MWclosXshift;
-  double MWclosYshift;
-  double PlasticThick1;
-  double PlasticThick2;
-  double MWwinThick;
-  double MWcathThick;
-  double MWgasThick;
-  double PlasticAngle1;
-  double PlasticAngle2;
-  double PlasticDist;
-  double TofRes;
-  double tF3l_rng;
-  double tF3r_rng;
-  double tF4l_rng;
-  double tF4r_rng;
-  double tF3_dlt;
-  double tF4_dlt;
-  double beam_TOF[10][105];
-  double beam_MWwin[10][105];
-  double beam_MWgas[10][105];
-  double beam_MWcathod[10][105];
-  double beam_TARwin[10][105];
-  double beam_target[10][105];
-  double beam_heatscreen[10][105];
-  double TarRadius;
-  double TarXshift;
-  double TarYshift;
-  double TarZshift;
-  double TarFoilThick;
-  double TarThick;
-  double TarHeight;
-  double TarWallThick;
-  double TarEntrHoleThick;
-  double TarTemp;
-  double TarPress;
-  double TarAngle;
-  double FoilThick;
-  double TarEntrHoleRad;
-  double MeniskSize;
-  double HeatScreenThick;
-  double InHscrRad;
-  double HscrWallWidth;
-  double HscrHeight;
-  double EntrHRad;
-  double ExHX;
-  double ExHY;
 };
 
 class DownstreamMatter
@@ -265,10 +162,9 @@ public:
   /** Virtual method Reset **/
   virtual void Reset();
 protected:
+  ERHe8EventHeader* header;
+
   Int_t fEvent;
-  ReactionDataInput* ReIN;
-  SimulationData* SimDat;
-  UpstreamMatter* UpMat;
   DownstreamMatter** EjMat;
 
   char projname[5];
@@ -442,7 +338,6 @@ protected:
 
   void ReadTelescopeParameters();
   void CreateTelescopeGeometry();
-  void ReadInputData();
   void ReadDeDx();
   int HowMuchParticles(char* str);
   void WhatParticlesInOut(Particle* ptr,char* str,int N);
