@@ -16,14 +16,11 @@ void he8(Int_t nEvents = 10)
   ERTelescopeEvent* telEvent = new ERTelescopeEvent();
   source->AddEvent(telEvent);
 
-  ERMwpcEvent* mwpcEvent = new ERMwpcEvent();
-  source->AddEvent(mwpcEvent);
+  ERBeamDetEvent* beamDetEvent = new ERBeamDetEvent();
+  source->AddEvent(beamDetEvent);
 
   ERDsrdEvent* dsrdEvent = new ERDsrdEvent();
   source->AddEvent(dsrdEvent);
-
-  ERTofEvent* tofEvent = new ERTofEvent();
-  source->AddEvent(tofEvent);
 
   // --- Run
   FairRunOnline *run = new FairRunOnline(source);
@@ -40,12 +37,12 @@ void he8(Int_t nEvents = 10)
   telCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
   run->AddTask(telCalibrator);
 
-  ERTofCalibrator* tofCalibrator = new ERTofCalibrator();
-  tofCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
-  run->AddTask(tofCalibrator);
+  ERBeamDetCalibrator* beamDetCalibrator = new ERBeamDetCalibrator();
+  beamDetCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
+  run->AddTask(beamDetCalibrator);
 
-  ERHe8Analyzer* tracker = new ERHe8Analyzer(1);
-  run->AddTask(tracker);
+  ERHe8Analyzer* reconstructor = new ERHe8Analyzer(1);
+  run->AddTask(reconstructor);
   
   // --- Start run
   TStopwatch timer;

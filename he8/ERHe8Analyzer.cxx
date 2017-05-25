@@ -33,8 +33,8 @@ ERHe8Analyzer::ERHe8Analyzer()
   target(new Particle()),
   projectile(new Particle()),
   CM0(new Particle()),
-  fMwpcEvent(NULL),
-  fTofEvent(NULL),
+  fBeamDetEvent(NULL),
+  fBeamDetCalEvent(NULL),
   fDsrdEvent(NULL),
   fTelescopeEvent(NULL),
   mis(NULL),
@@ -64,8 +64,8 @@ ERHe8Analyzer::ERHe8Analyzer(Int_t verbose)
   target(new Particle()),
   projectile(new Particle()),
   CM0(new Particle()),
-  fMwpcEvent(NULL),
-  fTofEvent(NULL),
+  fBeamDetEvent(NULL),
+  fBeamDetCalEvent(NULL),
   fDsrdEvent(NULL),
   mis(NULL),
   fTelescopeEvent(NULL),
@@ -89,12 +89,12 @@ InitStatus ERHe8Analyzer::Init(){
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
   //Get input objects
-  fMwpcEvent = (ERMwpcEvent*)ioman->GetObject("MwpcEvent.");
-  if (!fMwpcEvent)
+  fBeamDetEvent = (ERBeamDetEvent*)ioman->GetObject("BeamDetEvent.");
+  if (!fBeamDetEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
-  fTofEvent = (ERTofCalEvent*)ioman->GetObject("TofCalEvent.");
-  if (!fTofEvent)
+  fBeamDetCalEvent = (ERBeamDetCalEvent*)ioman->GetObject("BeamDetCalEvent.");
+  if (!fBeamDetCalEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
   fDsrdEvent = (ERDsrdCalEvent*)ioman->GetObject("DsrdCalEvent.");
@@ -598,40 +598,40 @@ void ERHe8Analyzer::Tof(){
   {
     header->mbeam = 0;
     // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
-    //        fTofEvent->tF3l = fTofEvent->tF3l - fTofEvent->tF4r+ParD.CLB[3][0][0][1];
-    //        fTofEvent->tF3r = fTofEvent->tF3r - fTofEvent->tF4r+ParD.CLB[3][1][0][1];
-    //        fTofEvent->tF4l = fTofEvent->tF4l - fTofEvent->tF4r+ParD.CLB[4][1][0][1];
-    //        fTofEvent->tF4r = fTofEvent->tF4r - fTofEvent->tF4r+ParD.CLB[4][0][0][1];
+    //        fBeamDetCalEvent->tF3l = fBeamDetCalEvent->tF3l - fBeamDetCalEvent->tF4r+ParD.CLB[3][0][0][1];
+    //        fBeamDetCalEvent->tF3r = fBeamDetCalEvent->tF3r - fBeamDetCalEvent->tF4r+ParD.CLB[3][1][0][1];
+    //        fBeamDetCalEvent->tF4l = fBeamDetCalEvent->tF4l - fBeamDetCalEvent->tF4r+ParD.CLB[4][1][0][1];
+    //        fBeamDetCalEvent->tF4r = fBeamDetCalEvent->tF4r - fBeamDetCalEvent->tF4r+ParD.CLB[4][0][0][1];
     // ****************************************************************************************************************************************
           
-            dt_F3 = (fTofEvent->tF3l-fTofEvent->tF3r);
-            dt_F4 = (fTofEvent->tF4l-fTofEvent->tF4r);
+            dt_F3 = (fBeamDetCalEvent->tF3l-fBeamDetCalEvent->tF3r);
+            dt_F4 = (fBeamDetCalEvent->tF4l-fBeamDetCalEvent->tF4r);
 
     //        if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt&&
-    //        fabs(fTofEvent->tF3l)<=UpMat->tF3l_rng&&fabs(fTofEvent->tF3r)<=UpMat->tF3r_rng&&
-    //        fabs(fTofEvent->tF4l)<=UpMat->tF4l_rng&&fabs(fTofEvent->tF4r)<=UpMat->tF4r_rng)
+    //        fabs(fBeamDetCalEvent->tF3l)<=UpMat->tF3l_rng&&fabs(fBeamDetCalEvent->tF3r)<=UpMat->tF3r_rng&&
+    //        fabs(fBeamDetCalEvent->tF4l)<=UpMat->tF4l_rng&&fabs(fBeamDetCalEvent->tF4r)<=UpMat->tF4r_rng)
     //        if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt)
     //        {
     //printf("*********************************\n");
-    //          t_F3 = (Rnd.Gaus(fTofEvent->tF3l,UpMat->TofRes/2.35)+Rnd.Gaus(fTofEvent->tF3r,UpMat->TofRes/2.35))/2;
-    //          t_F4 = (Rnd.Gaus(fTofEvent->tF4l,UpMat->TofRes/2.35)+Rnd.Gaus(fTofEvent->tF4r,UpMat->TofRes/2.35))/2.;
-          t_F4 = Rnd.Gaus(fTofEvent->tF4l,UpMat->TofRes/2.35);
-          t_F3 = Rnd.Gaus(fTofEvent->tF3r,UpMat->TofRes/2.35);
-    //          t_F4 = Rnd.Gaus((fTofEvent->tF4l+fTofEvent->tF4r)/2,UpMat->TofRes/2.35);
+    //          t_F3 = (Rnd.Gaus(fBeamDetCalEvent->tF3l,UpMat->TofRes/2.35)+Rnd.Gaus(fBeamDetCalEvent->tF3r,UpMat->TofRes/2.35))/2;
+    //          t_F4 = (Rnd.Gaus(fBeamDetCalEvent->tF4l,UpMat->TofRes/2.35)+Rnd.Gaus(fBeamDetCalEvent->tF4r,UpMat->TofRes/2.35))/2.;
+          t_F4 = Rnd.Gaus(fBeamDetCalEvent->tF4l,UpMat->TofRes/2.35);
+          t_F3 = Rnd.Gaus(fBeamDetCalEvent->tF3r,UpMat->TofRes/2.35);
+    //          t_F4 = Rnd.Gaus((fBeamDetCalEvent->tF4l+fBeamDetCalEvent->tF4r)/2,UpMat->TofRes/2.35);
     // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
-    //          fTofEvent->tofb = t_F4 - t_F3 + tof_0;
+    //          fBeamDetCalEvent->tofb = t_F4 - t_F3 + tof_0;
     // ********************************* measurement of absolute TOF value tof_offset = dT1-L0*(dT1-dT0)/(L1-L0)*******************************
-          fTofEvent->tofb = t_F4 - t_F3 + tof_offset;
-    //if(fTofEvent->tofb<130.) 
+          fBeamDetCalEvent->tofb = t_F4 - t_F3 + tof_offset;
+    //if(fBeamDetCalEvent->tofb<130.) 
     //{printf("ntF3l=%i,ntF3r=%i,ntF4l=%i,ntF4r=%i\n",RawD.ntF3l,RawD.ntF3r,RawD.ntF4l,RawD.ntF4r);
-    //printf("tF3l=%lf,tF3r=%lf,tF4l=%lf,tF4r=%lf,  TOF=%lf\n",fTofEvent->tF3l,fTofEvent->tF3r,fTofEvent->tF4l,fTofEvent->tF4r,fTofEvent->tofb);
-    //printf("t_F3=%lf,t_F4=%lf,(fTofEvent->tF3l+fTofEvent->tF3r)/2=%lf,(fTofEvent->tF4l+fTofEvent->tF4r)/2=%lf,  TOF=%lf\n",t_F3,t_F4,(fTofEvent->tF3l+fTofEvent->tF3r)/2,
-    //(fTofEvent->tF4l+fTofEvent->tF4r)/2,(fTofEvent->tF4l+fTofEvent->tF4r-fTofEvent->tF3l-fTofEvent->tF3r)/2+ tof_offset);}
+    //printf("tF3l=%lf,tF3r=%lf,tF4l=%lf,tF4r=%lf,  TOF=%lf\n",fBeamDetCalEvent->tF3l,fBeamDetCalEvent->tF3r,fBeamDetCalEvent->tF4l,fBeamDetCalEvent->tF4r,fBeamDetCalEvent->tofb);
+    //printf("t_F3=%lf,t_F4=%lf,(fBeamDetCalEvent->tF3l+fBeamDetCalEvent->tF3r)/2=%lf,(fBeamDetCalEvent->tF4l+fBeamDetCalEvent->tF4r)/2=%lf,  TOF=%lf\n",t_F3,t_F4,(fBeamDetCalEvent->tF3l+fBeamDetCalEvent->tF3r)/2,
+    //(fBeamDetCalEvent->tF4l+fBeamDetCalEvent->tF4r)/2,(fBeamDetCalEvent->tF4l+fBeamDetCalEvent->tF4r-fBeamDetCalEvent->tF3l-fBeamDetCalEvent->tF3r)/2+ tof_offset);}
     // ****************************************************************************************************************************************
-          if(fTofEvent->aF4r+fTofEvent->aF4l>500.&&fTofEvent->tofb<150.&&fTofEvent->tofb>60.)
+          if(fBeamDetCalEvent->aF4r+fBeamDetCalEvent->aF4l>500.&&fBeamDetCalEvent->tofb<150.&&fBeamDetCalEvent->tofb>60.)
           {
 
-            beta_b = UpMat->PlasticDist/fTofEvent->tofb/slight;
+            beta_b = UpMat->PlasticDist/fBeamDetCalEvent->tofb/slight;
 
             if(beta_b>0.&&beta_b<=1.)
             {
@@ -664,14 +664,14 @@ void ERHe8Analyzer::Tof(){
               target->Part.Boost(CM0->Part.BoostVector());
               if(t_cm>0.) good_mbeam++;
               else header->mbeam = 0;
-              fTofEvent->tb = projectile->Part.E()-projectile->Mass;
-              fTofEvent->tcm = t_cm;              
+              fBeamDetCalEvent->tb = projectile->Part.E()-projectile->Mass;
+              fBeamDetCalEvent->tcm = t_cm;              
 
               trackD->xbt = MdistX+(-UpMat->MWgasThick/2-UpMat->MWclosDist+UpMat->TarZshift)*sin(Vbeam.Theta())*cos(Vbeam.Phi())/cos(Vbeam.Theta());
               trackD->ybt = MdistY+(-UpMat->MWgasThick/2-UpMat->MWclosDist+UpMat->TarZshift)*sin(Vbeam.Theta())*sin(Vbeam.Phi())/cos(Vbeam.Theta());
               trackD->zbt = UpMat->TarZshift;
             } /* if(beta_b>0.&&beta_b<=1.) */  
-          } /* if(fTofEvent->aF4r+fTofEvent->aF4l>500.) */
+          } /* if(fBeamDetCalEvent->aF4r+fBeamDetCalEvent->aF4l>500.) */
           //        } /* if(fabs(dt_F4)<=UpMat->tF4_dlt&&fabs(dt_F3)<=UpMat->tF3_dlt&& */
       } /* if(ReIN.TOFis) */
       if(i_flag_MW==1&&sqrt(pow(trackD->xbt,2)+pow(trackD->ybt,2))<UpMat->TarEntrHoleRad) header->mtrack = 1;
@@ -687,19 +687,19 @@ void ERHe8Analyzer::MWPC(){
           RawT->nMW11[iMW] = 0;RawT->nMW12[iMW] = 0;
           RawT->nMW21[iMW] = 0;RawT->nMW22[iMW] = 0;
         }
-        RawT->mMW12 = fMwpcEvent->nx1;
-        RawT->mMW11 = fMwpcEvent->ny1;
-        RawT->mMW22 = fMwpcEvent->nx2;
-        RawT->mMW21 = fMwpcEvent->ny2;
+        RawT->mMW12 = fBeamDetEvent->nx1;
+        RawT->mMW11 = fBeamDetEvent->ny1;
+        RawT->mMW22 = fBeamDetEvent->nx2;
+        RawT->mMW21 = fBeamDetEvent->ny2;
         
         if(RawT->mMW11>=1&&RawT->mMW12>=1) good_mw1++;
         if(RawT->mMW21>=1&&RawT->mMW22>=1) good_mw2++;
         if(RawT->mMW11>=1&&RawT->mMW12>=1&&RawT->mMW21>=1&&RawT->mMW22>=1) good_mw++;
 
-        for(int iMW=1;iMW<=RawT->mMW11;iMW++) RawT->nMW11[iMW-1] = fMwpcEvent->y1[iMW-1];
-        for(int iMW=1;iMW<=RawT->mMW12;iMW++) RawT->nMW12[iMW-1] = fMwpcEvent->x1[iMW-1];
-        for(int iMW=1;iMW<=RawT->mMW21;iMW++) RawT->nMW21[iMW-1] = fMwpcEvent->y2[iMW-1];
-        for(int iMW=1;iMW<=RawT->mMW22;iMW++) RawT->nMW22[iMW-1] = fMwpcEvent->x2[iMW-1];
+        for(int iMW=1;iMW<=RawT->mMW11;iMW++) RawT->nMW11[iMW-1] = fBeamDetEvent->y1[iMW-1];
+        for(int iMW=1;iMW<=RawT->mMW12;iMW++) RawT->nMW12[iMW-1] = fBeamDetEvent->x1[iMW-1];
+        for(int iMW=1;iMW<=RawT->mMW21;iMW++) RawT->nMW21[iMW-1] = fBeamDetEvent->y2[iMW-1];
+        for(int iMW=1;iMW<=RawT->mMW22;iMW++) RawT->nMW22[iMW-1] = fBeamDetEvent->x2[iMW-1];
 
         RawT->mcMW11 = mcluMW(RawT->mMW11,RawT->nMW11);
         RawT->mcMW12 = mcluMW(RawT->mMW12,RawT->nMW12);

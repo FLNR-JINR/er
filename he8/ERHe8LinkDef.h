@@ -5,18 +5,17 @@
 #pragma link off all functions;
 
 #pragma link C++ class ERRawEvent+;
+#pragma link C++ class ERBeamDetEvent+;
+#pragma link C++ class ERBeamDetCalEvent+;
 #pragma link C++ class ERTelescopeEvent+;
-#pragma link C++ class ERMwpcEvent+;
 #pragma link C++ class ERDsrdEvent+;
-#pragma link C++ class ERTofEvent+;
 #pragma link C++ class ERHe8EventHeader+;
 #pragma link C++ class ERDsrdCalEvent+;
 #pragma link C++ class ERTelescopeCalEvent+;
-#pragma link C++ class ERTofCalEvent+;
 
 #pragma link C++ class ERDsrdCalibrator+;
 #pragma link C++ class ERTelescopeCalibrator+;
-#pragma link C++ class ERTofCalibrator+;
+#pragma link C++ class ERBeamDetCalibrator+;
 
 #pragma link C++ class ERHe8Analyzer+;
 #pragma link C++ class ERTelData+;

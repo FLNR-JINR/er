@@ -1,32 +1,32 @@
 // -------------------------------------------------------------------------
-// -----                  ERTofCalibrator header file          -----
+// -----                  ERBeamDetCalibrator header file          -----
 // -----                  Created 04/17  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
-#ifndef ERTofCalibrator_H
-#define ERTofCalibrator_H
+#ifndef ERBeamDetCalibrator_H
+#define ERBeamDetCalibrator_H
 
 #include "TRandom.h"
 
 #include "FairTask.h"
 
 
-#include "ERTofEvent.h"
-#include "ERTofCalEvent.h"
+#include "ERBeamDetEvent.h"
+#include "ERBeamDetCalEvent.h"
 
-class ERTofCalibrator : public FairTask {
+class ERBeamDetCalibrator : public FairTask {
 
 public:
   /** Default constructor **/
-  ERTofCalibrator();
+  ERBeamDetCalibrator();
 
   /** Constructor 
   ** verbose: 1 - only standard log print
   **/
-  ERTofCalibrator(Int_t verbose);
+  ERBeamDetCalibrator(Int_t verbose);
 
   /** Destructor **/
-  ~ERTofCalibrator();
+  ~ERBeamDetCalibrator();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -43,9 +43,9 @@ public:
   void SetParametersFile(TString path){fPath = path;}
 protected:
   //Input objects
-  ERTofEvent* fInEvent;
+  ERBeamDetEvent* fInEvent;
 
-  ERTofCalEvent* fOutEvent;
+  ERBeamDetCalEvent* fOutEvent;
 
   Int_t fEvent;
 
@@ -57,7 +57,7 @@ private:
 
   virtual void SetParContainers();
   
-  ClassDef(ERTofCalibrator,1)
+  ClassDef(ERBeamDetCalibrator,1)
 };
 
 #endif

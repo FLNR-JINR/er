@@ -12,9 +12,8 @@
 #include "TGeoManager.h"
 
 #include "FairTask.h"
-
-#include "ERMwpcEvent.h"
-#include "ERTofCalEvent.h"
+#include "ERBeamDetEvent.h"
+#include "ERBeamDetCalEvent.h"
 #include "ERDsrdCalEvent.h"
 #include "ERTelescopeCalEvent.h"
 #include "ERTelData.h"
@@ -428,8 +427,8 @@ protected:
 
   int i_flag_MW;
   //in
-  ERMwpcEvent* fMwpcEvent;
-  ERTofCalEvent* fTofEvent;
+  ERBeamDetEvent* fBeamDetEvent;
+  ERBeamDetCalEvent* fBeamDetCalEvent;
   ERDsrdCalEvent* fDsrdEvent;
   ERTelescopeCalEvent* fTelescopeEvent;
   //out

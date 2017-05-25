@@ -9,6 +9,8 @@ ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/he8/
 ${CMAKE_SOURCE_DIR}/he8/data
+${CMAKE_SOURCE_DIR}/he8/beamdet/
+${CMAKE_SOURCE_DIR}/he8/beamdet/data
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -21,20 +23,19 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
+	beamdet/data/ERBeamDetEvent.cxx
+	beamdet/data/ERBeamDetCalEvent.cxx
 	data/ERHe8EventHeader.cxx
 	data/ERRawEvent.cxx
 	data/ERTelescopeEvent.cxx
-	data/ERMwpcEvent.cxx
 	data/ERDsrdEvent.cxx
-	data/ERTofEvent.cxx
 	data/ERDsrdCalEvent.cxx
 	data/ERTelescopeCalEvent.cxx
-	data/ERTofCalEvent.cxx
 	data/ERTelData.cxx
 	data/ERInclusiveData.cxx
 	ERDsrdCalibrator.cxx
 	ERTelescopeCalibrator.cxx
-	ERTofCalibrator.cxx
+	beamdet/ERBeamDetCalibrator.cxx
 	ERHe8Analyzer.cxx
 )
 

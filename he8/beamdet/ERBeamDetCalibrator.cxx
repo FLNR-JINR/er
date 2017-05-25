@@ -1,4 +1,4 @@
-#include "ERTofCalibrator.h"
+#include "ERBeamDetCalibrator.h"
 
 #include<iostream>
 using namespace std;
@@ -10,7 +10,7 @@ using namespace std;
 #include "FairRuntimeDb.h"
 
 // ----------------------------------------------------------------------------
-ERTofCalibrator::ERTofCalibrator()
+ERBeamDetCalibrator::ERBeamDetCalibrator()
   : FairTask("Convert Raw event to analyse event"),
   fInEvent(NULL),
   fOutEvent(NULL),
@@ -21,7 +21,7 @@ ERTofCalibrator::ERTofCalibrator()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERTofCalibrator::ERTofCalibrator(Int_t verbose)
+ERBeamDetCalibrator::ERBeamDetCalibrator(Int_t verbose)
   : FairTask("Convert Raw event to analyse event", verbose),
   fInEvent(NULL),
   fOutEvent(NULL),
@@ -32,25 +32,25 @@ ERTofCalibrator::ERTofCalibrator(Int_t verbose)
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERTofCalibrator::~ERTofCalibrator()
+ERBeamDetCalibrator::~ERBeamDetCalibrator()
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERTofCalibrator::SetParContainers()
+void ERBeamDetCalibrator::SetParContainers()
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-InitStatus ERTofCalibrator::Init()
+InitStatus ERBeamDetCalibrator::Init()
 {
-  if (fPath == "") Fatal("Init", "No parameters file in ERTofCalibrator");
+  if (fPath == "") Fatal("Init", "No parameters file in ERBeamDetCalibrator");
 
   FILE *F2 = fopen(fPath.Data(),"r");
   if(F2==NULL) 
-    Fatal("Init", TString("ERTofCalibrator: file ") + fPath + TString(" is not found"));
+    Fatal("Init", TString("ERBeamDetCalibrator: file ") + fPath + TString(" is not found"));
   else
   {
     double a,b,t;
@@ -71,22 +71,22 @@ InitStatus ERTofCalibrator::Init()
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
   //Get input objects
-  fInEvent = (ERTofEvent*)ioman->GetObject("TofEvent.");
+  fInEvent = (ERBeamDetEvent*)ioman->GetObject("BeamDetEvent.");
   if (!fInEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
-  fOutEvent = new ERTofCalEvent();
-  ioman->Register("TofCalEvent.","Analyze",fOutEvent, kTRUE);
+  fOutEvent = new ERBeamDetCalEvent();
+  ioman->Register("BeamDetCalEvent.","Analyze",fOutEvent, kTRUE);
 
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void ERTofCalibrator::Exec(Option_t* opt)
+void ERBeamDetCalibrator::Exec(Option_t* opt)
 {
   //std::cout << std::endl;
-  //std::cout << "####### ERTofCalibrator EVENT " << fEvent++ << " #####" << std::endl;
+  //std::cout << "####### ERBeamDetCalibrator EVENT " << fEvent++ << " #####" << std::endl;
   Reset();
   fOutEvent->tF3l = (fInEvent->ntF3l+Ran.Uniform(-0.5,0.5))*CLB[2][0][0][0];
   fOutEvent->tF3r = (fInEvent->ntF3r+Ran.Uniform(-0.5,0.5))*CLB[2][1][0][0];
@@ -100,16 +100,16 @@ void ERTofCalibrator::Exec(Option_t* opt)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void ERTofCalibrator::Reset()
+void ERBeamDetCalibrator::Reset()
 {
   fOutEvent->Reset();
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERTofCalibrator::Finish()
+void ERBeamDetCalibrator::Finish()
 {   
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-ClassImp(ERTofCalibrator)
+ClassImp(ERBeamDetCalibrator)
