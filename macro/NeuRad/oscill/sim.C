@@ -45,7 +45,7 @@ void sim(Int_t nEvents = 100){
   */
   Int_t verbose = 1;
   ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,verbose);
-  neuRad->SetGeometryFileName("NeuRad.v4.geo.root");
+  neuRad->SetGeometryFileName("NeuRad.v5.geo.root");
   /* Select storing stepss
    * not store steps
    * SetStorePrimarySteps() - store only primary particle step
@@ -74,7 +74,7 @@ void sim(Int_t nEvents = 100){
   // ------------------------------------------------------------------------
 	
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kTRUE);
+  //run->SetStoreTraj(kTRUE);
 	
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
