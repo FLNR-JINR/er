@@ -20,43 +20,12 @@
 #include "ERHe8EventHeader.h"
 #include "ERParticle.h"
 
+#include "ERTelescopeReconstructor.h"
+
 #define pi 3.14159265358979323846
 #define hc 197.3425 /* Plank*c (MeV*fm) */
 
-class Telescope
-{
-public:
-  Telescope(){};
-  ~Telescope(){}
-  char Shape[12];
-  char Matt[12];
-  char StripFB[12];
-  double Theta;
-  double Psi;
-  double DeltaAlpha;
-  double DeltaBeta;
-  double DeltaGamma;
-  double Dist;
-  double DeadZoneF;
-  double DeadZoneB;
-  double Thick;
-  double Rin;
-  double Rout;
-  double DeltaPhi;
-  double OffsetX;
-  double OffsetY;
-  double SizeX;
-  double SizeY;
-  int NstripX;
-  int NstripY;
-  int Nring;
-  int Nsector;
-  TVector3 DetLabVect;
-  TVector3 DetOwnAxisX; 
-  TVector3 DetOwnAxisY; 
-  TVector3 DetOwnAxisZ; 
-};
-
+/*
 class SimulationData 
 {
 public:
@@ -75,18 +44,9 @@ public:
   double MomP0;
   double MomS0;
 };
+*/
 
-class DownstreamMatter
-{
-public:
-  double ej_si[10][105];
-  double ej_csi[10][105];
-  double ej_TARwin[10][105];
-  double ej_target[10][105];
-  double ej_heatscreen[10][105];
-};
-
-
+/*
 class RawTrack : public TNamed
 {
 public:

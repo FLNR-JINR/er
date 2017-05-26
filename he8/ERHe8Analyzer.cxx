@@ -556,12 +556,7 @@ void ERHe8Analyzer::Exec(Option_t* opt){
   header->mp1 = mp[0]; header->mp2 = mp[1]; header->mp3 = mp[2];
   if(mp[0]&&header->mtrack&&header->mbeam) good_mp0++;
   if(mp[1]&&header->mtrack&&header->mbeam) good_mp1++;
-
-  int NxX1,NyX1,NxY1,NyY1,NxX2,NyX2,NxY2,NyY2;
-  double dst,minX1,minY1,minX2,minY2;
-  double dstmin = 1000.;
-  int Nstep = 20;
-  double Delta = 0.05;
+  
   double tarcoord[3];
   //this one for He8 experiment
   if(!header->ReIN.Vertex&&!header->ReIN.DetectorTune)
