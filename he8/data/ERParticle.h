@@ -16,7 +16,7 @@ class ERParticle: public TNamed {
 public:
 	ERParticle();
 	virtual ~ERParticle();
-	char* NameOfNucleus;
+	char* NameOfNucleus;		//!
 	double Mass;
 	double Excitation;
 	int AtNumber;

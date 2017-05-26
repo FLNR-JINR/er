@@ -20,8 +20,6 @@ ERBeamDetReconstructor::ERBeamDetReconstructor()
 {
 }
 // ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
 ERBeamDetReconstructor::ERBeamDetReconstructor(Int_t verbose)
   : FairTask("Convert cal event to reco event", verbose),
   fInEvent(NULL),
@@ -31,19 +29,13 @@ ERBeamDetReconstructor::ERBeamDetReconstructor(Int_t verbose)
 {
 }
 // ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
 ERBeamDetReconstructor::~ERBeamDetReconstructor()
 {
 }
 // ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
 void ERBeamDetReconstructor::SetParContainers()
 {
 }
-// ----------------------------------------------------------------------------
-
 // ----------------------------------------------------------------------------
 InitStatus ERBeamDetReconstructor::Init()
 {
@@ -66,17 +58,21 @@ InitStatus ERBeamDetReconstructor::Init()
   FairRun* run = FairRun::Instance();
   header = (ERHe8EventHeader*)run->GetEventHeader();
 
+  TString filePath  = gSystem->Getenv("VMCWORKDIR") + TString("/input/StableNuclei.dat");
+  char* WayMass= const_cast<char*>(filePath.Data());
+  fOutEvent->projectile.ParticleID(header->projname,WayMass);
+  fOutEvent->target.ParticleID(header->tarname,WayMass);
+  fOutEvent->target.Part.SetPxPyPzE(0.,0.,0.,fOutEvent->target.Mass);
+  ReadDeDx();
+  DefineBeamEnergy();
   ElossTOFaMWPCaTarget();
 
   return kSUCCESS;
 }
-// -------------------------------------------------------------------------
-
 // -----   Public method Exec   --------------------------------------------
 void ERBeamDetReconstructor::Exec(Option_t* opt)
 {
-  //std::cout << std::endl;
-  //std::cout << "####### ERBeamDetReconstructor EVENT " << fEvent++ << " #####" << std::endl;
+  std::cout << "####### ERBeamDetReconstructor EVENT " << fEvent++ << " #####" << std::endl;
   Reset();
   MWPC();
   Tof();
@@ -90,7 +86,6 @@ void ERBeamDetReconstructor::Tof(){
   double dt_F3,dt_F4,t_F3,t_F4;
   header->mtrack = i_flag_MW;
   //RawD.mtrack = 1;i_flag_MW = 1;
-  float Tb;
 
     header->mbeam = 0;
     // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
@@ -392,9 +387,11 @@ void ERBeamDetReconstructor::ElossTOFaMWPCaTarget(){
   */
   char ShowTrack[10];
   double range = header->UpMat.PlasticThick2;
-  TbInit = EiEo(header->UpMat.beam_TOF,fOutEvent->projectile.Part.E()-fOutEvent->projectile.Mass,header->UpMat.PlasticThick2);
-  p_beam = sqrt(pow(TbInit+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));
-  fOutEvent->projectile.Part.SetPxPyPzE(0.,0.,p_beam,TbInit+fOutEvent->projectile.Mass);
+
+  Tb = EiEo(header->UpMat.beam_TOF,fOutEvent->projectile.Part.E()-fOutEvent->projectile.Mass,header->UpMat.PlasticThick2);
+  cout << "energey" <<Tb << endl;
+  p_beam = sqrt(pow(Tb+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));
+  fOutEvent->projectile.Part.SetPxPyPzE(0.,0.,p_beam,Tb+fOutEvent->projectile.Mass);
   if(header->ReIN.TOFis)
   {
     tof_0 = header->UpMat.PlasticDist/sqrt(1-pow(fOutEvent->projectile.Mass/fOutEvent->projectile.Part.E(),2))/slight;
@@ -402,16 +399,17 @@ void ERBeamDetReconstructor::ElossTOFaMWPCaTarget(){
     printf("TOF measured between two plastics on the base of %lf cm is %lf ns\n",header->UpMat.PlasticDist,tof_0);
   }
   strcpy(ShowTrack,"visible");
-  TbInit = UpstreamEnergyLoss(&(header->UpMat),&(fOutEvent->projectile),header->ReIN.TOFis,header->ReIN.TRACKINGis,ShowTrack);
-  p_beam = sqrt(pow(TbInit+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));
-  fOutEvent->projectile.Part.SetPxPyPzE(0.,0.,p_beam,TbInit+fOutEvent->projectile.Mass);
+  Tb = UpstreamEnergyLoss(&(header->UpMat),&(fOutEvent->projectile),header->ReIN.TOFis,header->ReIN.TRACKINGis,ShowTrack);
+  cout << "energey" <<Tb << endl;
+  p_beam = sqrt(pow(Tb+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));
+  fOutEvent->projectile.Part.SetPxPyPzE(0.,0.,p_beam,Tb+fOutEvent->projectile.Mass);
 
   //target
-  if(!strcmp(header->UpMat.HeatScreenAns,"yes")) TbInit = EiEo(header->UpMat.beam_TARwin,TbInit,header->UpMat.HeatScreenThick);
-  if(TbInit>0.1) TbInit = EiEo(header->UpMat.beam_TARwin,TbInit,header->UpMat.FoilThick);
-  if(TbInit>0.1) TbInit = EiEo(header->UpMat.beam_target,TbInit,header->UpMat.TarThick*header->UpMat.TarPress*TempNorm/header->UpMat.TarTemp/2.);
-  p_beam = sqrt(pow(TbInit+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));
-  fOutEvent->projectile.Part.SetPxPyPzE(0.,0.,p_beam,TbInit+fOutEvent->projectile.Mass);
+  if(!strcmp(header->UpMat.HeatScreenAns,"yes")) Tb = EiEo(header->UpMat.beam_TARwin,Tb,header->UpMat.HeatScreenThick);
+  if(Tb>0.1) Tb = EiEo(header->UpMat.beam_TARwin,Tb,header->UpMat.FoilThick);
+  if(Tb>0.1) Tb = EiEo(header->UpMat.beam_target,Tb,header->UpMat.TarThick*header->UpMat.TarPress*TempNorm/header->UpMat.TarTemp/2.);
+  p_beam = sqrt(pow(Tb+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));
+  fOutEvent->projectile.Part.SetPxPyPzE(0.,0.,p_beam,Tb+fOutEvent->projectile.Mass);
 
   fOutEvent->CM0.Part = fOutEvent->projectile.Part + fOutEvent->target.Part;
   fOutEvent->projectile.Part.Boost(-fOutEvent->CM0.Part.BoostVector());
@@ -439,8 +437,6 @@ void ERBeamDetReconstructor::Reset()
 {
   fOutEvent->Reset();
 }
-// ----------------------------------------------------------------------------
-
 //-----------------------------------------------------------------------------
 double ERBeamDetReconstructor::UpstreamEnergyLoss(UpstreamMatter* pU,ERParticle* pP,bool Cond1, bool Cond2,char* Show){
   char Matter[32]="visible";
@@ -487,5 +483,114 @@ void ERBeamDetReconstructor::Finish()
 {   
 }
 // ----------------------------------------------------------------------------
+void ERBeamDetReconstructor::DefineBeamEnergy(){
+  cout << "Define beam energy" << endl;
+  char RightEnUn1[]="MeV";
+  char RightEnUn2[]="MeV/n";
+  char RightEnUn3[]="A";
+  char Dipole[] = "D2";
+  char RightSpreadUn2[]="%";
+  char* plett = strchr(header->ReIN.AboutBeam,'=');
+  plett++;
+  Tb = atof(plett);
+  if(!strcmp(header->ReIN.EnergyUn,RightEnUn1)) Tb = Tb;
+  else if(!strcmp(header->ReIN.EnergyUn,RightEnUn2)) Tb *= fOutEvent->projectile.AtMass;
+  else if(!strcmp(header->ReIN.EnergyUn,RightEnUn3)) Tb = Stepantsov(Dipole,fOutEvent->projectile.AtNumber,fOutEvent->projectile.Mass,Tb);
+  else printf("Main: wrong energy unit\n");
+  Tboutput = Tb;
+
+  plett = strchr(header->ReIN.AboutSlit,'=');
+  plett++;
+  BeamSpread = atof(plett);
+  if(!strcmp(header->ReIN.SlitUn,RightEnUn1)) BeamSpread = BeamSpread;
+  else if(!strcmp(header->ReIN.SlitUn,RightSpreadUn2)) BeamSpread *= Tb/100.; 
+  else printf("Main: wrong energy spread unit\n");
+
+  fOutEvent->projectile.Part.SetPxPyPzE(0.,0.,sqrt(pow(Tb+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2)),Tb+fOutEvent->projectile.Mass);
+  
+  //Qreaction = 0.;
+  //for(int ip=0;ip<header->NofDetPart+header->NofUnObsPart;ip++) Qreaction -= ejectile[0][ip][0].Mass;
+  //Qreaction +=fOutEvent->projectile.Mass + fOutEvent->target.Mass;
+}
 //-----------------------------------------------------------------------------
+double ERBeamDetReconstructor::Stepantsov(char* D,int Z,double A,double I){
+  double a0_2 = 20.19773;
+  double a1_2 = 265.01317;
+  double a2_2 = 54.27665;
+  double a0_3 = 17.46898;
+  double a1_3 = 272.31081;
+  double a2_3 = 50.04487;
+  double P,B,Bro,Discr,T;
+  double R = 3.;
+  double a0,a1,a2;
+  char Dipole1[]="D1";
+  char Dipole2[]="D2";
+  
+  if(!strcmp(D,Dipole1))
+  {a0 = a0_2;
+  a1 = a1_2;
+  a2 = a2_2;}
+  else if(!strcmp(D,Dipole2))
+  {a0 = a0_3;
+  a1 = a1_3;
+  a2 = a2_3;}
+  else
+  {printf("Stepantsov: one should write D1 or D2 only!!!\n"); T = 0.;}
+  Discr = sqrt(a1*a1-4.*(a0-I)*a2);
+  if(Discr>0.) {B = (-a1 + Discr)/2./a2;}
+  else {B = 0.;}
+  Bro = B*R;
+  P = Bro*Z/3.3356*1000.;
+  T = sqrt(P*P + A*A) - A;
+  return T;
+}
+//-----------------------------------------------------------------------------
+void ERBeamDetReconstructor::ReadDeDx(){
+  char Matter[128];
+  TString filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/eloss/");
+
+  /********************* For the TOF plastic *****************************/
+  strcpy(Matter,filePath.Data());
+  strcat(Matter,fOutEvent->projectile.NameOfNucleus);
+  strcat(Matter,"_");
+  strcat(Matter,header->UpMat.PlasticMatter1);
+  ReadRint(Matter,header->UpMat.beam_TOF);
+  /********************* For the MWPC windows ****************************/
+  strcpy(Matter,filePath.Data());
+  strcat(Matter,fOutEvent->projectile.NameOfNucleus);
+  strcat(Matter,"_");
+  strcat(Matter,header->UpMat.MWwinMatter);
+  ReadRint(Matter,header->UpMat.beam_MWwin);
+  /************************ For the MWPC gas *****************************/
+  strcpy(Matter,filePath.Data());
+  strcat(Matter,fOutEvent->projectile.NameOfNucleus);
+  strcat(Matter,"_");
+  strcat(Matter,header->UpMat.MWgasMatter);
+  ReadRint(Matter,header->UpMat.beam_MWgas);
+  /********************* For the MWPC cathodes ***************************/
+  strcpy(Matter,filePath.Data());
+  strcat(Matter,fOutEvent->projectile.NameOfNucleus);
+  strcat(Matter,"_");
+  strcat(Matter,header->UpMat.MWcathMatter);
+  ReadRint(Matter,header->UpMat.beam_MWcathod);
+  /********************* For the heat screen **************************/
+  //  strcpy(Matter,"../../../include/eloss/");
+  //  strcat(Matter,fOutEvent->projectile.NameOfNucleus);
+  //  strcat(Matter,"_");
+  //  strcat(Matter,header->UpMat.TarFoilMatter);
+  //  ReadRint(Matter,header->UpMat.beam_heatscreen);
+  /********************* For the target windows **************************/
+  strcpy(Matter,filePath.Data());
+  strcat(Matter,fOutEvent->projectile.NameOfNucleus);
+  strcat(Matter,"_");
+  strcat(Matter,header->UpMat.TarFoilMatter);
+  ReadRint(Matter,header->UpMat.beam_TARwin);
+  /********************* For the target material *************************/
+  strcpy(Matter,filePath.Data());
+  strcat(Matter,fOutEvent->projectile.NameOfNucleus);
+  strcat(Matter,"_");
+  strcat(Matter,fOutEvent->target.NameOfNucleus);
+  ReadRint(Matter,header->UpMat.beam_target);
+  /*************************************************************************/
+}
 ClassImp(ERBeamDetReconstructor)

@@ -14,7 +14,7 @@ public:
 	//Tof
 	double tofb,tb,tcm;
 	float Tb;
-	ERParticle projectile;
+	ERParticle projectile; 
 	ERParticle CM0;
 	ERParticle target;
 	float xbt,ybt,zbt;

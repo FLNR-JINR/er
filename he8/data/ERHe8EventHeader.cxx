@@ -17,7 +17,7 @@ Bool_t ERHe8EventHeader::Register(TTree* tree, TString branchName){
 
 	ReadInputFile();
   ReactionPreparation();
-  
+
 	return kTRUE;
 }
 //-----------------------------------------------------------------------------
@@ -241,7 +241,6 @@ void ERHe8EventHeader::ReactionPreparation(){
   plett = strtok(NULL,"+");
   strcpy(tarname,plett);
 }
-
 //-----------------------------------------------------------------------------
 int ERHe8EventHeader::HowMuchParticles(char* str){
   char xname[32];
@@ -257,5 +256,5 @@ int ERHe8EventHeader::HowMuchParticles(char* str){
   N++;
   return N;
 }
-//-----------------------------------------------------------------------------
+
 ClassImp(ERHe8EventHeader)

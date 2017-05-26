@@ -56,12 +56,15 @@ protected:
   void MWPC();
   double coordMW(UpstreamMatter* pT,ERBeamDetRecoEvent* pR,char* MWid,char* XY);
   int mcluMW(int mMW,int* nMW);
+  void DefineBeamEnergy();
   void ElossTOFaMWPCaTarget();
-
+  double Stepantsov(char* D,int Z,double A,double I);
+  void ReadDeDx();
+  
   double UpstreamEnergyLoss(UpstreamMatter* pU,ERParticle* pP,bool Cond1, bool Cond2,char* Show);
   Int_t fEvent;
 
-  float TbInit; // temp
+  float Tb; // temp
   // релятивистский гамма-фактор.
   double beta_b,gamma_b,p_beam;
 
@@ -100,7 +103,7 @@ protected:
   //кинетическая энергия target + projectile в центре масс.
   double t_cm;
   // энергетический эффект реакции - сколько энергии высвобождается, если "+", сколько поглощается, если "-"
-  double Qreaction;
+  double Qreaction,Tboutput,BeamSpread;
   //t_cm0 = t_cm+Qreaction это кинетическая энергия, доступная продуктам реакции в ЦМ.
   double t_cm0;
   //кинетическая энергия налетающей частицы (beam)
