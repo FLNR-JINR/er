@@ -11,6 +11,8 @@ ${CMAKE_SOURCE_DIR}/he8/
 ${CMAKE_SOURCE_DIR}/he8/data
 ${CMAKE_SOURCE_DIR}/he8/beamdet/
 ${CMAKE_SOURCE_DIR}/he8/beamdet/data
+${CMAKE_SOURCE_DIR}/he8/telescope
+${CMAKE_SOURCE_DIR}/he8/telescope/data
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -26,18 +28,18 @@ set(SRCS
 	beamdet/data/ERBeamDetEvent.cxx
 	beamdet/data/ERBeamDetCalEvent.cxx
 	beamdet/data/ERBeamDetRecoEvent.cxx
-	data/ERHe8EventHeader.cxx
-	data/ERRawEvent.cxx
-	data/ERTelescopeEvent.cxx
-	data/ERDsrdEvent.cxx
-	data/ERDsrdCalEvent.cxx
-	data/ERTelescopeCalEvent.cxx
-	data/ERTelData.cxx
-	data/ERInclusiveData.cxx
-	ERDsrdCalibrator.cxx
-	ERTelescopeCalibrator.cxx
 	beamdet/ERBeamDetCalibrator.cxx
 	beamdet/ERBeamDetReconstructor.cxx
+	telescope/data/ERDsrdEvent.cxx
+	telescope/data/ERDsrdCalEvent.cxx
+	telescope/data/ERTelescopeEvent.cxx
+	telescope/data/ERTelescopeCalEvent.cxx
+	telescope/ERTelescopeCalibrator.cxx
+	telescope/ERDsrdCalibrator.cxx
+	data/ERHe8EventHeader.cxx
+	data/ERRawEvent.cxx
+	data/ERTelData.cxx
+	data/ERInclusiveData.cxx
 	data/ERParticle.cxx
 	ERSupport.cxx
 	ERHe8Analyzer.cxx
