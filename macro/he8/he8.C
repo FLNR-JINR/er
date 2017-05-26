@@ -43,6 +43,9 @@ void he8(Int_t nEvents = 10)
 
   ERBeamDetReconstructor* beamDetRecon = new ERBeamDetReconstructor(1);
   run->AddTask(beamDetRecon);
+
+  ERHe8Analyzer* analyzer = new ERHe8Analyzer(1);
+  run->AddTask(analyzer);
   
   // --- Start run
   TStopwatch timer;

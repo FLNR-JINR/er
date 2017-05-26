@@ -12,13 +12,13 @@
 #include "TGeoManager.h"
 
 #include "FairTask.h"
-#include "ERBeamDetEvent.h"
-#include "ERBeamDetCalEvent.h"
+#include "ERBeamDetRecoEvent.h"
 #include "ERDsrdCalEvent.h"
 #include "ERTelescopeCalEvent.h"
 #include "ERTelData.h"
 #include "ERInclusiveData.h"
 #include "ERHe8EventHeader.h"
+#include "ERParticle.h"
 
 #define pi 3.14159265358979323846
 #define hc 197.3425 /* Plank*c (MeV*fm) */
@@ -107,7 +107,7 @@ public:
   short mwpc[8];
   ClassDef(RawTrack,1)
 };
-
+/*
 class TrackData : public TNamed
 {
 public:
@@ -117,7 +117,7 @@ public:
   double xbd1,ybd1,xbd2,ybd2,xbd3,ybd3,xbd4,ybd4,xbd5,ybd5,xbd6,ybd6;
   ClassDef(TrackData,1)
 };
-
+*/
 class ERHe8Analyzer : public FairTask {
 
 public:
@@ -168,21 +168,21 @@ protected:
   // ПРИЗНАК КАЧЕСТВА ДАННЫХ
   int* mp;
 
-  Particle*** ejectile;
-  Particle* target;
-  Particle* projectile;
-  Particle* CM0;
+  ERParticle*** ejectile;
+  ERParticle* target;
+  ERParticle* projectile;
+  ERParticle* CM0;
   /*
   некая совокупность нуклонов в налетающем ядре, которая,
   согласно рассматриваемому механизму, не участвует в реакции, а просто
   просто продолжает движение.
   */
-  Particle**** spectator;
+  ERParticle**** spectator;
   /*
   некая совокупность нуклонов в налетающем ядре, которая,
   согласно рассматриваемому механизму, участвует в реакции.
   */
-  Particle**** participants;
+  ERParticle**** participants;
   int** TCheck; //рудимент
   /*
   Разница между измеренным (сумма детекторов) и вычисленным выделением
@@ -227,7 +227,7 @@ protected:
   int**** NhitXT;
   int**** NhitYT;
   //объект, куда пишутся разности лоренц-векторов между тем, что было в начальной системе (target+projectile) и тем, что зарегистрировано.
-  Particle*** mis;
+  ERParticle*** mis;
 
   double Tb;
   // различные промежуточные кинетические энергии
@@ -264,8 +264,7 @@ protected:
   int FlagCounter1 = 0;
   int FlagCounter2 = 0;
   //in
-  ERBeamDetEvent* fBeamDetEvent;
-  ERBeamDetCalEvent* fBeamDetCalEvent;
+  ERBeamDetRecoEvent* fBeamDetRecoEvent;
   ERDsrdCalEvent* fDsrdEvent;
   ERTelescopeCalEvent* fTelescopeEvent;
   //out
@@ -275,14 +274,12 @@ protected:
   TGeoManager *geom;
   TGeoNode *trajectory;
 
+  float Qreaction;
+
   void ReadTelescopeParameters();
   void CreateTelescopeGeometry();
   void ReadDeDx();
-  void WhatParticlesInOut(Particle* ptr,char* str,int N);
-  int ReadRint(char* Fname,double Ranges[][105]);
-  int intrp4(double* x,double* y, double* c);
-  void DefineBeamEnergy();
-  double Stepantsov(char* D,int Z,double A,double I);
+  void WhatParticlesInOut(ERParticle* ptr,char* str,int N);
   void TelescopeThresholds();
   void PrintReaction();
   TVector3 Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 Vint);

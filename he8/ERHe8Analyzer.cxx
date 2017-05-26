@@ -11,6 +11,7 @@ using namespace std;
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 
+#include "ERSupport.h"
 
 //----------------------------------------------------------------------------
 ERHe8Analyzer::ERHe8Analyzer()
@@ -26,15 +27,13 @@ ERHe8Analyzer::ERHe8Analyzer()
   Det(NULL),
   layer(NULL),
   NDet(NULL),
-  target(new Particle()),
-  projectile(new Particle()),
-  CM0(new Particle()),
-  fBeamDetEvent(NULL),
-  fBeamDetCalEvent(NULL),
+  target(NULL),
+  projectile(NULL),
+  CM0(NULL),
+  fBeamDetRecoEvent(NULL),
   fDsrdEvent(NULL),
   fTelescopeEvent(NULL),
   mis(NULL),
-  trackD(new TrackData()),
   tel(new ERTelData()),
   inclu(new ERInclusiveData())
 {
@@ -53,15 +52,13 @@ ERHe8Analyzer::ERHe8Analyzer(Int_t verbose)
   Det(NULL),
   layer(NULL),
   NDet(NULL),
-  target(new Particle()),
-  projectile(new Particle()),
-  CM0(new Particle()),
-  fBeamDetEvent(NULL),
-  fBeamDetCalEvent(NULL),
+  target(NULL),
+  projectile(NULL),
+  CM0(NULL),
+  fBeamDetRecoEvent(NULL),
   fDsrdEvent(NULL),
   mis(NULL),
   fTelescopeEvent(NULL),
-  trackD(new TrackData()),
   tel(new ERTelData()),
   inclu(new ERInclusiveData())
 {
@@ -80,12 +77,8 @@ InitStatus ERHe8Analyzer::Init(){
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
   //Get input objects
-  fBeamDetEvent = (ERBeamDetEvent*)ioman->GetObject("BeamDetEvent.");
-  if (!fBeamDetEvent)
-      Fatal("Init", "Can`t find branch in input file!");
-
-  fBeamDetCalEvent = (ERBeamDetCalEvent*)ioman->GetObject("BeamDetCalEvent.");
-  if (!fBeamDetCalEvent)
+  fBeamDetRecoEvent = (ERBeamDetRecoEvent*)ioman->GetObject("BeamDetRecoEvent.");
+  if (!fBeamDetRecoEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
   fDsrdEvent = (ERDsrdCalEvent*)ioman->GetObject("DsrdCalEvent.");
@@ -96,13 +89,16 @@ InitStatus ERHe8Analyzer::Init(){
   if (!fTelescopeEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
-  ioman->Register("trackD.", "Analys",trackD, kTRUE);
   ioman->Register("tel.", "Analys",tel, kTRUE);
   ioman->Register("inclu.", "Analys",inclu, kTRUE);
 
   FairRun* run = FairRun::Instance();
   header = (ERHe8EventHeader*)run->GetEventHeader();
-  
+
+  projectile = &(fBeamDetRecoEvent->projectile);
+  target = &(fBeamDetRecoEvent->target);
+  CM0 = &(fBeamDetRecoEvent->CM0);
+
   ReadTelescopeParameters();
 
   InitMemory();
@@ -115,13 +111,9 @@ InitStatus ERHe8Analyzer::Init(){
 
   ReadDeDx();
 
-  DefineBeamEnergy();
-
   TelescopeThresholds();
 
   PrintReaction();
-
-  ElossTOFaMWPCaTarget();
 
   return kSUCCESS;
 }
@@ -141,12 +133,12 @@ void ERHe8Analyzer::CheckInOutAZ(){
 }
 //----------------------------------------------------------------------------
 void ERHe8Analyzer::InitParticlesInOutputs(){
-    Particle intermed[header->NofDetPart+header->NofUnObsPart]; // любая промежуточная частица
+    ERParticle intermed[header->NofDetPart+header->NofUnObsPart]; // любая промежуточная частица
     TString filePath  = gSystem->Getenv("VMCWORKDIR") + TString("/input/StableNuclei.dat");
     char* WayMass= const_cast<char*>(filePath.Data());
-    projectile->ParticleID(header->projname,WayMass);
-    target->ParticleID(header->tarname,WayMass);
-    target->Part.SetPxPyPzE(0.,0.,0.,target->Mass);
+    //projectile->ParticleID(header->projname,WayMass);
+    //target->ParticleID(header->tarname,WayMass);
+    //target->Part.SetPxPyPzE(0.,0.,0.,target->Mass);
 
     WhatParticlesInOut(&intermed[0],header->DetectedPart,header->NofDetPart);
     WhatParticlesInOut(&intermed[header->NofDetPart],header->UnObservedPart,header->NofUnObsPart);  
@@ -307,17 +299,17 @@ void ERHe8Analyzer::InitMemory(){
   }
 
   // Ntelescopes header->NofDetPart Ntelescopes header->NofDetPart
-  spectator = new Particle***[Ntelescopes];
-  participants = new Particle***[Ntelescopes];
+  spectator = new ERParticle***[Ntelescopes];
+  participants = new ERParticle***[Ntelescopes];
   for (int i = 0; i<Ntelescopes; i++){
-    spectator[i] = new Particle**[header->NofDetPart];
-    participants[i] = new Particle**[header->NofDetPart];
+    spectator[i] = new ERParticle**[header->NofDetPart];
+    participants[i] = new ERParticle**[header->NofDetPart];
     for (int j = 0; j < header->NofDetPart; j++){
-      spectator[i][j] = new Particle*[Ntelescopes];
-      participants[i][j] = new Particle*[Ntelescopes];
+      spectator[i][j] = new ERParticle*[Ntelescopes];
+      participants[i][j] = new ERParticle*[Ntelescopes];
       for (int k = 0; k < Ntelescopes; k++){
-        spectator[i][j][k] = new Particle[header->NofDetPart];
-        participants[i][j][k] = new Particle[header->NofDetPart];
+        spectator[i][j][k] = new ERParticle[header->NofDetPart];
+        participants[i][j][k] = new ERParticle[header->NofDetPart];
       }
     }
   }
@@ -346,18 +338,18 @@ void ERHe8Analyzer::InitMemory(){
     }
   }
   //Ntelescopes header->NofDetPart+header->NofUnObsPart
-  ejectile = new Particle**[Ntelescopes];
+  ejectile = new ERParticle**[Ntelescopes];
   for (int i=0; i<Ntelescopes; i++){
-    ejectile[i] = new Particle*[header->NofDetPart+header->NofUnObsPart];
+    ejectile[i] = new ERParticle*[header->NofDetPart+header->NofUnObsPart];
     for (int j=0; j<header->NofDetPart+header->NofUnObsPart; j++)
-      ejectile[i][j] = new Particle[NDivXYMax];
+      ejectile[i][j] = new ERParticle[NDivXYMax];
   }
   //Ntelescopes header->NofDetPart+header->NofUnObsPart NDivXYMax
-  mis = new Particle**[Ntelescopes];
+  mis = new ERParticle**[Ntelescopes];
   for (int i = 0; i<Ntelescopes; i++){
-    mis[i] = new Particle*[header->NofDetPart+header->NofUnObsPart];
+    mis[i] = new ERParticle*[header->NofDetPart+header->NofUnObsPart];
     for (int j = 0; j<header->NofDetPart+header->NofUnObsPart; j++){
-      mis[i][j] = new Particle[NDivXYMax];
+      mis[i][j] = new ERParticle[NDivXYMax];
     }
   }
 
@@ -502,6 +494,10 @@ void ERHe8Analyzer::Exec(Option_t* opt){
 
   Reset();
 
+  projectile = &(fBeamDetRecoEvent->projectile);
+  target = &(fBeamDetRecoEvent->target);
+  CM0 = &(fBeamDetRecoEvent->CM0);
+
   for(int it=0;it<Ntelescopes;it++)
   {
     for(int il=0;il<layer[it];il++)
@@ -575,7 +571,7 @@ void ERHe8Analyzer::Exec(Option_t* opt){
     {
       if(mp[it]==1)
       {
-          Vert1.SetXYZ(trackD->xbt,trackD->ybt,trackD->zbt);
+          Vert1.SetXYZ(fBeamDetRecoEvent->xbt,fBeamDetRecoEvent->ybt,fBeamDetRecoEvent->zbt);
           if(it==2) AngleDet[it][0] = Traject(&Det[it][0][0],&Det[it][0][0],NhitX[it][0][0][0],NhitY[it][1][0][0],Vert1);
           else AngleDet[it][0] = Traject(&Det[it][1][0],&Det[it][0][0],NhitX[it][1][0][0],NhitY[it][0][0][0],Vert1);
           cx[it][0] = (Vert1+AngleDet[it][0]).X();
@@ -593,7 +589,7 @@ void ERHe8Analyzer::Exec(Option_t* opt){
       {
         if(mp[it]==1&&header->mbeam&&header->mtrack)
         {
-          trajectory = geom->InitTrack(trackD->xbt,trackD->ybt,trackD->zbt,
+          trajectory = geom->InitTrack(fBeamDetRecoEvent->xbt,fBeamDetRecoEvent->ybt,fBeamDetRecoEvent->zbt,
             AngleDet[it][0].Unit().X(),AngleDet[it][0].Unit().Y(),AngleDet[it][0].Unit().Z());
           while(!geom->IsOutside())
           {
@@ -662,7 +658,7 @@ void ERHe8Analyzer::Exec(Option_t* opt){
             }
             // Calibration
             Tb = ejectile[it][ip][0].Part.E()-ejectile[it][ip][0].Mass;
-            trajectory = geom->InitTrack(trackD->xbt,trackD->ybt,trackD->zbt,
+            trajectory = geom->InitTrack(fBeamDetRecoEvent->xbt,fBeamDetRecoEvent->ybt,fBeamDetRecoEvent->zbt,
               AngleDet[it][0].Unit().X(),AngleDet[it][0].Unit().Y(),AngleDet[it][0].Unit().Z());
             while(!geom->IsOutside())
             {
@@ -1430,8 +1426,7 @@ void ERHe8Analyzer::CreateTelescopeGeometry(){
   cout << "Target geometry creating finished" << endl;
 }
 //-----------------------------------------------------------------------------
-
-void ERHe8Analyzer::WhatParticlesInOut(Particle* ptr,char* str,int N){
+void ERHe8Analyzer::WhatParticlesInOut(ERParticle* ptr,char* str,int N){
   char* poi;
   ptr->NameOfNucleus = new char [strlen(str)+1];
   poi = strtok(str,"+");
@@ -1466,7 +1461,7 @@ void ERHe8Analyzer::ReadDeDx(){
     strcat(Matter,"_");
     strcat(Matter,"csi");
     ReadRint(Matter,EjMat[ip]->ej_csi);
-  }
+  } 
   for(int ip=0;ip<header->NofDetPart;ip++)
   {   
     strcpy(Matter,filePath.Data());
@@ -1483,106 +1478,6 @@ void ERHe8Analyzer::ReadDeDx(){
     strcat(Matter,target->NameOfNucleus);
     ReadRint(Matter,EjMat[ip]->ej_target);
   }
-
-  /********************* For the TOF plastic *****************************/
-  strcpy(Matter,filePath.Data());
-  strcat(Matter,projectile->NameOfNucleus);
-  strcat(Matter,"_");
-  strcat(Matter,header->UpMat.PlasticMatter1);
-  ReadRint(Matter,header->UpMat.beam_TOF);
-  /********************* For the MWPC windows ****************************/
-  strcpy(Matter,filePath.Data());
-  strcat(Matter,projectile->NameOfNucleus);
-  strcat(Matter,"_");
-  strcat(Matter,header->UpMat.MWwinMatter);
-  ReadRint(Matter,header->UpMat.beam_MWwin);
-  /************************ For the MWPC gas *****************************/
-  strcpy(Matter,filePath.Data());
-  strcat(Matter,projectile->NameOfNucleus);
-  strcat(Matter,"_");
-  strcat(Matter,header->UpMat.MWgasMatter);
-  ReadRint(Matter,header->UpMat.beam_MWgas);
-  /********************* For the MWPC cathodes ***************************/
-  strcpy(Matter,filePath.Data());
-  strcat(Matter,projectile->NameOfNucleus);
-  strcat(Matter,"_");
-  strcat(Matter,header->UpMat.MWcathMatter);
-  ReadRint(Matter,header->UpMat.beam_MWcathod);
-  /********************* For the heat screen **************************/
-  //  strcpy(Matter,"../../../include/eloss/");
-  //  strcat(Matter,projectile->NameOfNucleus);
-  //  strcat(Matter,"_");
-  //  strcat(Matter,header->UpMat.TarFoilMatter);
-  //  ReadRint(Matter,header->UpMat.beam_heatscreen);
-  /********************* For the target windows **************************/
-  strcpy(Matter,filePath.Data());
-  strcat(Matter,projectile->NameOfNucleus);
-  strcat(Matter,"_");
-  strcat(Matter,header->UpMat.TarFoilMatter);
-  ReadRint(Matter,header->UpMat.beam_TARwin);
-  /********************* For the target material *************************/
-  strcpy(Matter,filePath.Data());
-  strcat(Matter,projectile->NameOfNucleus);
-  strcat(Matter,"_");
-  strcat(Matter,target->NameOfNucleus);
-  ReadRint(Matter,header->UpMat.beam_target);
-  /*************************************************************************/
-}
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-void ERHe8Analyzer::DefineBeamEnergy(){
-  cout << "Define beam energy" << endl;
-  char RightEnUn1[]="MeV";
-  char RightEnUn2[]="MeV/n";
-  char RightEnUn3[]="A";
-  char Dipole[] = "D2";
-  char RightSpreadUn2[]="%";
-  char* plett = strchr(header->ReIN.AboutBeam,'=');
-  plett++;
-  Tb = atof(plett);
-  if(!strcmp(header->ReIN.EnergyUn,RightEnUn1)) Tb = Tb;
-  else if(!strcmp(header->ReIN.EnergyUn,RightEnUn2)) Tb *= projectile->AtMass;
-  else if(!strcmp(header->ReIN.EnergyUn,RightEnUn3)) Tb = Stepantsov(Dipole,projectile->AtNumber,projectile->Mass,Tb);
-  else printf("Main: wrong energy unit\n");
-  Tboutput = Tb;
-
-  plett = strchr(header->ReIN.AboutSlit,'=');
-  plett++;
-  BeamSpread = atof(plett);
-  if(!strcmp(header->ReIN.SlitUn,RightEnUn1)) BeamSpread = BeamSpread;
-  else if(!strcmp(header->ReIN.SlitUn,RightSpreadUn2)) BeamSpread *= Tb/100.; 
-  else printf("Main: wrong energy spread unit\n");
-
-  projectile->Part.SetPxPyPzE(0.,0.,sqrt(pow(Tb+projectile->Mass,2)-pow(projectile->Mass,2)),Tb+projectile->Mass);
-  
-  Qreaction = 0.;
-  for(int ip=0;ip<header->NofDetPart+header->NofUnObsPart;ip++) Qreaction -= ejectile[0][ip][0].Mass;
-  Qreaction +=projectile->Mass + target->Mass;
-}
-void ERHe8Analyzer::TelescopeThresholds(){
-  double Threshold[Ntelescopes][header->NofDetPart];
-  printf("Telescope thresholds:\n");
-  for(int it=0;it<Ntelescopes;it++)
-  {
-    for(int ip=0;ip<header->NofDetPart;ip++)
-    {
-      dT = (projectile->Part.E()-projectile->Mass)/5000.;
-      Tb = 0.;
-      Ta = 10.*dT;
-      for(int id=0;id<NDet[it][0];id++)
-      {
-        do
-        {
-          Tb = EiEo(EjMat[ip]->ej_si,Ta,Det[it][0][id].Thick);
-          Ta += dT;
-        } while(Tb<=0.&&Ta<999.);
-      }
-      Threshold[it][ip] = Ta;
-      printf("Tel%i. %s: threshold %lf MeV\n",it,ejectile[it][ip][0].NameOfNucleus,Threshold[it][ip]);
-    } 
-  }
-  printf("************************************************************\n");
 }
 //-----------------------------------------------------------------------------
 void ERHe8Analyzer::PrintReaction(){
@@ -1611,6 +1506,31 @@ void ERHe8Analyzer::PrintReaction(){
   printf("Energy of projectile:\n");
   printf("DIPOLE2: E=%lf +/- %lf MeV (%lfA MeV)\n",projectile->Part.E()-projectile->Mass,
     BeamSpread,(projectile->Part.E()-projectile->Mass)/projectile->AtMass);
+}
+//-----------------------------------------------------------------------------
+void ERHe8Analyzer::TelescopeThresholds(){
+  double Threshold[Ntelescopes][header->NofDetPart];
+  printf("Telescope thresholds:\n");
+  for(int it=0;it<Ntelescopes;it++)
+  {
+    for(int ip=0;ip<header->NofDetPart;ip++)
+    {
+      dT = (projectile->Part.E()-projectile->Mass)/5000.;
+      Tb = 0.;
+      Ta = 10.*dT;
+      for(int id=0;id<NDet[it][0];id++)
+      {
+        do
+        {
+          Tb = EiEo(EjMat[ip]->ej_si,Ta,Det[it][0][id].Thick);
+          Ta += dT;
+        } while(Tb<=0.&&Ta<999.);
+      }
+      Threshold[it][ip] = Ta;
+      printf("Tel%i. %s: threshold %lf MeV\n",it,ejectile[it][ip][0].NameOfNucleus,Threshold[it][ip]);
+    } 
+  }
+  printf("************************************************************\n");
 }
 //-----------------------------------------------------------------------------
 ClassImp(ERHe8Analyzer)

@@ -40,7 +40,7 @@ set(SRCS
 	beamdet/ERBeamDetReconstructor.cxx
 	data/ERParticle.cxx
 	ERSupport.cxx
-	#ERHe8Analyzer.cxx
+	ERHe8Analyzer.cxx
 )
 
 # fill list of header files from list of source files
