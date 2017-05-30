@@ -94,6 +94,7 @@ protected:
   int good_mw = 0;
   int badclu_mw = 0;
   int goodclu_mw = 0;
+  int good_mtrack = 0;
 
   int good_mbeam = 0;
   // вспомогательные переменные для кин энергии

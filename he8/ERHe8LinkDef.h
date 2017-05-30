@@ -21,6 +21,7 @@
 #pragma link C++ class ERTelescopeCalEvent+;
 #pragma link C++ class ERDsrdEvent+;
 #pragma link C++ class ERDsrdCalEvent+;
+#pragma link C++ class ERTelescopeRecoEvent+;
 #pragma link C++ class ERTelescopeCalibrator+;
 #pragma link C++ class ERDsrdCalibrator+;
 #pragma link C++ class ERTelescopeReconstructor+;

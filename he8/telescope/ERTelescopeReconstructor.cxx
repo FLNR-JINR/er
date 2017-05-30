@@ -61,8 +61,8 @@ InitStatus ERTelescopeReconstructor::Init()
   if (!fBeamDetEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
-  //fOutEvent = new ERDsrdCalEvent();
-  //ioman->Register("DsrdCalEvent.","Analyze",fOutEvent, kTRUE);
+  fOutEvent = new ERTelescopeRecoEvent();
+  ioman->Register("TelescopeRecoEvent.","Analyze",fOutEvent, kTRUE);
 
   FairRun* run = FairRun::Instance();
   header = (ERHe8EventHeader*)run->GetEventHeader();
@@ -96,6 +96,40 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 
   double tarcoord[3];
 
+  double Zdist;
+  if(abs(header->UpMat.MWclosXNum)==1) Zdist = header->UpMat.MWclosDist + header->UpMat.MWXYdist/2.;
+  else if(abs(header->UpMat.MWclosXNum)==2) Zdist = header->UpMat.MWclosDist - header->UpMat.MWXYdist/2.;
+
+  fOutEvent->xbd1 = fBeamDetEvent->xmw2 - (Zdist-Det[1][0][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
+    cos(fBeamDetEvent->projectile.Part.Phi());
+  fOutEvent->ybd1 = fBeamDetEvent->ymw2 - (Zdist-Det[1][0][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
+    sin(fBeamDetEvent->projectile.Part.Phi());
+
+  fOutEvent->xbd2 = fBeamDetEvent->xmw2 - (Zdist-Det[1][1][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
+    cos(fBeamDetEvent->projectile.Part.Phi());
+  fOutEvent->ybd2 = fBeamDetEvent->ymw2 - (Zdist-Det[1][1][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
+    sin(fBeamDetEvent->projectile.Part.Phi());
+
+  fOutEvent->xbd3 = fBeamDetEvent->xmw2 - (Zdist-Det[1][2][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
+    cos(fBeamDetEvent->projectile.Part.Phi());
+  fOutEvent->ybd3 = fBeamDetEvent->ymw2 - (Zdist-Det[1][2][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
+    sin(fBeamDetEvent->projectile.Part.Phi());
+
+  fOutEvent->xbd4 = fBeamDetEvent->xmw2 - (Zdist-Det[1][3][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
+    cos(fBeamDetEvent->projectile.Part.Phi());
+  fOutEvent->ybd4 = fBeamDetEvent->ymw2 - (Zdist-Det[1][3][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
+    sin(fBeamDetEvent->projectile.Part.Phi());
+
+  fOutEvent->xbd5 = fBeamDetEvent->xmw2 - (Zdist-Det[1][4][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
+    cos(fBeamDetEvent->projectile.Part.Phi());
+  fOutEvent->ybd5 = fBeamDetEvent->ymw2 - (Zdist-Det[1][4][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
+    sin(fBeamDetEvent->projectile.Part.Phi());
+    
+  fOutEvent->xbd6 = fBeamDetEvent->xmw2 - (Zdist-Det[1][5][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
+    cos(fBeamDetEvent->projectile.Part.Phi());
+  fOutEvent->ybd6 = fBeamDetEvent->ymw2 - (Zdist-Det[1][5][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
+    sin(fBeamDetEvent->projectile.Part.Phi());
+
   // Typical case: no vertices:
   for(int it=0;it<Ntelescopes;it++)
   {
@@ -111,6 +145,158 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
         cz[it][0] = (Vert1+AngleDet[it][0]).Z();
     }
   }
+
+  fOutEvent->x11 = cx[0][0];
+  fOutEvent->y11 = cy[0][0];
+  fOutEvent->x21 = cx[1][0];
+  fOutEvent->y21 = cy[1][0];
+  fOutEvent->x22 = cx[1][1];
+  fOutEvent->y22 = cy[1][1];
+  fOutEvent->x23 = cx[1][2];
+  fOutEvent->y23 = cy[1][2];
+  fOutEvent->x24 = cx[1][3];
+  fOutEvent->y24 = cy[1][3];
+  fOutEvent->x25 = cx[1][4];
+  fOutEvent->y25 = cy[1][4];
+  fOutEvent->x26 = cx[1][5];
+  fOutEvent->y26 = cy[1][5];
+
+  //cout << "Now we know trajectories" << endl;
+  char* plett;
+  int itx,ilx,idx,ipx,is,count;
+  char OutputChannelTemp[32];
+  float range, Ta, Tb;
+  for(int it=0;it<Ntelescopes;it++)
+      {
+        if(mp[it]==1&&header->mbeam&&header->mtrack)
+        {
+          trajectory = geom->InitTrack(fBeamDetEvent->xbt,fBeamDetEvent->ybt,fBeamDetEvent->zbt,
+            AngleDet[it][0].Unit().X(),AngleDet[it][0].Unit().Y(),AngleDet[it][0].Unit().Z());
+          while(!geom->IsOutside())
+          {
+            itx=-1;ilx=-1;idx=-1;is=-1;
+            const char *path=geom->GetPath();
+            trajectory = geom->FindNextBoundary();
+            if(strcmp(path,"/Top_1")) 
+            {
+              range = geom->GetStep();
+              plett=const_cast<char*>(strchr(path,'t')); plett++;
+              plett=strtok(plett,"_");
+              strcpy(OutputChannelTemp,plett);
+              if(strcmp(OutputChannelTemp,"gas")&&strcmp(OutputChannelTemp,"foilex")&&
+                strcmp(OutputChannelTemp,"foilen")&&strcmp(OutputChannelTemp,"TargetCell")&&
+                strcmp(OutputChannelTemp,"HscrFoil")&&strcmp(OutputChannelTemp,"HeatScreen"))
+              {
+                itx = int(atoi(OutputChannelTemp)/pow(10,strlen(OutputChannelTemp)-2));
+                ilx = int((atoi(OutputChannelTemp)-itx*pow(10,strlen(OutputChannelTemp)-2))/
+                  pow(10,strlen(OutputChannelTemp)-4));
+                idx = int((atoi(OutputChannelTemp)-itx*pow(10,strlen(OutputChannelTemp)-2)-ilx*
+                  pow(10,strlen(OutputChannelTemp)-4))/pow(10,strlen(OutputChannelTemp)-6));
+                is = int(atoi(OutputChannelTemp)-itx*pow(10,strlen(OutputChannelTemp)-2)-ilx*
+                  pow(10,strlen(OutputChannelTemp)-4)-idx*pow(10,strlen(OutputChannelTemp)-6));
+                if(is==0&&DepoX[itx][ilx][0][0]>0.1) deposit[itx][ilx][idx][0] = range;
+              }
+              if(!strcmp(OutputChannelTemp,"gas")) deposit[0][0][0][1] = range*header->UpMat.TarPress*TempNorm/header->UpMat.TarTemp;
+              if(!strcmp(OutputChannelTemp,"foilex")) deposit[0][0][0][2] = range;
+              if(!strcmp(OutputChannelTemp,"foilen")) deposit[0][0][0][3] = range;
+              if(!strcmp(OutputChannelTemp,"TargetCell")) deposit[0][0][0][4] = range;
+              if(!strcmp(OutputChannelTemp,"HscrFoil")) deposit[0][0][0][5] = range;
+            }
+            trajectory = geom->Step();
+          } /* while(!geom->IsOutside) */
+          for(int ip=0;ip<header->NofDetPart;ip++)
+          {
+            ilx = -1;count=-1;Tb = 0.;Ta=0.;
+            for(int il=layer[it]-1;il>=0;il--)
+            {
+              for(int id=0;id<NDet[it][il];id++)
+              {
+                if(!strcmp(Det[it][il][id].Matt,"si")&&deposit[it][il][id][0]!=0.) idx = id;
+              }
+              if(count==-1) Tb = DepoX[it][il][0][0];
+
+              if(count==-1&&!strcmp(Det[it][il][idx].Matt,"si"))
+                Tb = EiEo(EjMat[ip]->ej_si,Tb,-deposit[it][il][idx][0]*Det[it][il][idx].DeadZoneF/Det[it][il][idx].Thick);
+
+              if(count>-1&&Tb>0.1)
+              {
+                Tb = EiEo(EjMat[ip]->ej_si,Tb,-deposit[it][il][idx][0]*Det[it][il][idx].DeadZoneB/Det[it][il][idx].Thick);
+                Tb += DepoX[it][il][0][0];
+                Tb = EiEo(EjMat[ip]->ej_si,Tb,-deposit[it][il][idx][0]*Det[it][il][idx].DeadZoneF/Det[it][il][idx].Thick);
+              }
+              if(Tb>0.1) count++;
+            } /* for(il=layer[it]-1;il=0;il--) */
+            if(deposit[0][0][0][5]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][5]);
+            if(deposit[0][0][0][3]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][3]);
+            if(deposit[0][0][0][2]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][2]);
+            if(deposit[0][0][0][4]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][4]);
+            if(deposit[0][0][0][1]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_target,Tb,-deposit[0][0][0][1]);
+            if(Tb>0.1)
+            {
+              Ta = sqrt(pow(Tb+ejectile[it][ip][0].Mass,2)-pow(ejectile[it][ip][0].Mass,2));
+              ejectile[it][ip][0].Part.SetPxPyPzE(Ta*sin(AngleDet[it][0].Theta())*cos(AngleDet[it][0].Phi()),
+                Ta*sin(AngleDet[it][0].Theta())*sin(AngleDet[it][0].Phi()),Ta*cos(AngleDet[it][0].Theta()),Tb+ejectile[it][ip][0].Mass);
+            }
+            // Calibration
+            Tb = ejectile[it][ip][0].Part.E()-ejectile[it][ip][0].Mass;
+            trajectory = geom->InitTrack(fBeamDetEvent->xbt,fBeamDetEvent->ybt,fBeamDetEvent->zbt,
+              AngleDet[it][0].Unit().X(),AngleDet[it][0].Unit().Y(),AngleDet[it][0].Unit().Z());
+            while(!geom->IsOutside())
+            {
+              itx=-1;ilx=-1;idx=-1;Ta=0.;
+              const char *path=geom->GetPath();
+              trajectory = geom->FindNextBoundary();
+              if(strcmp(path,"/Top_1")) 
+              {
+                range = geom->GetStep();
+                plett=const_cast<char*>(strchr(path,'t')); plett++;
+                plett=strtok(plett,"_");
+                strcpy(OutputChannelTemp,plett);
+                if(strcmp(OutputChannelTemp,"gas")&&strcmp(OutputChannelTemp,"foilex")&&
+                  strcmp(OutputChannelTemp,"foilen")&&strcmp(OutputChannelTemp,"TargetCell")&&
+                  strcmp(OutputChannelTemp,"HscrFoil")&&strcmp(OutputChannelTemp,"HeatScreen"))
+                {
+                  itx = int(atoi(OutputChannelTemp)/pow(10,strlen(OutputChannelTemp)-2));
+                  ilx = int((atoi(OutputChannelTemp)-itx*pow(10,strlen(OutputChannelTemp)-2))/
+                    pow(10,strlen(OutputChannelTemp)-4));
+                  idx = int((atoi(OutputChannelTemp)-itx*pow(10,strlen(OutputChannelTemp)-2)-ilx*
+                    pow(10,strlen(OutputChannelTemp)-4))/pow(10,strlen(OutputChannelTemp)-6));
+                  is = int(atoi(OutputChannelTemp)-itx*pow(10,strlen(OutputChannelTemp)-2)-ilx*
+                    pow(10,strlen(OutputChannelTemp)-4)-idx*pow(10,strlen(OutputChannelTemp)-6));
+                  if(!strcmp(Det[itx][ilx][idx].Matt,"si")&&is==0) 
+                  {
+                    if(Tb>0.1) Tb = EiEo(EjMat[ip]->ej_si,Tb,range*Det[itx][ilx][idx].DeadZoneF/Det[itx][ilx][idx].Thick);
+                    if(Tb>0.1) Ta = EiEo(EjMat[ip]->ej_si,Tb,range*(Det[itx][ilx][idx].Thick-Det[itx][ilx][idx].DeadZoneF-
+                      Det[itx][ilx][idx].DeadZoneB)/Det[itx][ilx][idx].Thick);
+                    if(al[itx][ilx][ip][0]==-1000.) al[itx][ilx][ip][0] = Tb-Ta;
+                    else al[itx][ilx][ip][0] += Tb-Ta;
+                    Tb = Ta;
+                    if(Tb>0.1) Tb = EiEo(EjMat[ip]->ej_si,Tb,range*Det[itx][ilx][idx].DeadZoneB/Det[itx][ilx][idx].Thick);
+                  }
+                  if(!strcmp(Det[itx][ilx][idx].Matt,"csi")&&is==0) 
+                  {
+                    if(Tb>0.1) Ta = EiEo(EjMat[ip]->ej_csi,Tb,range);
+                    if(al[itx][ilx][ip][0]==-1000.) al[itx][ilx][ip][0] = Tb-Ta;
+                    else al[itx][ilx][ip][0] += Tb-Ta;
+                  }
+                }
+                if(!strcmp(OutputChannelTemp,"gas")&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_target,Tb,range*header->UpMat.TarPress*TempNorm/header->UpMat.TarTemp);
+                if(!strcmp(OutputChannelTemp,"foilex")&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,range); 
+                if(!strcmp(OutputChannelTemp,"foilen")&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,range); 
+                if(!strcmp(OutputChannelTemp,"TargetCell")&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,range); 
+                if(!strcmp(OutputChannelTemp,"HscrFoil")&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,range); 
+              }
+              trajectory = geom->Step();
+            } 
+          } 
+        } 
+      }
+  fOutEvent->th1 = ejectile[0][0][0].Part.Theta()/rad;
+  fOutEvent->phi1 = ejectile[0][0][0].Part.Phi()/rad;
+  fOutEvent->th2 = ejectile[1][1][0].Part.Theta()/rad;
+  fOutEvent->phi2 = ejectile[1][1][0].Part.Phi()/rad;
+  fOutEvent->t11 = ejectile[0][0][0].Part.E()-ejectile[0][0][0].Mass;
+  fOutEvent->t22 = ejectile[1][1][0].Part.E()-ejectile[1][1][0].Mass;
 }
 
 //----------------------------------------------------------------------------
@@ -865,6 +1051,14 @@ void ERTelescopeReconstructor::ReadDeposites(){
   if(mpd[1][0][0]==1&&mpd[1][1][0]==1) mp[1] = mpd[1][0][0];
 
   header->mp1 = mp[0]; header->mp2 = mp[1]; header->mp3 = mp[2];
+
+  fOutEvent->dep11= DepoX[0][0][0][0];
+  fOutEvent->dep21= DepoX[1][0][0][0];
+  fOutEvent->dep22= DepoX[1][1][0][0];
+  fOutEvent->dep23= DepoX[1][2][0][0];
+  fOutEvent->dep24= DepoX[1][3][0][0];
+  fOutEvent->dep25= DepoX[1][4][0][0];
+  fOutEvent->dep26= DepoX[1][5][0][0];  
 }
 //-----------------------------------------------------------------------------
 TVector3 ERTelescopeReconstructor::Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 Vint){

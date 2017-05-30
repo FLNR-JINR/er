@@ -19,6 +19,7 @@
 #include "ERHe8EventHeader.h"
 #include "ERParticle.h"
 #include "ERBeamDetRecoEvent.h"
+#include "ERTelescopeRecoEvent.h"
 
 class Telescope
 {
@@ -95,6 +96,9 @@ protected:
   ERTelescopeCalEvent* fTelescopeEvent;
   ERDsrdCalEvent* fDsrdEvent;
   ERBeamDetRecoEvent* fBeamDetEvent;
+
+  //Output objects
+  ERTelescopeRecoEvent* fOutEvent;
 
   Int_t fEvent;
 

@@ -30,7 +30,6 @@ public:
 	int neD21[32],neD22[32],neD23[32],neD24[32],neD25[32],neD26[32];
 	int nDT21[32],nDT22[32];
 	int ntD21[32],ntD22[32];
-	
 public:
 	ERTelescopeEvent();
 	virtual ~ERTelescopeEvent();

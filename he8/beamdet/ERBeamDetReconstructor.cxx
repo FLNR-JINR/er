@@ -159,10 +159,11 @@ void ERBeamDetReconstructor::Tof(){
               else header->mbeam = 0;
               fInCalEvent->tb = fOutEvent->projectile.Part.E()-fOutEvent->projectile.Mass;
               fInCalEvent->tcm = t_cm;              
-
+              /*
               fOutEvent->xbt = MdistX+(-header->UpMat.MWgasThick/2-header->UpMat.MWclosDist+header->UpMat.TarZshift)*sin(Vbeam.Theta())*cos(Vbeam.Phi())/cos(Vbeam.Theta());
               fOutEvent->ybt = MdistY+(-header->UpMat.MWgasThick/2-header->UpMat.MWclosDist+header->UpMat.TarZshift)*sin(Vbeam.Theta())*sin(Vbeam.Phi())/cos(Vbeam.Theta());
               fOutEvent->zbt = header->UpMat.TarZshift;
+              */
             } /* if(beta_b>0.&&beta_b<=1.) */  
           } /* if(fInCalEvent->aF4r+fInCalEvent->aF4l>500.) */
           //        } /* if(fabs(dt_F4)<=header->UpMat.tF4_dlt&&fabs(dt_F3)<=header->UpMat.tF3_dlt&& */
@@ -213,6 +214,7 @@ void ERBeamDetReconstructor::MWPC(){
 
         if(i_flag_MW)
         {
+          
           char MWid[]="MWfar";
           char XY[]="X";
           fOutEvent->xmw1=coordMW(&(header->UpMat),fOutEvent,MWid,XY);
@@ -223,7 +225,7 @@ void ERBeamDetReconstructor::MWPC(){
           fOutEvent->xmw2=coordMW(&(header->UpMat),fOutEvent,MWid,XY);
           strcpy(XY,"Y");
           fOutEvent->ymw2=coordMW(&(header->UpMat),fOutEvent,MWid,XY);
-          
+          /*
           fOutEvent->ymw1 += (fOutEvent->ymw2-fOutEvent->ymw1)*(header->UpMat.MWXYdist)/(header->UpMat.MWclosDist-header->UpMat.MWfarDist);
           fOutEvent->ymw2 = fOutEvent->ymw1 + (fOutEvent->ymw2-fOutEvent->ymw1)*
             (header->UpMat.MWclosDist-header->UpMat.MWfarDist+header->UpMat.MWXYdist/2+header->UpMat.MWgasThick/2)/(header->UpMat.MWclosDist-header->UpMat.MWfarDist);
@@ -238,54 +240,32 @@ void ERBeamDetReconstructor::MWPC(){
           MdistX = fOutEvent->xmw2;
           MdistY = fOutEvent->ymw2;
           MdistZ = header->UpMat.MWclosDist+header->UpMat.MWgasThick/2;
-    //**** xbdet and ybdet are useful in the case when beam particles can get in the detector ************************************/
-    //          for(it=0;it<Ntelescopes;it++)
-    //          {
-    //            for(il=0;il<layer[it];il++)
-    //            {
-    //              for(id=0;id<NDet[it][il];id++)
-    //              {
-    //                Vbeam = (VmwCl - VmwFa)*((abs(header->UpMat.MWfarDist)-header->UpMat.MWXYdist/2+Det[it][il][id].Dist)/(header->UpMat.MWclosDist-header->UpMat.MWfarDist-
-    //                  header->UpMat.MWXYdist/2+header->UpMat.MWgasThick/2));
-    //                Vbeam.GetXYZ(tarcoord);
-    //                xbdet0[it][il][id] = fOutEvent->xmw1 + tarcoord[0];
-    //                ybdet0[it][il][id] = fOutEvent->ymw1 + tarcoord[1];
-    //              }
-    //            }
-    //          }
-    /**** when simulating XY are randomized twice: as a result we have coorinates played out and reconstructed *******************/
-    /**** when simulating both thb and rthb are witten down. Difference thb-rthb gives the accuracy of measurement ***************/
-              /*
-              if(header->ReIN.Simulation)
-              {
-                strcpy(MWid,"MWfar");
-                strcpy(XY,"X");
-                PlayXmw1=coordMW(&UpMat,&RawT,MWid,XY);
-                strcpy(XY,"Y");
-                PlayYmw1=coordMW(&UpMat,&RawT,MWid,XY);
-                strcpy(MWid,"MWclos");
-                strcpy(XY,"X");
-                PlayXmw2=coordMW(&UpMat,&RawT,MWid,XY);
-                strcpy(XY,"Y");
-                PlayYmw2=coordMW(&UpMat,&RawT,MWid,XY);
+          */
+          if(fabs(fOutEvent->xmw1)<=header->UpMat.MWstep*header->UpMat.MWNwires/2.&&
+          fabs(fOutEvent->ymw1)<=header->UpMat.MWstep*header->UpMat.MWNwires/2.&&
+          fabs(fOutEvent->xmw2)<=header->UpMat.MWstep*header->UpMat.MWNwires/2.&&
+          fabs(fOutEvent->ymw2)<=header->UpMat.MWstep*header->UpMat.MWNwires/2.)
+          {
+            double Zdist;
+            if(abs(header->UpMat.MWclosXNum)==1) Zdist = header->UpMat.MWclosDist + header->UpMat.MWXYdist/2.;
+            else if(abs(header->UpMat.MWclosXNum)==2) Zdist = header->UpMat.MWclosDist - header->UpMat.MWXYdist/2.;
 
-                PlayYmw1 += (PlayYmw2-PlayYmw1)*(header->UpMat.MWXYdist)/(header->UpMat.MWclosDist-header->UpMat.MWfarDist);
-                PlayYmw2 = PlayYmw1 + (PlayYmw2-PlayYmw1)*(header->UpMat.MWclosDist-header->UpMat.MWfarDist+header->UpMat.MWXYdist/2+header->UpMat.MWgasThick/2)/
-                  (header->UpMat.MWclosDist-header->UpMat.MWfarDist);
-                PlayXmw2 = PlayXmw1 + (PlayXmw2-PlayXmw1)*(header->UpMat.MWclosDist-header->UpMat.MWfarDist-header->UpMat.MWXYdist/2+header->UpMat.MWgasThick/2)/
-                  (header->UpMat.MWclosDist-header->UpMat.MWfarDist);
-                VmwCl.SetXYZ(PlayXmw2,PlayYmw2,header->UpMat.MWclosDist);
-                VmwFa.SetXYZ(PlayXmw1,PlayYmw1,header->UpMat.MWfarDist);
-                VbeamPlay = (VmwCl - VmwFa);
-                Play.rthb = VbeamPlay.Theta()/rad;
-                Play.rphib = VbeamPlay.Phi()/rad;
-                VbeamPlay.GetXYZ(tarcoord);
-                PdistX = PlayXmw2;
-                PdistY = PlayYmw2;
-                PdistZ = header->UpMat.MWclosDist+header->UpMat.MWgasThick/2;
-            }*/
-        } /* i_flag_MW */
-      } /* ReIN.TRACKINGis */
+            VmwCl.SetXYZ(fOutEvent->xmw2,fOutEvent->ymw2,header->UpMat.MWclosDist-header->UpMat.MWfarDist);
+            VmwFa.SetXYZ(fOutEvent->xmw1,fOutEvent->ymw1,0.);
+            Vbeam = VmwCl - VmwFa;
+            fOutEvent->projectile.Part.SetTheta(Vbeam.Theta());
+            fOutEvent->projectile.Part.SetPhi(Vbeam.Phi());
+            fOutEvent->thb = Vbeam.Theta()/rad;
+            fOutEvent->phib = Vbeam.Phi()/rad;
+
+            fOutEvent->xbt = fOutEvent->xmw2 - Zdist*tan(fOutEvent->projectile.Part.Theta())*cos(fOutEvent->projectile.Part.Phi());
+            fOutEvent->ybt = fOutEvent->ymw2 - Zdist*tan(fOutEvent->projectile.Part.Theta())*sin(fOutEvent->projectile.Part.Phi());
+            fOutEvent->zbt = header->UpMat.TarZshift;
+            
+            if(sqrt(fOutEvent->xbt*fOutEvent->xbt +fOutEvent->ybt*fOutEvent->ybt)<header->UpMat.TarRadius) {header->mtrack=1;good_mtrack++;}
+          }
+        }
+      }
 }
 //----------------------------------------------------------------------------
 double ERBeamDetReconstructor::coordMW(UpstreamMatter* pT,ERBeamDetRecoEvent* pR,char* MWid,char* XY){

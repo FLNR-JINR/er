@@ -34,6 +34,7 @@ set(SRCS
 	telescope/data/ERDsrdCalEvent.cxx
 	telescope/data/ERTelescopeEvent.cxx
 	telescope/data/ERTelescopeCalEvent.cxx
+	telescope/data/ERTelescopeRecoEvent.cxx
 	telescope/ERTelescopeCalibrator.cxx
 	telescope/ERDsrdCalibrator.cxx
 	telescope/ERTelescopeReconstructor.cxx
