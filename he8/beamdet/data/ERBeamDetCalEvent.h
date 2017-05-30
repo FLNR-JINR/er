@@ -11,7 +11,7 @@
 class ERBeamDetCalEvent : public TNamed {
 public:
 	//Tof
-	double tF3l,tF3r,tF4l,tF4r,aF3l,aF3r,aF4l,aF4r,tofb,tb,tcm;
+	double tF3l,tF3r,tF4l,tF4r,aF3l,aF3r,aF4l,aF4r;
 	int iFlag;
 	
 public:

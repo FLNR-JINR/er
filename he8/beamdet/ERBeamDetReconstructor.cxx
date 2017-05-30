@@ -112,17 +112,17 @@ void ERBeamDetReconstructor::Tof(){
     // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
     //          fInCalEvent->tofb = t_F4 - t_F3 + tof_0;
     // ********************************* measurement of absolute TOF value tof_offset = dT1-L0*(dT1-dT0)/(L1-L0)*******************************
-          fInCalEvent->tofb = t_F4 - t_F3 + tof_offset;
+          fOutEvent->tofb = t_F4 - t_F3 + tof_offset;
     //if(fInCalEvent->tofb<130.) 
     //{printf("ntF3l=%i,ntF3r=%i,ntF4l=%i,ntF4r=%i\n",RawD.ntF3l,RawD.ntF3r,RawD.ntF4l,RawD.ntF4r);
     //printf("tF3l=%lf,tF3r=%lf,tF4l=%lf,tF4r=%lf,  TOF=%lf\n",fInCalEvent->tF3l,fInCalEvent->tF3r,fInCalEvent->tF4l,fInCalEvent->tF4r,fInCalEvent->tofb);
     //printf("t_F3=%lf,t_F4=%lf,(fInCalEvent->tF3l+fInCalEvent->tF3r)/2=%lf,(fInCalEvent->tF4l+fInCalEvent->tF4r)/2=%lf,  TOF=%lf\n",t_F3,t_F4,(fInCalEvent->tF3l+fInCalEvent->tF3r)/2,
     //(fInCalEvent->tF4l+fInCalEvent->tF4r)/2,(fInCalEvent->tF4l+fInCalEvent->tF4r-fInCalEvent->tF3l-fInCalEvent->tF3r)/2+ tof_offset);}
     // ****************************************************************************************************************************************
-          if(fInCalEvent->aF4r+fInCalEvent->aF4l>500.&&fInCalEvent->tofb<150.&&fInCalEvent->tofb>60.)
+          if(fInCalEvent->aF4r+fInCalEvent->aF4l>500.&&fOutEvent->tofb<150.&&fOutEvent->tofb>60.)
           {
 
-            beta_b = header->UpMat.PlasticDist/fInCalEvent->tofb/slight;
+            beta_b = header->UpMat.PlasticDist/fOutEvent->tofb/slight;
 
             if(beta_b>0.&&beta_b<=1.)
             {
@@ -157,13 +157,8 @@ void ERBeamDetReconstructor::Tof(){
               fOutEvent->target.Part.Boost(fOutEvent->CM0.Part.BoostVector());
               if(t_cm>0.) good_mbeam++;
               else header->mbeam = 0;
-              fInCalEvent->tb = fOutEvent->projectile.Part.E()-fOutEvent->projectile.Mass;
-              fInCalEvent->tcm = t_cm;              
-              /*
-              fOutEvent->xbt = MdistX+(-header->UpMat.MWgasThick/2-header->UpMat.MWclosDist+header->UpMat.TarZshift)*sin(Vbeam.Theta())*cos(Vbeam.Phi())/cos(Vbeam.Theta());
-              fOutEvent->ybt = MdistY+(-header->UpMat.MWgasThick/2-header->UpMat.MWclosDist+header->UpMat.TarZshift)*sin(Vbeam.Theta())*sin(Vbeam.Phi())/cos(Vbeam.Theta());
-              fOutEvent->zbt = header->UpMat.TarZshift;
-              */
+              fOutEvent->tb = fOutEvent->projectile.Part.E()-fOutEvent->projectile.Mass;
+              fOutEvent->tcm = t_cm;              
             } /* if(beta_b>0.&&beta_b<=1.) */  
           } /* if(fInCalEvent->aF4r+fInCalEvent->aF4l>500.) */
           //        } /* if(fabs(dt_F4)<=header->UpMat.tF4_dlt&&fabs(dt_F3)<=header->UpMat.tF3_dlt&& */

@@ -46,9 +46,6 @@ void he8(Int_t nEvents = 10)
 
   ERTelescopeReconstructor* telescopeRecon = new ERTelescopeReconstructor(1);
   run->AddTask(telescopeRecon);
-
-  /*ERHe8Analyzer* analyzer = new ERHe8Analyzer(1);
-  run->AddTask(analyzer);*/
   
   // --- Start run
   TStopwatch timer;

@@ -1038,6 +1038,21 @@ void ERTelescopeReconstructor::ReadDeposites(){
     DepoX[1][2][0][imu] = fTelescopeEvent->eC23[imu];
     NhitX[1][2][0][imu] = fTelescopeEvent->nC23[imu];
   }
+  for(int imu=0;imu<=MuX[1][3][0];imu++)
+  {
+    DepoX[1][3][0][imu] = fTelescopeEvent->eC24[imu];
+    NhitX[1][3][0][imu] = fTelescopeEvent->nC24[imu];
+  }
+    for(int imu=0;imu<=MuX[1][4][0];imu++)
+  {
+    DepoX[1][4][0][imu] = fTelescopeEvent->eC25[imu];
+    NhitX[1][4][0][imu] = fTelescopeEvent->nC25[imu];
+  }
+    for(int imu=0;imu<=MuX[1][5][0];imu++)
+  {
+    DepoX[1][5][0][imu] = fTelescopeEvent->eC26[imu];
+    NhitX[1][5][0][imu] = fTelescopeEvent->nC26[imu];
+  }
   //cout << "Condition" << endl;
   if(MuY[0][0][0]==0&&NhitY[0][0][0][0]>0&&NhitY[0][0][0][0]<=abs(Det[0][0][0].NstripY)&&DepoX[0][0][0][0]>0.) mpd[0][0][0]=MuY[0][0][0]+1;
 
@@ -1058,7 +1073,7 @@ void ERTelescopeReconstructor::ReadDeposites(){
   fOutEvent->dep23= DepoX[1][2][0][0];
   fOutEvent->dep24= DepoX[1][3][0][0];
   fOutEvent->dep25= DepoX[1][4][0][0];
-  fOutEvent->dep26= DepoX[1][5][0][0];  
+  fOutEvent->dep26= DepoX[1][5][0][0];
 }
 //-----------------------------------------------------------------------------
 TVector3 ERTelescopeReconstructor::Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 Vint){
