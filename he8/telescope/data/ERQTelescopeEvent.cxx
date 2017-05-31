@@ -1,18 +1,18 @@
-#include "ERTelescopeEvent.h"
+#include "ERQTelescopeEvent.h"
 
 #include "TString.h"
 
 #include "FairRootManager.h"
 
-ERTelescopeEvent::ERTelescopeEvent(){
+ERQTelescopeEvent::ERQTelescopeEvent(){
 
 }
 
-ERTelescopeEvent::~ERTelescopeEvent(){
+ERQTelescopeEvent::~ERQTelescopeEvent(){
 
 }
 
-Bool_t ERTelescopeEvent::Register(TTree* tree, TString branchName){
+Bool_t ERQTelescopeEvent::Register(TTree* tree, TString branchName){
 	tree->SetBranchAddress(branchName + TString(".Q1[16]"),Q1);	
 	tree->SetBranchAddress(branchName + TString(".Q2[16]"),Q2);
 	tree->SetBranchAddress(branchName + TString(".Q3[16]"),Q3);
@@ -23,13 +23,13 @@ Bool_t ERTelescopeEvent::Register(TTree* tree, TString branchName){
 	tree->SetBranchAddress(branchName + TString(".TQ2[16]"),TQ2);
 
 	FairRootManager* ioman = FairRootManager::Instance();
-	ioman->Register("TelescopeEvent.", "RawEvents", this, kTRUE);
+	ioman->Register("QTelescopeEvent.", "RawEvents", this, kTRUE);
 
 	return kTRUE;
 }
 
 
-Int_t ERTelescopeEvent::Process(){
+Int_t ERQTelescopeEvent::Process(){
 	//init
 	mD21=-1;mD22=-1;mD23=-1;mD24=-1;mD25=-1;mD26=-1;
 	mDT21=-1;mDT22=-1;
@@ -63,4 +63,4 @@ Int_t ERTelescopeEvent::Process(){
 
 
 
-ClassImp(ERTelescopeEvent);
+ClassImp(ERQTelescopeEvent);

@@ -17,13 +17,13 @@
 #pragma link C++ class ERBeamDetCalibrator+;
 #pragma link C++ class ERBeamDetReconstructor+;
 
-#pragma link C++ class ERTelescopeEvent+;
-#pragma link C++ class ERTelescopeCalEvent+;
-#pragma link C++ class ERDsrdEvent+;
-#pragma link C++ class ERDsrdCalEvent+;
+#pragma link C++ class ERQTelescopeEvent+;
+#pragma link C++ class ERQTelescopeCalEvent+;
+#pragma link C++ class ERRTelescopeEvent+;
+#pragma link C++ class ERRTelescopeCalEvent+;
 #pragma link C++ class ERTelescopeRecoEvent+;
-#pragma link C++ class ERTelescopeCalibrator+;
-#pragma link C++ class ERDsrdCalibrator+;
+#pragma link C++ class ERQTelescopeCalibrator+;
+#pragma link C++ class ERRTelescopeCalibrator+;
 #pragma link C++ class ERTelescopeReconstructor+;
 
 #endif

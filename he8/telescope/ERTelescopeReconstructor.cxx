@@ -12,8 +12,8 @@ using namespace std;
 // ----------------------------------------------------------------------------
 ERTelescopeReconstructor::ERTelescopeReconstructor()
   : FairTask("Convert cal event to reco event"),
-  fDsrdEvent(NULL),
-  fTelescopeEvent(NULL),
+  fRTelescopeEvent(NULL),
+  fQTelescopeEvent(NULL),
   fEvent(0)
 {
 }
@@ -22,8 +22,8 @@ ERTelescopeReconstructor::ERTelescopeReconstructor()
 // ----------------------------------------------------------------------------
 ERTelescopeReconstructor::ERTelescopeReconstructor(Int_t verbose)
   : FairTask("Convert cal event to reco event", verbose),
-  fDsrdEvent(NULL),
-  fTelescopeEvent(NULL),
+  fRTelescopeEvent(NULL),
+  fQTelescopeEvent(NULL),
   fEvent(0)
 {
 }
@@ -50,12 +50,12 @@ InitStatus ERTelescopeReconstructor::Init()
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
   //Get input objects
-  fTelescopeEvent = (ERTelescopeCalEvent*)ioman->GetObject("TelescopeCalEvent.");
-  if (!fTelescopeEvent)
+  fQTelescopeEvent = (ERQTelescopeCalEvent*)ioman->GetObject("QTelescopeCalEvent.");
+  if (!fQTelescopeEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
-  fDsrdEvent = (ERDsrdCalEvent*)ioman->GetObject("DsrdCalEvent.");
-  if (!fTelescopeEvent)
+  fRTelescopeEvent = (ERRTelescopeCalEvent*)ioman->GetObject("RTelescopeCalEvent.");
+  if (!fRTelescopeEvent)
       Fatal("Init", "Can`t find branch in input file!");
   fBeamDetEvent = (ERBeamDetRecoEvent*)ioman->GetObject("BeamDetRecoEvent.");
   if (!fBeamDetEvent)
@@ -1003,58 +1003,58 @@ void ERTelescopeReconstructor::ReadDeposites(){
       }
     }
   }
-  MuY[0][0][0]=fDsrdEvent->mC11;MuX[0][1][0]=fDsrdEvent->mC12;
-  MuY[1][0][0]=fTelescopeEvent->mC21;MuX[1][1][0]=fTelescopeEvent->mC22;MuX[1][2][0]=fTelescopeEvent->mC23;
+  MuY[0][0][0]=fRTelescopeEvent->mC11;MuX[0][1][0]=fRTelescopeEvent->mC12;
+  MuY[1][0][0]=fQTelescopeEvent->mC21;MuX[1][1][0]=fQTelescopeEvent->mC22;MuX[1][2][0]=fQTelescopeEvent->mC23;
   //====================================================
   for(int imu=0;imu<=MuY[0][0][0];imu++)
   {
-    DepoX[0][0][0][imu] = fDsrdEvent->eC11[imu];
-    NhitY[0][0][0][imu] = fDsrdEvent->nC11[imu];
+    DepoX[0][0][0][imu] = fRTelescopeEvent->eC11[imu];
+    NhitY[0][0][0][imu] = fRTelescopeEvent->nC11[imu];
     NhitX[0][0][0][imu] = 1;
   }
   for(int imu=0;imu<=MuX[0][1][0];imu++)
   {
-    DepoX[0][1][0][imu] = fDsrdEvent->eC12[imu];
-    NhitX[0][1][0][imu] = fDsrdEvent->nC12[imu];
+    DepoX[0][1][0][imu] = fRTelescopeEvent->eC12[imu];
+    NhitX[0][1][0][imu] = fRTelescopeEvent->nC12[imu];
     NhitY[0][1][0][imu] = 1;
   }
   //====================================================
   for(int imu=0;imu<=MuX[1][0][0];imu++)
   {
-    DepoX[1][0][0][imu] = fTelescopeEvent->eC21[imu];
-    NhitX[1][0][0][imu] = fTelescopeEvent->nC21[imu];
+    DepoX[1][0][0][imu] = fQTelescopeEvent->eC21[imu];
+    NhitX[1][0][0][imu] = fQTelescopeEvent->nC21[imu];
     NhitY[1][0][0][imu] = 0;
   }
   for(int imu=0;imu<=MuY[1][1][0];imu++)
   {
-    DepoX[1][1][0][imu] = fTelescopeEvent->eC22[imu];
-    NhitY[1][1][0][imu] = fTelescopeEvent->nC22[imu];
+    DepoX[1][1][0][imu] = fQTelescopeEvent->eC22[imu];
+    NhitY[1][1][0][imu] = fQTelescopeEvent->nC22[imu];
     NhitX[1][1][0][imu] = 0;
   }
   //====================================================
   for(int imu=0;imu<=MuX[1][2][0];imu++)
   {
-    DepoX[1][2][0][imu] = fTelescopeEvent->eC23[imu];
-    NhitX[1][2][0][imu] = fTelescopeEvent->nC23[imu];
+    DepoX[1][2][0][imu] = fQTelescopeEvent->eC23[imu];
+    NhitX[1][2][0][imu] = fQTelescopeEvent->nC23[imu];
     NhitY[1][2][0][imu] = 1;
   }
   for(int imu=0;imu<=MuX[1][3][0];imu++)
   {
-    DepoX[1][3][0][imu] = fTelescopeEvent->eC24[imu];
-    NhitY[1][3][0][imu] = fTelescopeEvent->nC24[imu];
+    DepoX[1][3][0][imu] = fQTelescopeEvent->eC24[imu];
+    NhitY[1][3][0][imu] = fQTelescopeEvent->nC24[imu];
     NhitX[1][3][0][imu] = 1;
   }
   //====================================================
     for(int imu=0;imu<=MuX[1][4][0];imu++)
   {
-    DepoX[1][4][0][imu] = fTelescopeEvent->eC25[imu];
-    NhitX[1][4][0][imu] = fTelescopeEvent->nC25[imu];
+    DepoX[1][4][0][imu] = fQTelescopeEvent->eC25[imu];
+    NhitX[1][4][0][imu] = fQTelescopeEvent->nC25[imu];
     NhitY[1][4][0][imu] = 1;
   }
     for(int imu=0;imu<=MuX[1][5][0];imu++)
   {
-    DepoX[1][5][0][imu] = fTelescopeEvent->eC26[imu];
-    NhitY[1][5][0][imu] = fTelescopeEvent->nC26[imu];
+    DepoX[1][5][0][imu] = fQTelescopeEvent->eC26[imu];
+    NhitY[1][5][0][imu] = fQTelescopeEvent->nC26[imu];
     NhitX[1][5][0][imu] = 1;
   }
   //=======================================================
