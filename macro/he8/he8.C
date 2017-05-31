@@ -1,4 +1,4 @@
-void he8(Int_t nEvents = 10)
+void he8(Int_t nEvents = 20)
 {
   TString workdir = gSystem->Getenv("VMCWORKDIR");
 	TString inFile = workdir + "/input/t_8he_026.root";
