@@ -133,17 +133,12 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   // Typical case: no vertices:
   for(int it=0;it<Ntelescopes;it++)
   {
-    if(mp[it]==1)
-    {
-        Vert1.SetXYZ(fBeamDetEvent->xbt,fBeamDetEvent->ybt,fBeamDetEvent->zbt);
-        if(it==2) 
-          AngleDet[it][0] = Traject(&Det[it][0][0],&Det[it][0][0],NhitX[it][0][0][0],NhitY[it][1][0][0],Vert1);
-        else 
-          AngleDet[it][0] = Traject(&Det[it][1][0],&Det[it][0][0],NhitX[it][1][0][0],NhitY[it][0][0][0],Vert1);
-        cx[it][0] = (Vert1+AngleDet[it][0]).X();
-        cy[it][0] = (Vert1+AngleDet[it][0]).Y();
-        cz[it][0] = (Vert1+AngleDet[it][0]).Z();
-    }
+    Vert1.SetXYZ(fBeamDetEvent->xbt,fBeamDetEvent->ybt,fBeamDetEvent->zbt);
+    AngleDet[it][0] = Traject(&Det[it][1][0],&Det[it][0][0],NhitX[it][1][0][0],NhitY[it][0][0][0],Vert1);
+    cout << AngleDet[it][0].X() << " " << AngleDet[it][0].Y() << " " << AngleDet[it][0].Z() << endl;
+    cx[it][0] = (Vert1+AngleDet[it][0]).X();
+    cy[it][0] = (Vert1+AngleDet[it][0]).Y();
+    cz[it][0] = (Vert1+AngleDet[it][0]).Z();
   }
 
   fOutEvent->x11 = cx[0][0];
@@ -297,6 +292,29 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   fOutEvent->phi2 = ejectile[1][1][0].Part.Phi()/rad;
   fOutEvent->t11 = ejectile[0][0][0].Part.E()-ejectile[0][0][0].Mass;
   fOutEvent->t22 = ejectile[1][1][0].Part.E()-ejectile[1][1][0].Mass;
+
+  for(int it=0;it<Ntelescopes;it++)
+  {
+    if(mp[it]==1&&header->mbeam&&header->mtrack)
+    {
+      for(int ip=0;ip<header->NofDetPart;ip++)
+      {
+        for(int imu=0;imu<=mp[it];imu++)
+        {
+          ejectile[it][ip][imu].Part.Boost(CM0->Part.BoostVector());
+          ejectile[it][ip][imu].Part.Boost(-projectile->Part.BoostVector());
+        }
+      }
+    }
+  }
+  fOutEvent->t11cmp = ejectile[0][0][0].Part.E()-ejectile[0][0][0].Mass;
+  fOutEvent->t22cmp = ejectile[1][1][0].Part.E()-ejectile[1][1][0].Mass;
+
+  fOutEvent->pz11cmp = ejectile[0][0][0].Part.Pz();
+  fOutEvent->pz22cmp = ejectile[1][1][0].Part.Pz();
+
+  fOutEvent->th11cmp = ejectile[0][0][0].Part.Theta()/rad;
+  fOutEvent->th22cmp = ejectile[1][1][0].Part.Theta()/rad;
 }
 
 //----------------------------------------------------------------------------
@@ -1081,7 +1099,7 @@ TVector3 ERTelescopeReconstructor::Traject(Telescope* Dx,Telescope* Dy,int Nx,in
   double x,y,x0,x1,x2,x3,y0,y1,y2,y3,z0,z1,z2,z3,arba;
   double R,Phi,x_1,y_1,z_1,x_2,y_2,z_2,x_3,y_3,z_3;
   double t11,t12,t13,t21,t22,t23,t31,t32,t33,A,B,D;
-
+  cout << Nx << " " << Ny << " " << Dx->NstripX << " " << Dy->NstripY <<endl;
   TRandom Xrnd;
   if(Nx>0&&Ny>0&&Nx<=abs(Dx->NstripX)&&Ny<=abs(Dy->NstripY))
   {
