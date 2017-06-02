@@ -1,14 +1,14 @@
-#include "ERTelescopeCalEvent.h"
+#include "ERQTelescopeCalEvent.h"
 
-ERTelescopeCalEvent::ERTelescopeCalEvent(){
-
-}
-
-ERTelescopeCalEvent::~ERTelescopeCalEvent(){
+ERQTelescopeCalEvent::ERQTelescopeCalEvent(){
 
 }
 
-void ERTelescopeCalEvent::Reset(){
+ERQTelescopeCalEvent::~ERQTelescopeCalEvent(){
+
+}
+
+void ERQTelescopeCalEvent::Reset(){
 	mC21 = -1;
 	mC22 = -1;
 	mC23 = -1;
@@ -31,4 +31,4 @@ void ERTelescopeCalEvent::Reset(){
 	}
 }
 
-ClassImp(ERTelescopeCalEvent);
+ClassImp(ERQTelescopeCalEvent);

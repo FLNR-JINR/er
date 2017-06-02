@@ -1,32 +1,32 @@
 // -------------------------------------------------------------------------
-// -----                  ERTelescopeCalibrator header file          -----
+// -----                  ERRTelescopeCalibrator header file          -----
 // -----                  Created 04/17  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
-#ifndef ERTelescopeCalibrator_H
-#define ERTelescopeCalibrator_H
+#ifndef ERRTelescopeCalibrator_H
+#define ERRTelescopeCalibrator_H
 
 #include "TRandom.h"
 
 #include "FairTask.h"
 
 
-#include "ERTelescopeEvent.h"
-#include "ERTelescopeCalEvent.h"
+#include "ERRTelescopeEvent.h"
+#include "ERRTelescopeCalEvent.h"
 
-class ERTelescopeCalibrator : public FairTask {
+class ERRTelescopeCalibrator : public FairTask {
 
 public:
   /** Default constructor **/
-  ERTelescopeCalibrator();
+  ERRTelescopeCalibrator();
 
   /** Constructor 
   ** verbose: 1 - only standard log print
   **/
-  ERTelescopeCalibrator(Int_t verbose);
+  ERRTelescopeCalibrator(Int_t verbose);
 
   /** Destructor **/
-  ~ERTelescopeCalibrator();
+  ~ERRTelescopeCalibrator();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -43,9 +43,9 @@ public:
   void SetParametersFile(TString path){fPath = path;}
 protected:
   //Input objects
-  ERTelescopeEvent* fInEvent;
+  ERRTelescopeEvent* fInEvent;
 
-  ERTelescopeCalEvent* fOutEvent;
+  ERRTelescopeCalEvent* fOutEvent;
 
   Int_t fEvent;
 
@@ -57,7 +57,7 @@ private:
 
   virtual void SetParContainers();
   
-  ClassDef(ERTelescopeCalibrator,1)
+  ClassDef(ERRTelescopeCalibrator,1)
 };
 
 #endif

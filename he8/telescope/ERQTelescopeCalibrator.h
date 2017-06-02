@@ -1,32 +1,32 @@
 // -------------------------------------------------------------------------
-// -----                  ERDsrdCalibrator header file          -----
+// -----                  ERQTelescopeCalibrator header file          -----
 // -----                  Created 04/17  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
-#ifndef ERDsrdCalibrator_H
-#define ERDsrdCalibrator_H
+#ifndef ERQTelescopeCalibrator_H
+#define ERQTelescopeCalibrator_H
 
 #include "TRandom.h"
 
 #include "FairTask.h"
 
 
-#include "ERDsrdEvent.h"
-#include "ERDsrdCalEvent.h"
+#include "ERQTelescopeEvent.h"
+#include "ERQTelescopeCalEvent.h"
 
-class ERDsrdCalibrator : public FairTask {
+class ERQTelescopeCalibrator : public FairTask {
 
 public:
   /** Default constructor **/
-  ERDsrdCalibrator();
+  ERQTelescopeCalibrator();
 
   /** Constructor 
   ** verbose: 1 - only standard log print
   **/
-  ERDsrdCalibrator(Int_t verbose);
+  ERQTelescopeCalibrator(Int_t verbose);
 
   /** Destructor **/
-  ~ERDsrdCalibrator();
+  ~ERQTelescopeCalibrator();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -43,9 +43,9 @@ public:
   void SetParametersFile(TString path){fPath = path;}
 protected:
   //Input objects
-  ERDsrdEvent* fInEvent;
+  ERQTelescopeEvent* fInEvent;
 
-  ERDsrdCalEvent* fOutEvent;
+  ERQTelescopeCalEvent* fOutEvent;
 
   Int_t fEvent;
 
@@ -57,7 +57,7 @@ private:
 
   virtual void SetParContainers();
   
-  ClassDef(ERDsrdCalibrator,1)
+  ClassDef(ERQTelescopeCalibrator,1)
 };
 
 #endif

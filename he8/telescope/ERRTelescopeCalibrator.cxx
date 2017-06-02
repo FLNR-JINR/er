@@ -1,4 +1,4 @@
-#include "ERDsrdCalibrator.h"
+#include "ERRTelescopeCalibrator.h"
 
 #include<iostream>
 using namespace std;
@@ -10,7 +10,7 @@ using namespace std;
 #include "FairRuntimeDb.h"
 
 // ----------------------------------------------------------------------------
-ERDsrdCalibrator::ERDsrdCalibrator()
+ERRTelescopeCalibrator::ERRTelescopeCalibrator()
   : FairTask("Convert Raw event to analyse event"),
   fInEvent(NULL),
   fOutEvent(NULL),
@@ -21,7 +21,7 @@ ERDsrdCalibrator::ERDsrdCalibrator()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERDsrdCalibrator::ERDsrdCalibrator(Int_t verbose)
+ERRTelescopeCalibrator::ERRTelescopeCalibrator(Int_t verbose)
   : FairTask("Convert Raw event to analyse event", verbose),
   fInEvent(NULL),
   fOutEvent(NULL),
@@ -32,21 +32,21 @@ ERDsrdCalibrator::ERDsrdCalibrator(Int_t verbose)
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERDsrdCalibrator::~ERDsrdCalibrator()
+ERRTelescopeCalibrator::~ERRTelescopeCalibrator()
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERDsrdCalibrator::SetParContainers()
+void ERRTelescopeCalibrator::SetParContainers()
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-InitStatus ERDsrdCalibrator::Init()
+InitStatus ERRTelescopeCalibrator::Init()
 {
-  if (fPath == "") Fatal("Init", "No parameters file in ERDsrdCalibrator");
+  if (fPath == "") Fatal("Init", "No parameters file in ERRTelescopeCalibrator");
 
   FILE *F2 = fopen(fPath.Data(),"r");
   if(F2==NULL) 
@@ -71,22 +71,22 @@ InitStatus ERDsrdCalibrator::Init()
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
   //Get input objects
-  fInEvent = (ERDsrdEvent*)ioman->GetObject("DsrdEvent.");
+  fInEvent = (ERRTelescopeEvent*)ioman->GetObject("RTelescopeEvent.");
   if (!fInEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
-  fOutEvent = new ERDsrdCalEvent();
-  ioman->Register("DsrdCalEvent.","Analyze",fOutEvent, kTRUE);
+  fOutEvent = new ERRTelescopeCalEvent();
+  ioman->Register("RTelescopeCalEvent.","Analyze",fOutEvent, kTRUE);
 
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void ERDsrdCalibrator::Exec(Option_t* opt)
+void ERRTelescopeCalibrator::Exec(Option_t* opt)
 {
   //std::cout << std::endl;
-  //std::cout << "####### ERDsrdCalibrator EVENT " << fEvent++ << " #####" << std::endl;
+  //std::cout << "####### ERRTelescopeCalibrator EVENT " << fEvent++ << " #####" << std::endl;
 
   Reset();
 
@@ -116,16 +116,16 @@ void ERDsrdCalibrator::Exec(Option_t* opt)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void ERDsrdCalibrator::Reset()
+void ERRTelescopeCalibrator::Reset()
 {
   fOutEvent->Reset();
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERDsrdCalibrator::Finish()
+void ERRTelescopeCalibrator::Finish()
 {   
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-ClassImp(ERDsrdCalibrator)
+ClassImp(ERRTelescopeCalibrator)

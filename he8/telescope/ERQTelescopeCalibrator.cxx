@@ -1,4 +1,4 @@
-#include "ERTelescopeCalibrator.h"
+#include "ERQTelescopeCalibrator.h"
 
 #include<iostream>
 using namespace std;
@@ -10,7 +10,7 @@ using namespace std;
 #include "FairRuntimeDb.h"
 
 // ----------------------------------------------------------------------------
-ERTelescopeCalibrator::ERTelescopeCalibrator()
+ERQTelescopeCalibrator::ERQTelescopeCalibrator()
   : FairTask("Convert Raw event to analyse event"),
   fInEvent(NULL),
   fOutEvent(NULL),
@@ -21,7 +21,7 @@ ERTelescopeCalibrator::ERTelescopeCalibrator()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERTelescopeCalibrator::ERTelescopeCalibrator(Int_t verbose)
+ERQTelescopeCalibrator::ERQTelescopeCalibrator(Int_t verbose)
   : FairTask("Convert Raw event to analyse event", verbose),
   fInEvent(NULL),
   fOutEvent(NULL),
@@ -32,25 +32,25 @@ ERTelescopeCalibrator::ERTelescopeCalibrator(Int_t verbose)
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERTelescopeCalibrator::~ERTelescopeCalibrator()
+ERQTelescopeCalibrator::~ERQTelescopeCalibrator()
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERTelescopeCalibrator::SetParContainers()
+void ERQTelescopeCalibrator::SetParContainers()
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-InitStatus ERTelescopeCalibrator::Init()
+InitStatus ERQTelescopeCalibrator::Init()
 {
-  if (fPath == "") Fatal("Init", "No parameters file in ERTelescopeCalibrator");
+  if (fPath == "") Fatal("Init", "No parameters file in ERQTelescopeCalibrator");
 
   FILE *F2 = fopen(fPath.Data(),"r");
   if(F2==NULL) 
-    Fatal("Init", TString("RDsrdCalibrator: file ") + fPath + TString(" is not found"));
+    Fatal("Init", TString("ERQTelescopeCalibrator: file ") + fPath + TString(" is not found"));
   else
   {
     double a,b,t;
@@ -71,22 +71,22 @@ InitStatus ERTelescopeCalibrator::Init()
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
   //Get input objects
-  fInEvent = (ERTelescopeEvent*)ioman->GetObject("TelescopeEvent.");
+  fInEvent = (ERQTelescopeEvent*)ioman->GetObject("QTelescopeEvent.");
   if (!fInEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
-  fOutEvent = new ERTelescopeCalEvent();
-  ioman->Register("TelescopeCalEvent.","Analyze",fOutEvent, kTRUE);
+  fOutEvent = new ERQTelescopeCalEvent();
+  ioman->Register("QTelescopeCalEvent.","Analyze",fOutEvent, kTRUE);
 
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void ERTelescopeCalibrator::Exec(Option_t* opt)
+void ERQTelescopeCalibrator::Exec(Option_t* opt)
 {
   //std::cout << std::endl;
-  //std::cout << "####### ERTelescopeCalibrator EVENT " << fEvent++ << " #####" << std::endl;
+  //std::cout << "####### ERQTelescopeCalibrator EVENT " << fEvent++ << " #####" << std::endl;
 
   Reset();
 
@@ -174,16 +174,16 @@ for(int imu=0;imu<=fInEvent->mD21;imu++)  /* D21 X16 */
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void ERTelescopeCalibrator::Reset()
+void ERQTelescopeCalibrator::Reset()
 {
   fOutEvent->Reset();
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERTelescopeCalibrator::Finish()
+void ERQTelescopeCalibrator::Finish()
 {   
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-ClassImp(ERTelescopeCalibrator)
+ClassImp(ERQTelescopeCalibrator)

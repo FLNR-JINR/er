@@ -1,4 +1,4 @@
-void he8(Int_t nEvents = 10)
+void he8(Int_t nEvents = 20)
 {
   TString workdir = gSystem->Getenv("VMCWORKDIR");
 	TString inFile = workdir + "/input/t_8he_026.root";
@@ -13,14 +13,14 @@ void he8(Int_t nEvents = 10)
   ERRootSource* source = new ERRootSource();
   source->SetFile(inFile,"AnalysisxTree","HE8Event");
 
-  ERTelescopeEvent* telEvent = new ERTelescopeEvent();
-  source->AddEvent(telEvent);
+  ERQTelescopeEvent* qTelEvent = new ERQTelescopeEvent();
+  source->AddEvent(qTelEvent);
 
   ERBeamDetEvent* beamDetEvent = new ERBeamDetEvent();
   source->AddEvent(beamDetEvent);
 
-  ERDsrdEvent* dsrdEvent = new ERDsrdEvent();
-  source->AddEvent(dsrdEvent);
+  ERRTelescopeEvent* rTelescopeEvent = new ERRTelescopeEvent();
+  source->AddEvent(rTelescopeEvent);
 
   // --- Run
   FairRunOnline *run = new FairRunOnline(source);
@@ -29,13 +29,13 @@ void he8(Int_t nEvents = 10)
   ERHe8EventHeader* header = new ERHe8EventHeader();
   run->SetEventHeader(header);
 
-  ERDsrdCalibrator* dsrdCalibrator = new ERDsrdCalibrator();
-  dsrdCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
-  run->AddTask(dsrdCalibrator);
+  ERRTelescopeCalibrator* rTelCalibrator = new ERRTelescopeCalibrator();
+  rTelCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
+  run->AddTask(rTelCalibrator);
 
-  ERTelescopeCalibrator* telCalibrator = new ERTelescopeCalibrator();
-  telCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
-  run->AddTask(telCalibrator);
+  ERQTelescopeCalibrator* qTelCalibrator = new ERQTelescopeCalibrator();
+  qTelCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
+  run->AddTask(qTelCalibrator);
 
   ERBeamDetCalibrator* beamDetCalibrator = new ERBeamDetCalibrator();
   beamDetCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");

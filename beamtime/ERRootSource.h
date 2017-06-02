@@ -48,6 +48,7 @@ class ERRootSource : public FairSource
     std::vector<ERRawEvent*> fRawEvents;
 
     Int_t fEvent;
+    Bool_t fInited;
   public:
     ClassDef(ERRootSource, 1)
 };

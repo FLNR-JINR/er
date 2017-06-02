@@ -14,8 +14,8 @@
 
 #include "FairTask.h"
 
-#include "ERTelescopeCalEvent.h"
-#include "ERDsrdCalEvent.h"
+#include "ERQTelescopeCalEvent.h"
+#include "ERRTelescopeCalEvent.h"
 #include "ERHe8EventHeader.h"
 #include "ERParticle.h"
 #include "ERBeamDetRecoEvent.h"
@@ -93,8 +93,8 @@ public:
 
 protected:
   //Input objects
-  ERTelescopeCalEvent* fTelescopeEvent;
-  ERDsrdCalEvent* fDsrdEvent;
+  ERQTelescopeCalEvent* fQTelescopeEvent;
+  ERRTelescopeCalEvent* fRTelescopeEvent;
   ERBeamDetRecoEvent* fBeamDetEvent;
 
   //Output objects

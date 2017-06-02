@@ -1,10 +1,10 @@
-he4+ni58->(he4)+ni58
-Tbeam=35 MeV/n
-DispersionSlit=2 %
-Mechanism	elastic
-FileName	run
+he8+h3->(h1+[he8)+n+n]
+Tbeam=252.49 A
+DispersionSlit=8 %
+Mechanism	TransferDecay
+FileName	t_8he
 Simulation	no
-VertexSearch	no
+Vertex		no
 DetectorTune	no
 TOFis		yes
 TRACKINGis	yes
@@ -16,7 +16,6 @@ WriteTrackData	yes
 WriteTelData	yes
 WritePhysData	yes
 WritePlayData	yes
-WriteRawTrack	yes
 GooodMbeam	1
 GooodMtrack	1
 GooodMp1	0

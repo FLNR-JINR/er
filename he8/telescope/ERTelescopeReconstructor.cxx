@@ -12,8 +12,8 @@ using namespace std;
 // ----------------------------------------------------------------------------
 ERTelescopeReconstructor::ERTelescopeReconstructor()
   : FairTask("Convert cal event to reco event"),
-  fDsrdEvent(NULL),
-  fTelescopeEvent(NULL),
+  fRTelescopeEvent(NULL),
+  fQTelescopeEvent(NULL),
   fEvent(0)
 {
 }
@@ -22,8 +22,8 @@ ERTelescopeReconstructor::ERTelescopeReconstructor()
 // ----------------------------------------------------------------------------
 ERTelescopeReconstructor::ERTelescopeReconstructor(Int_t verbose)
   : FairTask("Convert cal event to reco event", verbose),
-  fDsrdEvent(NULL),
-  fTelescopeEvent(NULL),
+  fRTelescopeEvent(NULL),
+  fQTelescopeEvent(NULL),
   fEvent(0)
 {
 }
@@ -50,12 +50,12 @@ InitStatus ERTelescopeReconstructor::Init()
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
   //Get input objects
-  fTelescopeEvent = (ERTelescopeCalEvent*)ioman->GetObject("TelescopeCalEvent.");
-  if (!fTelescopeEvent)
+  fQTelescopeEvent = (ERQTelescopeCalEvent*)ioman->GetObject("QTelescopeCalEvent.");
+  if (!fQTelescopeEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
-  fDsrdEvent = (ERDsrdCalEvent*)ioman->GetObject("DsrdCalEvent.");
-  if (!fTelescopeEvent)
+  fRTelescopeEvent = (ERRTelescopeCalEvent*)ioman->GetObject("RTelescopeCalEvent.");
+  if (!fRTelescopeEvent)
       Fatal("Init", "Can`t find branch in input file!");
   fBeamDetEvent = (ERBeamDetRecoEvent*)ioman->GetObject("BeamDetRecoEvent.");
   if (!fBeamDetEvent)
@@ -130,16 +130,16 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   fOutEvent->ybd6 = fBeamDetEvent->ymw2 - (Zdist-Det[1][5][0].Dist)*tan(fBeamDetEvent->projectile.Part.Theta())*
     sin(fBeamDetEvent->projectile.Part.Phi());
 
-  // Typical case: no vertices:
-  for(int it=0;it<Ntelescopes;it++)
-  {
-    Vert1.SetXYZ(fBeamDetEvent->xbt,fBeamDetEvent->ybt,fBeamDetEvent->zbt);
-    AngleDet[it][0] = Traject(&Det[it][1][0],&Det[it][0][0],NhitX[it][1][0][0],NhitY[it][0][0][0],Vert1);
-    cout << AngleDet[it][0].X() << " " << AngleDet[it][0].Y() << " " << AngleDet[it][0].Z() << endl;
-    cx[it][0] = (Vert1+AngleDet[it][0]).X();
-    cy[it][0] = (Vert1+AngleDet[it][0]).Y();
-    cz[it][0] = (Vert1+AngleDet[it][0]).Z();
-  }
+
+  Vert1.SetXYZ(fBeamDetEvent->xbt,fBeamDetEvent->ybt,fBeamDetEvent->zbt); 
+  AngleDet[1][0] = Traject(&Det[1][0][0],&Det[1][1][0],NhitX[1][0][0][0],NhitY[1][1][0][0],Vert1);
+  cx[1][0] = (Vert1+AngleDet[1][0]).X();
+  cy[1][0] = (Vert1+AngleDet[1][0]).Y();
+  cz[1][0] = (Vert1+AngleDet[1][0]).Z();
+  AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitX[0][0][0][0],NhitY[0][1][0][0],Vert1);
+  cx[0][0] = (Vert1+AngleDet[0][0]).X();
+  cy[0][0] = (Vert1+AngleDet[0][0]).Y();
+  cz[0][0] = (Vert1+AngleDet[0][0]).Z();
 
   fOutEvent->x11 = cx[0][0];
   fOutEvent->y11 = cy[0][0];
@@ -156,6 +156,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   fOutEvent->x26 = cx[1][5];
   fOutEvent->y26 = cy[1][5];
 
+  
   //cout << "Now we know trajectories" << endl;
   char* plett;
   int itx,ilx,idx,ipx,is,count;
@@ -198,7 +199,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
               if(!strcmp(OutputChannelTemp,"HscrFoil")) deposit[0][0][0][5] = range;
             }
             trajectory = geom->Step();
-          } /* while(!geom->IsOutside) */
+          }
           for(int ip=0;ip<header->NofDetPart;ip++)
           {
             ilx = -1;count=-1;Tb = 0.;Ta=0.;
@@ -220,7 +221,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
                 Tb = EiEo(EjMat[ip]->ej_si,Tb,-deposit[it][il][idx][0]*Det[it][il][idx].DeadZoneF/Det[it][il][idx].Thick);
               }
               if(Tb>0.1) count++;
-            } /* for(il=layer[it]-1;il=0;il--) */
+            }
             if(deposit[0][0][0][5]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][5]);
             if(deposit[0][0][0][3]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][3]);
             if(deposit[0][0][0][2]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][2]);
@@ -1024,65 +1025,74 @@ void ERTelescopeReconstructor::ReadDeposites(){
       }
     }
   }
-  MuY[0][0][0]=fDsrdEvent->mC11;MuX[0][1][0]=fDsrdEvent->mC12;
-  MuY[1][0][0]=fTelescopeEvent->mC21;MuX[1][1][0]=fTelescopeEvent->mC22;MuX[1][2][0]=fTelescopeEvent->mC23;
-
+  MuY[0][0][0]=fRTelescopeEvent->mC11;MuX[0][1][0]=fRTelescopeEvent->mC12;
+  MuY[1][0][0]=fQTelescopeEvent->mC21;MuX[1][1][0]=fQTelescopeEvent->mC22;MuX[1][2][0]=fQTelescopeEvent->mC23;
+  //====================================================
   for(int imu=0;imu<=MuY[0][0][0];imu++)
   {
-    DepoX[0][0][0][imu] = fDsrdEvent->eC11[imu];
-    NhitY[0][0][0][imu] = fDsrdEvent->nC11[imu];
+    DepoX[0][0][0][imu] = fRTelescopeEvent->eC11[imu];
+    NhitY[0][0][0][imu] = fRTelescopeEvent->nC11[imu];
     NhitX[0][0][0][imu] = 1;
   }
   for(int imu=0;imu<=MuX[0][1][0];imu++)
   {
-    DepoX[0][1][0][imu] = fDsrdEvent->eC12[imu];
-    NhitX[0][1][0][imu] = fDsrdEvent->nC12[imu];
+    DepoX[0][1][0][imu] = fRTelescopeEvent->eC12[imu];
+    NhitX[0][1][0][imu] = fRTelescopeEvent->nC12[imu];
     NhitY[0][1][0][imu] = 1;
   }
-  for(int imu=0;imu<=MuY[1][0][0];imu++)
+  //====================================================
+  for(int imu=0;imu<=MuX[1][0][0];imu++)
   {
-    DepoX[1][0][0][imu] = fTelescopeEvent->eC21[imu];
-    NhitY[1][0][0][imu] = fTelescopeEvent->nC21[imu];
-    NhitX[1][0][0][imu] = 1;
+    DepoX[1][0][0][imu] = fQTelescopeEvent->eC21[imu];
+    NhitX[1][0][0][imu] = fQTelescopeEvent->nC21[imu];
+    NhitY[1][0][0][imu] = 0;
   }
-  for(int imu=0;imu<=MuX[1][1][0];imu++)
+  for(int imu=0;imu<=MuY[1][1][0];imu++)
   {
-    DepoX[1][1][0][imu] = fTelescopeEvent->eC22[imu];
-    NhitX[1][1][0][imu] = fTelescopeEvent->nC22[imu];
-    NhitY[1][1][0][imu] = 1;
+    DepoX[1][1][0][imu] = fQTelescopeEvent->eC22[imu];
+    NhitY[1][1][0][imu] = fQTelescopeEvent->nC22[imu];
+    NhitX[1][1][0][imu] = 0;
   }
+  //====================================================
   for(int imu=0;imu<=MuX[1][2][0];imu++)
   {
-    DepoX[1][2][0][imu] = fTelescopeEvent->eC23[imu];
-    NhitX[1][2][0][imu] = fTelescopeEvent->nC23[imu];
+    DepoX[1][2][0][imu] = fQTelescopeEvent->eC23[imu];
+    NhitX[1][2][0][imu] = fQTelescopeEvent->nC23[imu];
+    NhitY[1][2][0][imu] = 1;
   }
   for(int imu=0;imu<=MuX[1][3][0];imu++)
   {
-    DepoX[1][3][0][imu] = fTelescopeEvent->eC24[imu];
-    NhitX[1][3][0][imu] = fTelescopeEvent->nC24[imu];
+    DepoX[1][3][0][imu] = fQTelescopeEvent->eC24[imu];
+    NhitY[1][3][0][imu] = fQTelescopeEvent->nC24[imu];
+    NhitX[1][3][0][imu] = 1;
   }
+  //====================================================
     for(int imu=0;imu<=MuX[1][4][0];imu++)
   {
-    DepoX[1][4][0][imu] = fTelescopeEvent->eC25[imu];
-    NhitX[1][4][0][imu] = fTelescopeEvent->nC25[imu];
+    DepoX[1][4][0][imu] = fQTelescopeEvent->eC25[imu];
+    NhitX[1][4][0][imu] = fQTelescopeEvent->nC25[imu];
+    NhitY[1][4][0][imu] = 1;
   }
     for(int imu=0;imu<=MuX[1][5][0];imu++)
   {
-    DepoX[1][5][0][imu] = fTelescopeEvent->eC26[imu];
-    NhitX[1][5][0][imu] = fTelescopeEvent->nC26[imu];
+    DepoX[1][5][0][imu] = fQTelescopeEvent->eC26[imu];
+    NhitY[1][5][0][imu] = fQTelescopeEvent->nC26[imu];
+    NhitX[1][5][0][imu] = 1;
   }
-  //cout << "Condition" << endl;
+  //=======================================================
+  mp[0] = 0;  mp[1] = 0;
+  mpd[1][0][0] = 0; mpd[1][1][0] = 0;
   if(MuY[0][0][0]==0&&NhitY[0][0][0][0]>0&&NhitY[0][0][0][0]<=abs(Det[0][0][0].NstripY)&&DepoX[0][0][0][0]>0.) mpd[0][0][0]=MuY[0][0][0]+1;
 
   if(MuX[0][1][0]==0&&NhitX[0][1][0][0]>0&&NhitX[0][1][0][0]<=abs(Det[0][1][0].NstripX)&&DepoX[0][1][0][0]>0.) mpd[0][1][0]=MuX[0][1][0]+1;
 
-  if(MuY[1][0][0]==0&&NhitY[1][0][0][0]>0&&NhitY[1][0][0][0]<=abs(Det[1][0][0].NstripY)&&DepoX[1][0][0][0]>0.) mpd[1][0][0]=MuY[1][0][0]+1;
+  if(MuX[1][0][0]==0&&NhitX[1][0][0][0]>0&&NhitX[1][0][0][0]<=abs(Det[1][0][0].NstripX)&&DepoX[1][0][0][0]>0.) mpd[1][0][0]=MuX[1][0][0]+1;
   
-  if(MuX[1][1][0]==0&&NhitX[1][1][0][0]>0&&NhitX[1][1][0][0]<=abs(Det[1][1][0].NstripX)&&DepoX[1][1][0][0]>0.) mpd[1][1][0]=MuX[1][1][0]+1;
+  if(MuY[1][1][0]==0&&NhitY[1][1][0][0]>0&&NhitY[1][1][0][0]<=abs(Det[1][1][0].NstripY)&&DepoX[1][1][0][0]>0.) mpd[1][1][0]=MuY[1][1][0]+1;
 
   if(mpd[0][0][0]==1&&mpd[0][1][0]==1) mp[0] = mpd[0][0][0];
-  if(mpd[1][0][0]==1&&mpd[1][1][0]==1) mp[1] = mpd[1][0][0];
 
+  if(mpd[1][0][0]==1&&mpd[1][1][0]==1) mp[1] = mpd[1][0][0];
   header->mp1 = mp[0]; header->mp2 = mp[1]; header->mp3 = mp[2];
 
   fOutEvent->dep11= DepoX[0][0][0][0];

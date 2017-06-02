@@ -15,7 +15,8 @@ fTree(NULL),
 fPath(""),
 fTreeName(""),
 fBranchName(""),
-fEvent(0)
+fEvent(0),
+fInited(kFALSE)
 {
 }
 
@@ -54,12 +55,14 @@ Int_t ERRootSource::ReadEvent(UInt_t id){
 	//Проверяем есть ли еще события для обработки
 	if (fTree->GetEntriesFast() == fEvent+1)
 		return 1;
-	fEvent++;
 	fTree->GetEntry(fEvent);
 
 	for (Int_t iREvent = 0; iREvent < fRawEvents.size(); iREvent++)
 		fRawEvents[iREvent]->Process();
-	
+	if (fInited)
+		fEvent++;
+	else
+		fInited = kTRUE;
 	return 0;
 }
 

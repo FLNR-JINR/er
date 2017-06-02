@@ -1,17 +1,17 @@
 // -------------------------------------------------------------------------
-// -----                      ERTelescopeEvent header file             -----
+// -----                      ERQTelescopeEvent header file             -----
 // -----                  Created 04/17  by V. Schetinin               -----
 // -------------------------------------------------------------------------
 
-#ifndef ERTelescopeEvent_H
-#define ERTelescopeEvent_H
+#ifndef ERQTelescopeEvent_H
+#define ERQTelescopeEvent_H
 
 #include "TTree.h"
 #include "TString.h"
 
 #include "ERRawEvent.h"
 
-class ERTelescopeEvent: public ERRawEvent {
+class ERQTelescopeEvent: public ERRawEvent {
 
 public:
 	//source data
@@ -31,14 +31,14 @@ public:
 	int nDT21[32],nDT22[32];
 	int ntD21[32],ntD22[32];
 public:
-	ERTelescopeEvent();
-	virtual ~ERTelescopeEvent();
+	ERQTelescopeEvent();
+	virtual ~ERQTelescopeEvent();
 
 	virtual Bool_t Register(TTree* tree, TString branchName);
 
 	virtual Int_t Process();
 
-	ClassDef(ERTelescopeEvent,1);
+	ClassDef(ERQTelescopeEvent,1);
 };
 
 #endif

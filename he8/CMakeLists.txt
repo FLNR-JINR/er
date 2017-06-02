@@ -30,13 +30,13 @@ set(SRCS
 	beamdet/data/ERBeamDetRecoEvent.cxx
 	beamdet/ERBeamDetCalibrator.cxx
 	beamdet/ERBeamDetReconstructor.cxx
-	telescope/data/ERDsrdEvent.cxx
-	telescope/data/ERDsrdCalEvent.cxx
-	telescope/data/ERTelescopeEvent.cxx
-	telescope/data/ERTelescopeCalEvent.cxx
+	telescope/data/ERRTelescopeEvent.cxx
+	telescope/data/ERRTelescopeCalEvent.cxx
+	telescope/data/ERQTelescopeEvent.cxx
+	telescope/data/ERQTelescopeCalEvent.cxx
 	telescope/data/ERTelescopeRecoEvent.cxx
-	telescope/ERTelescopeCalibrator.cxx
-	telescope/ERDsrdCalibrator.cxx
+	telescope/ERQTelescopeCalibrator.cxx
+	telescope/ERRTelescopeCalibrator.cxx
 	telescope/ERTelescopeReconstructor.cxx
 	data/ERHe8EventHeader.cxx
 	data/ERRawEvent.cxx
@@ -44,7 +44,7 @@ set(SRCS
 	data/ERInclusiveData.cxx
 	data/ERParticle.cxx
 	ERSupport.cxx
-	ERHe8Analyzer.cxx
+	#ERHe8Analyzer.cxx
 )
 
 # fill list of header files from list of source files
