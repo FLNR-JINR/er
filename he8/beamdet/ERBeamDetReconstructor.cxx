@@ -157,7 +157,7 @@ void ERBeamDetReconstructor::Tof(){
               fOutEvent->target.Part.Boost(fOutEvent->CM0.Part.BoostVector());
               if(t_cm>0.) good_mbeam++;
               else header->mbeam = 0;
-              fOutEvent->tb = fOutEvent->projectile.Part.E()-fOutEvent->projectile.Mass;
+              fOutEvent->Tb = fOutEvent->projectile.Part.E()-fOutEvent->projectile.Mass;
               fOutEvent->tcm = t_cm;              
             } /* if(beta_b>0.&&beta_b<=1.) */  
           } /* if(fInCalEvent->aF4r+fInCalEvent->aF4l>500.) */

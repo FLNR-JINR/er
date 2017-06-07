@@ -131,15 +131,19 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
     sin(fBeamDetEvent->projectile.Part.Phi());
 
 
-  Vert1.SetXYZ(fBeamDetEvent->xbt,fBeamDetEvent->ybt,fBeamDetEvent->zbt); 
-  AngleDet[1][0] = Traject(&Det[1][0][0],&Det[1][1][0],NhitX[1][0][0][0],NhitY[1][1][0][0],Vert1);
-  cx[1][0] = (Vert1+AngleDet[1][0]).X();
-  cy[1][0] = (Vert1+AngleDet[1][0]).Y();
-  cz[1][0] = (Vert1+AngleDet[1][0]).Z();
-  AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitX[0][0][0][0],NhitY[0][1][0][0],Vert1);
-  cx[0][0] = (Vert1+AngleDet[0][0]).X();
-  cy[0][0] = (Vert1+AngleDet[0][0]).Y();
-  cz[0][0] = (Vert1+AngleDet[0][0]).Z();
+  Vert1.SetXYZ(fBeamDetEvent->xbt,fBeamDetEvent->ybt,fBeamDetEvent->zbt);
+  if (header->mp2 == 1){
+    AngleDet[1][0] = Traject(&Det[1][0][0],&Det[1][1][0],NhitX[1][0][0][0],NhitY[1][1][0][0],Vert1);
+    cx[1][0] = (Vert1+AngleDet[1][0]).X();
+    cy[1][0] = (Vert1+AngleDet[1][0]).Y();
+    cz[1][0] = (Vert1+AngleDet[1][0]).Z();
+  }
+  if (header->mp1 == 1){
+    AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitX[0][1][0][0],NhitY[0][0][0][0],Vert1);
+    cx[0][0] = (Vert1+AngleDet[0][0]).X();
+    cy[0][0] = (Vert1+AngleDet[0][0]).Y();
+    cz[0][0] = (Vert1+AngleDet[0][0]).Z();
+  }
 
   fOutEvent->x11 = cx[0][0];
   fOutEvent->y11 = cy[0][0];
@@ -1032,13 +1036,13 @@ void ERTelescopeReconstructor::ReadDeposites(){
   {
     DepoX[0][0][0][imu] = fRTelescopeEvent->eC11[imu];
     NhitY[0][0][0][imu] = fRTelescopeEvent->nC11[imu];
-    NhitX[0][0][0][imu] = 1;
+    NhitX[0][0][0][imu] = -1;
   }
   for(int imu=0;imu<=MuX[0][1][0];imu++)
   {
     DepoX[0][1][0][imu] = fRTelescopeEvent->eC12[imu];
     NhitX[0][1][0][imu] = fRTelescopeEvent->nC12[imu];
-    NhitY[0][1][0][imu] = 1;
+    NhitY[0][1][0][imu] = -1;
   }
   //====================================================
   for(int imu=0;imu<=MuX[1][0][0];imu++)
@@ -1081,11 +1085,10 @@ void ERTelescopeReconstructor::ReadDeposites(){
   }
   //=======================================================
   mp[0] = 0;  mp[1] = 0;
+  mpd[0][0][0] = 0; mpd[0][1][0] = 0;
   mpd[1][0][0] = 0; mpd[1][1][0] = 0;
   if(MuY[0][0][0]==0&&NhitY[0][0][0][0]>0&&NhitY[0][0][0][0]<=abs(Det[0][0][0].NstripY)&&DepoX[0][0][0][0]>0.) mpd[0][0][0]=MuY[0][0][0]+1;
-
-  if(MuX[0][1][0]==0&&NhitX[0][1][0][0]>0&&NhitX[0][1][0][0]<=abs(Det[0][1][0].NstripX)&&DepoX[0][1][0][0]>0.) mpd[0][1][0]=MuX[0][1][0]+1;
-
+  if(MuX[0][1][0]==0&&NhitX[0][1][0][0]>0&&NhitX[0][1][0][0]<=abs(Det[0][0][0].NstripX)&&DepoX[0][1][0][0]>0.) mpd[0][1][0]=MuX[0][1][0]+1;
   if(MuX[1][0][0]==0&&NhitX[1][0][0][0]>0&&NhitX[1][0][0][0]<=abs(Det[1][0][0].NstripX)&&DepoX[1][0][0][0]>0.) mpd[1][0][0]=MuX[1][0][0]+1;
   
   if(MuY[1][1][0]==0&&NhitY[1][1][0][0]>0&&NhitY[1][1][0][0]<=abs(Det[1][1][0].NstripY)&&DepoX[1][1][0][0]>0.) mpd[1][1][0]=MuY[1][1][0]+1;
@@ -1093,8 +1096,7 @@ void ERTelescopeReconstructor::ReadDeposites(){
   if(mpd[0][0][0]==1&&mpd[0][1][0]==1) mp[0] = mpd[0][0][0];
 
   if(mpd[1][0][0]==1&&mpd[1][1][0]==1) mp[1] = mpd[1][0][0];
-  header->mp1 = mp[0]; header->mp2 = mp[1]; header->mp3 = mp[2];
-
+  header->mp1 = mp[0]; header->mp2 = mp[1];
   fOutEvent->dep11= DepoX[0][0][0][0];
   fOutEvent->dep21= DepoX[1][0][0][0];
   fOutEvent->dep22= DepoX[1][1][0][0];
@@ -1109,7 +1111,6 @@ TVector3 ERTelescopeReconstructor::Traject(Telescope* Dx,Telescope* Dy,int Nx,in
   double x,y,x0,x1,x2,x3,y0,y1,y2,y3,z0,z1,z2,z3,arba;
   double R,Phi,x_1,y_1,z_1,x_2,y_2,z_2,x_3,y_3,z_3;
   double t11,t12,t13,t21,t22,t23,t31,t32,t33,A,B,D;
-  cout << Nx << " " << Ny << " " << Dx->NstripX << " " << Dy->NstripY <<endl;
   TRandom Xrnd;
   if(Nx>0&&Ny>0&&Nx<=abs(Dx->NstripX)&&Ny<=abs(Dy->NstripY))
   {

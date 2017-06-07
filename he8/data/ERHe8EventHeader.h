@@ -128,7 +128,7 @@ public:
 	UInt_t HE8Event_time;
 	int mbeam;
 	int mtrack;
-	int mp1,mp2,mp3;
+	int mp1,mp2;
 public:
 	ERHe8EventHeader();
 	Bool_t Register(TTree* tree, TString branchName);
