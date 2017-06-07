@@ -14,7 +14,7 @@ public:
 
 	double xbd1,ybd1,xbd2,ybd2,xbd3,ybd3,xbd4,ybd4,xbd5,ybd5,xbd6,ybd6;
 
-	double x11,y11,x21,y21,x22,y22,x23,y23,x24,y24,x25,y25,x26,y26;
+	double x11,y11,x21,y21,x22,y22,x23,y23,x24,y24,x25,y25;
 	double th1,phi1,th2,phi2,t11,t22;
 	double dep11,dep12,dep21,dep22,dep23,dep24,dep25,dep26;
 	double t11cmp,t22cmp,pz11cmp,pz22cmp,th11cmp,th22cmp;

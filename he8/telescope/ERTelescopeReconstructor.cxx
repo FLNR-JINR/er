@@ -133,10 +133,12 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 
   Vert1.SetXYZ(fBeamDetEvent->xbt,fBeamDetEvent->ybt,fBeamDetEvent->zbt);
   if (header->mp2 == 1){
-    AngleDet[1][0] = Traject(&Det[1][0][0],&Det[1][1][0],NhitX[1][0][0][0],NhitY[1][1][0][0],Vert1);
-    cx[1][0] = (Vert1+AngleDet[1][0]).X();
-    cy[1][0] = (Vert1+AngleDet[1][0]).Y();
-    cz[1][0] = (Vert1+AngleDet[1][0]).Z();
+    for (Int_t il = 0;il < 5; il++){
+      AngleDet[1][il] = Traject(&Det[1][0][0],&Det[1][il+1][0],NhitX[1][0][0][0],NhitY[1][il+1][0][0],Vert1);
+      cx[1][il] = (Vert1+AngleDet[1][il]).X();
+      cy[1][il] = (Vert1+AngleDet[1][il]).Y();
+      cz[1][il] = (Vert1+AngleDet[1][il]).Z();
+    }
   }
   if (header->mp1 == 1){
     AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitX[0][1][0][0],NhitY[0][0][0][0],Vert1);
@@ -157,9 +159,6 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   fOutEvent->y24 = cy[1][3];
   fOutEvent->x25 = cx[1][4];
   fOutEvent->y25 = cy[1][4];
-  fOutEvent->x26 = cx[1][5];
-  fOutEvent->y26 = cy[1][5];
-
   
   //cout << "Now we know trajectories" << endl;
   char* plett;
@@ -1057,27 +1056,25 @@ void ERTelescopeReconstructor::ReadDeposites(){
     NhitY[1][1][0][imu] = fQTelescopeEvent->nC22[imu];
     NhitX[1][1][0][imu] = 0;
   }
-  //====================================================
-  for(int imu=0;imu<=MuX[1][2][0];imu++)
+  for(int imu=0;imu<=MuY[1][2][0];imu++)
   {
     DepoX[1][2][0][imu] = fQTelescopeEvent->eC23[imu];
-    NhitX[1][2][0][imu] = fQTelescopeEvent->nC23[imu];
-    NhitY[1][2][0][imu] = 1;
+    NhitY[1][2][0][imu] = fQTelescopeEvent->nC23[imu];
+    NhitX[1][2][0][imu] = 1;
   }
-  for(int imu=0;imu<=MuX[1][3][0];imu++)
+  for(int imu=0;imu<=MuY[1][3][0];imu++)
   {
     DepoX[1][3][0][imu] = fQTelescopeEvent->eC24[imu];
     NhitY[1][3][0][imu] = fQTelescopeEvent->nC24[imu];
     NhitX[1][3][0][imu] = 1;
   }
-  //====================================================
-    for(int imu=0;imu<=MuX[1][4][0];imu++)
+    for(int imu=0;imu<=MuY[1][4][0];imu++)
   {
     DepoX[1][4][0][imu] = fQTelescopeEvent->eC25[imu];
-    NhitX[1][4][0][imu] = fQTelescopeEvent->nC25[imu];
-    NhitY[1][4][0][imu] = 1;
+    NhitY[1][4][0][imu] = fQTelescopeEvent->nC25[imu];
+    NhitX[1][4][0][imu] = 1;
   }
-    for(int imu=0;imu<=MuX[1][5][0];imu++)
+    for(int imu=0;imu<=MuY[1][5][0];imu++)
   {
     DepoX[1][5][0][imu] = fQTelescopeEvent->eC26[imu];
     NhitY[1][5][0][imu] = fQTelescopeEvent->nC26[imu];
@@ -1098,6 +1095,7 @@ void ERTelescopeReconstructor::ReadDeposites(){
   if(mpd[1][0][0]==1&&mpd[1][1][0]==1) mp[1] = mpd[1][0][0];
   header->mp1 = mp[0]; header->mp2 = mp[1];
   fOutEvent->dep11= DepoX[0][0][0][0];
+  fOutEvent->dep12= DepoX[0][1][0][0];
   fOutEvent->dep21= DepoX[1][0][0][0];
   fOutEvent->dep22= DepoX[1][1][0][0];
   fOutEvent->dep23= DepoX[1][2][0][0];
