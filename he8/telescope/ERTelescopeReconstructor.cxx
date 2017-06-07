@@ -206,12 +206,15 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
           for(int ip=0;ip<header->NofDetPart;ip++)
           {
             ilx = -1;count=-1;Tb = 0.;Ta=0.;
+
             for(int il=layer[it]-1;il>=0;il--)
             {
+              
               for(int id=0;id<NDet[it][il];id++)
               {
                 if(!strcmp(Det[it][il][id].Matt,"si")&&deposit[it][il][id][0]!=0.) idx = id;
               }
+
               if(count==-1) Tb = DepoX[it][il][0][0];
 
               if(count==-1&&!strcmp(Det[it][il][idx].Matt,"si"))
@@ -219,12 +222,14 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 
               if(count>-1&&Tb>0.1)
               {
+                if (idx == -1) idx = 0;
                 Tb = EiEo(EjMat[ip]->ej_si,Tb,-deposit[it][il][idx][0]*Det[it][il][idx].DeadZoneB/Det[it][il][idx].Thick);
                 Tb += DepoX[it][il][0][0];
                 Tb = EiEo(EjMat[ip]->ej_si,Tb,-deposit[it][il][idx][0]*Det[it][il][idx].DeadZoneF/Det[it][il][idx].Thick);
               }
               if(Tb>0.1) count++;
             }
+
             if(deposit[0][0][0][5]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][5]);
             if(deposit[0][0][0][3]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][3]);
             if(deposit[0][0][0][2]>0.&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,-deposit[0][0][0][2]);
@@ -240,6 +245,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
             Tb = ejectile[it][ip][0].Part.E()-ejectile[it][ip][0].Mass;
             trajectory = geom->InitTrack(fBeamDetEvent->xbt,fBeamDetEvent->ybt,fBeamDetEvent->zbt,
               AngleDet[it][0].Unit().X(),AngleDet[it][0].Unit().Y(),AngleDet[it][0].Unit().Z());
+            
             while(!geom->IsOutside())
             {
               itx=-1;ilx=-1;idx=-1;Ta=0.;
@@ -286,11 +292,11 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
                 if(!strcmp(OutputChannelTemp,"HscrFoil")&&Tb>0.1) Tb = EiEo(EjMat[ip]->ej_TARwin,Tb,range); 
               }
               trajectory = geom->Step();
-            } 
+            }
+            
           } 
         } 
       }
-      /*
   fOutEvent->th1 = ejectile[0][0][0].Part.Theta()/rad;
   fOutEvent->phi1 = ejectile[0][0][0].Part.Phi()/rad;
   fOutEvent->th2 = ejectile[1][1][0].Part.Theta()/rad;
@@ -320,7 +326,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 
   fOutEvent->th11cmp = ejectile[0][0][0].Part.Theta()/rad;
   fOutEvent->th22cmp = ejectile[1][1][0].Part.Theta()/rad;
-  */
+  
 }
 
 //----------------------------------------------------------------------------
