@@ -13,8 +13,6 @@ ERNeuRadPixelSignal::ERNeuRadPixelSignal():
 	fModuleNb(-1),
 	fPixelNb(-1),
 	fPECount(0),
-	fPEAmplitudes(NULL),
-	fPEAnodeTimes(NULL),
 	fPETimes(NULL),
 	fCurFPoint(0),
 	fStartTime(99999999.),
@@ -27,8 +25,6 @@ ERNeuRadPixelSignal::ERNeuRadPixelSignal(Int_t iModule, Int_t iPixel, Int_t pe_c
 	fModuleNb(iModule),
 	fPixelNb(iPixel),
 	fPECount(pe_count),
-	fPEAmplitudes(new Double_t[pe_count]),
-	fPEAnodeTimes(new Double_t[pe_count]),
 	fPETimes(new Int_t[pe_count]),
 	fCurFPoint(0),
 	fStartTime(99999999.),
@@ -36,11 +32,11 @@ ERNeuRadPixelSignal::ERNeuRadPixelSignal(Int_t iModule, Int_t iPixel, Int_t pe_c
 	fSide(side),
 	fPEAmplitudesSum(0)
 {
+	fPEAmplitudes.Set(pe_count);
+	fPEAnodeTimes.Set(pe_count);
 }
 
 ERNeuRadPixelSignal::~ERNeuRadPixelSignal(){
-	delete [] fPEAmplitudes;
-	delete [] fPEAnodeTimes;
 	delete [] fPETimes;
 }
 
