@@ -290,6 +290,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
           } 
         } 
       }
+      /*
   fOutEvent->th1 = ejectile[0][0][0].Part.Theta()/rad;
   fOutEvent->phi1 = ejectile[0][0][0].Part.Phi()/rad;
   fOutEvent->th2 = ejectile[1][1][0].Part.Theta()/rad;
@@ -319,6 +320,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 
   fOutEvent->th11cmp = ejectile[0][0][0].Part.Theta()/rad;
   fOutEvent->th22cmp = ejectile[1][1][0].Part.Theta()/rad;
+  */
 }
 
 //----------------------------------------------------------------------------

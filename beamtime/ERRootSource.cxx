@@ -14,9 +14,7 @@ fFile(NULL),
 fTree(NULL),
 fPath(""),
 fTreeName(""),
-fBranchName(""),
-fEvent(0),
-fInited(kFALSE)
+fBranchName("")
 {
 }
 
@@ -52,17 +50,16 @@ Bool_t ERRootSource::Init(){
 }
 
 Int_t ERRootSource::ReadEvent(UInt_t id){
+	FairRootManager* ioman = FairRootManager::Instance();
+  	if ( ! ioman ) Fatal("Init", "No FairRootManager");
 	//Проверяем есть ли еще события для обработки
-	if (fTree->GetEntriesFast() == fEvent+1)
+	if (fTree->GetEntriesFast() == ioman->GetEntryNr()+1)
 		return 1;
-	fTree->GetEntry(fEvent);
+	cout << "ev" << ioman->GetEntryNr() << endl;
+	fTree->GetEntry(ioman->GetEntryNr());
 
 	for (Int_t iREvent = 0; iREvent < fRawEvents.size(); iREvent++)
 		fRawEvents[iREvent]->Process();
-	if (fInited)
-		fEvent++;
-	else
-		fInited = kTRUE;
 	return 0;
 }
 

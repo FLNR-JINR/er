@@ -14,9 +14,9 @@ public:
 	//Tof
 	double tofb,tcm;
 	float Tb;
-	ERParticle projectile; 
-	ERParticle CM0;
-	ERParticle target;
+	ERParticle projectile;
+	ERParticle CM0;        
+	ERParticle target;     
 	float xbt,ybt,zbt;
 
 	//from Raw Track
