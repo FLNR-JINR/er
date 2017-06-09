@@ -1,5 +1,5 @@
 /*
-Геометрия для временных измерений с осциллографом
+Геометрия для временных измерений с осциллографом повернутая на 90 градусов к пучку
 256 пикселей
 */
 
@@ -8,11 +8,16 @@
 #include "TGeoManager.h"
 #include "TMath.h"
 
-void create_NeuRad_geo_v4()
+void create_NeuRad_geo_v5()
 {
   // ---------------  INIT ----------------------------------------------------
   // Create a global translation
-  Float_t trans_X = 0,trans_Y = 0,trans_Z = 50.; 
+  Float_t trans_X = 0,trans_Y = 0,trans_Z = 50.;
+  // Create a global rotation
+  TGeoRotation *fGlobalRotation = new TGeoRotation();
+  fGlobalRotation->RotateX(0.);
+  fGlobalRotation->RotateY(90.);
+  fGlobalRotation->RotateZ(0.);
   // Create a zero rotation
   TGeoRotation *fZeroRotation = new TGeoRotation();
   fZeroRotation->RotateX(0.);
@@ -43,7 +48,7 @@ void create_NeuRad_geo_v4()
   // --------------------------------------------------------------------------
 
   // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/NeuRad.v3.geo.root";
+  TString geoFileName = geoPath + "/geometry/NeuRad.v5.geo.root";
   // --------------------------------------------------------------------------
   
   // -----------------   Get and create the required media    -----------------
@@ -148,7 +153,7 @@ void create_NeuRad_geo_v4()
   }
   //------------------ top structure -----------------------------
   NeuRad->AddNode(module, 0, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
-  top->AddNode(NeuRad, 0, new TGeoCombiTrans(trans_X,trans_Y,trans_Z, fZeroRotation));
+  top->AddNode(NeuRad, 0, new TGeoCombiTrans(trans_X,trans_Y,trans_Z, fGlobalRotation));
 
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();

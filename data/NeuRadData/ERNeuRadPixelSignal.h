@@ -26,11 +26,11 @@ protected:
   Int_t fModuleNb;
   Int_t fSide;
   //Массив амплитуд фотоэлектронов сигнала
-  Double_t *fPEAmplitudes;     //!
+  TArrayF fPEAmplitudes;     
   //Суммарная амплитуда фотоэлектронов сигнала
   Double_t fPEAmplitudesSum;
   //Массив времен прихоа на анод фотоэлектронов сигнала
-  Double_t *fPEAnodeTimes;     //!
+  TArrayF fPEAnodeTimes;
   //Массив длин одноэлектронных сигналов
   Int_t *fPETimes;     //!
   //Количество фотоэлектронов в сигнале
