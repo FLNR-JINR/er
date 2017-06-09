@@ -40,11 +40,8 @@ set(SRCS
 	telescope/ERTelescopeReconstructor.cxx
 	data/ERHe8EventHeader.cxx
 	data/ERRawEvent.cxx
-	data/ERTelData.cxx
-	data/ERInclusiveData.cxx
 	data/ERParticle.cxx
 	ERSupport.cxx
-	#ERHe8Analyzer.cxx
 )
 
 # fill list of header files from list of source files
