@@ -1,0 +1,33 @@
+#0  0x00007f0929706b0c in waitpid () from /lib64/libc.so.6
+#1  0x00007f092968b092 in do_system () from /lib64/libc.so.6
+#2  0x00007f092b2b37c9 in TUnixSystem::StackTrace() () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCore.so.5
+#3  0x00007f091f515109 in FairLogger::LogFatalMessage (this=<optimized out>, strm=...) at /home/ivanm/fair_install/FairRoot/fairtools/FairLogger.cxx:573
+#4  0x00007f091f515274 in FairLogger::endl (strm=...) at /home/ivanm/fair_install/FairRoot/fairtools/FairLogger.cxx:500
+#5  0x00007f091f51317e in operator<< (__pf=0x7f091f515220 <FairLogger::endl(std::ostream&)>, this=<optimized out>) at /usr/include/c++/4.8.2/ostream:113
+#6  FairLogger::operator<< (this=this
+entry=0x2108140, manip=0x7f091f515220 <FairLogger::endl(std::ostream&)>) at /home/ivanm/fair_install/FairRoot/fairtools/FairLogger.cxx:470
+#7  0x00007f091ec9e709 in FairFileSource::FairFileSource (this=0x2413400, RootFileName=..., Title=<optimized out>) at /home/ivanm/fair_install/FairRoot/base/source/FairFileSource.cxx:165
+#8  0x00007f091ec72ed6 in FairRunAna::SetInputFile (this=0x2132060, name=<incomplete type>) at /home/ivanm/fair_install/FairRoot/base/steer/FairRunAna.cxx:689
+#9  0x00007f091ed5db15 in G__G__BaseDict_756_0_15 (result7=0x7fff59907640, funcname=<optimized out>, libp=<optimized out>, hash=<optimized out>) at /home/ivanm/fair_install/FairRoot/build/base/G__BaseDict.cxx:14201
+#10 0x00007f092a4bd8dd in Cint::G__ExceptionWrapper(int (*)(G__value*, char const*, G__param*, int), G__value*, char*, G__param*, int) () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#11 0x00007f092a56d967 in G__execute_call () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#12 0x00007f092a56dd25 in G__call_cppfunc () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#13 0x00007f092a4b39ce in G__interpret_func () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#14 0x00007f092a5182a7 in G__getfunction () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#15 0x00007f092a4f6d35 in G__getstructmem(int, G__FastAllocString&, char*, int, char*, int*, G__var_array*, int) () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#16 0x00007f092a4ee29e in G__getvariable () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#17 0x00007f092a5a67e9 in G__getitem () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#18 0x00007f092a5ac155 in G__getexpr () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#19 0x00007f092a4d08bc in G__exec_statement () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#20 0x00007f092a4b02c6 in G__interpret_func () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#21 0x00007f092a518305 in G__getfunction () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#22 0x00007f092a5a6cf6 in G__getitem () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#23 0x00007f092a5ac155 in G__getexpr () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#24 0x00007f092a5b7a2b in G__calc_internal () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#25 0x00007f092a5651df in G__process_cmd () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCint.so.5
+#26 0x00007f092b2a6aa0 in TCint::ProcessLine(char const*, TInterpreter::EErrorCode*) () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCore.so.5
+#27 0x00007f092b2a316b in TCint::ProcessLineSynch(char const*, TInterpreter::EErrorCode*) () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCore.so.5
+#28 0x00007f092b2e66dc in TApplication::ExecuteFile(char const*, int*, bool) () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCore.so.5
+#29 0x00007f092b2e5c40 in TApplication::ProcessLine(char const*, bool, int*) () from /home/ivanm/fair_install/FairSoftInst/lib/root/libCore.so.5
+#30 0x00007f092b71f462 in TRint::Run(bool) () from /home/ivanm/fair_install/FairSoftInst/lib/root/libRint.so.5
+#31 0x000000000040104c in main ()
