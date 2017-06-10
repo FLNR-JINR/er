@@ -20,7 +20,7 @@ using namespace std;
 
 #include "EREventHeader.h"
 
-const Double_t ERNeuRadDigitizer::cSciFiLightYield= 8000.; // [photons/MeV]
+const Double_t ERNeuRadDigitizer::cSciFiLightYield= 2000.; // [photons/MeV]
 const Double_t ERNeuRadDigitizer::cSpeedOfLight = 0.299792458e2;  //[cm/ns]
 const Double_t ERNeuRadDigitizer::cMaterialSpeedOfLight = ERNeuRadDigitizer::cSpeedOfLight/1.58;//[cm/ns]
 const Double_t ERNeuRadDigitizer::cLightFractionInTotalIntReflection = 0.04;

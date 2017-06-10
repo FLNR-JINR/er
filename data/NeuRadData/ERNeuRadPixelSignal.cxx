@@ -92,7 +92,7 @@ void ERNeuRadPixelSignal::Generate(){
 
 Double_t ERNeuRadPixelSignal::OnePEFunction(Double_t time, Double_t amplitude){
 	//Аналитическая функция одноэлектронного сигнала
-	return 8.*amplitude*time*TMath::Exp(-time/0.35);
+	return 8.*amplitude*time*time*TMath::Exp(-time/0.45);
 }
 
 Int_t ERNeuRadPixelSignal::OnePETime(Double_t amplitude){
