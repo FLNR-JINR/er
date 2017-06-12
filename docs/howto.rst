@@ -372,13 +372,6 @@ How-to
 	  virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2,
 				  Int_t offset);
 	  
-	  
-	  /** Virtaul method Construct geometry
-	   **
-	   ** Constructs the ERDet geometry
-	   **/
-	  virtual void ConstructGeometry();
-	  
 	   /** Virtaul method Initialize
 	   **
 	   ** Initialize ERDet data
@@ -419,7 +412,7 @@ How-to
 	  
 	  ERDetPoint* AddPoint(Int_t eventID, Int_t trackID,
 				  Int_t mot0trackID,
-				  Double_t mass,
+				  Int_t pid,
 				  TVector3 posIn,
 				  TVector3 pos_out, TVector3 momIn,
 				  TVector3 momOut, Double_t time,
@@ -1083,10 +1076,11 @@ sim.C:
 Запуск процедуры инициализации менеджера и инициализации базы данных параметров
 
 ::
+
 	  // -----   Initialize simulation run   ------------------------------------
 	  run->Init();
 	  Int_t nSteps = -15000;
-	  //gMC->SetMaxNStep(nSteps);
+	  gMC->SetMaxNStep(nSteps);
 		
 	  // -----   Runtime database   ---------------------------------------------
 	  Bool_t kParameterMerged = kTRUE;
