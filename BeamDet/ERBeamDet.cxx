@@ -141,22 +141,9 @@ static const Double_t dP = 1.032 ;
 static const Double_t BirkC1 =  0.013/dP;
 static const Double_t BirkC2 =  9.6e-6/(dP * dP);
 
-static Double_t       lightYield;
-static Int_t          eventID;
-static Int_t          trackID;
-static Int_t          mot0TrackID;
-static Double_t       mass;              //!  mass
-static TLorentzVector posIn;
-static TLorentzVector posOut;
-static TLorentzVector momIn;
-static TLorentzVector momOut;
-static Double32_t     eLoss;
-static Double32_t	    length;
-static Int_t          pType;
-
 if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     fELoss  = 0.;
-    lightYield = 0;
+    fLightYield = 0;
     fEventID = gMC->CurrentEvent();
     gMC->TrackPosition(fPosIn);
     gMC->TrackMomentum(fMomIn);
@@ -186,7 +173,7 @@ if (gMC->TrackCharge()!=0) { // Return the charge of the track currently transpo
       Double_t dedxcm=gMC->Edep()*1000./gMC->TrackStep(); //[MeV/cm]
       curLightYield=gMC->Edep()*1000./(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
       curLightYield /= 1000.; //[GeV]
-      lightYield+=curLightYield;
+      fLightYield+=curLightYield;
     }
 }
 
@@ -199,16 +186,16 @@ if (gMC->IsTrackExiting()    || //Return true if this is the last step of the tr
     TString volName = gMC->CurrentVolName();
 
     if(volName.Contains("plate"))
-        pType = 0;    
+        fPType = 0;    
     if(volName.Contains("gas"))
-        pType = 1;
+        fPType = 1;
     if (fELoss > 0.){
-       	AddPoint(pType, eventID, trackID, mot0TrackID, fPID,
-        TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
-        TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
-        TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
-        TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-        fTime, length, eLoss, lightYield);
+       	AddPoint(fPType, fEventID, fTrackID, fMot0TrackID, fPID,
+        TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
+        TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
+        TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
+        TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+        fTime, fLength, fELoss, fLightYield);
     }
 }
 

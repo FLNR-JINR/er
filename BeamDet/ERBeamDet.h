@@ -116,7 +116,10 @@ private:
   Double32_t     fTime;              //!  time
   Double32_t     fLength;            //!  length
   Double32_t     fELoss;             //!  energy loss
-
+  Double32_t     fLightYield;
+  Double32_t	 fPType;			 //   point type
+ 
+  
 private:
   /** Private method AddPoint
    **

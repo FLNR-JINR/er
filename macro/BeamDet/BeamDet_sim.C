@@ -38,7 +38,7 @@ run->AddModule(cave);
  * 0 - only standard logs
  * 1 - Print points after each event
 */
-Int_t verbose = 1;
+Int_t verbose = 0;
 ERBeamDet* beamDet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
 beamDet->SetGeometryFileName("beamdet.v1.geo.root");
 run->AddModule(beamDet);
@@ -68,11 +68,10 @@ boxGen->SetBoxXYZ(0.,0.,0.6,0.6,0.);
   Int_t A = 28;
   Int_t Z = 16;
   Int_t Q = 16;
-  Double_t Pz = 0.04;// AGeV
   //FairIonGenerator* ionGenerator = new FairIonGenerator(Z,A,Q,1,0.,0.,Pz,0.,0.,-10.);
 
   ERIonGenerator* sgenerator = new ERIonGenerator("28S", Z, A, Q, 1);
-  Double32_t kin_energy = 0.4; //GeV
+  Double32_t kin_energy = 40 /** 1e-3*/; //GeV
   Double_t   mass = sgenerator->Ion()->GetMass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   sgenerator->SetPRange(momentum, momentum);
@@ -81,7 +80,7 @@ boxGen->SetBoxXYZ(0.,0.,0.6,0.6,0.);
   Double32_t theta2 = 0.0001*TMath::RadToDeg();
   sgenerator->SetThetaRange(theta1, theta2);
   sgenerator->SetPhiRange(0, 360);
-  sgenerator->SetBoxXYZ(-0.4,-0.4,0.4,0.4,-10);
+  sgenerator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -1533);
 
 
 
@@ -95,9 +94,11 @@ run->SetStoreTraj(kTRUE);
 FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
 // —– Initialize simulation run ———————————— 
 run->Init();
+Int_t nSteps = -15000;
 
 // —– Runtime database ——————————————— 
-Bool_t kParameterMerged = kTRUE; FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
+Bool_t kParameterMerged = kTRUE; 
+FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
 parOut->open(parFile.Data()); 
 rtdb->setOutput(parOut); 
 rtdb->saveOutput(); 

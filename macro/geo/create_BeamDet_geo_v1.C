@@ -1,3 +1,20 @@
+Double_t plateX = 5;
+Double_t plateY = 5;
+Double_t plateZ = 0.1;
+
+Double_t gasX = 0.125;
+Double_t gasY = 5;
+Double_t gasZ = 0.8; //cm
+
+Int_t    platesCount = 2;
+Double_t plateOffsetZ = 1500;
+
+Double_t mwpcOffsetZ = 20;
+
+Double_t TOFpozZInBeamdet = -((plateOffsetZ) / 2 + mwpcOffsetZ + 10);
+
+Double_t MWPCpozZInBeamdet = - (((mwpcOffsetZ) / 2) + 8);
+
 void create_BeamDet_geo_v1()
 {
   // Create a global translation
@@ -70,15 +87,17 @@ TGeoVolume* top   = new TGeoVolumeAssembly("TOP");
 gGeoMan->SetTopVolume(top);
 
 TGeoVolume* beamdet = new TGeoVolumeAssembly("beamdet");
+
+//Double_t beamdetBoxEdge = 2000;
+//TGeoVolume* baemdet = gGeoManager->MakeBox("beamdet", pMed0, beamdetBoxEdge / 5, beamdetBoxEdge / 5, beamdetBoxEdge)
+
+
 TGeoVolume* TOF     = new TGeoVolumeAssembly("TOF");
 TGeoVolume* MWPC    = new TGeoVolumeAssembly("MWPC");
-TGeoVolume* MWPC1   = new TGeoVolumeAssembly("MWPC1");
-TGeoVolume* MWPC2   = new TGeoVolumeAssembly("MWPC2");
+//TGeoVolume* MWPC1   = new TGeoVolumeAssembly("MWPC1");
+//TGeoVolume* MWPC2   = new TGeoVolumeAssembly("MWPC2");
 // --------------------------------------------------------------------------
 
-Double_t gasX = 0.125;
-Double_t gasY = 5;
-Double_t gasZ = 0.8; //cm
 gasX /= 2.0;
 gasY /= 2.0;
 gasZ /= 2.0;
@@ -91,9 +110,6 @@ Double_t shellY = gasY + shellThickness;
 Double_t shellZ = gasZ; 
 TGeoVolume* shell = gGeoManager->MakeBox("shell", pMedMylar, shellX, shellY, shellZ);
 
-Double_t plateX = 5;
-Double_t plateY = 5;
-Double_t plateZ = 0.1;
 plateX /= 2.0;
 plateY /= 2.0;
 plateZ /= 2.0;
@@ -102,14 +118,13 @@ TGeoVolume* plate = gGeoManager->MakeBox("plate", pMedBC408, plateX, plateY, pla
 //------------------ STRUCTURE  -----------------------------------------
 //------------------ Add fibers to det  --------------------------
 
-Int_t platesCount = 2;
-Double_t plateOffsetZ = 1500;
-Double_t platePosZ = -plateOffsetZ/2;
 
-for (Int_t i_plate = 1; i_plate <= platesCount; i_plate++)
+Double_t platePosZ = - plateOffsetZ / 2;
+
+for (Int_t i_plate = 0; i_plate < platesCount; i_plate++)
 {
   platePosZ = platePosZ + i_plate * plateOffsetZ;
-  TOF->AddNode(plate, i_plate, new TGeoCombiTrans(0, 0, platePosZ, fZeroRotation));
+  TOF->AddNode(plate, i_plate  + 1, new TGeoCombiTrans(0, 0, platePosZ, fZeroRotation));
 }
 
 Double_t mwpcWidth = 5;
@@ -125,8 +140,10 @@ for(Int_t i_gas = 1; i_gas <= gasCountX; i_gas++)
   shell->AddNode(gas, i_gas, new TGeoCombiTrans(gasPosX, 0, 0, fZeroRotation));
 }
 
-Double_t distanceMWPC = 20;
-distanceMWPC /= 2.0;
+TGeoVolume* MWPC1   = gGeoManager->MakeBox("MWPC1", pMed0, shellX, shellY, 2*shellZ);
+TGeoVolume* MWPC2   = gGeoManager->MakeBox("MWPC2", pMed0, shellX, shellY, 2*shellZ);
+
+mwpcOffsetZ /= 2.0;
 
 MWPC1->AddNode(shell, 1, new TGeoCombiTrans(0, 0, -shellZ, fZeroRotation));
 MWPC1->AddNode(shell, 2, new TGeoCombiTrans(0, 0, shellZ, f90ZRotation));
@@ -134,11 +151,8 @@ MWPC1->AddNode(shell, 2, new TGeoCombiTrans(0, 0, shellZ, f90ZRotation));
 MWPC2->AddNode(shell, 1, new TGeoCombiTrans(0, 0, -shellZ, fZeroRotation));
 MWPC2->AddNode(shell, 2, new TGeoCombiTrans(0, 0, shellZ, f90ZRotation));
 
-MWPC->AddNode(MWPC1, 1, new TGeoCombiTrans(0, 0, -distanceMWPC, fZeroRotation));
-MWPC->AddNode(MWPC2, 1, new TGeoCombiTrans(0, 0, distanceMWPC, fZeroRotation));
-
-Double_t TOFpozZInBeamdet = 0;
-Double_t MWPCpozZInBeamdet = 3*distanceMWPC;
+MWPC->AddNode(MWPC1, 1, new TGeoCombiTrans(0, 0, -mwpcOffsetZ, fZeroRotation));
+MWPC->AddNode(MWPC2, 1, new TGeoCombiTrans(0, 0, mwpcOffsetZ, fZeroRotation));
 
 beamdet->AddNode(TOF, 1, new TGeoCombiTrans(global_X, global_Y, TOFpozZInBeamdet, fGlobalRotation));
 beamdet->AddNode(MWPC, 1, new TGeoCombiTrans(global_X, global_Y, MWPCpozZInBeamdet, fGlobalRotation));
