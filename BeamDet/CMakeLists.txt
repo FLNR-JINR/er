@@ -21,7 +21,8 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
     ERBeamDet.cxx
-    ERBeamDetPoint.cxx
+    ERBeamDetTOFPoint.cxx
+    ERBeamDetMWPCPoint.cxx
 )
 
 # fill list of header files from list of source files

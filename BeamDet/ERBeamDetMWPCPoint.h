@@ -1,15 +1,15 @@
 // -------------------------------------------------------------------------
-// -----                      ERBeamDetPoint header file                -----
+// -----                      ERBeamDetMWPCPoint header file                -----
 // -----                  Created data  developerName                  -----
 // -------------------------------------------------------------------------
 
 
-/**  ERBeamDetPoint.h
+/**  ERBeamDetMWPCPoint.h
  **/
 
 
-#ifndef ERBeamDetPoint_H
-#define ERBeamDetPoint_H
+#ifndef ERBeamDetMWPCPoint_H
+#define ERBeamDetMWPCPoint_H
 
 
 #include "TObject.h"
@@ -17,13 +17,13 @@
 
 #include "FairMCPoint.h"
 
-class ERBeamDetPoint : public FairMCPoint
+class ERBeamDetMWPCPoint : public FairMCPoint
 {
 
  public:
 
   /** Default constructor **/
-  ERBeamDetPoint();
+  ERBeamDetMWPCPoint();
 
 
   /** Constructor with arguments
@@ -39,7 +39,7 @@ class ERBeamDetPoint : public FairMCPoint
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [KeV]
    **/
-  ERBeamDetPoint(Int_t pType, Int_t eventID, 
+  ERBeamDetMWPCPoint(Int_t eventID, 
                   Int_t trackID,
                   Int_t mot0trackID,
                   Int_t pid,
@@ -49,14 +49,14 @@ class ERBeamDetPoint : public FairMCPoint
 
 
   /** Copy constructor **/
-  ERBeamDetPoint(const ERBeamDetPoint&);
+  ERBeamDetMWPCPoint(const ERBeamDetMWPCPoint&);
 
 
   /** Destructor **/
-  virtual ~ERBeamDetPoint();
+  virtual ~ERBeamDetMWPCPoint();
 
 
-  ERBeamDetPoint& operator=(const ERBeamDetPoint&) { return *this; }
+  ERBeamDetMWPCPoint& operator=(const ERBeamDetMWPCPoint&) { return *this; }
 
 
   /** Accessors **/
@@ -92,8 +92,6 @@ class ERBeamDetPoint : public FairMCPoint
   virtual void Print(const Option_t* opt = 0) const;
 
  protected:
-
-  Int_t  fType;
   Int_t fEventID;
   Int_t fMot0TrackID;
   Int_t fPid;
@@ -102,6 +100,6 @@ class ERBeamDetPoint : public FairMCPoint
   Int_t fStilbenNr;
   Double_t fLightYield;
 
-  ClassDef(ERBeamDetPoint,1)
+  ClassDef(ERBeamDetMWPCPoint,1)
 };
 #endif

@@ -8,7 +8,8 @@
 #define ERBeamDet_H
 
 #include "ERDetector.h"
-#include "ERBeamDetPoint.h"
+#include "ERBeamDetTOFPoint.h"
+#include "ERBeamDetMWPCPoint.h"
 #include "TLorentzVector.h"
 #include "TClonesArray.h"
 
@@ -105,7 +106,8 @@ public:
   virtual Bool_t CheckIfSensitive(std::string name);
 
 private:
-  TClonesArray*  fDetPoints;     //!  The point collection
+  TClonesArray*  fTOFPoints;
+  TClonesArray*  fMWPCPoints; 
 
   Int_t          fEventID;           //!  event index
   Int_t          fTrackID;           //!  track index
@@ -117,7 +119,6 @@ private:
   Double32_t     fLength;            //!  length
   Double32_t     fELoss;             //!  energy loss
   Double32_t     fLightYield;
-  Double32_t	 fPType;			 //   point type
  
   
 private:
@@ -125,13 +126,8 @@ private:
    **
    ** Adds a ERBeamDetPoint to the Point Collection
    **/
-  ERBeamDetPoint* AddPoint(Int_t pType, Int_t eventID, Int_t trackID,
-                          Int_t mot0trackID,
-                          Int_t pid,
-                          TVector3 posIn,
-                          TVector3 pos_out, TVector3 momIn,
-                          TVector3 momOut, Double_t time,
-                          Double_t length, Double_t eLoss, Double_t lightYield);
+  ERBeamDetTOFPoint*   AddTOFPoint();
+  ERBeamDetMWPCPoint*  AddMWPCPoint();
   ClassDef(ERBeamDet,1);
 };
 

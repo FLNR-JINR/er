@@ -5,6 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class ERBeamDet;
-#pragma link C++ class ERBeamDetPoint+;
+#pragma link C++ class ERBeamDetTOFPoint+;
+#pragma link C++ class ERBeamDetMWPCPoint+;
 
 #endif
