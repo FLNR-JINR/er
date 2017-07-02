@@ -1,8 +1,8 @@
 // -------------------------------------------------------------------------
-// -----                        ERDSRD source file                   -----
+// -----                        ERRTelescope source file                   -----
 // -----                  Created data  by developerName               -----
 // -------------------------------------------------------------------------
-#include "ERDSRD.h"
+#include "ERRTelescope.h"
 
 #include <iostream>
 using namespace std;
@@ -13,12 +13,12 @@ using namespace std;
 #include "TVirtualMC.h"
 #include "TString.h"
 // -----   Default constructor   -------------------------------------------
-ERDSRD::ERDSRD() : 
-  FairDetector("ERDSRD", kTRUE),
+ERRTelescope::ERRTelescope() : 
+  FairDetector("ERRTelescope", kTRUE),
   fDSRDPoints(NULL)
 {
   ResetParameters();
-  fDSRDPoints = new TClonesArray("ERDSRDPoint");
+  fDSRDPoints = new TClonesArray("ERRTelescopePoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fVerboseLevel = 1;
@@ -27,31 +27,31 @@ ERDSRD::ERDSRD() :
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
-ERDSRD::ERDSRD(const char* name, Bool_t active, Int_t verbose) 
+ERRTelescope::ERRTelescope(const char* name, Bool_t active, Int_t verbose) 
   : FairDetector(name, active,verbose),
   fDSRDPoints(NULL)
   {
   ResetParameters();
-  fDSRDPoints = new TClonesArray("ERDSRDPoint");
+  fDSRDPoints = new TClonesArray("ERRTelescopePoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fVersion = 1;
 }
 
-ERDSRD::~ERDSRD() {
+ERRTelescope::~ERRTelescope() {
   if (fDSRDPoints) {
     fDSRDPoints->Delete();
     delete fDSRDPoints;
   }
 }
 
-void ERDSRD::Initialize()
+void ERRTelescope::Initialize()
 {
   FairDetector::Initialize();
 }
 
 
-Bool_t ERDSRD::ProcessHits(FairVolume* vol) {  
+Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {  
   static Int_t          eventID;           //!  event index
   static Int_t          trackID;           //!  track index
   static Int_t          mot0TrackID;       //!  0th mother track index
@@ -99,11 +99,11 @@ Bool_t ERDSRD::ProcessHits(FairVolume* vol) {
 }
 
 // -----   Public method EndOfEvent   -----------------------------------------
-void ERDSRD::BeginEvent() {
+void ERRTelescope::BeginEvent() {
 }
 
 
-void ERDSRD::EndOfEvent() {
+void ERRTelescope::EndOfEvent() {
   if (fVerboseLevel > 1) {
     Print();
   }
@@ -111,7 +111,7 @@ void ERDSRD::EndOfEvent() {
 }
 
 // -----   Public method Register   -------------------------------------------
-void ERDSRD::Register() {
+void ERRTelescope::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
 	Fatal("Init", "IO manager is not set");	
@@ -120,7 +120,7 @@ void ERDSRD::Register() {
 // ----------------------------------------------------------------------------
 
 // -----   Public method GetCollection   --------------------------------------
-TClonesArray* ERDSRD::GetCollection(Int_t iColl) const {
+TClonesArray* ERRTelescope::GetCollection(Int_t iColl) const {
   if (iColl == 0) 
     return fDSRDPoints;
   else 
@@ -131,43 +131,43 @@ TClonesArray* ERDSRD::GetCollection(Int_t iColl) const {
 
 
 // -----   Public method Print   ----------------------------------------------
-void ERDSRD::Print(Option_t *option) const
+void ERRTelescope::Print(Option_t *option) const
 {
   for (Int_t i_point = 0; i_point < fDSRDPoints->GetEntriesFast(); i_point++){
-    ERDSRDPoint* point = (ERDSRDPoint*)fDSRDPoints->At(i_point);
+    ERRTelescopePoint* point = (ERRTelescopePoint*)fDSRDPoints->At(i_point);
     point->Print();
   }
 }
 // ----------------------------------------------------------------------------
 
 // -----   Public method Reset   ----------------------------------------------
-void ERDSRD::Reset() {
-  LOG(INFO) << "  ERDSRD::Reset()" << FairLogger::endl;
+void ERRTelescope::Reset() {
+  LOG(INFO) << "  ERRTelescope::Reset()" << FairLogger::endl;
   fDSRDPoints->Clear();
   ResetParameters();
 }
 // ----------------------------------------------------------------------------
 
 // -----   Public method CopyClones   -----------------------------------------
-void ERDSRD::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
-  LOG(INFO) << "   ERDSRD::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)" 
+void ERRTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
+  LOG(INFO) << "   ERRTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)" 
             << FairLogger::endl;
   Int_t nEntries = cl1->GetEntriesFast();
   LOG(INFO) << "decector: " << nEntries << " entries to add" << FairLogger::endl;
   TClonesArray& clref = *cl2;
-  ERDSRDPoint* oldpoint = NULL;
+  ERRTelescopePoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
-  oldpoint = (ERDSRDPoint*) cl1->At(i);
+  oldpoint = (ERRTelescopePoint*) cl1->At(i);
    Int_t index = oldpoint->GetTrackID() + offset;
    oldpoint->SetTrackID(index);
-   new (clref[cl2->GetEntriesFast()]) ERDSRDPoint(*oldpoint);
+   new (clref[cl2->GetEntriesFast()]) ERRTelescopePoint(*oldpoint);
   }
   LOG(INFO) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 }
 // ----------------------------------------------------------------------------
 
 // -----   Private method AddPoint   --------------------------------------------
-ERDSRDPoint* ERDSRD::AddPoint(Int_t eventID, Int_t trackID,
+ERRTelescopePoint* ERRTelescope::AddPoint(Int_t eventID, Int_t trackID,
 				    Int_t mot0trackID,
 				    Double_t mass,
 				    TVector3 posIn,
@@ -176,17 +176,17 @@ ERDSRDPoint* ERDSRD::AddPoint(Int_t eventID, Int_t trackID,
 				    Double_t length, Double_t eLoss, Int_t sector,Int_t sensor) {
   TClonesArray& clref = *fDSRDPoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERDSRDPoint(eventID, trackID, mot0trackID, mass,
+  return new(clref[size]) ERRTelescopePoint(eventID, trackID, mot0trackID, mass,
 					  posIn, posOut, momIn, momOut, time, length, eLoss, sector, sensor);
 	
 }
 // ----------------------------------------------------------------------------
 
 // -----   Public method ConstructGeometry   ----------------------------------
-void ERDSRD::ConstructGeometry() {
+void ERRTelescope::ConstructGeometry() {
   TString fileName = GetGeometryFileName();
   if(fileName.EndsWith(".root")) {
-    cout << "Constructing ERDSRD geometry from ROOT file " << fileName.Data() << FairLogger::endl;
+    cout << "Constructing ERRTelescope geometry from ROOT file " << fileName.Data() << FairLogger::endl;
     ConstructRootGeometry();
   } else {
     cerr << "Geometry file name is not set" << FairLogger::endl;
@@ -196,7 +196,7 @@ void ERDSRD::ConstructGeometry() {
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-Bool_t ERDSRD::CheckIfSensitive(std::string name)
+Bool_t ERRTelescope::CheckIfSensitive(std::string name)
 {
   //cout << name << endl;
   TString volName = name;
@@ -208,8 +208,8 @@ Bool_t ERDSRD::CheckIfSensitive(std::string name)
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERDSRD::ResetParameters() {
-  LOG(INFO) << "   ERDSRD::ResetParameters() " << FairLogger::endl;
+void ERRTelescope::ResetParameters() {
+  LOG(INFO) << "   ERRTelescope::ResetParameters() " << FairLogger::endl;
 };
 // ----------------------------------------------------------------------------
-ClassImp(ERDSRD)
+ClassImp(ERRTelescope)

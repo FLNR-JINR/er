@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 
-// -----                        ERDSRDSetup header file              -----
+// -----                        ERRTelescopeSetup header file              -----
 
 // -----                        V.Schetinin (sch_vitaliy@mail.ru)      -----
 
@@ -13,15 +13,15 @@
 #include "TVector3.h"
 #include "TGeoNode.h"
 
-class ERDSRDSetup {
-    static ERDSRDSetup* fInstance;
+class ERRTelescopeSetup {
+    static ERRTelescopeSetup* fInstance;
     static TGeoNode* fDSRDnode;
     static Float_t fZ;
     static Float_t fRmin, fRmax;
     static Int_t fSecNb, fSenNb;
-    ERDSRDSetup();
+    ERRTelescopeSetup();
 public:
-    static ERDSRDSetup* Instance();
+    static ERRTelescopeSetup* Instance();
     
     Float_t SensorNb() {return fSenNb;}
     Float_t SectorNb() {return fSecNb;}
@@ -31,7 +31,7 @@ public:
 
     void Print();
 
-    ClassDef(ERDSRDSetup,1)
+    ClassDef(ERRTelescopeSetup,1)
 };
 
 #endif

@@ -52,9 +52,6 @@ ERLi10MCEventHeader.cxx
 NDData/ERNDPoint.cxx
 NDData/ERNDHit.cxx
 
-DSRDData/ERDSRDPoint.cxx
-DSRDData/ERDSRDHit.cxx
-
 beamtime/RawEvent.cxx
 beamtime/AEvent.cxx
 

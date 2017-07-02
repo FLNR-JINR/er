@@ -1,31 +1,31 @@
 // -------------------------------------------------------------------------
-// -----                        ERDSRDHitFinder header file          -----
+// -----                        ERRTelescopeHitFinder header file          -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
-#ifndef ERDSRDHitFinder_H
-#define ERDSRDHitFinder_H
+#ifndef ERRTelescopeHitFinder_H
+#define ERRTelescopeHitFinder_H
 
 #include "TClonesArray.h"
 
 #include "FairTask.h"
 
-#include "ERDSRDHit.h"
-#include "ERDSRDSetup.h"
+#include "ERRTelescopeHit.h"
+#include "ERRTelescopeSetup.h"
 
-class ERDSRDHitFinder : public FairTask {
+class ERRTelescopeHitFinder : public FairTask {
 
 public:
   /** Default constructor **/
-  ERDSRDHitFinder();
+  ERRTelescopeHitFinder();
 
   /** Constructor 
   ** verbose: 1 - only standard log print, 2 - print digi information 
   **/
-  ERDSRDHitFinder(Int_t verbose);
+  ERRTelescopeHitFinder(Int_t verbose);
 
   /** Destructor **/
-  ~ERDSRDHitFinder();
+  ~ERRTelescopeHitFinder();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -57,13 +57,13 @@ protected:
   Float_t fTimeDispersionPar;
   Float_t fElossThreshold;
 
-  ERDSRDSetup* fDSRDSetup;
+  ERRTelescopeSetup* fDSRDSetup;
 protected:
-  ERDSRDHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t point_index, Float_t eloss, Float_t time);
+  ERRTelescopeHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t point_index, Float_t eloss, Float_t time);
 private:
   virtual void SetParContainers();
   
-  ClassDef(ERDSRDHitFinder,1)
+  ClassDef(ERRTelescopeHitFinder,1)
 };
 
 #endif

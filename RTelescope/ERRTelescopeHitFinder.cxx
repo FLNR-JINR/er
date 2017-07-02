@@ -1,4 +1,4 @@
-#include "ERDSRDHitFinder.h"
+#include "ERRTelescopeHitFinder.h"
 
 #include <vector>
 
@@ -14,12 +14,12 @@
 using namespace std;
 
 #include "ERDetectorList.h"
-#include "ERDSRDPoint.h"
+#include "ERRTelescopePoint.h"
 
 
-Int_t ERDSRDHitFinder::fEvent = 0;
+Int_t ERRTelescopeHitFinder::fEvent = 0;
 // ----------------------------------------------------------------------------
-ERDSRDHitFinder::ERDSRDHitFinder()
+ERRTelescopeHitFinder::ERRTelescopeHitFinder()
   : FairTask("ER muSi hit producing scheme")
 ,fDSRDPoints(NULL)
 ,fDSRDHits(NULL)
@@ -31,7 +31,7 @@ ERDSRDHitFinder::ERDSRDHitFinder()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERDSRDHitFinder::ERDSRDHitFinder(Int_t verbose)
+ERRTelescopeHitFinder::ERRTelescopeHitFinder(Int_t verbose)
   : FairTask("ER muSi hit producing scheme ", verbose)
 ,fDSRDPoints(NULL)
 ,fDSRDHits(NULL)
@@ -43,13 +43,13 @@ ERDSRDHitFinder::ERDSRDHitFinder(Int_t verbose)
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERDSRDHitFinder::~ERDSRDHitFinder()
+ERRTelescopeHitFinder::~ERRTelescopeHitFinder()
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERDSRDHitFinder::SetParContainers()
+void ERRTelescopeHitFinder::SetParContainers()
 {
   // Get run and runtime database
   FairRunAna* run = FairRunAna::Instance();
@@ -61,7 +61,7 @@ void ERDSRDHitFinder::SetParContainers()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-InitStatus ERDSRDHitFinder::Init()
+InitStatus ERRTelescopeHitFinder::Init()
 {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
@@ -72,11 +72,11 @@ InitStatus ERDSRDHitFinder::Init()
     Fatal("Init", "Can`t find collection DSRDPoint!"); 
 
   // Register output array fDSRDHits
-  fDSRDHits = new TClonesArray("ERDSRDHit",1000);
+  fDSRDHits = new TClonesArray("ERRTelescopeHit",1000);
 
   ioman->Register("DSRDHit", "DSRD hits", fDSRDHits, kTRUE);
 
-  fDSRDSetup = ERDSRDSetup::Instance();
+  fDSRDSetup = ERRTelescopeSetup::Instance();
   fDSRDSetup->Print();
    
   return kSUCCESS;
@@ -84,12 +84,12 @@ InitStatus ERDSRDHitFinder::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void ERDSRDHitFinder::Exec(Option_t* opt)
+void ERRTelescopeHitFinder::Exec(Option_t* opt)
 {
   std::cout << std::endl;
   std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
   std::cout << std::endl;
-  std::cout << "ERDSRDHitFinder: "<< std::endl;
+  std::cout << "ERRTelescopeHitFinder: "<< std::endl;
   Reset();
   //Параметры геометрии. todo - убрать отсюда.
   Float_t Rmin = fDSRDSetup->Rmin(); //cm
@@ -99,7 +99,7 @@ void ERDSRDHitFinder::Exec(Option_t* opt)
   Float_t z = fDSRDSetup->Z();
 
   for (Int_t iPoint = 0; iPoint < fDSRDPoints->GetEntriesFast(); iPoint++){
-    ERDSRDPoint* point = (ERDSRDPoint*)fDSRDPoints->At(iPoint);
+    ERRTelescopePoint* point = (ERRTelescopePoint*)fDSRDPoints->At(iPoint);
     Float_t eloss = gRandom->Gaus(point->GetEnergyLoss(), fElossDispersion);
     if (eloss < fElossThreshold)
       continue;
@@ -118,7 +118,7 @@ void ERDSRDHitFinder::Exec(Option_t* opt)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void ERDSRDHitFinder::Reset()
+void ERRTelescopeHitFinder::Reset()
 {
   if (fDSRDHits) {
     fDSRDHits->Delete();
@@ -127,19 +127,19 @@ void ERDSRDHitFinder::Reset()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERDSRDHitFinder::Finish()
+void ERRTelescopeHitFinder::Finish()
 {   
 
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERDSRDHit* ERDSRDHitFinder::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t point_index, Float_t eloss, Float_t time)
+ERRTelescopeHit* ERRTelescopeHitFinder::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t point_index, Float_t eloss, Float_t time)
 {
-  ERDSRDHit *hit = new((*fDSRDHits)[fDSRDHits->GetEntriesFast()])
-              ERDSRDHit(fDSRDHits->GetEntriesFast(),detID, pos, dpos, point_index, eloss, time);
+  ERRTelescopeHit *hit = new((*fDSRDHits)[fDSRDHits->GetEntriesFast()])
+              ERRTelescopeHit(fDSRDHits->GetEntriesFast(),detID, pos, dpos, point_index, eloss, time);
   return hit;
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-ClassImp(ERDSRDHitFinder)
+ClassImp(ERRTelescopeHitFinder)

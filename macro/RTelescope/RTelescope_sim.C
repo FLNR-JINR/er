@@ -1,4 +1,4 @@
-void DSRD_sim(Int_t nEvents = 1){
+void RTelescope_sim(Int_t nEvents = 1){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -39,9 +39,9 @@ void DSRD_sim(Int_t nEvents = 1){
    * 3 - - GEANT Step information
   */
   Int_t verbose = 1;
-  ERDSRD* dsrd= new ERDSRD("ERDSRD", kTRUE,verbose);
-  dsrd->SetGeometryFileName("DSRD.geo.root");
-  run->AddModule(dsrd);
+  ERRTelescope* RTelescope= new ERRTelescope("ERRTelescope", kTRUE,verbose);
+  RTelescope->SetGeometryFileName("RTelescope.v1.geo.root");
+  run->AddModule(RTelescope);
   // ------------------------------------------------------------------------
 	
   // -----   Create PrimaryGenerator   --------------------------------------

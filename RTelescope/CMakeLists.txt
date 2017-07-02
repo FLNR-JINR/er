@@ -4,12 +4,12 @@
 
 set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
-${CMAKE_SOURCE_DIR}/data/DSRDData/
 ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/data
-${CMAKE_SOURCE_DIR}/DSRD/
+${CMAKE_SOURCE_DIR}/RTelescope/
+${CMAKE_SOURCE_DIR}/RTelescope/data
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -22,16 +22,18 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-ERDSRD.cxx
-ERDSRDHitFinder.cxx
-ERDSRDSetup.cxx
+ERRTelescope.cxx
+ERRTelescopeHitFinder.cxx
+ERRTelescopeSetup.cxx
+data/ERRTelescopePoint.cxx
+data/ERRTelescopeHit.cxx
 )
 
 # fill list of header files from list of source files
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
-Set(LINKDEF ERDSRDLinkDef.h)
+Set(LINKDEF ERRTelescopeLinkDef.h)
 Set(LIBRARY_NAME DSRD)
 Set(DEPENDENCIES ERBase ERData Base Core)
 

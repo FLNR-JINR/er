@@ -1,4 +1,4 @@
-#include "ERDSRDSetup.h"
+#include "ERRTelescopeSetup.h"
 
 #include <iostream>
 
@@ -6,18 +6,18 @@
 #include "TGeoSphere.h"
 #include "TMath.h"
 
-ERDSRDSetup* ERDSRDSetup::fInstance = NULL;
-TGeoNode* ERDSRDSetup::fDSRDnode = NULL;
-Float_t ERDSRDSetup::fZ = 0;
-Float_t ERDSRDSetup::fRmin = 0;
-Float_t ERDSRDSetup::fRmax = 0;
-Int_t ERDSRDSetup::fSecNb = 0;
-Int_t ERDSRDSetup::fSenNb = 0;
+ERRTelescopeSetup* ERRTelescopeSetup::fInstance = NULL;
+TGeoNode* ERRTelescopeSetup::fDSRDnode = NULL;
+Float_t ERRTelescopeSetup::fZ = 0;
+Float_t ERRTelescopeSetup::fRmin = 0;
+Float_t ERRTelescopeSetup::fRmax = 0;
+Int_t ERRTelescopeSetup::fSecNb = 0;
+Int_t ERRTelescopeSetup::fSenNb = 0;
 
-ERDSRDSetup::ERDSRDSetup(){
+ERRTelescopeSetup::ERRTelescopeSetup(){
     // --- Catch absence of TGeoManager
     if ( ! gGeoManager ) {
-            std::cerr << "ERDSRDSetup: cannot initialise without TGeoManager!"<< std::endl;
+            std::cerr << "ERRTelescopeSetup: cannot initialise without TGeoManager!"<< std::endl;
     }
     gGeoManager->CdTop();
     TGeoNode* cave = gGeoManager->GetCurrentNode();
@@ -39,14 +39,14 @@ ERDSRDSetup::ERDSRDSetup(){
     fSenNb = sector->GetNdaughters();
 }
 
-ERDSRDSetup* ERDSRDSetup::Instance(){
+ERRTelescopeSetup* ERRTelescopeSetup::Instance(){
         if (fInstance == NULL)
-                return new ERDSRDSetup();
+                return new ERRTelescopeSetup();
         else
                 return fInstance;
 }
 
-void ERDSRDSetup::Print(){
+void ERRTelescopeSetup::Print(){
     std::cout << "DSRD Z position:" << fZ << std::endl;
     std::cout << "DSRD Rmin, Rmax:" << fRmin << "," << fRmax << std::endl;
     std::cout << "DSRD SectorNb, SensorNb:" << fSecNb << "," << fSenNb << std::endl;

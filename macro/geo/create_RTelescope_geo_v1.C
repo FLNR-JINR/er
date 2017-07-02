@@ -3,7 +3,7 @@
 #include "TGeoManager.h"
 #include "TMath.h"
 
-void create_DSRD_geo_sp()
+void create_RTelescope_geo_v1()
 {
 TGeoRotation *fZeroRotation = new TGeoRotation();
 fZeroRotation->RotateX(0.);
@@ -24,7 +24,7 @@ TGeoManager*   gGeoMan = NULL;
   // --------------------------------------------------------------------------
 
   // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/DSRD.geo.root";
+  TString geoFileName = geoPath + "/geometry/RTelescope.v1.geo.root";
   // --------------------------------------------------------------------------
   
   // -----------------   Get and create the required media    -----------------

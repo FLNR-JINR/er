@@ -1,17 +1,17 @@
 // -------------------------------------------------------------------------
-// -----                        ERDSRD header file                   -----
+// -----                        ERRTelescope header file                   -----
 // -----                  Created data  by developer name              -----
 // -------------------------------------------------------------------------
 
-/**  ERDSRD.h
+/**  ERRTelescope.h
  **/
 
 
-#ifndef ERDSRD_H
-#define ERDSRD_H
+#ifndef ERRTelescope_H
+#define ERRTelescope_H
 
 #include "ERDetector.h"
-#include "ERDSRDPoint.h"
+#include "ERRTelescopePoint.h"
 
 #include "TLorentzVector.h"
 
@@ -19,31 +19,31 @@ class TClonesArray;
 class FairVolume;
 class TF1;
 
-class ERDSRD : public FairDetector
+class ERRTelescope : public FairDetector
 {
   
 public:
   
   /** Default constructor **/
-  ERDSRD();
+  ERRTelescope();
   
   
   /** Standard constructor.
-   *@param name    ERDSRD ERDSRD name
+   *@param name    ERRTelescope ERRTelescope name
    *@param active  sensitivity flag
    *@param verbose Verbosity level. 1 - only standart logs, 2 - Print points after each event, 3 - GEANT Step information
    **/
-  ERDSRD(const char* name, Bool_t active, Int_t verbose);
+  ERRTelescope(const char* name, Bool_t active, Int_t verbose);
   
   
   /** Destructor **/
-  virtual ~ERDSRD();
+  virtual ~ERRTelescope();
   
   
   /** Virtual method ProcessHits
    **   
    ** Defines the action to be taken when a step is inside the
-   ** active volume. Creates a ERDSRDPoint and adds it to the
+   ** active volume. Creates a ERRTelescopePoint and adds it to the
    ** collection.
    *@param vol  Pointer to the active volume
    **/
@@ -100,13 +100,13 @@ public:
   
   /** Virtaul method Construct geometry
    **
-   ** Constructs the ERDSRD geometry
+   ** Constructs the ERRTelescope geometry
    **/
   virtual void ConstructGeometry();
   
    /** Virtaul method Initialize
    **
-   ** Initialize ERDSRD data
+   ** Initialize ERRTelescope data
    **/
   virtual void Initialize();
 
@@ -132,7 +132,7 @@ private:
    ** Adds a NeuRadPoint to the Point Collection
    **/
   
-  ERDSRDPoint* AddPoint(Int_t eventID, Int_t trackID,
+  ERRTelescopePoint* AddPoint(Int_t eventID, Int_t trackID,
 			  Int_t mot0trackID,
 			  Double_t mass,
 			  TVector3 posIn,
@@ -146,7 +146,7 @@ private:
    **/
   void ResetParameters();
   
-  ClassDef(ERDSRD,1);
+  ClassDef(ERRTelescope,1);
 };
 
 #endif 
