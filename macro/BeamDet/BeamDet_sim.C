@@ -29,34 +29,38 @@ void BeamDet_sim(Int_t nEvents = 1000){
   run->SetMCEventHeader(header);
   //---------------------------------
   // -----   Create detectors  ----------------------------------------------
-FairModule* cave= new ERCave("CAVE");
-cave->SetGeometryFileName("cave.geo");
-run->AddModule(cave);
+  FairModule* cave= new ERCave("CAVE");
+  cave->SetGeometryFileName("cave.geo");
+  run->AddModule(cave);
 
-// Det definition
-/* Select verbosity level
- * 0 - only standard logs
- * 1 - Print points after each event
-*/
-Int_t verbose = 0;
-ERBeamDet* beamDet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
-beamDet->SetGeometryFileName("beamdet.v1.geo.root");
-run->AddModule(beamDet);
-// ------------------------------------------------------------------------
-// -----   Create PrimaryGenerator   --------------------------------------
-FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-/*Int_t pdgId = 2212; // proton  beam
-Double32_t theta1 = 0.;  // polar angle distribution
-Double32_t theta2 = 0.0;
-Double32_t kin_energy = .500; //GeV
-Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
-Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
-FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-boxGen->SetThetaRange(theta1, theta2);
-boxGen->SetPRange(momentum, momentum);
-boxGen->SetPhiRange(0.0, 0.0);
-boxGen->SetBoxXYZ(0.,0.,0.6,0.6,0.);
-*/
+  // Det definition
+  /* Select verbosity level
+   * 0 - only standard logs
+   * 1 - Print points after each event
+  */
+  Int_t verbose = 0;
+  ERBeamDet* beamDet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
+  beamDet->SetGeometryFileName("beamdet.v1.geo.root");
+  run->AddModule(beamDet);
+
+  FairModule* target = new ERTarget("BeamDetTarget", kTRUE, 1);
+  target->SetGeometryFileName("BeamDeTarget.geo.root");
+  run->AddModule(target);
+  // ------------------------------------------------------------------------
+  // -----   Create PrimaryGenerator   --------------------------------------
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+  /*Int_t pdgId = 2212; // proton  beam
+  Double32_t theta1 = 0.;  // polar angle distribution
+  Double32_t theta2 = 0.0;
+  Double32_t kin_energy = .500; //GeV
+  Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
+  Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
+  FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
+  boxGen->SetThetaRange(theta1, theta2);
+  boxGen->SetPRange(momentum, momentum);
+  boxGen->SetPhiRange(0.0, 0.0);
+  boxGen->SetBoxXYZ(0.,0.,0.6,0.6,0.);
+  */
   //Ion 28S
 /*  Int_t A = 28;
   Int_t Z = 16;
@@ -84,37 +88,37 @@ boxGen->SetBoxXYZ(0.,0.,0.6,0.6,0.);
 
 
 
-primGen->AddGenerator(sgenerator);
-run->SetGenerator(primGen);
-// ------------------------------------------------------------------------
-//-------Set visualisation flag to true------------------------------------
-run->SetStoreTraj(kTRUE);
+  primGen->AddGenerator(sgenerator);
+  run->SetGenerator(primGen);
+  // ------------------------------------------------------------------------
+  //-------Set visualisation flag to true------------------------------------
+  run->SetStoreTraj(kTRUE);
 
-//-------Set LOG verbosity  -----------------------------------------------
-FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-// —– Initialize simulation run ———————————— 
-run->Init();
-Int_t nSteps = -15000;
+  //-------Set LOG verbosity  -----------------------------------------------
+  FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
+  // —– Initialize simulation run ———————————— 
+  run->Init();
+  Int_t nSteps = -15000;
 
-// —– Runtime database ——————————————— 
-Bool_t kParameterMerged = kTRUE; 
-FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
-parOut->open(parFile.Data()); 
-rtdb->setOutput(parOut); 
-rtdb->saveOutput(); 
-rtdb->print(); // 
-// -----   Run simulation  ------------------------------------------------
-  run->Run(nEvents);
+  // —– Runtime database ——————————————— 
+  Bool_t kParameterMerged = kTRUE; 
+  FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
+  parOut->open(parFile.Data()); 
+  rtdb->setOutput(parOut); 
+  rtdb->saveOutput(); 
+  rtdb->print(); // 
+  // -----   Run simulation  ------------------------------------------------
+    run->Run(nEvents);
 
-  // -----   Finish   -------------------------------------------------------
-  timer.Stop();
-  Double_t rtime = timer.RealTime();
-  Double_t ctime = timer.CpuTime();
-  cout << endl << endl;
-  cout << "Macro finished succesfully." << endl;
-  cout << "Output file is sim.root" << endl;
-  cout << "Parameter file is par.root" << endl;
-  cout << "Real time " << rtime << " s, CPU time " << ctime
-                  << "s" << endl << endl;
-  cout << "Energy " << momentum << "; mass " << mass << endl; 
+    // -----   Finish   -------------------------------------------------------
+    timer.Stop();
+    Double_t rtime = timer.RealTime();
+    Double_t ctime = timer.CpuTime();
+    cout << endl << endl;
+    cout << "Macro finished succesfully." << endl;
+    cout << "Output file is sim.root" << endl;
+    cout << "Parameter file is par.root" << endl;
+    cout << "Real time " << rtime << " s, CPU time " << ctime
+                    << "s" << endl << endl;
+    cout << "Energy " << momentum << "; mass " << mass << endl; 
 }
