@@ -119,6 +119,10 @@ private:
   Double32_t     fLength;            //!  length
   Double32_t     fELoss;             //!  energy loss
   Double32_t     fLightYield;
+  Int_t          fTofNb;
+  Int_t          fMWPCNb;
+  Int_t          fMWPCPlaneNb;
+  Int_t          fMWPCWireNb;
  
   
 private:

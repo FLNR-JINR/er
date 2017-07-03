@@ -18,7 +18,7 @@ Double_t shellThickness = 20 * 1e-8;
 
 TGeoManager*   gGeoMan = NULL;
 
-void create_BeamDetTarget_geo()
+void create_target_h_geo()
 {
   fZeroRotation->RotateX(0.);
   fZeroRotation->RotateY(0.);
@@ -34,7 +34,7 @@ void create_BeamDetTarget_geo()
   // --------------------------------------------------------------------------
 
   // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/BeamDeTarget.geo.root";
+  TString geoFileName = geoPath + "/geometry/target.h.geo.root";
   // --------------------------------------------------------------------------
   
   // -----------------   Get and create the required media    -----------------

@@ -140,7 +140,8 @@ ERBeamDetMWPCPoint* ERBeamDet::AddMWPCPoint()
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-              fTime,fLength,fELoss, fLightYield);
+              fTime,fLength,fELoss, fLightYield,
+              fMWPCNb, fMWPCPlaneNb, fMWPCWireNb);
  
 }
 
@@ -153,7 +154,7 @@ ERBeamDetTOFPoint* ERBeamDet::AddTOFPoint()
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-              fTime,fLength,fELoss, fLightYield);}
+              fTime,fLength,fELoss, fLightYield, fTofNb);}
 // ----------------------------------------------------------------------------
 Bool_t ERBeamDet::CheckIfSensitive(std::string name)
 {
@@ -215,17 +216,23 @@ if (gMC->IsTrackExiting()    || //Return true if this is the last step of the tr
     gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
     gMC->IsTrackDisappeared())
 {
-    gMC->TrackPosition(fPosOut);
-    gMC->TrackMomentum(fMomOut);
-    TString volName = gMC->CurrentVolName();
-   
-    if (fELoss > 0.){
-
-      if(volName.Contains("plate"))
-           AddTOFPoint();
-      if(volName.Contains("gas"))
-            AddMWPCPoint();
+  gMC->TrackPosition(fPosOut);
+  gMC->TrackMomentum(fMomOut);
+  TString volName = gMC->CurrentVolName();
+  if (fELoss > 0.){
+    if(volName.Contains("plate"))
+    {
+      gMC->CurrentVolID(fTofNb);
+      AddTOFPoint();
     }
+    if(volName.Contains("gas"))
+    {
+      gMC->CurrentVolOffID(0, fMWPCWireNb);
+      gMC->CurrentVolOffID(1, fMWPCPlaneNb);
+      gMC->CurrentVolOffID(2, fMWPCNb);
+      AddMWPCPoint();
+    }
+  }
 }
 
     return kTRUE;

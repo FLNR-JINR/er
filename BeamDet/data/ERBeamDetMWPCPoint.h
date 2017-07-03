@@ -45,7 +45,8 @@ class ERBeamDetMWPCPoint : public FairMCPoint
                   Int_t pid,
                   TVector3 posIn,
                   TVector3 posOut, TVector3 momIn, TVector3 momOut,
-                  Double_t tof, Double_t length, Double_t eLoss, Double_t lightYield);
+                  Double_t tof, Double_t length, Double_t eLoss, Double_t lightYield,
+                  Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
 
 
   /** Copy constructor **/
@@ -92,13 +93,16 @@ class ERBeamDetMWPCPoint : public FairMCPoint
   virtual void Print(const Option_t* opt = 0) const;
 
  protected:
-  Int_t fEventID;
-  Int_t fMot0TrackID;
-  Int_t fPid;
-  Double32_t fX_out,  fY_out,  fZ_out;
-  Double32_t fPx_out, fPy_out, fPz_out;
-  Int_t fStilbenNr;
-  Double_t fLightYield;
+  Int_t       fEventID;
+  Int_t       fMot0TrackID;
+  Int_t       fPid;
+  Double32_t  fX_out,  fY_out,  fZ_out;
+  Double32_t  fPx_out, fPy_out, fPz_out;
+  Int_t       fStilbenNr;
+  Double_t    fLightYield;
+  Int_t       fMWPCNb;
+  Int_t       fPlaneNb;
+  Int_t       fWireNb;
 
   ClassDef(ERBeamDetMWPCPoint,1)
 };

@@ -152,7 +152,7 @@ MWPC2->AddNode(shell, 1, new TGeoCombiTrans(0, 0, -shellZ, fZeroRotation));
 MWPC2->AddNode(shell, 2, new TGeoCombiTrans(0, 0, shellZ, f90ZRotation));
 
 MWPC->AddNode(MWPC1, 1, new TGeoCombiTrans(0, 0, -mwpcOffsetZ, fZeroRotation));
-MWPC->AddNode(MWPC2, 1, new TGeoCombiTrans(0, 0, mwpcOffsetZ, fZeroRotation));
+MWPC->AddNode(MWPC2, 2, new TGeoCombiTrans(0, 0, mwpcOffsetZ, fZeroRotation));
 
 beamdet->AddNode(TOF, 1, new TGeoCombiTrans(global_X, global_Y, TOFpozZInBeamdet, fGlobalRotation));
 beamdet->AddNode(MWPC, 1, new TGeoCombiTrans(global_X, global_Y, MWPCpozZInBeamdet, fGlobalRotation));

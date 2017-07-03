@@ -1,4 +1,4 @@
-# Create a library called "libDet" which includes the source files given in
+# Create a library called "libBeamdet" which includes the source files given in
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
@@ -6,8 +6,9 @@ set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
 ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
-${CMAKE_SOURCE_DIR}/BeamDet
-${CMAKE_SOURCE_DIR}/base
+${CMAKE_SOURCE_DIR}/BeamDet/data/
+${CMAKE_SOURCE_DIR}/BeamDet/
+${CMAKE_SOURCE_DIR}/base/
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -21,8 +22,9 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
     ERBeamDet.cxx
-    ERBeamDetTOFPoint.cxx
-    ERBeamDetMWPCPoint.cxx
+    
+    data/ERBeamDetTOFPoint.cxx
+    data/ERBeamDetMWPCPoint.cxx
 )
 
 # fill list of header files from list of source files

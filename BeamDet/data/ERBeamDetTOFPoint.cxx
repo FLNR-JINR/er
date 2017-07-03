@@ -19,13 +19,14 @@ ERBeamDetTOFPoint::ERBeamDetTOFPoint(Int_t eventID, Int_t trackID,
                   Int_t pid,
                   TVector3 posIn,
                   TVector3 posOut, TVector3 momIn, TVector3 momOut,
-                  Double_t tof, Double_t length, Double_t eLoss, Double_t lightYield)
+                  Double_t tof, Double_t length, Double_t eLoss, Double_t lightYield, Int_t tofNb)
   : FairMCPoint(trackID, -1., posIn, momIn, tof, length, eLoss),
     fEventID(eventID),
     fPid(pid),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
-    fLightYield(lightYield)
+    fLightYield(lightYield),
+    fTofNb(tofNb)
 {
 }
 // -------------------------------------------------------------------------
