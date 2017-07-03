@@ -55,8 +55,8 @@ TGeoManager*   gGeoMan = NULL;
   // --------------------------------------------------------------------------
 
   //------------------ DSRD station -----------------------------------------
-  Double_t R_min = 1.2; //cm
-  Double_t R_max = 4.5;   //cm
+  Double_t R_min = 1.6; //cm
+  Double_t R_max = 4.1;   //cm
   Double_t thin = 0.1;   //cm
   Float_t rsp_min = 2000.;
   Float_t rsp_max = rsp_min + thin;
