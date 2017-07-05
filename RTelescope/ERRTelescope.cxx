@@ -15,10 +15,10 @@ using namespace std;
 // -----   Default constructor   -------------------------------------------
 ERRTelescope::ERRTelescope() : 
   FairDetector("ERRTelescope", kTRUE),
-  fDSRDPoints(NULL)
+  fRTelescopePoints(NULL)
 {
   ResetParameters();
-  fDSRDPoints = new TClonesArray("ERRTelescopePoint");
+  fRTelescopePoints = new TClonesArray("ERRTelescopePoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fVerboseLevel = 1;
@@ -29,10 +29,10 @@ ERRTelescope::ERRTelescope() :
 // -----   Standard constructor   ------------------------------------------
 ERRTelescope::ERRTelescope(const char* name, Bool_t active, Int_t verbose) 
   : FairDetector(name, active,verbose),
-  fDSRDPoints(NULL)
+  fRTelescopePoints(NULL)
   {
   ResetParameters();
-  fDSRDPoints = new TClonesArray("ERRTelescopePoint");
+  fRTelescopePoints = new TClonesArray("ERRTelescopePoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fVersion = 1;
@@ -103,14 +103,14 @@ void ERRTelescope::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
 	Fatal("Init", "IO manager is not set");	
-  ioman->Register("DSRDPoint","DSRD", fDSRDPoints, kTRUE);
+  ioman->Register("RTelescopePoint","RTelescope", fRTelescopePoints, kTRUE);
 }
 // ----------------------------------------------------------------------------
 
 // -----   Public method GetCollection   --------------------------------------
 TClonesArray* ERRTelescope::GetCollection(Int_t iColl) const {
   if (iColl == 0) 
-    return fDSRDPoints;
+    return fRTelescopePoints;
   else 
     return NULL;
 }
@@ -121,8 +121,8 @@ TClonesArray* ERRTelescope::GetCollection(Int_t iColl) const {
 // -----   Public method Print   ----------------------------------------------
 void ERRTelescope::Print(Option_t *option) const
 {
-  for (Int_t i_point = 0; i_point < fDSRDPoints->GetEntriesFast(); i_point++){
-    ERRTelescopePoint* point = (ERRTelescopePoint*)fDSRDPoints->At(i_point);
+  for (Int_t i_point = 0; i_point < fRTelescopePoints->GetEntriesFast(); i_point++){
+    ERRTelescopePoint* point = (ERRTelescopePoint*)fRTelescopePoints->At(i_point);
     point->Print();
   }
 }
@@ -131,7 +131,7 @@ void ERRTelescope::Print(Option_t *option) const
 // -----   Public method Reset   ----------------------------------------------
 void ERRTelescope::Reset() {
   LOG(INFO) << "  ERRTelescope::Reset()" << FairLogger::endl;
-  fDSRDPoints->Clear();
+  fRTelescopePoints->Clear();
   ResetParameters();
 }
 // ----------------------------------------------------------------------------
@@ -162,7 +162,7 @@ ERRTelescopePoint* ERRTelescope::AddPoint(Int_t eventID, Int_t trackID,
 				    TVector3 posOut, TVector3 momIn,
 				    TVector3 momOut, Double_t time,
 				    Double_t length, Double_t eLoss, Int_t sector,Int_t sensor) {
-  TClonesArray& clref = *fDSRDPoints;
+  TClonesArray& clref = *fRTelescopePoints;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) ERRTelescopePoint(eventID, trackID, mot0trackID, mass,
 					  posIn, posOut, momIn, momOut, time, length, eLoss, sector, sensor);
