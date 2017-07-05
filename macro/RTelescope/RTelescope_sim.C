@@ -1,4 +1,4 @@
-void RTelescope_sim(Int_t nEvents = 1){
+void RTelescope_sim(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -55,7 +55,7 @@ void RTelescope_sim(Int_t nEvents = 1){
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
   boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(0., 360.);
+  boxGen->SetPhiRange(0, 360);
   boxGen->SetBoxXYZ(0.,0,0.0,0.0,0.);
 
   primGen->AddGenerator(boxGen);
