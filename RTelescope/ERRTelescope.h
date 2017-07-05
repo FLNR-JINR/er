@@ -146,14 +146,7 @@ private:
    ** Adds a NeuRadPoint to the Point Collection
    **/
   
-  ERRTelescopePoint* AddPoint(Int_t eventID, Int_t trackID,
-			  Int_t mot0trackID,
-			  Double_t mass,
-			  TVector3 posIn,
-			  TVector3 pos_out, TVector3 momIn,
-			  TVector3 momOut, Double_t time,
-			  Double_t length, Double_t eLoss,
-        Int_t sector,Int_t sensor);
+  ERRTelescopePoint* AddPoint();
   /** Private method ResetParameters
    **
    ** Resets the private members for the track parameters
