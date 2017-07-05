@@ -15,7 +15,7 @@
 
 class ERRTelescopeSetup {
     static ERRTelescopeSetup* fInstance;
-    static TGeoNode* fDSRDnode;
+    static TGeoNode* fRTelescopenode;
     static Float_t fZ;
     static Float_t fRmin, fRmax;
     static Int_t fSecNb, fSenNb;
