@@ -75,12 +75,7 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
     gMC->TrackPosition(posOut);
     gMC->TrackMomentum(momOut);
 	  if (eLoss > 0.){
-      AddPoint( eventID, trackID, mot0TrackID, mass,
-                TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
-                TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
-                TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
-                TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                time, length, eLoss, sector, sensor);
+      AddPoint();
     }
   }
   return kTRUE;
@@ -155,17 +150,15 @@ void ERRTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset
 // ----------------------------------------------------------------------------
 
 // -----   Private method AddPoint   --------------------------------------------
-ERRTelescopePoint* ERRTelescope::AddPoint(Int_t eventID, Int_t trackID,
-				    Int_t mot0trackID,
-				    Double_t mass,
-				    TVector3 posIn,
-				    TVector3 posOut, TVector3 momIn,
-				    TVector3 momOut, Double_t time,
-				    Double_t length, Double_t eLoss, Int_t sector,Int_t sensor) {
+ERRTelescopePoint* ERRTelescope::AddPoint() {
   TClonesArray& clref = *fRTelescopePoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERRTelescopePoint(eventID, trackID, mot0trackID, mass,
-					  posIn, posOut, momIn, momOut, time, length, eLoss, sector, sensor);
+  return new(clref[size]) ERRTelescopePoint(eventID, trackID, mot0TrackID, mass,
+                TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
+                TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
+                TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
+                TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
+                time, length, eLoss, sector, sensor);
 	
 }
 // ----------------------------------------------------------------------------
