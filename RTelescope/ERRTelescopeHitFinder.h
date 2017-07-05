@@ -48,16 +48,16 @@ public:
   Float_t TimeDispersionPar() const {return fTimeDispersionPar;}
 protected:
   //Input arrays
-  TClonesArray *fDSRDPoints;
+  TClonesArray *RTelescopePoints;
   //Output arrays
-  TClonesArray *fDSRDHits;
+  TClonesArray *fRTelescopeHits;
 
   static Int_t fEvent;
   Float_t fElossDispersion;
   Float_t fTimeDispersionPar;
   Float_t fElossThreshold;
 
-  ERRTelescopeSetup* fDSRDSetup;
+  ERRTelescopeSetup* fRTelescopeSetup;
 protected:
   ERRTelescopeHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t point_index, Float_t eloss, Float_t time);
 private:
