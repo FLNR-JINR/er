@@ -78,7 +78,6 @@ class ERBeamDetMWPCPoint : public FairMCPoint
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
   void MomentumOut(TVector3& mom) { mom.SetXYZ(fPx_out,fPy_out,fPz_out); }
 
-  Int_t StilbenNr() const {return fStilbenNr;}
   Float_t LightYield() const {return fLightYield;}
 
   /** Point coordinates at given z from linear extrapolation **/
@@ -98,7 +97,6 @@ class ERBeamDetMWPCPoint : public FairMCPoint
   Int_t       fPid;
   Double32_t  fX_out,  fY_out,  fZ_out;
   Double32_t  fPx_out, fPy_out, fPz_out;
-  Int_t       fStilbenNr;
   Double_t    fLightYield;
   Int_t       fMWPCNb;
   Int_t       fPlaneNb;
