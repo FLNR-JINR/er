@@ -52,18 +52,6 @@ void ERRTelescope::Initialize()
 
 
 Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {  
-  static Int_t          eventID;           //!  event index
-  static Int_t          trackID;           //!  track index
-  static Int_t          mot0TrackID;       //!  0th mother track index
-  static Double_t       mass;              //!  mass
-  static TLorentzVector posIn, posOut;    //!  position
-  static TLorentzVector momIn, momOut;    //!  momentum
-  static Double32_t     time;              //!  time
-  static Double32_t     length;            //!  length
-  static Double32_t     eLoss;             //!  energy loss
-  static Int_t          sector;
-  static Int_t          sensor;
-
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     eLoss  = 0.;
     eventID = gMC->CurrentEvent();
