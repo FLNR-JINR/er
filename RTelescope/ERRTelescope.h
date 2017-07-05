@@ -126,6 +126,20 @@ public:
 private:
   TClonesArray*  fDSRDPoints;     //!  The point collection
   Int_t fVersion;                    //! geometry version
+  
+  Int_t          eventID;           //!  event index
+  Int_t          trackID;           //!  track index
+  Int_t          mot0TrackID;       //!  0th mother track index
+  Double_t       mass;              //!  mass
+  TLorentzVector posIn, posOut;    //!  position
+  TLorentzVector momIn, momOut;    //!  momentum
+  Double32_t     time;              //!  time
+  Double32_t     length;            //!  length
+  Double32_t     eLoss;             //!  energy loss
+  Int_t          sector;
+  Int_t          sensor;
+  
+  
 private:
   /** Private method AddPoint
    **
