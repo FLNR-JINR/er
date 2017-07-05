@@ -124,7 +124,7 @@ public:
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
   
 private:
-  TClonesArray*  fDSRDPoints;     //!  The point collection
+  TClonesArray*  fRTelescopePoints;     //!  The point collection
   Int_t fVersion;                    //! geometry version
   
   Int_t          eventID;           //!  event index
