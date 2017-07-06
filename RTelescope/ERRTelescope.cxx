@@ -39,9 +39,9 @@ ERRTelescope::ERRTelescope(const char* name, Bool_t active, Int_t verbose)
 }
 
 ERRTelescope::~ERRTelescope() {
-  if (fDSRDPoints) {
-    fDSRDPoints->Delete();
-    delete fDSRDPoints;
+  if (fRTelescopePoints) {
+    fRTelescopePoints->Delete();
+    delete fRTelescopePoints;
   }
 }
 
