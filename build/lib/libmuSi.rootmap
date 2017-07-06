@@ -1,7 +1,0 @@
-[ muSi.so ]
-# List of selected classes
-class ERmuSi
-class ERmuSiHitProducer
-class ERmuSiMatcher
-class ERmuSiTrackFinder
-class ERmuSiVertexFinder

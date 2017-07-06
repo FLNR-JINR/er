@@ -1,4 +1,18 @@
 void sim(Int_t nEvents = 10000){
+// void sim(Int_t nEvents = 100, Int_t index = 0) {
+
+  // ------------------------------------------------------------------------
+	// PARALLEL
+
+
+//  TString dir = "/store/ivan/simParallel/";
+//  TString indexStr;
+//  indexStr.Form("%d", index);
+//  TString outFile = dir + "sim" + indexStr + ".root";
+//  TString parFile = dir + "par" + indexStr + ".root";
+
+//gRandom->SetSeed(index);
+
   //---------------------Files-----------------------------------------------
   TString outFile= "tests/sim.root";
   TString parFile= "tests/par.root";

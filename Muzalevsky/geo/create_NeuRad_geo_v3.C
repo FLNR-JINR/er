@@ -8,7 +8,7 @@
 #include "TGeoManager.h"
 #include "TMath.h"
 
-void create_NeuRad_geo_v3()
+void create_gsitest()
 {
   // ---------------  INIT ----------------------------------------------------
   // Create a global translation
@@ -20,16 +20,16 @@ void create_NeuRad_geo_v3()
   fZeroRotation->RotateZ(0.);
 
   Double_t fiber_dead = 0.005; //cm dead layer between fibers
-  Double_t fiber_X = 0.3; //cm
-  Double_t fiber_Y = 0.3; //cm
-  Double_t fiber_Z = 25.; //cm
+  Double_t fiber_X = 5.; //cm
+  Double_t fiber_Y = 5.; //cm
+  Double_t fiber_Z = 0.4; //cm
   Double_t cladding_Z = 0.024; //cm pmt simulation
 
-  Int_t fibers_in_pixel_X = 2;
-  Int_t fibers_in_pixel_Y = 2;
+  Int_t fibers_in_pixel_X = 1;
+  Int_t fibers_in_pixel_Y = 1;
 
-  Int_t pixels_in_module_X_Nb = 8;
-  Int_t pixels_in_module_Y_Nb = 8;
+  Int_t pixels_in_module_X_Nb = 1;
+  Int_t pixels_in_module_Y_Nb = 1;
   // --------------------------------------------------------------------------
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------

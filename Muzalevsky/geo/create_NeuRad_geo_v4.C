@@ -25,9 +25,12 @@ void create_NeuRad_geo_v4()
   fGlobalRotation->RotateZ(0.);
 
   Double_t fiber_dead = 0.005; //cm dead layer between fibers
-  Double_t fiber_X = 0.3; //cm
+  // Double_t fiber_X = 5.; //cm
+  // Double_t fiber_Y = 5.; //cm
+  // Double_t fiber_Z = 0.4; //cm
+    Double_t fiber_X = 0.3; //cm
   Double_t fiber_Y = 0.3; //cm
-  Double_t fiber_Z = 25; //cm
+  Double_t fiber_Z = 25.; //cm
   Double_t cladding_Z = 0.024; //cm pmt simulation
 
   Int_t fibers_in_pixel_X = 1;
@@ -90,11 +93,14 @@ void create_NeuRad_geo_v4()
   TGeoVolume *fiber = gGeoManager->MakeBox("fiber", pMed37, fiber_X-fiber_dead, fiber_Y-fiber_dead, fiber_Z);
   TGeoVolume *fiber_dead_zone = gGeoManager->MakeBox("fiber_dead_zone", pMed37, fiber_X, fiber_Y, fiber_Z);  
   //------------------ assembly  pixel  -----------------------------------------
-//  TGeoVolume* pixel = new TGeoVolumeAssembly("pixel");
+  //TGeoVolume* pixel = new TGeoVolumeAssembly("pixel");
+ // TGeoVolume* pixel = gGeoManager->MakeBox("pixel", pMed0, pixel_X, pixel_Y, fiber_Z + cladding_Z);
+
   Double_t pixel_X = fiber_X *fibers_in_pixel_X;
   Double_t pixel_Y = fiber_Y *fibers_in_pixel_Y;
-TGeoVolume* pixel = gGeoManager->MakeBox("pixel", pMed0, pixel_X, pixel_Y, fiber_Z + cladding_Z); 
- //------------------ al cladding -----------------------------------------
+  TGeoVolume* pixel = gGeoManager->MakeBox("pixel", pMed0, pixel_X, pixel_Y, fiber_Z + cladding_Z);
+
+  //------------------ al cladding -----------------------------------------
   Double_t cladding_X = pixel_X; //cm
   Double_t cladding_Y = pixel_Y;   //cm
   cladding_Z /= 2.;
