@@ -48,7 +48,7 @@ public:
   Float_t TimeDispersionPar() const {return fTimeDispersionPar;}
 protected:
   //Input arrays
-  TClonesArray *RTelescopePoints;
+  TClonesArray *fRTelescopePoints;
   //Output arrays
   TClonesArray *fRTelescopeHits;
 
