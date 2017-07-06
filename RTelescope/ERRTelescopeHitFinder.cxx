@@ -110,7 +110,7 @@ void ERRTelescopeHitFinder::Exec(Option_t* opt)
     Float_t y = r*TMath::Sin(phi*TMath::DegToRad());
     TVector3 pos = TVector3(x, y, z);
     Float_t time = gRandom->Gaus(point->GetTime(), TMath::Sqrt(fTimeDispersionPar/point->GetEnergyLoss()));
-    AddHit(kRTelescope, pos, dpos,iPoint,eloss, time);
+    AddHit(kDSRD, pos, dpos,iPoint,eloss, time);
   }
 
   std::cout << "Hits count: " << fRTelescopeHits->GetEntriesFast() << std::endl;
