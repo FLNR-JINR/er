@@ -1,7 +1,7 @@
-void sim(Int_t nEvents = 1000000){
+void sim(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
-  TString outFile= "sim.root";
-  TString parFile= "par.root";
+  TString outFile= "tests/sim.root";
+  TString parFile= "tests/par.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------

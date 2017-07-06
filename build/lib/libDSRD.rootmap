@@ -1,0 +1,5 @@
+[ DSRD.so ]
+# List of selected classes
+class ERDSRD
+class ERDSRDHitFinder
+class ERDSRDSetup

@@ -50,6 +50,24 @@ protected:
   Int_t OnePETime(Double_t amplitude);
 public:
 
+        Double_t GetStartTime(){
+ 	       return fStartTime;
+        }
+
+        Double_t GetFinishTime(){
+	        return fFinishTime;
+        }
+
+	Float_t GetPEamp(Int_t i) {
+                return fPEAmplitudes[i];
+	}
+        Float_t GetPEtime(Int_t i) {
+                return fPEAnodeTimes[i];
+        }
+	Int_t GetPECount() {
+		return fPECount;
+	}
+
   /** Default constructor **/
   ERNeuRadPixelSignal();
 

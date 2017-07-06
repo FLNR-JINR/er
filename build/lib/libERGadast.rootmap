@@ -1,0 +1,8 @@
+[ ERGadast.so ]
+# List of selected classes
+class ERGadast
+class ERGadastContFact
+class ERGadastDigiPar
+class ERGadastDigitizer
+class ERGadastGeoPar
+class ERGadastSetup

@@ -1,0 +1,7 @@
+[ ERPassive.so ]
+# List of selected classes
+class ERCave
+class ERCollimator
+class ERGeoCave
+class ERGeoPassivePar
+class ERTarget

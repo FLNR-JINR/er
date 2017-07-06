@@ -42,7 +42,7 @@ ERNeuRadPixelSignal::~ERNeuRadPixelSignal(){
 
 void ERNeuRadPixelSignal::AddPhotoElectron(ERNeuRadPhotoElectron* pe){
 	//Добавляет фотоэлектрон к сигналу на PMT
-	fPEAmplitudes[fCurFPoint]	= pe->Amplitude();
+	fPEAmplitudes[fCurFPoint] = pe->Amplitude();
 	fPEAnodeTimes[fCurFPoint] = pe->AnodeTime();
 	//Вычисление длины фотоэлектронного сигнала в количестве cdT
 	fPETimes[fCurFPoint] = 40.;//OnePETime(pe->Amplitude());

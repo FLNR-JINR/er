@@ -1,0 +1,5 @@
+[ generators.so ]
+# List of selected classes
+class ERGammaGenerator
+class ERGenerator
+class ERIonGenerator

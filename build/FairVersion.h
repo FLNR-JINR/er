@@ -1,0 +1,5 @@
+#ifndef FAIRROOT_VERSION
+#define FAIRROOT_VERSION v-0.3-140-gef71a7b
+#define FAIRROOT_GIT_DATE "Wed Jun 28 18:44:19 2017 +0300"
+#endif
+

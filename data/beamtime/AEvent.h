@@ -69,6 +69,15 @@ private:
 	Double_t fNoiseRangeMax;	//!
 	Int_t fWinSize;			//!
 
+	 //Массив амплитуд фотоэлектронов сигнала
+        Float_t fPEAmplitudes[1000];
+        //Массив времен прихоа на анод фотоэлектронов сигнала
+        Float_t fPEAnodeTimes[1000];
+        //Количество фотоэлектронов в сигнале
+        Int_t fPECount;
+	// start time of the signal
+	Double_t fStartTime;
+	Double_t fFinishTime;
 public:
 	AEvent();
 	AEvent(const Int_t npoints);
@@ -151,6 +160,19 @@ public:
 	void SetLED(Double_t threshold = 0.02);
 
 	//leading edge discriminator
+
+        void SetPEtime(Float_t a, Int_t i);
+        void SetPEamp(Float_t a, Int_t i);
+        void SetPECount(Int_t i);
+
+        Float_t GetPEamp(Int_t i);
+        Float_t GetPEtime(Int_t i);
+        Int_t GetPECount();             
+	void ObtainPE();
+	Double_t GetStartTime();
+	void SetStartTime(Double_t t);
+        Double_t GetFinishTime();
+        void SetFinishTime(Double_t t);
 
 private:
 	void Init();

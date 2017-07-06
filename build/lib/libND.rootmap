@@ -1,0 +1,5 @@
+[ ND.so ]
+# List of selected classes
+class ERND
+class ERNDHitFinder
+class ERNDSetup

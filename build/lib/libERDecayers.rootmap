@@ -1,0 +1,9 @@
+[ ERDecayers.so ]
+# List of selected classes
+class ERDecay
+class ERDecay26Oto24O2n
+class ERDecay27Fto26O
+class ERDecay30Arto28S2p
+class ERDecay31Arto30Ar
+class ERDecayLi9DetoLi10_Li9n_p
+class ERDecayer

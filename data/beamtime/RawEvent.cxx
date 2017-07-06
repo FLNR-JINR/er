@@ -69,3 +69,39 @@ Double_t RawEvent::GetAmp(Int_t i) {
 
 		return fAmp[i];
 }
+
+
+void RawEvent::SetPEamp(Float_t a, Int_t i) {
+//      cout << fNPoints << endl;
+        if (i >= fPECount) {
+                Error("RawEvent::SetAmp", "Array with PE amplitudes is overloaded!");
+                return;
+        }
+        fPEAmplitudes[i] = a;
+        return;
+}
+
+void RawEvent::SetPEtime(Float_t a, Int_t i) {
+        if (i >= fPECount) {
+                Error("RawEvent::SetAmp", "Array with PE times is overloaded!");
+                return;
+        }
+        fPEAnodeTimes[i] = a;
+        return;
+}
+
+void RawEvent::SetPECount(Int_t i) {
+        fPECount = i;
+        return;
+}
+
+void RawEvent::SetStartTime(Double_t t) {
+	fStartTime = t;
+	return;
+}
+
+void RawEvent::SetFinishTime(Double_t t) {
+        fFinishTime = t;
+        return;
+}
+

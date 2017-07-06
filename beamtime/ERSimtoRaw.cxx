@@ -51,6 +51,7 @@ InitStatus ERSimtoRaw::Init()
     if (!fPixelSignals)
       Fatal("Init", "Can`t find branch in input file!");
 
+
   //Register output objects
   fRawEvents = new RawEvent*[fNChanels];
   for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
@@ -69,8 +70,10 @@ void ERSimtoRaw::Exec(Option_t* opt)
 {
   fEvent++;
   if ( !(fEvent%100000) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
-  Int_t simSize,side,counter;
-  Double_t maxAmp;
+  Int_t simSize,side,counter,PEnum;
+  Double_t maxAmp, StartTime, FinishTime;
+
+
   
   FairRun* run = FairRun::Instance();
   run->MarkFill(kFALSE);
@@ -87,9 +90,9 @@ void ERSimtoRaw::Exec(Option_t* opt)
       for(Int_t i = 0; i<simSize; i++){
         if( maxAmp < result->GetAt(i) ) {maxAmp = result->GetAt(i);}
       }  //searching maxAmp
-      //cout << maxAmp << endl;
+//      cout << maxAmp << endl;
       if(maxAmp > 30) {
-        cout << " not NULL event found " << endl;
+//        cout << " not NULL event found " << endl;
         run->MarkFill(kTRUE);
       }
     }
@@ -97,23 +100,46 @@ void ERSimtoRaw::Exec(Option_t* opt)
   // Int_t PixelNb() const {return fPixelNb;}
   // Int_t Side() const {return fSide;}
 
-
-
+	StartTime = signal->GetStartTime();
+	FinishTime = signal->GetFinishTime();
+	PEnum = signal->GetPECount();
     for(Int_t nPoint = 0; nPoint< fNPoints; nPoint++){
 
-      if( nPoint<=(fNPoints - simSize)/2 || nPoint>=(fNPoints + simSize)/2 ) {
+      if( nPoint<=StartTime*10 || nPoint>=(FinishTime*10-1) ) {
         if(signal->Side() == 0) {fRawEvents[0]->SetAmp(0, nPoint);}
         if(signal->Side() == 1) {fRawEvents[1]->SetAmp(0, nPoint);}
       }
       else{
-         if(signal->Side() == 0) {fRawEvents[0]->SetAmp(-result->GetAt(nPoint - (fNPoints - simSize)/2), nPoint);} //fill the RawEvent
-         if(signal->Side() == 1) {fRawEvents[1]->SetAmp(-result->GetAt(nPoint - (fNPoints - simSize)/2), nPoint);}
+         if(signal->Side() == 0) {fRawEvents[0]->SetAmp(-result->GetAt(nPoint - StartTime*10), nPoint);} //fill the RawEvent
+         if(signal->Side() == 1) {fRawEvents[1]->SetAmp(-result->GetAt(nPoint - StartTime*10), nPoint);}
         // fRawEvents[0]->SetAmp(0, nPoint); //fill the RawEvent
       }
       
       if(signal->Side() == 0) {fRawEvents[0]->SetTime(nPoint*0.1, nPoint);}
       if(signal->Side() == 1) {fRawEvents[1]->SetTime(nPoint*0.1, nPoint);}
     }
+
+ 	if(signal->Side() == 0) fRawEvents[0]->SetStartTime(StartTime);
+        if(signal->Side() == 1) fRawEvents[1]->SetStartTime(StartTime);
+        if(signal->Side() == 0) fRawEvents[0]->SetFinishTime(FinishTime);
+        if(signal->Side() == 1) fRawEvents[1]->SetFinishTime(FinishTime);
+
+	for(Int_t PEn = 0; PEn < PEnum; PEn++) {
+		if(signal->Side() == 0) {
+			fRawEvents[0]->SetPEamp(signal->GetPEamp(PEn) , PEn);
+			fRawEvents[0]->SetPEtime(signal->GetPEtime(PEn) , PEn);
+			fRawEvents[0]->SetPECount(PEnum);
+		}
+
+                if(signal->Side() == 1) {
+                        fRawEvents[1]->SetPEamp(signal->GetPEamp(PEn) , PEn);
+                        fRawEvents[1]->SetPEtime(signal->GetPEtime(PEn) , PEn);
+                        fRawEvents[1]->SetPECount(PEnum);
+                }
+	}
+	
+
+
   }
   //----------------------------------------------------------------------------
     //cout << signal->Side() << "\t" << signal->PixelNb() << endl;

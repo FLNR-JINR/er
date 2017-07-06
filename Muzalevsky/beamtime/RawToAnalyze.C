@@ -1,11 +1,11 @@
 //using namespace std;
 
-void RawToAnalyze(Int_t nEvents = 77){
+void RawToAnalyze(Int_t nEvents = 16){
   //---------------------Files-----------------------------------------------
   //TString inFile = "tektronix.out.root";
-  TString inFile = "../NeuRad/oscill/simRaw.root";
-  TString outFile = "../NeuRad/oscill/analyze.root";
-  TString parFile = "../NeuRad/oscill/par.root";
+  TString inFile = "../NeuRad/oscill/tests/simRaw.root";
+  TString outFile = "../NeuRad/oscill/tests/analyze.root";
+  TString parFile = "../NeuRad/oscill/tests/par.root";
   // ------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -23,7 +23,7 @@ void RawToAnalyze(Int_t nEvents = 77){
   ERRawToAnalyzeConverter* converter = new ERRawToAnalyzeConverter(verbose);
   converter->SetNPoints(1000);
   converter->SetNChanels(2);
-  converter->SetSmooth(1);  //1 - smooth, 0 - no smooth
+  converter->SetSmooth(0);  //1 - smooth, 0 - no smooth
 
   fRun->AddTask(converter);
   // ------------------------------------------------------------------------

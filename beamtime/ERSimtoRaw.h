@@ -11,6 +11,7 @@
 #include "ERNeuRadPixelSignal.h"
 #include "RawEvent.h"
 #include "AEvent.h"
+#include "TArrayF.h"
 
 class ERSimtoRaw : public FairTask {
 
