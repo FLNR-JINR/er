@@ -8,8 +8,9 @@ ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/data
-${CMAKE_SOURCE_DIR}/RTelescope/
-${CMAKE_SOURCE_DIR}/RTelescope/data
+${CMAKE_SOURCE_DIR}/telescope/
+${CMAKE_SOURCE_DIR}/telescope/data
+${CMAKE_SOURCE_DIR}/BeamDet/data
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -27,6 +28,14 @@ ERRTelescopeHitFinder.cxx
 ERRTelescopeSetup.cxx
 data/ERRTelescopePoint.cxx
 data/ERRTelescopeHit.cxx
+data/ERRTelescopeEvent.cxx
+data/ERRTelescopeCalEvent.cxx
+data/ERQTelescopeEvent.cxx
+data/ERQTelescopeCalEvent.cxx
+data/ERTelescopeRecoEvent.cxx
+ERQTelescopeCalibrator.cxx
+ERRTelescopeCalibrator.cxx
+ERTelescopeReconstructor.cxx
 )
 
 # fill list of header files from list of source files
@@ -34,7 +43,7 @@ data/ERRTelescopeHit.cxx
 CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERRTelescopeLinkDef.h)
-Set(LIBRARY_NAME DSRD)
+Set(LIBRARY_NAME telescope)
 Set(DEPENDENCIES ERBase ERData Base Core)
 
 GENERATE_LIBRARY()

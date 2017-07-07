@@ -7,6 +7,7 @@ ${BASE_INCLUDE_DIRECTORIES}
 ${Boost_INCLUDE_DIRS}
 ${ROOT_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/data
+${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/data/NeuRadData
 ${CMAKE_SOURCE_DIR}/data/muSiData
 ${CMAKE_SOURCE_DIR}/data/NDData
@@ -63,6 +64,10 @@ beamtime/cls_RootEvent.cxx
 
 beamtime/WCalHit.cxx
 beamtime/WCalEvent.cxx
+
+ERHe8EventHeader.cxx
+ERRawEvent.cxx
+ERParticle.cxx
 )
 
 # fill list of header files from list of source files

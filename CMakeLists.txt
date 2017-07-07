@@ -208,12 +208,11 @@ add_subdirectory (muSi)
 add_subdirectory (Gadast)
 add_subdirectory (generators)
 add_subdirectory (ND)
-add_subdirectory (RTelescope)
+add_subdirectory (telescope)
 add_subdirectory (global)
 add_subdirectory (beamtime)
 add_subdirectory (BeamDet)
 add_subdirectory (field)
-add_subdirectory (he8)
 
 Execute_Process(COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-opengl
                 OUTPUT_VARIABLE EveIsBuild

@@ -23,7 +23,6 @@
 #/cuts/setHighEdge 100 GeV
 
 
-#/mcPhysics/rangeCutForGamma  1. mm
 #/mcPhysics/printGlobalCuts
 
 

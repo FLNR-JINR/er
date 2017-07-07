@@ -24,6 +24,7 @@ set(SRCS
 ERDetector.cxx
 ERMCApplication.cxx
 ERRunSim.cxx
+ERSupport.cxx
 )
 
 # fill list of header files from list of source files
