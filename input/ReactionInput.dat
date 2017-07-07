@@ -1,0 +1,26 @@
+he8+h3->(h1+[he8)+n+n]
+Tbeam=252.49 A
+DispersionSlit=8 %
+Mechanism	TransferDecay
+FileName	t_8he
+Simulation	no
+Vertex		no
+DetectorTune	no
+TOFis		yes
+TRACKINGis	yes
+TrackCheck	yes
+WriteRawData	yes
+WriteCalData	yes
+WriteTofData	yes
+WriteTrackData	yes
+WriteTelData	yes
+WritePhysData	yes
+WritePlayData	yes
+GooodMbeam	1
+GooodMtrack	1
+GooodMp1	0
+GooodMp2	0
+GooodMp3	0
+DoubleCoinc	0
+WhatiFlag	0
+GooodSmthg	0

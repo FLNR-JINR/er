@@ -11,6 +11,7 @@ ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/data/
 ${CMAKE_SOURCE_DIR}/data/NeuRadData
 ${CMAKE_SOURCE_DIR}/data/beamtime/
+${CMAKE_SOURCE_DIR}/he8/data/
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

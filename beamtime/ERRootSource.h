@@ -1,11 +1,7 @@
 #ifndef ERRootSource_H
 #define ERRootSource_H
 
-#include <stdio.h>
-#include <map>
-#include <fstream>
-
-using namespace std;
+#include <vector>
 
 #include "TString.h"
 #include "TFile.h"
@@ -13,7 +9,7 @@ using namespace std;
 
 #include "FairSource.h"
 
-#include "TLiEvent.h"
+#include "ERRawEvent.h"
 
 class ERRootSource : public FairSource
 {
@@ -39,15 +35,17 @@ class ERRootSource : public FairSource
     virtual Bool_t ReInitUnpackers(){return kTRUE;}
 
     void SetFile(TString path, TString treeName, TString branchName);
+
+    void AddEvent(ERRawEvent* event) {fRawEvents.push_back(event);}
   private:
     TString fPath;
     TString fTreeName;
     TString fBranchName;
     TFile* fFile;
     TTree* fTree;
-    //Iput data
-    TLiEvent* fInEvent;
-    Int_t fEvent;
+    Int_t HE8Event_nevent;
+
+    std::vector<ERRawEvent*> fRawEvents;
   public:
     ClassDef(ERRootSource, 1)
 };
