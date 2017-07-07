@@ -2,7 +2,7 @@
 =======
 
 Пакет ExpertRoot обладает собственным подходом добавления распадов в процесс транспорта частиц. Этот 
-подход основан на на возможности пользователя написать свою собственную обработку Stepping Action
+подход основан на возможности пользователя написать свою собственную обработку Stepping Action
 библиотеки транспорта и возможности добавлять в стэк треков новые треки.
 
 У такого подхода есть два достоинства:
@@ -34,7 +34,7 @@
     return kFALSE;
   }
   
-Так же необходимо прверить все ли входные текстовые файлы и другие настройки распада указаны.
+Так же необходимо проверить все ли входные текстовые файлы и другие настройки распада указаны.
 
 ::
 
@@ -170,22 +170,23 @@
 
 ::
 
-    // -----   Create PrimaryGenerator   --------------------------------------
-    FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+      // -----   Create PrimaryGenerator   --------------------------------------
+      FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
-    ERIonGenerator* ionGenerator = new ERIonGenerator("10He",2,10,2,1);
-    Double32_t kin_energy = 0.025*9; //GeV
-    Double_t mass = ionGenerator->Ion()->GetMass();
-    Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
-    ionGenerator->SetPRange(momentum, momentum);
-    Double32_t theta1 = 0.;  // polar angle distribution
-    Double32_t theta2 = 0.0001*TMath::RadToDeg();
-    ionGenerator->SetThetaRange(theta1, theta2);
-    ionGenerator->SetPhiRange(0, 360);
-    ionGenerator->SetBoxXYZ(-0.4,-0.4,0.4,0.4,-10);
-    primGen->AddGenerator(ionGenerator);
-    run->SetGenerator(primGen);
-    // ------------------------------------------------------------------------
+      ERIonGenerator* ionGenerator = new ERIonGenerator("Li9",3,9,3,1);
+      Double32_t kin_energy = 0.025*9; //GeV
+      Double_t mass = ionGenerator->Ion()->GetMass();
+      Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
+      ionGenerator->SetPRange(momentum, momentum);
+      Double32_t theta1 = 0.;  // polar angle distribution
+      Double32_t theta2 = 0.0001*TMath::RadToDeg();
+      ionGenerator->SetThetaRange(theta1, theta2);
+      ionGenerator->SetPhiRange(0, 360);
+      ionGenerator->SetBoxXYZ(-0.4,-0.4,0.4,0.4,-10);
+      primGen->AddGenerator(ionGenerator);
+
+      run->SetGenerator(primGen);
+      // ------------------------------------------------------------------------
 
 Закончить инициализацию и запустить расчёт:
 
@@ -234,7 +235,10 @@ ERTextDecay - распад из текстового файла
 Первая строчка является шапкой файла и параметрами генерации. Данная информация не используется при
 реализации распада в ExpertRoot. Далее каждая строка в файле задает событие. Первое число - энергия возбуждения, также 
 не используется в добавлении распада в транспорт. Далее записаны вектора импульсов выходов распада. 
-Последняя колонка - угол реакции - тоже не используется. Все импульсы указываются в системе центра масс распада.
+Последняя колонка - угол реакции - тоже не используется. 
+
+Все импульсы указываются в системе центра масс распада. При чтении из файла импульсы переводятся в
+лабораторную СК с учётом импульса первичного иона в момент распада.
 
 Все файлы распадов должны находится в папке `input` .
 
@@ -254,10 +258,10 @@ ERTextDecay - распад из текстового файла
   decayer->AddDecay(decay);
   run->SetDecayer(decayer);
   
-При инициализации необходимо указать входной ион, выходной ион и набор ыходных частиц через массовые
-числа и pdg. Далее необходимо указать позицию распада по Z и файл распада с импулисами выходных частиц.
+При инициализации необходимо указать входной ион, выходной ион и набор выходных частиц через массовые
+числа или pdg. Далее необходимо указать позицию распада по Z и файл распада с импульсами выходных частиц.
 
-Позицию распада также можно задать с помощью раверного распределения. Это уместно для тонкой мишени.
+Позицию распада также можно задать с помощью равномерного распределения. Это уместно для тонкой мишени.
 
 ::
 

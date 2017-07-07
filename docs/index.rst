@@ -9,7 +9,7 @@
 .. note::
    Основные сервисы:
       * Redmine - http://er.jinr.ru/develop/
-      * Gitlab - http://er.jinr.ru:90/ExpertRootGroup/er
+      * github - https://github.com/ExpertRootGroup/er/
       * Jenkins - http://er.jinr.ru:8080
 
 .. toctree::
@@ -20,7 +20,7 @@
    common
    fairroot
    howto
-   develop
+   dev
    decays
    neurad
    gadast
@@ -31,3 +31,4 @@
    detdevelopment
    li10
    courses
+   faq
