@@ -42,7 +42,7 @@ public:
 protected:
   //Input arrays
   TClonesArray *fNDHits;
-  TClonesArray *fDSRDHits;
+  TClonesArray *fRTelescopeHits;
   //Output arrays
   // /TClonesArray *fNDHits;
 

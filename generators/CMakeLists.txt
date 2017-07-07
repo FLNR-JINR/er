@@ -27,6 +27,7 @@ set(SRCS
 	ERGenerator.cxx
 	ERGammaGenerator.cxx
 	ERIonGenerator.cxx
+	ERIonMixGenerator.cxx
 )
 
 # fill list of header files from list of source files

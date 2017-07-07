@@ -1,4 +1,4 @@
-void DSRD_sim(Int_t nEvents = 1){
+void RTelescope_sim(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -39,23 +39,23 @@ void DSRD_sim(Int_t nEvents = 1){
    * 3 - - GEANT Step information
   */
   Int_t verbose = 1;
-  ERDSRD* dsrd= new ERDSRD("ERDSRD", kTRUE,verbose);
-  dsrd->SetGeometryFileName("DSRD.geo.root");
-  run->AddModule(dsrd);
+  ERRTelescope* RTelescope= new ERRTelescope("ERRTelescope", kTRUE,verbose);
+  RTelescope->SetGeometryFileName("RTelescope.v2.geo.root");
+  run->AddModule(RTelescope);
   // ------------------------------------------------------------------------
 	
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   Int_t pdgId = 2212; // proton  beam
   Double32_t theta1 = 150;  // polar angle distribution
-  Double32_t theta2 = 150;
+  Double32_t theta2 = 220;
   Double32_t kin_energy = .5; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
   boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(90., 90.);
+  boxGen->SetPhiRange(0, 360);
   boxGen->SetBoxXYZ(0.,0,0.0,0.0,0.);
 
   primGen->AddGenerator(boxGen);

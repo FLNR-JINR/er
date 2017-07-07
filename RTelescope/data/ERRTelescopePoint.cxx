@@ -1,12 +1,12 @@
 // -------------------------------------------------------------------------
-// -----                      ERDSRDPoint source file                -----
+// -----                      ERRTelescopePoint source file                -----
 // -------------------------------------------------------------------------
 
-#include "ERDSRDPoint.h"
+#include "ERRTelescopePoint.h"
 #include <iostream>
 using namespace std;
 // -----   Default constructor   -------------------------------------------
-ERDSRDPoint::ERDSRDPoint()
+ERRTelescopePoint::ERRTelescopePoint()
   : FairMCPoint(),
     fX_out(0.), fY_out(0.), fZ_out(0.),
     fPx_out(0.), fPy_out(0.), fPz_out(0.),
@@ -18,7 +18,7 @@ ERDSRDPoint::ERDSRDPoint()
 
 
 // -----   Standard constructor   ------------------------------------------
-ERDSRDPoint::ERDSRDPoint(Int_t eventID, Int_t trackID,
+ERRTelescopePoint::ERRTelescopePoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
 		  Double_t mass,
 		  TVector3 posIn,
@@ -36,7 +36,7 @@ ERDSRDPoint::ERDSRDPoint(Int_t eventID, Int_t trackID,
 
 
 // -------------------------------------------------------------------------
-ERDSRDPoint::ERDSRDPoint(const ERDSRDPoint& right)
+ERRTelescopePoint::ERRTelescopePoint(const ERRTelescopePoint& right)
   : FairMCPoint(right),
     fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
     fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out),
@@ -48,7 +48,7 @@ ERDSRDPoint::ERDSRDPoint(const ERDSRDPoint& right)
 
 
 // -----   Destructor   ----------------------------------------------------
-ERDSRDPoint::~ERDSRDPoint()
+ERRTelescopePoint::~ERRTelescopePoint()
 {
 }
 // -------------------------------------------------------------------------
@@ -56,9 +56,9 @@ ERDSRDPoint::~ERDSRDPoint()
 
 
 // -----   Public method Print   -------------------------------------------
-void ERDSRDPoint::Print(const Option_t* opt /* = 0*/) const
+void ERRTelescopePoint::Print(const Option_t* opt /* = 0*/) const
 {
-  cout << "-I- ERDSRDPoint: track " << fTrackID << " mother track = " << fMot0TrackID << endl;
+  cout << "-I- ERRTelescopePoint: track " << fTrackID << " mother track = " << fMot0TrackID << endl;
   cout << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << endl;
   cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << endl;
   cout << "    Time " << fTime << " ns,  Length " << fLength << " cm" << endl;
@@ -69,7 +69,7 @@ void ERDSRDPoint::Print(const Option_t* opt /* = 0*/) const
 
 
 // -----   Point x coordinate from linear extrapolation   ------------------
-Double_t ERDSRDPoint::GetX(Double_t z) const
+Double_t ERRTelescopePoint::GetX(Double_t z) const
 {
   if ( (fZ_out-z)*(fZ-z) >= 0. ) return (fX_out+fX)/2.;
   Double_t dz = fZ_out - fZ;
@@ -80,7 +80,7 @@ Double_t ERDSRDPoint::GetX(Double_t z) const
 
 
 // -----   Point y coordinate from linear extrapolation   ------------------
-Double_t ERDSRDPoint::GetY(Double_t z) const
+Double_t ERRTelescopePoint::GetY(Double_t z) const
 {
   if ( (fZ_out-z)*(fZ-z) >= 0. ) return (fY_out+fY)/2.;
   Double_t dz = fZ_out - fZ;
@@ -92,7 +92,7 @@ Double_t ERDSRDPoint::GetY(Double_t z) const
 
 
 // -----   Public method IsUsable   ----------------------------------------
-Bool_t ERDSRDPoint::IsUsable() const
+Bool_t ERRTelescopePoint::IsUsable() const
 {
   Double_t dz = fZ_out - fZ;
   if ( TMath::Abs(dz) < 1.e-4 ) return kFALSE;
@@ -102,4 +102,4 @@ Bool_t ERDSRDPoint::IsUsable() const
 
 
 
-ClassImp(ERDSRDPoint)
+ClassImp(ERRTelescopePoint)

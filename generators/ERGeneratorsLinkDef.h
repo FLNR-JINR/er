@@ -7,5 +7,6 @@
 #pragma link C++ class ERGammaGenerator+;
 #pragma link C++ class ERGenerator+;
 #pragma link C++ class ERIonGenerator+;
+#pragma link C++ class ERIonMixGenerator+;
 
 #endif

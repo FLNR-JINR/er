@@ -1,4 +1,4 @@
-void DSRD_reco(Int_t nEvents = 10000){
+void RTelescope_reco(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "reco.root";
@@ -16,8 +16,8 @@ void DSRD_reco(Int_t nEvents = 10000){
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
  
-  // ------------------------DSRD hit producer---------------------------------
-  ERDSRDHitFinder* hitFinder = new ERDSRDHitFinder(1);
+  // ------------------------RTelescope hit producer---------------------------------
+  ERRTelescopeHitFinder* hitFinder = new ERRTelescopeHitFinder(1);
   hitFinder->SetElossDispersion(0.01);
   hitFinder->SetTimeDispersionPar(0.1);
   fRun->AddTask(hitFinder);

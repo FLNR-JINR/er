@@ -1,4 +1,4 @@
-#include "ERDSRDHitFinder.h"
+#include "ERRTelescopeHitFinder.h"
 
 #include <vector>
 
@@ -14,15 +14,15 @@
 using namespace std;
 
 #include "ERDetectorList.h"
-#include "ERDSRDPoint.h"
+#include "ERRTelescopePoint.h"
 
 
-Int_t ERDSRDHitFinder::fEvent = 0;
+Int_t ERRTelescopeHitFinder::fEvent = 0;
 // ----------------------------------------------------------------------------
-ERDSRDHitFinder::ERDSRDHitFinder()
+ERRTelescopeHitFinder::ERRTelescopeHitFinder()
   : FairTask("ER muSi hit producing scheme")
-,fDSRDPoints(NULL)
-,fDSRDHits(NULL)
+,fRTelescopePoints(NULL)
+,fRTelescopeHits(NULL)
 ,fElossDispersion(0)
 ,fTimeDispersionPar(0)
 ,fElossThreshold(0)
@@ -31,10 +31,10 @@ ERDSRDHitFinder::ERDSRDHitFinder()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERDSRDHitFinder::ERDSRDHitFinder(Int_t verbose)
+ERRTelescopeHitFinder::ERRTelescopeHitFinder(Int_t verbose)
   : FairTask("ER muSi hit producing scheme ", verbose)
-,fDSRDPoints(NULL)
-,fDSRDHits(NULL)
+,fRTelescopePoints(NULL)
+,fRTelescopeHits(NULL)
 ,fElossDispersion(0)
 ,fTimeDispersionPar(0)
 ,fElossThreshold(0)
@@ -43,13 +43,13 @@ ERDSRDHitFinder::ERDSRDHitFinder(Int_t verbose)
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERDSRDHitFinder::~ERDSRDHitFinder()
+ERRTelescopeHitFinder::~ERRTelescopeHitFinder()
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERDSRDHitFinder::SetParContainers()
+void ERRTelescopeHitFinder::SetParContainers()
 {
   // Get run and runtime database
   FairRunAna* run = FairRunAna::Instance();
@@ -61,45 +61,45 @@ void ERDSRDHitFinder::SetParContainers()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-InitStatus ERDSRDHitFinder::Init()
+InitStatus ERRTelescopeHitFinder::Init()
 {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
-  fDSRDPoints = (TClonesArray*) ioman->GetObject("DSRDPoint");
-  if (!fDSRDPoints)
-    Fatal("Init", "Can`t find collection DSRDPoint!"); 
+  fRTelescopePoints = (TClonesArray*) ioman->GetObject("RTelescopePoint");
+  if (!fRTelescopePoints)
+    Fatal("Init", "Can`t find collection RTelescopePoint!"); 
 
-  // Register output array fDSRDHits
-  fDSRDHits = new TClonesArray("ERDSRDHit",1000);
+  // Register output array fRTelescopeHits
+  fRTelescopeHits = new TClonesArray("ERRTelescopeHit",1000);
 
-  ioman->Register("DSRDHit", "DSRD hits", fDSRDHits, kTRUE);
+  ioman->Register("RTelescopeHit", "RTelescope hits", fRTelescopeHits, kTRUE);
 
-  fDSRDSetup = ERDSRDSetup::Instance();
-  fDSRDSetup->Print();
+  fRTelescopeSetup = ERRTelescopeSetup::Instance();
+  fRTelescopeSetup->Print();
    
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void ERDSRDHitFinder::Exec(Option_t* opt)
+void ERRTelescopeHitFinder::Exec(Option_t* opt)
 {
   std::cout << std::endl;
   std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
   std::cout << std::endl;
-  std::cout << "ERDSRDHitFinder: "<< std::endl;
+  std::cout << "ERRTelescopeHitFinder: "<< std::endl;
   Reset();
   //Параметры геометрии. todo - убрать отсюда.
-  Float_t Rmin = fDSRDSetup->Rmin(); //cm
-  Float_t Rmax = fDSRDSetup->Rmax(); //cm
-  Float_t dR  = (Rmax-Rmin)/fDSRDSetup->SensorNb();
-  Float_t dPhi = 360./fDSRDSetup->SectorNb();
-  Float_t z = fDSRDSetup->Z();
+  Float_t Rmin = fRTelescopeSetup->Rmin(); //cm
+  Float_t Rmax = fRTelescopeSetup->Rmax(); //cm
+  Float_t dR  = (Rmax-Rmin)/fRTelescopeSetup->SensorNb();
+  Float_t dPhi = 360./fRTelescopeSetup->SectorNb();
+  Float_t z = fRTelescopeSetup->Z();
 
-  for (Int_t iPoint = 0; iPoint < fDSRDPoints->GetEntriesFast(); iPoint++){
-    ERDSRDPoint* point = (ERDSRDPoint*)fDSRDPoints->At(iPoint);
+  for (Int_t iPoint = 0; iPoint < fRTelescopePoints->GetEntriesFast(); iPoint++){
+    ERRTelescopePoint* point = (ERRTelescopePoint*)fRTelescopePoints->At(iPoint);
     Float_t eloss = gRandom->Gaus(point->GetEnergyLoss(), fElossDispersion);
     if (eloss < fElossThreshold)
       continue;
@@ -113,33 +113,33 @@ void ERDSRDHitFinder::Exec(Option_t* opt)
     AddHit(kDSRD, pos, dpos,iPoint,eloss, time);
   }
 
-  std::cout << "Hits count: " << fDSRDHits->GetEntriesFast() << std::endl;
+  std::cout << "Hits count: " << fRTelescopeHits->GetEntriesFast() << std::endl;
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void ERDSRDHitFinder::Reset()
+void ERRTelescopeHitFinder::Reset()
 {
-  if (fDSRDHits) {
-    fDSRDHits->Delete();
+  if (fRTelescopeHits) {
+    fRTelescopeHits->Delete();
   }
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERDSRDHitFinder::Finish()
+void ERRTelescopeHitFinder::Finish()
 {   
 
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERDSRDHit* ERDSRDHitFinder::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t point_index, Float_t eloss, Float_t time)
+ERRTelescopeHit* ERRTelescopeHitFinder::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t point_index, Float_t eloss, Float_t time)
 {
-  ERDSRDHit *hit = new((*fDSRDHits)[fDSRDHits->GetEntriesFast()])
-              ERDSRDHit(fDSRDHits->GetEntriesFast(),detID, pos, dpos, point_index, eloss, time);
+  ERRTelescopeHit *hit = new((*fRTelescopeHits)[fRTelescopeHits->GetEntriesFast()])
+              ERRTelescopeHit(fRTelescopeHits->GetEntriesFast(),detID, pos, dpos, point_index, eloss, time);
   return hit;
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-ClassImp(ERDSRDHitFinder)
+ClassImp(ERRTelescopeHitFinder)
