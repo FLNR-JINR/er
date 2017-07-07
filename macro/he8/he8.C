@@ -52,7 +52,7 @@ void he8(Int_t nEvents = 20)
   timer.Start();
   std::cout << ">>> Starting run..." << std::endl;
   run->Init();
-  run->Run(0,20);
+  run->Run(0,nEvents);
 
   timer.Stop();
   

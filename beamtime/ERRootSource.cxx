@@ -55,7 +55,7 @@ Int_t ERRootSource::ReadEvent(UInt_t id){
 	//Проверяем есть ли еще события для обработки
 	if (fTree->GetEntriesFast() == ioman->GetEntryNr()+1)
 		return 1;
-	cout << "ev" << ioman->GetEntryNr() << endl;
+	//cout << "ev" << ioman->GetEntryNr() << endl;
 	fTree->GetEntry(ioman->GetEntryNr());
 
 	for (Int_t iREvent = 0; iREvent < fRawEvents.size(); iREvent++)
