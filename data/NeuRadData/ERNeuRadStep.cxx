@@ -21,7 +21,7 @@ ERNeuRadStep::ERNeuRadStep()
 // -----   Standard constructor   ------------------------------------------
 ERNeuRadStep::ERNeuRadStep(Int_t eventID, Int_t stepNr,Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t fiberInBundleNb,
+      Int_t fiberNb, Int_t pixelNb, Int_t moduleNb,
 		  TVector3 pos, 
       TVector3 mom, 
 		  Double_t tof, 
@@ -33,7 +33,7 @@ ERNeuRadStep::ERNeuRadStep(Int_t eventID, Int_t stepNr,Int_t trackID,
       Double_t charge,
       TArrayI  processID)
   : fEventID(eventID), fStepNr(stepNr), fTrackID(trackID), fMot0TrackID(mot0trackID),
-    fFiberInBundleNb(fiberInBundleNb),
+    fFiberNb(fiberNb),fPixelNb(pixelNb),fModuleNb(moduleNb),
     fX(pos.X()), fY(pos.Y()), fZ(pos.Z()),
     fPx(mom.X()), fPy(mom.Y()), fPz(mom.Z()),
     fTOF(tof), fLength(length), fPID(pid), fMass(mass),
@@ -50,8 +50,8 @@ ERNeuRadStep::ERNeuRadStep(Int_t eventID, Int_t stepNr,Int_t trackID,
 // -------------------------------------------------------------------------
 ERNeuRadStep::ERNeuRadStep(const ERNeuRadStep& right)
   : fEventID(right.fEventID),  fStepNr(right.fStepNr), fTrackID(right.fTrackID), 
-    fMot0TrackID(right.fMot0TrackID), fFiberInBundleNb(right.fFiberInBundleNb),
-    fX(right.fX), fY(right.fY), fZ(right.fZ),
+    fMot0TrackID(right.fMot0TrackID), fFiberNb(right.fFiberNb),fPixelNb(right.fPixelNb),
+    fModuleNb(right.fModuleNb),fX(right.fX), fY(right.fY), fZ(right.fZ),
     fPx(right.fPx), fPy(right.fPy), fPz(right.fPz),
     fTOF(right.fTOF), fLength(right.fLength), fPID(right.fPID),fMass(right.fMass),
     fTrackStatus(right.fTrackStatus),

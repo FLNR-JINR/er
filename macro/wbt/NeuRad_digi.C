@@ -25,7 +25,6 @@ void NeuRad_digi(Int_t nEvents = 10000){
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
-  digitizer->SetPixelThreshold(2.);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   

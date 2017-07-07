@@ -214,7 +214,7 @@ void ERStack::AddParticle(TParticle* oldPart)
 void ERStack::FillTrackArray()
 {
 
-  std::cout << "Filling MCTrack array..." << std::endl;
+  // std::cout << "Filling MCTrack array..." << std::endl;
   //cerr << fNParticles << endl;
   // --> Reset index map and number of output tracks
   fIndexMap.clear();
@@ -261,7 +261,7 @@ void ERStack::FillTrackArray()
 void ERStack::UpdateTrackIndex(TRefArray* detList)
 {
 
-  std::cout << "Updating track indizes..." << std::endl;
+  // std::cout << "Updating track indizes..." << std::endl;
   Int_t nColl = 0;
 
   // First update mother ID in MCTracks
@@ -308,7 +308,7 @@ void ERStack::UpdateTrackIndex(TRefArray* detList)
   }     // List of active detectors
 
   delete detIter;
-  std::cout << "...stack and " << nColl << " collections updated." << std::endl;
+  // std::cout << "...stack and " << nColl << " collections updated." << std::endl;
 
 }
 // -------------------------------------------------------------------------
@@ -342,12 +342,12 @@ void ERStack::Register()
 // -----   Public method Print  --------------------------------------------
 void ERStack::Print(Int_t iVerbose) const
 {
-  std::cout << "Number of primaries        = "
-            << fNPrimaries << std::endl;
-  std::cout << "Total number of particles  = "
-            << fNParticles << std::endl;
-  std::cout << "Number of tracks in output = "
-            << fNTracks << std::endl;
+  // std::cout << "Number of primaries        = "
+  //           << fNPrimaries << std::endl;
+  // std::cout << "Total number of particles  = "
+  //           << fNParticles << std::endl;
+  // std::cout << "Number of tracks in output = "
+  //           << fNTracks << std::endl;
   /*for (Int_t iTrack=0; iTrack<fNTracks; iTrack++) {
     ((ERMCTrack*) fTracks->At(iTrack))->Print(iTrack);
   }*/
@@ -413,7 +413,7 @@ TParticle* ERStack::GetParticle(Int_t trackID) const
 void ERStack::SelectTracks()
 {
 
-  cerr << "SelectTracks" << endl;
+  // cerr << "SelectTracks" << endl;
   // --> Clear storage map
   fStoreMap.clear();
 

@@ -14,11 +14,11 @@ using namespace std;
 #include "FairRuntimeDb.h"
 #include "FairEventHeader.h"
 
-#include "ERNeuRadPMTSignal.h"
+#include "ERNeuRadPixelSignal.h"
 
 // ----------------------------------------------------------------------------
 ERNeuRadViewer::ERNeuRadViewer()
-  : fNeuRadPMTSignals(NULL),
+  : fNeuRadPixelSignals(NULL),
     FairTask("ER NeuRad Viewer")
 {
 }
@@ -26,7 +26,7 @@ ERNeuRadViewer::ERNeuRadViewer()
 
 // ----------------------------------------------------------------------------
 ERNeuRadViewer::ERNeuRadViewer(Int_t verbose)
-  : fNeuRadPMTSignals(NULL),
+  : fNeuRadPixelSignals(NULL),
     FairTask("ER NeuRad Viewer", verbose)
 {
 }
@@ -57,7 +57,9 @@ InitStatus ERNeuRadViewer::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
-  fNeuRadPMTSignals = (TClonesArray*) ioman->GetObject("NeuRadPMTSignal");
+  fNeuRadPixelSignals = (TClonesArray*) ioman->GetObject("NeuRadPixelSignal");
+  if ( ! fNeuRadPixelSignals) Fatal("ERNeuRadViewer::Init","No NeuRadPixelSignal Collection in input file");
+
   fFile = FairRunAna::Instance()->GetOutputFile();
   return kSUCCESS;
 }
@@ -66,14 +68,16 @@ InitStatus ERNeuRadViewer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERNeuRadViewer::Exec(Option_t* opt)
 {
+  
   TString dirTitle;
   dirTitle.Form("Event%d",FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber());
   TDirectory* dir = fFile->mkdir(dirTitle.Data());
+
   dir->cd();
   TDirectory* front = dir->mkdir("front");
   TDirectory* back = dir->mkdir("back");
-  for (Int_t iSignal = 0; iSignal < fNeuRadPMTSignals->GetEntriesFast(); iSignal++){
-    ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)fNeuRadPMTSignals->At(iSignal);
+  for (Int_t iSignal = 0; iSignal < fNeuRadPixelSignals->GetEntriesFast(); iSignal++){
+    ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fNeuRadPixelSignals->At(iSignal);
     
     TArrayF* result = signal->ResultSignal();
     Int_t count = (Int_t)(signal->FinishTime()-signal->StartTime())/signal->dT();
@@ -84,7 +88,7 @@ void ERNeuRadViewer::Exec(Option_t* opt)
     TGraph* gr = new TGraph(count,times,result->GetArray());
     TString title;
     title.Form("PMT Signal, side %d,%d fiber, %d module, %d pe, %d", signal->Side(),
-                        signal->FiberIndex(), signal->ModuleIndex(), signal->PECount(),
+                        signal->PixelNb(), signal->ModuleNb(), signal->PECount(),
                         FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber());
     gr->SetTitle(title);
     if (signal->Side() == 0)
@@ -94,6 +98,7 @@ void ERNeuRadViewer::Exec(Option_t* opt)
     gr->Write();
     delete gr;
     delete [] times;
+
   }
   fFile->cd();
 }

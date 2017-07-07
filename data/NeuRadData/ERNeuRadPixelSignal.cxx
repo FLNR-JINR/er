@@ -1,20 +1,18 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadPMTSignal source file           -----
+// -----                      ERNeuRadPixelSignal source file           -----
 // -------------------------------------------------------------------------
-#include "ERNeuRadPMTSignal.h"
+#include "ERNeuRadPixelSignal.h"
 #include "TMath.h"
 #include <iostream>
 
 using namespace std;
 
-const Double_t ERNeuRadPMTSignal::cdT = 0.1; //ns
+const Double_t ERNeuRadPixelSignal::cdT = 0.1; //ns
 
-ERNeuRadPMTSignal::ERNeuRadPMTSignal():
-	fModuleIndex(-1),
-	fFiberIndex(-1),
+ERNeuRadPixelSignal::ERNeuRadPixelSignal():
+	fModuleNb(-1),
+	fPixelNb(-1),
 	fPECount(0),
-	fPEAmplitudes(NULL),
-	fPEAnodeTimes(NULL),
 	fPETimes(NULL),
 	fCurFPoint(0),
 	fStartTime(99999999.),
@@ -23,12 +21,10 @@ ERNeuRadPMTSignal::ERNeuRadPMTSignal():
 {
 }
 
-ERNeuRadPMTSignal::ERNeuRadPMTSignal(Int_t iModule, Int_t iFiber, Int_t pe_count, Int_t side):
-	fModuleIndex(iModule),
-	fFiberIndex(iFiber),
+ERNeuRadPixelSignal::ERNeuRadPixelSignal(Int_t iModule, Int_t iPixel, Int_t pe_count, Int_t side):
+	fModuleNb(iModule),
+	fPixelNb(iPixel),
 	fPECount(pe_count),
-	fPEAmplitudes(new Double_t[pe_count]),
-	fPEAnodeTimes(new Double_t[pe_count]),
 	fPETimes(new Int_t[pe_count]),
 	fCurFPoint(0),
 	fStartTime(99999999.),
@@ -36,17 +32,17 @@ ERNeuRadPMTSignal::ERNeuRadPMTSignal(Int_t iModule, Int_t iFiber, Int_t pe_count
 	fSide(side),
 	fPEAmplitudesSum(0)
 {
+	fPEAmplitudes.Set(pe_count);
+	fPEAnodeTimes.Set(pe_count);
 }
 
-ERNeuRadPMTSignal::~ERNeuRadPMTSignal(){
-	delete [] fPEAmplitudes;
-	delete [] fPEAnodeTimes;
+ERNeuRadPixelSignal::~ERNeuRadPixelSignal(){
 	delete [] fPETimes;
 }
 
-void ERNeuRadPMTSignal::AddPhotoElectron(ERNeuRadPhotoElectron* pe){
+void ERNeuRadPixelSignal::AddPhotoElectron(ERNeuRadPhotoElectron* pe){
 	//Добавляет фотоэлектрон к сигналу на PMT
-	fPEAmplitudes[fCurFPoint]	= pe->Amplitude();
+	fPEAmplitudes[fCurFPoint] = pe->Amplitude();
 	fPEAnodeTimes[fCurFPoint] = pe->AnodeTime();
 	//Вычисление длины фотоэлектронного сигнала в количестве cdT
 	fPETimes[fCurFPoint] = 40.;//OnePETime(pe->Amplitude());
@@ -63,7 +59,7 @@ void ERNeuRadPMTSignal::AddPhotoElectron(ERNeuRadPhotoElectron* pe){
 }
 
 
-void ERNeuRadPMTSignal::Generate(){
+void ERNeuRadPixelSignal::Generate(){
 	//добавление к общему сигналу
 	//Количество узлов во внешнем сигнале
 	Int_t gdTCount = (fFinishTime - fStartTime)/cdT;
@@ -94,12 +90,12 @@ void ERNeuRadPMTSignal::Generate(){
 	fResFunctionRoot.Adopt(gdTCount,fResFunction);
 }
 
-Double_t ERNeuRadPMTSignal::OnePEFunction(Double_t time, Double_t amplitude){
+Double_t ERNeuRadPixelSignal::OnePEFunction(Double_t time, Double_t amplitude){
 	//Аналитическая функция одноэлектронного сигнала
-	return 8.*amplitude*time*TMath::Exp(-time/0.35);
+	return 8.*amplitude*time*time*TMath::Exp(-time/0.45);
 }
 
-Int_t ERNeuRadPMTSignal::OnePETime(Double_t amplitude){
+Int_t ERNeuRadPixelSignal::OnePETime(Double_t amplitude){
 	//Вычисляем время сигнала одноэлектрона в количестве cdT.
 	Int_t counts = 0;
 	//Насчитываем отрезк времени пока сигнал имеет существенное для нас значение.
@@ -119,7 +115,7 @@ Int_t ERNeuRadPMTSignal::OnePETime(Double_t amplitude){
 	return counts-1;
 }
 
-std::vector<Double_t> ERNeuRadPMTSignal::Intersections(Double_t discriminatorThreshold)
+std::vector<Double_t> ERNeuRadPixelSignal::Intersections(Double_t discriminatorThreshold)
 {
 	//Возвращает точки пересечения с сигналом порога discriminatorThreshold
 	std::vector<Double_t> intersections;
@@ -139,7 +135,7 @@ std::vector<Double_t> ERNeuRadPMTSignal::Intersections(Double_t discriminatorThr
 	return intersections;
 } 
 
- Double_t ERNeuRadPMTSignal::Integ(const Double_t start,const Double_t finish){
+ Double_t ERNeuRadPixelSignal::Integ(const Double_t start,const Double_t finish){
   //Вычисления интеграла сигнала методом трапеций
   if (finish<fStartTime)
     return 0;
@@ -161,7 +157,7 @@ std::vector<Double_t> ERNeuRadPMTSignal::Intersections(Double_t discriminatorThr
   return res;
  }
 
- Double_t ERNeuRadPMTSignal::FirstInteg(const Double_t window){
+ Double_t ERNeuRadPixelSignal::FirstInteg(const Double_t window){
  	//Возвращает интеграл сигнала в окне window, начиная с начального узла сигнала
  	if ((fStartTime + window) > fFinishTime )
  	  return Integ(fStartTime, fFinishTime);
@@ -169,7 +165,7 @@ std::vector<Double_t> ERNeuRadPMTSignal::Intersections(Double_t discriminatorThr
  		return Integ(fStartTime, fStartTime+window);
  }
 
- Float_t ERNeuRadPMTSignal::ThresholdTime(Float_t peThreshold){
+ Float_t ERNeuRadPixelSignal::ThresholdTime(Float_t peThreshold){
  	//Возвращает время пересечения сигнала порога peThreshold [количество фотоэлектронов]
  	Int_t i = 0;
  	while((fResFunctionRoot[i] < peThreshold*OnePEIntegral()) && i < (fResFunctionRoot.GetSize()-1)){
@@ -184,7 +180,7 @@ std::vector<Double_t> ERNeuRadPMTSignal::Intersections(Double_t discriminatorThr
  	return (peThreshold*OnePEIntegral()-fResFunctionRoot[prevI])/(fResFunctionRoot[lastI]-fResFunctionRoot[prevI])*(lastT-prevT)+prevT;
  }
 
-Double_t ERNeuRadPMTSignal::OnePEIntegral(){
+Double_t ERNeuRadPixelSignal::OnePEIntegral(){
 	Double_t res = 0.;
 	for (Int_t i=0; i<39; i++){
 		res += 0.5*(OnePEFunction(i*cdT,8.) + OnePEFunction((i+1)*cdT,8.))*cdT;
@@ -192,4 +188,4 @@ Double_t ERNeuRadPMTSignal::OnePEIntegral(){
 	return res;
 }
 
-ClassImp(ERNeuRadPMTSignal)
+ClassImp(ERNeuRadPixelSignal)

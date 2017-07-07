@@ -12,7 +12,7 @@
 #include<iostream>
 
 #include "ERDetectorList.h"
-#include "ERNeuRadPMTSignal.h"
+#include "ERNeuRadPixelSignal.h"
 #include "ERNeuRadSetup.h"
 
 using namespace std;
@@ -88,15 +88,15 @@ void ERNeuRadHitFinderWBT::Exec(Option_t* opt)
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
 
   for (Int_t iSignal=0; iSignal <  fNeuRadPMTSignals->GetEntriesFast(); iSignal++){
-    ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)fNeuRadPMTSignals->At(iSignal);
+    ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fNeuRadPMTSignals->At(iSignal);
     if (signal->Side() == 0){
       //Float_t qInteg = signal->GetInteg(signal->GetStartTime(), signal->GetFinishTime());
       Float_t qInteg = signal->AmplitudesSum();
-      TVector3 pos(setup->FiberX(signal->ModuleIndex(), signal->FiberIndex()),
-                   setup->FiberY(signal->ModuleIndex(), signal->FiberIndex()),
+      TVector3 pos(setup->FiberX(signal->ModuleNb(), signal->PixelNb()),
+                   setup->FiberY(signal->ModuleNb(), signal->PixelNb()),
                    setup->Z()-setup->FiberLength());
       TVector3 dpos(0,0,0);
-      AddHit(kNEURAD,pos, dpos,signal->ModuleIndex(),signal->FiberIndex(), -1, qInteg);
+      AddHit(kNEURAD,pos, dpos,signal->ModuleNb(),signal->PixelNb(), -1, qInteg);
     }
   }
   std::cout << "Hits count: " << fNeuRadHits->GetEntriesFast() << std::endl;
@@ -121,11 +121,11 @@ void ERNeuRadHitFinderWBT::Finish()
 
 // ----------------------------------------------------------------------------
 ERNeuRadHitWBT* ERNeuRadHitFinderWBT::AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
-                                           Int_t  ModuleIndex, Int_t FiberIndex, Float_t time,
+                                           Int_t  ModuleNb, Int_t PixelNb, Float_t time,
                                            Float_t qInteg)
 {
   ERNeuRadHitWBT *hit = new((*fNeuRadHits)[fNeuRadHits->GetEntriesFast()])
-              ERNeuRadHitWBT(fNeuRadHits->GetEntriesFast(),detID, pos, dpos,-1, ModuleIndex, FiberIndex, time, 
+              ERNeuRadHitWBT(fNeuRadHits->GetEntriesFast(),detID, pos, dpos,-1, ModuleNb, PixelNb, time, 
                           qInteg);
   return hit;
 }

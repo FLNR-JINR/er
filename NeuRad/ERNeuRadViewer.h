@@ -39,7 +39,7 @@ public:
   /** Accessors **/
 protected:
   //Input arrays
-  TClonesArray *fNeuRadPMTSignals;
+  TClonesArray *fNeuRadPixelSignals;
   
   //Outputs
   TFile* fFile;

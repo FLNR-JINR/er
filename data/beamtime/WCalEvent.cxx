@@ -24,9 +24,21 @@ void WCalEvent::Clear(Option_t * /*option*/)
 	fNumOfHits = 0;     // Hakuna Matata
 }
 
-WCalHit* WCalEvent::AddHit(UChar_t p_ch, Float_t p_adcCalib)
-{
+//WCalHit* WCalEvent::AddHit(UChar_t p_ch, Float_t p_adcCalib)
+//{
+//	TClonesArray &hits = *fHits;
+////	WCalHit *hit = new(hits[fNumOfHits++]) WCalHit(p_ch, p_adcCalib);
+////	WCalHit *hit = new(hits[fNumOfHits++]) WCalHit(p_ch, p_adcCalib);
+//	return hit;
+//}
+
+WCalHit* WCalEvent::AddHit(UChar_t p_ch, Int_t p_adc, Float_t p_adcNonLin,
+		Float_t p_adcNonLinCorr, Float_t p_adcCalib) {
+
 	TClonesArray &hits = *fHits;
-	WCalHit *hit = new(hits[fNumOfHits++]) WCalHit(p_ch, p_adcCalib);
+
+//	std::cout << p_adcCalib << std::endl;
+
+	WCalHit *hit = new(hits[fNumOfHits++]) WCalHit(p_ch, p_adc, p_adcNonLin, p_adcNonLinCorr, p_adcCalib);
 	return hit;
 }

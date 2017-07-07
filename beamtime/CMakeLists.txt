@@ -9,6 +9,7 @@ ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/data/
+${CMAKE_SOURCE_DIR}/data/NeuRadData
 ${CMAKE_SOURCE_DIR}/data/beamtime/
 )
 
@@ -32,6 +33,7 @@ set(SRCS
 	ERNXyterTreeSource.cxx
 	ERNXyterCalibrator.cxx
 	ERpmtPixelMap.cxx
+	ERSimtoRaw.cxx
 )
 
 # fill list of header files from list of source files

@@ -12,7 +12,7 @@
 #include<iostream>
 
 #include "ERDetectorList.h"
-#include "ERNeuRadPMTSignal.h"
+#include "ERNeuRadPixelSignal.h"
 #include "ERNeuRadSetup.h"
 
 using namespace std;
@@ -85,11 +85,11 @@ void ERNeuRadHitFinder::Exec(Option_t* opt)
   Reset();
   Float_t fOnePEInteg = 4.8;
   Int_t hitNumber=0;
-  ERNeuRadPMTSignal* targetHitSignal = NULL;
+  ERNeuRadPixelSignal* targetHitSignal = NULL;
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
 
   for (Int_t iSignal=0; iSignal <  fNeuRadPMTSignals->GetEntriesFast(); iSignal++){
-    ERNeuRadPMTSignal* signal = (ERNeuRadPMTSignal*)fNeuRadPMTSignals->At(iSignal);
+    ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fNeuRadPMTSignals->At(iSignal);
     cerr << "0" << endl;
     if (signal->Side()==0){
       //Ищем пару с другой стороны
@@ -97,8 +97,8 @@ void ERNeuRadHitFinder::Exec(Option_t* opt)
       Bool_t founded=kFALSE;
       Int_t jBackSignal = -1;
       for (Int_t jSignal=0; jSignal<fNeuRadPMTSignals->GetEntriesFast(); jSignal++){
-        ERNeuRadPMTSignal* signalBack = (ERNeuRadPMTSignal*)fNeuRadPMTSignals->At(jSignal);
-        if (signalBack->Side() == 1 && signalBack->ModuleIndex()==signal->ModuleIndex() && signalBack->FiberIndex()==signal->FiberIndex()){
+        ERNeuRadPixelSignal* signalBack = (ERNeuRadPixelSignal*)fNeuRadPMTSignals->At(jSignal);
+        if (signalBack->Side() == 1 && signalBack->ModuleNb()==signal->ModuleNb() && signalBack->PixelNb()==signal->PixelNb()){
           founded=kTRUE;
           jBackSignal = jSignal;
           break;
@@ -106,7 +106,7 @@ void ERNeuRadHitFinder::Exec(Option_t* opt)
       }
 
       if (founded){
-        ERNeuRadPMTSignal* signalBack = (ERNeuRadPMTSignal*)fNeuRadPMTSignals->At(jBackSignal);
+        ERNeuRadPixelSignal* signalBack = (ERNeuRadPixelSignal*)fNeuRadPMTSignals->At(jBackSignal);
         cerr << signal->FullInteg() << " " << fPixelThreshold*signal->OnePEIntegral()<< " " <<signalBack->FullInteg()<< endl;
         if (signal->FullInteg() > fPixelThreshold*signal->OnePEIntegral() && signalBack->FullInteg() > fPixelThreshold*signal->OnePEIntegral()){
           targetHitSignal = signal;
@@ -118,11 +118,11 @@ void ERNeuRadHitFinder::Exec(Option_t* opt)
     }
   }
   if (hitNumber == 1){
-    TVector3 pos(setup->FiberX(targetHitSignal->ModuleIndex(), targetHitSignal->FiberIndex()),
-                 setup->FiberY(targetHitSignal->ModuleIndex(), targetHitSignal->FiberIndex()),
+    TVector3 pos(setup->FiberX(targetHitSignal->ModuleNb(), targetHitSignal->PixelNb()),
+                 setup->FiberY(targetHitSignal->ModuleNb(), targetHitSignal->PixelNb()),
                  setup->Z()-setup->FiberLength());
     TVector3 dpos(0,0,0);
-    AddHit(kNEURAD,pos, dpos,targetHitSignal->ModuleIndex(),targetHitSignal->FiberIndex(),targetHitSignal->FullInteg());
+    AddHit(kNEURAD,pos, dpos,targetHitSignal->ModuleNb(),targetHitSignal->PixelNb(),targetHitSignal->FullInteg());
   }
   std::cout << "Hits count: " << fNeuRadHits->GetEntriesFast() << std::endl;
 }
@@ -146,10 +146,10 @@ void ERNeuRadHitFinder::Finish()
 
 // ----------------------------------------------------------------------------
 ERNeuRadHit* ERNeuRadHitFinder::AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
-                                           Int_t  ModuleIndex, Int_t FiberIndex, Float_t time)
+                                           Int_t  ModuleNb, Int_t PixelNb, Float_t time)
 {
   ERNeuRadHit *hit = new((*fNeuRadHits)[fNeuRadHits->GetEntriesFast()])
-              ERNeuRadHit(fNeuRadHits->GetEntriesFast(),detID, pos, dpos,-1, ModuleIndex, FiberIndex, time);
+              ERNeuRadHit(fNeuRadHits->GetEntriesFast(),detID, pos, dpos,-1, ModuleNb, PixelNb, time);
   return hit;
 }
 // ----------------------------------------------------------------------------

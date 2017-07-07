@@ -43,7 +43,8 @@ void AEvent::ProcessEvent(Bool_t bSmooth) {
 		fTime[j] = time[j];
 	}
 
-	fZeroLevel = FindZeroLevel();
+//	fZeroLevel = FindZeroLevel();
+	fZeroLevel = 0.;
 	for(Int_t j = 0; j < fNPoints; j++) {
 		fAmpPos[j] = fAmpPos[j] - fZeroLevel;
 	}
@@ -61,11 +62,14 @@ void AEvent::ProcessEvent(Bool_t bSmooth) {
 		SetGraphs();
 	}
 
+
+
 	SetCFD();
 	SetChargeCFD();
 	SetChargeLED();
 	SetChargeTF();
 	SetToT();
+	ObtainPE();
 
 	return;
 
@@ -443,3 +447,63 @@ void AEvent::SetToT() {
 	//cout<<"ftot "<<fToT<<endl;
 
 }
+
+void AEvent::SetPEamp(Float_t a, Int_t i) {
+//      cout << fNPoints << endl;
+        if (i >= fPECount) {
+                Error("AEvent::SetAmp", "Array with raw amplitudes is overloaded!");
+                return;
+        }
+        fPEAmplitudes[i] = a;
+        return;
+}
+
+void AEvent::SetPEtime(Float_t a, Int_t i) {
+        if (i >= fPECount) {
+                Error("AEvent::SetAmp", "Array with raw amplitudes is overloaded!");
+                return;
+        }
+        fPEAnodeTimes[i] = a;
+        return;
+}
+
+void AEvent::SetPECount(Int_t i) {
+        fPECount = i;
+        return;
+}
+
+void AEvent::ObtainPE() {
+
+	SetPECount(fInputEvent->GetPECount());
+	SetStartTime(fInputEvent->GetStartTime());
+	for(Int_t i=0; i< fPECount;i++) {
+		SetPEamp(fInputEvent->GetPEamp(i),i);
+		SetPEtime(fInputEvent->GetPEtime(i),i);
+	}
+	return;     
+}
+
+        Float_t AEvent::GetPEamp(Int_t i) {
+                return fPEAmplitudes[i];
+        }
+        Float_t AEvent::GetPEtime(Int_t i) {
+                return fPEAnodeTimes[i];
+        }
+        Int_t AEvent::GetPECount() {
+                return fPECount;
+        }
+	Double_t AEvent::GetStartTime() {
+		return fStartTime;
+	}
+	void AEvent::SetStartTime(Double_t t) {
+		fStartTime = t;
+		return;
+	}
+        Double_t AEvent::GetFinishTime() {
+                return fFinishTime;
+        }
+        void AEvent::SetFinishTime(Double_t t) {
+                fFinishTime = t;
+                return;
+        }
+
