@@ -1,5 +1,5 @@
 # ExpertRoot
-Program tools for simulation and reconstruction EXPERT expirement events
+Program tools for simulation, reconstruction, data acquisition and analysis of low energy physics experiments
 
 ## Step by Step installation
 ### 1. Install [FairSoft](https://github.com/FairRootGroup/FairSoft/tree/dev)
