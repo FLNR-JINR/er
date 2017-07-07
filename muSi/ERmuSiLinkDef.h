@@ -10,4 +10,9 @@
 #pragma link C++ class ERmuSiMatcher+;
 #pragma link C++ class ERmuSiVertexFinder+;
 
+#pragma link C++ class ERmuSiPoint+;
+#pragma link C++ class ERmuSiHit+;
+#pragma link C++ class ERmuSiTrack+;
+#pragma link C++ class ERmuSiVertex+;
+
 #endif

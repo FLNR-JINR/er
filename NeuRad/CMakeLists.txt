@@ -6,9 +6,9 @@ set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
 ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
-${CMAKE_SOURCE_DIR}/data/NeuRadData/
 ${CMAKE_SOURCE_DIR}/data/
 ${CMAKE_SOURCE_DIR}/NeuRad/
+${CMAKE_SOURCE_DIR}/NeuRad/data
 ${CMAKE_SOURCE_DIR}/base/
 )
 
@@ -34,6 +34,13 @@ set(SRCS
 	ERNeuRadHitFinderWBT.cxx
 	ERNeuRadMatcher.cxx
 	ERNeuRadViewer.cxx
+	data/ERNeuRadPoint.cxx
+	data/ERNeuRadPhotoElectron.cxx
+	data/ERNeuRadPixelSignal.cxx
+	data/ERNeuRadDigi.cxx
+	data/ERNeuRadStep.cxx
+	data/ERNeuRadHit.cxx
+	data/ERNeuRadHitWBT.cxx
 )
 
 # fill list of header files from list of source files

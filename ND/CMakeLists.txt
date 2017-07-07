@@ -4,12 +4,12 @@
 
 set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
-${CMAKE_SOURCE_DIR}/data/NDData/
 ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/data/
 ${CMAKE_SOURCE_DIR}/ND/
+${CMAKE_SOURCE_DIR}/ND/data
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -25,6 +25,8 @@ set(SRCS
 ERND.cxx
 ERNDHitFinder.cxx
 ERNDSetup.cxx
+data/ERNDPoint.cxx
+data/ERNDHit.cxx
 )
 
 # fill list of header files from list of source files

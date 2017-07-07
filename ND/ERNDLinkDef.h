@@ -8,4 +8,7 @@
 #pragma link C++ class ERNDHitFinder+;
 #pragma link C++ class ERNDSetup+;
 
+#pragma link C++ class ERNDPoint+;
+#pragma link C++ class ERNDHit+;
+
 #endif
