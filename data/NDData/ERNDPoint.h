@@ -41,7 +41,7 @@ class ERNDPoint : public FairMCPoint
    **/
   ERNDPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
-		  Double_t mass,
+		  Int_t pdg,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
 		  Double_t tof, Double_t length, Double_t eLoss, Int_t stilbenNr, Float_t lightYield);
@@ -99,6 +99,7 @@ class ERNDPoint : public FairMCPoint
   Double32_t fPx_out, fPy_out, fPz_out;
   Int_t fStilbenNr;
   Float_t fLightYield;
+  Int_t fPdg;
 
   ClassDef(ERNDPoint,1)
 };

@@ -27,28 +27,21 @@ void SetCuts()
   gMC->SetProcess("DRAY",0); /**delta-ray*/
   gMC->SetProcess("ANNI",1); /**annihilation*/
   gMC->SetProcess("BREM",1); /**bremsstrahlung*/
-  //gMC->SetProcess("HADR",1); /**hadronic process*/
   gMC->SetProcess("HADR",5); /**hadronic process*/
   gMC->SetProcess("MUNU",1); /**muon nuclear interaction*/
   gMC->SetProcess("DCAY",1); /**decay*/
-  gMC->SetProcess("LOSS",2); /**energy loss*/
-//  gMC->SetProcess("LOSS",3); /**energy loss*/
+  gMC->SetProcess("LOSS",3); /**energy loss*/
   gMC->SetProcess("MULS",1); /**multiple scattering*/
  
-  Double_t cut1 = 1.0E-3;         // MeV --> 1 keV
+  Double_t cut1 = 0.;         // MeV --> 1 keV
   //Double_t cut1 = 1.0E-6;
-  Double_t cut2 = 1.0E-3;
+  Double_t cut2 = 0.;
   //Double_t cut2 = 1.0E-6;         // MeV --> 100 keV
   Double_t cutb = 1.0E4;          // GeV --> 10 TeV
   Double_t tofmax = 1.E10;        // seconds
   cout << "SetCuts Macro: Setting cuts.." <<endl;
   
   gMC->SetCut("CUTGAM",cut2);   /** gammas (GeV)*/
-  //gMC->SetCut("CUTGAM",2.09434E-9);   /** gammas (GeV)*/
-  //gMC->SetCut("CUTELE",281.891E-9);   /** electrons (GeV)*/
-  //gMC->SetCut("CUTELE",281.891E-9);   /** electrons (GeV)*/
-  //gMC->SetCut("CUTNEU",70E-9);   /** neutral hadrons (GeV)*/
-  //gMC->SetCut("CUTHAD",70E-9);   /** charged hadrons (GeV)*/
   gMC->SetCut("CUTGAM",cut1);   /** gammas (GeV)*/
   gMC->SetCut("CUTELE",cut1);   /** electrons (GeV)*/
   gMC->SetCut("CUTELE",cut1);   /** electrons (GeV)*/
