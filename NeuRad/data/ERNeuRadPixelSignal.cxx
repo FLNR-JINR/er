@@ -13,7 +13,6 @@ ERNeuRadPixelSignal::ERNeuRadPixelSignal():
 	fModuleNb(-1),
 	fPixelNb(-1),
 	fPECount(0),
-	fPETimes(NULL),
 	fCurFPoint(0),
 	fStartTime(99999999.),
 	fFinishTime(-1.),
@@ -25,7 +24,6 @@ ERNeuRadPixelSignal::ERNeuRadPixelSignal(Int_t iModule, Int_t iPixel, Int_t pe_c
 	fModuleNb(iModule),
 	fPixelNb(iPixel),
 	fPECount(pe_count),
-	fPETimes(new Int_t[pe_count]),
 	fCurFPoint(0),
 	fStartTime(99999999.),
 	fFinishTime(-1.),
@@ -34,10 +32,10 @@ ERNeuRadPixelSignal::ERNeuRadPixelSignal(Int_t iModule, Int_t iPixel, Int_t pe_c
 {
 	fPEAmplitudes.Set(pe_count);
 	fPEAnodeTimes.Set(pe_count);
+	fPETimes.Set(pe_count);
 }
 
 ERNeuRadPixelSignal::~ERNeuRadPixelSignal(){
-	delete [] fPETimes;
 }
 
 void ERNeuRadPixelSignal::AddPhotoElectron(ERNeuRadPhotoElectron* pe){
@@ -62,7 +60,7 @@ void ERNeuRadPixelSignal::AddPhotoElectron(ERNeuRadPhotoElectron* pe){
 void ERNeuRadPixelSignal::Generate(){
 	//добавление к общему сигналу
 	//Количество узлов во внешнем сигнале
-	Int_t gdTCount = (fFinishTime - fStartTime)/cdT;
+	Int_t gdTCount = (fFinishTime - fStartTime)/cdT+1;
 	fResFunction = new Float_t[gdTCount];
 
 	for (Int_t i = 0; i < gdTCount; i++)

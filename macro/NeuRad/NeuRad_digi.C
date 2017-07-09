@@ -1,8 +1,8 @@
 void NeuRad_digi(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "sim.root";
+  TString inFile = "/home/vitaliy/sim.root";
   TString outFile = "digi.root";
-  TString parFile = "par.root";
+  TString parFile = "/home/vitaliy/par.root";
   TString parOutFile = "parOut.root";
   // ------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------

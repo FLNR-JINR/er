@@ -11,6 +11,7 @@
 #include "TObject.h"
 #include "TVector3.h"
 #include "TArrayF.h"
+#include "TArrayI.h"
 
 #include <map>
 
@@ -32,7 +33,7 @@ protected:
   //Массив времен прихоа на анод фотоэлектронов сигнала
   TArrayF fPEAnodeTimes;
   //Массив длин одноэлектронных сигналов
-  Int_t *fPETimes;     //!
+  TArrayI fPETimes;     //!
   //Количество фотоэлектронов в сигнале
   Int_t fPECount;
 

@@ -28,10 +28,5 @@
 #pragma link C++ class WCalHit+;
 #pragma link C++ class WCalEvent+;
 
-#pragma link C++ class ERHe8EventHeader+;
-#pragma link C++ class ERRawEvent+;
-#pragma link C++ class ERParticle+;
-
-
 
 #endif
