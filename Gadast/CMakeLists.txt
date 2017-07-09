@@ -6,10 +6,10 @@ set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
 ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
-${CMAKE_SOURCE_DIR}/data/GadastData/
 ${CMAKE_SOURCE_DIR}/data/
 ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/Gadast/
+${CMAKE_SOURCE_DIR}/Gadast/data
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -28,6 +28,10 @@ ERGadastGeoPar.cxx
 ERGadastContFact.cxx
 ERGadastSetup.cxx
 ERGadastDigitizer.cxx
+data/ERGadastCsIPoint.cxx
+data/ERGadastLaBrPoint.cxx
+data/ERGadastStep.cxx
+data/ERGadastDigi.cxx
 )
 
 # fill list of header files from list of source files

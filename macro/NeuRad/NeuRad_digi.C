@@ -1,8 +1,8 @@
 void NeuRad_digi(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "sim.root";
+  TString inFile = "/home/vitaliy/sim.root";
   TString outFile = "digi.root";
-  TString parFile = "par.root";
+  TString parFile = "/home/vitaliy/par.root";
   TString parOutFile = "parOut.root";
   // ------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------
@@ -30,7 +30,7 @@ void NeuRad_digi(Int_t nEvents = 1000){
   
   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
   TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
-  NeuRadDetDigiFile += "/parameters/NeuRad.digi.par";
+  NeuRadDetDigiFile += "/parameters/NeuRad.digi.v4.par";
   parInput1->open(NeuRadDetDigiFile.Data(),"in");
 
   FairParRootFileIo*  parInput2 = new FairParRootFileIo();

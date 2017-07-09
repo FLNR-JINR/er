@@ -6,9 +6,9 @@ set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
 ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
-${CMAKE_SOURCE_DIR}/data/muSiData/
-${CMAKE_SOURCE_DIR}/data/
+${CMAKE_SOURCE_DIR}/data
 ${CMAKE_SOURCE_DIR}/muSi/
+${CMAKE_SOURCE_DIR}/muSi/data
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -26,6 +26,10 @@ ERmuSiHitProducer.cxx
 ERmuSiTrackFinder.cxx
 ERmuSiMatcher.cxx
 ERmuSiVertexFinder.cxx
+data/ERmuSiPoint.cxx
+data/ERmuSiHit.cxx
+data/ERmuSiTrack.cxx
+data/ERmuSiVertex.cxx
 )
 
 # fill list of header files from list of source files

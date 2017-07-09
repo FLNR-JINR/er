@@ -16,14 +16,14 @@ using namespace std;
 
 #include "ERDetectorList.h"
 #include "ERNDHit.h"
-#include "ERDSRDHit.h"
+#include "ERRTelescopeHit.h"
 #include "ERLi10EventHeader.h"
 
 
 // ----------------------------------------------------------------------------
 ERLi10Reconstructor::ERLi10Reconstructor()
   : FairTask("ER Li10 reconstruction scheme")
-,fDSRDHits(NULL)
+,fRTelescopeHits(NULL)
 ,fNDHits(NULL)
 {
 }
@@ -32,7 +32,7 @@ ERLi10Reconstructor::ERLi10Reconstructor()
 // ----------------------------------------------------------------------------
 ERLi10Reconstructor::ERLi10Reconstructor(Int_t verbose)
   : FairTask("ER Li10 reconstruction scheme", verbose)
-,fDSRDHits(NULL)
+,fRTelescopeHits(NULL)
 ,fNDHits(NULL)
 {
 }
@@ -67,8 +67,8 @@ InitStatus ERLi10Reconstructor::Init()
   if (!fNDHits)
     Fatal("Init", "Can`t find collection NDHit!"); 
 
-  fDSRDHits = (TClonesArray*) ioman->GetObject("DSRDHit");
-  if (!fDSRDHits)
+  fRTelescopeHits = (TClonesArray*) ioman->GetObject("RTelescopeHit");
+  if (!fRTelescopeHits)
     Fatal("Init", "Can`t find collection NDHit!"); 
 
   //todo Этот код должен умереть. Не может быть MC информации в реконструкции
@@ -84,9 +84,9 @@ InitStatus ERLi10Reconstructor::Init()
 void ERLi10Reconstructor::Exec(Option_t* opt)
 {
   std::cout << "ERLi10Reconstructor: "<< std::endl;
-  std::cout << "DSRD Hits: "<< std::endl;
-  for (Int_t iHit = 0; iHit < fDSRDHits->GetEntriesFast(); iHit++){
-    ERDSRDHit* hit = (ERDSRDHit*)fDSRDHits->At(iHit);
+  std::cout << "RTelescope Hits: "<< std::endl;
+  for (Int_t iHit = 0; iHit < fRTelescopeHits->GetEntriesFast(); iHit++){
+    ERRTelescopeHit* hit = (ERRTelescopeHit*)fRTelescopeHits->At(iHit);
     std::cout << iHit << " Eloss:" << hit->Eloss() << " time:" << hit->Time() << std::endl; 
   }
   std::cout << "ND Hits: "<< std::endl;
@@ -140,8 +140,8 @@ void ERLi10Reconstructor::Exec(Option_t* opt)
    А энерговыделение в кремнии равно кинетической энергии протона. Все неидеальности прозже в дижитизации.
   */
 
-  if (fDSRDHits->GetEntriesFast() == 1){
-    ERDSRDHit* hit = (ERDSRDHit*)fDSRDHits->At(0);
+  if (fRTelescopeHits->GetEntriesFast() == 1){
+    ERRTelescopeHit* hit = (ERRTelescopeHit*)fRTelescopeHits->At(0);
     header->SetPEnergy(hit->Eloss());
   }
   else {
@@ -156,8 +156,8 @@ void ERLi10Reconstructor::Reset()
   if (fNDHits) {
     fNDHits->Delete();
   }
-  if (fDSRDHits) {
-    fDSRDHits->Delete();
+  if (fRTelescopeHits) {
+    fRTelescopeHits->Delete();
   }
 }
 // ----------------------------------------------------------------------------

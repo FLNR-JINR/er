@@ -27,8 +27,13 @@ void Config()
 
     //gSystem->Load("libR3BPlist.so");
 
+<<<<<<< HEAD
 /*  TG4RunConfiguration* runConfiguration 
              = new TG4RunConfiguration("geomRoot", "QBBC", "stepLimiter+specialCuts+specialControls+stackPopper");
+=======
+  TG4RunConfiguration* runConfiguration 
+             = new TG4RunConfiguration("geomRoot", "QGSP_BERT_HP", "specialControls+stackPopper");
+>>>>>>> 4540a47530db4aec74becdcbe61017bea42a221d
             // = new TG4RunConfiguration("geomRoot", "QBBC", "stackPopper");
 */
   TG4RunConfiguration* runConfiguration 

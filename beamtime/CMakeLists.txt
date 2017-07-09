@@ -4,13 +4,14 @@
 
 set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
-${CMAKE_SOURCE_DIR}/beamtime/
+${CMAKE_SOURCE_DIR}/data/
 ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/base/
-${CMAKE_SOURCE_DIR}/data/
-${CMAKE_SOURCE_DIR}/data/NeuRadData
-${CMAKE_SOURCE_DIR}/data/beamtime/
+${CMAKE_SOURCE_DIR}/beamtime/
+${CMAKE_SOURCE_DIR}/NeuRad/data/
+${CMAKE_SOURCE_DIR}/data/data/
+${CMAKE_SOURCE_DIR}/beamtime/data/
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -34,6 +35,18 @@ set(SRCS
 	ERNXyterCalibrator.cxx
 	ERpmtPixelMap.cxx
 	ERSimtoRaw.cxx
+
+	data/RawEvent.cxx
+	data/AEvent.cxx
+
+	data/TGo4EventElement.cxx
+	data/TLiEvent.cxx
+
+	data/cls_RootHit.cxx
+	data/cls_RootEvent.cxx
+
+	data/WCalHit.cxx
+	data/WCalEvent.cxx
 )
 
 # fill list of header files from list of source files

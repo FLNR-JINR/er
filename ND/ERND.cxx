@@ -63,7 +63,7 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
   static Int_t          eventID;           //!  event index
   static Int_t          trackID;           //!  track index
   static Int_t          mot0TrackID;       //!  0th mother track index
-  static Double_t       mass;              //!  mass
+  static Int_t       pdg;              //!  pdg
   static TLorentzVector posIn, posOut;    //!  position
   static TLorentzVector momIn, momOut;    //!  momentum
   static Double32_t     time;              //!  time
@@ -79,10 +79,10 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
     gMC->TrackPosition(posIn);
     gMC->TrackMomentum(momIn);
     trackID  = gMC->GetStack()->GetCurrentTrackNumber();
-    time   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
+    time   = gMC->TrackPid();// gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
-    mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
+    pdg = gMC->TrackPid(); // GeV/c2
     gMC->CurrentVolOffID(1, stilbenNr); 
   }
   
@@ -114,8 +114,8 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
     gMC->TrackPosition(posOut);
     gMC->TrackMomentum(momOut);
     
-	  if (eLoss > 0.){
-      AddPoint( eventID, trackID, mot0TrackID, mass,
+	  if (eLoss > 0. && gMC->TrackCharge()!=0){
+      AddPoint( eventID, trackID, mot0TrackID, pdg,
                 TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                 TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
                 TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
@@ -195,14 +195,14 @@ void ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
 // -----   Private method AddPoint   --------------------------------------------
 ERNDPoint* ERND::AddPoint(Int_t eventID, Int_t trackID,
 				    Int_t mot0trackID,
-				    Double_t mass,
+				    Int_t pdg,
 				    TVector3 posIn,
 				    TVector3 posOut, TVector3 momIn,
 				    TVector3 momOut, Double_t time,
 				    Double_t length, Double_t eLoss, Int_t stilbenNr, Float_t lightYield) {
   TClonesArray& clref = *fNDPoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERNDPoint(eventID, trackID, mot0trackID, mass,
+  return new(clref[size]) ERNDPoint(eventID, trackID, mot0trackID, pdg,
 					  posIn, posOut, momIn, momOut, time, length, eLoss,stilbenNr,lightYield);
 	
 }
