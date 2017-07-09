@@ -304,6 +304,13 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   fOutEvent->t11 = ejectile[0][0][0].Part.E()-ejectile[0][0][0].Mass;
   fOutEvent->t22 = ejectile[1][1][0].Part.E()-ejectile[1][1][0].Mass;
 
+  //Ntelescopes NLayMax header->NofDetPart NDivXYMax
+  fOutEvent->al111 = al[0][0][0][0];
+  fOutEvent->al221 = al[1][1][0][0];
+
+  //mis calculations
+  misCalculations();
+
   for(int it=0;it<Ntelescopes;it++)
   {
     if(mp[it]==1&&header->mbeam&&header->mtrack)
@@ -326,7 +333,6 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 
   fOutEvent->th11cmp = ejectile[0][0][0].Part.Theta()/rad;
   fOutEvent->th22cmp = ejectile[1][1][0].Part.Theta()/rad;
-  
 }
 
 //----------------------------------------------------------------------------
@@ -1212,5 +1218,78 @@ TVector3 ERTelescopeReconstructor::Traject(Telescope* Dx,Telescope* Dy,int Nx,in
   } 
   return Px;
 }
+//----------------------------------------------------------------------------
+
+void ERTelescopeReconstructor::misCalculations(){
+  ERParticle mis[Ntelescopes][header->NofDetPart+header->NofUnObsPart][NDivXYMax];
+  
+  for(int it=0;it<Ntelescopes;it++)
+  {
+    for(int ip=0;ip<header->NofDetPart+header->NofUnObsPart;ip++)
+    {
+      for(int imu=0;imu<NDivXYMax;imu++)
+      {
+        mis[it][ip][imu].NameOfNucleus = new char [3];
+        strcpy(mis[it][ip][imu].NameOfNucleus,"mi");
+      }
+    }
+  } 
+
+  for(int it=0;it<Ntelescopes;it++)
+  {
+    for(int ip=0;ip<header->NofDetPart;ip++)
+    {
+      for(int imu=0;imu<NDivXYMax;imu++)
+      {
+        for(int ipx=0;ipx<header->NofDetPart+header->NofUnObsPart;ipx++)
+        {
+          if(ip!=ipx) mis[it][ip][imu].Mass += ejectile[0][ipx][0].Mass;
+        }
+      }
+    }
+  }
+  
+  double Tout, Tb;
+  for(int it=0;it<Ntelescopes;it++)
+    {
+      if(mp[it]==1&&header->mbeam&&header->mtrack)
+      {
+        for(int ip=0;ip<header->NofDetPart;ip++)
+        {
+          for(int imu=0;imu<mp[it];imu++)
+          {
+            Tb = 0.;Tout=0.;
+            Tb = sqrt(pow(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),2)+
+              pow(projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),2)+
+              pow(projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),2)+
+              pow(mis[it][ip][imu].Mass,2))-mis[it][ip][imu].Mass;
+            Tout = projectile->Part.E()+target->Mass-ejectile[it][ip][imu].Part.E()-Tb-mis[it][ip][imu].Mass;
+            Tb = sqrt(pow(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),2)+
+              pow(projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),2)+
+              pow(projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),2)+
+              pow(mis[it][ip][imu].Mass+Tout,2))-mis[it][ip][imu].Mass-Tout;
+            Tout = projectile->Part.E()+target->Mass-ejectile[it][ip][imu].Part.E()-Tb-mis[it][ip][imu].Mass;
+            mis[it][ip][imu].Excitation = Tout;
+            mis[it][ip][imu].Part.SetPxPyPzE(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),
+            projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),
+            Tb+Tout+mis[it][ip][imu].Mass);
+            
+          }
+        }
+      }
+    }
+  fOutEvent->tmis11 = mis[0][0][0].Part.E()-mis[0][0][0].Mass-mis[0][0][0].Excitation;
+  fOutEvent->tmis22 = mis[1][1][0].Part.E()-mis[1][1][0].Mass-mis[1][1][0].Excitation;
+  
+  fOutEvent->thmis11 = mis[0][0][0].Part.Theta()/rad;
+  fOutEvent->thmis22 = mis[1][1][0].Part.Theta()/rad;
+      
+  fOutEvent->phimis11 = mis[0][0][0].Part.Phi()/rad;
+  fOutEvent->phimis22 = mis[1][1][0].Part.Phi()/rad;
+
+  fOutEvent->exmis11 = mis[0][0][0].Excitation;
+  
+}
+
 //----------------------------------------------------------------------------
 ClassImp(ERTelescopeReconstructor)
