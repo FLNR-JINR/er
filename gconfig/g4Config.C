@@ -27,12 +27,12 @@ void Config()
 
     //gSystem->Load("libR3BPlist.so");
 
-  TG4RunConfiguration* runConfiguration 
+/*  TG4RunConfiguration* runConfiguration 
              = new TG4RunConfiguration("geomRoot", "QBBC", "stepLimiter+specialCuts+specialControls+stackPopper");
             // = new TG4RunConfiguration("geomRoot", "QBBC", "stackPopper");
-
-  //TG4RunConfiguration* runConfiguration 
-  //         = new TG4RunConfiguration("geomRoot", "emStandard", "stepLimiter+specialCuts+specialControls");
+*/
+  TG4RunConfiguration* runConfiguration 
+           = new TG4RunConfiguration("geomRoot", "emStandard", "stepLimiter+specialCuts+specialControls");
 
 /// Create the G4 VMC 
    TGeant4* geant4 = new TGeant4("TGeant4", "The Geant4 Monte Carlo", runConfiguration);

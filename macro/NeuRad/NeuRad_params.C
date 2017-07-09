@@ -13,7 +13,7 @@ void NeuRad_params(){
 
 	TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
 	NeuRadDetDigiFile += "/parameters/NeuRad.digi.v3.par";
-
+	*/
     /**/
 
     /* oscill */

@@ -1,11 +1,11 @@
 //using namespace std;
 
-void RawToAnalyze(Int_t nEvents = 16){
+void RawToAnalyze(Int_t nEvents = 7839){
   //---------------------Files-----------------------------------------------
   //TString inFile = "tektronix.out.root";
-  TString inFile = "../NeuRad/oscill/tests/simRaw.root";
-  TString outFile = "../NeuRad/oscill/tests/analyze.root";
-  TString parFile = "../NeuRad/oscill/tests/par.root";
+  TString inFile = "/store/ivan/simNeuRadJULY/simDEV/simRaw.root";
+  TString outFile = "/store/ivan/simNeuRadJULY/simDEV/analyze.root";
+  TString parFile = "/store/ivan/simNeuRadJULY/simDEV/par.root";
   // ------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;

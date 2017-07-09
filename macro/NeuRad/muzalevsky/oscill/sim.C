@@ -1,4 +1,4 @@
-void sim(Int_t nEvents = 10000){
+void sim(Int_t nEvents = 10000000){
 // void sim(Int_t nEvents = 100, Int_t index = 0) {
 
   // ------------------------------------------------------------------------
@@ -14,8 +14,8 @@ void sim(Int_t nEvents = 10000){
 //gRandom->SetSeed(index);
 
   //---------------------Files-----------------------------------------------
-  TString outFile= "tests/sim.root";
-  TString parFile= "tests/par.root";
+  TString outFile= "/store/ivan/simNeuRadJULY/simDEV/simNEW.root";
+  TString parFile= "/store/ivan/simNeuRadJULY/simDEV/parNEW.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -51,9 +51,9 @@ void sim(Int_t nEvents = 10000){
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
   
-  ERCollimator* collimator = new ERCollimator();
-  collimator->SetGeometryFileName("collimator.geo.root");
-  run->AddModule(collimator);
+ // ERCollimator* collimator = new ERCollimator();
+ // collimator->SetGeometryFileName("collimator.geo.root");
+ // run->AddModule(collimator);
 
   // ER NeuRad definition
   /* Select verbosity level

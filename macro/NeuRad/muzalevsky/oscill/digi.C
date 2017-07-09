@@ -1,8 +1,8 @@
-void digi(Int_t nEvents = 10000){
+void digi(Int_t nEvents = 10000000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "tests/sim.root";
-  TString outFile = "tests/digi.root";
-  TString parFile = "tests/par.root";
+  TString inFile = "/store/ivan/simNeuRadJULY/simDEV/simNEW.root";
+  TString outFile = "/store/ivan/simNeuRadJULY/simDEV/digiNEW.root";
+  TString parFile = "/store/ivan/simNeuRadJULY/simDEV/parNEW.root";
   // ------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;

@@ -11,7 +11,7 @@ using namespace std;
 // ----------------------------------------------------------------------------
 ERRawToAnalyzeConverter::ERRawToAnalyzeConverter()
   : FairTask("Convert Raw event to analyse event"),
-  fNChanels(4),
+  fNChanels(2),
   fNPoints(1000),
   fRawEvents(NULL),
   fAEvents(NULL),
@@ -29,7 +29,7 @@ ERRawToAnalyzeConverter::ERRawToAnalyzeConverter()
 // ----------------------------------------------------------------------------
 ERRawToAnalyzeConverter::ERRawToAnalyzeConverter(Int_t verbose)
   : FairTask("Convert Raw event to analyse event", verbose),
-  fNChanels(4),
+  fNChanels(2),
   fNPoints(1000),
   fRawEvents(NULL),
   fAEvents(NULL),
@@ -97,7 +97,7 @@ InitStatus ERRawToAnalyzeConverter::Init()
 void ERRawToAnalyzeConverter::Exec(Option_t* opt)
 {
   fEvent++;
-  if ( !(fEvent%100) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
+  if ( !(fEvent%100000) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
 
 /*std::cout << std::endl;
   std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;

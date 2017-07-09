@@ -1,10 +1,10 @@
-void SimToRaw(Int_t nEvents = 10000){
+void SimToRaw(Int_t nEvents = 5666420){
   //---------------------Files-----------------------------------------------
-  TString digiFile = "../NeuRad/oscill/tests/digi.root";
+  TString digiFile = "/store/ivan/simNeuRadJULY/simDEV/digi.root";
   // TString simFile = "sim.root";
   // TString recoFile = "reco.root";
-  TString outFile = "../NeuRad/oscill/tests/simRaw.root";
-  TString parFile = "../NeuRad/oscill/tests/par.root";
+  TString outFile = "/store/ivan/simNeuRadJULY/simDEV/simRaw.root";
+  TString parFile = "/store/ivan/simNeuRadJULY/simDEV/par.root";
   // ------------------------------------------------------------------------
   
   // -----   Timer   --------------------------------------------------------
