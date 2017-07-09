@@ -1,4 +1,6 @@
 
+
+
 /** Configuration macro for setting common cuts and processes for G3, G4 and Fluka (M. Al-Turany 27.03.2008)
     specific cuts and processes to g3 or g4 should be set in the g3Config.C, g4Config.C or flConfig.C
 
@@ -33,17 +35,10 @@ void SetCuts()
   gMC->SetProcess("LOSS",3); /**energy loss*/
   gMC->SetProcess("MULS",1); /**multiple scattering*/
  
-<<<<<<< HEAD
-//  Double_t cut1 = 1.0E-3;         // MeV --> 1 keV
-  Double_t cut1 = 1.0E-6;
- // Double_t cut2 = 1.0E-3;
-  Double_t cut2 = 1.0E-6;         // MeV --> 100 keV
-=======
   Double_t cut1 = 0.;         // MeV --> 1 keV
   //Double_t cut1 = 1.0E-6;
   Double_t cut2 = 0.;
   //Double_t cut2 = 1.0E-6;         // MeV --> 100 keV
->>>>>>> 4540a47530db4aec74becdcbe61017bea42a221d
   Double_t cutb = 1.0E4;          // GeV --> 10 TeV
   Double_t tofmax = 1.E10;        // seconds
   cout << "SetCuts Macro: Setting cuts.." <<endl;
