@@ -11,6 +11,11 @@ void create_NeuRad_geo_wbt()
   TGeoTranslation *fGlobalTrans = new TGeoTranslation();
   fGlobalTrans->SetTranslation(0.0,0.0,0.);
 
+  TGeoRotation *fGlobalRotation = new TGeoRotation();
+  fGlobalRotation->RotateX(0.);
+  fGlobalRotation->RotateY(90.);
+  fGlobalRotation->RotateZ(0.);
+
   // Create a zero rotation
   TGeoRotation *fZeroRotation = new TGeoRotation();
   fZeroRotation->RotateX(0.);
@@ -60,8 +65,8 @@ void create_NeuRad_geo_wbt()
   TGeoVolume* NeuRad = new TGeoVolumeAssembly("NeuRad");
   // --------------------------------------------------------------------------
   //------------------ BC408  fiber  -----------------------------------------
-  Double_t fiber_X = 0.6;   //cm
-  Double_t fiber_Y = 0.6;   //cm
+  Double_t fiber_X = 0.3;   //cm
+  Double_t fiber_Y = 0.3;   //cm
   Double_t fiber_Z = 25.;  //cm
   fiber_X /= 2.;
   fiber_Y /= 2.;
@@ -69,8 +74,8 @@ void create_NeuRad_geo_wbt()
   TGeoVolume *fiber = gGeoManager->MakeBox("fiber", pMed37, fiber_X, fiber_Y, fiber_Z);
 
   //------------------ vacuum  bundle  -----------------------------------------
-  Int_t fibers_in_boundle_X_Nb = 8;
-  Int_t fibers_in_boundle_Y_Nb = 8;
+  Int_t fibers_in_boundle_X_Nb = 16;
+  Int_t fibers_in_boundle_Y_Nb = 16;
   
   Double_t boundle_X = fiber_X * fibers_in_boundle_X_Nb;
   Double_t boundle_Y = fiber_Y * fibers_in_boundle_Y_Nb;
@@ -94,7 +99,7 @@ void create_NeuRad_geo_wbt()
   }
   
   NeuRad->AddNode(bundle, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
-  top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,60., fZeroRotation));
+  top->AddNode(NeuRad, 1, new TGeoCombiTrans(.0,.0,60., fGlobalRotation));
 
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();

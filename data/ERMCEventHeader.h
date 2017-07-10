@@ -15,7 +15,7 @@
 #include "FairMCEventHeader.h"
 
 class ERMCEventHeader : public FairMCEventHeader {
-private:
+public:
 	Double_t fTargetReactionPos;
 	Double_t fDirectReactionPos;
 	Float_t fNeuRadELoss;

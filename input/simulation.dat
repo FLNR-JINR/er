@@ -1,0 +1,11 @@
+NEventPlay	1000000
+QFS3body:
+echeck		130.
+WaveFunction	res
+FreeScatt	aa
+thtpmin	8.
+thtpmax 	35.
+ResE0		1.
+ResS0		1.
+MomP0		70.
+MomS0		70.

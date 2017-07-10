@@ -1,0 +1,25 @@
+1st string: proj+tar->(ej[1]+ej[2]+...)+ej[N]+ej[N+1]+...
+f.ex. he6+he4->(he4+he4)+n+n 
+(projectile is always first, detected particles are in brackets)
+
+2nd string: beam energy
+f.ex. Tbeam=24.0 MeV/n
+Introductory sequence "Tbeam=" is mandatory,
+energy units are "MeV" or "MeV/n" or "A" (Current of D2) preceeded with blank space
+
+3rd string: sigma of the beam energy spread
+f.ex. DispersionSlit=8.0 %
+Introductory sequence "DispersionSlit=" is mandatory,
+units are "MeV" or "%" preceded with blank space
+
+4th string: reaction mechanism
+f.ex. QFS TransferDecay elastic DirectBeam
+
+5th string: Data file name
+f.ex. e0209
+
+6th string: Number of parameters of fixed staff
+
+7th string: Common description of experimental layout
+f.ex. TOF-TRACKING-TARGET-DETSYS3, where number 3 in DETSYS3 means
+the number of telescopes

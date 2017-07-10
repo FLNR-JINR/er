@@ -10,7 +10,8 @@ ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/data/
 ${CMAKE_SOURCE_DIR}/global/
-${CMAKE_SOURCE_DIR}/RTelescope/data
+${CMAKE_SOURCE_DIR}/telescope/data
+${CMAKE_SOURCE_DIR}/ND/data
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

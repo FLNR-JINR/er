@@ -134,7 +134,7 @@ private:
   
   ERNDPoint* AddPoint(Int_t eventID, Int_t trackID,
 			  Int_t mot0trackID,
-			  Double_t mass,
+			  Int_t pdg,
 			  TVector3 posIn,
 			  TVector3 pos_out, TVector3 momIn,
 			  TVector3 momOut, Double_t time,

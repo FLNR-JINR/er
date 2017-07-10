@@ -14,9 +14,11 @@
 #include "TArrayF.h"
 #include "TArrayI.h"
 
+#include "ERNeuRadSetup.h"
+
 class FairParIo;
 class FairParamList;
-
+class ERNeuRadSetup;
 
 class ERNeuRadDigiPar : public FairParGenericSet
 {
@@ -47,22 +49,25 @@ class ERNeuRadDigiPar : public FairParGenericSet
 
     void putParams(FairParamList*);
     Bool_t getParams(FairParamList*);
+
+    /** Modifiers**/
     
     /** Accessories  **/
     Int_t   NofFibers()     const {return fNofFibers;}
     Int_t   NofModules()    const {return fNofModules;}
     //@todo добавить обработку выхода зза границу
-    Double_t PMTQuantumEfficiency (Int_t iFiber) const {return (*fPMTQuantumEfficiency)[iFiber];}
-    Double_t PMTGain (Int_t iFiber) const {return (*fPMTGain)[iFiber];}
-    Double_t PMTSigma (Int_t iFiber) const {return (*fPMTSigma)[iFiber];}
+    Double_t PixelQuantumEfficiency (Int_t iFiber) const {return (*fPixelQuantumEfficiency)[iFiber];}
+    Double_t PixelGain (Int_t iFiber) const {return (*fPixelGain)[iFiber];}
+    Double_t PixelSigma (Int_t iFiber) const {return (*fPixelSigma)[iFiber];}
     Bool_t UseCrosstalks() const {return fUseCrosstalks;}
-    void PMTCrosstalks(Int_t iFiber, TArrayF& crosstalks) const;
+    void Crosstalks(Int_t iFiber, TArrayF& crosstalks) const;
     Int_t RowNofFibers() const {return fRowNofFibers;}
   private:
-    TArrayF* fPMTQuantumEfficiency;
-    TArrayF* fPMTGain;
-    TArrayF* fPMTSigma;
-    TArrayF* fPMTCrosstalks;
+    TArrayF* fPixelQuantumEfficiency;
+    TArrayF* fPixelGain;
+    TArrayF* fPixelSigma;
+    TArrayF* fPixelCrosstalks;
+    TArrayF* fFiberCrosstalks;
     Int_t fNofFibers;
     Int_t fNofModules;
     Bool_t fUseCrosstalks;

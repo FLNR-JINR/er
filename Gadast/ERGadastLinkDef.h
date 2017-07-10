@@ -13,4 +13,10 @@
 #pragma link C++ class ERGadastContFact+;
 #pragma link C++ class ERGadastGeoPar+;
 
+#pragma link C++ class ERGadastCsIPoint+;
+#pragma link C++ class ERGadastLaBrPoint+;
+#pragma link C++ class ERGadastStep+;
+#pragma link C++ class ERGadastDigi+;
+
+
 #endif

@@ -2,18 +2,19 @@
 #include "ERRootSource.h"
 
 #include "FairRootManager.h"
+#include "FairRun.h"
+
+#include "ERHe8EventHeader.h"
 
 #include <iostream>
 using namespace std;
 
 ERRootSource::ERRootSource():
-fInEvent(NULL),
 fFile(NULL),
 fTree(NULL),
 fPath(""),
 fTreeName(""),
-fBranchName(""),
-fEvent(0)
+fBranchName("")
 {
 }
 
@@ -36,21 +37,29 @@ Bool_t ERRootSource::Init(){
 	if (!fTree)
 		Fatal("ERRootSource", "Can`t find tree in input file for source ERRootSource");
 	
-	fInEvent = new TLiEvent();
-	fTree->SetBranchAddress(fBranchName,&fInEvent);
+	if (fRawEvents.size() == 0)
+		Fatal("ERRootSource", "ERRootSource without regiistered events");
 
-	FairRootManager* ioman = FairRootManager::Instance();
-	ioman->Register(fBranchName, "RawEvents", fInEvent, kTRUE);
-	
+	FairRun* run = FairRun::Instance();
+	ERHe8EventHeader* header = (ERHe8EventHeader*)run->GetEventHeader();
+	header->Register(fTree, fBranchName);
+
+	for (Int_t iREvent = 0; iREvent < fRawEvents.size(); iREvent++)
+		fRawEvents[iREvent]->Register(fTree, fBranchName);
 	return kTRUE;
 }
 
 Int_t ERRootSource::ReadEvent(UInt_t id){
+	FairRootManager* ioman = FairRootManager::Instance();
+  	if ( ! ioman ) Fatal("Init", "No FairRootManager");
 	//Проверяем есть ли еще события для обработки
-	if (fTree->GetEntriesFast() == fEvent+1)
+	if (fTree->GetEntriesFast() == ioman->GetEntryNr()+1)
 		return 1;
-	fEvent++;
-	fTree->GetEntry(fEvent);
+	//cout << "ev" << ioman->GetEntryNr() << endl;
+	fTree->GetEntry(ioman->GetEntryNr());
+
+	for (Int_t iREvent = 0; iREvent < fRawEvents.size(); iREvent++)
+		fRawEvents[iREvent]->Process();
 	return 0;
 }
 

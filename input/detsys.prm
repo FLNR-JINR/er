@@ -1,0 +1,24 @@
+Telescope1	180.	0.
+Layer1
+Detector1	10.0	0.0	0.0	90.0	si	annular
+SR	0.0	0.0	0.1	1.6	4.1	0.0	0.0	-16	16
+Telescope2	0.	0.
+Layer1
+Detector1	25.0	0.0	0.0	0.0	si	square
+YX	0.0	0.0	0.0947	6.1	6.1	0.33	-0.34	16	1
+Layer2
+Detector1	25.65	0.0	0.0	0.0	si	square
+YX	0.0	0.0	0.0974	6.1	6.1	0.33	-0.34	1	-16
+Layer3
+Detector1	26.6	0.0	0.0	0.0	si	square
+YX	0.0	0.0	0.096	6.1	6.1	0.33	-0.33	1	-16
+Layer4
+Detector1	27.55	0.0	0.0	0.0	si	square
+YX	0.0	0.0	0.095	6.1	6.1	0.33	-0.32	1	-16
+Layer5
+Detector1	28.5	0.0	0.0	0.0	si	square
+YX	0.0	0.0	0.1	6.1	6.1	0.33	-0.31	1	-16
+Layer6
+Detector1	29.45	0.0	0.0	0.0	si	square
+YX	0.0	0.0	0.1	6.1	6.1	0.33	-0.3	1	16
+Resolution	0.08	1.5

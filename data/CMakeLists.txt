@@ -7,6 +7,7 @@ ${BASE_INCLUDE_DIRECTORIES}
 ${Boost_INCLUDE_DIRS}
 ${ROOT_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/data
+${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/data/NeuRadData
 ${CMAKE_SOURCE_DIR}/data/muSiData
 ${CMAKE_SOURCE_DIR}/data/NDData
@@ -23,24 +24,6 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-NeuRadData/ERNeuRadPoint.cxx
-NeuRadData/ERNeuRadPhotoElectron.cxx
-NeuRadData/ERNeuRadPMTSignal.cxx
-NeuRadData/ERNeuRadDigi.cxx
-NeuRadData/ERNeuRadStep.cxx
-NeuRadData/ERNeuRadHit.cxx
-NeuRadData/ERNeuRadHitWBT.cxx
-
-muSiData/ERmuSiPoint.cxx
-muSiData/ERmuSiHit.cxx
-muSiData/ERmuSiTrack.cxx
-muSiData/ERmuSiVertex.cxx
-
-GadastData/ERGadastCsIPoint.cxx
-GadastData/ERGadastLaBrPoint.cxx
-GadastData/ERGadastStep.cxx
-GadastData/ERGadastDigi.cxx
-
 ERStack.cxx
 ERMCTrack.cxx
 ERMCEventHeader.cxx
@@ -49,20 +32,9 @@ EREventHeader.cxx
 ERLi10EventHeader.cxx
 ERLi10MCEventHeader.cxx
 
-NDData/ERNDPoint.cxx
-NDData/ERNDHit.cxx
-
-beamtime/RawEvent.cxx
-beamtime/AEvent.cxx
-
-beamtime/TGo4EventElement.cxx
-beamtime/TLiEvent.cxx
-
-beamtime/cls_RootHit.cxx
-beamtime/cls_RootEvent.cxx
-
-beamtime/WCalHit.cxx
-beamtime/WCalEvent.cxx
+ERHe8EventHeader.cxx
+ERRawEvent.cxx
+ERParticle.cxx
 )
 
 # fill list of header files from list of source files

@@ -9,6 +9,7 @@ ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/BeamDet/data/
 ${CMAKE_SOURCE_DIR}/BeamDet/
 ${CMAKE_SOURCE_DIR}/base/
+${CMAKE_SOURCE_DIR}/data/
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -21,10 +22,15 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-    ERBeamDet.cxx
-    
     data/ERBeamDetTOFPoint.cxx
     data/ERBeamDetMWPCPoint.cxx
+    data/ERBeamDetEvent.cxx
+	data/ERBeamDetCalEvent.cxx
+	data/ERBeamDetRecoEvent.cxx
+
+	ERBeamDet.cxx
+	ERBeamDetCalibrator.cxx
+	ERBeamDetReconstructor.cxx
 )
 
 # fill list of header files from list of source files

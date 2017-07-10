@@ -7,6 +7,7 @@
 #pragma link C++ class ERDRS4Source+;
 #pragma link C++ class ERTektronixSource+;
 #pragma link C++ class ERRawToAnalyzeConverter+;
+#pragma link C++ class ERSimtoRaw+;
 
 #pragma link C++ class ERLiCalibrator+;
 #pragma link C++ class ERRootSource+;
@@ -14,5 +15,18 @@
 #pragma link C++ class ERNXyterTreeSource+;
 #pragma link C++ class ERNXyterCalibrator+;
 #pragma link C++ class ERpmtPixelMap+;
+
+#pragma link C++ class RawEvent+;
+#pragma link C++ class AEvent+;
+
+#pragma link C++ class TLiEvent+;
+#pragma link C++ class TGo4EventElement+;
+
+#pragma link C++ class cls_RootHit+;
+#pragma link C++ class cls_RootEvent+;
+
+#pragma link C++ class WCalHit+;
+#pragma link C++ class WCalEvent+;
+
 
 #endif
