@@ -138,6 +138,7 @@ class ERIonGenerator : public FairGenerator
     Double32_t fThetaMin, fThetaMax; // Polar angle range in lab system [degree]
     Double32_t fX, fY, fZ;           // Point vertex coordinates [cm]
     Double32_t fX1, fY1, fX2, fY2;   // Box vertex coords (x1,y1)->(x2,y2)
+    Double32_t fPx, fPy, fPz;        
 
     Bool_t     fEtaRangeIsSet;       // True if eta range is set
     Bool_t     fYRangeIsSet;         // True if rapidity range is set
@@ -152,6 +153,8 @@ class ERIonGenerator : public FairGenerator
 
     ERIonGenerator(const ERIonGenerator&);
     ERIonGenerator& operator=(const ERIonGenerator&);
+
+    void spreadingParameters(void);
 
     ClassDef(ERIonGenerator,1)
 };
