@@ -1,4 +1,4 @@
-void BeamDet_sim(Int_t nEvents = 1000){
+void BeamDet_sim(Int_t nEvents = 100){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -74,7 +74,7 @@ void BeamDet_sim(Int_t nEvents = 1000){
   Int_t Q = 16;
   //FairIonGenerator* ionGenerator = new FairIonGenerator(Z,A,Q,1,0.,0.,Pz,0.,0.,-10.);
 
-  ERIonGenerator* sgenerator = new ERIonGenerator("28S", Z, A, Q, 1);
+  ERIonMixGenerator* sgenerator = new ERIonMixGenerator("28S", Z, A, Q, 1);
   Double32_t kin_energy = 40 /** 1e-3*/; //GeV
   Double_t   mass = sgenerator->Ion()->GetMass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
@@ -86,6 +86,8 @@ void BeamDet_sim(Int_t nEvents = 1000){
   sgenerator->SetPhiRange(0, 360);
   sgenerator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -1533);
 
+  sgenerator->AddBackgroundIon("BgIon1", 27, 9, 9, 0.5);
+  sgenerator->AddBackgroundIon("BgIon2", 3, 9, 3, 0.3);
 
 
   primGen->AddGenerator(sgenerator);

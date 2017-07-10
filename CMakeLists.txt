@@ -208,11 +208,7 @@ add_subdirectory (muSi)
 add_subdirectory (Gadast)
 add_subdirectory (generators)
 add_subdirectory (ND)
-<<<<<<< HEAD
-#add_subdirectory (RTelescope)
-=======
 add_subdirectory (telescope)
->>>>>>> 4540a47530db4aec74becdcbe61017bea42a221d
 add_subdirectory (global)
 add_subdirectory (beamtime)
 add_subdirectory (BeamDet)

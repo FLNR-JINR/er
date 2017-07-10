@@ -121,12 +121,14 @@ class ERIonGenerator : public FairGenerator
 
     FairIon* Ion() {return fIon;}
 
-  private:
-    Int_t    fMult;          // Multiplicity per event
-    FairIon*   fIon;          // Pointer to the FairIon to be generated
-    Int_t    fQ;    // Electric charge [e]
+  protected:
+    void spreadingParameters(void);
 
-    TString fName;
+    Int_t      fMult;                // Multiplicity per event
+    FairIon*   fIon;                 // Pointer to the FairIon to be generated
+    Int_t      fQ;                   // Electric charge [e]
+
+    TString    fName;
     Int_t      fPDGType;             // Particle type (PDG encoding)
 
     Double32_t fPDGMass;             // Particle mass [GeV]
@@ -151,10 +153,9 @@ class ERIonGenerator : public FairGenerator
     Bool_t     fBoxVtxIsSet;         // True if box vertex is set
     Bool_t     fDebug;               // Debug switch
 
+ private:
     ERIonGenerator(const ERIonGenerator&);
     ERIonGenerator& operator=(const ERIonGenerator&);
-
-    void spreadingParameters(void);
 
     ClassDef(ERIonGenerator,1)
 };
