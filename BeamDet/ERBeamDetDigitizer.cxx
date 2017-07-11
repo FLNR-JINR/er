@@ -125,6 +125,7 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
     Int_t planeNb = point->GetPlaneNb();
     Int_t wireNb  = point->GetWireNb();
     Float_t time = gRandom->Gaus(point->GetTime(), fTimeDispersionTof);
+    
     AddMWPCDigi(edep, time, mwpcNb, planeNb, wireNb);
   }
 }
