@@ -49,11 +49,11 @@ void BeamDet_sim(Int_t nEvents = 1000){
   // ------------------------------------------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  //Ion 8He
-  Int_t A = 8;
+  //Ion 10He
+  Int_t A = 10;
   Int_t Z = 2;
   Int_t Q = 2;
-  ERIonGenerator* sgenerator = new ERIonGenerator("8He", Z, A, Q, 1);
+  ERIonGenerator* sgenerator = new ERIonGenerator("10He", Z, A, Q, 1);
   Double32_t kin_energy = 40 /** 1e-3*/; //GeV
   Double_t   mass = sgenerator->Ion()->GetMass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV

@@ -17,7 +17,7 @@
 
 /mcPhysics/rangeCuts 1 mm
 /mcPhysics/rangeCutForGamma  1. mm
-/mcPhysics/rangeCutForElectron 0.01 mm
+/mcPhysics/rangeCutForElectron 1. mm
 
 #/cuts/setLowEdge 100 eV
 #/cuts/setHighEdge 100 GeV
