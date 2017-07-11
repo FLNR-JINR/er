@@ -51,10 +51,10 @@ TGeoManager*   gGeoMan = NULL;
   gGeoMan->SetName("DETgeom");
   TGeoVolume* top = new TGeoVolumeAssembly("TOP");
   gGeoMan->SetTopVolume(top);
-  TGeoVolume* DSRD = new TGeoVolumeAssembly("DSRD");
+  TGeoVolume* RTelescope = new TGeoVolumeAssembly("RTelescope");
   // --------------------------------------------------------------------------
 
-  //------------------ DSRD station -----------------------------------------
+  //------------------ RTelescope station -----------------------------------------
   Double_t R_min = 1.6; //cm
   Double_t R_max = 4.1;   //cm
   Double_t thin = 0.1;   //cm
@@ -71,7 +71,7 @@ TGeoManager*   gGeoMan = NULL;
     rotation->RotateX(0.); 
     rotation->RotateY(0.);
     rotation->RotateZ(22.5*iSector);
-    DSRD->AddNode(sector, iSector, new TGeoCombiTrans(.0,.0,-2000., rotation));
+    RTelescope->AddNode(sector, iSector, new TGeoCombiTrans(.0,.0,-2000., rotation));
 
     for (Int_t iSensor=0; iSensor < 16; iSensor++){
       Float_t thsp_min = TMath::ATan((R_min+iSensor*deltaR)/rsp_min)*TMath::RadToDeg();
@@ -81,7 +81,7 @@ TGeoManager*   gGeoMan = NULL;
     }
   }
 
-  top->AddNode(DSRD, 0, new TGeoCombiTrans(.0,.0,-5, fZeroRotation));
+  top->AddNode(RTelescope, 0, new TGeoCombiTrans(.0,.0,10., fZeroRotation));
   // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();
   gGeoMan->CheckOverlaps(0.001);

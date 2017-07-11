@@ -5,11 +5,14 @@
 #pragma link off all functions;
 
 #pragma link C++ class ERRTelescope+;
+#pragma link C++ class ERQTelescope+;
 #pragma link C++ class ERRTelescopeHitFinder+;
 #pragma link C++ class ERRTelescopeSetup+;
 
 #pragma link C++ class ERRTelescopePoint+;
 #pragma link C++ class ERRTelescopeHit+;
+
+#pragma link C++ class ERQTelescopeSiPoint+;
 
 #pragma link C++ class ERRTelescopeEvent+;
 #pragma link C++ class ERRTelescopeCalEvent+;

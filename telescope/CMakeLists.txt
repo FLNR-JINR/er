@@ -26,8 +26,10 @@ set(SRCS
 ERRTelescope.cxx
 ERRTelescopeHitFinder.cxx
 ERRTelescopeSetup.cxx
+ERQTelescope.cxx
 data/ERRTelescopePoint.cxx
 data/ERRTelescopeHit.cxx
+data/ERQTelescopeSiPoint.cxx
 data/ERRTelescopeEvent.cxx
 data/ERRTelescopeCalEvent.cxx
 data/ERQTelescopeEvent.cxx
