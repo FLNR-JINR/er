@@ -473,8 +473,16 @@ void AEvent::SetPECount(Int_t i) {
 }
 
 void AEvent::ObtainPE() {
+
+
 	SetPETimes(fInputEvent->GetPETimes());
 	SetPEAmps(fInputEvent->GetPEAmps());
+	//new
+	TArrayF fPEAmp = fInputEvent->GetPEAmp();
+	TArrayF fPETime = fInputEvent->GetPETime();
+	SetPETime(fPETime.GetSize(), fPETime.GetArray());
+	SetPEAmp(fPEAmp.GetSize(),fPEAmp.GetArray());
+	//new
 
 	SetPECount(fInputEvent->GetPECount());
 	SetStartTime(fInputEvent->GetStartTime());

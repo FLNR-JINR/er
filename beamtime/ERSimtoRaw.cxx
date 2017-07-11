@@ -147,6 +147,19 @@ void ERSimtoRaw::Exec(Option_t* opt)
 		fRawEvents[1]->SetPEAmps(signal->GetPEAmps());
 	}
 
+/// new
+TArrayF fPEAmp = signal->GetPEAmp();
+TArrayF fPETime = signal->GetPETime();
+	if(signal->Side() == 0) {
+		fRawEvents[0]->SetPEAmp(fPEAmp.GetSize(),fPEAmp.GetArray());
+		fRawEvents[0]->SetPETime(fPETime.GetSize(),fPETime.GetArray());
+	}
+	if(signal->Side() == 1) {
+		fRawEvents[1]->SetPEAmp(fPEAmp.GetSize(),fPEAmp.GetArray());
+		fRawEvents[1]->SetPETime(fPETime.GetSize(),fPETime.GetArray());
+	}
+///new
+
   }
   //----------------------------------------------------------------------------
     //cout << signal->Side() << "\t" << signal->PixelNb() << endl;

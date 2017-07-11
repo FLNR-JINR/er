@@ -34,6 +34,10 @@ private:
 
 	TArrayF fPEAmps;
 	TArrayF fPETimes;
+//new
+	TArrayF fPEAmp;
+	TArrayF fPETime;
+//new
 	//Количество фотоэлектронов в сигнале
 	Int_t fPECount;
 	//Массив амплитуд фотоэлектронов сигнала
@@ -95,6 +99,14 @@ public:
 	void SetPETimes(TArrayF& fPETimesOLD) {fPETimes.Copy(fPETimesOLD);}
 	void SetPEAmps(TArrayF& fPEAmpsOLD) {fPEAmps.Copy(fPEAmpsOLD);}
 
+/// new
+
+	TArrayF GetPEAmp() {return fPEAmp;}
+	TArrayF GetPETime() {return fPETime;}
+	void SetPETime(Int_t n, Float_t* array) {fPETime.Set(n,array);}
+	void SetPEAmp(Int_t n, Float_t* array) {fPEAmp.Set(n,array);}
+
+// new
 	void SetPECount(Int_t i);
         Int_t GetPECount() {return fPECount;}
 
