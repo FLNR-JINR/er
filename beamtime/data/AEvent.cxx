@@ -445,63 +445,13 @@ void AEvent::SetToT() {
 
 	fToT = timeBack - fTimeMid;
 	//cout<<"ftot "<<fToT<<endl;
-
-}
-
-void AEvent::SetPEamp(Float_t a, Int_t i) {
-//      cout << fNPoints << endl;
-        if (i >= fPECount) {
-                Error("AEvent::SetAmp", "Array with raw amplitudes is overloaded!");
-                return;
-        }
-        fPEAmplitudes[i] = a;
-        return;
-}
-
-void AEvent::SetPEtime(Float_t a, Int_t i) {
-        if (i >= fPECount) {
-                Error("AEvent::SetAmp", "Array with raw amplitudes is overloaded!");
-                return;
-        }
-        fPEAnodeTimes[i] = a;
-        return;
-}
-
-void AEvent::SetPECount(Int_t i) {
-        fPECount = i;
-        return;
 }
 
 void AEvent::ObtainPE() {
-
-
 	SetPETimes(fInputEvent->GetPETimes());
 	SetPEAmps(fInputEvent->GetPEAmps());
-	//new
-	TArrayF fPEAmp = fInputEvent->GetPEAmp();
-	TArrayF fPETime = fInputEvent->GetPETime();
-	SetPETime(fPETime.GetSize(), fPETime.GetArray());
-	SetPEAmp(fPEAmp.GetSize(),fPEAmp.GetArray());
-	//new
-
-	SetPECount(fInputEvent->GetPECount());
-	SetStartTime(fInputEvent->GetStartTime());
-	for(Int_t i=0; i< fPECount;i++) {
-		SetPEamp(fInputEvent->GetPEamp(i),i);
-		SetPEtime(fInputEvent->GetPEtime(i),i);
-	}
 	return;     
 }
-
-        Float_t AEvent::GetPEamp(Int_t i) {
-                return fPEAmplitudes[i];
-        }
-        Float_t AEvent::GetPEtime(Int_t i) {
-                return fPEAnodeTimes[i];
-        }
-        Int_t AEvent::GetPECount() {
-                return fPECount;
-        }
 	Double_t AEvent::GetStartTime() {
 		return fStartTime;
 	}

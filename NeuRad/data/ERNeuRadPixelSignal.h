@@ -54,11 +54,6 @@ public:
 	TArrayF& GetPETimes() {return fPEAnodeTimes;}
 	Int_t GetPECount() {return fPECount;}
 
-///new
-	TArrayF GetPEAmp() {return fPEAmplitudes;}
-	TArrayF GetPETime() {return fPEAnodeTimes;}
-///new
-
         Double_t GetStartTime(){return fStartTime;}
 	Double_t GetFinishTime(){return fFinishTime;}
 	Float_t GetPEamp(Int_t i) {return fPEAmplitudes[i];}

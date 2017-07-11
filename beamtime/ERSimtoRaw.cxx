@@ -102,7 +102,7 @@ void ERSimtoRaw::Exec(Option_t* opt)
 
 	StartTime = signal->GetStartTime();
 	FinishTime = signal->GetFinishTime();
-	PEnum = signal->GetPECount();
+	//PEnum = signal->GetPECount();
     for(Int_t nPoint = 0; nPoint< fNPoints; nPoint++){
 
       if( nPoint<=StartTime*10 || nPoint>=(FinishTime*10-1) ) {
@@ -123,20 +123,6 @@ void ERSimtoRaw::Exec(Option_t* opt)
         if(signal->Side() == 1) fRawEvents[1]->SetStartTime(StartTime);
         if(signal->Side() == 0) fRawEvents[0]->SetFinishTime(FinishTime);
         if(signal->Side() == 1) fRawEvents[1]->SetFinishTime(FinishTime);
-
-	for(Int_t PEn = 0; PEn < PEnum; PEn++) {
-		if(signal->Side() == 0) {
-			fRawEvents[0]->SetPEamp(signal->GetPEamp(PEn) , PEn);
-			fRawEvents[0]->SetPEtime(signal->GetPEtime(PEn) , PEn);
-			fRawEvents[0]->SetPECount(PEnum);
-		}
-
-                if(signal->Side() == 1) {
-                        fRawEvents[1]->SetPEamp(signal->GetPEamp(PEn) , PEn);
-                        fRawEvents[1]->SetPEtime(signal->GetPEtime(PEn) , PEn);
-                        fRawEvents[1]->SetPECount(PEnum);
-                }
-	}
 	
 	if(signal->Side() == 0) {
 		fRawEvents[0]->SetPETimes(signal->GetPETimes());
@@ -146,19 +132,6 @@ void ERSimtoRaw::Exec(Option_t* opt)
 		fRawEvents[1]->SetPETimes(signal->GetPETimes());
 		fRawEvents[1]->SetPEAmps(signal->GetPEAmps());
 	}
-
-/// new
-TArrayF fPEAmp = signal->GetPEAmp();
-TArrayF fPETime = signal->GetPETime();
-	if(signal->Side() == 0) {
-		fRawEvents[0]->SetPEAmp(fPEAmp.GetSize(),fPEAmp.GetArray());
-		fRawEvents[0]->SetPETime(fPETime.GetSize(),fPETime.GetArray());
-	}
-	if(signal->Side() == 1) {
-		fRawEvents[1]->SetPEAmp(fPEAmp.GetSize(),fPEAmp.GetArray());
-		fRawEvents[1]->SetPETime(fPETime.GetSize(),fPETime.GetArray());
-	}
-///new
 
   }
   //----------------------------------------------------------------------------

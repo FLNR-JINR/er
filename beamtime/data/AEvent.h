@@ -169,21 +169,9 @@ public:
 
 	TArrayF GetPEAmps() {return fPEAmps;}
 	TArrayF GetPETimes() {return fPETimes;}
-	void SetPETimes(TArrayF& fPETimesOLD) {fPETimes.Copy(fPETimesOLD);}
-	void SetPEAmps(TArrayF& fPEAmpsOLD) {fPEAmps.Copy(fPEAmpsOLD);}
-/// new
-	TArrayF GetPEAmp() {return fPEAmp;}
-	TArrayF GetPETime() {return fPETime;}
-	void SetPETime(Int_t n, Float_t* array) {fPETime.Set(n,array);}
-	void SetPEAmp(Int_t n, Float_t* array) {fPEAmp.Set(n,array);}
-// new
-        void SetPEtime(Float_t a, Int_t i);
-        void SetPEamp(Float_t a, Int_t i);
-        void SetPECount(Int_t i);
-
-        Float_t GetPEamp(Int_t i);
-        Float_t GetPEtime(Int_t i);
-        Int_t GetPECount();             
+	void SetPETimes(TArrayF& fPETimesOLD) {fPETimesOLD.Copy(fPETimes);}
+	void SetPEAmps(TArrayF& fPEAmpsOLD) {fPEAmpsOLD.Copy(fPEAmps);}
+            
 	void ObtainPE();
 	Double_t GetStartTime();
 	void SetStartTime(Double_t t);
