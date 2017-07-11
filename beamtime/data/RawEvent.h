@@ -32,12 +32,14 @@ private:
 	TArrayD fAmp;	//array for raw amplitudes
 	TArrayD fTime;	//array for raw times
 
+	TArrayF fPEAmps;
+	TArrayF fPETimes;
+	//Количество фотоэлектронов в сигнале
+	Int_t fPECount;
 	//Массив амплитуд фотоэлектронов сигнала
 	Float_t fPEAmplitudes[1000];
 	//Массив времен прихоа на анод фотоэлектронов сигнала
 	Float_t fPEAnodeTimes[1000];
-	//Количество фотоэлектронов в сигнале
-	Int_t fPECount;
 	Double_t fStartTime;
 	Double_t fFinishTime;
 	const Int_t fNPoints;
@@ -88,30 +90,24 @@ public:
 //		return gAmp;
 //	}
 
+	TArrayF& GetPEAmps() {return fPEAmps;}
+	TArrayF& GetPETimes() {return fPETimes;}
+	void SetPETimes(TArrayF& fPETimesOLD) {fPETimes.Copy(fPETimesOLD);}
+	void SetPEAmps(TArrayF& fPEAmpsOLD) {fPEAmps.Copy(fPEAmpsOLD);}
+
+	void SetPECount(Int_t i);
+        Int_t GetPECount() {return fPECount;}
 
 	void SetPEtime(Float_t a, Int_t i);
 	void SetPEamp(Float_t a, Int_t i); 
-	void SetPECount(Int_t i);
 
-        Float_t GetPEamp(Int_t i) {
-                return fPEAmplitudes[i];
-        }
-        Float_t GetPEtime(Int_t i) {
-                return fPEAnodeTimes[i];
-        }
-        Int_t GetPECount() {
-                return fPECount;
-        }
+        Float_t GetPEamp(Int_t i) {return fPEAmplitudes[i];}
+        Float_t GetPEtime(Int_t i) {return fPEAnodeTimes[i];}
+
 	void SetStartTime(Double_t t);
-	Double_t GetStartTime() {
-		return fStartTime;
-	}
-
+	Double_t GetStartTime() {return fStartTime;}
         void SetFinishTime(Double_t t);
-        Double_t GetFinishTime() {
-                return fFinishTime;
-        }
-
+        Double_t GetFinishTime() {return fFinishTime;}
 
 private:
 	void Init();

@@ -69,6 +69,9 @@ private:
 	Double_t fNoiseRangeMax;	//!
 	Int_t fWinSize;			//!
 
+
+	TArrayF fPEAmps;
+	TArrayF fPETimes;
 	 //Массив амплитуд фотоэлектронов сигнала
         Float_t fPEAmplitudes[1000];
         //Массив времен прихоа на анод фотоэлектронов сигнала
@@ -160,6 +163,11 @@ public:
 	void SetLED(Double_t threshold = 0.02);
 
 	//leading edge discriminator
+
+	TArrayF GetPEAmps() {return fPEAmps;}
+	TArrayF GetPETimes() {return fPETimes;}
+	void SetPETimes(TArrayF& fPETimesOLD) {fPETimes.Copy(fPETimesOLD);}
+	void SetPEAmps(TArrayF& fPEAmpsOLD) {fPEAmps.Copy(fPEAmpsOLD);}
 
         void SetPEtime(Float_t a, Int_t i);
         void SetPEamp(Float_t a, Int_t i);

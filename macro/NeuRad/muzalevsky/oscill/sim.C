@@ -1,4 +1,4 @@
-void sim(Int_t nEvents = 10000000){
+void sim(Int_t nEvents = 10000){
 // void sim(Int_t nEvents = 100, Int_t index = 0) {
 
   // ------------------------------------------------------------------------
@@ -14,8 +14,8 @@ void sim(Int_t nEvents = 10000000){
 //gRandom->SetSeed(index);
 
   //---------------------Files-----------------------------------------------
-  TString outFile= "/store/ivan/simNeuRadJULY/simDEV/simNEW.root";
-  TString parFile= "/store/ivan/simNeuRadJULY/simDEV/parNEW.root";
+  TString outFile= "/store/ivan/tests/sim.root";
+  TString parFile= "/store/ivan/tests/par.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------

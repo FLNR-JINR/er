@@ -138,7 +138,14 @@ void ERSimtoRaw::Exec(Option_t* opt)
                 }
 	}
 	
-
+	if(signal->Side() == 0) {
+		fRawEvents[0]->SetPETimes(signal->GetPETimes());
+		fRawEvents[0]->SetPEAmps(signal->GetPEAmps());
+	}
+	if(signal->Side() == 1) {
+		fRawEvents[1]->SetPETimes(signal->GetPETimes());
+		fRawEvents[1]->SetPEAmps(signal->GetPEAmps());
+	}
 
   }
   //----------------------------------------------------------------------------

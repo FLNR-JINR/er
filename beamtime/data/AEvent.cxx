@@ -473,6 +473,8 @@ void AEvent::SetPECount(Int_t i) {
 }
 
 void AEvent::ObtainPE() {
+	SetPETimes(fInputEvent->GetPETimes());
+	SetPEAmps(fInputEvent->GetPEAmps());
 
 	SetPECount(fInputEvent->GetPECount());
 	SetStartTime(fInputEvent->GetStartTime());

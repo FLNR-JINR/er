@@ -50,24 +50,15 @@ protected:
   Double_t OnePEFunction(Double_t time, Double_t amplitude);
   Int_t OnePETime(Double_t amplitude);
 public:
+	TArrayF& GetPEAmps() {return fPEAmplitudes;}
+	TArrayF& GetPETimes() {return fPEAnodeTimes;}
+	Int_t GetPECount() {return fPECount;}
 
-        Double_t GetStartTime(){
- 	       return fStartTime;
-        }
+        Double_t GetStartTime(){return fStartTime;}
+	Double_t GetFinishTime(){return fFinishTime;}
+	Float_t GetPEamp(Int_t i) {return fPEAmplitudes[i];}
+        Float_t GetPEtime(Int_t i) {return fPEAnodeTimes[i];}
 
-        Double_t GetFinishTime(){
-	        return fFinishTime;
-        }
-
-	Float_t GetPEamp(Int_t i) {
-                return fPEAmplitudes[i];
-	}
-        Float_t GetPEtime(Int_t i) {
-                return fPEAnodeTimes[i];
-        }
-	Int_t GetPECount() {
-		return fPECount;
-	}
 
   /** Default constructor **/
   ERNeuRadPixelSignal();
