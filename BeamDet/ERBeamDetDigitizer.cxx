@@ -19,24 +19,14 @@ using namespace std;
 Int_t ERBeamDetDigitizer::fEvent = 0;
 // ----------------------------------------------------------------------------
 ERBeamDetDigitizer::ERBeamDetDigitizer()
-  : FairTask("ER muSi hit producing scheme")
-,fRTelescopePoints(NULL)
-,fRTelescopeHits(NULL)
-,fElossDispersion(0)
-,fTimeDispersionPar(0)
-,fElossThreshold(0)
+  : FairTask("ER beamdet digitization")
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
-  : FairTask("ER muSi hit producing scheme ", verbose)
-,fRTelescopePoints(NULL)
-,fRTelescopeHits(NULL)
-,fElossDispersion(0)
-,fTimeDispersionPar(0)
-,fElossThreshold(0)
+  : FairTask("ER beamdet digitization ", verbose)
 {
 }
 // ----------------------------------------------------------------------------

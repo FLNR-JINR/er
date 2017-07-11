@@ -19,7 +19,7 @@ ERBeamDetTOFDigi::ERBeamDetTOFDigi(Int_t id, Float_t Edep, Double_t time, Int_t 
   :fID(id),
   fEdep(Edep),
   fTime(time),
-  fTOFNB(tofNb)
+  fTOFNb(tofNb)
 {
 }
 

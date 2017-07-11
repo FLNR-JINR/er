@@ -12,6 +12,9 @@
 
 #include "ERBeamDetMWPCPoint.h"
 #include "ERBeamDetTOFPoint.h"
+#include "ERBeamDetMWPCDigi.h"
+#include "ERBeamDetTOFDigi.h"
+
 
 class ERBeamDetDigitizer : public FairTask {
 
