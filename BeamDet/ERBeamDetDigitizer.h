@@ -43,7 +43,7 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  void SetElossThreshold(Float_t th){fElossThreshold = th;}
+  void SetElossThreshold(Float_t th){fTOFElossThreshold = th;}
   void SetTofElossSigma(Float_t sigma) {fElossDispersionTof = sigma;}
   void SetTofTimeSigma(Float_t sigma) {fTimeDispersionTof = sigma;}
   /** Accessors **/ 
@@ -56,16 +56,17 @@ protected:
   //Output arrays
   TClonesArray *fBeamDetTOFDigi;
   TClonesArray *fBeamDetMWPCDigi;
-
-  static Int_t fEvent;
+  
   Float_t fElossDispersionTof;
   Float_t fTimeDispersionTof;
-  Float_t fElossThreshold;
+  Float_t fTOFElossThreshold;
+
+  Float_t fDigiEloss;
 
   //ERBeamDetSetup* fBeamDetSetup;
 protected:
-  ERBeamDetMWPCDigi* AddMWPCDigi();
-  ERBeamDetTOFDigi*  AddTOFDigi();
+  ERBeamDetMWPCDigi* AddMWPCDigi(Float_t edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
+  ERBeamDetTOFDigi*  AddTOFDigi(Float_t edep, Double_t time, Int_t tofNb);
 private:
   virtual void SetParContainers();
   

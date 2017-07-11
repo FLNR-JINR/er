@@ -20,7 +20,7 @@ class ERBeamDetMWPCDigi : public FairMultiLinkedData
   
   /** Constructor with arguments
    **/
-  ERBeamDetMWPCDigi(Int_t id, Float_t Edep, Int_t mwpcNb, Int_t fPlaneNb, Int_t wireNb);
+  ERBeamDetMWPCDigi(Int_t id, Float_t Edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
                    
   /** Copy constructor **/
   ERBeamDetMWPCDigi(const ERBeamDetMWPCDigi&);
@@ -38,9 +38,9 @@ class ERBeamDetMWPCDigi : public FairMultiLinkedData
   Float_t Edep() const {return fEdep;}
   
  protected:
-  Int_t 	fID;
+  Int_t 	  fID;
 
-  Int_t		fMWPCNb;
+  Int_t		  fMWPCNb;
   Int_t     fPlaneNb;
   Int_t     fWireNb;
   Double_t 	fTime;

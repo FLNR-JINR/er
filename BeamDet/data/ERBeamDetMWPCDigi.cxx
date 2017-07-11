@@ -15,9 +15,10 @@ ERBeamDetMWPCDigi::ERBeamDetMWPCDigi()
 {
 }
 
-ERBeamDetMWPCDigi::ERBeamDetMWPCDigi(Int_t id, Float_t Edep, Int_t mwpcNb, Int_t planeNb, Int_t wireNb)
+ERBeamDetMWPCDigi::ERBeamDetMWPCDigi(Int_t id, Float_t Edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb)
   :fID(id),
-  fEdep(Edep), 
+  fEdep(Edep),
+  fTime(time), 
   fMWPCNb(mwpcNb), 
   fPlaneNb(planeNb), 
   fWireNb(wireNb)
@@ -26,7 +27,11 @@ ERBeamDetMWPCDigi::ERBeamDetMWPCDigi(Int_t id, Float_t Edep, Int_t mwpcNb, Int_t
 
 ERBeamDetMWPCDigi::ERBeamDetMWPCDigi(const ERBeamDetMWPCDigi& right)
   :fID(right.fID),
-   fEdep(right.fEdep)
+   fEdep(right.fEdep),
+   fTime(right.fTime), 
+   fMWPCNb(right.fMWPCNb), 
+   fPlaneNb(right.fPlaneNb), 
+   fWireNb(right.fWireNb)
 {
 }
 

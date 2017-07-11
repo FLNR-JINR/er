@@ -25,7 +25,9 @@ ERBeamDetTOFDigi::ERBeamDetTOFDigi(Int_t id, Float_t Edep, Double_t time, Int_t 
 
 ERBeamDetTOFDigi::ERBeamDetTOFDigi(const ERBeamDetTOFDigi& right)
   :fID(right.fID),
-   fEdep(right.fEdep)
+  fEdep(right.fEdep),
+  fTime(right.fTime),
+  fTOFNb(right.fTOFNb)
 {
 }
 
