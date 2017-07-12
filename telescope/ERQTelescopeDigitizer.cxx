@@ -10,6 +10,7 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "FairLink.h"
 
 #include <iostream>
 #include <map>
@@ -90,15 +91,15 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt)
   Reset();
 
   //Sort the points by stations and strips
-  map<Int_t, map<Int_t, vector<ERQTelescopeSiPoint*> > > points;
+  map<Int_t, map<Int_t, vector<Int_t> > > points;
   for (Int_t iPoint = 0; iPoint < fQTelescopeSiPoints->GetEntriesFast(); iPoint++){
     ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)fQTelescopeSiPoints->At(iPoint);
-    points[point->GetStationNb()][point->GetStripNb()].push_back(point);
+    points[point->GetStationNb()][point->GetStripNb()].push_back(iPoint);
   }
 
-  map<Int_t, map<Int_t, vector<ERQTelescopeSiPoint*> > >::iterator itStation;
-  map<Int_t, vector<ERQTelescopeSiPoint*> >::iterator itStrip;
-  vector<ERQTelescopeSiPoint*>::iterator itPoint;
+  map<Int_t, map<Int_t, vector<Int_t> > >::iterator itStation;
+  map<Int_t, vector<Int_t> >::iterator itStrip;
+  vector<Int_t>::iterator itPoint;
 
   for (itStation = points.begin(); itStation != points.end(); ++itStation){
     for (itStrip = itStation->second.begin(); itStrip != itStation->second.end(); ++itStrip){
@@ -107,7 +108,7 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt)
       Float_t time = numeric_limits<float>::max(); // min time in strip
       
       for (itPoint = itStrip->second.begin(); itPoint != itStrip->second.end(); ++itPoint){
-        ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)(*itPoint);
+        ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)fQTelescopeSiPoints->At(*itPoint);
         edep += point->GetEnergyLoss();
         if (point->GetTime() < time){
           time = point->GetTime();
@@ -120,7 +121,11 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt)
 
       time = gRandom->Gaus(time, fSiTimeDispersion);
 
-      AddSiDigi(edep, time, itStation->first, itStrip->first);
+      ERQTelescopeSiDigi* digi = AddSiDigi(edep, time, itStation->first, itStrip->first);
+
+      for (itPoint = itStrip->second.begin(); itPoint != itStrip->second.end(); ++itPoint){
+        digi->AddLink(FairLink("ERQTelescopeSiPoint",*itPoint));
+      }
     }
   }
 }
