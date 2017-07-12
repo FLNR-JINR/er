@@ -63,18 +63,18 @@ TGeoVolume* QTelescope = new TGeoVolumeAssembly("QTelescope");
 // --------------------------------------------------------------------------
 
 //------------------ QTelescope station -------------------------------------
-Double_t stationX = 6.1; //cm
-Double_t stationY = 6.1;   //cm
+Double_t stationX = 5.9; //cm
+Double_t stationY = 5.9;   //cm
 Double_t stationZ = 0.1;   //cm
 TGeoVolume *station = gGeoManager->MakeBox("station", pSi, stationX/2., stationY/2., stationZ/2.);
 //------------------ QTelescope strip -------------------------------------
-Double_t stripX = 0.1; //cm
+Int_t stripNb = 16;
+Double_t stripX = stationX/stripNb; //cm
 Double_t stripY = stationY;   //cm
 Double_t stripZ = stationZ;   //cm
 TGeoVolume *strip = gGeoManager->MakeBox("strip", pSi, stripX/2., stripY/2., stripZ/2.);
 //------------------ STRUCTURE  -----------------------------------------
 //------------------ Add strips in station ---------------------------------
-Int_t stripNb = (Int_t)(stationX/stripX);
 for (Int_t iStrip = 0; iStrip < stripNb; iStrip++){
   Float_t translateX = (-1)*stripX*(stripNb/2) + stripX/2. + iStrip*stripX;
   station->AddNode(strip,iStrip,new TGeoCombiTrans(translateX,0.,0., fZeroRotation));
