@@ -120,7 +120,50 @@ void ERIonGenerator::SetMass(Double_t mass)
 }
 //_________________________________________________________________________
 
+void ERIonGenerator::spreadingParameters()
+{
+  Double32_t pabs=0, phi, pt=0, theta=0, eta, y, mt; 
 
+  fPz=0;
+
+  phi = gRandom->Uniform(fPhiMin,fPhiMax) * TMath::DegToRad();
+
+  if      (fPRangeIsSet ) { pabs = gRandom->Uniform(fPMin,fPMax); }
+  else if (fPtRangeIsSet) { pt   = gRandom->Uniform(fPtMin,fPtMax); }
+
+  if      (fThetaRangeIsSet) {
+    if (fCosThetaIsSet)
+      theta = acos(gRandom->Uniform(cos(fThetaMin* TMath::DegToRad()),
+                                    cos(fThetaMax* TMath::DegToRad())));
+    else {
+      theta = gRandom->Uniform(fThetaMin,fThetaMax) * TMath::DegToRad();
+    }
+  } else if (fEtaRangeIsSet) {
+    eta   = gRandom->Uniform(fEtaMin,fEtaMax);
+    theta = 2*TMath::ATan(TMath::Exp(-eta));
+  } else if (fYRangeIsSet) {
+    y     = gRandom->Uniform(fYMin,fYMax);
+    mt = TMath::Sqrt(fPDGMass*fPDGMass + pt*pt);
+    fPz = mt * TMath::SinH(y);
+  }
+
+  if (fThetaRangeIsSet || fEtaRangeIsSet) {
+    if      (fPRangeIsSet ) {
+      fPz = pabs*TMath::Cos(theta);
+      pt = pabs*TMath::Sin(theta);
+    } else if (fPtRangeIsSet) {
+      fPz = pt/TMath::Tan(theta);
+    }
+  }
+
+  fPx = pt*TMath::Cos(phi);
+  fPy = pt*TMath::Sin(phi);
+
+  if (fBoxVtxIsSet) {
+    fX = gRandom->Uniform(fX1,fX2);
+    fY = gRandom->Uniform(fY1,fY2);
+  }
+}
 
 // -----   Public method ReadEvent   --------------------------------------
 Bool_t ERIonGenerator::ReadEvent(FairPrimaryGenerator* primGen)
@@ -131,53 +174,15 @@ Bool_t ERIonGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 //                << FairLogger::endl;
 //   return kFALSE;
 // }
-    Double32_t pabs=0, phi, pt=0, theta=0, eta, y, mt, px, py, pz=0;
-
   // Generate particles
   for (Int_t k = 0; k < fMult; k++) {
-    phi = gRandom->Uniform(fPhiMin,fPhiMax) * TMath::DegToRad();
-
-    if      (fPRangeIsSet ) { pabs = gRandom->Uniform(fPMin,fPMax); }
-    else if (fPtRangeIsSet) { pt   = gRandom->Uniform(fPtMin,fPtMax); }
-
-    if      (fThetaRangeIsSet) {
-      if (fCosThetaIsSet)
-        theta = acos(gRandom->Uniform(cos(fThetaMin* TMath::DegToRad()),
-                                      cos(fThetaMax* TMath::DegToRad())));
-      else {
-        theta = gRandom->Uniform(fThetaMin,fThetaMax) * TMath::DegToRad();
-      }
-    } else if (fEtaRangeIsSet) {
-      eta   = gRandom->Uniform(fEtaMin,fEtaMax);
-      theta = 2*TMath::ATan(TMath::Exp(-eta));
-    } else if (fYRangeIsSet) {
-      y     = gRandom->Uniform(fYMin,fYMax);
-      mt = TMath::Sqrt(fPDGMass*fPDGMass + pt*pt);
-      pz = mt * TMath::SinH(y);
-    }
-
-    if (fThetaRangeIsSet || fEtaRangeIsSet) {
-      if      (fPRangeIsSet ) {
-        pz = pabs*TMath::Cos(theta);
-        pt = pabs*TMath::Sin(theta);
-      } else if (fPtRangeIsSet) {
-        pz = pt/TMath::Tan(theta);
-      }
-    }
-
-    px = pt*TMath::Cos(phi);
-    py = pt*TMath::Sin(phi);
-
-    if (fBoxVtxIsSet) {
-      fX = gRandom->Uniform(fX1,fX2);
-      fY = gRandom->Uniform(fY1,fY2);
-    }
+    spreadingParameters();
 
     TParticlePDG* thisPart =
-      TDatabasePDG::Instance()->GetParticle(fIon->GetName());
+    TDatabasePDG::Instance()->GetParticle(fIon->GetName());
     if ( ! thisPart ) {
       LOG(WARNING) << "ERIonGenerator: Ion " << fIon->GetName()
-  		 << " not found in database!" << FairLogger::endl;
+      << " not found in database!" << FairLogger::endl;
       return kFALSE;
     }
 
@@ -186,10 +191,10 @@ Bool_t ERIonGenerator::ReadEvent(FairPrimaryGenerator* primGen)
     std::cout << "ERIonGenerator: Generating " << fMult << " ions of type "
   	    << fIon->GetName() << " (PDG code " << pdgType << ")" 
   	    << std::endl;
-    std::cout << "    Momentum (" << px << ", " << py << ", " << pz
+    std::cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz
   	    << ") Gev from vertex (" << fX << ", " << fY
   	    << ", " << fZ << ") cm" << std::endl;
-    primGen->AddTrack(pdgType, px, py, pz, fX, fY, fZ);
+    primGen->AddTrack(pdgType, fPx, fPy, fPz, fX, fY, fZ);
   }
 
   return kTRUE;

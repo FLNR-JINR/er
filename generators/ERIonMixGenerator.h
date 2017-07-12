@@ -9,6 +9,8 @@
 #include "ERIonGenerator.h"
 
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
+#include <map>
+#include <algorithm>
 
 class FairIon;
 class FairPrimaryGenerator;
@@ -48,15 +50,15 @@ class ERIonMixGenerator : public ERIonGenerator
      **/
     ERIonMixGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mult);
 
-
     /** Destructor **/
     virtual ~ERIonMixGenerator();
 
-    void AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q, Int_t probability);
+    Bool_t ReadEvent(FairPrimaryGenerator* primGen);
+    void AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q, Double_t probability);
 
   private:
 
-    TObjArray*  fBgIons;    // Background ions
+    std::map<TString, Double_t>  fBgIons;   // Background ions names with emegence probability
 
     ERIonMixGenerator(const ERIonMixGenerator&);
     ERIonMixGenerator& operator=(const ERIonMixGenerator&);

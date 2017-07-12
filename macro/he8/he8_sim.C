@@ -32,7 +32,7 @@ void he8_sim(Int_t nEvents = 10){
   run->AddModule(cave);
   
   FairModule* target = new ERTarget("Target", kTRUE,1);
-  target->SetGeometryFileName("target.h.geo.root");
+  target->SetGeometryFileName("target.3h.geo.root");
   run->AddModule(target);
 
   ERBeamDet* beamDet= new ERBeamDet("ERBeamDet", kTRUE,1);

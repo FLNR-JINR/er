@@ -27,10 +27,13 @@ set(SRCS
     data/ERBeamDetEvent.cxx
 	data/ERBeamDetCalEvent.cxx
 	data/ERBeamDetRecoEvent.cxx
+	data/ERBeamDetMWPCDigi.cxx
+	data/ERBeamDetTOFDigi.cxx
 
 	ERBeamDet.cxx
 	ERBeamDetCalibrator.cxx
 	ERBeamDetReconstructor.cxx
+	ERBeamDetDigitizer.cxx
 )
 
 # fill list of header files from list of source files

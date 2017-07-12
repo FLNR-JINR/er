@@ -60,8 +60,8 @@ class ERBeamDetTOFPoint : public FairMCPoint
 
 
   /** Accessors **/
-  Int_t GetEventID()            const { return fEventID; }
-  Int_t GetMot0TrackID()        const { return fMot0TrackID; }
+  Int_t    GetEventID()         const { return fEventID; }
+  Int_t    GetMot0TrackID()     const { return fMot0TrackID; }
   Double_t GetXIn()             const { return fX; }
   Double_t GetYIn()             const { return fY; }
   Double_t GetZIn()             const { return fZ; }
@@ -71,7 +71,8 @@ class ERBeamDetTOFPoint : public FairMCPoint
   Double_t GetPxOut()           const { return fPx_out; }
   Double_t GetPyOut()           const { return fPy_out; }
   Double_t GetPzOut()           const { return fPz_out; }
-  Int_t GetPID()            const { return fPid; }
+  Int_t    GetPID()             const { return fPid; }
+  Int_t    GetTofNb()           const { return fTofNb; }
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }

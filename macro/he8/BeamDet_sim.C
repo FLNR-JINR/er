@@ -44,7 +44,7 @@ void BeamDet_sim(Int_t nEvents = 1000){
   run->AddModule(beamDet);
 
   FairModule* target = new ERTarget("BeamDetTarget", kTRUE, 1);
-  target->SetGeometryFileName("target.h.geo.root");
+  target->SetGeometryFileName("target.3h.geo.root");
   run->AddModule(target);
   // ------------------------------------------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------
