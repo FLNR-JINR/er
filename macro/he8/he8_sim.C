@@ -53,10 +53,11 @@ void he8_sim(Int_t nEvents = 10){
   ERTextDecay* decay = new ERTextDecay("10Heto8He2n");
   decay->SetInputIon(2,10,2);
   decay->SetOutputIon(2,8,2);
-  decay->AddOutputParticle(2212);
-  decay->AddOutputParticle(2212);
-  decay->SetUniformPos(1.,2.);
+  decay->AddOutputParticle(2112);
+  decay->AddOutputParticle(2112);
+  decay->SetUniformPos(0.5,0.7);
   decay->SetFileName("generator_10He_decay.dat");
+  decay->SetDecayVolume("target3H");
   decayer->AddDecay(decay);
   run->SetDecayer(decayer);
   //-------------------------------------------------------------------------
@@ -70,10 +71,10 @@ void he8_sim(Int_t nEvents = 10){
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   ionGenerator->SetPRange(momentum, momentum);
   Double32_t theta1 = 0.;  // polar angle distribution
-  Double32_t theta2 = 0.0001*TMath::RadToDeg();
+  Double32_t theta2 = 0.;
   ionGenerator->SetThetaRange(theta1, theta2);
   ionGenerator->SetPhiRange(0, 360);
-  ionGenerator->SetBoxXYZ(-0.4,-0.4,0.4,0.4,-10);
+  ionGenerator->SetBoxXYZ(-0.1,-0.1,0.1,0.1,-1534);
   primGen->AddGenerator(ionGenerator);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------

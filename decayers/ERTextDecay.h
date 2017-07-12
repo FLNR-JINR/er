@@ -7,6 +7,7 @@
 #include "TRandom3.h"
 #include "TGenPhaseSpace.h"
 #include "TLorentzVector.h"
+#include "TString.h"
 
 #include "FairIon.h"
 
@@ -45,6 +46,8 @@ private:
   Bool_t fExponential;
   Float_t fExponentialStart;
   Float_t fExponentialTau;
+
+  TString fVolumeName;
 public:
 	ERTextDecay(TString name);
 	~ERTextDecay();
@@ -62,6 +65,7 @@ public:
   void SetFileName(TString name){fFileName = name;}
   void SetUniformPos(Double_t a, Double_t b);
   void SetExponentialPos(Double_t start, Double_t tau);
+  void SetDecayVolume(TString name){fVolumeName = name;}
 	ClassDef(ERTextDecay,1)
 };
 

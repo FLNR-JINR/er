@@ -25,7 +25,8 @@ ERTextDecay::ERTextDecay(TString name):
   fUniform(kFALSE),
   fExponential(kFALSE),
   fFileName(""),
-  fNOutputs(0)
+  fNOutputs(0),
+  fVolumeName("")
 {
 }
 
@@ -69,6 +70,11 @@ Bool_t ERTextDecay::Init(){
     return kFALSE;
   }
 
+  if (fVolumeName == ""){
+    cerr << "Volume name for decay is not defined!" << endl;
+    return kFALSE;
+  }
+
   return kTRUE;
 }
 
@@ -104,7 +110,7 @@ Bool_t ERTextDecay::Stepping(){
   if (gMC->CurrentEvent() > fDecays.size()-1)
     Fatal("ERTextDecay::BeginEvent",TString("Events count in file") 
                                             + fFileName + TString(" less currenet event number"));
-  if(!fDecayFinish && gMC->TrackPid() == fInputIonPDG->PdgCode()){
+  if(!fDecayFinish && gMC->TrackPid() == fInputIonPDG->PdgCode() &&  gMC->CurrentVolName() == fVolumeName){
     gMC->SetMaxStep(0.01);
     gMC->TrackPosition(fDecayPos);
     if (fDecayPos.Z() > fDecayPosZ){
