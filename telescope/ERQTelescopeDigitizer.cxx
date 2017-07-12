@@ -10,7 +10,11 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+
 #include <iostream>
+#include <map>
+#include <vector>
+#include <limits>
 using namespace std;
 
 #include "ERDetectorList.h"
@@ -85,18 +89,39 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt)
 {
   Reset();
 
+  //Sort the points by stations and strips
+  map<Int_t, map<Int_t, vector<ERQTelescopeSiPoint*> > > points;
   for (Int_t iPoint = 0; iPoint < fQTelescopeSiPoints->GetEntriesFast(); iPoint++){
     ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)fQTelescopeSiPoints->At(iPoint);
+    points[point->GetStationNb()][point->GetStripNb()].push_back(point);
+  }
 
-    Float_t edep = gRandom->Gaus(point->GetEnergyLoss(), fSiElossDispersion);
-    if (edep < fSiElossThreshold)
-      continue;
+  map<Int_t, map<Int_t, vector<ERQTelescopeSiPoint*> > >::iterator itStation;
+  map<Int_t, vector<ERQTelescopeSiPoint*> >::iterator itStrip;
+  vector<ERQTelescopeSiPoint*>::iterator itPoint;
 
-    Int_t stationNb = point->GetStationNb();
-    Int_t stripNb = point->GetStripNb();
-    Float_t time = gRandom->Gaus(point->GetTime(), fSiTimeDispersion);
+  for (itStation = points.begin(); itStation != points.end(); ++itStation){
+    for (itStrip = itStation->second.begin(); itStrip != itStation->second.end(); ++itStrip){
+      
+      Float_t edep = 0.; //sum edep in strip
+      Float_t time = numeric_limits<float>::max(); // min time in strip
+      
+      for (itPoint = itStrip->second.begin(); itPoint != itStrip->second.end(); ++itPoint){
+        ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)(*itPoint);
+        edep += point->GetEnergyLoss();
+        if (point->GetTime() < time){
+          time = point->GetTime();
+        }
+      }
 
-    AddSiDigi(edep, time, stationNb, stripNb);
+      edep = gRandom->Gaus(edep, fSiElossDispersion);
+      if (edep < fSiElossThreshold)
+        continue;
+
+      time = gRandom->Gaus(time, fSiTimeDispersion);
+
+      AddSiDigi(edep, time, itStation->first, itStrip->first);
+    }
   }
 }
 //----------------------------------------------------------------------------

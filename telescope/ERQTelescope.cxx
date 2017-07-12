@@ -148,7 +148,7 @@ if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the 
     fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     fPID = gMC->TrackPid();
     gMC->CurrentVolID(fStripNb);
-    gMC->CurrentVolOffID(0, fStationNb);
+    gMC->CurrentVolOffID(1, fStationNb);
 }
 
 fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
