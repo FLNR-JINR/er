@@ -43,9 +43,12 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  void SetElossThreshold(Float_t th){fTOFElossThreshold = th;}
+  void SetTofElossThreshold(Float_t th){fTOFElossThreshold = th;}
+  void SetMWPCElossThreshold(Float_t th){fMWPCElossThreshold = th;}
   void SetTofElossSigma(Float_t sigma) {fElossDispersionTof = sigma;}
+  void SetMWPCElossSigma(Float_t sigma) {fElossDispersionMWPC = sigma;}
   void SetTofTimeSigma(Float_t sigma) {fTimeDispersionTof = sigma;}
+  void SetMWPCTimeSigma(Float_t sigma) {fTimeDispersionMWPC = sigma;}
   /** Accessors **/ 
   Float_t ElossDispersion() const {return fElossDispersionTof;}
   Float_t TimeDispersionPar() const {return fTimeDispersionTof;}
@@ -59,7 +62,11 @@ protected:
   
   Float_t fElossDispersionTof;
   Float_t fTimeDispersionTof;
+  Float_t fElossDispersionMWPC;
+  Float_t fTimeDispersionMWPC;
+
   Float_t fTOFElossThreshold;
+  Float_t fMWPCElossThreshold;
 
   Float_t fDigiEloss;
 
