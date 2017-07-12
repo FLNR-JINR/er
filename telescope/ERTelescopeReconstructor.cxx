@@ -297,6 +297,17 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
           } 
         } 
       }
+
+  for(int it=0;it<Ntelescopes;it++)
+  {
+    for(int il=0;il<layer[it];il++)
+    {
+      for(int ip=0;ip<header->NofDetPart;ip++)
+      {
+        if(DepoX[it][il][0][0]>0.) al[it][il][ip][0] = al[it][il][ip][0] - DepoX[it][il][0][0];
+      }
+    }
+  }
   fOutEvent->th1 = ejectile[0][0][0].Part.Theta()/rad;
   fOutEvent->phi1 = ejectile[0][0][0].Part.Phi()/rad;
   fOutEvent->th2 = ejectile[1][1][0].Part.Theta()/rad;
