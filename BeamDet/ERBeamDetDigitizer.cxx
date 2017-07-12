@@ -108,33 +108,33 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
       continue;
 
     Int_t tofNb = point->GetTofNb();
-    
+
     Float_t time = gRandom->Gaus(point->GetTime(), fTimeDispersionTof);
 
     AddTOFDigi(edep, time, tofNb);
   }
 
    //Sort the points by MWPC, planes and wires
-  map<Int_t, map<Int_t, map<Int_t, map<Int_t, ERBeamDetMWPCPoint*>>>> points;
+  map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>> points;
   for (Int_t iPoint = 0; iPoint < fBeamDetMWPCPoints->GetEntriesFast(); iPoint++){
     ERBeamDetMWPCPoint* point = (ERBeamDetMWPCPoint*)fBeamDetMWPCPoints->At(iPoint);
-    points[point->GetMWPCNb()][point->GetPlaneNb()][point->GetWireNb()].insert(make_pair(iPoint, point));
+    points[point->GetMWPCNb()][point->GetPlaneNb()][point->GetWireNb()].push_back(iPoint);
   }
 
-  map<Int_t, map<Int_t, map<Int_t, map<Int_t, ERBeamDetMWPCPoint*>>>>::iterator itMWPC;
-  map<Int_t, map<Int_t, map<Int_t, ERBeamDetMWPCPoint*> > >::iterator           itPlane;
-  map<Int_t, map<Int_t, ERBeamDetMWPCPoint*> >::iterator                        itWire;
-  map<Int_t, ERBeamDetMWPCPoint*>::iterator                                     itPoint;
+  map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>>::iterator itMWPC;
+  map<Int_t, map<Int_t, vector<Int_t> > >::iterator           itPlane;
+  map<Int_t, vector<Int_t> >::iterator                        itWire;
+  vector<Int_t>::iterator                                     itPoint;
 
   for (itMWPC = points.begin(); itMWPC != points.end(); ++itMWPC){
     for (itPlane = itMWPC->second.begin(); itPlane != itMWPC->second.end(); ++itPlane){
       for(itWire = itPlane->second.begin(); itWire != itPlane->second.end(); ++itWire){
       
         Float_t edep = 0.; //sum edep in wire
-        Float_t time = numeric_limits<float>::min(); // min time in wire
+        Float_t time = numeric_limits<float>::max(); // min time in wire
         
         for (itPoint = itWire->second.begin(); itPoint != itWire->second.end(); ++itPoint){
-          ERBeamDetMWPCPoint* point = (ERBeamDetMWPCPoint*)(itPoint->second);
+          ERBeamDetMWPCPoint* point = (ERBeamDetMWPCPoint*)(fBeamDetMWPCPoints->At(*itPoint));
           edep += point->GetEnergyLoss();
           if (point->GetTime() < time){
             time = point->GetTime();
@@ -150,7 +150,7 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
         ERBeamDetMWPCDigi *digi = AddMWPCDigi(edep, time, itMWPC->first, itPlane->first, itWire->first);
 
         for (itPoint = itWire->second.begin(); itPoint != itWire->second.end(); ++itPoint){
-          digi->AddLink(FairLink("BeamDetMWPCPoint", itPoint->first));
+          digi->AddLink(FairLink("BeamDetMWPCPoint", *itPoint));
         }
       }
     }
