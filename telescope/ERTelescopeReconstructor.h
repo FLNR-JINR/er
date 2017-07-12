@@ -187,6 +187,7 @@ protected:
   void ReadDeDx();
   void ReadDeposites();
   TVector3 Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 Vint);
+  void misCalculations();
 private:
 
   virtual void SetParContainers();

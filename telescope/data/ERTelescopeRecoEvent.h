@@ -18,6 +18,8 @@ public:
 	double th1,phi1,th2,phi2,t11,t22;
 	double dep11,dep12,dep21,dep22,dep23,dep24,dep25,dep26;
 	double t11cmp,t22cmp,pz11cmp,pz22cmp,th11cmp,th22cmp;
+	double al111, al221;
+	double tmis11,tmis22,thmis11,thmis22,phimis11,phimis22,exmis11;
 public:
 	ERTelescopeRecoEvent();
 	virtual ~ERTelescopeRecoEvent();
