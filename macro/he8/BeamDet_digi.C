@@ -38,6 +38,8 @@ void BeamDet_digi(Int_t nEvents = 1000){
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
+  //FairParRootFileIo*  parIo2 = new FairParRootFileIo();
+  //parIo2->open(parOutFile.Data());
   rtdb->setOutput(parInput);
   rtdb->saveOutput();
   
