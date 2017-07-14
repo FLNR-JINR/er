@@ -29,8 +29,8 @@ void Config()
 
   TG4RunConfiguration* runConfiguration 
              = //new TG4RunConfiguration("geomRoot", "QGSP_BERT_HP", "specialControls+stackPopper");
-            new TG4RunConfiguration("geomRoot", "QBBC", "stepLimiter+specialCuts+specialControls");
-
+            //new TG4RunConfiguration("geomRoot", "QBBC", "stepLimiter+specialCuts+specialControls");
+new TG4RunConfiguration("geomRoot", "QBBC", "specialCuts+stackPopper");
   //TG4RunConfiguration* runConfiguration 
   //         = new TG4RunConfiguration("geomRoot", "emStandard", "stepLimiter+specialCuts+specialControls");
 
