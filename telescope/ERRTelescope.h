@@ -125,19 +125,19 @@ public:
   
 private:
   TClonesArray*  fRTelescopePoints;     //!  The point collection
-  Int_t fVersion;                    //! geometry version
+  Int_t          fVersion;              //! geometry version
   
-  Int_t          eventID;           //!  event index
-  Int_t          trackID;           //!  track index
-  Int_t          mot0TrackID;       //!  0th mother track index
-  Double_t       mass;              //!  mass
-  TLorentzVector posIn, posOut;    //!  position
-  TLorentzVector momIn, momOut;    //!  momentum
-  Double32_t     time;              //!  time
-  Double32_t     length;            //!  length
-  Double32_t     eLoss;             //!  energy loss
-  Int_t          sector;
-  Int_t          sensor;
+  Int_t          fEventID;           //!  event index
+  Int_t          fTrackID;           //!  track index
+  Int_t          fMot0TrackID;       //!  mother track index
+  Int_t          fMass;              //!  particle mass
+  TLorentzVector fPosIn, fPosOut;    //!  position
+  TLorentzVector fMomIn, fMomOut;    //!  momentum
+  Double32_t     fTime;              //!  time
+  Double32_t     fLength;            //!  length
+  Double32_t     fELoss;             //!  energy loss
+  Int_t          fSectorNb;
+  Int_t          fSensorNb;
   
   
 private:

@@ -53,28 +53,28 @@ void ERRTelescope::Initialize()
 
 Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {  
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
-    eLoss  = 0.;
-    eventID = gMC->CurrentEvent();
-    gMC->TrackPosition(posIn);
-    gMC->TrackMomentum(momIn);
-    trackID  = gMC->GetStack()->GetCurrentTrackNumber();
-    time   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
-    length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
-    mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
-    mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
-    gMC->CurrentVolID(sensor);
-    gMC->CurrentVolOffID(1, sector);
+    fELoss  = 0.;
+    fEventID = gMC->CurrentEvent();
+    gMC->TrackPosition(fPosIn);
+    gMC->TrackMomentum(fMomIn);
+    fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
+    fTime   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
+    fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
+    fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
+    fMass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
+    gMC->CurrentVolID(fSensorNb);
+    gMC->CurrentVolOffID(1, fSectorNb);
   }
   
-  eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
+  fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
 
 	if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume 
 	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
 	    gMC->IsTrackDisappeared()) 
 	{ 
-    gMC->TrackPosition(posOut);
-    gMC->TrackMomentum(momOut);
-	  if (eLoss > 0.){
+    gMC->TrackPosition(fPosOut);
+    gMC->TrackMomentum(fMomOut);
+	  if (fELoss > 0.){
       AddPoint();
     }
   }
@@ -133,10 +133,8 @@ void ERRTelescope::Reset() {
 
 // -----   Public method CopyClones   -----------------------------------------
 void ERRTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
-  LOG(INFO) << "   ERRTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)" 
-            << FairLogger::endl;
   Int_t nEntries = cl1->GetEntriesFast();
-  LOG(INFO) << "decector: " << nEntries << " entries to add" << FairLogger::endl;
+  LOG(INFO) << "RTelescope: " << nEntries << " entries to add" << FairLogger::endl;
   TClonesArray& clref = *cl2;
   ERRTelescopePoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
@@ -145,7 +143,7 @@ void ERRTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset
    oldpoint->SetTrackID(index);
    new (clref[cl2->GetEntriesFast()]) ERRTelescopePoint(*oldpoint);
   }
-  LOG(INFO) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
+  LOG(INFO) << "RTelescope: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 }
 // ----------------------------------------------------------------------------
 
@@ -153,12 +151,13 @@ void ERRTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset
 ERRTelescopePoint* ERRTelescope::AddPoint() {
   TClonesArray& clref = *fRTelescopePoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERRTelescopePoint(eventID, trackID, mot0TrackID, mass,
-                TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
-                TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
-                TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
-                TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                time, length, eLoss, sector, sensor);
+  return new(clref[size]) ERRTelescopePoint(fEventID, fTrackID, fMot0TrackID, fMass,
+                TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
+              TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
+              TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
+              TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+              fTime, fLength, fELoss, 
+              fSectorNb, fSensorNb);
 	
 }
 // ----------------------------------------------------------------------------
