@@ -132,10 +132,10 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
     fElossSigmaTOF = edep * 0.1 / TMath::Sqrt(edep);
     edep = gRandom->Gaus(edep, fElossSigmaTOF);
 
-    if (edep < fMWPCElossThreshold)
+    if (edep < fTOFElossThreshold)
       continue;
 
-    time = gRandom->Gaus(time, fTimeSigmaMWPC);
+    time = gRandom->Gaus(time, fTimeSigmaTOF);
 
     ERBeamDetTOFDigi *digi = AddTOFDigi(edep, time, itPlate->first);
 
