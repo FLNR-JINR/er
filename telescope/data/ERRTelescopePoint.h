@@ -80,8 +80,8 @@ class ERRTelescopePoint : public FairMCPoint
   /** Point coordinates at given z from linear extrapolation **/
   Double_t GetX(Double_t z) const;
   Double_t GetY(Double_t z) const;
-  Int_t Sector() const {return fSector;}
-  Int_t Sensor() const {return fSensor;}
+  Int_t GetSectorNb() const {return fSectorNb;}
+  Int_t GetSensorNb() const {return fSensorNb;}
 
   /** Check for distance between in and out **/
   Bool_t IsUsable() const;
@@ -96,7 +96,7 @@ class ERRTelescopePoint : public FairMCPoint
   Double_t fMass;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
-  Int_t fSector, fSensor;
+  Int_t fSectorNb, fSensorNb;
 
   ClassDef(ERRTelescopePoint,1)
 };
