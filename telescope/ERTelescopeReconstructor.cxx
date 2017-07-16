@@ -317,7 +317,18 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 
   //Ntelescopes NLayMax header->NofDetPart NDivXYMax
   fOutEvent->al111 = al[0][0][0][0];
+  fOutEvent->al112 = al[0][0][1][0];
+  fOutEvent->al211 = al[1][0][0][0];
+  fOutEvent->al212 = al[1][0][1][0];
   fOutEvent->al221 = al[1][1][0][0];
+  fOutEvent->al222 = al[1][1][1][0];
+  fOutEvent->al231 = al[1][2][0][0];
+  fOutEvent->al232 = al[1][2][1][0];
+  fOutEvent->al241 = al[1][3][0][0];
+  fOutEvent->al242 = al[1][3][1][0];
+  fOutEvent->al251 = al[1][4][0][0];
+  fOutEvent->al252 = al[1][4][1][0];
+  
 
   //mis calculations
   misCalculations();
@@ -960,6 +971,50 @@ void ERTelescopeReconstructor::InitMemory(){
     for (int j=0; j<header->NofDetPart+header->NofUnObsPart; j++)
       ejectile[i][j] = new ERParticle[NDivXYMax];
   }
+  for(int it=0;it<Ntelescopes;it++)
+  {
+        mp[it] = 0;
+        for(int il=0;il<layer[it];il++)
+        {
+          for(int ip=0;ip<header->NofDetPart;ip++)
+          {
+            for(int imu=0;imu<NDivXYMax;imu++)
+            {
+              al[it][il][ip][imu] = -1000.;
+            }
+          }
+          for(int id=0;id<NDetMax;id++)
+          {
+            mpd[it][il][id] = 0;
+            MuX[it][il][id] = -1;
+            MuY[it][il][id] = -1;
+            MuXT[it][il][id] = -1;
+            MuYT[it][il][id] = -1;
+            xbdet0[it][il][id] = -100.;
+            ybdet0[it][il][id] = -100.;
+            for(int imu=0;imu<NDivXYMax;imu++)
+            {
+              NhitX[it][il][id][imu] = 0;
+              NhitY[it][il][id][imu] = 0;
+              NhitXT[it][il][id][imu] = 0;
+              NhitYT[it][il][id][imu] = 0;
+              DepoX[it][il][id][imu] = 0.;
+              DepoY[it][il][id][imu] = 0.;
+              cx[it][il] = 0.;
+              cy[it][il] = 0.;
+              cz[it][il] = 0.;
+              deposit[it][il][id][imu] = 0.;
+            }
+            for(int ip=0;ip<header->NofDetPart;ip++)
+            {
+              HitX[it][il][id][ip] = -1;
+              HitXT[it][il][id][ip] = -1;
+              HitY[it][il][id][ip] = -1;
+              HitYT[it][il][id][ip] = -1;
+            }
+          }
+        }
+      }
 
   cout << "Memory inited" << endl;
 }
