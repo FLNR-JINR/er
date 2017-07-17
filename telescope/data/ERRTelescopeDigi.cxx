@@ -15,7 +15,7 @@ ERRTelescopeDigi::ERRTelescopeDigi()
 {
 }
 
-ERRTelescopeDigi::ERRTelescopeDigi(Int_t id, Float_t Edep, Double_t time, Int_t sensorNb, Int_t sectorNb)
+ERRTelescopeDigi::ERRTelescopeDigi(Int_t id, Float_t Edep, Double_t time, Int_t sectorNb, Int_t sensorNb)
   :fID(id),
   fEdep(Edep),
   fTime(time),

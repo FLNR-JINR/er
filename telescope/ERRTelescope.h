@@ -143,7 +143,7 @@ private:
 private:
   /** Private method AddPoint
    **
-   ** Adds a NeuRadPoint to the Point Collection
+   ** Adds a RTelescopePoint to the Point Collection
    **/
   
   ERRTelescopePoint* AddPoint();

@@ -10,8 +10,8 @@
 
 #include "FairTask.h"
 
-#include "ERRTelecopePoint.h"
-#include "ERRTelecopeDigi.h"
+#include "ERRTelescopePoint.h"
+#include "ERRTelescopeDigi.h"
 
 
 class ERRTelescopeDigitizer : public FairTask {
@@ -49,9 +49,9 @@ public:
   Float_t TimeDispersionPar() const {return fTimeSigma;}
 protected:
   //Input arrays
-  TClonesArray *fRTelecopePoints;
+  TClonesArray *fRTelescopePoints;
   //Output arrays
-  TClonesArray *fRTelecopeDigi;
+  TClonesArray *fRTelescopeDigi;
   
   Float_t fElossSigma;
   Float_t fTimeSigma;
@@ -62,7 +62,7 @@ protected:
 
   //ERBeamDetSetup* fBeamDetSetup;
 protected:
-  ERRTelescopeDigi* AddDigi(Float_t edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
+  ERRTelescopeDigi* AddDigi(Float_t edep, Double_t time, Int_t sectorNb, Int_t sensorNb);
 
 private:
   virtual void SetParContainers();

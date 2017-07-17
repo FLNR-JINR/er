@@ -94,19 +94,19 @@ void ERRTelescopeDigitizer::Exec(Option_t* opt)
   map<Int_t, map<Int_t, vector<Int_t>>> points;
   for (Int_t iPoint = 0; iPoint < fRTelescopePoints->GetEntriesFast(); iPoint++){
     ERRTelescopePoint* point = (ERRTelescopePoint*)fRTelescopePoints->At(iPoint);
-    points[point->GetSensorNb()][point->GetSectorNb()].push_back(iPoint);
+    points[point->GetSectorNb()][point->GetSensorNb()].push_back(iPoint);
   }
 
-  map<Int_t, map<Int_t, vector<Int_t> > >::iterator  itSensor;
-  map<Int_t, vector<Int_t> >::iterator               itSector;
+  map<Int_t, map<Int_t, vector<Int_t> > >::iterator  itSector;
+  map<Int_t, vector<Int_t> >::iterator               itSensor;
   vector<Int_t>::iterator                            itPoint;
 
-  for(itSensor = points.begin(); itSensor != points.end(); ++itSensor){
-    for(itSector = itSensor.begin(); itSector != itSensor.end(); ++itSector)
+  for(itSector = points.begin(); itSector != points.end(); ++itSector){
+    for(itSensor = itSector->second.begin(); itSensor != itSector->second.end(); ++itSensor) {
       Float_t edep = 0.; //sum edep in sensor
       Float_t time = numeric_limits<float>::max(); // min time in plate
       
-      for (itPoint = itSector->second.begin(); itPoint != itSector->second.end(); ++itPoint){
+      for (itPoint = itSensor->second.begin(); itPoint != itSensor->second.end(); ++itPoint){
         ERRTelescopePoint* point = (ERRTelescopePoint*)(fRTelescopePoints->At(*itPoint));
         edep += point->GetEnergyLoss();
 
@@ -116,17 +116,18 @@ void ERRTelescopeDigitizer::Exec(Option_t* opt)
       }
       edep = gRandom->Gaus(edep, fElossSigma);
 
-      if (edep < fMWPCElossThreshold)
+      if (edep < fElossThreshold)
         continue;
 
       time = gRandom->Gaus(time, fTimeSigma);
 
-      ERRTelescopeDigi *digi = AddTOFDigi(edep, time, itSensor->first, itSector->first);
+      ERRTelescopeDigi *digi = AddDigi(edep, time, itSector->first, itSensor->first);
 
       for (itPoint = itSensor->second.begin(); itPoint != itSensor->second.end(); ++itPoint){
         digi->AddLink(FairLink("RTelescopePoint", *itPoint));
       }
     }
+  }
 }
 //----------------------------------------------------------------------------
 
@@ -147,10 +148,10 @@ void ERRTelescopeDigitizer::Finish()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERRTelescopeDigi* ERRTelescopeDigitizer::AddMWPCDigi(Float_t edep, Double_t time, Int_t sensorNb, Int_t sectorNb)
+ERRTelescopeDigi* ERRTelescopeDigitizer::AddDigi(Float_t edep, Double_t time, Int_t sectorNb, Int_t sensorNb)
 {
   ERRTelescopeDigi *digi = new((*fRTelescopeDigi)[fRTelescopeDigi->GetEntriesFast()])
-              ERRTelescopeDigi(fRTelescopeDigi->GetEntriesFast(), edep, time, sensorNb, sectorNb);
+              ERRTelescopeDigi(fRTelescopeDigi->GetEntriesFast(), edep, time, sectorNb, sensorNb);
   return digi;
 }
 // ----------------------------------------------------------------------------

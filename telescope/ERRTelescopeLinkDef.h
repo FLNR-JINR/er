@@ -9,6 +9,7 @@
 #pragma link C++ class ERRTelescopeSetup+;
 
 #pragma link C++ class ERRTelescopePoint+;
+#pragma link C++ class ERRTelescopeDigi+;
 #pragma link C++ class ERRTelescopeHit+;
 
 #pragma link C++ class ERRTelescopeEvent+;
@@ -20,6 +21,6 @@
 #pragma link C++ class ERQTelescopeCalibrator+;
 #pragma link C++ class ERRTelescopeCalibrator+;
 #pragma link C++ class ERTelescopeReconstructor+;
-
+#pragma link C++ class ERRTelescopeDigitizer+;
 
 #endif

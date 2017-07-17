@@ -27,6 +27,7 @@ ERRTelescope.cxx
 ERRTelescopeHitFinder.cxx
 ERRTelescopeSetup.cxx
 data/ERRTelescopePoint.cxx
+data/ERRTelescopeDigi.cxx
 data/ERRTelescopeHit.cxx
 data/ERRTelescopeEvent.cxx
 data/ERRTelescopeCalEvent.cxx
@@ -36,6 +37,7 @@ data/ERTelescopeRecoEvent.cxx
 ERQTelescopeCalibrator.cxx
 ERRTelescopeCalibrator.cxx
 ERTelescopeReconstructor.cxx
+ERRTelescopeDigitizer.cxx
 )
 
 # fill list of header files from list of source files

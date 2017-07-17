@@ -20,7 +20,7 @@ class ERRTelescopeDigi : public FairMultiLinkedData
   
   /** Constructor with arguments
    **/
-  ERRTelescopeDigi(Int_t id, Float_t Edep, Double_t time, Int_t sensorNb, Int_t sectorNb);
+  ERRTelescopeDigi(Int_t id, Float_t Edep, Double_t time, Int_t sectorNb, Int_t sensorNb);
                    
   /** Copy constructor **/
   ERRTelescopeDigi(const ERRTelescopeDigi&);
