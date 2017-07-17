@@ -20,6 +20,7 @@
 #include "FairGenerator.h"              // for FairGenerator
 
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
+#include "TMath.h"
 
 class FairIon;
 class FairPrimaryGenerator;
@@ -110,6 +111,33 @@ class ERIonGenerator : public FairGenerator
       fBoxVtxIsSet=kTRUE;
     }
 
+    void SetSigmaXYZ(Double32_t x=0, Double32_t y=0, Double32_t z=0,
+                    Double32_t sigmaX=1, Double32_t sigmaY=1)
+    {
+      fGausX = x;
+      fGausY = y;
+      fSigmaX = sigmaX;
+      fSigmaY = sigmaY;
+      fZ = z;
+      fBoxSigmaIsSet = kTRUE;
+    }
+
+    void SetKinE(Double32_t kinE) 
+    { fPz = TMath::Sqrt(kinE*kinE + 2.*kinE*fPDGMass);}
+
+    void SetKinERange(Double32_t kinEMin, Double32_t kinEMax)
+    { 
+      fPMin = TMath::Sqrt(kinEMin*kinEMin + 2.*kinEMin*fPDGMass);
+      fPMax = TMath::Sqrt(kinEMax*kinEMax + 2.*kinEMax*fPDGMass);
+      fPRangeIsSet=kTRUE;
+    }
+
+    void SetKinSigma(Double32_t kinE, Double32_t sigmaKinE)
+    { fGausKinE = kinE; fSigmaKinE = sigmaKinE; fSigmaKinEIsSet=kTRUE; } 
+
+    void SetPSigma(Double32_t p=0 , Double32_t sigma = 1)
+    {fGausP=p; fSigmaP=sigma; fSigmaPIsSet=kTRUE;}
+
     void SetDebug(Bool_t debug=0) {fDebug = debug;}
 
 
@@ -140,7 +168,13 @@ class ERIonGenerator : public FairGenerator
     Double32_t fThetaMin, fThetaMax; // Polar angle range in lab system [degree]
     Double32_t fX, fY, fZ;           // Point vertex coordinates [cm]
     Double32_t fX1, fY1, fX2, fY2;   // Box vertex coords (x1,y1)->(x2,y2)
-    Double32_t fPx, fPy, fPz;        
+    Double32_t fPx, fPy, fPz;
+    Double32_t fGausX, fGausY;
+    Double32_t fSigmaX, fSigmaY;  
+    Double32_t fGausKinE; 
+    Double32_t fSigmaKinE;
+    Double32_t fGausP;   
+    Double32_t fSigmaP;  
 
     Bool_t     fEtaRangeIsSet;       // True if eta range is set
     Bool_t     fYRangeIsSet;         // True if rapidity range is set
@@ -151,6 +185,9 @@ class ERIonGenerator : public FairGenerator
     Bool_t     fPRangeIsSet;         // True if abs.momentum range is set
     Bool_t     fPointVtxIsSet;       // True if point vertex is set
     Bool_t     fBoxVtxIsSet;         // True if box vertex is set
+    Bool_t     fBoxSigmaIsSet;
+    Bool_t     fSigmaKinEIsSet;
+    Bool_t     fSigmaPIsSet;
     Bool_t     fDebug;               // Debug switch
 
  private:
