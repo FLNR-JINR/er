@@ -34,7 +34,6 @@ ERIonMixGenerator::ERIonMixGenerator(TString name, Int_t z, Int_t a, Int_t q, In
   : ERIonGenerator(name, z, a, q, mult)
 {
   fBgIons.clear();
-  fBgIons.insert(std::make_pair(name, 0));
 }
 //_________________________________________________________________________
 
@@ -63,9 +62,7 @@ void ERIonMixGenerator::AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q
     return ;
   }
 
-  fBgIons.insert(std::make_pair(name, sumProbability));
-
-  //fBgIons.at(fIon->GetName()) = 1;
+  fBgIons.insert(std::make_pair(sumProbability, name));
 
   FairRunSim* run = FairRunSim::Instance();
   if ( ! run ) {
@@ -84,15 +81,15 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
   for (Int_t k = 0; k < fMult; k++) {
     spreadingParameters();
 
-    randResult = gRandom->Uniform(0, 1);
+    randResult = gRandom->Uniform(0., 1.);
 
     auto it = std::find_if(fBgIons.begin(), fBgIons.end(),
-                            [randResult](const std::pair<TString, Double_t> &t)->bool
+                            [randResult](const std::pair<Double_t, TString> &t)->bool
                             {
-                              return (t.second > randResult);
+                              return (t.first > randResult);
                             }
                           ); 
-    (it == fBgIons.end()) ? ionName = fIon->GetName() : ionName = it->first;
+    (it == fBgIons.end()) ? ionName = fIon->GetName() : ionName = it->second;
 
 
     TParticlePDG* thisPart =
