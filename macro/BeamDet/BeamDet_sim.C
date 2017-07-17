@@ -49,36 +49,15 @@ void BeamDet_sim(Int_t nEvents = 1000){
   // ------------------------------------------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  /*Int_t pdgId = 2212; // proton  beam
-  Double32_t theta1 = 0.;  // polar angle distribution
-  Double32_t theta2 = 0.0;
-  Double32_t kin_energy = .500; //GeV
-  Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
-  Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
-  FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-  boxGen->SetThetaRange(theta1, theta2);
-  boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(0.0, 0.0);
-  boxGen->SetBoxXYZ(0.,0.,0.6,0.6,0.);
-  */
   //Ion 28S
-/*  Int_t A = 28;
-  Int_t Z = 16;
-  Int_t Q = 16;
-  Double_t Pz = 40 * 1e-3;// AGeV
-  FairIonGenerator* ionGenerator = new FairIonGenerator(Z,A,Q,1,0.,0.,Pz,0.,0.,-10.);
-*/
-  //Ion 27F
   Int_t A = 28;
   Int_t Z = 16;
   Int_t Q = 16;
-  //FairIonGenerator* ionGenerator = new FairIonGenerator(Z,A,Q,1,0.,0.,Pz,0.,0.,-10.);
 
   ERIonMixGenerator* sgenerator = new ERIonMixGenerator("28S", Z, A, Q, 1);
   Double32_t kin_energy = 40 * 1e-3 * 28; //GeV
-  Double_t   mass = sgenerator->Ion()->GetMass();
-  Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
-  sgenerator->SetPRange(momentum, momentum);
+  sgenerator->SetKinERange(kin_energy, kin_energy);
+//  sgenerator->SetKinESigma(kin_energy, 0);
 
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 0.0001*TMath::RadToDeg();
@@ -122,5 +101,5 @@ void BeamDet_sim(Int_t nEvents = 1000){
     cout << "Parameter file is par.root" << endl;
     cout << "Real time " << rtime << " s, CPU time " << ctime
                     << "s" << endl << endl;
-    cout << "Energy " << momentum << "; mass " << mass << endl; 
+   // cout << "Energy " << momentum << "; mass " << mass << endl; 
 }

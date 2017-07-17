@@ -122,17 +122,9 @@ class ERIonGenerator : public FairGenerator
       fBoxSigmaIsSet = kTRUE;
     }
 
-    void SetKinE(Double32_t kinE) 
-    { fPz = TMath::Sqrt(kinE*kinE + 2.*kinE*fPDGMass);}
+    void SetKinERange(Double32_t kinEMin, Double32_t kinEMax);
 
-    void SetKinERange(Double32_t kinEMin, Double32_t kinEMax)
-    { 
-      fPMin = TMath::Sqrt(kinEMin*kinEMin + 2.*kinEMin*fPDGMass);
-      fPMax = TMath::Sqrt(kinEMax*kinEMax + 2.*kinEMax*fPDGMass);
-      fPRangeIsSet=kTRUE;
-    }
-
-    void SetKinSigma(Double32_t kinE, Double32_t sigmaKinE)
+    void SetKinESigma(Double32_t kinE, Double32_t sigmaKinE)
     { fGausKinE = kinE; fSigmaKinE = sigmaKinE; fSigmaKinEIsSet=kTRUE; } 
 
     void SetPSigma(Double32_t p=0 , Double32_t sigma = 1)
