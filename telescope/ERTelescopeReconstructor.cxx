@@ -94,6 +94,14 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 
   ReadDeposites();
 
+
+  FairRun* run = FairRun::Instance();
+  run->MarkFill(kFALSE);
+  if (header->mp1 == 1 && header->mp2 == 1)
+    run->MarkFill(kTRUE);
+  else
+    return;
+
   double tarcoord[3];
 
   double Zdist;
@@ -140,6 +148,9 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
       cz[1][il] = (Vert1+AngleDet[1][il]).Z();
     }
   }
+  cx[0][0] = -1;
+  cy[0][0] = -1;
+  cz[0][0] = -1;
   if (header->mp1 == 1){
     AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitX[0][1][0][0],NhitY[0][0][0][0],Vert1);
     cx[0][0] = (Vert1+AngleDet[0][0]).X();
@@ -1108,8 +1119,16 @@ void ERTelescopeReconstructor::ReadDeposites(){
       }
     }
   }
-  MuY[0][0][0]=fRTelescopeEvent->mC11;MuX[0][1][0]=fRTelescopeEvent->mC12;
-  MuY[1][0][0]=fQTelescopeEvent->mC21;MuX[1][1][0]=fQTelescopeEvent->mC22;MuX[1][2][0]=fQTelescopeEvent->mC23;
+  MuY[0][0][0]=fRTelescopeEvent->mC11;
+  MuX[0][1][0]=fRTelescopeEvent->mC12;
+
+  MuX[1][0][0]=fQTelescopeEvent->mC21;
+  MuY[1][1][0]=fQTelescopeEvent->mC22;
+  MuY[1][2][0]=fQTelescopeEvent->mC23;
+  MuY[1][3][0]=fQTelescopeEvent->mC24;
+  MuY[1][4][0]=fQTelescopeEvent->mC25;
+  MuY[1][5][0]=fQTelescopeEvent->mC26;
+
   //====================================================
   for(int imu=0;imu<=MuY[0][0][0];imu++)
   {
@@ -1164,16 +1183,18 @@ void ERTelescopeReconstructor::ReadDeposites(){
   mp[0] = 0;  mp[1] = 0;
   mpd[0][0][0] = 0; mpd[0][1][0] = 0;
   mpd[1][0][0] = 0; mpd[1][1][0] = 0;
+  //RTelescope
   if(MuY[0][0][0]==0&&NhitY[0][0][0][0]>0&&NhitY[0][0][0][0]<=abs(Det[0][0][0].NstripY)&&DepoX[0][0][0][0]>0.) mpd[0][0][0]=MuY[0][0][0]+1;
   if(MuX[0][1][0]==0&&NhitX[0][1][0][0]>0&&NhitX[0][1][0][0]<=abs(Det[0][0][0].NstripX)&&DepoX[0][1][0][0]>0.) mpd[0][1][0]=MuX[0][1][0]+1;
+
+  //QTelescope
   if(MuX[1][0][0]==0&&NhitX[1][0][0][0]>0&&NhitX[1][0][0][0]<=abs(Det[1][0][0].NstripX)&&DepoX[1][0][0][0]>0.) mpd[1][0][0]=MuX[1][0][0]+1;
-  
   if(MuY[1][1][0]==0&&NhitY[1][1][0][0]>0&&NhitY[1][1][0][0]<=abs(Det[1][1][0].NstripY)&&DepoX[1][1][0][0]>0.) mpd[1][1][0]=MuY[1][1][0]+1;
 
   if(mpd[0][0][0]==1&&mpd[0][1][0]==1) mp[0] = mpd[0][0][0];
-
   if(mpd[1][0][0]==1&&mpd[1][1][0]==1) mp[1] = mpd[1][0][0];
   header->mp1 = mp[0]; header->mp2 = mp[1];
+
   fOutEvent->dep11= DepoX[0][0][0][0];
   fOutEvent->dep12= DepoX[0][1][0][0];
   fOutEvent->dep21= DepoX[1][0][0][0];
@@ -1216,7 +1237,7 @@ TVector3 ERTelescopeReconstructor::Traject(Telescope* Dx,Telescope* Dy,int Nx,in
     }
     if(!strcmp(Dy->Shape,"square"))
     {
-      arba = (rand() %10000)/10000.;
+      arba = 0.;//(rand() %10000)/10000.;
       y = (double(Ny)-abs(Dy->NstripY)/2.-1.+arba)*Dy->SizeY/Dy->NstripY;
       Py = y*Dy->DetOwnAxisY.Unit() + VecDY + Vint;
       x1 = Py.X();y1 = Py.Y();z1 = Py.Z();
@@ -1226,7 +1247,7 @@ TVector3 ERTelescopeReconstructor::Traject(Telescope* Dx,Telescope* Dy,int Nx,in
     if(!strcmp(Dy->Shape,"sector")||!strcmp(Dy->Shape,"annular"))
     {
 
-      arba = (rand() %10000)/10000.;
+      arba = 0.;//(rand() %10000)/10000.;
       if(Dy->Nsector>0) Phi = (double(Ny)-1.+arba)*360./Dy->Nsector;
       else if(Dy->Nsector<0) Phi = 360.+(double(Ny)-1.+arba)*360./Dy->Nsector;
 
@@ -1262,7 +1283,7 @@ TVector3 ERTelescopeReconstructor::Traject(Telescope* Dx,Telescope* Dy,int Nx,in
     A = -A/B; B = D/B;
     if(!strcmp(Dx->Shape,"annular")||!strcmp(Dx->Shape,"sector"))
     {
-      arba = (rand() %10000)/10000.;
+      arba = 0.;//(rand() %10000)/10000.;
       if(Dx->Nring>0) R=(double(Nx)-1.+arba)*(Dx->Rout-Dx->Rin)/Dx->Nring+Dx->Rin;
       else if(Dx->Nring<0) R=(double(abs(Dx->Nring)-Nx)+arba)*(Dx->Rout-Dx->Rin)/abs(Dx->Nring)+Dx->Rin;
       x1 = (-A*B+sqrt(R*R*(1+A*A)-B*B))/(1+A*A);
@@ -1274,7 +1295,7 @@ TVector3 ERTelescopeReconstructor::Traject(Telescope* Dx,Telescope* Dy,int Nx,in
     }
     if(!strcmp(Dx->Shape,"square"))
     {
-      arba = (rand() %10000)/10000.;
+      arba = 0.;//(rand() %10000)/10000.;
       x = (double(Nx)-abs(Dx->NstripX)/2.-1.+arba)*Dx->SizeX/Dx->NstripX;
       y = A*x + B;
       Px = x*Dx->DetOwnAxisX.Unit() + y*Dx->DetOwnAxisY.Unit();
