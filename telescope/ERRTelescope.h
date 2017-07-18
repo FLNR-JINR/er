@@ -12,14 +12,10 @@
 
 #include "ERDetector.h"
 #include "ERRTelescopePoint.h"
-
 #include "TLorentzVector.h"
+#include "TClonesArray.h"
 
-class TClonesArray;
-class FairVolume;
-class TF1;
-
-class ERRTelescope : public FairDetector
+class ERRTelescope : public ERDetector
 {
   
 public:
@@ -97,13 +93,6 @@ public:
   virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2,
 			  Int_t offset);
   
-  
-  /** Virtaul method Construct geometry
-   **
-   ** Constructs the ERRTelescope geometry
-   **/
-  virtual void ConstructGeometry();
-  
    /** Virtaul method Initialize
    **
    ** Initialize ERRTelescope data
@@ -119,18 +108,13 @@ public:
   **/
   virtual Bool_t CheckIfSensitive(std::string name);
   
-  /** Virtaul method SetGeomVersion
-  **/
-  void SetGeomVersion(Int_t vers ) { fVersion = vers; }
-  
 private:
   TClonesArray*  fRTelescopePoints;     //!  The point collection
-  Int_t          fVersion;              //! geometry version
   
   Int_t          fEventID;           //!  event index
   Int_t          fTrackID;           //!  track index
   Int_t          fMot0TrackID;       //!  mother track index
-  Int_t          fMass;              //!  particle mass
+  Int_t          fPID;              //!  particle PDG
   TLorentzVector fPosIn, fPosOut;    //!  position
   TLorentzVector fMomIn, fMomOut;    //!  momentum
   Double32_t     fTime;              //!  time

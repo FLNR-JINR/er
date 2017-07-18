@@ -70,7 +70,7 @@ class ERRTelescopePoint : public FairMCPoint
   Double_t GetPxOut()           const { return fPx_out; }
   Double_t GetPyOut()           const { return fPy_out; }
   Double_t GetPzOut()           const { return fPz_out; }
-  Double_t GetMass()            const { return fMass; }
+  Double_t GetPID()             const { return fPID; }
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
@@ -93,7 +93,7 @@ class ERRTelescopePoint : public FairMCPoint
   
   Int_t fEventID;
   Int_t fMot0TrackID;
-  Double_t fMass;
+  Double_t fPID;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
   Int_t fSectorNb, fSensorNb;
