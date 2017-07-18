@@ -45,7 +45,7 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
   fSumAmplitudeB(0),
   fPECountF(0),
   fPECountB(0),
-  fUseCrosstalks(kTRUE)
+  fUseCrosstalks(kFALSE)
 {
 }
 // ----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   fSumAmplitudeB(0),
   fPECountF(0),
   fPECountB(0),
-  fUseCrosstalks(kTRUE)
+  fUseCrosstalks(kFALSE)
 {
 }
 // ----------------------------------------------------------------------------

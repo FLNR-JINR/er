@@ -35,10 +35,10 @@ void SetCuts()
   gMC->SetProcess("LOSS",3); /**energy loss*/
   gMC->SetProcess("MULS",1); /**multiple scattering*/
  
-  Double_t cut1 = 0.;         // MeV --> 1 keV
-  //Double_t cut1 = 1.0E-6;
-  Double_t cut2 = 0.;
-  //Double_t cut2 = 1.0E-6;         // MeV --> 100 keV
+//  Double_t cut1 = 0.;         // MeV --> 1 keV
+  Double_t cut1 = 1.0E-5;
+ // Double_t cut2 = 0.;
+  Double_t cut2 = 1.0E-5;         // MeV --> 100 keV
   Double_t cutb = 1.0E4;          // GeV --> 10 TeV
   Double_t tofmax = 1.E10;        // seconds
   cout << "SetCuts Macro: Setting cuts.." <<endl;

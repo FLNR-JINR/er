@@ -80,7 +80,7 @@ void ERSimtoRaw::Exec(Option_t* opt)
   for (Int_t iSignal = 0; iSignal < fPixelSignals->GetEntriesFast(); iSignal++){
     ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fPixelSignals->At(iSignal);
     // if (signal->Side() !=1 || signal->PixelNb() != 25) continue;
-    if ( signal->PixelNb() != 136 ) continue;
+//    if ( signal->PixelNb() != 136 ) continue;
     TArrayF* result = signal->ResultSignal();
     maxAmp = 0;
     simSize = 0;
@@ -91,7 +91,7 @@ void ERSimtoRaw::Exec(Option_t* opt)
         if( maxAmp < result->GetAt(i) ) {maxAmp = result->GetAt(i);}
       }  //searching maxAmp
 //      cout << maxAmp << endl;
-      if(maxAmp > 30) {
+      if(maxAmp > 5) {
 //        cout << " not NULL event found " << endl;
         run->MarkFill(kTRUE);
       }

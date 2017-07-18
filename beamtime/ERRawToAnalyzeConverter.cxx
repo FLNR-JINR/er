@@ -97,7 +97,7 @@ InitStatus ERRawToAnalyzeConverter::Init()
 void ERRawToAnalyzeConverter::Exec(Option_t* opt)
 {
   fEvent++;
-  if ( !(fEvent%100000) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
+  if ( !(fEvent%500) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
 
 /*std::cout << std::endl;
   std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
