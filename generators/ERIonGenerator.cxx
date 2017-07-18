@@ -78,7 +78,7 @@ ERIonGenerator::ERIonGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mu
   fX1(0),fY1(0),fX2(0),fY2(0), 
   fGausX(0), fGausY(0), fGausP(0),
   fSigmaX(1), fSigmaY(1), fSigmaKinEIsSet(0), fSigmaPIsSet(0),
-  fGausKinE(0), fSigmaKinE(1), fSigmaP(1), 
+  fSigmaP(1), 
   fEtaRangeIsSet(0), fYRangeIsSet(0),fThetaRangeIsSet(0),
   fCosThetaIsSet(0), fPtRangeIsSet(0), fPRangeIsSet(0),
   fPointVtxIsSet(0),fBoxVtxIsSet(0),fDebug(0),fIon(NULL), fName(name), 
@@ -121,6 +121,12 @@ void ERIonGenerator::SetKinERange(Double32_t kinEMin, Double32_t kinEMax)
   fPRangeIsSet=kTRUE;
 }
 
+void ERIonGenerator::SetKinESigma(Double32_t kinE, Double32_t sigmaKinE)
+{ 
+  fGausP = TMath::Sqrt(kinE*kinE + 2.*kinE*fIon->GetMass());
+  fSigmaP = TMath::Sqrt(sigmaKinE*sigmaKinE + 2.*sigmaKinE*fIon->GetMass());
+  fSigmaPIsSet=kTRUE; 
+}
 // -----   Public method SetMass   ----------------------------------------
 void ERIonGenerator::SetMass(Double_t mass)
 {
@@ -140,11 +146,11 @@ void ERIonGenerator::spreadingParameters()
   else if (fPtRangeIsSet) { pt   = gRandom->Uniform(fPtMin,fPtMax); }
   if (fSigmaPIsSet) { pabs = gRandom->Gaus(fGausP,fSigmaP); fPRangeIsSet = kTRUE;}
 
-  if(fSigmaKinEIsSet) { 
+ /* if(fSigmaKinEIsSet) { 
     kinE = gRandom->Gaus(fGausKinE, fSigmaKinE);
     pabs = TMath::Sqrt(kinE*kinE + 2.*kinE*kinE*fIon->GetMass());
     fPRangeIsSet = kTRUE;
-  }
+  }*/
 
   if      (fThetaRangeIsSet) {
     if (fCosThetaIsSet)

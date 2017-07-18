@@ -124,8 +124,7 @@ class ERIonGenerator : public FairGenerator
 
     void SetKinERange(Double32_t kinEMin, Double32_t kinEMax);
 
-    void SetKinESigma(Double32_t kinE, Double32_t sigmaKinE)
-    { fGausKinE = kinE; fSigmaKinE = sigmaKinE; fSigmaKinEIsSet=kTRUE; } 
+    void SetKinESigma(Double32_t kinE, Double32_t sigmaKinE); 
 
     void SetPSigma(Double32_t p=0 , Double32_t sigma = 1)
     {fGausP=p; fSigmaP=sigma; fSigmaPIsSet=kTRUE;}
@@ -163,8 +162,6 @@ class ERIonGenerator : public FairGenerator
     Double32_t fPx, fPy, fPz;
     Double32_t fGausX, fGausY;
     Double32_t fSigmaX, fSigmaY;  
-    Double32_t fGausKinE; 
-    Double32_t fSigmaKinE;
     Double32_t fGausP;   
     Double32_t fSigmaP;  
 

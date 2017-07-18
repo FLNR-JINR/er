@@ -16,6 +16,7 @@
 #include "TParticle.h"                  // for TParticle
 #include "TParticlePDG.h"               // for TParticlePDG
 #include "TRandom.h"
+#include "TMath.h"
 
 #include <stdio.h>                      // for NULL, sprintf
 
@@ -77,9 +78,13 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 {
   Double_t randResult;
   TString  ionName;
+  Double_t rigidityMin;
+  Double_t rigidityMax;
+  Double_t gausRigidity;
+  Double_t pMin = fPMin, pMax = fPMax;
+  Double_t pGaus = fGausP;
   // Generate particles
   for (Int_t k = 0; k < fMult; k++) {
-    spreadingParameters();
 
     randResult = gRandom->Uniform(0., 1.);
 
@@ -91,7 +96,6 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
                           ); 
     (it == fBgIons.end()) ? ionName = fIon->GetName() : ionName = it->second;
 
-
     TParticlePDG* thisPart =
     TDatabasePDG::Instance()->GetParticle(ionName);
     if ( ! thisPart ) {
@@ -99,6 +103,26 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
       << " not found in database!" << FairLogger::endl;
       return kFALSE;
     }
+
+    Double_t charge = thisPart->Charge();
+
+    if(fPRangeIsSet){
+
+      rigidityMin = pMin / fIon->GetZ() / 3;
+      rigidityMax = pMax / fIon->GetZ() / 3;
+	    fPMin = rigidityMin * charge;
+	    fPMax = rigidityMax * charge;
+    }
+
+    if(fSigmaPIsSet)
+    {
+      gausRigidity = pGaus / fIon->GetZ() / 3;
+      fGausP = gausRigidity * charge;
+    }
+
+    std::cout << "Pmin  " << fPMin << " Pmax " << fPMax << " GausP " << fGausP << std::endl;
+
+    spreadingParameters();
 
     int pdgType = thisPart->PdgCode();
 
@@ -109,10 +133,13 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
         << ") Gev from vertex (" << fX << ", " << fY
         << ", " << fZ << ") cm" << std::endl;
     primGen->AddTrack(pdgType, fPx, fPy, fPz, fX, fY, fZ);
+
+
   }
-
+  fGausP = pGaus;
+  fPMin = pMin;
+  fPMax = pMax;
   return kTRUE;
-
 }
 
 ClassImp(ERIonMixGenerator)
