@@ -23,8 +23,11 @@ ERBeamDetDigitizer::ERBeamDetDigitizer()
   fBeamDetMWPCPoints(NULL), 
   fBeamDetTOFDigi(NULL), 
   fBeamDetMWPCDigi(NULL),
-  fElossDispersionTof(0),
-  fTimeDispersionTof(0),
+  fElossSigmaTOF(0),
+  fTimeSigmaTOF(0),
+  fElossSigmaMWPC(0),
+  fTimeSigmaMWPC(0),
+  fMWPCElossThreshold(0),
   fTOFElossThreshold(0),
   fDigiEloss(0)
 {
@@ -38,8 +41,11 @@ ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
   fBeamDetMWPCPoints(NULL), 
   fBeamDetTOFDigi(NULL), 
   fBeamDetMWPCDigi(NULL),
-  fElossDispersionTof(0),
-  fTimeDispersionTof(0),
+  fElossSigmaTOF(0),
+  fTimeSigmaTOF(0),
+  fElossSigmaMWPC(0),
+  fTimeSigmaMWPC(0),
+  fMWPCElossThreshold(0),
   fTOFElossThreshold(0),
   fDigiEloss(0)
 {
@@ -100,57 +106,94 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
 
   Reset();
 
+  map<Int_t, vector<Int_t>> pointsTOF;
   for (Int_t iPoint = 0; iPoint < fBeamDetTOFPoints->GetEntriesFast(); iPoint++){
     ERBeamDetTOFPoint* point = (ERBeamDetTOFPoint*)fBeamDetTOFPoints->At(iPoint);
+    pointsTOF[point->GetTOFNb()].push_back(iPoint);
+  }
 
-    Float_t edep = gRandom->Gaus(point->GetEnergyLoss(), fElossDispersionTof);
+  map<Int_t, vector<Int_t> >::iterator  itPlate;
+  vector<Int_t>::iterator               itTOFPoint;
+
+  for(itPlate = pointsTOF.begin(); itPlate != pointsTOF.end(); ++itPlate){
+  
+    Float_t edep = 0.; //sum edep in plate
+    Float_t time = numeric_limits<float>::max(); // min time in plate
+    
+    for (itTOFPoint = itPlate->second.begin(); itTOFPoint != itPlate->second.end(); ++itTOFPoint){
+      ERBeamDetTOFPoint* point = (ERBeamDetTOFPoint*)(fBeamDetTOFPoints->At(*itTOFPoint));
+      edep += point->GetEnergyLoss();
+
+      if (point->GetTime() < time){
+        time = point->GetTime();
+      }
+    }
+
+    fElossSigmaTOF = edep * 0.1 / TMath::Sqrt(edep);
+    edep = gRandom->Gaus(edep, fElossSigmaTOF);
+
+    if (edep < fTOFElossThreshold)
+      continue;
+
+    time = gRandom->Gaus(time, fTimeSigmaTOF);
+
+    ERBeamDetTOFDigi *digi = AddTOFDigi(edep, time, itPlate->first);
+
+    for (itTOFPoint = itPlate->second.begin(); itTOFPoint != itPlate->second.end(); ++itTOFPoint){
+      digi->AddLink(FairLink("BeamDetTOFPoint", *itTOFPoint));
+    }
+  }
+/*  for (Int_t iPoint = 0; iPoint < fBeamDetTOFPoints->GetEntriesFast(); iPoint++){
+    ERBeamDetTOFPoint* point = (ERBeamDetTOFPoint*)fBeamDetTOFPoints->At(iPoint);
+
+    Float_t edep = gRandom->Gaus(point->GetEnergyLoss(), fElossSigmaTOF);
     if (edep < fTOFElossThreshold)
       continue;
 
     Int_t tofNb = point->GetTofNb();
 
-    Float_t time = gRandom->Gaus(point->GetTime(), fTimeDispersionTof);
+    Float_t time = gRandom->Gaus(point->GetTime(), fTimeSigmaTOF);
 
     AddTOFDigi(edep, time, tofNb);
-  }
+  }*/
 
-   //Sort the points by MWPC, planes and wires
-  map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>> points;
+   //Sort the MWPCpoints by MWPC, planes and wires
+  map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>> pointsMWPC;
   for (Int_t iPoint = 0; iPoint < fBeamDetMWPCPoints->GetEntriesFast(); iPoint++){
     ERBeamDetMWPCPoint* point = (ERBeamDetMWPCPoint*)fBeamDetMWPCPoints->At(iPoint);
-    points[point->GetMWPCNb()][point->GetPlaneNb()][point->GetWireNb()].push_back(iPoint);
+    pointsMWPC[point->GetMWPCNb()][point->GetPlaneNb()][point->GetWireNb()].push_back(iPoint);
   }
 
   map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>>::iterator itMWPC;
   map<Int_t, map<Int_t, vector<Int_t> > >::iterator           itPlane;
   map<Int_t, vector<Int_t> >::iterator                        itWire;
-  vector<Int_t>::iterator                                     itPoint;
+  vector<Int_t>::iterator                                     itMWPCPoint;
 
-  for (itMWPC = points.begin(); itMWPC != points.end(); ++itMWPC){
+  for (itMWPC = pointsMWPC.begin(); itMWPC != pointsMWPC.end(); ++itMWPC){
     for (itPlane = itMWPC->second.begin(); itPlane != itMWPC->second.end(); ++itPlane){
       for(itWire = itPlane->second.begin(); itWire != itPlane->second.end(); ++itWire){
       
         Float_t edep = 0.; //sum edep in wire
         Float_t time = numeric_limits<float>::max(); // min time in wire
         
-        for (itPoint = itWire->second.begin(); itPoint != itWire->second.end(); ++itPoint){
-          ERBeamDetMWPCPoint* point = (ERBeamDetMWPCPoint*)(fBeamDetMWPCPoints->At(*itPoint));
+        for (itMWPCPoint = itWire->second.begin(); itMWPCPoint != itWire->second.end(); ++itMWPCPoint){
+          ERBeamDetMWPCPoint* point = (ERBeamDetMWPCPoint*)(fBeamDetMWPCPoints->At(*itMWPCPoint));
           edep += point->GetEnergyLoss();
           if (point->GetTime() < time){
             time = point->GetTime();
           }
         }
 
-        edep = gRandom->Gaus(edep, fElossDispersionMWPC);
+        edep = gRandom->Gaus(edep, fElossSigmaMWPC);
         if (edep < fMWPCElossThreshold)
           continue;
 
-        time = gRandom->Gaus(time, fTimeDispersionMWPC);
+        time = gRandom->Gaus(time, fTimeSigmaMWPC);
 
         ERBeamDetMWPCDigi *digi = AddMWPCDigi(edep, time, itMWPC->first, itPlane->first, itWire->first);
 
-        for (itPoint = itWire->second.begin(); itPoint != itWire->second.end(); ++itPoint){
-          digi->AddLink(FairLink("BeamDetMWPCPoint", *itPoint));
+        for (itMWPCPoint = itWire->second.begin(); itMWPCPoint != itWire->second.end(); ++itMWPCPoint){
+          digi->AddLink(FairLink("BeamDetMWPCPoint", *itMWPCPoint));
         }
       }
     }

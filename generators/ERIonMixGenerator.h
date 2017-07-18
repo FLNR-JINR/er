@@ -58,7 +58,7 @@ class ERIonMixGenerator : public ERIonGenerator
 
   private:
 
-    std::map<TString, Double_t>  fBgIons;   // Background ions names with emegence probability
+    std::map<Double_t, TString>  fBgIons;   // Background ions names with emegence probability
 
     ERIonMixGenerator(const ERIonMixGenerator&);
     ERIonMixGenerator& operator=(const ERIonMixGenerator&);

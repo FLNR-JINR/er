@@ -45,13 +45,13 @@ public:
   /** Modifiers **/
   void SetTofElossThreshold(Float_t th){fTOFElossThreshold = th;}
   void SetMWPCElossThreshold(Float_t th){fMWPCElossThreshold = th;}
-  void SetTofElossSigma(Float_t sigma) {fElossDispersionTof = sigma;}
-  void SetMWPCElossSigma(Float_t sigma) {fElossDispersionMWPC = sigma;}
-  void SetTofTimeSigma(Float_t sigma) {fTimeDispersionTof = sigma;}
-  void SetMWPCTimeSigma(Float_t sigma) {fTimeDispersionMWPC = sigma;}
+  void SetTofElossSigma(Float_t sigma) {fElossSigmaTOF = sigma;}
+  void SetMWPCElossSigma(Float_t sigma) {fElossSigmaMWPC = sigma;}
+  void SetTofTimeSigma(Float_t sigma) {fTimeSigmaTOF = sigma;}
+  void SetMWPCTimeSigma(Float_t sigma) {fTimeSigmaMWPC = sigma;}
   /** Accessors **/ 
-  Float_t ElossDispersion() const {return fElossDispersionTof;}
-  Float_t TimeDispersionPar() const {return fTimeDispersionTof;}
+  Float_t ElossDispersion() const {return fElossSigmaTOF;}
+  Float_t TimeDispersionPar() const {return fTimeSigmaTOF;}
 protected:
   //Input arrays
   TClonesArray *fBeamDetTOFPoints;
@@ -60,10 +60,10 @@ protected:
   TClonesArray *fBeamDetTOFDigi;
   TClonesArray *fBeamDetMWPCDigi;
   
-  Float_t fElossDispersionTof;
-  Float_t fTimeDispersionTof;
-  Float_t fElossDispersionMWPC;
-  Float_t fTimeDispersionMWPC;
+  Float_t fElossSigmaTOF;
+  Float_t fTimeSigmaTOF;
+  Float_t fElossSigmaMWPC;
+  Float_t fTimeSigmaMWPC;
 
   Float_t fTOFElossThreshold;
   Float_t fMWPCElossThreshold;

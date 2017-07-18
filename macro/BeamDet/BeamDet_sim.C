@@ -75,10 +75,9 @@ void BeamDet_sim(Int_t nEvents = 100){
   //FairIonGenerator* ionGenerator = new FairIonGenerator(Z,A,Q,1,0.,0.,Pz,0.,0.,-10.);
 
   ERIonMixGenerator* sgenerator = new ERIonMixGenerator("28S", Z, A, Q, 1);
-  Double32_t kin_energy = 40 /** 1e-3*/; //GeV
-  Double_t   mass = sgenerator->Ion()->GetMass();
-  Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
-  sgenerator->SetPRange(momentum, momentum);
+  Double32_t kin_energy = 40 * 1e-3 * 28; //GeV
+  sgenerator->SetKinESigma(kin_energy, 0.01*kin_energy);
+//  sgenerator->SetKinESigma(kin_energy, 0);
 
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 0.0001*TMath::RadToDeg();
@@ -86,8 +85,9 @@ void BeamDet_sim(Int_t nEvents = 100){
   sgenerator->SetPhiRange(0, 360);
   sgenerator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -1533);
 
-  sgenerator->AddBackgroundIon("BgIon1", 9, 27, 9, 0.5);
-  sgenerator->AddBackgroundIon("BgIon2", 3, 9, 3, 0.3);
+  sgenerator->AddBackgroundIon("26P", 15, 26, 15, 0.25);
+  sgenerator->AddBackgroundIon("26S", 16, 26, 16, 0.25);
+  sgenerator->AddBackgroundIon("24Si", 14, 24, 14, 0.25);
 
 
   primGen->AddGenerator(sgenerator);

@@ -1,4 +1,4 @@
-void BeamDet_digi(Int_t nEvents = 1000){
+void BeamDet_digi(Int_t nEvents = 100){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "digi.root";
@@ -22,6 +22,9 @@ void BeamDet_digi(Int_t nEvents = 1000){
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERBeamDetDigitizer* digitizer = new ERBeamDetDigitizer(verbose);
+  digitizer->SetMWPCElossThreshold(0.006);
+
+  digitizer->SetTofTimeSigma(1e-10);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   

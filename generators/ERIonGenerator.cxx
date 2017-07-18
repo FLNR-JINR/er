@@ -75,11 +75,14 @@ ERIonGenerator::ERIonGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mu
   fPDGType(-1),fMult(mult),fPDGMass(0),fPtMin(0),fPtMax(0),
   fPhiMin(0),fPhiMax(0),fEtaMin(0),fEtaMax(0),fYMin(0),fYMax(0),
   fPMin(0),fPMax(0),fThetaMin(0),fThetaMax(0),fX(0),fY(0),fZ(0),
-  fX1(0),fY1(0),fX2(0),fY2(0),
+  fX1(0),fY1(0),fX2(0),fY2(0), 
+  fGausX(0), fGausY(0), fGausP(0),
+  fSigmaX(1), fSigmaY(1), fSigmaKinEIsSet(0), fSigmaPIsSet(0),
+  fGausKinE(0), fSigmaKinE(1), fSigmaP(1), 
   fEtaRangeIsSet(0), fYRangeIsSet(0),fThetaRangeIsSet(0),
   fCosThetaIsSet(0), fPtRangeIsSet(0), fPRangeIsSet(0),
-  fPointVtxIsSet(0),fBoxVtxIsSet(0),fDebug(0),fIon(NULL), fName(name)
-
+  fPointVtxIsSet(0),fBoxVtxIsSet(0),fDebug(0),fIon(NULL), fName(name), 
+  fBoxSigmaIsSet(0)
 {
   SetPhiRange();
   fIon= new FairIon(fName, z, a, q);
@@ -111,7 +114,12 @@ void ERIonGenerator::SetExcitationEnergy(Double_t eExc)
 }
 //_________________________________________________________________________
 
-
+void ERIonGenerator::SetKinERange(Double32_t kinEMin, Double32_t kinEMax)
+{ 
+  fPMin = TMath::Sqrt(kinEMin*kinEMin + 2.*kinEMin*fIon->GetMass());
+  fPMax = TMath::Sqrt(kinEMax*kinEMax + 2.*kinEMax*fIon->GetMass());
+  fPRangeIsSet=kTRUE;
+}
 
 // -----   Public method SetMass   ----------------------------------------
 void ERIonGenerator::SetMass(Double_t mass)
@@ -122,7 +130,7 @@ void ERIonGenerator::SetMass(Double_t mass)
 
 void ERIonGenerator::spreadingParameters()
 {
-  Double32_t pabs=0, phi, pt=0, theta=0, eta, y, mt; 
+  Double32_t pabs=0, phi, pt=0, theta=0, eta, y, mt, kinE; 
 
   fPz=0;
 
@@ -130,6 +138,13 @@ void ERIonGenerator::spreadingParameters()
 
   if      (fPRangeIsSet ) { pabs = gRandom->Uniform(fPMin,fPMax); }
   else if (fPtRangeIsSet) { pt   = gRandom->Uniform(fPtMin,fPtMax); }
+  if (fSigmaPIsSet) { pabs = gRandom->Gaus(fGausP,fSigmaP); fPRangeIsSet = kTRUE;}
+
+  if(fSigmaKinEIsSet) { 
+    kinE = gRandom->Gaus(fGausKinE, fSigmaKinE);
+    pabs = TMath::Sqrt(kinE*kinE + 2.*kinE*kinE*fIon->GetMass());
+    fPRangeIsSet = kTRUE;
+  }
 
   if      (fThetaRangeIsSet) {
     if (fCosThetaIsSet)
@@ -163,6 +178,12 @@ void ERIonGenerator::spreadingParameters()
     fX = gRandom->Uniform(fX1,fX2);
     fY = gRandom->Uniform(fY1,fY2);
   }
+
+  if (fBoxSigmaIsSet) {
+    fX = gRandom->Gaus(fGausX,fSigmaX);
+    fY = gRandom->Gaus(fGausY,fSigmaY);
+  }
+
 }
 
 // -----   Public method ReadEvent   --------------------------------------

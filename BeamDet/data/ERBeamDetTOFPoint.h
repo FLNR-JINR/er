@@ -72,7 +72,7 @@ class ERBeamDetTOFPoint : public FairMCPoint
   Double_t GetPyOut()           const { return fPy_out; }
   Double_t GetPzOut()           const { return fPz_out; }
   Int_t    GetPID()             const { return fPid; }
-  Int_t    GetTofNb()           const { return fTofNb; }
+  Int_t    GetTOFNb()           const { return fTofNb; }
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }

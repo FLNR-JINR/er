@@ -1,6 +1,6 @@
 Double_t plateX = 5;
 Double_t plateY = 5;
-Double_t plateZ = 0.1;
+Double_t plateZ = 0.01;
 
 Double_t gasX = 0.125;
 Double_t gasY = 5;
