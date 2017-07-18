@@ -23,23 +23,33 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
+
+#simulation
 ERRTelescope.cxx
+ERRTelescopeDigitizer.cxx
 ERRTelescopeHitFinder.cxx
 ERRTelescopeSetup.cxx
-ERQTelescope.cxx
+
 data/ERRTelescopePoint.cxx
+data/ERRTelescopeDigi.cxx
 data/ERRTelescopeHit.cxx
+
+ERQTelescope.cxx
+ERQTelescopeDigitizer.cxx
+
 data/ERQTelescopeSiPoint.cxx
+data/ERQTelescopeSiDigi.cxx
+
+#beamtest
+ERQTelescopeCalibrator.cxx
+ERRTelescopeCalibrator.cxx
+ERTelescopeReconstructor.cxx
+
 data/ERRTelescopeEvent.cxx
 data/ERRTelescopeCalEvent.cxx
 data/ERQTelescopeEvent.cxx
 data/ERQTelescopeCalEvent.cxx
 data/ERTelescopeRecoEvent.cxx
-data/ERQTelescopeSiDigi.cxx
-ERQTelescopeCalibrator.cxx
-ERRTelescopeCalibrator.cxx
-ERTelescopeReconstructor.cxx
-ERQTelescopeDigitizer.cxx
 )
 
 # fill list of header files from list of source files

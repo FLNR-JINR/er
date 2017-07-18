@@ -10,7 +10,7 @@ ERRTelescopePoint::ERRTelescopePoint()
   : FairMCPoint(),
     fX_out(0.), fY_out(0.), fZ_out(0.),
     fPx_out(0.), fPy_out(0.), fPz_out(0.),
-    fSector(-1), fSensor(-1)
+    fSectorNb(-1), fSensorNb(-1)
 {
 }
 // -------------------------------------------------------------------------
@@ -28,7 +28,7 @@ ERRTelescopePoint::ERRTelescopePoint(Int_t eventID, Int_t trackID,
     fEventID(eventID),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
-    fSector(sector), fSensor(sensor)
+    fSectorNb(sector), fSensorNb(sensor)
 {
 }
 // -------------------------------------------------------------------------
@@ -40,7 +40,7 @@ ERRTelescopePoint::ERRTelescopePoint(const ERRTelescopePoint& right)
   : FairMCPoint(right),
     fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
     fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out),
-    fSector(right.fSector), fSensor(right.fSensor)
+    fSectorNb(right.fSectorNb), fSensorNb(right.fSensorNb)
 {
 }
 // -------------------------------------------------------------------------

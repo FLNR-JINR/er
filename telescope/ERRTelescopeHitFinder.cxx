@@ -104,8 +104,8 @@ void ERRTelescopeHitFinder::Exec(Option_t* opt)
     if (eloss < fElossThreshold)
       continue;
     TVector3 dpos = TVector3(0.01, 0.01, 0.01); //ошибка пока фиксирована
-    Float_t r = (Rmin+point->Sensor()*dR + Rmin+(point->Sensor()+1)*dR)/2.;
-    Float_t phi = ((0.+point->Sector()*dPhi) + (0. + (point->Sector()+1)*dPhi))/2.;
+    Float_t r = (Rmin+point->GetSensorNb()*dR + Rmin+(point->GetSensorNb()+1)*dR)/2.;
+    Float_t phi = ((0.+point->GetSectorNb()*dPhi) + (0. + (point->GetSectorNb()+1)*dPhi))/2.;
     Float_t x = r*TMath::Cos(phi*TMath::DegToRad());
     Float_t y = r*TMath::Sin(phi*TMath::DegToRad());
     TVector3 pos = TVector3(x, y, z);
