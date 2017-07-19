@@ -54,23 +54,34 @@ void BeamDet_sim(Int_t nEvents = 100){
   Int_t Z = 16;
   Int_t Q = 16;
 
-  ERIonMixGenerator* sgenerator = new ERIonMixGenerator("28S", Z, A, Q, 1);
+  ERIonMixGenerator* generator = new ERIonMixGenerator("28S", Z, A, Q, 1);
   Double32_t kin_energy = 40 * 1e-3 * 28; //GeV
-  sgenerator->SetKinESigma(kin_energy, 0.01*kin_energy);
-//  sgenerator->SetKinESigma(kin_energy, 0);
+  generator->SetKinESigma(kin_energy, 0.01*kin_energy);
+//  generator->SetKinESigma(kin_energy, 0);
 
-  Double32_t theta1 = 0.;  // polar angle distribution
-  Double32_t theta2 = 0.0001*TMath::RadToDeg();
-  sgenerator->SetThetaRange(theta1, theta1);
-  sgenerator->SetPhiRange(0, 360);
-  sgenerator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -1533);
+  /*
+   * Set flag to spread corrdinates parameters on target and reconstruct   
+   * coordinates of beam start by received values 
+  */
+  generator->SpreadingOnTarget();
 
-  sgenerator->AddBackgroundIon("26P", 15, 26, 15, 0.25);
-  sgenerator->AddBackgroundIon("26S", 16, 26, 16, 0.25);
-  sgenerator->AddBackgroundIon("24Si", 14, 24, 14, 0.25);
+  Double32_t theta = 0;
+  Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
+  generator->SetThetaSigma(theta, sigmaTheta);
+  
+  generator->SetPhiRange(0, 360);
+
+  Double32_t distanceToTarget = 1533;
+  Double32_t sigmaOnTarget = 0.5;
+  generator->SetSigmaXYZ(0, 0, -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
+  //generator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -distanceToTarget);
+
+  generator->AddBackgroundIon("26P", 15, 26, 15, 0.25);
+  generator->AddBackgroundIon("26S", 16, 26, 16, 0.25);
+  generator->AddBackgroundIon("24Si", 14, 24, 14, 0.25);
 
 
-  primGen->AddGenerator(sgenerator);
+  primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
   //-------Set visualisation flag to true------------------------------------

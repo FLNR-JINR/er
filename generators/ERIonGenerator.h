@@ -92,6 +92,13 @@ class ERIonGenerator : public FairGenerator
     void SetThetaRange   (Double32_t thetamin=0, Double32_t thetamax=90)
     {fThetaMin=thetamin; fThetaMax=thetamax; fThetaRangeIsSet=kTRUE;};
 
+    void SetThetaSigma(Double32_t theta, Double32_t sigmaTheta) 
+    {
+      fGausTheta = theta;
+      fSigmaTheta = sigmaTheta;
+      fSigmaThetaIsSet = kTRUE;
+    }
+
     void SetCosTheta   ()
     {fCosThetaIsSet=kTRUE;};
 
@@ -131,6 +138,8 @@ class ERIonGenerator : public FairGenerator
 
     void SetDebug(Bool_t debug=0) {fDebug = debug;}
 
+    void SpreadingOnTarget(void) {fSpreadingOnTarget = kTRUE;}
+
 
     /** Method ReadEvent
      ** Generates <mult> of the specified ions and hands hem to the
@@ -141,7 +150,7 @@ class ERIonGenerator : public FairGenerator
     FairIon* Ion() {return fIon;}
 
   protected:
-    void spreadingParameters(void);
+    void SpreadingParameters(void);
 
     Int_t      fMult;                // Multiplicity per event
     FairIon*   fIon;                 // Pointer to the FairIon to be generated
@@ -163,7 +172,9 @@ class ERIonGenerator : public FairGenerator
     Double32_t fGausX, fGausY;
     Double32_t fSigmaX, fSigmaY;  
     Double32_t fGausP;   
-    Double32_t fSigmaP;  
+    Double32_t fSigmaP;
+    Double32_t fGausTheta;
+    Double32_t fSigmaTheta;
 
     Bool_t     fEtaRangeIsSet;       // True if eta range is set
     Bool_t     fYRangeIsSet;         // True if rapidity range is set
@@ -178,6 +189,8 @@ class ERIonGenerator : public FairGenerator
     Bool_t     fSigmaKinEIsSet;
     Bool_t     fSigmaPIsSet;
     Bool_t     fDebug;               // Debug switch
+    Bool_t     fSpreadingOnTarget;
+    Bool_t     fSigmaThetaIsSet;
 
  private:
     ERIonGenerator(const ERIonGenerator&);

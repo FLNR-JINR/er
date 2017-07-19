@@ -122,7 +122,7 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 
     std::cout << "Pmin  " << fPMin << " Pmax " << fPMax << " GausP " << fGausP << std::endl;
 
-    spreadingParameters();
+    SpreadingParameters();
 
     int pdgType = thisPart->PdgCode();
 

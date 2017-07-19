@@ -7,14 +7,14 @@
 // Create a zero rotation
 TGeoRotation *fZeroRotation = new TGeoRotation();
 
+Double_t targetH2R = 2.;   //cm
+Double_t targetH2Z = 0.4;   //cm
+
 Double_t transX = 0.;
 Double_t transY = 0.; 
-Double_t transZ = 1.;
+Double_t transZ = targetH2Z / 2;
 
-Double_t targetH2R = 2.;   //cm
-Double_t targetH2Z = 2.;   //cm
-
-Double_t shellThickness = 20 * 1e-8;
+Double_t shellThickness = 1.5 * 1e-4;
 
 TGeoManager*   gGeoMan = NULL;
 

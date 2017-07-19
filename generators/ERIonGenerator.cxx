@@ -77,12 +77,13 @@ ERIonGenerator::ERIonGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mu
   fPMin(0),fPMax(0),fThetaMin(0),fThetaMax(0),fX(0),fY(0),fZ(0),
   fX1(0),fY1(0),fX2(0),fY2(0), 
   fGausX(0), fGausY(0), fGausP(0),
-  fSigmaX(1), fSigmaY(1), fSigmaKinEIsSet(0), fSigmaPIsSet(0),
-  fSigmaP(1), 
+  fSigmaX(0), fSigmaY(0), fSigmaKinEIsSet(0), fSigmaPIsSet(0),
+  fSigmaP(0), 
   fEtaRangeIsSet(0), fYRangeIsSet(0),fThetaRangeIsSet(0),
   fCosThetaIsSet(0), fPtRangeIsSet(0), fPRangeIsSet(0),
   fPointVtxIsSet(0),fBoxVtxIsSet(0),fDebug(0),fIon(NULL), fName(name), 
-  fBoxSigmaIsSet(0)
+  fBoxSigmaIsSet(0), fSpreadingOnTarget(0), 
+  fGausTheta(0), fSigmaTheta(0), fSigmaThetaIsSet(0) 
 {
   SetPhiRange();
   fIon= new FairIon(fName, z, a, q);
@@ -134,7 +135,9 @@ void ERIonGenerator::SetMass(Double_t mass)
 }
 //_________________________________________________________________________
 
-void ERIonGenerator::spreadingParameters()
+
+// ----   Protrcted method SpreadingParameters ----------------------------
+void ERIonGenerator::SpreadingParameters()
 {
   Double32_t pabs=0, phi, pt=0, theta=0, eta, y, mt, kinE; 
 
@@ -151,7 +154,7 @@ void ERIonGenerator::spreadingParameters()
     pabs = TMath::Sqrt(kinE*kinE + 2.*kinE*kinE*fIon->GetMass());
     fPRangeIsSet = kTRUE;
   }*/
-
+  if(fSigmaThetaIsSet) { theta = gRandom->Gaus(fGausTheta,fSigmaTheta) * TMath::DegToRad(); }
   if      (fThetaRangeIsSet) {
     if (fCosThetaIsSet)
       theta = acos(gRandom->Uniform(cos(fThetaMin* TMath::DegToRad()),
@@ -168,7 +171,7 @@ void ERIonGenerator::spreadingParameters()
     fPz = mt * TMath::SinH(y);
   }
 
-  if (fThetaRangeIsSet || fEtaRangeIsSet) {
+  if (fThetaRangeIsSet || fEtaRangeIsSet || fSigmaThetaIsSet) {
     if      (fPRangeIsSet ) {
       fPz = pabs*TMath::Cos(theta);
       pt = pabs*TMath::Sin(theta);
@@ -189,8 +192,16 @@ void ERIonGenerator::spreadingParameters()
     fX = gRandom->Gaus(fGausX,fSigmaX);
     fY = gRandom->Gaus(fGausY,fSigmaY);
   }
-
+  if(fSpreadingOnTarget)
+  {
+    // Recontruction of beam start position
+    std::cout << "Coord on target x = " << fX << "; y = " << fY << "; theta = " << theta << std::endl; 
+    fX = fZ * TMath::Tan(-theta) + fX;
+    fY = fZ * TMath::Tan(-theta) + fY;
+    std::cout << "Coord on start x = " << fX << "; y = " << fY << "; theta = " << theta << std::endl; 
+  }
 }
+//_________________________________________________________________________
 
 // -----   Public method ReadEvent   --------------------------------------
 Bool_t ERIonGenerator::ReadEvent(FairPrimaryGenerator* primGen)
@@ -203,7 +214,7 @@ Bool_t ERIonGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 // }
   // Generate particles
   for (Int_t k = 0; k < fMult; k++) {
-    spreadingParameters();
+    SpreadingParameters();
 
     TParticlePDG* thisPart =
     TDatabasePDG::Instance()->GetParticle(fIon->GetName());
