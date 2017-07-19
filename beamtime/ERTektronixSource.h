@@ -41,7 +41,7 @@ class ERTektronixSource : public FairSource
     void SetNChanels(Int_t chanels){fNChanels = chanels;}
   private:
     map<Int_t, vector<TString> > fPaths;
-    map<Int_t, vector<ifstream*> > fFiles;
+    map<Int_t, ifstream*> fCurrenStream;
     Int_t fNPoints;
     Int_t fNProcessedFiles;
     Int_t fNForProcFiles;
@@ -50,6 +50,8 @@ class ERTektronixSource : public FairSource
 
     //Output data
     RawEvent** fRawEvents;
+
+    static Int_t fEvent;
   public:
     ClassDef(ERTektronixSource, 1)
 };

@@ -9,24 +9,14 @@ void Tektronix_read()
 
 	// --- Source task
 	ERTektronixSource* source = new ERTektronixSource();
-	source->AddFile(1,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch12016.12.07-02.11.54.dat");
-	source->AddFile(1,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch12016.12.07-08.48.05.dat");
-	source->AddFile(1,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch12016.12.07-10.03.01.dat");
+	source->AddFile(1,"/home/vitaliy.schetinin/er/input/1000V_20mv1Wfm_Ch1.txt");
+	source->AddFile(1,"/home/vitaliy.schetinin/er/input/1000V_20mv2Wfm_Ch1.txt");
 
-	source->AddFile(2,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch22016.12.07-02.11.54.dat");
-	source->AddFile(2,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch22016.12.07-08.48.05.dat");
-	source->AddFile(2,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch22016.12.07-10.03.01.dat");
-
-	source->AddFile(3,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch32016.12.07-02.11.54.dat");
-	source->AddFile(3,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch32016.12.07-08.48.05.dat");
-	source->AddFile(3,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch32016.12.07-10.03.01.dat");
-
-	source->AddFile(4,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch42016.12.07-02.11.54.dat");
-	source->AddFile(4,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch42016.12.07-08.48.05.dat");
-	source->AddFile(4,"/home/vitaliy/NeuRad_tests/data/rawDataTektronix/ch42016.12.07-10.03.01.dat");
+	source->AddFile(2,"/home/vitaliy.schetinin/er/input/1000V_20mv1Wfm_Ch2.txt");
+	source->AddFile(2,"/home/vitaliy.schetinin/er/input/1000V_20mv2Wfm_Ch2.txt");
 
 	source->SetNPoints(1000);
-	source->SetNChanels(4);
+	source->SetNChanels(2);
 
 	// --- Run
 	FairRunOnline *run = new FairRunOnline(source);

@@ -2,9 +2,12 @@
 #include "ERTektronixSource.h"
 
 #include "FairRootManager.h"
+#include "FairRun.h"
 
 #include <iostream>
 using namespace std;
+
+Int_t ERTektronixSource::fEvent = 0;
 
 ERTektronixSource::ERTektronixSource():
 fNPoints(1000),
@@ -24,19 +27,31 @@ ERTektronixSource::~ERTektronixSource(){
 
 Bool_t ERTektronixSource::Init(){
 	//input files opening
+	ifstream* f = new ifstream();
 	for (std::map<int,vector<TString> >::iterator it=fPaths.begin(); it!=fPaths.end(); ++it){
 		Int_t chanel = it->first;
 		vector<TString> chanelFiles = it->second;
 		for (Int_t iFile = 0; iFile < chanelFiles.size(); iFile++ ){
-			fFiles[chanel].push_back(new ifstream());
-			fFiles[chanel][iFile]->open(chanelFiles[iFile]);
-			if (!fFiles[chanel][iFile]->is_open())
+			f->open(chanelFiles[iFile]);
+			if (!f->is_open()){
 				cerr << "Couldn`t open file " << chanelFiles[iFile] << endl;
-			else
-				fNForProcFiles++;
+				return kFALSE;
+			}
+			else{
+				f->close();
+			}
 		}
-		fCurrentFiles[chanel] = 0;
 	}
+	delete f;
+	
+	Int_t eventNb  = fPaths.begin()->second.size();
+	for (std::map<int,vector<TString> >::iterator it=fPaths.begin(); it!=fPaths.end(); ++it){
+		if (it->second.size() != eventNb){
+			cerr << "Differen event count in chanels" << endl;
+			return kFALSE;
+		}
+	}
+	
 	//Register new objects in output file
 	fRawEvents = new RawEvent*[fNChanels];
 	FairRootManager* ioman = FairRootManager::Instance();
@@ -51,30 +66,36 @@ Bool_t ERTektronixSource::Init(){
 }
 
 Int_t ERTektronixSource::ReadEvent(UInt_t id){
-	//Проверяем есть ли еще файлы для обработки
-	if (fNForProcFiles == fNProcessedFiles)
+	Reset();
+	//Проверяем есть ли еще события для обработки
+	if (fPaths.size()+1 == fEvent)
 		return 1;
-	
+	if (fEvent == 0){
+		fEvent ++;
+		return 0;
+	}
+
+	ifstream* f = new ifstream();
 	Double_t amplitude;
-	for (std::map<int,vector<ifstream*> >::iterator it=fFiles.begin(); it!=fFiles.end(); ++it){
+	for (std::map<int,vector<TString> >::iterator it=fPaths.begin(); it!=fPaths.end(); ++it){
 		Int_t chanel = it->first;
-		vector<ifstream*> chanelFiles= it->second;
-		Int_t nPointsInEvent = 0;
+		vector<TString> chanelFiles= it->second;
+		f->open(chanelFiles[fEvent-1]);
 		for (Int_t iPoint = 0; iPoint < fNPoints; iPoint++){
-			ifstream* stream = chanelFiles[fCurrentFiles[chanel]];
-			if (stream->eof()){
-				stream->close();
-				fCurrentFiles[chanel]++;
-				cout << "File " << fCurrentFiles[chanel]-1 << " for " <<  chanel << " chanel finished" <<endl;
-				fNProcessedFiles++;
+			if (f->eof()){
+				f->close();
+				cout << "Not enough points in file " << chanelFiles[fEvent-1] << " for " <<  chanel << " chanel!" <<endl;
 				break;
 			}
-			(*stream) >> amplitude;
+			(*f) >> amplitude;
 			fRawEvents[chanel-1]->SetAmp(amplitude,iPoint);
 			Double_t time = 5e-04+iPoint*1e-01;
 			fRawEvents[chanel-1]->SetTime(time,iPoint);
 		}
+		cout << "File " << chanelFiles[fEvent-1] << " for " <<  chanel << " chanel finished" <<endl;
 	}
+	delete f;
+	fEvent ++;
 	return 0;
 }
 
