@@ -68,7 +68,7 @@ Bool_t ERTektronixSource::Init(){
 Int_t ERTektronixSource::ReadEvent(UInt_t id){
 	Reset();
 	//Проверяем есть ли еще события для обработки
-	if (fPaths.size()+1 == fEvent)
+	if (fPaths.begin()->second.size()+1 == fEvent)
 		return 1;
 	if (fEvent == 0){
 		fEvent ++;

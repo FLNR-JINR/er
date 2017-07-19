@@ -11,10 +11,12 @@ void Tektronix_read()
 	ERTektronixSource* source = new ERTektronixSource();
 	source->AddFile(1,"/home/vitaliy.schetinin/er/input/1000V_20mv1Wfm_Ch1.txt");
 	source->AddFile(1,"/home/vitaliy.schetinin/er/input/1000V_20mv2Wfm_Ch1.txt");
+	source->AddFile(1,"/home/vitaliy.schetinin/er/input/1000V_20mv2Wfm_Ch1.txt");
 
 	source->AddFile(2,"/home/vitaliy.schetinin/er/input/1000V_20mv1Wfm_Ch2.txt");
 	source->AddFile(2,"/home/vitaliy.schetinin/er/input/1000V_20mv2Wfm_Ch2.txt");
-
+	source->AddFile(2,"/home/vitaliy.schetinin/er/input/1000V_20mv2Wfm_Ch2.txt");
+	
 	source->SetNPoints(1000);
 	source->SetNChanels(2);
 
