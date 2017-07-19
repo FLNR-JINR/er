@@ -1,5 +1,5 @@
-Double_t plateX = 5;
-Double_t plateY = 5;
+Double_t plateX = 20;
+Double_t plateY = 20;
 Double_t plateZ = 0.01;
 
 Double_t gasX = 0.125;

@@ -195,9 +195,12 @@ void ERIonGenerator::SpreadingParameters()
   if(fSpreadingOnTarget)
   {
     // Recontruction of beam start position
-    std::cout << "Coord on target x = " << fX << "; y = " << fY << "; theta = " << theta << std::endl; 
-    fX = fZ * TMath::Tan(-theta) + fX;
-    fY = fZ * TMath::Tan(-theta) + fY;
+    std::cout << "Coord on target x = " << fX << "; y = " << fY << "; theta = " << theta << std::endl;
+    Double_t l = fZ / TMath::Cos(theta);
+    //fX = fZ * TMath::Tan(-theta) /*+ l*TMath::Cos(phi)*/;
+    //fY = fZ * TMath::Tan(-theta) /*+ l*TMath::Sin(phi)*/;
+    fX = l * TMath::Sin(theta) * TMath::Cos(phi) + fX;
+    fY = l * TMath::Sin(theta) * TMath::Sin(phi) + fY;
     std::cout << "Coord on start x = " << fX << "; y = " << fY << "; theta = " << theta << std::endl; 
   }
 }
