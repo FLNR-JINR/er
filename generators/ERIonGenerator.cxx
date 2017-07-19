@@ -125,7 +125,7 @@ void ERIonGenerator::SetKinERange(Double32_t kinEMin, Double32_t kinEMax)
 void ERIonGenerator::SetKinESigma(Double32_t kinE, Double32_t sigmaKinE)
 { 
   fGausP = TMath::Sqrt(kinE*kinE + 2.*kinE*fIon->GetMass());
-  fSigmaP = TMath::Sqrt(sigmaKinE*sigmaKinE + 2.*sigmaKinE*fIon->GetMass());
+  fSigmaP = sigmaKinE*(kinE + fIon->GetMass()) / TMath::Sqrt(kinE*kinE + 2.*kinE*fIon->GetMass());
   fSigmaPIsSet=kTRUE; 
 }
 // -----   Public method SetMass   ----------------------------------------
