@@ -126,10 +126,10 @@ targetH2Z /= 2.;
 Double_t targetShellR = targetH2R + shellThickness;
 Double_t targetShellZ = targetH2Z;
 
-//TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, targetH2R, targetH2Z);
-//TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, targetShellR, targetShellZ);
-TGeoVolume *targetH2 = gGeoManager->MakeBox("targetH2", pH2, targetH2R, targetH2R, targetH2Z);
-TGeoVolume *targetShell = gGeoManager->MakeBox("targetShell", pSteel, targetShellR, targetShellR, targetShellZ);
+TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, targetH2R, targetH2Z);
+TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, targetShellR, targetShellZ);
+//TGeoVolume *targetH2 = gGeoManager->MakeBox("targetH2", pH2, targetH2R, targetH2R, targetH2Z);
+//TGeoVolume *targetShell = gGeoManager->MakeBox("targetShell", pSteel, targetShellR, targetShellR, targetShellZ);
 // --------------------------------------------------------------------------
 // ----------------- MWPC ---------------------------------------------------
 gasX /= 2.0;
