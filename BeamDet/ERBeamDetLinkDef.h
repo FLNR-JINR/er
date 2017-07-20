@@ -11,6 +11,7 @@
 
 #pragma link C++ class ERBeamDetTOFPoint+;
 #pragma link C++ class ERBeamDetMWPCPoint+;
+#pragma link C++ class ERBeamDetTargetPoint+;
 #pragma link C++ class ERBeamDetEvent+;
 #pragma link C++ class ERBeamDetCalEvent+;
 #pragma link C++ class ERBeamDetRecoEvent+;

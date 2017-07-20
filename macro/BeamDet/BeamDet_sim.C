@@ -1,4 +1,4 @@
-void BeamDet_sim(Int_t nEvents = 100){
+void BeamDet_sim(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -40,12 +40,12 @@ void BeamDet_sim(Int_t nEvents = 100){
   */
   Int_t verbose = 0;
   ERBeamDet* beamDet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
-  beamDet->SetGeometryFileName("beamdet.v1.geo.root");
+  beamDet->SetGeometryFileName("beamdet.v2.geo.root");
   run->AddModule(beamDet);
 
-  FairModule* target = new ERTarget("BeamDetTarget", kTRUE, 1);
-  target->SetGeometryFileName("target.h.geo.root");
-  run->AddModule(target);
+ // FairModule* target = new ERTarget("BeamDetTarget", kTRUE, 1);
+  //target->SetGeometryFileName("target.h.geo.root");
+  //run->AddModule(target);
   // ------------------------------------------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();

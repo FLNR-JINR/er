@@ -1,4 +1,4 @@
-void BeamDet_digi(Int_t nEvents = 100){
+void BeamDet_digi(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "digi.root";
