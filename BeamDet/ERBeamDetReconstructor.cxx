@@ -49,7 +49,7 @@ InitStatus ERBeamDetReconstructor::Init()
       Fatal("Init", "Can`t find branch in input file!");
 
   fInCalEvent = (ERBeamDetCalEvent*)ioman->GetObject("BeamDetCalEvent.");
-  if (!fInEvent)
+  if (!fInCalEvent)
       Fatal("Init", "Can`t find branch in input file!");
 
   fOutEvent = new ERBeamDetRecoEvent();

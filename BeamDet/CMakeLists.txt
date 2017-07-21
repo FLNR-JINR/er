@@ -35,6 +35,7 @@ set(SRCS
 	ERBeamDetCalibrator.cxx
 	ERBeamDetReconstructor.cxx
 	ERBeamDetDigitizer.cxx
+	ERBeamDetCalibratorNew.cxx
 )
 
 # fill list of header files from list of source files

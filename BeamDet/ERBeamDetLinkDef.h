@@ -8,6 +8,7 @@
 #pragma link C++ class ERBeamDetCalibrator;
 #pragma link C++ class ERBeamDetReconstructor;
 #pragma link C++ class ERBeamDetDigitizer;
+#pragma link C++ class ERBeamDetCalibratorNew;
 
 #pragma link C++ class ERBeamDetTOFPoint+;
 #pragma link C++ class ERBeamDetMWPCPoint+;
