@@ -6,6 +6,7 @@ using namespace std;
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "TMath.h"
 
 #include "ERSupport.h"
 
@@ -152,11 +153,19 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   cy[0][0] = -1;
   cz[0][0] = -1;
   if (header->mp1 == 1){
-    AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitX[0][1][0][0],NhitY[0][0][0][0],Vert1);
-    cx[0][0] = (Vert1+AngleDet[0][0]).X();
-    cy[0][0] = (Vert1+AngleDet[0][0]).Y();
-    cz[0][0] = (Vert1+AngleDet[0][0]).Z();
+    //AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitX[0][0][0][0],NhitY[0][1][0][0],Vert1);
+    //cx[0][0] = (Vert1+AngleDet[0][0]).X();
+    //cy[0][0] = (Vert1+AngleDet[0][0]).Y();
+    //cz[0][0] = (Vert1+AngleDet[0][0]).Z();
+    float phi = (NhitX[0][0][0][0]-1/2)*2*TMath::Pi()/16.;
+    float R = 1.6 +(NhitY[0][1][0][0]-1/2)*(4.1-1.6)/16.;
+    cx[0][0] = R*TMath::Cos(phi);
+    cy[0][0] = R*TMath::Sin(phi);
+    //cx[0][0] = phi;
+    //cy[0][0] = R;
   }
+
+
 
   fOutEvent->x11 = cx[0][0];
   fOutEvent->y11 = cy[0][0];
@@ -170,7 +179,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   fOutEvent->y24 = cy[1][3];
   fOutEvent->x25 = cx[1][4];
   fOutEvent->y25 = cy[1][4];
-  
+  /*
   //cout << "Now we know trajectories" << endl;
   char* plett;
   int itx,ilx,idx,ipx,is,count;
@@ -366,6 +375,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 
   fOutEvent->th11cmp = ejectile[0][0][0].Part.Theta()/rad;
   fOutEvent->th22cmp = ejectile[1][1][0].Part.Theta()/rad;
+  */
 }
 
 //----------------------------------------------------------------------------
@@ -1119,8 +1129,8 @@ void ERTelescopeReconstructor::ReadDeposites(){
       }
     }
   }
-  MuY[0][0][0]=fRTelescopeEvent->mC11;
-  MuX[0][1][0]=fRTelescopeEvent->mC12;
+  MuX[0][0][0]=fRTelescopeEvent->mC11;
+  MuY[0][0][0]=fRTelescopeEvent->mC12;
 
   MuX[1][0][0]=fQTelescopeEvent->mC21;
   MuY[1][1][0]=fQTelescopeEvent->mC22;
@@ -1130,17 +1140,17 @@ void ERTelescopeReconstructor::ReadDeposites(){
   MuY[1][5][0]=fQTelescopeEvent->mC26;
 
   //====================================================
-  for(int imu=0;imu<=MuY[0][0][0];imu++)
+  for(int imu=0;imu<=MuX[0][0][0];imu++)
   {
     DepoX[0][0][0][imu] = fRTelescopeEvent->eC11[imu];
-    NhitY[0][0][0][imu] = fRTelescopeEvent->nC11[imu];
-    NhitX[0][0][0][imu] = -1;
+    NhitX[0][0][0][imu] = fRTelescopeEvent->nC11[imu];
+    NhitY[0][0][0][imu] = -1;
   }
-  for(int imu=0;imu<=MuX[0][1][0];imu++)
+  for(int imu=0;imu<=MuY[0][1][0];imu++)
   {
     DepoX[0][1][0][imu] = fRTelescopeEvent->eC12[imu];
-    NhitX[0][1][0][imu] = fRTelescopeEvent->nC12[imu];
-    NhitY[0][1][0][imu] = -1;
+    NhitY[0][1][0][imu] = fRTelescopeEvent->nC12[imu];
+    NhitX[0][1][0][imu] = -1;
   }
   //====================================================
   for(int imu=0;imu<=MuX[1][0][0];imu++)
@@ -1159,37 +1169,37 @@ void ERTelescopeReconstructor::ReadDeposites(){
   {
     DepoX[1][2][0][imu] = fQTelescopeEvent->eC23[imu];
     NhitY[1][2][0][imu] = fQTelescopeEvent->nC23[imu];
-    NhitX[1][2][0][imu] = 1;
+    NhitX[1][2][0][imu] = 0;
   }
   for(int imu=0;imu<=MuY[1][3][0];imu++)
   {
     DepoX[1][3][0][imu] = fQTelescopeEvent->eC24[imu];
     NhitY[1][3][0][imu] = fQTelescopeEvent->nC24[imu];
-    NhitX[1][3][0][imu] = 1;
+    NhitX[1][3][0][imu] = 0;
   }
     for(int imu=0;imu<=MuY[1][4][0];imu++)
   {
     DepoX[1][4][0][imu] = fQTelescopeEvent->eC25[imu];
     NhitY[1][4][0][imu] = fQTelescopeEvent->nC25[imu];
-    NhitX[1][4][0][imu] = 1;
+    NhitX[1][4][0][imu] = 0;
   }
     for(int imu=0;imu<=MuY[1][5][0];imu++)
   {
     DepoX[1][5][0][imu] = fQTelescopeEvent->eC26[imu];
     NhitY[1][5][0][imu] = fQTelescopeEvent->nC26[imu];
-    NhitX[1][5][0][imu] = 1;
+    NhitX[1][5][0][imu] = 0;
   }
   //=======================================================
   mp[0] = 0;  mp[1] = 0;
   mpd[0][0][0] = 0; mpd[0][1][0] = 0;
   mpd[1][0][0] = 0; mpd[1][1][0] = 0;
   //RTelescope
-  if(MuY[0][0][0]==0&&NhitY[0][0][0][0]>0&&NhitY[0][0][0][0]<=abs(Det[0][0][0].NstripY)&&DepoX[0][0][0][0]>0.) mpd[0][0][0]=MuY[0][0][0]+1;
-  if(MuX[0][1][0]==0&&NhitX[0][1][0][0]>0&&NhitX[0][1][0][0]<=abs(Det[0][0][0].NstripX)&&DepoX[0][1][0][0]>0.) mpd[0][1][0]=MuX[0][1][0]+1;
+  if(MuX[0][0][0]==0&&NhitX[0][0][0][0]>0&&NhitX[0][0][0][0]<=abs(Det[0][0][0].NstripX)&&DepoX[0][0][0][0]>0.) mpd[0][0][0]=1;
+  if(MuY[0][1][0]==0&&NhitY[0][1][0][0]>0&&NhitY[0][1][0][0]<=abs(Det[0][0][0].NstripY)&&DepoX[0][1][0][0]>0.) mpd[0][1][0]=1;
 
   //QTelescope
-  if(MuX[1][0][0]==0&&NhitX[1][0][0][0]>0&&NhitX[1][0][0][0]<=abs(Det[1][0][0].NstripX)&&DepoX[1][0][0][0]>0.) mpd[1][0][0]=MuX[1][0][0]+1;
-  if(MuY[1][1][0]==0&&NhitY[1][1][0][0]>0&&NhitY[1][1][0][0]<=abs(Det[1][1][0].NstripY)&&DepoX[1][1][0][0]>0.) mpd[1][1][0]=MuY[1][1][0]+1;
+  if(MuX[1][0][0]==0&&NhitX[1][0][0][0]>0&&NhitX[1][0][0][0]<=abs(Det[1][0][0].NstripX)&&DepoX[1][0][0][0]>0.) mpd[1][0][0]=1;
+  if(MuY[1][1][0]==0&&NhitY[1][1][0][0]>0&&NhitY[1][1][0][0]<=abs(Det[1][1][0].NstripY)&&DepoX[1][1][0][0]>0.) mpd[1][1][0]=1;
 
   if(mpd[0][0][0]==1&&mpd[0][1][0]==1) mp[0] = mpd[0][0][0];
   if(mpd[1][0][0]==1&&mpd[1][1][0]==1) mp[1] = mpd[1][0][0];
