@@ -10,6 +10,7 @@
 #include "ERDetector.h"
 #include "ERBeamDetTOFPoint.h"
 #include "ERBeamDetMWPCPoint.h"
+#include "ERBeamDetTargetPoint.h"
 #include "TLorentzVector.h"
 #include "TClonesArray.h"
 
@@ -108,6 +109,7 @@ public:
 private:
   TClonesArray*  fTOFPoints;
   TClonesArray*  fMWPCPoints; 
+  TClonesArray*  fTargetPoints;
 
   Int_t          fEventID;           //!  event index
   Int_t          fTrackID;           //!  track index
@@ -128,10 +130,11 @@ private:
 private:
   /** Private method AddPoint
    **
-   ** Adds a ERBeamDetPoint to the Point Collection
+   ** Adds a ERBeamDet<type>Point to the Point Collection
    **/
-  ERBeamDetTOFPoint*   AddTOFPoint();
-  ERBeamDetMWPCPoint*  AddMWPCPoint();
+  ERBeamDetTOFPoint*    AddTOFPoint();
+  ERBeamDetMWPCPoint*   AddMWPCPoint();
+  ERBeamDetTargetPoint* AddTargetPoint();
   ClassDef(ERBeamDet,1);
 };
 

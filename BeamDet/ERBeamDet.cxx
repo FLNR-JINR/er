@@ -19,10 +19,12 @@
 ERBeamDet::ERBeamDet() :
   ERDetector("ERBeamDet", kTRUE),
   fTOFPoints(NULL), 
-  fMWPCPoints(NULL)
+  fMWPCPoints(NULL),
+  fTargetPoints(NULL)
 {
   fTOFPoints = new TClonesArray("ERBeamDetTOFPoint");
   fMWPCPoints = new TClonesArray("ERBeamDetMWPCPoint");
+  fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
   //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
@@ -35,10 +37,13 @@ ERBeamDet::ERBeamDet() :
 ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
   : ERDetector(name, active, 1),
     fTOFPoints(NULL), 
-    fMWPCPoints(NULL)
+    fMWPCPoints(NULL),
+    fTargetPoints(NULL)
 {
   fTOFPoints = new TClonesArray("ERBeamDetTOFPoint");
   fMWPCPoints = new TClonesArray("ERBeamDetMWPCPoint");
+  fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
+
   //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
@@ -55,7 +60,11 @@ ERBeamDet::~ERBeamDet() {
   if (fMWPCPoints) {
     fMWPCPoints->Delete();
     delete fMWPCPoints;
-  }  
+  } 
+  if (fTargetPoints) {
+    fTargetPoints->Delete();
+    delete fTargetPoints;
+  }   
 }
 
 void ERBeamDet::Initialize()
@@ -78,6 +87,7 @@ void ERBeamDet::Register() {
         Fatal("Init", "IO manager is not set");
   ioman->Register("BeamDetTOFPoint","BeamDet", fTOFPoints, kTRUE);
   ioman->Register("BeamDetMWPCPoint","BeamDet", fMWPCPoints, kTRUE);
+  ioman->Register("BeamDetTargetPoint","BeamDet", fTargetPoints, kTRUE);
 }
 // ----------------------------------------------------------------------------
 TClonesArray* ERBeamDet::GetCollection(Int_t iColl) const {
@@ -85,6 +95,8 @@ TClonesArray* ERBeamDet::GetCollection(Int_t iColl) const {
     return fTOFPoints;
   if (iColl == 0)
     return fMWPCPoints;
+  if (iColl == 0)
+    return fTargetPoints;
   return NULL;
 }
 // ----------------------------------------------------------------------------
@@ -108,11 +120,20 @@ void ERBeamDet::Print(Option_t *option) const
       point->Print();
     }
   }
+  if(fTargetPoints->GetEntriesFast() > 0)
+  {
+    std::cout << "======== Target Points ==================" << std::endl;
+    for (Int_t iPoint = 0; iPoint < fTargetPoints->GetEntriesFast(); iPoint++){
+      ERBeamDetTargetPoint* point = (ERBeamDetTargetPoint*)fTargetPoints->At(iPoint);
+      point->Print();
+    }
+  }
 }
 // ----------------------------------------------------------------------------
 void ERBeamDet::Reset() {
   fTOFPoints->Clear();
   fMWPCPoints->Clear();
+  fTargetPoints->Clear();
 }
 // ----------------------------------------------------------------------------
 
@@ -131,6 +152,18 @@ void ERBeamDet::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
   std::cout << "BeamDet: " << cl2->GetEntriesFast() << " merged entries" << std::endl;
 }
 
+ERBeamDetTargetPoint* ERBeamDet::AddTargetPoint()
+{
+  TClonesArray& clref = *fTargetPoints;
+  Int_t size = clref.GetEntriesFast();
+  return new(clref[size]) ERBeamDetTargetPoint(fEventID, fTrackID, fMot0TrackID, fPID,
+              TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
+              TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
+              TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
+              TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+              fTime,fLength,fELoss, fLightYield);
+}
+
 ERBeamDetMWPCPoint* ERBeamDet::AddMWPCPoint()
 {
   TClonesArray& clref = *fMWPCPoints;
@@ -141,8 +174,7 @@ ERBeamDetMWPCPoint* ERBeamDet::AddMWPCPoint()
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
               fTime,fLength,fELoss, fLightYield,
-              fMWPCNb, fMWPCPlaneNb, fMWPCWireNb);
- 
+              fMWPCNb, fMWPCPlaneNb, fMWPCWireNb); 
 }
 
 ERBeamDetTOFPoint* ERBeamDet::AddTOFPoint()
@@ -154,7 +186,8 @@ ERBeamDetTOFPoint* ERBeamDet::AddTOFPoint()
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-              fTime,fLength,fELoss, fLightYield, fTofNb);}
+              fTime,fLength,fELoss, fLightYield, fTofNb);
+}
 // ----------------------------------------------------------------------------
 Bool_t ERBeamDet::CheckIfSensitive(std::string name)
 {
@@ -165,6 +198,9 @@ Bool_t ERBeamDet::CheckIfSensitive(std::string name)
   if(volName.Contains("plate")) {
     return kTRUE;
   }
+  if(volName.Contains("targetH2")) {
+    return kTRUE;
+  }
   return kFALSE;
 }
 // ----------------------------------------------------------------------------
@@ -172,68 +208,71 @@ ClassImp(ERBeamDet)
 
 Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
 	        // Set constants for Birk's Law implentation
-static const Double_t dP = 1.032 ;
-static const Double_t BirkC1 =  0.013/dP;
-static const Double_t BirkC2 =  9.6e-6/(dP * dP);
+  static const Double_t dP = 1.032 ;
+  static const Double_t BirkC1 =  0.013/dP;
+  static const Double_t BirkC2 =  9.6e-6/(dP * dP);
 
-if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
-    fELoss  = 0.;
-    fLightYield = 0;
-    fEventID = gMC->CurrentEvent();
-    gMC->TrackPosition(fPosIn);
-    gMC->TrackMomentum(fMomIn);
-    fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-    fTime   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
-    fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
-    fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
-    fPID = gMC->TrackPid();
-}
+  if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
+      fELoss  = 0.;
+      fLightYield = 0;
+      fEventID = gMC->CurrentEvent();
+      gMC->TrackPosition(fPosIn);
+      gMC->TrackMomentum(fMomIn);
+      fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
+      fTime   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
+      fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
+      fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
+      fPID = gMC->TrackPid();
+  }
 
-fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
+  fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
 
-Double_t		  curLightYield = 0;
+  Double_t		  curLightYield = 0;
 
 
-// Correction for all charge states
-if (gMC->TrackCharge()!=0) { // Return the charge of the track currently transported
-    Double_t BirkC1Mod = 0;
-    // Apply correction for higher charge states
-      if (TMath::Abs(gMC->TrackCharge())>=2)
-        BirkC1Mod=BirkC1*7.2/12.6;
-      else
-        BirkC1Mod=BirkC1;
+  // Correction for all charge states
+  if (gMC->TrackCharge()!=0) { // Return the charge of the track currently transported
+      Double_t BirkC1Mod = 0;
+      // Apply correction for higher charge states
+        if (TMath::Abs(gMC->TrackCharge())>=2)
+          BirkC1Mod=BirkC1*7.2/12.6;
+        else
+          BirkC1Mod=BirkC1;
 
-    if (gMC->TrackStep()>0)
-    {
-      Double_t dedxcm=gMC->Edep()*1000./gMC->TrackStep(); //[MeV/cm]
-      curLightYield=gMC->Edep()*1000./(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
-      curLightYield /= 1000.; //[GeV]
-      fLightYield+=curLightYield;
-    }
-}
+      if (gMC->TrackStep()>0)
+      {
+        Double_t dedxcm=gMC->Edep()*1000./gMC->TrackStep(); //[MeV/cm]
+        curLightYield=gMC->Edep()*1000./(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
+        curLightYield /= 1000.; //[GeV]
+        fLightYield+=curLightYield;
+      }
+  }
 
-if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume
-    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
-    gMC->IsTrackDisappeared())
-{
-  gMC->TrackPosition(fPosOut);
-  gMC->TrackMomentum(fMomOut);
-  TString volName = gMC->CurrentVolName();
-  if (fELoss > 0.){
-    if(volName.Contains("plate"))
-    {
-      gMC->CurrentVolID(fTofNb);
-      AddTOFPoint();
-    }
-    if(volName.Contains("gas"))
-    {
-      gMC->CurrentVolOffID(0, fMWPCWireNb);
-      gMC->CurrentVolOffID(1, fMWPCPlaneNb);
-      gMC->CurrentVolOffID(2, fMWPCNb);
-      AddMWPCPoint();
+  if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume
+      gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
+      gMC->IsTrackDisappeared())
+  {
+    gMC->TrackPosition(fPosOut);
+    gMC->TrackMomentum(fMomOut);
+    TString volName = gMC->CurrentVolName();
+    if (fELoss > 0.){
+      if(volName.Contains("plate"))
+      {
+        gMC->CurrentVolID(fTofNb);
+        AddTOFPoint();
+      }
+      if(volName.Contains("gas"))
+      {
+        gMC->CurrentVolOffID(0, fMWPCWireNb);
+        gMC->CurrentVolOffID(1, fMWPCPlaneNb);
+        gMC->CurrentVolOffID(2, fMWPCNb);
+        AddMWPCPoint();
+      }
+      if(volName.Contains("targetH2"))
+      {
+        AddTargetPoint();
+      }
     }
   }
-}
-
-    return kTRUE;
+  return kTRUE;
 }

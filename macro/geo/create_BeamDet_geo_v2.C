@@ -1,3 +1,4 @@
+// ----- BeamDet parameters -------------------------------------------------
 Double_t plateX = 20;
 Double_t plateY = 20;
 Double_t plateZ = 0.01;
@@ -15,7 +16,18 @@ Double_t TOFpozZInBeamdet = -((plateOffsetZ) / 2 + mwpcOffsetZ + 10);
 
 Double_t MWPCpozZInBeamdet = - (((mwpcOffsetZ) / 2) + 8);
 
-void create_BeamDet_geo_v1()
+// -------- Target parameters -----------------------------------------------
+
+Double_t targetH2R = 2.;   //cm
+Double_t targetH2Z = 0.4;   //cm
+
+Double_t transTargetX = 0.;
+Double_t transTargetY = 0.; 
+Double_t transTargetZ = targetH2Z / 2;
+
+Double_t shellThickness = 1.5 * 1e-4;
+
+void create_BeamDet_geo_v2()
 {
   // Create a global translation
   Float_t global_X = 0.;
@@ -48,12 +60,20 @@ geoFace->readMedia();
 gGeoMan = gGeoManager;
 // --------------------------------------------------------------------------
 // -------   Geometry file name (output)   ----------------------------------
-TString geoFileName = geoPath + "/geometry/beamdet.v1.geo.root";
+TString geoFileName = geoPath + "/geometry/beamdet.v2.geo.root";
 // --------------------------------------------------------------------------
 // -----------------   Get and create the required media    -----------------
 FairGeoMedia*   geoMedia = geoFace->getMedia();
 FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
 
+// ----- Create media for TOF -----------------------------------------------
+FairGeoMedium* mBC408      = geoMedia->getMedium("BC408");
+if ( ! mBC408 ) Fatal("Main", "FairMedium BC408 not found");
+geoBuild->createMedium(mBC408);
+TGeoMedium* pMedBC408 = gGeoMan->GetMedium("BC408");
+if ( ! pMedBC408 ) Fatal("Main", "Medium BC408 not found");
+// --------------------------------------------------------------------------
+// ----- Create media for MWPC ----------------------------------------------
 FairGeoMedium* mMylar = geoMedia->getMedium("mylar");
 if ( ! mMylar ) Fatal("Main", "FairMedium mylar not found");
 geoBuild->createMedium(mMylar);
@@ -65,13 +85,21 @@ if ( ! mRPCgas ) Fatal("Main", "FairMedium RPCgas not found");
 geoBuild->createMedium(mRPCgas);
 TGeoMedium* pMedRPCgas = gGeoMan->GetMedium("RPCgas");
 if ( ! pMedRPCgas ) Fatal("Main", "Medium RPCgas not found");
+// --------------------------------------------------------------------------
+// ------ Create media for target -------------------------------------------
+FairGeoMedium* mH2      = geoMedia->getMedium("H2");
+if ( ! mH2 ) Fatal("Main", "FairMedium H2 not found");
+geoBuild->createMedium(mH2);
+TGeoMedium* pH2 = gGeoMan->GetMedium("H2");
+if ( ! pH2 ) Fatal("Main", "Medium H2 not found"); 
 
-FairGeoMedium* mBC408      = geoMedia->getMedium("BC408");
-if ( ! mBC408 ) Fatal("Main", "FairMedium BC408 not found");
-geoBuild->createMedium(mBC408);
-TGeoMedium* pMedBC408 = gGeoMan->GetMedium("BC408");
-if ( ! pMedBC408 ) Fatal("Main", "Medium BC408 not found");
-
+FairGeoMedium* mSteel      = geoMedia->getMedium("Steel");
+if ( ! mSteel ) Fatal("Main", "FairMedium Steel not found");
+geoBuild->createMedium(mSteel);
+TGeoMedium* pSteel = gGeoMan->GetMedium("Steel");
+if ( ! pSteel ) Fatal("Main", "Medium vacuum not found");
+// --------------------------------------------------------------------------
+// ------ Create vacuum media -----------------------------------------------
 FairGeoMedium* vacuum      = geoMedia->getMedium("vacuum");
 if ( ! vacuum ) Fatal("Main", "FairMedium vacuum not found");
 geoBuild->createMedium(vacuum);
@@ -87,17 +115,23 @@ TGeoVolume* top   = new TGeoVolumeAssembly("TOP");
 gGeoMan->SetTopVolume(top);
 
 TGeoVolume* beamdet = new TGeoVolumeAssembly("beamdet");
-
-//Double_t beamdetBoxEdge = 2000;
-//TGeoVolume* baemdet = gGeoManager->MakeBox("beamdet", pMed0, beamdetBoxEdge / 5, beamdetBoxEdge / 5, beamdetBoxEdge)
-
-
 TGeoVolume* TOF     = new TGeoVolumeAssembly("TOF");
 TGeoVolume* MWPC    = new TGeoVolumeAssembly("MWPC");
-//TGeoVolume* MWPC1   = new TGeoVolumeAssembly("MWPC1");
-//TGeoVolume* MWPC2   = new TGeoVolumeAssembly("MWPC2");
-// --------------------------------------------------------------------------
+TGeoVolume* target  = new TGeoVolumeAssembly("target");
 
+// --------------------------------------------------------------------------
+// ---------------- target --------------------------------------------------
+targetH2Z /= 2.;
+
+Double_t targetShellR = targetH2R + shellThickness;
+Double_t targetShellZ = targetH2Z;
+
+TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, targetH2R, targetH2Z);
+TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, targetShellR, targetShellZ);
+//TGeoVolume *targetH2 = gGeoManager->MakeBox("targetH2", pH2, targetH2R, targetH2R, targetH2Z);
+//TGeoVolume *targetShell = gGeoManager->MakeBox("targetShell", pSteel, targetShellR, targetShellR, targetShellZ);
+// --------------------------------------------------------------------------
+// ----------------- MWPC ---------------------------------------------------
 gasX /= 2.0;
 gasY /= 2.0;
 gasZ /= 2.0;
@@ -109,15 +143,14 @@ Double_t shellX = gasY + shellThickness;
 Double_t shellY = gasY + shellThickness;
 Double_t shellZ = gasZ; 
 TGeoVolume* shell = gGeoManager->MakeBox("shell", pMedMylar, shellX, shellY, shellZ);
-
+// --------------------------------------------------------------------------
+// ---------------- TOF -----------------------------------------------------
 plateX /= 2.0;
 plateY /= 2.0;
 plateZ /= 2.0;
 TGeoVolume* plate = gGeoManager->MakeBox("plate", pMedBC408, plateX, plateY, plateZ);
-
-//------------------ STRUCTURE  -----------------------------------------
-//------------------ Add fibers to det  --------------------------
-
+// --------------------------------------------------------------------------
+//------------------ STRUCTURE  ---------------------------------------------
 
 Double_t platePosZ = - plateOffsetZ / 2;
 
@@ -157,6 +190,10 @@ MWPC->AddNode(MWPC2, 2, new TGeoCombiTrans(0, 0, mwpcOffsetZ, fZeroRotation));
 beamdet->AddNode(TOF, 1, new TGeoCombiTrans(global_X, global_Y, TOFpozZInBeamdet, fGlobalRotation));
 beamdet->AddNode(MWPC, 1, new TGeoCombiTrans(global_X, global_Y, MWPCpozZInBeamdet, fGlobalRotation));
 
+targetShell->AddNode(targetH2, 1, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
+target->AddNode(targetShell, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
+
+beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fZeroRotation));
 top->AddNode(beamdet, 1, new TGeoCombiTrans(global_X ,global_Y, global_Z, fGlobalRotation));
  // ---------------   Finish   -----------------------------------------------
   gGeoMan->CloseGeometry();

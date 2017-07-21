@@ -92,6 +92,13 @@ class ERIonGenerator : public FairGenerator
     void SetThetaRange   (Double32_t thetamin=0, Double32_t thetamax=90)
     {fThetaMin=thetamin; fThetaMax=thetamax; fThetaRangeIsSet=kTRUE;};
 
+    void SetThetaSigma(Double32_t theta, Double32_t sigmaTheta) 
+    {
+      fGausTheta = theta;
+      fSigmaTheta = sigmaTheta;
+      fSigmaThetaIsSet = kTRUE;
+    }
+
     void SetCosTheta   ()
     {fCosThetaIsSet=kTRUE;};
 
@@ -124,13 +131,14 @@ class ERIonGenerator : public FairGenerator
 
     void SetKinERange(Double32_t kinEMin, Double32_t kinEMax);
 
-    void SetKinESigma(Double32_t kinE, Double32_t sigmaKinE)
-    { fGausKinE = kinE; fSigmaKinE = sigmaKinE; fSigmaKinEIsSet=kTRUE; } 
+    void SetKinESigma(Double32_t kinE, Double32_t sigmaKinE); 
 
     void SetPSigma(Double32_t p=0 , Double32_t sigma = 1)
     {fGausP=p; fSigmaP=sigma; fSigmaPIsSet=kTRUE;}
 
     void SetDebug(Bool_t debug=0) {fDebug = debug;}
+
+    void SpreadingOnTarget(void) {fSpreadingOnTarget = kTRUE;}
 
 
     /** Method ReadEvent
@@ -142,7 +150,7 @@ class ERIonGenerator : public FairGenerator
     FairIon* Ion() {return fIon;}
 
   protected:
-    void spreadingParameters(void);
+    void SpreadingParameters(void);
 
     Int_t      fMult;                // Multiplicity per event
     FairIon*   fIon;                 // Pointer to the FairIon to be generated
@@ -163,10 +171,10 @@ class ERIonGenerator : public FairGenerator
     Double32_t fPx, fPy, fPz;
     Double32_t fGausX, fGausY;
     Double32_t fSigmaX, fSigmaY;  
-    Double32_t fGausKinE; 
-    Double32_t fSigmaKinE;
     Double32_t fGausP;   
-    Double32_t fSigmaP;  
+    Double32_t fSigmaP;
+    Double32_t fGausTheta;
+    Double32_t fSigmaTheta;
 
     Bool_t     fEtaRangeIsSet;       // True if eta range is set
     Bool_t     fYRangeIsSet;         // True if rapidity range is set
@@ -181,6 +189,8 @@ class ERIonGenerator : public FairGenerator
     Bool_t     fSigmaKinEIsSet;
     Bool_t     fSigmaPIsSet;
     Bool_t     fDebug;               // Debug switch
+    Bool_t     fSpreadingOnTarget;
+    Bool_t     fSigmaThetaIsSet;
 
  private:
     ERIonGenerator(const ERIonGenerator&);
