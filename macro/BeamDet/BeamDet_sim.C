@@ -1,4 +1,4 @@
-void BeamDet_sim(Int_t nEvents = 1000){
+void BeamDet_sim(Int_t nEvents = 2000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -46,7 +46,8 @@ void BeamDet_sim(Int_t nEvents = 1000){
  // FairModule* target = new ERTarget("BeamDetTarget", kTRUE, 1);
   //target->SetGeometryFileName("target.h.geo.root");
   //run->AddModule(target);
-  // ------------------------------------------------------------------------
+  // ---------------.q
+  //--------------------------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   //Ion 28S
@@ -56,7 +57,8 @@ void BeamDet_sim(Int_t nEvents = 1000){
 
   ERIonMixGenerator* generator = new ERIonMixGenerator("28S", Z, A, Q, 1);
   Double32_t kin_energy = 40 * 1e-3 * 28; //GeV
-  generator->SetKinESigma(kin_energy, 0.01*kin_energy);
+  //generator->SetKinESigma(kin_energy, 0);
+  generator->SetPSigma(6.7835, 6.7835*0.003);
 //  generator->SetKinESigma(kin_energy, 0);
 
   /*
