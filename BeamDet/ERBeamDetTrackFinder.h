@@ -39,27 +39,20 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  void SetAngleCut(Double_t angle){fAngleCut = angle;}
   /** Accessors **/ 
 protected:
+  //Paramaters
+  ERBeamDetSetup *fBeamDetSetup;
+  
   //Input arrays
-  TClonesArray *fBeamDetMWPCDigi;
+  TClonesArray   *fBeamDetMWPCDigi;
 
   //Output arrays
-  TClonesArray *fBeamDetTracks;
-
+  TObject        *fBeamDetTrack;
 
 private:
-  Double_t fAngleCut;
-
   virtual void SetParContainers();
   
   ClassDef(ERBeamDetTrackFinder,1)
 };
-
-struct ERmuSiSinglet {
-  ERmuSiHit* first;
-  ERmuSiHit* second;
-};
-
 #endif
