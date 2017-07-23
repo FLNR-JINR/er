@@ -74,7 +74,7 @@ Double_t station_Z = 0.03;  //cm
 station_X /= 2.;
 station_Y /= 2.;
 station_Z /= 2.;
-TGeoVolume *Sil_station = gGeoManager->MakeBox("Sil_station", psilicon,
+TGeoVolume *station = gGeoManager->MakeBox("station", psilicon,
 station_X,
  station_Y, station_Z);
 
@@ -130,7 +130,7 @@ for (Int_t i_Y_fiber = 0; i_Y_fiber < fibers_in_det_Y_Nb; i_Y_fiber++){
   Double_t fiber_in_det_Y_trans = det_Y - fiber_Y*2*(i_Y_fiber)-fiber_Y;
   Double_t fiber_in_det_X_trans = 0.;
   Double_t fiber_in_det_Z_trans = 0.;
-  Sil_station->AddNode( fiber, i_fiber, new TGeoCombiTrans(fiber_in_det_X_trans,
+  station->AddNode( fiber, i_fiber, new TGeoCombiTrans(fiber_in_det_X_trans,
                                                         fiber_in_det_Y_trans,
                                                         fiber_in_det_Z_trans,
                                                         fZeroRotation));
@@ -139,7 +139,7 @@ for (Int_t i_Y_fiber = 0; i_Y_fiber < fibers_in_det_Y_Nb; i_Y_fiber++){
 
 
 
-det->AddNode(Sil_station,1,new TGeoCombiTrans(0,station_Y, first_wall_Z + fiber_Z, fZeroRotation));
+det->AddNode(station,1,new TGeoCombiTrans(0,station_Y, first_wall_Z + fiber_Z, fZeroRotation));
 
 det->AddNode(box_CsI,1,new TGeoCombiTrans(box_CsI_X,box_CsI_Y, blocks_of_CSI_Z + box_CsI_Z, fZeroRotation));
 det->AddNode(box_CsI,1,new TGeoCombiTrans(-box_CsI_X,box_CsI_Y, blocks_of_CSI_Z + box_CsI_Z, fZeroRotation));
