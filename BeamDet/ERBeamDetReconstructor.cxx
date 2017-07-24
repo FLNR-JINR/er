@@ -81,7 +81,7 @@ void ERBeamDetReconstructor::Exec(Option_t* opt)
 void ERBeamDetReconstructor::Tof(){
   TRandom Rnd;
   char ShowTrack[10];
-  double tof_offset = 87.98;
+  double tof_offset = 75.;
   //      double tof_offset = 84.;
   double dt_F3,dt_F4,t_F3,t_F4;
   header->mtrack = i_flag_MW;
@@ -113,6 +113,9 @@ void ERBeamDetReconstructor::Tof(){
     //          fInCalEvent->tofb = t_F4 - t_F3 + tof_0;
     // ********************************* measurement of absolute TOF value tof_offset = dT1-L0*(dT1-dT0)/(L1-L0)*******************************
           fOutEvent->tofb = t_F4 - t_F3 + tof_offset;
+          FairRun* run = FairRun::Instance();
+          if (fOutEvent->tofb < 115. || fOutEvent->tofb > 135.)
+            run->MarkFill(kFALSE);
     //if(fInCalEvent->tofb<130.) 
     //{printf("ntF3l=%i,ntF3r=%i,ntF4l=%i,ntF4r=%i\n",RawD.ntF3l,RawD.ntF3r,RawD.ntF4l,RawD.ntF4r);
     //printf("tF3l=%lf,tF3r=%lf,tF4l=%lf,tF4r=%lf,  TOF=%lf\n",fInCalEvent->tF3l,fInCalEvent->tF3r,fInCalEvent->tF4l,fInCalEvent->tF4r,fInCalEvent->tofb);
@@ -123,7 +126,7 @@ void ERBeamDetReconstructor::Tof(){
           {
 
             beta_b = header->UpMat.PlasticDist/fOutEvent->tofb/slight;
-
+            fOutEvent->p_beam = 1./fOutEvent->tofb;
             if(beta_b>0.&&beta_b<=1.)
             {
               header->mbeam = 1;
@@ -133,7 +136,8 @@ void ERBeamDetReconstructor::Tof(){
               fOutEvent->projectile.Part.SetPxPyPzE(p_beam*sin(Vbeam.Theta())*cos(Vbeam.Phi()),
                 p_beam*sin(Vbeam.Theta())*sin(Vbeam.Phi()),p_beam*cos(Vbeam.Theta()),
                 p_beam/beta_b);
-
+              fOutEvent->Tb0 = fOutEvent->projectile.Part.E()-fOutEvent->projectile.Mass;
+              
               Tb = UpstreamEnergyLoss(&(header->UpMat),&(fOutEvent->projectile),header->ReIN.TOFis,header->ReIN.TRACKINGis,ShowTrack);
               if(fOutEvent->Tb>0.1&&!strcmp(header->UpMat.HeatScreenAns,"yes")) 
                 Tb = EiEo(header->UpMat.beam_TARwin,Tb,header->UpMat.HeatScreenThick/cos(Vbeam.Theta()));
@@ -142,6 +146,7 @@ void ERBeamDetReconstructor::Tof(){
               else 
                 Tb = 0.;
               float range = header->UpMat.TarThick*header->UpMat.TarPress*TempNorm/header->UpMat.TarTemp/cos(Vbeam.Theta())/2.;
+              cout << "range:" << range << endl;
               if(Tb>0.1) Tb = EiEo(header->UpMat.beam_target,Tb,range);
               else Tb = 0.;
               p_beam = sqrt(pow(Tb+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));

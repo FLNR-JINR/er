@@ -14,9 +14,11 @@ public:
 	//Tof
 	double tofb,tcm;
 	float Tb;
+	float Tb0;
 	ERParticle projectile;
 	ERParticle CM0;        
-	ERParticle target;     
+	ERParticle target;
+	float p_beam  ;  
 	float xbt,ybt,zbt;
 
 	//from Raw Track

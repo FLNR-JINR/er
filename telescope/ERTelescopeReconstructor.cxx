@@ -98,7 +98,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 
   FairRun* run = FairRun::Instance();
   run->MarkFill(kFALSE);
-  if (header->mp1 == 1 && header->mp2 == 1)
+  if (header->mp1 == 1 && header->mp2 == 1 && fBeamDetEvent->tofb > 115. && fBeamDetEvent->tofb < 135.)
     run->MarkFill(kTRUE);
   else
     return;
@@ -1332,6 +1332,7 @@ void ERTelescopeReconstructor::misCalculations(){
       for(int imu=0;imu<NDivXYMax;imu++)
       {
         mis[it][ip][imu].NameOfNucleus = new char [3];
+        mis[it][ip][imu].Mass = 0.;
         strcpy(mis[it][ip][imu].NameOfNucleus,"mi");
       }
     }
