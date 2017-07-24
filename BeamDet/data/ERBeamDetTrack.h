@@ -19,6 +19,8 @@ private:
 public:
 	ERBeamDetTrack();
   ERBeamDetTrack(TString name);
+  ERBeamDetTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
+  void AddParameters(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
 
 	ClassDef(ERBeamDetTrack, 1)
 };

@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 
-#include "TGeoBBox.h"
+#include "TGeoTube.h"
 #include "TError.h"
 #include "TMath.h"
 #include "TGeoManager.h"
@@ -13,13 +13,15 @@ using namespace std;
 #include "FairRuntimeDb.h"
 
 ERBeamDetSetup* ERBeamDetSetup::fInstance = NULL;
-std::vector<std::vector<std::vector<ERBeamDetWire>>> ERBeamDetSetup::fWires;
+Double_t        ERBeamDetSetup::fTargetR = 0;
+map<Int_t, map<Int_t, map<Int_t, ERBeamDetWire*>>>ERBeamDetSetup::fWires;
 
 ERBeamDetSetup::ERBeamDetSetup(){
     // --- Catch absence of TGeoManager
     if ( ! gGeoManager ) {
             std::cerr << "ERBeamDetSetup: cannot initialise without TGeoManager!"<< std::endl;
     }
+
     gGeoManager->CdTop();
     TGeoNode* cave = gGeoManager->GetCurrentNode();
     TGeoNode* beamDet  = NULL;
@@ -27,6 +29,7 @@ ERBeamDetSetup::ERBeamDetSetup(){
         TString name = cave->GetDaughter(iNode)->GetName();
         if ( name.Contains("BeamDet", TString::kIgnoreCase) ) {
             beamDet = cave->GetDaughter(iNode);
+            break;
         }
     }
 
@@ -35,24 +38,43 @@ ERBeamDetSetup::ERBeamDetSetup(){
         TString name = beamDet->GetDaughter(iNode)->GetName();
         if ( name.Contains("MWPC", TString::kIgnoreCase) ) {
             mwpc = beamDet->GetDaughter(iNode);
+            break;
         }
     }
 
     TGeoNode* mwpcStation = NULL;
     Double_t  mwpcStationZ;
-    TGeoNode* plane;
-    TGeoNode* wire;
+    TGeoNode* plane = NULL;
+    TGeoNode* wire = NULL;
     for (Int_t mwpcNb = 0; mwpcNb < mwpc->GetNdaughters(); mwpcNb++) {
-        mwpcStation = mwpc->GetDaughter(mwpcNb);
-        mwpcStationZ = mwpcStation->GetMatrix()->GetTranslation()[2];
-        for (Int_t planeNb = 0; planeNb < mwpcStation->GetNdaughters(); planeNb++) {
-              for (Int_t wireNb = 0; wireNb < plane->GetNdaughters(); wireNb++) {
-                wire = plane->GetDaughter(wireNb);
-                Double_t* pos = const_cast<Double_t*>(wire->GetMatrix()->GetTranslation());
-                fWires[mwpcNb][planeNb][wireNb] = ERBeamDetWire(pos[0], pos[1], mwpcStationZ);
-              }
-        } 
+      mwpcStation = mwpc->GetDaughter(mwpcNb);
+      mwpcStationZ = mwpcStation->GetMatrix()->GetTranslation()[2];
+      for (Int_t planeNb = 0; planeNb < mwpcStation->GetNdaughters(); planeNb++) {
+        plane = mwpcStation->GetDaughter(planeNb);
+        for (Int_t wireNb = 0; wireNb < plane->GetNdaughters(); wireNb++) {
+          wire = plane->GetDaughter(wireNb);
+          Double_t x = wire->GetMatrix()->GetTranslation()[0];
+          Double_t y = wire->GetMatrix()->GetTranslation()[1];
+          fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(x, y, mwpcStationZ)));
+        }
+      } 
     }
+
+    TGeoNode* target = NULL;
+    for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
+        TString name = beamDet->GetDaughter(iNode)->GetName();
+        if ( name.Contains("target", TString::kIgnoreCase) ) {
+            target = beamDet->GetDaughter(iNode);
+            break;
+        }
+    }
+
+    TGeoNode* shell = target->GetDaughter(0);
+    TGeoNode* h2 = target->GetDaughter(0);
+    TGeoTube* h2Tube = (TGeoTube*)h2->GetVolume()->GetShape();
+    fTargetR = h2Tube->GetRmax();
+    std::cout<< "Target radius " << fTargetR << std::endl;
+
     std::cout << "ERBeamDetSetup initialized! "<< std::endl;
 }
 
@@ -74,14 +96,19 @@ Int_t ERBeamDetSetup::SetParContainers(){
 }
 
 Double_t ERBeamDetSetup::WireX(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
-    return fWires[mwpcNb][planeNb][wireNb].fX;
+    return fWires[mwpcNb][planeNb][wireNb]->fX;
 }
 
 Double_t ERBeamDetSetup::WireY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
-    return fWires[mwpcNb][planeNb][wireNb].fY;
+    return fWires[mwpcNb][planeNb][wireNb]->fY;
 }
 
 Double_t ERBeamDetSetup::WireZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
-    return fWires[mwpcNb][planeNb][wireNb].fZ;
+    return fWires[mwpcNb][planeNb][wireNb]->fZ;
 }
+
+Double_t ERBeamDetSetup::TargetR() {
+    return fTargetR;
+}
+
 ClassImp(ERBeamDetSetup)

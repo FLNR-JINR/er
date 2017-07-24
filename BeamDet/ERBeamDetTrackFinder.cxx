@@ -13,8 +13,7 @@ using namespace std;
 #include <iostream>
 
 #include "ERDetectorList.h"
-#include "ERBeamDetTrack.h"
-#include "ERBeamDetMWPCDigi.h"
+
 // ----------------------------------------------------------------------------
 ERBeamDetTrackFinder::ERBeamDetTrackFinder()
   : FairTask("ER BeamDet track finding scheme")
@@ -50,10 +49,10 @@ InitStatus ERBeamDetTrackFinder::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
-  fBeamDetMWPCDigi = (TClonesArray*) ioman->GetObject("BeamDetDigi");
+  fBeamDetMWPCDigi = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigi");
 
   // Register output array fBeamDetHits
-  fBeamDetTrack = new ERBeamDetTrack();
+  fBeamDetTrack = (ERBeamDetTrack*)new ERBeamDetTrack();
 
   ioman->Register("BeamDetTrack.", "BeamDet track", fBeamDetTrack, kTRUE);
    
@@ -72,11 +71,15 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
 
   if(digiCount > 4) {
     std::cout << "Multiplicity more than one" << std::endl;
+    FairRun* run = FairRun::Instance();
+    run->MarkFill(kFALSE);
     return ;
   }
 
   if(digiCount < 4) {
     std::cout << "Multiplicity less than one" << std::endl;
+    FairRun* run = FairRun::Instance();
+    run->MarkFill(kFALSE);
     return ;
   }
 
@@ -86,21 +89,25 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   Double_t coordinate;
   for(Int_t iDigi = 0; iDigi < fBeamDetMWPCDigi->GetEntriesFast(); iDigi++) {
     ERBeamDetMWPCDigi* digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigi->At(iDigi);
-    mwpcNb = digi->GetMWPCNb();
-    planeNb = digi->GetPlaneNb();
-    wireNb = digi->GetWireNb(); 
+    mwpcNb = digi->GetMWPCNb() - 1;
+    planeNb = digi->GetPlaneNb() - 1;
+    wireNb = digi->GetWireNb() - 1; 
     switch(iDigi) {
       case 0:
+        std::cout << "Case 0" << std::endl;
         xFar = fBeamDetSetup->WireX(mwpcNb, planeNb, wireNb);
         break;
       case 1:
+        std::cout << "Case 1" << std::endl;
         yFar = fBeamDetSetup->WireY(mwpcNb, planeNb, wireNb);
         zFar = fBeamDetSetup->WireZ(mwpcNb, planeNb, wireNb);
         break;
       case 2:
+        std::cout << "Case 2" << std::endl;
         xClose = fBeamDetSetup->WireX(mwpcNb, planeNb, wireNb);
         break;
       case 3:
+        std::cout << "Case 3" << std::endl;
         yClose = fBeamDetSetup->WireY(mwpcNb, planeNb, wireNb);
         zClose = fBeamDetSetup->WireZ(mwpcNb, planeNb, wireNb);
         break;
@@ -111,24 +118,12 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   TVector3 vertexClose(xClose, yClose, zClose);
   TVector3 vectorOnTarget = vertexClose - vertexFar;
 
-/*
-  1) Он просто по номеру проволочки востанавливает четыре отдельные координаты: xmw1, ymw1, xmw2, ymw2.
-2) Дальше собирает из них две точки в пространстве:
-VmwFa(xmw1,ymw1,0)
-VmwCl(xmw2,ymw2,растояние между MWPC)
-3) Формирует вектор пучка
-Vbeam = VmwCl - VmwFa
-4) Есть координата Zdist
-Zdist = MWclosDist - header->UpMat.MWXYdist/2.;
-Если я правильно понял это середина отрезка между X и Y плоскостями ближайшей к мишени MWPC
-5) Координаты на мишени:
-xbt = xmw2 - Zdist*tan(Vbeam.Theta())*cos(Vbeam.Phi());
-ybt = ymw2 - Zdist*tan(Vbeam.Theta())*sin(Vbeam.Phi());
-То есть он вообще никак не учитывает то, что у нас еть смещение пучка между станциями X и Y. Ок. Это вроде также как обсуждали в последний раз.
-6) Отбор событий, попавших в мишень. Я думаю нам его тоже стоит сделать и не писать события не попавшие.
+  Double_t xTarget = xClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Cos(vectorOnTarget.Phi());
+  Double_t yTarget = yClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Sin(vectorOnTarget.Phi());
 
-Как не писать события в выходной файл можно посмотреть в BeamDetCalibratorNew. FairRun->MarkFill()
-*/
+  if(TMath::Sqrt(xTarget*xTarget + yTarget*yTarget) <= fBeamDetSetup->TargetR()) {
+    AddTrack(xTarget, yTarget, 0, vectorOnTarget.Unit());
+  }
 }
 //----------------------------------------------------------------------------
 
@@ -136,7 +131,8 @@ ybt = ymw2 - Zdist*tan(Vbeam.Theta())*sin(Vbeam.Phi());
 void ERBeamDetTrackFinder::Reset()
 {
   if (fBeamDetTrack) {
-    fBeamDetTrack->Delete();
+    std::cout<< "Clear track" << endl;
+    fBeamDetTrack->Clear();
   }
 }
 // ----------------------------------------------------------------------------
@@ -147,6 +143,9 @@ void ERBeamDetTrackFinder::Finish()
   
 }
 // ----------------------------------------------------------------------------
-
+ERBeamDetTrack* ERBeamDetTrackFinder::AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v)
+{
+  fBeamDetTrack->AddParameters(xt, yt, zt, v);
+}
 //-----------------------------------------------------------------------------
 ClassImp(ERBeamDetTrackFinder)

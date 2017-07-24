@@ -143,20 +143,6 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
       digi->AddLink(FairLink("BeamDetTOFPoint", *itTOFPoint));
     }
   }
-/*  for (Int_t iPoint = 0; iPoint < fBeamDetTOFPoints->GetEntriesFast(); iPoint++){
-    ERBeamDetTOFPoint* point = (ERBeamDetTOFPoint*)fBeamDetTOFPoints->At(iPoint);
-
-    Float_t edep = gRandom->Gaus(point->GetEnergyLoss(), fElossSigmaTOF);
-    if (edep < fTOFElossThreshold)
-      continue;
-
-    Int_t tofNb = point->GetTofNb();
-
-    Float_t time = gRandom->Gaus(point->GetTime(), fTimeSigmaTOF);
-
-    AddTOFDigi(edep, time, tofNb);
-  }*/
-
    //Sort the MWPCpoints by MWPC, planes and wires
   map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>> pointsMWPC;
   for (Int_t iPoint = 0; iPoint < fBeamDetMWPCPoints->GetEntriesFast(); iPoint++){

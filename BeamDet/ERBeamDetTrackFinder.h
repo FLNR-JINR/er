@@ -11,6 +11,7 @@
 #include "FairTask.h"
 
 #include "ERBeamDetMWPCDigi.h"
+#include "ERBeamDetTrack.h"
 #include "ERBeamDetSetup.h"
 
 class ERBeamDetTrackFinder : public FairTask {
@@ -49,11 +50,12 @@ protected:
   TClonesArray   *fBeamDetMWPCDigi;
 
   //Output arrays
-  TNamed         *fBeamDetTrack;
+  ERBeamDetTrack *fBeamDetTrack;
 
 private:
   virtual void SetParContainers();
-  
+  ERBeamDetTrack* AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
+
   ClassDef(ERBeamDetTrackFinder,1)
 };
 #endif

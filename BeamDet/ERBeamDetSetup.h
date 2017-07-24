@@ -8,6 +8,9 @@
 #ifndef ERBeamDetSETUP_H
 #define ERBeamDetSETUP_H
 
+using namespace std;
+
+#include <map>
 #include <vector>
 #include "Rtypes.h"
 
@@ -20,13 +23,15 @@ struct ERBeamDetWire{
 
 class ERBeamDetSetup {
     static ERBeamDetSetup* fInstance;
-    static std::vector<std::vector<std::vector<ERBeamDetWire>>> fWires;
+    static Double_t        fTargetR;
+    static map<Int_t, map<Int_t, map<Int_t, ERBeamDetWire*>>> fWires;
     ERBeamDetSetup();
 public:
     static ERBeamDetSetup* Instance();
     static Double_t WireX(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
     static Double_t WireY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
     static Double_t WireZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
+    static Double_t TargetR();
     static Int_t    SetParContainers();
     ClassDef(ERBeamDetSetup,1)
 
