@@ -34,9 +34,12 @@ class ERBeamDetMWPCDigi : public FairMultiLinkedData
   virtual void Print(const Option_t* opt = 0) const;
 
   /* Accessors */
-  Int_t ID () const {return fID;}
-  Float_t Edep() const {return fEdep;}
-  
+  Int_t   ID ()        const {return fID;}
+  Float_t Edep()       const {return fEdep;}
+  Int_t   GetMWPCNb()  const { return fMWPCNb;}
+  Int_t   GetPlaneNb() const { return fPlaneNb;}
+  Int_t   GetWireNb()  const { return fWireNb;}
+
  protected:
   Int_t 	  fID;
 

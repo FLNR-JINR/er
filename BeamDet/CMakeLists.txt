@@ -30,11 +30,14 @@ set(SRCS
 	data/ERBeamDetRecoEvent.cxx
 	data/ERBeamDetMWPCDigi.cxx
 	data/ERBeamDetTOFDigi.cxx
+	data/ERBeamDetTrack.cxx
 
 	ERBeamDet.cxx
 	ERBeamDetCalibrator.cxx
 	ERBeamDetReconstructor.cxx
 	ERBeamDetDigitizer.cxx
+	ERBeamDetTrackFinder.cxx
+	ERBeamDetSetup.cxx
 	ERBeamDetCalibratorNew.cxx
 )
 

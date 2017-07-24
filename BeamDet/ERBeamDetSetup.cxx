@@ -13,7 +13,7 @@ using namespace std;
 #include "FairRuntimeDb.h"
 
 ERBeamDetSetup* ERBeamDetSetup::fInstance = NULL;
-std::vector<std::vector<std::vector<ERBeamDetWire*>>> ERBeamDetSetup::fWires;
+std::vector<std::vector<std::vector<ERBeamDetWire>>> ERBeamDetSetup::fWires;
 
 ERBeamDetSetup::ERBeamDetSetup(){
     // --- Catch absence of TGeoManager
@@ -31,16 +31,16 @@ ERBeamDetSetup::ERBeamDetSetup(){
     }
 
     TGeoNode* mwpc = NULL;
-    for (Int_t iNode = 0; iNode < beamdet->GetNdaughters(); iNode++) {
-        TString name = beamdet->GetDaughter(iNode)->GetName();
+    for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
+        TString name = beamDet->GetDaughter(iNode)->GetName();
         if ( name.Contains("MWPC", TString::kIgnoreCase) ) {
-            mwpc = beamdet->GetDaughter(iNode);
+            mwpc = beamDet->GetDaughter(iNode);
         }
     }
 
     TGeoNode* mwpcStation = NULL;
     Double_t  mwpcStationZ;
-    TGeoNode *plane = beamdet->GetDaughter(planeNb);
+    TGeoNode* plane;
     TGeoNode* wire;
     for (Int_t mwpcNb = 0; mwpcNb < mwpc->GetNdaughters(); mwpcNb++) {
         mwpcStation = mwpc->GetDaughter(mwpcNb);
@@ -48,7 +48,7 @@ ERBeamDetSetup::ERBeamDetSetup(){
         for (Int_t planeNb = 0; planeNb < mwpcStation->GetNdaughters(); planeNb++) {
               for (Int_t wireNb = 0; wireNb < plane->GetNdaughters(); wireNb++) {
                 wire = plane->GetDaughter(wireNb);
-                Double_t* pos = wire->GetMatrix()->GetTranslation();
+                Double_t* pos = const_cast<Double_t*>(wire->GetMatrix()->GetTranslation());
                 fWires[mwpcNb][planeNb][wireNb] = ERBeamDetWire(pos[0], pos[1], mwpcStationZ);
               }
         } 
@@ -58,9 +58,9 @@ ERBeamDetSetup::ERBeamDetSetup(){
 
 ERBeamDetSetup* ERBeamDetSetup::Instance(){
     if (fInstance == NULL)
-            return new ERBeamDetSetup();
+        return new ERBeamDetSetup();
     else
-            return fInstance;
+        return fInstance;
 }
 
 Int_t ERBeamDetSetup::SetParContainers(){
@@ -74,14 +74,14 @@ Int_t ERBeamDetSetup::SetParContainers(){
 }
 
 Double_t ERBeamDetSetup::WireX(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
-    return fWires[mwpcStation][planeNb][wireNb]->fX;
+    return fWires[mwpcNb][planeNb][wireNb].fX;
 }
 
 Double_t ERBeamDetSetup::WireY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
-    return fWires[mwpcStation][planeNb][wireNb]->fY;
+    return fWires[mwpcNb][planeNb][wireNb].fY;
 }
 
 Double_t ERBeamDetSetup::WireZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
-    return fWires[mwpcStation][planeNb][wireNb]->fZ;
+    return fWires[mwpcNb][planeNb][wireNb].fZ;
 }
 ClassImp(ERBeamDetSetup)

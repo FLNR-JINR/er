@@ -20,7 +20,7 @@ struct ERBeamDetWire{
 
 class ERBeamDetSetup {
     static ERBeamDetSetup* fInstance;
-    static std::vector<std::vector<std::vector<ERBeamDetWire*>>> fWires;
+    static std::vector<std::vector<std::vector<ERBeamDetWire>>> fWires;
     ERBeamDetSetup();
 public:
     static ERBeamDetSetup* Instance();
