@@ -153,16 +153,17 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   cy[0][0] = -1;
   cz[0][0] = -1;
   if (header->mp1 == 1){
-    //AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitX[0][0][0][0],NhitY[0][1][0][0],Vert1);
-    //cx[0][0] = (Vert1+AngleDet[0][0]).X();
-    //cy[0][0] = (Vert1+AngleDet[0][0]).Y();
-    //cz[0][0] = (Vert1+AngleDet[0][0]).Z();
+    AngleDet[0][0] = Traject(&Det[0][0][0],&Det[0][0][0],NhitY[0][1][0][0],NhitX[0][0][0][0],Vert1);
+    cx[0][0] = (Vert1+AngleDet[0][0]).X();
+    cy[0][0] = (Vert1+AngleDet[0][0]).Y();
+    cz[0][0] = (Vert1+AngleDet[0][0]).Z();
+    /*
     float phi = (NhitX[0][0][0][0]-1/2)*2*TMath::Pi()/16.;
     float R = 1.6 +(NhitY[0][1][0][0]-1/2)*(4.1-1.6)/16.;
     cx[0][0] = R*TMath::Cos(phi);
     cy[0][0] = R*TMath::Sin(phi);
     //cx[0][0] = phi;
-    //cy[0][0] = R;
+    //cy[0][0] = R;*/
   }
 
 
@@ -179,7 +180,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   fOutEvent->y24 = cy[1][3];
   fOutEvent->x25 = cx[1][4];
   fOutEvent->y25 = cy[1][4];
-  /*
+  
   //cout << "Now we know trajectories" << endl;
   char* plett;
   int itx,ilx,idx,ipx,is,count;
@@ -367,6 +368,10 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
       }
     }
   }
+
+  fOutEvent->ej11 = ejectile[0][0][0];
+  fOutEvent->ej22 = ejectile[1][1][0];
+
   fOutEvent->t11cmp = ejectile[0][0][0].Part.E()-ejectile[0][0][0].Mass;
   fOutEvent->t22cmp = ejectile[1][1][0].Part.E()-ejectile[1][1][0].Mass;
 
@@ -375,7 +380,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 
   fOutEvent->th11cmp = ejectile[0][0][0].Part.Theta()/rad;
   fOutEvent->th22cmp = ejectile[1][1][0].Part.Theta()/rad;
-  */
+  
 }
 
 //----------------------------------------------------------------------------
@@ -1361,11 +1366,13 @@ void ERTelescopeReconstructor::misCalculations(){
               pow(projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),2)+
               pow(mis[it][ip][imu].Mass,2))-mis[it][ip][imu].Mass;
             Tout = projectile->Part.E()+target->Mass-ejectile[it][ip][imu].Part.E()-Tb-mis[it][ip][imu].Mass;
+
             Tb = sqrt(pow(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),2)+
               pow(projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),2)+
               pow(projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),2)+
               pow(mis[it][ip][imu].Mass+Tout,2))-mis[it][ip][imu].Mass-Tout;
             Tout = projectile->Part.E()+target->Mass-ejectile[it][ip][imu].Part.E()-Tb-mis[it][ip][imu].Mass;
+            
             mis[it][ip][imu].Excitation = Tout;
             mis[it][ip][imu].Part.SetPxPyPzE(projectile->Part.Px()-ejectile[it][ip][imu].Part.Px(),
             projectile->Part.Py()-ejectile[it][ip][imu].Part.Py(),projectile->Part.Pz()-ejectile[it][ip][imu].Part.Pz(),
@@ -1375,6 +1382,8 @@ void ERTelescopeReconstructor::misCalculations(){
         }
       }
     }
+  fOutEvent->mis11 = mis[0][0][0];
+  fOutEvent->mis22 = mis[1][1][0];
   fOutEvent->tmis11 = mis[0][0][0].Part.E()-mis[0][0][0].Mass-mis[0][0][0].Excitation;
   fOutEvent->tmis22 = mis[1][1][0].Part.E()-mis[1][1][0].Mass-mis[1][1][0].Excitation;
   

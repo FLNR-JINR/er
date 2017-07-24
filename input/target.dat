@@ -1,15 +1,15 @@
 TargetShape	Cylindrical
-TargetZshift	0.	0.	-11.8
-WindowFoil	steel	0.0000008
+TargetZshift	0.
+WindowFoil	steel	0.00016
 TargRadius	2.0
-TargHeight	0.02
+TargHeight	0.004
 TargWallThick	0.5
-EntrHoleRad	1.5
-Menisk		0.000115
-TargTemp	293.
-TargPress	1.
+EntrHoleRad	1.25
+Menisk		0.
+TargTemp	26.
+TargPress	0.93
 TargAngle	0.
-HeatScreen	no
+HeatScreen	yes
 HscrFoil	mylar	0.00035  
 InHscrRad	4.  
 HscrWallWidth	0.3 

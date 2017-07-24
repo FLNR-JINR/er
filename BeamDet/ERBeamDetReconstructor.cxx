@@ -470,7 +470,10 @@ void ERBeamDetReconstructor::DefineBeamEnergy(){
   Tb = atof(plett);
   if(!strcmp(header->ReIN.EnergyUn,RightEnUn1)) Tb = Tb;
   else if(!strcmp(header->ReIN.EnergyUn,RightEnUn2)) Tb *= fOutEvent->projectile.AtMass;
-  else if(!strcmp(header->ReIN.EnergyUn,RightEnUn3)) Tb = Stepantsov(Dipole,fOutEvent->projectile.AtNumber,fOutEvent->projectile.Mass,Tb);
+  else if(!strcmp(header->ReIN.EnergyUn,RightEnUn3)){
+    Tb = Stepantsov(Dipole,fOutEvent->projectile.AtNumber,fOutEvent->projectile.Mass,Tb);
+    cout << "Stepantsov energey:" << Tb << endl;
+  }
   else printf("Main: wrong energy unit\n");
   Tboutput = Tb;
 
