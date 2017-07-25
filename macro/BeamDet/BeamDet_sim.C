@@ -71,7 +71,7 @@ void BeamDet_sim(Int_t nEvents = 2000){
   Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
   generator->SetThetaSigma(theta, sigmaTheta);
   
-  //generator->SetPhiRange(0, 360);
+  generator->SetPhiRange(0, 360);
 
   Double32_t distanceToTarget = 1533;
   Double32_t sigmaOnTarget = 0.5;

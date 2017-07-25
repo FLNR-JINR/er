@@ -50,7 +50,7 @@ protected:
   TClonesArray   *fBeamDetMWPCDigi;
 
   //Output arrays
-  ERBeamDetTrack *fBeamDetTrack;
+  ERBeamDetTrack *fBeamDetTrack ;
 
 private:
   virtual void SetParContainers();

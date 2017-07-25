@@ -7,6 +7,7 @@ using namespace std;
 #include "TError.h"
 #include "TMath.h"
 #include "TGeoManager.h"
+#include "TGeoMatrix.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -42,20 +43,31 @@ ERBeamDetSetup::ERBeamDetSetup(){
         }
     }
 
-    TGeoNode* mwpcStation = NULL;
-    Double_t  mwpcStationZ;
-    TGeoNode* plane = NULL;
-    TGeoNode* wire = NULL;
+    TGeoNode*   mwpcStation = NULL;
+    Double_t    mwpcStationZ;
+    TGeoMatrix* mwpcLocalPos;
+    Double_t    mwpcMasterPos[3];
+    TGeoNode*   plane = NULL;
+    TGeoNode*   wire = NULL;
+
     for (Int_t mwpcNb = 0; mwpcNb < mwpc->GetNdaughters(); mwpcNb++) {
       mwpcStation = mwpc->GetDaughter(mwpcNb);
-      mwpcStationZ = mwpcStation->GetMatrix()->GetTranslation()[2];
+      //---- Convertion mwpc station local position to global coordinates---
+      mwpcLocalPos = mwpcStation->GetMatrix();
+      mwpcLocalPos->LocalToMaster(mwpc->GetMatrix()->GetTranslation(), mwpcMasterPos);
+      mwpcStationZ = mwpcMasterPos[2];
+      //--------------------------------------------------------------------
       for (Int_t planeNb = 0; planeNb < mwpcStation->GetNdaughters(); planeNb++) {
         plane = mwpcStation->GetDaughter(planeNb);
         for (Int_t wireNb = 0; wireNb < plane->GetNdaughters(); wireNb++) {
           wire = plane->GetDaughter(wireNb);
           Double_t x = wire->GetMatrix()->GetTranslation()[0];
           Double_t y = wire->GetMatrix()->GetTranslation()[1];
-          fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(x, y, mwpcStationZ)));
+          (planeNb == 0) ? fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(x, y, mwpcStationZ)))
+                         : fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(y, x, mwpcStationZ)));
+          std::cout << "Wire " << wireNb << " position (" << fWires[mwpcNb][planeNb][wireNb]->fX << ", " 
+                                                          << fWires[mwpcNb][planeNb][wireNb]->fY << ", " 
+                                                          << mwpcStationZ << ") cm" << endl;
         }
       } 
     }
@@ -65,16 +77,16 @@ ERBeamDetSetup::ERBeamDetSetup(){
         TString name = beamDet->GetDaughter(iNode)->GetName();
         if ( name.Contains("target", TString::kIgnoreCase) ) {
             target = beamDet->GetDaughter(iNode);
+            TGeoNode* shell = target->GetDaughter(0);
+            cout << "Shell " << shell->GetName() << endl;
+            TGeoNode* h2 = shell->GetDaughter(0);
+            cout << "h2 " << h2->GetName() << endl;
+            TGeoTube* h2Tube = (TGeoTube*)h2->GetVolume()->GetShape();
+            fTargetR = h2Tube->GetRmax();
+            std::cout<< "Target radius " << fTargetR << std::endl;
             break;
         }
     }
-
-    TGeoNode* shell = target->GetDaughter(0);
-    TGeoNode* h2 = target->GetDaughter(0);
-    TGeoTube* h2Tube = (TGeoTube*)h2->GetVolume()->GetShape();
-    fTargetR = h2Tube->GetRmax();
-    std::cout<< "Target radius " << fTargetR << std::endl;
-
     std::cout << "ERBeamDetSetup initialized! "<< std::endl;
 }
 

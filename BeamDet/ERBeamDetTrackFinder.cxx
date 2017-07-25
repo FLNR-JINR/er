@@ -65,7 +65,6 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
 { 
   Reset();
   std::cout << std::endl;
-  std::cout << "ERBeamDetTrackFinder:" << std::endl;
 
   Int_t digiCount = fBeamDetMWPCDigi->GetEntriesFast();
 
@@ -94,20 +93,16 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     wireNb = digi->GetWireNb() - 1; 
     switch(iDigi) {
       case 0:
-        std::cout << "Case 0" << std::endl;
         xFar = fBeamDetSetup->WireX(mwpcNb, planeNb, wireNb);
         break;
       case 1:
-        std::cout << "Case 1" << std::endl;
         yFar = fBeamDetSetup->WireY(mwpcNb, planeNb, wireNb);
         zFar = fBeamDetSetup->WireZ(mwpcNb, planeNb, wireNb);
         break;
       case 2:
-        std::cout << "Case 2" << std::endl;
         xClose = fBeamDetSetup->WireX(mwpcNb, planeNb, wireNb);
         break;
       case 3:
-        std::cout << "Case 3" << std::endl;
         yClose = fBeamDetSetup->WireY(mwpcNb, planeNb, wireNb);
         zClose = fBeamDetSetup->WireZ(mwpcNb, planeNb, wireNb);
         break;
@@ -122,8 +117,10 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   Double_t yTarget = yClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Sin(vectorOnTarget.Phi());
 
   if(TMath::Sqrt(xTarget*xTarget + yTarget*yTarget) <= fBeamDetSetup->TargetR()) {
-    AddTrack(xTarget, yTarget, 0, vectorOnTarget.Unit());
+    AddTrack(xTarget, yTarget, 0, vectorOnTarget);
   }
+  std::cout << "Point on target " << "(" << xTarget << ", " 
+                                         << yTarget << ") cm" << endl;
 }
 //----------------------------------------------------------------------------
 
@@ -131,7 +128,6 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
 void ERBeamDetTrackFinder::Reset()
 {
   if (fBeamDetTrack) {
-    std::cout<< "Clear track" << endl;
     fBeamDetTrack->Clear();
   }
 }
