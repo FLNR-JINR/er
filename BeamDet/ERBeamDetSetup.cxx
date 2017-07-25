@@ -15,6 +15,7 @@ using namespace std;
 
 ERBeamDetSetup* ERBeamDetSetup::fInstance = NULL;
 Double_t        ERBeamDetSetup::fTargetR = 0;
+Double_t        ERBeamDetSetup::fDistanceBetweenMWPC = 0;
 map<Int_t, map<Int_t, map<Int_t, ERBeamDetWire*>>>ERBeamDetSetup::fWires;
 
 ERBeamDetSetup::ERBeamDetSetup(){
@@ -72,15 +73,16 @@ ERBeamDetSetup::ERBeamDetSetup(){
       } 
     }
 
+    fDistanceBetweenMWPC = 2 * TMath::Abs(mwpcStation->GetMatrix()->GetTranslation()[2]);
+    cout << "The distance between MWPC stations: " << fDistanceBetweenMWPC << " cm;" << endl;
+
     TGeoNode* target = NULL;
     for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
         TString name = beamDet->GetDaughter(iNode)->GetName();
         if ( name.Contains("target", TString::kIgnoreCase) ) {
             target = beamDet->GetDaughter(iNode);
             TGeoNode* shell = target->GetDaughter(0);
-            cout << "Shell " << shell->GetName() << endl;
             TGeoNode* h2 = shell->GetDaughter(0);
-            cout << "h2 " << h2->GetName() << endl;
             TGeoTube* h2Tube = (TGeoTube*)h2->GetVolume()->GetShape();
             fTargetR = h2Tube->GetRmax();
             std::cout<< "Target radius " << fTargetR << std::endl;
