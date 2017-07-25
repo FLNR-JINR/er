@@ -1199,15 +1199,18 @@ void ERTelescopeReconstructor::ReadDeposites(){
   mpd[0][0][0] = 0; mpd[0][1][0] = 0;
   mpd[1][0][0] = 0; mpd[1][1][0] = 0;
   //RTelescope
-  if(MuX[0][0][0]==0&&NhitX[0][0][0][0]>0&&NhitX[0][0][0][0]<=abs(Det[0][0][0].NstripX)&&DepoX[0][0][0][0]>0.) mpd[0][0][0]=1;
-  if(MuY[0][1][0]==0&&NhitY[0][1][0][0]>0&&NhitY[0][1][0][0]<=abs(Det[0][0][0].NstripY)&&DepoX[0][1][0][0]>0.) mpd[0][1][0]=1;
+  if(MuX[0][0][0]==0&&NhitX[0][0][0][0]>0&&NhitX[0][0][0][0]<=abs(Det[0][0][0].NstripX)&&DepoX[0][0][0][0]>0.) mpd[0][0][0]=MuX[0][0][0]+1;
+  if(MuY[0][1][0]==0&&NhitY[0][1][0][0]>0&&NhitY[0][1][0][0]<=abs(Det[0][0][0].NstripY)&&DepoX[0][1][0][0]>0.) mpd[0][1][0]=MuY[0][1][0]+1;
 
   //QTelescope
-  if(MuX[1][0][0]==0&&NhitX[1][0][0][0]>0&&NhitX[1][0][0][0]<=abs(Det[1][0][0].NstripX)&&DepoX[1][0][0][0]>0.) mpd[1][0][0]=1;
-  if(MuY[1][1][0]==0&&NhitY[1][1][0][0]>0&&NhitY[1][1][0][0]<=abs(Det[1][1][0].NstripY)&&DepoX[1][1][0][0]>0.) mpd[1][1][0]=1;
+  if(MuX[1][0][0]==0&&NhitX[1][0][0][0]>0&&NhitX[1][0][0][0]<=abs(Det[1][0][0].NstripX)&&DepoX[1][0][0][0]>0.) mpd[1][0][0]=MuX[1][0][0]+1;
+  if(MuY[1][1][0]==0&&NhitY[1][1][0][0]>0&&NhitY[1][1][0][0]<=abs(Det[1][1][0].NstripY)&&DepoX[1][1][0][0]>0.) mpd[1][1][0]=MuY[1][1][0]+1;
 
-  if(mpd[0][0][0]==1&&mpd[0][1][0]==1) mp[0] = mpd[0][0][0];
-  if(mpd[1][0][0]==1&&mpd[1][1][0]==1) mp[1] = mpd[1][0][0];
+  if(fRTelescopeEvent->mC11==0&&fRTelescopeEvent->mC12==0&&DepoX[0][0][0][0]>0.&& DepoX[0][1][0][0]>0) mp[0] = 1;
+  if(fQTelescopeEvent->mC21==0&&fQTelescopeEvent->mC22==0&&
+    fQTelescopeEvent->mC23<=0&&fQTelescopeEvent->mC24<=0&&fQTelescopeEvent->mC25<=0&&fQTelescopeEvent->mC26 <=0 &&
+    DepoX[1][1][0][0]>0. && DepoX[1][0][0][0]>0.
+    ) mp[1] = 1;
   header->mp1 = mp[0]; header->mp2 = mp[1];
 
   fOutEvent->dep11= DepoX[0][0][0][0];
