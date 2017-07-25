@@ -12,9 +12,10 @@ using namespace std;
 ERRootSource::ERRootSource():
 fFile(NULL),
 fTree(NULL),
-fPath(""),
 fTreeName(""),
-fBranchName("")
+fBranchName(""),
+fCurFile(-1),
+fOldEvents(0)
 {
 }
 
@@ -27,18 +28,12 @@ ERRootSource::~ERRootSource(){
 
 Bool_t ERRootSource::Init(){
 	//input files opening
-	if (fPath == "")
+	if (fPath.size() == 0)
 		Fatal("ERRootSource", "No files for source ERRootSource");
-	fFile = new TFile(fPath);
-	if (!fFile->IsOpen())
-		Fatal("ERRootSource", "Can`t open file for source ERRootSource");
-
-	fTree = (TTree*)fFile->Get(fTreeName);
-	if (!fTree)
-		Fatal("ERRootSource", "Can`t find tree in input file for source ERRootSource");
-	
 	if (fRawEvents.size() == 0)
 		Fatal("ERRootSource", "ERRootSource without regiistered events");
+
+	OpenNextFile();
 
 	FairRun* run = FairRun::Instance();
 	ERHe8EventHeader* header = (ERHe8EventHeader*)run->GetEventHeader();
@@ -52,11 +47,15 @@ Bool_t ERRootSource::Init(){
 Int_t ERRootSource::ReadEvent(UInt_t id){
 	FairRootManager* ioman = FairRootManager::Instance();
   	if ( ! ioman ) Fatal("Init", "No FairRootManager");
+
 	//Проверяем есть ли еще события для обработки
-	if (fTree->GetEntriesFast() == ioman->GetEntryNr()+1)
-		return 1;
+	if (fTree->GetEntriesFast() == ioman->GetEntryNr()+1-fOldEvents){
+		fOldEvents += ioman->GetEntryNr();
+		if (!OpenNextFile())
+			return 1;
+	}
 	//cout << "ev" << ioman->GetEntryNr() << endl;
-	fTree->GetEntry(ioman->GetEntryNr());
+	fTree->GetEntry(ioman->GetEntryNr()-fOldEvents);
 
 	for (Int_t iREvent = 0; iREvent < fRawEvents.size(); iREvent++)
 		fRawEvents[iREvent]->Process();
@@ -74,9 +73,22 @@ void ERRootSource::Reset(){
 }
 
 void ERRootSource::SetFile(TString path, TString treeName, TString branchName){
-	fPath = path;
+	fPath.push_back(path);
 	fTreeName = treeName;
 	fBranchName = branchName;
 	cout << "Input file " << path << " with tree name " << fTreeName <<" and branch name " << 
 		fBranchName << " added to source ERRootSource" << endl;
+}
+
+
+Int_t ERRootSource::OpenNextFile(){
+	if (fCurFile+1 == fPath.size())
+		return 1;
+	fFile = new TFile(fPath[++fCurFile]);
+	if (!fFile->IsOpen())
+		Fatal("ERRootSource", "Can`t open file for source ERRootSource");
+	fTree = (TTree*)fFile->Get(fTreeName);
+	if (!fTree)
+		Fatal("ERRootSource", "Can`t find tree in input file for source ERRootSource");
+	return 0;
 }

@@ -35,10 +35,13 @@ class ERRootSource : public FairSource
     virtual Bool_t ReInitUnpackers(){return kTRUE;}
 
     void SetFile(TString path, TString treeName, TString branchName);
+    void AddFile(TString path){fPath.push_back(path);}
 
     void AddEvent(ERRawEvent* event) {fRawEvents.push_back(event);}
   private:
-    TString fPath;
+    std::vector<TString> fPath;
+    Int_t fCurFile;
+    Int_t fOldEvents;
     TString fTreeName;
     TString fBranchName;
     TFile* fFile;
@@ -46,6 +49,8 @@ class ERRootSource : public FairSource
     Int_t HE8Event_nevent;
 
     std::vector<ERRawEvent*> fRawEvents;
+
+    Int_t OpenNextFile();
   public:
     ClassDef(ERRootSource, 1)
 };
