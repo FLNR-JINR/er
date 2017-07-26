@@ -42,15 +42,16 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  void SetPID(Int_t pdg) {fPDG = pdg;}
+  void SetPID(Int_t pdg) {fPID = pdg;}
   void SetBoxPID(Double_t tof1, Double_t tof2, Double_t dE1, Double_t dE2)
   {
     fTOF1 = tof1;
     fTOF2 = tof2;
     fdE1  = dE1;
-    fdE2  = fdE2;
+    fdE2  = dE2;
   }
   void SetOffsetTOF(Double_t offsetTOF){fOffsetTOF = offsetTOF;}
+  void SetProbabilityThreshold(Double_t probabilityThreshold) {fProbabilityThreshold = probabilityThreshold;}
   /** Accessors **/ 
 protected:
   //Paramaters
@@ -58,15 +59,19 @@ protected:
   
   //Input arrays
   TClonesArray   *fBeamDetTOFDigi;
-  Int_t          fPDG;
+  ERBeamDetTrack *fBeamDetTrack;
+
+  Int_t          fPID;
   Double_t       fTOF1, fTOF2;
   Double_t       fdE1, fdE2;
   Double_t       fOffsetTOF;
+  Double_t       fProbabilityThreshold;
 
   //Output arrays
-  ERBeamDetParticle *fBeamDetTrack ;
+  ERBeamDetParticle* fProjectile;
 
 private:
+  ERBeamDetParticle* AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability);
   virtual void SetParContainers();
   ClassDef(ERBeamDetPID,1)
 };

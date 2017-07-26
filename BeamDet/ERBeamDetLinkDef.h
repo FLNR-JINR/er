@@ -11,6 +11,7 @@
 #pragma link C++ class ERBeamDetTrackFinder;
 #pragma link C++ class ERBeamDetSetup;
 #pragma link C++ class ERBeamDetCalibratorNew;
+#pragma link C++ class ERBeamDetPID;
 
 #pragma link C++ class ERBeamDetTOFPoint+;
 #pragma link C++ class ERBeamDetMWPCPoint+;
@@ -22,5 +23,6 @@
 #pragma link C++ class ERBeamDetTOFDigi+;
 #pragma link C++ class ERBeamDetMWPCDigi+;
 #pragma link C++ class ERBeamDetTrack+;
+#pragma link C++ class ERBeamDetParticle+;
 
 #endif

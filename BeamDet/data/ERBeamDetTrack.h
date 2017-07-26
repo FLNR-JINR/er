@@ -20,6 +20,8 @@ public:
   ERBeamDetTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
   void AddParameters(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
 
+  TVector3 GetVector(void) {return fVectorOnTarget;}
+
 	ClassDef(ERBeamDetTrack, 1)
 };
 

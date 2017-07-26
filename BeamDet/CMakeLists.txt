@@ -31,6 +31,7 @@ set(SRCS
 	data/ERBeamDetMWPCDigi.cxx
 	data/ERBeamDetTOFDigi.cxx
 	data/ERBeamDetTrack.cxx
+	data/ERBeamDetParticle.cxx
 
 	ERBeamDet.cxx
 	ERBeamDetCalibrator.cxx
@@ -39,6 +40,7 @@ set(SRCS
 	ERBeamDetTrackFinder.cxx
 	ERBeamDetSetup.cxx
 	ERBeamDetCalibratorNew.cxx
+	ERBeamDetPID.cxx
 )
 
 # fill list of header files from list of source files

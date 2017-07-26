@@ -15,6 +15,7 @@ using namespace std;
 
 ERBeamDetSetup* ERBeamDetSetup::fInstance = NULL;
 Double_t        ERBeamDetSetup::fTargetR = 0;
+Double_t        ERBeamDetSetup::fDistanceBetweenTOF = 0;
 Double_t        ERBeamDetSetup::fDistanceBetweenMWPC = 0;
 map<Int_t, map<Int_t, map<Int_t, ERBeamDetWire*>>>ERBeamDetSetup::fWires;
 
@@ -35,6 +36,7 @@ ERBeamDetSetup::ERBeamDetSetup(){
         }
     }
 
+    // ---- Getting MWPC geometry parameters---------------------------------
     TGeoNode* mwpc = NULL;
     for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
         TString name = beamDet->GetDaughter(iNode)->GetName();
@@ -53,7 +55,7 @@ ERBeamDetSetup::ERBeamDetSetup(){
 
     for (Int_t mwpcNb = 0; mwpcNb < mwpc->GetNdaughters(); mwpcNb++) {
       mwpcStation = mwpc->GetDaughter(mwpcNb);
-      //---- Convertion mwpc station local position to global coordinates---
+      //---- Convertion mwpc station local position to global coordinates --
       mwpcLocalPos = mwpcStation->GetMatrix();
       mwpcLocalPos->LocalToMaster(mwpc->GetMatrix()->GetTranslation(), mwpcMasterPos);
       mwpcStationZ = mwpcMasterPos[2];
@@ -72,10 +74,26 @@ ERBeamDetSetup::ERBeamDetSetup(){
         }
       } 
     }
-
+    // Stations located simmetrically relative to local center
     fDistanceBetweenMWPC = 2 * TMath::Abs(mwpcStation->GetMatrix()->GetTranslation()[2]);
     cout << "The distance between MWPC stations: " << fDistanceBetweenMWPC << " cm;" << endl;
-
+    //-----------------------------------------------------------------------
+    // ---- Getting TOF geometry parameters ---------------------------------
+    TGeoNode* tof = NULL;
+    TGeoNode* plate = NULL;
+    for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
+        TString name = beamDet->GetDaughter(iNode)->GetName();
+        if ( name.Contains("TOF", TString::kIgnoreCase) ) {
+            tof = beamDet->GetDaughter(iNode);
+            plate = tof->GetDaughter(iNode);
+            // Plates located simmetrically relative to local center
+            fDistanceBetweenTOF = 2 * TMath::Abs(plate->GetMatrix()->GetTranslation()[2]);
+            std::cout<< "The distance between TOF plates: " << fDistanceBetweenTOF << " cm;" << std::endl;
+            break;
+        }
+    }
+    //-----------------------------------------------------------------------
+    // ---- Getting target geometry parameters ------------------------------
     TGeoNode* target = NULL;
     for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
         TString name = beamDet->GetDaughter(iNode)->GetName();
@@ -85,10 +103,11 @@ ERBeamDetSetup::ERBeamDetSetup(){
             TGeoNode* h2 = shell->GetDaughter(0);
             TGeoTube* h2Tube = (TGeoTube*)h2->GetVolume()->GetShape();
             fTargetR = h2Tube->GetRmax();
-            std::cout<< "Target radius " << fTargetR << std::endl;
+            std::cout<< "Target radius " << fTargetR << " cm;" << std::endl;
             break;
         }
     }
+    //-----------------------------------------------------------------------
     std::cout << "ERBeamDetSetup initialized! "<< std::endl;
 }
 
@@ -119,10 +138,6 @@ Double_t ERBeamDetSetup::WireY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
 
 Double_t ERBeamDetSetup::WireZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
     return fWires[mwpcNb][planeNb][wireNb]->fZ;
-}
-
-Double_t ERBeamDetSetup::TargetR() {
-    return fTargetR;
 }
 
 ClassImp(ERBeamDetSetup)

@@ -109,9 +109,9 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     }
   }
 
-  TVector3 vertexFar(xFar, yFar, zFar);
-  TVector3 vertexClose(xClose, yClose, zClose);
-  TVector3 vectorOnTarget = vertexClose - vertexFar;
+  TVector3 hitFar(xFar, yFar, zFar);
+  TVector3 hitClose(xClose, yClose, zClose);
+  TVector3 vectorOnTarget = hitClose - hitFar;
 
   Double_t xTarget = xClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Cos(vectorOnTarget.Phi());
   Double_t yTarget = yClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Sin(vectorOnTarget.Phi());
