@@ -21,8 +21,26 @@ ERBeamDetMWPCDigi::ERBeamDetMWPCDigi(Int_t id, Float_t Edep, Double_t time, Int_
   fTime(time), 
   fMWPCNb(mwpcNb), 
   fPlaneNb(planeNb), 
-  fWireNb(wireNb)
+  fWireNb(wireNb), 
+  fWireX1(-1),
+  fWireX2(-1),
+  fWireY1(-1),
+  fWireY2(-1)
 {
+  if(fMWPCNb == 1) {
+    if(fPlaneNb == 1) {
+      fWireX1 = fWireNb;
+    } else {
+      fWireY1 = fWireNb;
+    }
+  }
+  if(fMWPCNb == 2) {
+    if(fPlaneNb == 1) {
+      fWireX2 = fWireNb;
+    } else {
+      fWireY2 = fWireNb;
+    }
+  }
 }
 
 ERBeamDetMWPCDigi::ERBeamDetMWPCDigi(const ERBeamDetMWPCDigi& right)
