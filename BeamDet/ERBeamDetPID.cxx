@@ -74,15 +74,14 @@ void ERBeamDetPID::Exec(Option_t* opt)
 
   Double_t beta;
   Double_t gamma;
-  TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPID);
+  /*TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPID);
   if ( ! particle ) {
       cout << "ERIonGenerator: Ion " << fPID
       << " not found in database!" << endl;
       return ;
-    }
-  Double_t mass = particle->Mass();
+    }*/
+  Double_t mass = 26.2716160;//particle->Mass();
   Double_t p, energy;
-  TVector3 trackVect = fBeamDetTrack->GetVector();
 
   // In each event we have two ordered digies: first in TOF-1, second in TOF-2
   for(Int_t iDigi = 0; iDigi < fBeamDetTOFDigi->GetEntriesFast(); iDigi++) {
@@ -99,7 +98,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
 
   dE = dE1 +dE2;
   tof = tof1 - tof2 + fOffsetTOF;
-
+  cout << "dE = " << dE << " Gev; " << " TOF = " << tof << " ns;" << endl;
   if(tof <= fTOF1 || tof >= fTOF2 || dE <= fdE1 || dE >= fdE2){
     probability = 0;
   }
@@ -127,9 +126,12 @@ void ERBeamDetPID::Exec(Option_t* opt)
 
   Double_t px, py, pz;
 
-  px = p * TMath::Sin(trackVect.Theta()) * TMath::Cos(trackVect.Phi());
-  py = p * TMath::Sin(trackVect.Theta()) * TMath::Sin(trackVect.Phi());
-  pz = p * TMath::Cos(trackVect.Theta());
+  TVector3& trackVect = fBeamDetTrack->GetVector();
+  Double_t theta = trackVectTheta();
+  Double_t phi = trackVect.Phi();
+  px = p * TMath::Sin(theta) * TMath::Cos(phi);
+  py = p * TMath::Sin(fBeamDetTrack->GetVector().Theta()) * TMath::Sin(fBeamDetTrack->GetVector().Phi());
+  pz = p * TMath::Cos(fBeamDetTrack->GetVector().Theta());
 
   energy = mass * gamma;
 
