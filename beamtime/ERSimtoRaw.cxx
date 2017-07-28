@@ -69,7 +69,7 @@ InitStatus ERSimtoRaw::Init()
 void ERSimtoRaw::Exec(Option_t* opt)
 {
   fEvent++;
-  if ( !(fEvent%100000) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
+  if ( !(fEvent%500) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
   Int_t simSize,side,counter,PEnum;
   Double_t maxAmp, StartTime, FinishTime;
 
