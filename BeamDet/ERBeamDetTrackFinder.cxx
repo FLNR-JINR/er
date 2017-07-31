@@ -74,7 +74,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     run->MarkFill(kFALSE);
     return ;
   }
-
+ 
   if(digiCount < 4) {
     std::cout << "Multiplicity less than one" << std::endl;
     FairRun* run = FairRun::Instance();
@@ -91,22 +91,23 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     mwpcNb = digi->GetMWPCNb() - 1;
     planeNb = digi->GetPlaneNb() - 1;
     wireNb = digi->GetWireNb() - 1; 
-    switch(iDigi) {
-      case 0:
+
+    if(mwpcNb == 1) {
+      if(planeNb == 1) {
         xFar = fBeamDetSetup->WireX(mwpcNb, planeNb, wireNb);
-        break;
-      case 1:
+      } else {
         yFar = fBeamDetSetup->WireY(mwpcNb, planeNb, wireNb);
-        zFar = fBeamDetSetup->WireZ(mwpcNb, planeNb, wireNb);
-        break;
-      case 2:
-        xClose = fBeamDetSetup->WireX(mwpcNb, planeNb, wireNb);
-        break;
-      case 3:
-        yClose = fBeamDetSetup->WireY(mwpcNb, planeNb, wireNb);
-        zClose = fBeamDetSetup->WireZ(mwpcNb, planeNb, wireNb);
-        break;
+      }
+      zFar = fBeamDetSetup->WireZ(mwpcNb, planeNb, wireNb);
     }
+    if(mwpcNb == 2) {
+      if(planeNb == 1) {
+        xClose = fBeamDetSetup->WireX(mwpcNb, planeNb, wireNb);
+      } else {
+        yClose = fBeamDetSetup->WireY(mwpcNb, planeNb, wireNb);
+      }
+      zClose = fBeamDetSetup->WireZ(mwpcNb, planeNb, wireNb);
+    }    
   }
 
   TVector3 hitFar(xFar, yFar, zFar);

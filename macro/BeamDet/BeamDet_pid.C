@@ -3,7 +3,7 @@ void BeamDet_pid(Int_t nEvents = 2000){
   TString digiFile = "digi.root";
   TString trackFile = "track.root";
   TString outFile = "pid.root";
-  TString parFile = "par.root";
+  TString parFile = "par.root";    
   // ------------------------------------------------------------------------
   
   // -----   Timer   --------------------------------------------------------

@@ -92,11 +92,11 @@ void ERBeamDetPID::Exec(Option_t* opt)
   // In each event we have two ordered digies: first in TOF-1, second in TOF-2
   for(Int_t iDigi = 0; iDigi < fBeamDetTOFDigi->GetEntriesFast(); iDigi++) {
     ERBeamDetTOFDigi* digi = (ERBeamDetTOFDigi*)fBeamDetTOFDigi->At(iDigi);
-    if(iDigi == 0) {
+    if(digi->GetTOFNb() == 1) {
       tof1 = digi->GetTime();
       dE1 = digi->Edep();
     }
-    if(iDigi == 1) {
+    if(digi->GetTOFNb() == 2) {
       tof2 = digi->GetTime();
       dE2 = digi->Edep();
     }
