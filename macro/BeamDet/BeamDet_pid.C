@@ -23,6 +23,7 @@ void BeamDet_pid(Int_t nEvents = 2000){
   ERBeamDetPID* identification = new ERBeamDetPID(1);
 
   identification->SetPID(1000160280);
+  identification->SetIonMass(26.2716160);
   identification->SetBoxPID(189., 192., 0.02, 0.09);
   identification->SetOffsetTOF(0.);
   identification->SetProbabilityThreshold(0.5);

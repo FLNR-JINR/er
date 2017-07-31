@@ -50,7 +50,8 @@ public:
     fdE1  = dE1;
     fdE2  = dE2;
   }
-  void SetOffsetTOF(Double_t offsetTOF){fOffsetTOF = offsetTOF;}
+  void SetOffsetTOF(Double_t offsetTOF) {fOffsetTOF = offsetTOF;}
+  void SetIonMass(Double_t mass) {fIonMass = mass;}
   void SetProbabilityThreshold(Double_t probabilityThreshold) {fProbabilityThreshold = probabilityThreshold;}
   /** Accessors **/ 
 protected:
@@ -65,6 +66,7 @@ protected:
   Double_t       fTOF1, fTOF2;
   Double_t       fdE1, fdE2;
   Double_t       fOffsetTOF;
+  Double_t       fIonMass;
   Double_t       fProbabilityThreshold;
 
   //Output arrays

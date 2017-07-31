@@ -86,7 +86,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
       << " not found in database!" << endl;
       return ;
     }*/
-  Double_t mass = 26.2716160;//particle->Mass();
+  //Double_t mass = 26.2716160;//particle->Mass();
   Double_t p, energy;
 
   // In each event we have two ordered digies: first in TOF-1, second in TOF-2
@@ -128,7 +128,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
   }
 
   gamma= 1./TMath::Sqrt(1.-beta*beta);
-  p = beta * gamma * mass;
+  p = beta * gamma * fIonMass;
 
   Double_t px, py, pz;
 
@@ -139,7 +139,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
   py = p * TMath::Sin(fBeamDetTrack->GetVector().Theta()) * TMath::Sin(fBeamDetTrack->GetVector().Phi());
   pz = p * TMath::Cos(fBeamDetTrack->GetVector().Theta());
 
-  energy = mass * gamma;
+  energy = fIonMass * gamma;
   std::cout << "PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
             << "energy: " << energy << "; probability " << probability << std::endl;
 
