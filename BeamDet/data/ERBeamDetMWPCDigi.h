@@ -48,8 +48,6 @@ class ERBeamDetMWPCDigi : public FairMultiLinkedData
   Int_t     fWireNb;
   Double_t 	fTime;
   Float_t 	fEdep;
-  Int_t     fWireX1, fWireY1;
-  Int_t     fWireX2, fWireY2;
   
   ClassDef(ERBeamDetMWPCDigi,1)
 

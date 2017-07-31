@@ -47,7 +47,10 @@ protected:
   ERBeamDetSetup *fBeamDetSetup;
   
   //Input arrays
-  TClonesArray   *fBeamDetMWPCDigi;
+  TClonesArray   *fBeamDetMWPCDigiX1;
+  TClonesArray   *fBeamDetMWPCDigiX2;
+  TClonesArray   *fBeamDetMWPCDigiY1;
+  TClonesArray   *fBeamDetMWPCDigiY2;
 
   //Output arrays
   ERBeamDetTrack *fBeamDetTrack ;

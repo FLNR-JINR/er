@@ -22,7 +22,10 @@ ERBeamDetDigitizer::ERBeamDetDigitizer()
   fBeamDetTOFPoints(NULL), 
   fBeamDetMWPCPoints(NULL), 
   fBeamDetTOFDigi(NULL), 
-  fBeamDetMWPCDigi(NULL),
+  fBeamDetMWPCDigiX1(NULL),
+  fBeamDetMWPCDigiX2(NULL),
+  fBeamDetMWPCDigiY1(NULL),
+  fBeamDetMWPCDigiY2(NULL),
   fElossSigmaTOF(0),
   fTimeSigmaTOF(0),
   fElossSigmaMWPC(0),
@@ -40,7 +43,10 @@ ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
   fBeamDetTOFPoints(NULL), 
   fBeamDetMWPCPoints(NULL), 
   fBeamDetTOFDigi(NULL), 
-  fBeamDetMWPCDigi(NULL),
+  fBeamDetMWPCDigiX1(NULL),
+  fBeamDetMWPCDigiX2(NULL),
+  fBeamDetMWPCDigiY1(NULL),
+  fBeamDetMWPCDigiY2(NULL),
   fElossSigmaTOF(0),
   fTimeSigmaTOF(0),
   fElossSigmaMWPC(0),
@@ -88,10 +94,19 @@ InitStatus ERBeamDetDigitizer::Init()
 
   // Register output array fRTelescopeHits
   fBeamDetTOFDigi = new TClonesArray("ERBeamDetTOFDigi",1000);
-  fBeamDetMWPCDigi = new TClonesArray("ERBeamDetMWPCDigi",1000);
+
+  fBeamDetMWPCDigiX1 = new TClonesArray("ERBeamDetMWPCDigi",1000);
+  fBeamDetMWPCDigiX2 = new TClonesArray("ERBeamDetMWPCDigi",1000);
+  fBeamDetMWPCDigiY1 = new TClonesArray("ERBeamDetMWPCDigi",1000);
+  fBeamDetMWPCDigiY2 = new TClonesArray("ERBeamDetMWPCDigi",1000);
+
 
   ioman->Register("BeamDetTOFDigi", "BeamDetTOF Digi", fBeamDetTOFDigi, kTRUE);
-  ioman->Register("BeamDetMWPCDigi", "BeamDetMWPC Digi", fBeamDetMWPCDigi, kTRUE);
+
+  ioman->Register("BeamDetMWPCDigiX1", "BeamDetMWPC x1 Digi", fBeamDetMWPCDigiX1, kTRUE);
+  ioman->Register("BeamDetMWPCDigiX2", "BeamDetMWPC x2 Digi", fBeamDetMWPCDigiX2, kTRUE);
+  ioman->Register("BeamDetMWPCDigiY1", "BeamDetMWPC y1 Digi", fBeamDetMWPCDigiY1, kTRUE);
+  ioman->Register("BeamDetMWPCDigiY2", "BeamDetMWPC y2 Digi", fBeamDetMWPCDigiY2, kTRUE);
 
   /*fRTelescopeSetup = ERRTelescopeSetup::Instance();
   fRTelescopeSetup->Print();*/
@@ -190,8 +205,17 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
 //----------------------------------------------------------------------------
 void ERBeamDetDigitizer::Reset()
 {
-  if (fBeamDetMWPCDigi) {
-    fBeamDetMWPCDigi->Delete();
+  if (fBeamDetMWPCDigiX1) {
+    fBeamDetMWPCDigiX1->Delete();
+  }
+  if (fBeamDetMWPCDigiX2) {
+    fBeamDetMWPCDigiX2->Delete();
+  }
+  if (fBeamDetMWPCDigiY1) {
+    fBeamDetMWPCDigiY1->Delete();
+  }
+  if (fBeamDetMWPCDigiY2) {
+    fBeamDetMWPCDigiY2->Delete();
   }
   if (fBeamDetTOFDigi) {
     fBeamDetTOFDigi->Delete();
@@ -209,8 +233,25 @@ void ERBeamDetDigitizer::Finish()
 // ----------------------------------------------------------------------------
 ERBeamDetMWPCDigi* ERBeamDetDigitizer::AddMWPCDigi(Float_t edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb)
 {
-  ERBeamDetMWPCDigi *digi = new((*fBeamDetMWPCDigi)[fBeamDetMWPCDigi->GetEntriesFast()])
-              ERBeamDetMWPCDigi(fBeamDetMWPCDigi->GetEntriesFast(), edep, time, mwpcNb, planeNb, wireNb);
+  ERBeamDetMWPCDigi *digi;
+  if(mwpcNb == 1) {
+    if(planeNb == 1) {
+      digi = new((*fBeamDetMWPCDigiX1)[fBeamDetMWPCDigiX1->GetEntriesFast()])
+              ERBeamDetMWPCDigi(fBeamDetMWPCDigiX1->GetEntriesFast(), edep, time, mwpcNb, planeNb, wireNb);
+    } else {
+      digi = new((*fBeamDetMWPCDigiY1)[fBeamDetMWPCDigiY1->GetEntriesFast()])
+              ERBeamDetMWPCDigi(fBeamDetMWPCDigiY1->GetEntriesFast(), edep, time, mwpcNb, planeNb, wireNb);
+    }
+  }
+  if(mwpcNb == 2) {
+    if(planeNb == 1) {
+      digi = new((*fBeamDetMWPCDigiX2)[fBeamDetMWPCDigiX2->GetEntriesFast()])
+              ERBeamDetMWPCDigi(fBeamDetMWPCDigiX2->GetEntriesFast(), edep, time, mwpcNb, planeNb, wireNb);
+    } else {
+      digi = new((*fBeamDetMWPCDigiY2)[fBeamDetMWPCDigiY2->GetEntriesFast()])
+              ERBeamDetMWPCDigi(fBeamDetMWPCDigiY2->GetEntriesFast(), edep, time, mwpcNb, planeNb, wireNb);
+    }
+  }
   return digi;
 }
 

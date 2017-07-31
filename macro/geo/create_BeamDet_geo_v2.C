@@ -1,6 +1,6 @@
 // ----- BeamDet parameters -------------------------------------------------
-Double_t plateX = 20;
-Double_t plateY = 20;
+Double_t plateX = 100;
+Double_t plateY = 100;
 Double_t plateZ = 0.01;
 
 Double_t gasX = 0.125;

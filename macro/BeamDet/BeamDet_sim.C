@@ -82,7 +82,6 @@ void BeamDet_sim(Int_t nEvents = 2000){
   generator->AddBackgroundIon("26S", 16, 26, 16, 0.25);
   generator->AddBackgroundIon("24Si", 14, 24, 14, 0.25);
 
-
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------

@@ -49,7 +49,10 @@ InitStatus ERBeamDetTrackFinder::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
-  fBeamDetMWPCDigi = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigi");
+  fBeamDetMWPCDigiX1 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiX1");
+  fBeamDetMWPCDigiX2 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiX2");
+  fBeamDetMWPCDigiY1 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiY1");
+  fBeamDetMWPCDigiY2 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiY2");
 
   // Register output array fBeamDetHits
   fBeamDetTrack = (ERBeamDetTrack*)new ERBeamDetTrack();
@@ -66,49 +69,45 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   Reset();
   std::cout << std::endl;
 
-  Int_t digiCount = fBeamDetMWPCDigi->GetEntriesFast();
-
-  if(digiCount > 4) {
+  if(fBeamDetMWPCDigiX1->GetEntriesFast() > 1 ||
+     fBeamDetMWPCDigiX2->GetEntriesFast() > 1 ||
+     fBeamDetMWPCDigiY1->GetEntriesFast() > 1 || 
+     fBeamDetMWPCDigiY2->GetEntriesFast() > 1 ) {
     std::cout << "Multiplicity more than one" << std::endl;
     FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
     return ;
   }
  
-  if(digiCount < 4) {
+  if(fBeamDetMWPCDigiX1->GetEntriesFast() < 1 ||
+     fBeamDetMWPCDigiX2->GetEntriesFast() < 1 ||
+     fBeamDetMWPCDigiY1->GetEntriesFast() < 1 || 
+     fBeamDetMWPCDigiY2->GetEntriesFast() < 1 ) {
     std::cout << "Multiplicity less than one" << std::endl;
     FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
     return ;
   }
 
-  Int_t mwpcNb, planeNb, wireNb;
   Double_t xFar, yFar, zFar; 
   Double_t xClose, yClose, zClose;
   Double_t coordinate;
-  for(Int_t iDigi = 0; iDigi < fBeamDetMWPCDigi->GetEntriesFast(); iDigi++) {
-    ERBeamDetMWPCDigi* digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigi->At(iDigi);
-    mwpcNb = digi->GetMWPCNb() - 1;
-    planeNb = digi->GetPlaneNb() - 1;
-    wireNb = digi->GetWireNb() - 1; 
 
-    if(mwpcNb == 1) {
-      if(planeNb == 1) {
-        xFar = fBeamDetSetup->WireX(mwpcNb, planeNb, wireNb);
-      } else {
-        yFar = fBeamDetSetup->WireY(mwpcNb, planeNb, wireNb);
-      }
-      zFar = fBeamDetSetup->WireZ(mwpcNb, planeNb, wireNb);
-    }
-    if(mwpcNb == 2) {
-      if(planeNb == 1) {
-        xClose = fBeamDetSetup->WireX(mwpcNb, planeNb, wireNb);
-      } else {
-        yClose = fBeamDetSetup->WireY(mwpcNb, planeNb, wireNb);
-      }
-      zClose = fBeamDetSetup->WireZ(mwpcNb, planeNb, wireNb);
-    }    
-  }
+  ERBeamDetMWPCDigi* digi; 
+
+  digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiX1->At(0);
+  xFar = fBeamDetSetup->WireX(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
+
+  digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiY1->At(0);
+  yFar = fBeamDetSetup->WireY(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
+  zFar = fBeamDetSetup->WireZ(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
+
+  digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiX2->At(0);
+  xClose = fBeamDetSetup->WireX(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
+  
+  digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiY2->At(0);
+  yClose = fBeamDetSetup->WireY(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
+  zClose = fBeamDetSetup->WireZ(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
 
   TVector3 hitFar(xFar, yFar, zFar);
   TVector3 hitClose(xClose, yClose, zClose);
@@ -116,6 +115,9 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
 
   Double_t xTarget = xClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Cos(vectorOnTarget.Phi());
   Double_t yTarget = yClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Sin(vectorOnTarget.Phi());
+
+  std::cout << "xFar = " <<  xFar << "; yFar = " << yFar << "; zFar = " << zFar << endl
+            << "xClose = " <<  xClose << "; yClose = " << yClose << "; zClose = " << zClose << endl;
 
   if(TMath::Sqrt(xTarget*xTarget + yTarget*yTarget) <= fBeamDetSetup->TargetR()) {
     AddTrack(xTarget, yTarget, 0, vectorOnTarget);

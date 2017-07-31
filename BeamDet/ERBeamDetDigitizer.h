@@ -58,7 +58,11 @@ protected:
   TClonesArray *fBeamDetMWPCPoints;
   //Output arrays
   TClonesArray *fBeamDetTOFDigi;
-  TClonesArray *fBeamDetMWPCDigi;
+
+  TClonesArray *fBeamDetMWPCDigiX1;
+  TClonesArray *fBeamDetMWPCDigiX2;
+  TClonesArray *fBeamDetMWPCDigiY1;
+  TClonesArray *fBeamDetMWPCDigiY2;
   
   Float_t fElossSigmaTOF;
   Float_t fTimeSigmaTOF;
