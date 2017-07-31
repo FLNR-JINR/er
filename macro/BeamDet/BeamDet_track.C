@@ -1,4 +1,4 @@
-void BeamDet_track(Int_t nEvents = 200){
+void BeamDet_track(Int_t nEvents = 2000){
   //---------------------Files-----------------------------------------------
   TString inFile = "digi.root";
   TString outFile = "track.root";

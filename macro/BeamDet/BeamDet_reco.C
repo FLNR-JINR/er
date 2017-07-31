@@ -18,7 +18,7 @@ void BeamDet_reco(Int_t nEvents = 2000){
   EREventHeader* header = new EREventHeader();
   fRun->SetEventHeader(header);
   //------------------------------------------------------------------------
-  // ------------------------NeuRadDigitizer---------------------------------
+  // ------------------------BeamDetDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERBeamDetDigitizer* digitizer = new ERBeamDetDigitizer(verbose);
   digitizer->SetMWPCElossThreshold(0.006);
@@ -26,10 +26,17 @@ void BeamDet_reco(Int_t nEvents = 2000){
   digitizer->SetTofTimeSigma(1e-10);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
+  // -----------------------BeamDetTrackFinder------------------------------
   ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(1);
   fRun->AddTask(trackFinder);
   // ------------------------------------------------------------------------
+  // -----------------------BeamDetTrackPID-------------------------------
   ERBeamDetPID* pid = new ERBeamDetPID(1);
+  pid->SetPID(1000160280);
+  pid->SetBoxPID(189., 192., 0.04, 0.064);
+  pid->SetOffsetTOF(0.);
+  pid->SetProbabilityThreshold(0.5);
+
   fRun->AddTask(pid);
   // ------------------------------------------------------------------------
   // -----------Runtime DataBase info -------------------------------------

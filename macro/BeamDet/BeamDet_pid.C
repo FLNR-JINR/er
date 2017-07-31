@@ -1,4 +1,4 @@
-void BeamDet_pid(Int_t nEvents = 200){
+void BeamDet_pid(Int_t nEvents = 2000){
   //---------------------Files-----------------------------------------------
   TString digiFile = "digi.root";
   TString trackFile = "track.root";
@@ -20,8 +20,14 @@ void BeamDet_pid(Int_t nEvents = 200){
   // ------------------------------------------------------------------------
 
   // ------------------------ track finder---------------------------------
-  ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(1);
-  fRun->AddTask(trackFinder);
+  ERBeamDetPID* identification = new ERBeamDetPID(1);
+
+  identification->SetPID(1000160280);
+  identification->SetBoxPID(189., 192., 0.02, 0.09);
+  identification->SetOffsetTOF(0.);
+  identification->SetProbabilityThreshold(0.5);
+
+  fRun->AddTask(identification);
   // ------------------------------------------------------------------------
   // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();

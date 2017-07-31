@@ -19,7 +19,7 @@ void BeamDet_digi(Int_t nEvents = 2000){
   EREventHeader* header = new EREventHeader();
   fRun->SetEventHeader(header);
   //------------------------------------------------------------------------
-  // ------------------------NeuRadDigitizer---------------------------------
+  // ------------------------BeamDetDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERBeamDetDigitizer* digitizer = new ERBeamDetDigitizer(verbose);
   digitizer->SetMWPCElossThreshold(0.006);

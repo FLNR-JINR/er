@@ -52,7 +52,7 @@ InitStatus ERBeamDetPID::Init()
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
   fBeamDetTOFDigi = (TClonesArray*) ioman->GetObject("BeamDetTOFDigi");
-  fBeamDetTrack  = (ERBeamDetTrack*) ioman->GetObject("ERBeamDetTrack.");
+  fBeamDetTrack  = (ERBeamDetTrack*) ioman->GetObject("BeamDetTrack.");
 
   // Register output object fProjectile
   fProjectile = (ERBeamDetParticle*)new ERBeamDetParticle();
@@ -69,7 +69,10 @@ void ERBeamDetPID::Exec(Option_t* opt)
   Reset();
 
   if (!fBeamDetTrack)
+  {
+    cout  << "ERBeamDetPID: No track" << endl;
     return;
+  }
 
   Double_t tof1, tof2, tof;
   Double_t dE1, dE2, dE;
@@ -100,7 +103,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
   }
 
   dE = dE1 +dE2;
-  tof = tof1 - tof2 + fOffsetTOF;
+  tof = TMath::Abs(tof1 - tof2 + fOffsetTOF);
   cout << "dE = " << dE << " Gev; " << " TOF = " << tof << " ns;" << endl;
   if(tof <= fTOF1 || tof >= fTOF2 || dE <= fdE1 || dE >= fdE2){
     probability = 0;
@@ -137,6 +140,8 @@ void ERBeamDetPID::Exec(Option_t* opt)
   pz = p * TMath::Cos(fBeamDetTrack->GetVector().Theta());
 
   energy = mass * gamma;
+  std::cout << "PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
+            << "energy: " << energy << "; probability " << probability << std::endl;
 
   AddParticle(fPID, TLorentzVector(px, py, pz, energy), probability);
 
