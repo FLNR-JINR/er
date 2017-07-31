@@ -68,6 +68,9 @@ void ERBeamDetPID::Exec(Option_t* opt)
 { 
   Reset();
 
+  if (!fBeamDetTrack)
+    return;
+
   Double_t tof1, tof2, tof;
   Double_t dE1, dE2, dE;
   Double_t probability;

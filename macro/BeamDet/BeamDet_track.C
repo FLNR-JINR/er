@@ -1,7 +1,7 @@
 void BeamDet_track(Int_t nEvents = 200){
   //---------------------Files-----------------------------------------------
   TString inFile = "digi.root";
-  TString outFile = "reco.root";
+  TString outFile = "track.root";
   TString parFile = "par.root";
   // ------------------------------------------------------------------------
   
