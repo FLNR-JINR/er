@@ -59,7 +59,8 @@ protected:
   ERBeamDetSetup *fBeamDetSetup;
   
   //Input arrays
-  TClonesArray   *fBeamDetTOFDigi;
+  TClonesArray   *fBeamDetTOFDigi1;
+  TClonesArray   *fBeamDetTOFDigi2;
   ERBeamDetTrack *fBeamDetTrack;
 
   Int_t          fPID;

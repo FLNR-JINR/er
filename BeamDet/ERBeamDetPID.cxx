@@ -51,7 +51,8 @@ InitStatus ERBeamDetPID::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
-  fBeamDetTOFDigi = (TClonesArray*) ioman->GetObject("BeamDetTOFDigi");
+  fBeamDetTOFDigi1 = (TClonesArray*) ioman->GetObject("BeamDetTOFDigi1");
+  fBeamDetTOFDigi2 = (TClonesArray*) ioman->GetObject("BeamDetTOFDigi2");
   fBeamDetTrack  = (ERBeamDetTrack*) ioman->GetObject("BeamDetTrack.");
 
   // Register output object fProjectile
@@ -67,8 +68,7 @@ InitStatus ERBeamDetPID::Init()
 void ERBeamDetPID::Exec(Option_t* opt)
 { 
   Reset();
-
-  if (!fBeamDetTrack)
+  if (!fBeamDetTrack || !fBeamDetTOFDigi1 || !fBeamDetTOFDigi2)
   {
     cout  << "ERBeamDetPID: No track" << endl;
     return;
@@ -89,22 +89,22 @@ void ERBeamDetPID::Exec(Option_t* opt)
   //Double_t mass = 26.2716160;//particle->Mass();
   Double_t p, energy;
 
-  // In each event we have two ordered digies: first in TOF-1, second in TOF-2
-  for(Int_t iDigi = 0; iDigi < fBeamDetTOFDigi->GetEntriesFast(); iDigi++) {
-    ERBeamDetTOFDigi* digi = (ERBeamDetTOFDigi*)fBeamDetTOFDigi->At(iDigi);
-    if(digi->GetTOFNb() == 1) {
-      tof1 = digi->GetTime();
-      dE1 = digi->Edep();
-    }
-    if(digi->GetTOFNb() == 2) {
-      tof2 = digi->GetTime();
-      dE2 = digi->Edep();
-    }
-  }
+  ERBeamDetTOFDigi* digi;
+
+  digi = (ERBeamDetTOFDigi*)fBeamDetTOFDigi1->At(0);
+  tof1 = digi->GetTime();
+  dE1 = digi->Edep();
+  cout << "dE1 = " << dE1 << " TOF1 = " << tof1 << endl;
+  digi = (ERBeamDetTOFDigi*)fBeamDetTOFDigi2->At(0);
+  tof2 = digi->GetTime();
+  dE2 = digi->Edep();
+  cout << "dE2 = " << dE2 << " TOF2 = " << tof2 << endl;
 
   dE = dE1 +dE2;
-  tof = TMath::Abs(tof1 - tof2 + fOffsetTOF);
+  cout << "dE = " << dE << " Gev; " << " TOF1 = " << tof1 << " ns;" << " TOF2 = " << tof2 << " ns;" << endl;
+  tof = tof2 - tof1 + fOffsetTOF;
   cout << "dE = " << dE << " Gev; " << " TOF = " << tof << " ns;" << endl;
+
   if(tof <= fTOF1 || tof >= fTOF2 || dE <= fdE1 || dE >= fdE2){
     probability = 0;
   }
@@ -141,7 +141,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
 
   energy = fIonMass * gamma;
   std::cout << "PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
-            << "energy: " << energy << "; probability " << probability << std::endl;
+            << " energy: " << energy << "; probability " << probability << std::endl;
 
   AddParticle(fPID, TLorentzVector(px, py, pz, energy), probability);
 

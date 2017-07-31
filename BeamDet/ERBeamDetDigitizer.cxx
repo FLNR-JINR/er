@@ -21,7 +21,8 @@ ERBeamDetDigitizer::ERBeamDetDigitizer()
   : FairTask("ER beamdet digitization"), 
   fBeamDetTOFPoints(NULL), 
   fBeamDetMWPCPoints(NULL), 
-  fBeamDetTOFDigi(NULL), 
+  fBeamDetTOFDigi1(NULL), 
+  fBeamDetTOFDigi2(NULL), 
   fBeamDetMWPCDigiX1(NULL),
   fBeamDetMWPCDigiX2(NULL),
   fBeamDetMWPCDigiY1(NULL),
@@ -42,7 +43,8 @@ ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
   : FairTask("ER beamdet digitization ", verbose),
   fBeamDetTOFPoints(NULL), 
   fBeamDetMWPCPoints(NULL), 
-  fBeamDetTOFDigi(NULL), 
+  fBeamDetTOFDigi1(NULL), 
+  fBeamDetTOFDigi2(NULL), 
   fBeamDetMWPCDigiX1(NULL),
   fBeamDetMWPCDigiX2(NULL),
   fBeamDetMWPCDigiY1(NULL),
@@ -93,7 +95,8 @@ InitStatus ERBeamDetDigitizer::Init()
     Fatal("Init", "Can`t find collection BeamDetMWPCPoint!"); 
 
   // Register output array fRTelescopeHits
-  fBeamDetTOFDigi = new TClonesArray("ERBeamDetTOFDigi",1000);
+  fBeamDetTOFDigi1 = new TClonesArray("ERBeamDetTOFDigi",1000);
+  fBeamDetTOFDigi2 = new TClonesArray("ERBeamDetTOFDigi",1000);
 
   fBeamDetMWPCDigiX1 = new TClonesArray("ERBeamDetMWPCDigi",1000);
   fBeamDetMWPCDigiX2 = new TClonesArray("ERBeamDetMWPCDigi",1000);
@@ -101,7 +104,8 @@ InitStatus ERBeamDetDigitizer::Init()
   fBeamDetMWPCDigiY2 = new TClonesArray("ERBeamDetMWPCDigi",1000);
 
 
-  ioman->Register("BeamDetTOFDigi", "BeamDetTOF Digi", fBeamDetTOFDigi, kTRUE);
+  ioman->Register("BeamDetTOFDigi1", "BeamDetTOF Digi", fBeamDetTOFDigi1, kTRUE);
+  ioman->Register("BeamDetTOFDigi2", "BeamDetTOF Digi", fBeamDetTOFDigi2, kTRUE);
 
   ioman->Register("BeamDetMWPCDigiX1", "BeamDetMWPC x1 Digi", fBeamDetMWPCDigiX1, kTRUE);
   ioman->Register("BeamDetMWPCDigiX2", "BeamDetMWPC x2 Digi", fBeamDetMWPCDigiX2, kTRUE);
@@ -217,8 +221,11 @@ void ERBeamDetDigitizer::Reset()
   if (fBeamDetMWPCDigiY2) {
     fBeamDetMWPCDigiY2->Delete();
   }
-  if (fBeamDetTOFDigi) {
-    fBeamDetTOFDigi->Delete();
+  if (fBeamDetTOFDigi1) {
+    fBeamDetTOFDigi1->Delete();
+  }
+  if (fBeamDetTOFDigi2) {
+    fBeamDetTOFDigi2->Delete();
   }
 }
 // ----------------------------------------------------------------------------
@@ -257,8 +264,15 @@ ERBeamDetMWPCDigi* ERBeamDetDigitizer::AddMWPCDigi(Float_t edep, Double_t time, 
 
 ERBeamDetTOFDigi* ERBeamDetDigitizer::AddTOFDigi(Float_t edep, Double_t time, Int_t tofNb)
 {
-  ERBeamDetTOFDigi *digi = new((*fBeamDetTOFDigi)[fBeamDetTOFDigi->GetEntriesFast()])
-              ERBeamDetTOFDigi(fBeamDetTOFDigi->GetEntriesFast(), edep, time, tofNb);
+  ERBeamDetTOFDigi *digi; 
+  if(tofNb == 1) {
+    digi = new((*fBeamDetTOFDigi1)[fBeamDetTOFDigi1->GetEntriesFast()])
+                ERBeamDetTOFDigi(fBeamDetTOFDigi1->GetEntriesFast(), edep, time, tofNb);
+  }
+  if(tofNb == 2) {
+    digi = new((*fBeamDetTOFDigi2)[fBeamDetTOFDigi2->GetEntriesFast()])
+                ERBeamDetTOFDigi(fBeamDetTOFDigi2->GetEntriesFast(), edep, time, tofNb);
+  }
   return digi;
 }
 // ----------------------------------------------------------------------------

@@ -57,7 +57,8 @@ protected:
   TClonesArray *fBeamDetTOFPoints;
   TClonesArray *fBeamDetMWPCPoints;
   //Output arrays
-  TClonesArray *fBeamDetTOFDigi;
+  TClonesArray *fBeamDetTOFDigi1;
+  TClonesArray *fBeamDetTOFDigi2;
 
   TClonesArray *fBeamDetMWPCDigiX1;
   TClonesArray *fBeamDetMWPCDigiX2;
