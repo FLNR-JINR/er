@@ -5,6 +5,7 @@
 set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
 ${ROOT_INCLUDE_DIR}
+${GEANT4_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/data
 ${CMAKE_SOURCE_DIR}/passive
@@ -15,6 +16,7 @@ include_directories( ${INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${BASE_LINK_DIRECTORIES}
+${GEANT4_LIB_DIRS}
 ${FAIRROOT_LIBRARY_DIR}
 ) 
 
@@ -25,6 +27,7 @@ ERDetector.cxx
 ERMCApplication.cxx
 ERRunSim.cxx
 ERSupport.cxx
+ERRunAna.cxx
 )
 
 # fill list of header files from list of source files
@@ -33,7 +36,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERBaseLinkDef.h)
 Set(LIBRARY_NAME ERBase)
-Set(DEPENDENCIES Base Core ERDecayers)
+Set(DEPENDENCIES Base Core ERDecayers G4processes G4run G4physicslists)
 
 GENERATE_LIBRARY()
 
