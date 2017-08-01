@@ -14,14 +14,14 @@
 using namespace std;
 
 #include "ERDetectorList.h"
-#include "ERRTelescopePoint.h"
+#include "ERRTelescopeSiPoint.h"
 
 
 Int_t ERRTelescopeHitFinder::fEvent = 0;
 // ----------------------------------------------------------------------------
 ERRTelescopeHitFinder::ERRTelescopeHitFinder()
   : FairTask("ER muSi hit producing scheme")
-,fRTelescopePoints(NULL)
+,fSiPoints(NULL)
 ,fRTelescopeHits(NULL)
 ,fElossDispersion(0)
 ,fTimeDispersionPar(0)
@@ -33,7 +33,7 @@ ERRTelescopeHitFinder::ERRTelescopeHitFinder()
 // ----------------------------------------------------------------------------
 ERRTelescopeHitFinder::ERRTelescopeHitFinder(Int_t verbose)
   : FairTask("ER muSi hit producing scheme ", verbose)
-,fRTelescopePoints(NULL)
+,fSiPoints(NULL)
 ,fRTelescopeHits(NULL)
 ,fElossDispersion(0)
 ,fTimeDispersionPar(0)
@@ -67,9 +67,9 @@ InitStatus ERRTelescopeHitFinder::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
-  fRTelescopePoints = (TClonesArray*) ioman->GetObject("RTelescopePoint");
-  if (!fRTelescopePoints)
-    Fatal("Init", "Can`t find collection RTelescopePoint!"); 
+  fSiPoints = (TClonesArray*) ioman->GetObject("RTelescopeSiPoint");
+  if (!fSiPoints)
+    Fatal("Init", "Can`t find collection RTelescopeSiPoint!"); 
 
   // Register output array fRTelescopeHits
   fRTelescopeHits = new TClonesArray("ERRTelescopeHit",1000);
@@ -98,8 +98,8 @@ void ERRTelescopeHitFinder::Exec(Option_t* opt)
   Float_t dPhi = 360./fRTelescopeSetup->SectorNb();
   Float_t z = fRTelescopeSetup->Z();
 
-  for (Int_t iPoint = 0; iPoint < fRTelescopePoints->GetEntriesFast(); iPoint++){
-    ERRTelescopePoint* point = (ERRTelescopePoint*)fRTelescopePoints->At(iPoint);
+  for (Int_t iPoint = 0; iPoint < fSiPoints->GetEntriesFast(); iPoint++){
+    ERRTelescopeSiPoint* point = (ERRTelescopeSiPoint*)fSiPoints->At(iPoint);
     Float_t eloss = gRandom->Gaus(point->GetEnergyLoss(), fElossDispersion);
     if (eloss < fElossThreshold)
       continue;

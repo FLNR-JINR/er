@@ -9,7 +9,8 @@
 #pragma link C++ class ERRTelescopeHitFinder+;
 #pragma link C++ class ERRTelescopeSetup+;
 
-#pragma link C++ class ERRTelescopePoint+;
+#pragma link C++ class ERRTelescopeSiPoint+;
+#pragma link C++ class ERRTelescopeCsIPoint+;
 #pragma link C++ class ERRTelescopeDigi+;
 #pragma link C++ class ERRTelescopeHit+;
 

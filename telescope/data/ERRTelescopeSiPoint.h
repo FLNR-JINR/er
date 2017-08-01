@@ -1,15 +1,15 @@
 // -------------------------------------------------------------------------
-// -----                      ERRTelescopePoint header file                -----
+// -----                      ERRTelescopeSiPoint header file                -----
 // -----                  Created data  developerName                  -----
 // -------------------------------------------------------------------------
 
 
-/**  ERRTelescopePoint.h
+/**  ERRTelescopeSiPoint.h
  **/
 
 
-#ifndef ERRTelescopePoint_H
-#define ERRTelescopePoint_H
+#ifndef ERRTelescopeSiPoint_H
+#define ERRTelescopeSiPoint_H
 
 
 #include "TObject.h"
@@ -18,13 +18,13 @@
 #include "FairMCPoint.h"
 
 
-class ERRTelescopePoint : public FairMCPoint 
+class ERRTelescopeSiPoint : public FairMCPoint 
 {
 
  public:
 
   /** Default constructor **/
-  ERRTelescopePoint();
+  ERRTelescopeSiPoint();
 
 
   /** Constructor with arguments
@@ -39,7 +39,7 @@ class ERRTelescopePoint : public FairMCPoint
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [KeV]
    **/
-  ERRTelescopePoint(Int_t eventID, Int_t trackID,
+  ERRTelescopeSiPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
 		  Double_t mass,
 		  TVector3 posIn,
@@ -48,14 +48,14 @@ class ERRTelescopePoint : public FairMCPoint
 
 
   /** Copy constructor **/
-  ERRTelescopePoint(const ERRTelescopePoint&);
+  ERRTelescopeSiPoint(const ERRTelescopeSiPoint&);
 
 
   /** Destructor **/
-  virtual ~ERRTelescopePoint();
+  virtual ~ERRTelescopeSiPoint();
 
 
-  ERRTelescopePoint& operator=(const ERRTelescopePoint&) { return *this; }
+  ERRTelescopeSiPoint& operator=(const ERRTelescopeSiPoint&) { return *this; }
 
 
   /** Accessors **/
@@ -98,6 +98,6 @@ class ERRTelescopePoint : public FairMCPoint
   Double32_t fPx_out, fPy_out, fPz_out;
   Int_t fSectorNb, fSensorNb;
 
-  ClassDef(ERRTelescopePoint,1)
+  ClassDef(ERRTelescopeSiPoint,1)
 };
 #endif

@@ -47,8 +47,8 @@ void RTelescope_sim(Int_t nEvents = 1000){
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   Int_t pdgId = 2212; // proton  beam
-  Double32_t theta1 = 150;  // polar angle distribution
-  Double32_t theta2 = 220;
+  Double32_t theta1 = 0;  // polar angle distribution
+  Double32_t theta2 = 90;
   Double32_t kin_energy = .5; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
@@ -56,7 +56,7 @@ void RTelescope_sim(Int_t nEvents = 1000){
   boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(0, 360);
-  boxGen->SetBoxXYZ(0.,0,0.0,0.0,0.);
+  boxGen->SetBoxXYZ(0.,0,0.0,0.0,-2.);
 
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);

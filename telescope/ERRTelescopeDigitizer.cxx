@@ -19,7 +19,7 @@ using namespace std;
 // ----------------------------------------------------------------------------
 ERRTelescopeDigitizer::ERRTelescopeDigitizer()
   : FairTask("ER rtelescope digitization"), 
-  fRTelescopePoints(NULL),  
+  fSiPoints(NULL),  
   fRTelescopeDigi(NULL), 
   fElossSigma(0),
   fTimeSigma(0),
@@ -32,7 +32,7 @@ ERRTelescopeDigitizer::ERRTelescopeDigitizer()
 // ----------------------------------------------------------------------------
 ERRTelescopeDigitizer::ERRTelescopeDigitizer(Int_t verbose)
   : FairTask("ER rtelescope digitization ", verbose),
-  fRTelescopePoints(NULL),  
+  fSiPoints(NULL),  
   fRTelescopeDigi(NULL), 
   fElossSigma(0),
   fTimeSigma(0),
@@ -67,9 +67,9 @@ InitStatus ERRTelescopeDigitizer::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
-  fRTelescopePoints = (TClonesArray*) ioman->GetObject("RTelescopePoint");
+  fSiPoints = (TClonesArray*) ioman->GetObject("RTelescopePoint");
 
-  if (!fRTelescopePoints)
+  if (!fSiPoints)
     Fatal("Init", "Can`t find collection RTelescopePoint!"); 
 
 
@@ -92,8 +92,8 @@ void ERRTelescopeDigitizer::Exec(Option_t* opt)
   Reset();
   //Sort the points by sensors and sectors
   map<Int_t, map<Int_t, vector<Int_t>>> points;
-  for (Int_t iPoint = 0; iPoint < fRTelescopePoints->GetEntriesFast(); iPoint++){
-    ERRTelescopePoint* point = (ERRTelescopePoint*)fRTelescopePoints->At(iPoint);
+  for (Int_t iPoint = 0; iPoint < fSiPoints->GetEntriesFast(); iPoint++){
+    ERRTelescopeSiPoint* point = (ERRTelescopeSiPoint*)fSiPoints->At(iPoint);
     points[point->GetSectorNb()][point->GetSensorNb()].push_back(iPoint);
   }
 
@@ -107,7 +107,7 @@ void ERRTelescopeDigitizer::Exec(Option_t* opt)
       Float_t time = numeric_limits<float>::max(); // min time in plate
       
       for (itPoint = itSensor->second.begin(); itPoint != itSensor->second.end(); ++itPoint){
-        ERRTelescopePoint* point = (ERRTelescopePoint*)(fRTelescopePoints->At(*itPoint));
+        ERRTelescopeSiPoint* point = (ERRTelescopeSiPoint*)(fSiPoints->At(*itPoint));
         edep += point->GetEnergyLoss();
 
         if (point->GetTime() < time){

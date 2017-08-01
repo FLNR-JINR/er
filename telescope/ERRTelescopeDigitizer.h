@@ -10,7 +10,7 @@
 
 #include "FairTask.h"
 
-#include "ERRTelescopePoint.h"
+#include "ERRTelescopeSiPoint.h"
 #include "ERRTelescopeDigi.h"
 
 
@@ -49,7 +49,7 @@ public:
   Float_t TimeDispersionPar() const {return fTimeSigma;}
 protected:
   //Input arrays
-  TClonesArray *fRTelescopePoints;
+  TClonesArray *fSiPoints;
   //Output arrays
   TClonesArray *fRTelescopeDigi;
   

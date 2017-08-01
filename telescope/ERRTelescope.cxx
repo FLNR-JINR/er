@@ -18,9 +18,11 @@
 // -----   Default constructor   -------------------------------------------
 ERRTelescope::ERRTelescope() : 
   ERDetector("ERRTelescope", kTRUE),
-  fRTelescopePoints(NULL)
+  fSiPoints(NULL),
+  fCsIPoints(NULL)
 {
-  fRTelescopePoints = new TClonesArray("ERRTelescopePoint");
+  fSiPoints = new TClonesArray("ERRTelescopeSiPoint");
+  fCsIPoints = new TClonesArray("ERRTelescopeCsIPoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fVerboseLevel = 1;
@@ -30,18 +32,24 @@ ERRTelescope::ERRTelescope() :
 // -----   Standard constructor   ------------------------------------------
 ERRTelescope::ERRTelescope(const char* name, Bool_t active, Int_t verbose) : 
   ERDetector(name, active, 1),
-  fRTelescopePoints(NULL)
+  fSiPoints(NULL),
+  fCsIPoints(NULL)
 {
-  fRTelescopePoints = new TClonesArray("ERRTelescopePoint");
+  fSiPoints = new TClonesArray("ERRTelescopeSiPoint");
+  fCsIPoints = new TClonesArray("ERRTelescopeCsIPoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fVerboseLevel = verbose;
 }
 
 ERRTelescope::~ERRTelescope() {
-  if (fRTelescopePoints) {
-    fRTelescopePoints->Delete();
-    delete fRTelescopePoints;
+  if (fSiPoints) {
+    fSiPoints->Delete();
+    delete fSiPoints;
+  }
+  if (fCsIPoints) {
+    fCsIPoints->Delete();
+    delete fCsIPoints;
   }
 }
 
@@ -67,26 +75,37 @@ void ERRTelescope::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
     Fatal("Init", "IO manager is not set"); 
-  ioman->Register("RTelescopePoint","RTelescope", fRTelescopePoints, kTRUE);
+  ioman->Register("RTelescopeSiPoint","RTelescope", fSiPoints, kTRUE);
+  ioman->Register("RTelescopeCsIPoint","RTelescope", fCsIPoints, kTRUE);
 }
 // ----------------------------------------------------------------------------
 
 // -----   Public method GetCollection   --------------------------------------
 TClonesArray* ERRTelescope::GetCollection(Int_t iColl) const {
-  if (iColl == 0) 
-    return fRTelescopePoints;
-  else 
-    return NULL;
+  if (iColl == 0)
+    return fSiPoints;
+  if (iColl == 0)
+    return fCsIPoints;
+  return NULL;
 }
 // ----------------------------------------------------------------------------
 
 // -----   Public method Print   ----------------------------------------------
 void ERRTelescope::Print(Option_t *option) const
 {
-  if(fRTelescopePoints->GetEntriesFast() > 0)
+  if(fSiPoints->GetEntriesFast() > 0)
   {
-    for (Int_t i_point = 0; i_point < fRTelescopePoints->GetEntriesFast(); i_point++){
-      ERRTelescopePoint* point = (ERRTelescopePoint*)fRTelescopePoints->At(i_point);
+    std::cout << "======== Si Points ==================" << std::endl;
+    for (Int_t iPoint = 0; iPoint < fSiPoints->GetEntriesFast(); iPoint++){
+      ERRTelescopeSiPoint* point = (ERRTelescopeSiPoint*)fSiPoints->At(iPoint);
+      point->Print();
+    }
+  }
+  if(fCsIPoints->GetEntriesFast() > 0)
+  {
+    std::cout << "======== CsI Points ==================" << std::endl;
+    for (Int_t iPoint = 0; iPoint < fCsIPoints->GetEntriesFast(); iPoint++){
+      ERRTelescopeCsIPoint* point = (ERRTelescopeCsIPoint*)fCsIPoints->At(iPoint);
       point->Print();
     }
   }
@@ -96,7 +115,8 @@ void ERRTelescope::Print(Option_t *option) const
 // -----   Public method Reset   ----------------------------------------------
 void ERRTelescope::Reset() {
   LOG(INFO) << "  ERRTelescope::Reset()" << FairLogger::endl;
-  fRTelescopePoints->Clear();
+  fSiPoints->Clear();
+  fCsIPoints->Clear();
 }
 // ----------------------------------------------------------------------------
 
@@ -105,28 +125,41 @@ void ERRTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset
   Int_t nEntries = cl1->GetEntriesFast();
   LOG(INFO) << "RTelescope: " << nEntries << " entries to add" << FairLogger::endl;
   TClonesArray& clref = *cl2;
-  ERRTelescopePoint* oldpoint = NULL;
+  ERRTelescopeSiPoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
-  oldpoint = (ERRTelescopePoint*) cl1->At(i);
+  oldpoint = (ERRTelescopeSiPoint*) cl1->At(i);
    Int_t index = oldpoint->GetTrackID() + offset;
    oldpoint->SetTrackID(index);
-   new (clref[cl2->GetEntriesFast()]) ERRTelescopePoint(*oldpoint);
+   new (clref[cl2->GetEntriesFast()]) ERRTelescopeSiPoint(*oldpoint);
   }
   LOG(INFO) << "RTelescope: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 }
 // ----------------------------------------------------------------------------
 
 // -----   Private method AddPoint   --------------------------------------------
-ERRTelescopePoint* ERRTelescope::AddPoint() {
-  TClonesArray& clref = *fRTelescopePoints;
+ERRTelescopeSiPoint* ERRTelescope::AddSiPoint() {
+  TClonesArray& clref = *fSiPoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERRTelescopePoint(fEventID, fTrackID, fMot0TrackID, fPID,
+  return new(clref[size]) ERRTelescopeSiPoint(fEventID, fTrackID, fMot0TrackID, fPID,
                 TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
               fTime, fLength, fELoss, 
               fSectorNb, fSensorNb);
+  
+}
+
+ERRTelescopeCsIPoint* ERRTelescope::AddCsIPoint() {
+  TClonesArray& clref = *fCsIPoints;
+  Int_t size = clref.GetEntriesFast();
+  return new(clref[size]) ERRTelescopeCsIPoint(fEventID, fTrackID, fMot0TrackID, fPID,
+                TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
+              TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
+              TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
+              TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+              fTime, fLength, fELoss, 
+              fCrystallNb);
   
 }
 // ----------------------------------------------------------------------------
@@ -137,6 +170,9 @@ Bool_t ERRTelescope::CheckIfSensitive(std::string name)
   //cout << name << endl;
   TString volName = name;
   if(volName.Contains("sensor")) {
+    return kTRUE;
+  }
+  if(volName.Contains("crystall")) {
     return kTRUE;
   }
   return kFALSE;
@@ -152,8 +188,6 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
     fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     fPID = gMC->TrackPid(); // GeV/c2
-    gMC->CurrentVolID(fSensorNb);
-    gMC->CurrentVolOffID(1, fSectorNb);
   }
   
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
@@ -164,8 +198,19 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
 	{ 
     gMC->TrackPosition(fPosOut);
     gMC->TrackMomentum(fMomOut);
+    TString volName = gMC->CurrentVolName();
 	  if (fELoss > 0.){
-      AddPoint();
+      if(volName.Contains("sensor"))
+      {
+        gMC->CurrentVolID(fSensorNb);
+        gMC->CurrentVolOffID(1, fSectorNb);
+        AddSiPoint();
+      }
+      if(volName.Contains("crystall"))
+      {
+        gMC->CurrentVolID(fCrystallNb);
+        AddCsIPoint();
+      }
     }
   }
   return kTRUE;
