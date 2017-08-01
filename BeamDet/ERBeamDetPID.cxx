@@ -134,7 +134,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
 
   Double_t px, py, pz;
 
-  TVector3& trackVect = fBeamDetTrack->GetVector();
+  TVector3 trackVect = fBeamDetTrack->GetVector();
   Double_t theta = trackVect.Theta();
   Double_t phi = trackVect.Phi();
   px = p * TMath::Sin(theta) * TMath::Cos(phi);

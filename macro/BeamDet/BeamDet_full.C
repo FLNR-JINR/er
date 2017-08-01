@@ -114,7 +114,8 @@ void BeamDet_full(Int_t nEvents = 2000){
   ERBeamDetPID* pid = new ERBeamDetPID(1);
   pid->SetPID(1000160280);
   pid->SetIonMass(26.2716160);
-  pid->SetBoxPID(203., 206., 0.005, 0.12);
+  //pid->SetBoxPID(203., 206., 0.005, 0.12);
+  pid->SetBoxPID(0., 500., 0., 1.);
   pid->SetOffsetTOF(0.);
   pid->SetProbabilityThreshold(0.5);
 

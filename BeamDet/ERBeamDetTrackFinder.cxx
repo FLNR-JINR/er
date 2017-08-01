@@ -115,6 +115,8 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   TVector3 hitClose(xClose, yClose, zClose);
   TVector3 vectorOnTarget = hitClose - hitFar;
 
+  cout << "Theta = " << vectorOnTarget.Theta() << "; Phi = " << vectorOnTarget.Phi() << endl;
+
   Double_t xTarget = xClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Cos(vectorOnTarget.Phi());
   Double_t yTarget = yClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Sin(vectorOnTarget.Phi());
 

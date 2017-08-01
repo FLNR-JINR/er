@@ -108,8 +108,8 @@ public:
   **/
   virtual Bool_t CheckIfSensitive(std::string name);
 
-  void SetIonName(TString ionName){fIonName = ionName;}
-  void SetIonPID(Int_t ionPID){fIonPID = ionPID;}
+  void SetIonName(TString ionName){fIonName = ionName; fIonPIDIsSet = kTRUE;}
+  void SetIonPID(Int_t ionPID){fIonPID = ionPID; fIonPIDIsSet = kTRUE;}
 
 private:
   TClonesArray*     fTOFPoints;
@@ -135,6 +135,8 @@ private:
   Int_t             fMWPCWireNb;
   TString           fIonName;
   Int_t             fIonPID;
+
+  Bool_t            fIonPIDIsSet;
  
   
 private:

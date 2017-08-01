@@ -239,13 +239,9 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
       fPID = gMC->TrackPid();
 
       TString volName = gMC->CurrentVolName();
-      if(volName.Contains("targetH2"))
-      {
-        if(fPID == fIonPID) {
-          std::cout << "sddddssd" << std::endl;
-          fBeamDetMCProjectile->AddParameters(fPID, fMomIn, 1);
-          fBeamDetMCTrack->AddParameters(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect());   
-        }
+      if(fIonPIDIsSet && volName.Contains("targetH2") && fPID == fIonPID) {
+        fBeamDetMCProjectile->AddParameters(fPID, fMomIn, 1);
+        fBeamDetMCTrack->AddParameters(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect());   
       }
   }
 
