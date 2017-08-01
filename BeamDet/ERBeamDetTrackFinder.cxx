@@ -37,8 +37,7 @@ ERBeamDetTrackFinder::~ERBeamDetTrackFinder()
 // ----------------------------------------------------------------------------
 void ERBeamDetTrackFinder::SetParContainers()
 {
-  fBeamDetSetup = ERBeamDetSetup::Instance();
-  fBeamDetSetup->SetParContainers();
+
 }
 // ----------------------------------------------------------------------------
 
@@ -58,6 +57,9 @@ InitStatus ERBeamDetTrackFinder::Init()
   fBeamDetTrack = (ERBeamDetTrack*)new ERBeamDetTrack();
 
   ioman->Register("BeamDetTrack.", "BeamDet track", fBeamDetTrack, kTRUE);
+
+  fBeamDetSetup = ERBeamDetSetup::Instance();
+  fBeamDetSetup->SetParContainers();
    
   return kSUCCESS;
 }

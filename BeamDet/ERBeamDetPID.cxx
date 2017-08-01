@@ -39,8 +39,7 @@ ERBeamDetPID::~ERBeamDetPID()
 // ----------------------------------------------------------------------------
 void ERBeamDetPID::SetParContainers()
 {
-  fBeamDetSetup = ERBeamDetSetup::Instance();
-  fBeamDetSetup->SetParContainers();
+
 }
 // ----------------------------------------------------------------------------
 
@@ -59,7 +58,10 @@ InitStatus ERBeamDetPID::Init()
   fProjectile = (ERBeamDetParticle*)new ERBeamDetParticle();
 
   ioman->Register("BeamDetParticle.", "BeamDet Particle", fProjectile, kTRUE);
-   
+
+  fBeamDetSetup = ERBeamDetSetup::Instance();
+  fBeamDetSetup->SetParContainers();
+     
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
