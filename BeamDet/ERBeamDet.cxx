@@ -22,9 +22,12 @@ ERBeamDet::ERBeamDet() :
   fMWPCPoints(NULL),
   fTargetPoints(NULL)
 {
-  fTOFPoints = new TClonesArray("ERBeamDetTOFPoint");
-  fMWPCPoints = new TClonesArray("ERBeamDetMWPCPoint");
+  fTOFPoints    = new TClonesArray("ERBeamDetTOFPoint");
+  fMWPCPoints   = new TClonesArray("ERBeamDetMWPCPoint");
   fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
+
+  fBeamDetMCProjectile = new ERBeamDetParticle(); 
+  fBeamDetMCTrack      = new ERBeamDetTrack();
   //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
@@ -40,11 +43,13 @@ ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
     fMWPCPoints(NULL),
     fTargetPoints(NULL)
 {
-  fTOFPoints = new TClonesArray("ERBeamDetTOFPoint");
-  fMWPCPoints = new TClonesArray("ERBeamDetMWPCPoint");
+  fTOFPoints    = new TClonesArray("ERBeamDetTOFPoint");
+  fMWPCPoints   = new TClonesArray("ERBeamDetMWPCPoint");
   fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
 
-  //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
+  fBeamDetMCProjectile = new ERBeamDetParticle(); 
+  fBeamDetMCTrack      = new ERBeamDetTrack();
+ //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
 
@@ -64,7 +69,13 @@ ERBeamDet::~ERBeamDet() {
   if (fTargetPoints) {
     fTargetPoints->Delete();
     delete fTargetPoints;
+  }
+  if(fBeamDetMCTrack) {
+    delete fBeamDetMCTrack;
   }   
+  if(fBeamDetMCProjectile) {
+    delete fBeamDetMCProjectile;
+  }
 }
 
 void ERBeamDet::Initialize()
@@ -88,6 +99,9 @@ void ERBeamDet::Register() {
   ioman->Register("BeamDetTOFPoint","BeamDet", fTOFPoints, kTRUE);
   ioman->Register("BeamDetMWPCPoint","BeamDet", fMWPCPoints, kTRUE);
   ioman->Register("BeamDetTargetPoint","BeamDet", fTargetPoints, kTRUE);
+
+  ioman->Register("BeamDetMCParticle.", "BeamDet MC Particle", fBeamDetMCProjectile, kTRUE);
+  ioman->Register("BeamDetMCTrack.", "BeamDet MC track", fBeamDetMCTrack, kTRUE);
 }
 // ----------------------------------------------------------------------------
 TClonesArray* ERBeamDet::GetCollection(Int_t iColl) const {
@@ -223,6 +237,16 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
       fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
       fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
       fPID = gMC->TrackPid();
+
+      TString volName = gMC->CurrentVolName();
+      if(volName.Contains("targetH2"))
+      {
+        if(fPID == fIonPID) {
+          std::cout << "sddddssd" << std::endl;
+          fBeamDetMCProjectile->AddParameters(fPID, fMomIn, 1);
+          fBeamDetMCTrack->AddParameters(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect());   
+        }
+      }
   }
 
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step

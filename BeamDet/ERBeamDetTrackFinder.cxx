@@ -120,7 +120,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
             << "xClose = " <<  xClose << "; yClose = " << yClose << "; zClose = " << zClose << endl;
 
   if(TMath::Sqrt(xTarget*xTarget + yTarget*yTarget) <= fBeamDetSetup->TargetR()) {
-    AddTrack(xTarget, yTarget, 0, vectorOnTarget);
+    AddTrack(xTarget, yTarget, 0, vectorOnTarget.Unit());
   }
   std::cout << "Point on target " << "(" << xTarget << ", " 
                                          << yTarget << ") cm" << endl;
