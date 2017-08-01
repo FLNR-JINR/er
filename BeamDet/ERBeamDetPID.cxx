@@ -68,7 +68,7 @@ InitStatus ERBeamDetPID::Init()
 void ERBeamDetPID::Exec(Option_t* opt)
 { 
   Reset();
-  if (!fBeamDetTrack || !fBeamDetTOFDigi1 || !fBeamDetTOFDigi2)
+  if (!fBeamDetTrack || !fBeamDetTOFDigi1->At(0) || !fBeamDetTOFDigi2->At(0))
   {
     cout  << "ERBeamDetPID: No track" << endl;
     return;
@@ -100,7 +100,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
   dE2 = digi->Edep();
   cout << "dE2 = " << dE2 << " TOF2 = " << tof2 << endl;
 
-  dE = dE1 +dE2;
+  dE = dE1 + dE2;
   cout << "dE = " << dE << " Gev; " << " TOF1 = " << tof1 << " ns;" << " TOF2 = " << tof2 << " ns;" << endl;
   tof = tof2 - tof1 + fOffsetTOF;
   cout << "dE = " << dE << " Gev; " << " TOF = " << tof << " ns;" << endl;
