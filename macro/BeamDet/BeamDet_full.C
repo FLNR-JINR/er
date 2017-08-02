@@ -1,4 +1,4 @@
-void BeamDet_full(Int_t nEvents = 2000){
+void BeamDet_full(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString outFile= "full.root";
   TString parFile= "par.root";
@@ -56,8 +56,9 @@ void BeamDet_full(Int_t nEvents = 2000){
 
   ERIonMixGenerator* generator = new ERIonMixGenerator("28S", Z, A, Q, 1);
   Double32_t kin_energy = 40 * 1e-3 * 28; //GeV
-  //generator->SetKinESigma(kin_energy, 0);
-  generator->SetPSigma(6.7835, 6.7835*0.003);
+  generator->SetKinE(kin_energy);
+  generator->SetPSigmaOverP(0.003);
+  //generator->SetPSigma(6.7835, 6.7835*0.003);
 //  generator->SetKinESigma(kin_energy, 0);
 
   /*
@@ -77,9 +78,9 @@ void BeamDet_full(Int_t nEvents = 2000){
   generator->SetSigmaXYZ(0, 0, -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
   //generator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -distanceToTarget);
 
-  //generator->AddBackgroundIon("26P", 15, 26, 15, 0.25);
-  //generator->AddBackgroundIon("26S", 16, 26, 16, 0.25);
-  //generator->AddBackgroundIon("24Si", 14, 24, 14, 0.25);
+  generator->AddBackgroundIon("26P", 15, 26, 15, 0.1);
+  generator->AddBackgroundIon("26S", 16, 26, 16, 0.15);
+  generator->AddBackgroundIon("24Si", 14, 24, 14, 0.2);
 
   primGen->AddGenerator(generator);
   fRun->SetGenerator(primGen);
@@ -102,7 +103,7 @@ void BeamDet_full(Int_t nEvents = 2000){
  // ------------------------BeamDetDigitizer---------------------------------
   ERBeamDetDigitizer* digitizer = new ERBeamDetDigitizer(verbose);
   digitizer->SetMWPCElossThreshold(0.006);
-
+  digitizer->SetTofElossThreshold(0.006);
   digitizer->SetTofTimeSigma(1e-10);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------

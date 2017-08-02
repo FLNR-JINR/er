@@ -133,6 +133,10 @@ class ERIonGenerator : public FairGenerator
 
     void SetKinESigma(Double32_t kinE, Double32_t sigmaKinE); 
 
+    void SetKinE(Double32_t kinE) {fKinE = kinE;} 
+
+    void SetPSigmaOverP(Double32_t sigmaPOverP) {fSigmaPOverP = sigmaPOverP;};
+
     void SetPSigma(Double32_t p=0 , Double32_t sigma = 1)
     {fGausP=p; fSigmaP=sigma; fSigmaPIsSet=kTRUE;}
 
@@ -175,6 +179,9 @@ class ERIonGenerator : public FairGenerator
     Double32_t fSigmaP;
     Double32_t fGausTheta;
     Double32_t fSigmaTheta;
+    Double32_t fKinE;
+    Double32_t fSigmaPOverP;
+    Double32_t fP;
 
     Bool_t     fEtaRangeIsSet;       // True if eta range is set
     Bool_t     fYRangeIsSet;         // True if rapidity range is set
@@ -191,6 +198,7 @@ class ERIonGenerator : public FairGenerator
     Bool_t     fDebug;               // Debug switch
     Bool_t     fSpreadingOnTarget;
     Bool_t     fSigmaThetaIsSet;
+    Bool_t     fSigmaPOverPIsSet;
 
  private:
     ERIonGenerator(const ERIonGenerator&);

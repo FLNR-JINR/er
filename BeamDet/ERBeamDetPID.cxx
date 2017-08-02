@@ -142,7 +142,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
   std::cout << "PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
             << " energy: " << energy << "; probability " << probability << std::endl;
 
-  AddParticle(fPID, TLorentzVector(px, py, pz, energy), probability, beta, gamma);
+  AddParticle(fPID, TLorentzVector(px, py, pz, energy), probability);
 }
 //----------------------------------------------------------------------------
 
@@ -166,10 +166,6 @@ void ERBeamDetPID::Finish()
 ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability)
 {
  fProjectile->AddParameters(pid, fourMomentum, probability); 
-}
-ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability, Double_t beta, Double_t gamma)
-{
- fProjectile->AddParameters(pid, fourMomentum, probability, beta, gamma); 
 }
 //-----------------------------------------------------------------------------
 ClassImp(ERBeamDetPID)

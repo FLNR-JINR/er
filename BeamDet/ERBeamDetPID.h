@@ -75,7 +75,6 @@ protected:
 
 private:
   ERBeamDetParticle* AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability);
-  ERBeamDetParticle* AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability, Double_t beta, Double_t gamma);  
   virtual void SetParContainers();
   ClassDef(ERBeamDetPID,1)
 };
