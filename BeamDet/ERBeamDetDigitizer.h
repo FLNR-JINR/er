@@ -49,8 +49,15 @@ public:
   void SetMWPCElossSigma(Float_t sigma) {fElossSigmaMWPC = sigma;}
   void SetTofTimeSigma(Float_t sigma) {fTimeSigmaTOF = sigma;}
   void SetMWPCTimeSigma(Float_t sigma) {fTimeSigmaMWPC = sigma;}
+
+
+  void SetTofElossSigmaOverEloss(Float_t sigma)  // set parameter to formula: fElossSigmaTOF = edep * fElossSigmaOverElossTOF / TMath::Sqrt(edep);
+  {
+    fElossSigmaOverElossTOF = sigma; 
+    fSigmaEOverETOFIsSet = kTRUE;
+  }
+
   /** Accessors **/ 
-  Float_t ElossDispersion() const {return fElossSigmaTOF;}
   Float_t TimeDispersionPar() const {return fTimeSigmaTOF;}
 protected:
   //Input arrays
@@ -65,6 +72,7 @@ protected:
   TClonesArray *fBeamDetMWPCDigiY1;
   TClonesArray *fBeamDetMWPCDigiY2;
   
+  Float_t fElossSigmaOverElossTOF;
   Float_t fElossSigmaTOF;
   Float_t fTimeSigmaTOF;
   Float_t fElossSigmaMWPC;
@@ -75,7 +83,8 @@ protected:
 
   Float_t fDigiEloss;
 
-  //ERBeamDetSetup* fBeamDetSetup;
+  Bool_t  fSigmaEOverETOFIsSet;
+
 protected:
   ERBeamDetMWPCDigi* AddMWPCDigi(Float_t edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
   ERBeamDetTOFDigi*  AddTOFDigi(Float_t edep, Double_t time, Int_t tofNb);

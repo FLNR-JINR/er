@@ -55,7 +55,9 @@ ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
   fTimeSigmaMWPC(0),
   fMWPCElossThreshold(0),
   fTOFElossThreshold(0),
-  fDigiEloss(0)
+  fDigiEloss(0),
+  fElossSigmaOverElossTOF(0),
+  fSigmaEOverETOFIsSet(0)
 {
 }
 // ----------------------------------------------------------------------------
@@ -148,7 +150,10 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
       }
     }
 
-    fElossSigmaTOF = edep * 0.1 / TMath::Sqrt(edep);
+    if(fSigmaEOverETOFIsSet) {
+      fElossSigmaTOF = edep * fElossSigmaOverElossTOF / TMath::Sqrt(edep);
+    }
+    
     edep = gRandom->Gaus(edep, fElossSigmaTOF);
 
     if (edep < fTOFElossThreshold)
