@@ -121,15 +121,15 @@ void ERBeamDetPID::Exec(Option_t* opt)
     return ;
   }
 
-  beta = fBeamDetSetup->DistanceBetweenTOF() * 1e-2 / (tof * 10e-9) / TMath::C();
-  if(beta <=0 || beta >= 1) {
+  beta = fBeamDetSetup->DistanceBetweenTOF() * 1e-2 / (tof * 1e-9) / TMath::C();
+  if(beta <= 0 || beta >= 1) {
     std::cout << "Wrong beta " << beta << std::endl;
     FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
     return ;
   }
 
-  gamma= 1./TMath::Sqrt(1.-beta*beta);
+  gamma = 1. / TMath::Sqrt(1.- beta*beta);
   p = beta * gamma * fIonMass;
 
   Double_t px, py, pz;
@@ -142,8 +142,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
   std::cout << "PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
             << " energy: " << energy << "; probability " << probability << std::endl;
 
-  AddParticle(fPID, TLorentzVector(px, py, pz, energy), probability);
-
+  AddParticle(fPID, TLorentzVector(px, py, pz, energy), probability, beta, gamma);
 }
 //----------------------------------------------------------------------------
 
@@ -167,6 +166,10 @@ void ERBeamDetPID::Finish()
 ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability)
 {
  fProjectile->AddParameters(pid, fourMomentum, probability); 
+}
+ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability, Double_t beta, Double_t gamma)
+{
+ fProjectile->AddParameters(pid, fourMomentum, probability, beta, gamma); 
 }
 //-----------------------------------------------------------------------------
 ClassImp(ERBeamDetPID)
