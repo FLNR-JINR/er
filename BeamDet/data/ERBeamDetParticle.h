@@ -15,7 +15,7 @@ class ERBeamDetParticle : public TNamed{
 private:
   TLorentzVector fFourMomentum;
   Int_t          fPID;
-  Int_t			 fPx;
+  Double_t		 fPx;
   Double_t		 fPy;
   Double_t       fPz;
   Double_t       fP;
