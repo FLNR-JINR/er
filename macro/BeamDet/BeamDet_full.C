@@ -104,6 +104,7 @@ void BeamDet_full(Int_t nEvents = 1000){
   ERBeamDetDigitizer* digitizer = new ERBeamDetDigitizer(verbose);
   digitizer->SetMWPCElossThreshold(0.006);
   digitizer->SetTofElossThreshold(0.006);
+  digitizer->SetTofElossSigmaOverEloss(0);
   digitizer->SetTofTimeSigma(1e-10);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------

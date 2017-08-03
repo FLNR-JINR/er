@@ -82,7 +82,7 @@ ERIonGenerator::ERIonGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mu
   fPointVtxIsSet(0),fBoxVtxIsSet(0),fDebug(0),fIon(NULL), fName(name), 
   fBoxSigmaIsSet(0), fSpreadingOnTarget(0),
   fGausTheta(0), fSigmaTheta(0), fSigmaThetaIsSet(0),
-  fKinE(0), fSigmaPOverP(0), fSigmaPOverPIsSet(0)
+  fKinE(0)
 {
   SetPhiRange();
   fIon= new FairIon(fName, z, a, q);
@@ -105,7 +105,10 @@ ERIonGenerator::~ERIonGenerator()
 }
 //_________________________________________________________________________
 
-
+void ERIonGenerator::SetKinE(Double32_t kinE) 
+{
+  fGausP = TMath::Sqrt(kinE*kinE + 2.*kinE*fIon->GetMass()); 
+}
 
 // -----   Public method SetExcitationEnergy   ----------------------------
 void ERIonGenerator::SetExcitationEnergy(Double_t eExc)
@@ -147,13 +150,6 @@ void ERIonGenerator::SpreadingParameters()
   if      (fPRangeIsSet ) { pabs = gRandom->Uniform(fPMin,fPMax); }
   else if (fPtRangeIsSet) { pt   = gRandom->Uniform(fPtMin,fPtMax); }
   if (fSigmaPIsSet) { pabs = gRandom->Gaus(fGausP,fSigmaP); fPRangeIsSet = kTRUE;}
-
-  if(fSigmaPOverPIsSet) {
-    fGausP = TMath::Sqrt(fKinE*fKinE + 2.*fKinE*fIon->GetMass());
-    fSigmaP = fGausP * fSigmaPOverP;
-    pabs = gRandom->Gaus(fGausP,fSigmaP); 
-    fPRangeIsSet = kTRUE;
-  }
 
   if(fSigmaThetaIsSet) { theta = gRandom->Gaus(fGausTheta,fSigmaTheta) * TMath::DegToRad(); }
   if      (fThetaRangeIsSet) {
