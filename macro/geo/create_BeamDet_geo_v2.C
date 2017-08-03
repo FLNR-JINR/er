@@ -10,6 +10,7 @@ Double_t gasZ = 0.8; //cm
 Int_t    platesCount = 2;
 Double_t plateOffsetZ = 1500;
 
+Double_t shellOffsetZ = 1.8;
 Double_t mwpcOffsetZ = 20;
 
 Double_t TOFpozZInBeamdet = -((plateOffsetZ) / 2 + mwpcOffsetZ + 10);
@@ -141,7 +142,7 @@ Double_t shellThickness = 20 * 1e-4; //cm
 shellThickness /= 2.0;
 Double_t shellX = gasY + shellThickness;
 Double_t shellY = gasY + shellThickness;
-Double_t shellZ = gasZ; 
+Double_t shellZ = gasZ + shellThickness; 
 TGeoVolume* shell = gGeoManager->MakeBox("shell", pMedMylar, shellX, shellY, shellZ);
 // --------------------------------------------------------------------------
 // ---------------- TOF -----------------------------------------------------
@@ -173,16 +174,16 @@ for(Int_t i_gas = 1; i_gas <= gasCountX; i_gas++)
   shell->AddNode(gas, i_gas, new TGeoCombiTrans(gasPosX, 0, 0, fZeroRotation));
 }
 
-TGeoVolume* MWPC1   = gGeoManager->MakeBox("MWPC1", pMed0, shellX, shellY, 2*shellZ);
-TGeoVolume* MWPC2   = gGeoManager->MakeBox("MWPC2", pMed0, shellX, shellY, 2*shellZ);
+TGeoVolume* MWPC1   = gGeoManager->MakeBox("MWPC1", pMed0, shellX, shellY, 2*shellZ + shellOffsetZ);
+TGeoVolume* MWPC2   = gGeoManager->MakeBox("MWPC2", pMed0, shellX, shellY, 2*shellZ + shellOffsetZ);
 
 mwpcOffsetZ /= 2.0;
 
-MWPC1->AddNode(shell, 1, new TGeoCombiTrans(0, 0, -shellZ, fZeroRotation));
-MWPC1->AddNode(shell, 2, new TGeoCombiTrans(0, 0, shellZ, f90ZRotation));
+MWPC1->AddNode(shell, 1, new TGeoCombiTrans(0, 0, -shellOffsetZ / 2, fZeroRotation));
+MWPC1->AddNode(shell, 2, new TGeoCombiTrans(0, 0, shellOffsetZ / 2, f90ZRotation));
 
-MWPC2->AddNode(shell, 1, new TGeoCombiTrans(0, 0, -shellZ, fZeroRotation));
-MWPC2->AddNode(shell, 2, new TGeoCombiTrans(0, 0, shellZ, f90ZRotation));
+MWPC2->AddNode(shell, 1, new TGeoCombiTrans(0, 0, -shellOffsetZ / 2, fZeroRotation));
+MWPC2->AddNode(shell, 2, new TGeoCombiTrans(0, 0, shellOffsetZ / 2, f90ZRotation));
 
 MWPC->AddNode(MWPC1, 1, new TGeoCombiTrans(0, 0, -mwpcOffsetZ, fZeroRotation));
 MWPC->AddNode(MWPC2, 2, new TGeoCombiTrans(0, 0, mwpcOffsetZ, fZeroRotation));

@@ -1,4 +1,4 @@
-void BeamDet_full(Int_t nEvents = 1000){
+void BeamDet_full(Int_t nEvents = 2000){
   //---------------------Files-----------------------------------------------
   TString outFile= "full.root";
   TString parFile= "par.root";
@@ -73,7 +73,7 @@ void BeamDet_full(Int_t nEvents = 1000){
   
   generator->SetPhiRange(0, 360);
 
-  Double32_t distanceToTarget = 1533;
+  Double32_t distanceToTarget = 1540;
   Double32_t sigmaOnTarget = 0.5;
   generator->SetSigmaXYZ(0, 0, -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
   //generator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -distanceToTarget);
