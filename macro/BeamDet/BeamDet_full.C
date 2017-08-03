@@ -59,7 +59,7 @@ void BeamDet_full(Int_t nEvents = 1000){
   generator->SetKinE(kin_energy);
   generator->SetPSigmaOverP(0.003);
   //generator->SetPSigma(6.7835, 6.7835*0.003);
-//  generator->SetKinESigma(kin_energy, 0);
+  //generator->SetKinESigma(kin_energy, 0);
 
   /*
    * Set flag to spread corrdinates parameters on target and reconstruct   
@@ -78,9 +78,9 @@ void BeamDet_full(Int_t nEvents = 1000){
   generator->SetSigmaXYZ(0, 0, -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
   //generator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -distanceToTarget);
 
-  generator->AddBackgroundIon("26P", 15, 26, 15, 0.1);
-  generator->AddBackgroundIon("26S", 16, 26, 16, 0.15);
-  generator->AddBackgroundIon("24Si", 14, 24, 14, 0.2);
+  generator->AddBackgroundIon("26P", 15, 26, 15, 0.1 / 0.55);
+  generator->AddBackgroundIon("26S", 16, 26, 16, 0.15 / 0.55);
+  generator->AddBackgroundIon("24Si", 14, 24, 14, 0.2 / 0.55);
 
   primGen->AddGenerator(generator);
   fRun->SetGenerator(primGen);

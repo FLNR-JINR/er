@@ -44,26 +44,40 @@ ERIonMixGenerator::~ERIonMixGenerator()
 // if (fIon) delete fIon;
 }
 
-void ERIonMixGenerator::AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q, Double_t probability)
+void ERIonMixGenerator::AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q, Double_t newIonProb)
 {
   SetPhiRange();
   static Double_t sumProbability;
 
   if(fBgIons.size() == 0)
   {
-    sumProbability = 0;
+    sumProbability = 1;
   }
 
-  sumProbability += probability;
+  sumProbability += newIonProb;
 
-  if((sumProbability) >= 1)
+  /*if((sumProbability) >= 1)
   {
     LOG(DEBUG) << "Summary probability of appearing background ions more then 1"
        << FairLogger::endl;
     return ;
+  }*/
+
+  std::map<Double_t, TString>::iterator itBgIons;
+  for(itBgIons = fBgIons.begin(); itBgIons != fBgIons.end(); itBgIons++) {
+    // ---- normalization of prababilities values with new ion --------------
+    Double_t curIonProb = itBgIons->first;
+    TString  ionName = itBgIons->second;
+    Double_t ionProb = curIonProb - (curIonProb * newIonProb / sumProbability);
+    fBgIons.erase(itBgIons);
+    fBgIons.insert(std::make_pair(ionProb, ionName));
   }
 
-  fBgIons.insert(std::make_pair(sumProbability, name));
+  fBgIons.insert(std::make_pair(newIonProb / sumProbability, name));
+  
+  for(itBgIons = fBgIons.begin(); itBgIons != fBgIons.end(); itBgIons++) {
+    std::cout << "Prob " << itBgIons->first << std::endl;
+  }
 
   FairRunSim* run = FairRunSim::Instance();
   if ( ! run ) {

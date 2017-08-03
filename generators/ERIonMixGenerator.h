@@ -54,7 +54,7 @@ class ERIonMixGenerator : public ERIonGenerator
     virtual ~ERIonMixGenerator();
 
     Bool_t ReadEvent(FairPrimaryGenerator* primGen);
-    void AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q, Double_t probability);
+    void AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q, Double_t newIonProb);
 
   private:
 

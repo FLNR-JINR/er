@@ -82,7 +82,7 @@ ERIonGenerator::ERIonGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mu
   fPointVtxIsSet(0),fBoxVtxIsSet(0),fDebug(0),fIon(NULL), fName(name), 
   fBoxSigmaIsSet(0), fSpreadingOnTarget(0),
   fGausTheta(0), fSigmaTheta(0), fSigmaThetaIsSet(0),
-  fKinE(0), fSigmaPOverP(0), fP(0), fSigmaPOverPIsSet(0)
+  fKinE(0), fSigmaPOverP(0), fSigmaPOverPIsSet(0)
 {
   SetPhiRange();
   fIon= new FairIon(fName, z, a, q);
@@ -149,7 +149,7 @@ void ERIonGenerator::SpreadingParameters()
   if (fSigmaPIsSet) { pabs = gRandom->Gaus(fGausP,fSigmaP); fPRangeIsSet = kTRUE;}
 
   if(fSigmaPOverPIsSet) {
-    fGausP = TMath::Sqrt(kinE*kinE + 2.*kinE*fIon->GetMass());
+    fGausP = TMath::Sqrt(fKinE*fKinE + 2.*fKinE*fIon->GetMass());
     fSigmaP = fGausP * fSigmaPOverP;
     pabs = gRandom->Gaus(fGausP,fSigmaP); 
     fPRangeIsSet = kTRUE;
