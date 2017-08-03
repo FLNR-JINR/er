@@ -1,16 +1,16 @@
-// -------------------------------------------------------------------------
-// -----                        ERNeuRad header file               -----
-// -----                  Created 03/15  by V.Schetinin                -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *    Copyright (C) Joint Institute for Nuclear Research                        *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERNeuRad_H
 #define ERNeuRad_H
 
 #include "TH1F.h"
 #include "TLorentzVector.h"
-
-using namespace std;
-
 
 #include "ERDetector.h"
 #include "ERNeuRadStep.h"
@@ -20,6 +20,15 @@ class TClonesArray;
 class FairVolume;
 class TF1;
 
+/** @class ERNeuRad
+ ** @brief Class for the MC transport of the NeuRad
+ ** @author V.Schetinin <sch_vitaliy@mail.ru>
+ ** @version 1.0
+ **
+ ** The ERNeuRad defines the behaviour of the NeuRad system during
+ ** transport simulation. It constructs the NeuRad transport geometry
+ ** and creates objects of type ERNeuRadPoins and ERNeuRadSteps if requested.
+**/
 class ERNeuRad : public ERDetector
 {
   
@@ -32,7 +41,8 @@ public:
   /** Standard constructor.
    *@param name    ERNeuRad detector name
    *@param active  sensitivity flag
-   *@param verbose Verbosity level. 1 - only standart logs, 2 - Print points after each event, 
+   *@param verbose Verbosity level. 1 - only standart logs, 
+                                    2 - Print points after each event, 
                                     3 - GEANT Step information
    **/
   ERNeuRad(const char* name, Bool_t active, Int_t verbose);
@@ -52,81 +62,85 @@ public:
   virtual Bool_t ProcessHits(FairVolume* vol = 0);
   
   
-  /** Virtual method BeginEvent
+  /** @brief Action at start of event
    **
-   **/
+   ** Short status log and Reset().
+   ** Virtual from FairDetector.
+  **/
   virtual void BeginEvent();
   
-  /** Virtual method EndOfEvent
+  /** @brief Action at end of event
    **
-   ** If verbosity level is set, print point collection at the
-   ** end of the event.
-   **/
+   ** Short status log and Reset().
+   ** Virtual from FairDetector.
+  **/
   virtual void EndOfEvent();
   
-  /** Virtual method Register
+  /** @brief Register output array (NeuRadPoint) to the I/O manager
    **
-   ** Registers the point collection in the ROOT manager.
-   **/
+   ** Abstract from FairDetector.
+  **/
   virtual void Register();
   
   
-  /** Accessor to the point collection **/
+  /** @brief Get array of ERNeuRadPoint
+   ** @param iColl  number of point collection
+   ** @return Pointer to ERNeuRadPoint array. NULL if iColl > 0.
+   **
+   ** Abstract from FairDetector.
+  **/
   virtual TClonesArray* GetCollection(Int_t iColl) const;
   
   
-  /** Virtual method Print
-   **
-   ** Screen output of hit collection.
-   **/
+  /** @brief Screen log
+    ** Prints NeuRadPoint information
+    ** Virtual from TObject.
+  **/
   virtual void Print(Option_t *option="") const;
-  
   
   /** Virtual method Reset
    **
    ** Clears the point collection
    **/
   virtual void Reset();
-  
-  
+
   /** Virtual method CopyClones
    **
-   ** Copies the hit collection with a given track index offset
+   ** Copies the points collection with a given track index offset
    *@param cl1     Origin
    *@param cl2     Target
    *@param offset  Index offset
    **/
   virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2,
 			  Int_t offset);
-  
-   /** Virtaul method Initialize
-   **
-   ** Initialize detector data
+
+  /**  @brief Initialisation
+   ** class method FairDetector::Initialize() is called.
+   ** NeuRadGeoPar init from RuntimeDB
+   ** Virtual from FairDetector.
    **/
   virtual void Initialize();
 
-  /** Virtaul method CheckIfSensitive 
-	**Check whether a volume is sensitive.
-  ** @param(name)  Volume name
-  ** @value        kTRUE if volume is sensitive, else kFALSE
-  **
-  ** The decision is based on the volume name (has to contain "fiber").
-  **/
+  /** @brief Check whether a volume is sensitive.
+   ** @param name  Volume name
+   ** @value        kTRUE if volume is sensitive, else kFALSE
+   ** The decision is based on the volume name (has to contain "Sensor").
+   ** Virtual from FairModule.
+   **/
   virtual Bool_t CheckIfSensitive(std::string name);
-  
-  /** Virtaul method SetGeomVersion
-  **/
-  void SetGeomVersion(Int_t vers ) { fVersion = vers; }
-  
-  void SetStorePrimarySteps() {fStorePrimarySteps = kTRUE;}
-  void SetStoreAllSteps() {fStoreAllSteps = kTRUE;}
 
-  void WriteHistos();
+  /** Method for switch on storing of first geant steps in sensetive volume.
+  It is necessary to determine the coordinate of the input to the sensitive volume
+  **/
+  void SetStorePrimarySteps() {fStorePrimarySteps = kTRUE;}
+  /** Method for switch on storing of all geant steps in sensetive volume.
+  It is necessary to determine geant4 processes in sensetive volume
+  **/
+  void SetStoreAllSteps() {fStoreAllSteps = kTRUE;}
 private:
   TClonesArray*  fNeuRadPoints;     //!  The point collection
   TClonesArray*  fNeuRadFirstStep;  //!  The first step collection
   TClonesArray*  fNeuRadSteps;      //!  The steps collection
-  Int_t fVersion;                    //! geometry version
     
   Bool_t fStorePrimarySteps;
   Bool_t fStoreAllSteps;

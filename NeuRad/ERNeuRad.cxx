@@ -1,7 +1,11 @@
-// -------------------------------------------------------------------------
-// -----                        ERNeuRad source file                   -----
-// -----                  Created 03/15  by V.Schetinin                -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *    Copyright (C) Joint Institute for Nuclear Research                        *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #include "ERNeuRad.h"
 
 #include "FairRootManager.h"
@@ -18,6 +22,7 @@
 #include "ERMCEventHeader.h"
 
 #include <iostream>
+using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
@@ -183,15 +188,9 @@ void ERNeuRad::FinishNewPoint(){
     fFullLY+=fLightYield;
   }                
 }
-                   
-//--------------------------------------------------------------------------------------------------
-
-
 //--------------------------------------------------------------------------------------------------
 // -----   Public method EndOfEvent   -----------------------------------------
 void ERNeuRad::BeginEvent() {
-  fFullEnergy = 0.;
-  fFullLY = 0.;
 }
 //--------------------------------------------------------------------------------------------------
 void ERNeuRad::EndOfEvent() {
@@ -245,6 +244,8 @@ void ERNeuRad::Reset() {
   fNeuRadPoints->Clear();
   fNeuRadSteps->Clear();
   fNeuRadFirstStep->Clear();
+  fFullEnergy = 0.;
+  fFullLY = 0.;
   ResetParameters();
 }
 // ----------------------------------------------------------------------------
@@ -312,9 +313,6 @@ Bool_t ERNeuRad::CheckIfSensitive(std::string name)
 
 // ----------------------------------------------------------------------------
 void ERNeuRad::ResetParameters() {
-};
-//----------------------------------------------------------------------------
-void ERNeuRad::WriteHistos(){
 }
 //----------------------------------------------------------------------------
 ClassImp(ERNeuRad)
