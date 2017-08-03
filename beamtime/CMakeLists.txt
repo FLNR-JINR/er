@@ -30,7 +30,7 @@ set(SRCS
 
 	ERLiCalibrator.cxx
 	ERRootSource.cxx
-	
+	ERRootSourceOld.cxx
 	ERNXyterTreeSource.cxx
 	ERNXyterCalibrator.cxx
 	ERpmtPixelMap.cxx
@@ -47,6 +47,8 @@ set(SRCS
 
 	data/WCalHit.cxx
 	data/WCalEvent.cxx
+
+
 )
 
 # fill list of header files from list of source files

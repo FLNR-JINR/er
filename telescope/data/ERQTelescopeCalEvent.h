@@ -15,6 +15,7 @@ public:
 	int nC21[32],nC22[32],nC23[32],nC24[32],nC25[32],nC26[32],nCT21[32],nCT22[32];
 	int mCT21,mCT22;
 	double tC21[32],tC22[32];
+	double eC2sum;
 public:
 	ERQTelescopeCalEvent();
 	virtual ~ERQTelescopeCalEvent();

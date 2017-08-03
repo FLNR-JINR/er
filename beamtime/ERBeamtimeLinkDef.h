@@ -11,6 +11,7 @@
 
 #pragma link C++ class ERLiCalibrator+;
 #pragma link C++ class ERRootSource+;
+#pragma link C++ class ERRootSourceOld+;
 
 #pragma link C++ class ERNXyterTreeSource+;
 #pragma link C++ class ERNXyterCalibrator+;

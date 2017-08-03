@@ -4,15 +4,15 @@ void beamtest(Int_t nEvents = 20)
 	TString inFile = workdir + "/input/t_8he_025.root";
 
 	// --- Specify output file name (this is just an example)
-	TString outFile = "out.root";
+	TString outFile = "out1.root";
 
   std::cout << ">>> input file is " << inFile  << std::endl;
   std::cout << ">>> output file is " << outFile << std::endl;
 
   // --- Source task
-  ERRootSource* source = new ERRootSource();
+  ERRootSourceOld* source = new ERRootSourceOld();
   source->SetFile(inFile,"AnalysisxTree","HE8Event");
-  source->AddFile(workdir + "/input/t_8he_026.root");
+  //source->AddFile(workdir + "/input/t_8he_025.root");
 
   ERQTelescopeEvent* qTelEvent = new ERQTelescopeEvent();
   source->AddEvent(qTelEvent);

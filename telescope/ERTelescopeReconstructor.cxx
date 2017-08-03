@@ -350,9 +350,26 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   fOutEvent->al251 = al[1][4][0][0];
   fOutEvent->al252 = al[1][4][1][0];
   
-
+  for(int it=0;it<Ntelescopes;it++)
+  {
+    if(mp[it]==1&&header->mbeam&&header->mtrack)
+    {
+      for(int ip=0;ip<header->NofDetPart;ip++)
+      {
+        for(int imu=0;imu<=mp[it];imu++)
+        {
+          ejectile[it][ip][imu].Part.Boost(-CM0->Part.BoostVector());
+        }
+      }
+    }
+  }
+  projectile->Part.Boost(-CM0->Part.BoostVector());
+  target->Part.Boost(-CM0->Part.BoostVector());
   //mis calculations
   misCalculations();
+
+  //mis[0][0][0].Part.Boost(-CM0.Part.BoostVector());
+  //fOutEvent->tmis11cm0 = 
 
   for(int it=0;it<Ntelescopes;it++)
   {
@@ -386,7 +403,50 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 //----------------------------------------------------------------------------
 void ERTelescopeReconstructor::Reset()
 {
-  //fOutEvent->Reset();
+ for(int it=0;it<Ntelescopes;it++)
+  {
+        mp[it] = 0;
+        for(int il=0;il<layer[it];il++)
+        {
+          for(int ip=0;ip<header->NofDetPart;ip++)
+          {
+            for(int imu=0;imu<NDivXYMax;imu++)
+            {
+              al[it][il][ip][imu] = -1000.;
+            }
+          }
+          for(int id=0;id<NDetMax;id++)
+          {
+            mpd[it][il][id] = 0;
+            MuX[it][il][id] = -1;
+            MuY[it][il][id] = -1;
+            MuXT[it][il][id] = -1;
+            MuYT[it][il][id] = -1;
+            xbdet0[it][il][id] = -100.;
+            ybdet0[it][il][id] = -100.;
+            for(int imu=0;imu<NDivXYMax;imu++)
+            {
+              NhitX[it][il][id][imu] = 0;
+              NhitY[it][il][id][imu] = 0;
+              NhitXT[it][il][id][imu] = 0;
+              NhitYT[it][il][id][imu] = 0;
+              DepoX[it][il][id][imu] = 0.;
+              DepoY[it][il][id][imu] = 0.;
+              cx[it][il] = 0.;
+              cy[it][il] = 0.;
+              cz[it][il] = 0.;
+              deposit[it][il][id][imu] = 0.;
+            }
+            for(int ip=0;ip<header->NofDetPart;ip++)
+            {
+              HitX[it][il][id][ip] = -1;
+              HitXT[it][il][id][ip] = -1;
+              HitY[it][il][id][ip] = -1;
+              HitYT[it][il][id][ip] = -1;
+            }
+          }
+        }
+      }
 }
 // ----------------------------------------------------------------------------
 void ERTelescopeReconstructor::Finish()
@@ -997,50 +1057,6 @@ void ERTelescopeReconstructor::InitMemory(){
     for (int j=0; j<header->NofDetPart+header->NofUnObsPart; j++)
       ejectile[i][j] = new ERParticle[NDivXYMax];
   }
-  for(int it=0;it<Ntelescopes;it++)
-  {
-        mp[it] = 0;
-        for(int il=0;il<layer[it];il++)
-        {
-          for(int ip=0;ip<header->NofDetPart;ip++)
-          {
-            for(int imu=0;imu<NDivXYMax;imu++)
-            {
-              al[it][il][ip][imu] = -1000.;
-            }
-          }
-          for(int id=0;id<NDetMax;id++)
-          {
-            mpd[it][il][id] = 0;
-            MuX[it][il][id] = -1;
-            MuY[it][il][id] = -1;
-            MuXT[it][il][id] = -1;
-            MuYT[it][il][id] = -1;
-            xbdet0[it][il][id] = -100.;
-            ybdet0[it][il][id] = -100.;
-            for(int imu=0;imu<NDivXYMax;imu++)
-            {
-              NhitX[it][il][id][imu] = 0;
-              NhitY[it][il][id][imu] = 0;
-              NhitXT[it][il][id][imu] = 0;
-              NhitYT[it][il][id][imu] = 0;
-              DepoX[it][il][id][imu] = 0.;
-              DepoY[it][il][id][imu] = 0.;
-              cx[it][il] = 0.;
-              cy[it][il] = 0.;
-              cz[it][il] = 0.;
-              deposit[it][il][id][imu] = 0.;
-            }
-            for(int ip=0;ip<header->NofDetPart;ip++)
-            {
-              HitX[it][il][id][ip] = -1;
-              HitXT[it][il][id][ip] = -1;
-              HitY[it][il][id][ip] = -1;
-              HitYT[it][il][id][ip] = -1;
-            }
-          }
-        }
-      }
 
   cout << "Memory inited" << endl;
 }
@@ -1221,6 +1237,7 @@ void ERTelescopeReconstructor::ReadDeposites(){
   fOutEvent->dep24= DepoX[1][3][0][0];
   fOutEvent->dep25= DepoX[1][4][0][0];
   fOutEvent->dep26= DepoX[1][5][0][0];
+  fOutEvent->dep2sum = fOutEvent->dep21 + fOutEvent->dep22 + fOutEvent->dep23 + fOutEvent->dep24 + fOutEvent->dep25 + fOutEvent->dep26; 
 }
 //-----------------------------------------------------------------------------
 TVector3 ERTelescopeReconstructor::Traject(Telescope* Dx,Telescope* Dy,int Nx,int Ny,TVector3 Vint){
@@ -1398,7 +1415,7 @@ void ERTelescopeReconstructor::misCalculations(){
   fOutEvent->phimis22 = mis[1][1][0].Part.Phi()/rad;
 
   fOutEvent->exmis11 = mis[0][0][0].Excitation;
-  
+  fOutEvent->exmis22 = mis[1][1][0].Excitation;
 }
 
 //----------------------------------------------------------------------------

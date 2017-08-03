@@ -14,7 +14,7 @@ fFile(NULL),
 fTree(NULL),
 fTreeName(""),
 fBranchName(""),
-fCurFile(-1),
+fCurFile(0),
 fOldEvents(0)
 {
 }
@@ -49,9 +49,9 @@ Int_t ERRootSource::ReadEvent(UInt_t id){
   	if ( ! ioman ) Fatal("Init", "No FairRootManager");
 
 	//Проверяем есть ли еще события для обработки
-	if (fTree->GetEntriesFast() == ioman->GetEntryNr()+1-fOldEvents){
+	if (fTree->GetEntriesFast() == ioman->GetEntryNr()-fOldEvents){
 		fOldEvents += ioman->GetEntryNr();
-		if (!OpenNextFile())
+		if (OpenNextFile())
 			return 1;
 	}
 	//cout << "ev" << ioman->GetEntryNr() << endl;
@@ -82,11 +82,13 @@ void ERRootSource::SetFile(TString path, TString treeName, TString branchName){
 
 
 Int_t ERRootSource::OpenNextFile(){
-	if (fCurFile+1 == fPath.size())
+	if (fCurFile == fPath.size())
 		return 1;
-	fFile = new TFile(fPath[++fCurFile]);
+	fFile = new TFile(fPath[fCurFile++]);
 	if (!fFile->IsOpen())
 		Fatal("ERRootSource", "Can`t open file for source ERRootSource");
+	else
+		cout << fPath[fCurFile-1] << " opened for source ERRootSource" << endl;
 	fTree = (TTree*)fFile->Get(fTreeName);
 	if (!fTree)
 		Fatal("ERRootSource", "Can`t find tree in input file for source ERRootSource");

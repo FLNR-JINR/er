@@ -170,6 +170,8 @@ for(int imu=0;imu<=fInEvent->mD21;imu++)  /* D21 X16 */
       fOutEvent->nC26[fOutEvent->mC26]=fInEvent->nD26[imu];
     }
   }
+  fOutEvent->eC2sum = fOutEvent->eC21[0]+fOutEvent->eC22[0]+fOutEvent->eC23[0]+
+    fOutEvent->eC24[0]+fOutEvent->eC25[0]+fOutEvent->eC26[0];
 }
 //----------------------------------------------------------------------------
 

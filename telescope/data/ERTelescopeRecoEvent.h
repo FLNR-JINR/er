@@ -19,11 +19,12 @@ public:
 	double dep11,dep12,dep21,dep22,dep23,dep24,dep25,dep26;
 	double t11cmp,t22cmp,pz11cmp,pz22cmp,th11cmp,th22cmp;
 	double al111,al112,al211,al212,al221,al222,al231,al232,al241,al242,al251,al252;
-	double tmis11,tmis22,thmis11,thmis22,phimis11,phimis22,exmis11;
+	double tmis11,tmis22,thmis11,thmis22,phimis11,phimis22,exmis11,exmis22;
 	ERParticle ej11;
 	ERParticle ej22;
 	ERParticle mis11;
 	ERParticle mis22;
+	double dep2sum;
 public:
 	ERTelescopeRecoEvent();
 	virtual ~ERTelescopeRecoEvent();

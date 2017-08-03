@@ -27,7 +27,6 @@ ERDetector.cxx
 ERMCApplication.cxx
 ERRunSim.cxx
 ERSupport.cxx
-ERRunAna.cxx
 )
 
 # fill list of header files from list of source files

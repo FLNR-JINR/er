@@ -40,7 +40,6 @@ ERNeuRad::ERNeuRad() : ERDetector("ERNeuRad", kTRUE),
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fVerboseLevel = 1;
-  fVersion = 1;
 }
 //-------------------------------------------------------------------------
 
@@ -57,7 +56,6 @@ ERNeuRad::ERNeuRad(const char* name, Bool_t active, Int_t verbose)
   fNeuRadSteps = new TClonesArray("ERNeuRadStep");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
-  fVersion = 1;
 }
 //-------------------------------------------------------------------------
 ERNeuRad::~ERNeuRad() {
