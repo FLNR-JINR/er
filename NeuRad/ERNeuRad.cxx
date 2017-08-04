@@ -25,7 +25,7 @@
 using namespace std;
 
 
-// -----   Default constructor   -------------------------------------------
+//-------------------------------------------------------------------------
 ERNeuRad::ERNeuRad() : ERDetector("ERNeuRad", kTRUE),
   fStorePrimarySteps(kFALSE),
   fStoreAllSteps(kFALSE),

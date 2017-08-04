@@ -1,8 +1,8 @@
 {
-	TFile *f = new TFile("out.root");
+	TFile *f = new TFile("out10.root");
 	TTree* t = (TTree*)f->Get("cbmsim");
 
-   TCutG *cutg = new TCutG("CUTG",7);
+   TCutG *cutg = new TCutG("CUTG",8);
    cutg->SetVarY("QTelescopeCalEvent.eC21[0]");
    cutg->SetVarX("QTelescopeCalEvent.eC2sum");
    /*
@@ -36,18 +36,35 @@
    cutg->SetPoint(7,81.2544,28.2849);
    cutg->SetPoint(8,80.9913,28.2849);
 	*/
-      cutg->SetPoint(0,83.2029,31.2762);
-   cutg->SetPoint(1,140.542,18.4148);
-   cutg->SetPoint(2,154.439,22.5025);
-   cutg->SetPoint(3,91.2979,35.9621);
-   cutg->SetPoint(4,83.2029,31.2762);
-   cutg->SetPoint(5,83.2029,31.2762);
-   cutg->SetPoint(6,83.2029,31.2762);
+   //with center
+   
+   cutg->SetPoint(0,87.9733,29.008);
+   cutg->SetPoint(1,142.623,19.0977);
+   cutg->SetPoint(2,180.635,15.9571);
+   cutg->SetPoint(3,178.209,20.7029);
+   cutg->SetPoint(4,87.6267,35.4985);
+   cutg->SetPoint(5,87.8578,29.0778);
+   cutg->SetPoint(6,87.8578,29.0778);
+   cutg->SetPoint(7,87.9733,29.008);
+   
+   /*
+      cutg->SetPoint(0,84.829,30.7777);
+   cutg->SetPoint(1,141.938,19.2124);
+   cutg->SetPoint(2,157.288,18.8136);
+   cutg->SetPoint(3,161.91,20.9073);
+   cutg->SetPoint(4,90.2758,34.4666);
+   cutg->SetPoint(5,84.829,30.678);
+   cutg->SetPoint(6,84.829,30.678);
+   cutg->SetPoint(7,84.829,30.7777);
+   */
 	t->SetMarkerStyle(22);
 	t->SetMarkerSize(1);
-	//t->Draw("QTelescopeCalEvent.eC21[0]:QTelescopeCalEvent.eC2sum","TelescopeRecoEvent.t22>120 && TelescopeRecoEvent.t22<140");
+	t->Draw("QTelescopeCalEvent.eC21[0]:QTelescopeCalEvent.eC2sum");
 	//t->Draw("QTelescopeCalEvent.eC2sum:QTelescopeCalEvent.eC21[0]","CUTG");
 	//t->Draw("QTelescopeCalEvent.eC21[0]:QTelescopeCalEvent.eC2sum", "TelescopeRecoEvent.exmis11 > 1 && TelescopeRecoEvent.exmis11 < 7 ");
 	//t->Draw("TelescopeRecoEvent.tmis11","CUTG");
     //t->Draw("TelescopeRecoEvent.exmis11","CUTG");
+    //t->Draw("TelescopeRecoEvent.exmis11","QTelescopeCalEvent.eC2sum>160&&QTelescopeCalEvent.eC2sum<180");
+    //t->Draw("TelescopeRecoEvent.t22","CUTG");
+
 }

@@ -98,7 +98,7 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
 
   FairRun* run = FairRun::Instance();
   run->MarkFill(kFALSE);
-  if (header->mp1 == 1 && header->mp2 == 1 && fBeamDetEvent->tofb > 115. && fBeamDetEvent->tofb < 135.)
+  if (header->mp1 == 1 && header->mp2 == 1)
     run->MarkFill(kTRUE);
   else
     return;
