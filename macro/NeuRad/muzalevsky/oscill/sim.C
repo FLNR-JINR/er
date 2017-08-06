@@ -1,4 +1,4 @@
-void sim(Int_t nEvents = 10000){
+void sim(Int_t nEvents = 300000){
 // void sim(Int_t nEvents = 100, Int_t index = 0) {
 
   // ------------------------------------------------------------------------
@@ -14,8 +14,8 @@ void sim(Int_t nEvents = 10000){
 //gRandom->SetSeed(index);
 
   //---------------------Files-----------------------------------------------
-  TString outFile= "/store/ivan/tests/sim.root";
-  TString parFile= "/store/ivan/tests/par.root";
+  TString outFile= "/store/ivan/simGSIJULY/sim2.root";
+  TString parFile= "/store/ivan/simGSIJULY/par2.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -63,7 +63,8 @@ void sim(Int_t nEvents = 10000){
   */
   Int_t verbose = 1;
   ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,verbose);
-  neuRad->SetGeometryFileName("NeuRad.v4.geo.root");
+  neuRad->SetGeometryFileName("gsitests.root");
+//  neuRad->SetGeometryFileName("NeuRad.v4.geo.root");
   /* Select storing stepss
    * not store steps
    * SetStorePrimarySteps() - store only primary particle step
@@ -82,7 +83,7 @@ void sim(Int_t nEvents = 10000){
   Int_t pdgId = 22; // neutron  beam
   Double32_t theta1 = 180.;  // polar angle distribution
   Double32_t theta2 = 180.;
-  Double32_t kin_energy = 0.001333; //GeV
+  Double32_t kin_energy = 0.0006617; //GeV
 
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
@@ -92,7 +93,8 @@ void sim(Int_t nEvents = 10000){
   // boxGen->SetPhiRange(90, 90);
   boxGen->SetPhiRange(0, 0);
   // boxGen->SetBoxXYZ(0.,0,0.3,0.3,0.);
-  boxGen->SetBoxXYZ(-0.149,-0.149,0.149,0.149,19.4);
+ // boxGen->SetBoxXYZ(-0.149,-0.149,0.149,0.149,19.4);
+  boxGen->SetBoxXYZ(-0.2,-2.5,0.2,2.5,4.4);
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------

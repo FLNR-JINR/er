@@ -1,8 +1,8 @@
-void digi(Int_t nEvents = 10000){
+void digi(Int_t nEvents = 300000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "/store/ivan/tests/sim.root";
-  TString outFile = "/store/ivan/tests/digi.root";
-  TString parFile = "/store/ivan/tests/par.root";
+  TString inFile = "/store/ivan/simGSIJULY/sim2.root";
+  TString outFile = "/store/ivan/simGSIJULY/digi2.root";
+  TString parFile = "/store/ivan/simGSIJULY/par2.root";
   // ------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -21,7 +21,7 @@ void digi(Int_t nEvents = 10000){
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
-  //digitizer->SetUseCrosstalks(kFALSE);
+  digitizer->SetUseCrosstalks(kFALSE);
   digitizer->SetPixelJitter(0.28/2.36);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------

@@ -13,5 +13,5 @@ void merge()
         ch.Add("/store/ivan/simParallel/analyze9.root");
         ch.Add("/store/ivan/simParallel/analyze10.root");
 
-	ch.Merge("/store/ivan/simGSIJULY/analyze4.root");
+	ch.Merge("/store/ivan/simGSIJULY/analyze11.root");
 } 

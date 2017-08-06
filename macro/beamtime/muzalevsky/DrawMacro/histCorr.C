@@ -18,7 +18,7 @@ void histCorr(
 	using std::cout;
 	using std::endl;
 	//gSystem->Load("../libData.so");
-	TFile *f = new TFile("/store/ivan/simGSIJULY/analyze3.root");
+	TFile *f = new TFile("/store/ivan/simGSIJULY/analyze11.root");
 	TTree *t = (TTree*)f->Get("cbmsim");
 
 
@@ -33,13 +33,13 @@ void histCorr(
 		c1->cd(1);
 
 		g1->SetParLimits(0,1e+2,1e+4);
-		g1->SetParLimits(1,-100,100);
+		g1->SetParLimits(1,-2,2);
 		g1->SetParLimits(2,0.1,10);
 
 		// t->Draw("Ach1.fToT"); return;
 
 		TH1F *h1 = new TH1F("h1", "tau_CFD ",70, -3., 3.);
-		t->Draw("Ach1.fTimeCFD - Ach2.fTimeCFD >> h1","(Ach1.fTimeCFD - Ach2.fTimeCFD) < 5 && (Ach1.fTimeCFD - Ach2.fTimeCFD) > -5","");
+		t->Draw("Ach1.fTimeCFD - Ach2.fTimeCFD >> h1","(Ach1.fTimeCFD - Ach2.fTimeCFD) < 3 && (Ach1.fTimeCFD - Ach2.fTimeCFD) > -3","");
 //	        t->Draw("Ach1.fTimeCFD - Ach2.fTimeCFD ");
 //		h1->GetXaxis()->SetRangeUser(-10, 15);
 		h1->GetXaxis()->SetTitle("tauCFD [ns]");
@@ -50,7 +50,7 @@ void histCorr(
 		c1->cd(2);
 		TH1F *h2 = new TH1F("h2", "tau_10 ",100, -3., 3.);
 
-		t->Draw("Ach1.fTime10 - Ach2.fTime10 >> h2","(Ach1.fTime10 - Ach2.fTime10)>-5 && (Ach1.fTime10 - Ach2.fTime10)<5","");
+		t->Draw("Ach1.fTime10 - Ach2.fTime10 >> h2","(Ach1.fTime10 - Ach2.fTime10)>-3 && (Ach1.fTime10 - Ach2.fTime10)<3","");
  
 //		h2->GetXaxis()->SetRangeUser(-10, 10);
 		h2->GetXaxis()->SetTitle("fTime10 [ns]");
@@ -71,13 +71,14 @@ void histCorr(
 		c1->cd(4);
 		TH1F *h4 = new TH1F("h4", "tau_90 ",100, -3., 3.);
 
-		t->Draw("Ach1.fTime90 - Ach2.fTime90 >> h4","(Ach1.fTime90 - Ach2.fTime90)>-5 && (Ach1.fTime90 - Ach2.fTime90)<5","");
+		t->Draw("Ach1.fTime90 - Ach2.fTime90 >> h4","(Ach1.fTime90 - Ach2.fTime90)>-3 && (Ach1.fTime90 - Ach2.fTime90)<3","");
 //t->Draw("Ach1.fTime10 - Ach2.fTime10"); 	
 //	h4->GetXaxis()->SetRangeUser(-5, 10);
 		h4->GetXaxis()->SetTitle("fTime90 [ns]");
 		h4->GetXaxis()->CenterTitle();
 		g1->SetRange(-1.2,1.4);
 		h4->Fit(g1,"R");
+		c1->Print("tau.png");
 	}
 
 	if (can3) {

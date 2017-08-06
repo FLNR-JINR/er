@@ -1,11 +1,11 @@
 //using namespace std;
 
-void RawToAnalyze(Int_t nEvents = 12){
+void RawToAnalyze(Int_t nEvents = 20000){
   //---------------------Files-----------------------------------------------
   //TString inFile = "tektronix.out.root";
-  TString inFile = "/store/ivan/tests/simRaw.root";
-  TString outFile = "/store/ivan/tests/analyze.root";
-  TString parFile = "/store/ivan/tests/par.root";
+  TString inFile = "/store/ivan/dataEXP/tektronix.out1.root";
+  TString outFile = "/store/ivan/dataEXP/analyze1.root";
+  TString parFile = "/store/ivan/simGSIJULY/par2.root";
   // ------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
