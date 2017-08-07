@@ -74,9 +74,10 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
   TString  ionName;
   Double_t rigidityMin;
   Double_t rigidityMax;
-  Double_t gausRigidity;
+  Double_t gausRigidity, sigmaRigidity;
   Double_t pMin = fPMin, pMax = fPMax;
   Double_t pGaus = fGausP;
+  Double_t pSigma = fSigmaP;
   // Generate particles
   for (Int_t k = 0; k < fMult; k++) {
 
@@ -111,7 +112,9 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
     if(fSigmaPIsSet)
     {
       gausRigidity = pGaus / fIon->GetZ() / 3;
+      sigmaRigidity = fSigmaP / fIon->GetZ() / 3;
       fGausP = gausRigidity * charge;
+      fSigmaP = sigmaRigidity * charge;
     }
 
     std::cout << "Pmin  " << fPMin << " Pmax " << fPMax << " GausP " << fGausP << std::endl;
@@ -133,6 +136,7 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
   fGausP = pGaus;
   fPMin = pMin;
   fPMax = pMax;
+  fSigmaP = pSigma;
   return kTRUE;
 }
 
