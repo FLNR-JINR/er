@@ -12,6 +12,8 @@ Double_t plateOffsetZ = 1500;
 
 Double_t shellOffsetZ = 1.8;
 Double_t mwpcOffsetZ = 20;
+Double_t mwpcWidth = 5.;
+Double_t mwpcHeight = 5.;
 
 Double_t TOFpozZInBeamdet = -((plateOffsetZ) / 2 + mwpcOffsetZ + 10);
 
@@ -24,7 +26,7 @@ Double_t targetH2Z = 0.4;   //cm
 
 Double_t transTargetX = 0.;
 Double_t transTargetY = 0.; 
-Double_t transTargetZ = targetH2Z / 2;
+Double_t transTargetZ = 0.;
 
 Double_t shellThickness = 1.5 * 1e-4;
 
@@ -161,8 +163,6 @@ for (Int_t i_plate = 0; i_plate < platesCount; i_plate++)
   TOF->AddNode(plate, i_plate  + 1, new TGeoCombiTrans(0, 0, platePosZ, fZeroRotation));
 }
 
-Double_t mwpcWidth = 5;
-Double_t mwpcHeight = 5;
 mwpcWidth /= 2.0;
 Int_t gasCountX = mwpcHeight / (2 * gasX);
 
