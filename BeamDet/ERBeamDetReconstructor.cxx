@@ -81,7 +81,7 @@ void ERBeamDetReconstructor::Exec(Option_t* opt)
 void ERBeamDetReconstructor::Tof(){
   TRandom Rnd;
   char ShowTrack[10];
-  double tof_offset= 65.;
+  double tof_offset= 75.;
          /*tof_offset = 75.;*/
   //      double tof_offset = 84.;
   double dt_F3,dt_F4,t_F3,t_F4;
@@ -114,9 +114,6 @@ void ERBeamDetReconstructor::Tof(){
     //          fInCalEvent->tofb = t_F4 - t_F3 + tof_0;
     // ********************************* measurement of absolute TOF value tof_offset = dT1-L0*(dT1-dT0)/(L1-L0)*******************************
           fOutEvent->tofb = t_F4 - t_F3 + tof_offset;
-          FairRun* run = FairRun::Instance();
-          /*if (fOutEvent->tofb < 115. || fOutEvent->tofb > 135.)
-            run->MarkFill(kFALSE);*/
     //if(fInCalEvent->tofb<130.) 
     //{printf("ntF3l=%i,ntF3r=%i,ntF4l=%i,ntF4r=%i\n",RawD.ntF3l,RawD.ntF3r,RawD.ntF4l,RawD.ntF4r);
     //printf("tF3l=%lf,tF3r=%lf,tF4l=%lf,tF4r=%lf,  TOF=%lf\n",fInCalEvent->tF3l,fInCalEvent->tF3r,fInCalEvent->tF4l,fInCalEvent->tF4r,fInCalEvent->tofb);

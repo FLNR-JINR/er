@@ -44,6 +44,7 @@ data/ERQTelescopeSiDigi.cxx
 ERQTelescopeCalibrator.cxx
 ERRTelescopeCalibrator.cxx
 ERTelescopeReconstructor.cxx
+ERTelescopeReconstructorNew.cxx
 
 data/ERRTelescopeEvent.cxx
 data/ERRTelescopeCalEvent.cxx

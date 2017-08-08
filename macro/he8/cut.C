@@ -1,5 +1,5 @@
 {
-	TFile *f = new TFile("out10.root");
+	TFile *f = new TFile("out.root");
 	TTree* t = (TTree*)f->Get("cbmsim");
 
    TCutG *cutg = new TCutG("CUTG",8);
@@ -59,11 +59,11 @@
    */
 	t->SetMarkerStyle(22);
 	t->SetMarkerSize(1);
-	t->Draw("QTelescopeCalEvent.eC21[0]:QTelescopeCalEvent.eC2sum");
+	//t->Draw("QTelescopeCalEvent.eC21[0]:QTelescopeCalEvent.eC2sum");
 	//t->Draw("QTelescopeCalEvent.eC2sum:QTelescopeCalEvent.eC21[0]","CUTG");
 	//t->Draw("QTelescopeCalEvent.eC21[0]:QTelescopeCalEvent.eC2sum", "TelescopeRecoEvent.exmis11 > 1 && TelescopeRecoEvent.exmis11 < 7 ");
 	//t->Draw("TelescopeRecoEvent.tmis11","CUTG");
-    //t->Draw("TelescopeRecoEvent.exmis11","CUTG");
+    t->Draw("TelescopeRecoEvent.exmis11","CUTG");
     //t->Draw("TelescopeRecoEvent.exmis11","QTelescopeCalEvent.eC2sum>160&&QTelescopeCalEvent.eC2sum<180");
     //t->Draw("TelescopeRecoEvent.t22","CUTG");
 

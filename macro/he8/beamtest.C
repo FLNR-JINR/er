@@ -45,7 +45,7 @@ void beamtest(Int_t nEvents = 20)
   ERBeamDetReconstructor* beamDetRecon = new ERBeamDetReconstructor(1);
   run->AddTask(beamDetRecon);
 
-  ERTelescopeReconstructor* telescopeRecon = new ERTelescopeReconstructor(1);
+  ERTelescopeReconstructorNew* telescopeRecon = new ERTelescopeReconstructorNew(1);
   run->AddTask(telescopeRecon);
   
   // --- Start run

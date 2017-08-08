@@ -22,6 +22,7 @@
 #pragma link C++ class ERQTelescopeCalibrator+;
 #pragma link C++ class ERRTelescopeCalibrator+;
 #pragma link C++ class ERTelescopeReconstructor+;
+#pragma link C++ class ERTelescopeReconstructorNew+;
 
 #pragma link C++ class ERRTelescopeEvent+;
 #pragma link C++ class ERQTelescopeEvent+;

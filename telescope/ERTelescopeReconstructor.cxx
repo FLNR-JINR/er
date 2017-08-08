@@ -350,6 +350,9 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   fOutEvent->al251 = al[1][4][0][0];
   fOutEvent->al252 = al[1][4][1][0];
   
+  fOutEvent->ej11 = ejectile[0][0][0];
+  fOutEvent->ej22 = ejectile[1][1][0];
+
   for(int it=0;it<Ntelescopes;it++)
   {
     if(mp[it]==1&&header->mbeam&&header->mtrack)
@@ -385,9 +388,6 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
       }
     }
   }
-
-  fOutEvent->ej11 = ejectile[0][0][0];
-  fOutEvent->ej22 = ejectile[1][1][0];
 
   fOutEvent->t11cmp = ejectile[0][0][0].Part.E()-ejectile[0][0][0].Mass;
   fOutEvent->t22cmp = ejectile[1][1][0].Part.E()-ejectile[1][1][0].Mass;
@@ -1151,7 +1151,7 @@ void ERTelescopeReconstructor::ReadDeposites(){
     }
   }
   MuX[0][0][0]=fRTelescopeEvent->mC11;
-  MuY[0][0][0]=fRTelescopeEvent->mC12;
+  MuY[0][1][0]=fRTelescopeEvent->mC12;
 
   MuX[1][0][0]=fQTelescopeEvent->mC21;
   MuY[1][1][0]=fQTelescopeEvent->mC22;
