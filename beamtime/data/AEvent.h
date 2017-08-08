@@ -1,12 +1,13 @@
-/*
- * AEvent.h
- *
- *  Created on: Dec 28, 2016
- *      Author: daria
- */
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
-#ifndef DATACLASSES_AEVENT_H_
-#define DATACLASSES_AEVENT_H_
+#ifndef AEvent_H
+#define AEvent_H
 
 #include <iostream>
 #include <fstream>
@@ -18,16 +19,25 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TF1.h"
-#include "TNamed.h"
-//#include "TMath.h"
-
 
 #include "RawEvent.h"
 
-//#define NCELLS 1024
-
 using std::cout;
 using std::endl;
+
+class TError;
+class TString;
+class TTree;
+class TFile;
+class TF1;
+
+class RawEvent;
+
+/** @class AEvent
+** class for processing raw data and
+** getting any amplitude and time properties of signal
+** @author D.Kostyleva <kostyleva@jinr.ru>
+**/
 
 class AEvent : public TNamed {
 
@@ -68,7 +78,6 @@ private:
 	Double_t fNoiseRangeMin;	//!
 	Double_t fNoiseRangeMax;	//!
 	Int_t fWinSize;			//!
-
 
 	TArrayF fPEAmps;
 	TArrayF fPETimes;
@@ -132,13 +141,11 @@ public:
 	 //Resets arrays to zeros
 
 	TGraph* GetGraphCFD() {
-
 		return fGraphCFD;
 	}
 	//draws CFD graphs
 
 	TGraph* GetGraphSignal() {
-
 		return fGraphSignal;
 	}
 	//draws signal shape graphs

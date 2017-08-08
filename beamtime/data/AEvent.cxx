@@ -1,33 +1,33 @@
-/*
- * AEvent.cpp
- *
- *  Created on: Dec 28, 2016
- *      Author: daria
- */
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #include "AEvent.h"
-
+//--------------------------------------------------------------------------------------------------
 AEvent::AEvent() : fNPoints(1024) {	//fNPoints is number of points in one event, 1024 or 1000
 
 	Init();
 	Reset();
 
 }
-
+//--------------------------------------------------------------------------------------------------
 AEvent::AEvent(const Int_t npoints) : fNPoints(npoints) {
 
 	Init();
 	Reset();
 }
-
+//--------------------------------------------------------------------------------------------------
 AEvent::~AEvent() {
 	// TODO Auto-generated destructor stub
 	delete fGraphSignal;
 	delete fGraphCFD;
 	delete fInputEvent;
 }
-
-
+//--------------------------------------------------------------------------------------------------
 void AEvent::ProcessEvent(Bool_t bSmooth) {
 
 	if (fInputEvent == NULL) {
@@ -62,8 +62,6 @@ void AEvent::ProcessEvent(Bool_t bSmooth) {
 		SetGraphs();
 	}
 
-
-
 	SetCFD();
 	SetChargeCFD();
 	SetChargeLED();
@@ -72,9 +70,8 @@ void AEvent::ProcessEvent(Bool_t bSmooth) {
 	ObtainPE();
 
 	return;
-
 }
-
+//--------------------------------------------------------------------------------------------------
 void AEvent::Reset() {
 
 	for (Int_t i = 0; i < fNPoints; i++) {
@@ -98,17 +95,20 @@ void AEvent::Reset() {
 	fChargeCFD = -10.;
 	fChargeLED = -10.;
 	fTimeFront = -100.;
+	fStartTime = 0;
+	fFinishTime = 0;
+	fPEAmps.Reset();
+	fPETimes.Reset();
 }
-
+//--------------------------------------------------------------------------------------------------
 void AEvent::SetInputEvent(RawEvent** event) {
 
 	if (event == 0) {
 		Warning("AEvent::SetInputEvent", "Input event was set as 0.");
 	}
 	fInputEvent = *event;
-
 }
-
+//--------------------------------------------------------------------------------------------------
 void AEvent::Init() {
 
 	fAmpPos.Set(fNPoints);
@@ -126,19 +126,18 @@ void AEvent::Init() {
 	fNoiseRangeMax = 1.;
 
 }
-
-void AEvent::SetGraphs() {
+//--------------------------------------------------------------------------------------------------
+void AEvent::SetGraphs() { // creating TGraph from TArray 
 
 	fGraphSignal->Set(fNPoints);
 
 	for (Int_t i=0; i<fNPoints; i++) {
 		fGraphSignal->SetPoint(i, fTime[i], fAmpPos[i]);
 	}
-
 	return;
 }
-
-void AEvent::SmoothGraphs() {
+//--------------------------------------------------------------------------------------------------
+void AEvent::SmoothGraphs() { 
 
 	//smoothing graph
 	fGraphSignal->Set(fNPoints - fWinSize/2);
@@ -166,13 +165,10 @@ void AEvent::SmoothGraphs() {
     	fGraphSignal->SetPoint(i, meanTime, meanAmp);
 
 	}
-
-//	fGraphSignal->Clone
-
 	return;
 }
-
-void AEvent::SetCFD() {
+//--------------------------------------------------------------------------------------------------
+void AEvent::SetCFD() { // CFD method 
 
 	Double_t time = 0;
 	Double_t mytime = fCFtimeDelay;
@@ -186,7 +182,7 @@ void AEvent::SetCFD() {
 	Int_t i = 0; //for graph 
  
 	//while goes by the graph with the step of timeStep
-	while( mytime < (200. - fCFtimeDelay) ) {
+	while( mytime < (100. - fCFtimeDelay) ) {
 
 		ampCFD = fGraphSignal->Eval(mytime)*fCFratio*(-1) + fGraphSignal->Eval(mytime - fCFtimeDelay);
 		fGraphCFD->SetPoint(i, mytime, ampCFD);
@@ -213,10 +209,10 @@ void AEvent::SetCFD() {
 		fTimeCFD = time;
 		time = time + timeStep;
 	}
-
+	return;
 }
-
-void AEvent::FindFrontProperties() {
+//--------------------------------------------------------------------------------------------------
+void AEvent::FindFrontProperties() { 
 
 	//in percents
 	const Double_t minHeight = 0.1;
@@ -261,12 +257,9 @@ void AEvent::FindFrontProperties() {
 	b = fit1->GetParameter(0);
 	line->SetParameter(0,b);
 	line->SetParameter(1,a);
-	//cout<<"par 0 "<<b<<endl;
-	//cout<<"par 1 "<<a<<endl;
 
 	if( a!= 0. && b!= 0. ) {	//in case of fit data is empty
-		while(line->Eval(mytime) <= 0 && mytime <= 200.) {
-			//cout<< "mytime "<<mytime<<endl;
+		while(line->Eval(mytime) <= 0 && mytime <= 100.) {
 			fTimeFront = mytime;
 			mytime = mytime + timeStep;
 		}
@@ -274,8 +267,8 @@ void AEvent::FindFrontProperties() {
 
 	delete fit1;
 }
-
-Double_t AEvent::FindZeroLevel() {
+//--------------------------------------------------------------------------------------------------
+Double_t AEvent::FindZeroLevel() { 
 
 	SetGraphs();
 	Double_t correction = 0;
@@ -293,7 +286,7 @@ Double_t AEvent::FindZeroLevel() {
 	delete fit1;
 	return correction;
 }
-
+//--------------------------------------------------------------------------------------------------
 void AEvent::SetChargeCFD(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 	
 	Double_t integral = 0.;					//voltage
@@ -314,7 +307,7 @@ void AEvent::SetChargeCFD(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 	return;
 
 }
-
+//--------------------------------------------------------------------------------------------------
 void AEvent::SetChargeLED(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 	
 	Double_t integral = 0.;					//voltage
@@ -322,17 +315,10 @@ void AEvent::SetChargeLED(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 	const Double_t res = 50.; 				//resistance 50 Om
 	time_sig = (double)(-tmin + tmax)*(1e-9);
 
-/*	for(Int_t i = 0; i < fNPoints; i++) {
-		if( fTime[i] > (fTimeLED + tmin) && fTime[i] < (fTimeLED + tmax) ) {
-			integral = integral + fAmpPos[i];
-		}
-	}*/
-
 	Int_t imin = 0, imax = 0;
 
 	Int_t i = 0;
 	while ( fTime[i] < (fTimeLED + tmin) && (i < (fGraphSignal->GetN()-1)) ) { imin = i; i++; }
-//	i = 0;
 	while ( fTime[i] < (fTimeLED + tmax) && (i < (fGraphSignal->GetN()-1)) ) { imax = i; i++; }
 
 	integral = fGraphSignal->Integral(imin, imax);
@@ -340,9 +326,8 @@ void AEvent::SetChargeLED(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 	fChargeLED = integral*time_sig/res;
 
 	return;
-
 }
-
+//--------------------------------------------------------------------------------------------------
 void AEvent::SetChargeTF(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 
 	Double_t integral = 0.;					//voltage
@@ -354,7 +339,6 @@ void AEvent::SetChargeTF(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 
 	Int_t i = 0;
 	while ( fTime[i] < (fTimeFront + tmin) && (i < (fGraphSignal->GetN()-1)) ) { imin = i; i++; }
-//	i = 0;
 	while ( fTime[i] < (fTimeFront + tmax) && (i < (fGraphSignal->GetN()-1)) ) { imax = i; i++; }
 
 	integral = fGraphSignal->Integral(imin, imax);
@@ -362,41 +346,41 @@ void AEvent::SetChargeTF(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 	fChargeTF = integral*time_sig/res;
 
 	return;
-
 }
-
+//--------------------------------------------------------------------------------------------------
 Double_t AEvent::GetfCFD() {
-		return fTimeCFD;
+  return fTimeCFD;
 }
+//--------------------------------------------------------------------------------------------------
 
 Double_t AEvent::GetfLED() {
-		return fTimeLED;
+  return fTimeLED;
 }
-
+//--------------------------------------------------------------------------------------------------
 Double_t AEvent::GetOnefTime(Int_t i) {
-		return fTime[i];
+  return fTime[i];
 }
-
+//--------------------------------------------------------------------------------------------------
 Double_t AEvent::GetOnefAmpPos(Int_t i) {
-		return fAmpPos[i];
+  return fAmpPos[i];
 }
-
+//--------------------------------------------------------------------------------------------------
 Double_t AEvent::GetT_10() {
-		return fTime10;
+  return fTime10;
 }
-
+//--------------------------------------------------------------------------------------------------
 Double_t AEvent::GetT_90() {
-		return fTime90;
+  return fTime90;
 }
-
+//--------------------------------------------------------------------------------------------------
 Double_t AEvent::GetEdgeSlope() {
-		return fEdgeSlope;
+  return fEdgeSlope;
 }
-
+//--------------------------------------------------------------------------------------------------
 Double_t AEvent::GetEdgeXi() {
-		return fEdgeXi;
+  return fEdgeXi;
 }
-
+//--------------------------------------------------------------------------------------------------
 void AEvent::SetMaxAmplitudes() {
 	Double_t maxAmp = 0.;
 	Double_t maxAmpT = 0.;
@@ -410,11 +394,9 @@ void AEvent::SetMaxAmplitudes() {
 	}
 	fAmpMax = maxAmp;
 	fTimeAmpMax = maxAmpT;
-
 }
-
+//--------------------------------------------------------------------------------------------------
 void AEvent::SetLED(Double_t threshold) {
-	
 	Double_t time = 0;
 	const Double_t timeStep = 0.05;
 	while( time < fTimeAmpMax && fGraphSignal->Eval(time) <= threshold ) {
@@ -423,47 +405,45 @@ void AEvent::SetLED(Double_t threshold) {
 	}
 
 }
-
+//--------------------------------------------------------------------------------------------------
 void AEvent::SetToT() {
-
 	Double_t time = fTimeMid;
 	Double_t timeBack = 0;
 	const Double_t ns = 15.; //withing this interval signal should end for sure, in nanosec
 
 	const Double_t timeStep = 0.05;
 
-	//cout<<"fAmpMid "<<fAmpMid<<endl;
 	while( fGraphSignal->Eval(time) >= fAmpMid && time < fTimeMid + ns) {
-		//cout<<"timeback "<<timeBack<<endl;
-		//cout<<"fGraphSignal->Eval(time) "<<fGraphSignal->Eval(time)<<endl;
-		//cout<<endl;
-		//if(timeBack>150.) {return;}
 		timeBack = time;
 		time = time + timeStep;
 	}
-	//cout<<"timeback "<<timeBack<<endl;
-
 	fToT = timeBack - fTimeMid;
-	//cout<<"ftot "<<fToT<<endl;
+	return;
 }
-
+//--------------------------------------------------------------------------------------------------
 void AEvent::ObtainPE() {
 	SetPETimes(fInputEvent->GetPETimes());
 	SetPEAmps(fInputEvent->GetPEAmps());
 	return;     
 }
-	Double_t AEvent::GetStartTime() {
-		return fStartTime;
-	}
-	void AEvent::SetStartTime(Double_t t) {
-		fStartTime = t;
-		return;
-	}
-        Double_t AEvent::GetFinishTime() {
-                return fFinishTime;
-        }
-        void AEvent::SetFinishTime(Double_t t) {
-                fFinishTime = t;
-                return;
-        }
+//--------------------------------------------------------------------------------------------------
+Double_t AEvent::GetStartTime() {
+  return fStartTime;
+}
+//--------------------------------------------------------------------------------------------------
+void AEvent::SetStartTime(Double_t t) {
+  fStartTime = t;
+  return;
+}
+//--------------------------------------------------------------------------------------------------
+Double_t AEvent::GetFinishTime() {
+  return fFinishTime;
+}
+//--------------------------------------------------------------------------------------------------
+void AEvent::SetFinishTime(Double_t t) {
+  fFinishTime = t;
+  return;
+}
+//--------------------------------------------------------------------------------------------------
+ClassImp(AEvent)
 

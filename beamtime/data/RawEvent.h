@@ -1,57 +1,42 @@
-/*
- * RawEvent.h
- *
- *  Created on: Dec 27, 2016
- *      Author: vratik
- */
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
-#ifndef DATACLASSES_RAWEVENT_H_
-#define DATACLASSES_RAWEVENT_H_
+#ifndef RawEvent_H
+#define RawEvent_H
 
 #include <iostream>
 
-//#include "Rtypes.h"
 #include "TError.h"
 #include "TGraph.h"
 #include "TArrayD.h"
 #include "TNamed.h"
 #include "TArrayF.h"
 
-
-//#define NCELLS 1024
-
 using std::cout;
 using std::endl;
+
+/** @class RawEvent 
+ ** class for raw data obtained from measurements or simulations
+ ** @author V.Chudoba <chudoba@jinr.ru>
+**/
 
 class RawEvent: public TNamed {
 
 private:
-//	Double_t fAmp[NCELLS]; //array for raw amplitudes
-//	Double_t fTime[NCELLS]; //array for raw times
-
 	TArrayD fAmp;	//array for raw amplitudes
 	TArrayD fTime;	//array for raw times
 
-	TArrayF fPEAmps;
-	TArrayF fPETimes;
-//new
-	TArrayF fPEAmp;
-	TArrayF fPETime;
-//new
-	//Количество фотоэлектронов в сигнале
-	Int_t fPECount;
-	//Массив амплитуд фотоэлектронов сигнала
-	Float_t fPEAmplitudes[1000];
-	//Массив времен прихоа на анод фотоэлектронов сигнала
-	Float_t fPEAnodeTimes[1000];
+	TArrayF fPEAmps; //array for amps of single electron signals 
+	TArrayF fPETimes; // array for times of single electron signals
+
 	Double_t fStartTime;
 	Double_t fFinishTime;
 	const Int_t fNPoints;
-
-//	TGraph *gAmp;
-
-//public:
-//	TArrayD fAmpA;
 
 public:
 	RawEvent();
@@ -109,4 +94,4 @@ private:
 
 };
 
-#endif /* DATACLASSES_RAWEVENT_H_ */
+#endif /* RawEvent_H */

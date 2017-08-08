@@ -1,17 +1,33 @@
-// -------------------------------------------------------------------------
-// -----                  ERRawToAnalyzeConverter header file          -----
-// -----                  Created 03/16  by V.Schetinin                -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERSimtoRaw_H
-#define ERRSimtoRaw_H
+#define ERSimtoRaw_H
 
 #include "FairTask.h"
 
 #include "ERNeuRadPixelSignal.h"
 #include "RawEvent.h"
-#include "AEvent.h"
 #include "TArrayF.h"
+#include "TClonesArray.h"
+
+class FairTask;
+
+class ERNeuRadPixelSignal;
+class RawEvent;
+class TArrayF;
+class TClonesArray; 
+
+/** @task ERSimtoRaw 
+ ** task for converting data from output digitizing files to
+ ** files with structure of class RawEvent
+ ** @author  I.Muzalevsky <ivanmuzalevsky@gmail.com>
+**/ 
 
 class ERSimtoRaw : public FairTask {
 
@@ -40,7 +56,6 @@ protected:
   //Output arrays
   RawEvent** fRawEvents;
 
-
   Int_t fNChanels;
   Int_t fNPoints;
   Int_t fEvent;
@@ -50,11 +65,7 @@ protected:
   //Хранит результирующий сигнал, как значения функции в узлах
   TArrayF fResFunctionRoot; 
 
-
-/*private:
-  virtual void SetParContainers();
-  
-  ClassDef(ERRawToAnalyzeConverter,1)*/
+  ClassDef(ERSimtoRaw,1);
 };
 
 #endif
