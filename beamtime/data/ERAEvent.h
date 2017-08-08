@@ -20,7 +20,7 @@
 #include "TFile.h"
 #include "TF1.h"
 
-#include "RawEvent.h"
+#include "ERRawEvent.h"
 
 using std::cout;
 using std::endl;
@@ -31,7 +31,7 @@ class TTree;
 class TFile;
 class TF1;
 
-class RawEvent;
+class ERRawEvent;
 
 /** @class AEvent
 ** class for processing raw data and
@@ -70,7 +70,7 @@ private:
 	TGraph *fGraphSignal;
 	TGraph *fGraphCFD;
 
-	RawEvent *fInputEvent;		//!
+	ERRawEvent *fInputEvent;		//!
 
 	Double_t fCFratio;		//!
 	Double_t fCFtimeDelay;		//!

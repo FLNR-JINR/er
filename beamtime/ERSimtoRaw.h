@@ -9,19 +9,17 @@
 #ifndef ERSimtoRaw_H
 #define ERSimtoRaw_H
 
-#include "FairTask.h"
-
-#include "ERNeuRadPixelSignal.h"
-#include "RawEvent.h"
 #include "TArrayF.h"
 #include "TClonesArray.h"
 
-class FairTask;
+#include "ERNeuRadPixelSignal.h"
+#include "ERRawEvent.h"
+
+class TArrayF;
+class TClonesArray;
 
 class ERNeuRadPixelSignal;
-class RawEvent;
-class TArrayF;
-class TClonesArray; 
+class ERRawEvent;
 
 /** @task ERSimtoRaw 
  ** task for converting data from output digitizing files to
@@ -54,7 +52,7 @@ protected:
   TClonesArray *fPixelSignals;
 
   //Output arrays
-  RawEvent** fRawEvents;
+  ERRawEvent** fRawEvents;
 
   Int_t fNChanels;
   Int_t fNPoints;

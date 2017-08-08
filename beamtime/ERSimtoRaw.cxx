@@ -57,7 +57,7 @@ InitStatus ERSimtoRaw::Init()
 
 
   //Register output objects
-  fRawEvents = new RawEvent*[fNChanels];
+  fRawEvents = new ERRawEvent*[fNChanels];
   for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
     fRawEvents[iChanel] = new RawEvent(fNPoints);
     TString bName;
