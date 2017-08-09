@@ -110,7 +110,7 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
   
   //Вычисляем координаты на RTelescope
   Int_t sector = fRTelescopeEvent->nC11[0];
-  Int_t ring = fRTelescopeEvent->nC11[0];
+  Int_t ring = fRTelescopeEvent->nC12[0];
 
   Float_t nStrips = 16.;
   Float_t rmin = 1.6, rmax = 4.1;
@@ -146,6 +146,7 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
   TVector3 Pmis(fProjectile->Part.Px()-ej11.Part.Px(),
                 fProjectile->Part.Py()-ej11.Part.Py(),
                 fProjectile->Part.Pz()-ej11.Part.Pz());
+  //***************** Подход СИ *****************************/
   //Полная энергия миса
   Float_t Emis =  TMath::Sqrt(Pmis.Mag2()+pow(Mmis,2));
   //Кинетическая энергия миса
@@ -164,12 +165,24 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
   mis.Part.SetVect(Pmis);
   mis.Part.SetE(Tmis+Exmis+Mmis);
   fOutEvent->mis11 = mis;
+  //************************************************************/
+  Emis = fProjectile->Part.E()+fTarget->Mass-ej11.Part.E();
+  Exmis= sqrt(pow(Emis,2)- Pmis.Mag2()) - Mmis;
+  ERParticle misNew;
+  misNew.Mass = Mmis;
+  misNew.Excitation = Exmis;
+  misNew.Part.SetVect(Pmis);
+  misNew.Part.SetE(Emis);
+  fOutEvent->mis11n = misNew;
+  //************************************************************/
   //Бустируем все в центр масс первой реакции и заносим в дерево
   fProjectile->Part.Boost(-fCM0->Part.BoostVector());
   fTarget->Part.Boost(-fCM0->Part.BoostVector());
   ej11.Part.Boost(-fCM0->Part.BoostVector());
   mis.Part.Boost(-fCM0->Part.BoostVector());
+  misNew.Part.Boost(-fCM0->Part.BoostVector());
   fOutEvent->mis11cm0 = mis;
+  fOutEvent->mis11ncm0 = misNew;
   fOutEvent->ej11cm0 = ej11;
   fOutEvent->projcm0 = (*fProjectile);
   fOutEvent->targetcm0 = (*fTarget);
