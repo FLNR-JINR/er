@@ -130,7 +130,7 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
   fOutEvent->phi1 = pVec.Phi()*TMath::RadToDeg();
   //Собираем четырех вектор протона в глобальной СК
   ERParticle ej11;
-  Float_t T = fOutEvent->dep11 + fOutEvent->dep12; // Кинетическая энергия протона
+  Float_t T = fOutEvent->dep11; // Кинетическая энергия протона
   Float_t mass = 938.8; //Масса протона
   Float_t E = T + mass; //Полная энергия протона
   Float_t P = TMath::Sqrt(E*E-mass*mass); //Модуль импульса протона
