@@ -6,8 +6,8 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef AEvent_H
-#define AEvent_H
+#ifndef ERNeuRadAEvent_H
+#define ERNeuRadAEvent_H
 
 #include <iostream>
 #include <fstream>
@@ -20,7 +20,7 @@
 #include "TFile.h"
 #include "TF1.h"
 
-#include "ERRawEvent.h"
+#include "ERNeuRadRawEvent.h"
 
 using std::cout;
 using std::endl;
@@ -31,15 +31,15 @@ class TTree;
 class TFile;
 class TF1;
 
-class ERRawEvent;
+class ERNeuRadRawEvent;
 
-/** @class AEvent
+/** @class ERNeuRadAEvent
 ** class for processing raw data and
 ** getting any amplitude and time properties of signal
 ** @author D.Kostyleva <kostyleva@jinr.ru>
 **/
 
-class AEvent : public TNamed {
+class ERNeuRadAEvent : public TNamed {
 
 private:
 
@@ -70,7 +70,7 @@ private:
 	TGraph *fGraphSignal;
 	TGraph *fGraphCFD;
 
-	ERRawEvent *fInputEvent;		//!
+	ERNeuRadRawEvent *fInputEvent;		//!
 
 	Double_t fCFratio;		//!
 	Double_t fCFtimeDelay;		//!
@@ -94,10 +94,10 @@ private:
 	Double_t fStartTime;
 	Double_t fFinishTime;
 public:
-	AEvent();
-	AEvent(const Int_t npoints);
-	virtual ~AEvent();
-	ClassDef(AEvent,1);
+	ERNeuRadAEvent();
+	ERNeuRadAEvent(const Int_t npoints);
+	virtual ~ERNeuRadAEvent();
+	ClassDef(ERNeuRadAEvent,1);
 	
 	Double_t GetT_10();
 	//returns time of 10% of rising edge amplitude in ns
@@ -119,7 +119,7 @@ public:
 	Double_t GetOnefAmpPos(Int_t i);
 
 	void ProcessEvent(Bool_t bSmooth = kFALSE);
-	void SetInputEvent(RawEvent** event);
+	void SetInputEvent(ERNeuRadRawEvent** event);
 
 	void SetCFratio(Double_t ratio) { fCFratio = ratio; };	
 	//CFD set attenuation coefficient
@@ -193,4 +193,4 @@ private:
 	void SetCFD(); 	//constant fraction discriminator method
 };
 
-#endif /* DATACLASSES_AEVENT_H_ */
+#endif /* ERNeuRadAEventT_H */

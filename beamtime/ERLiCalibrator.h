@@ -1,7 +1,10 @@
-// -------------------------------------------------------------------------
-// -----                  ERLiCalibrator header file          -----
-// -----                  Created 04/17  by V.Schetinin                -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERLiCalibrator_H
 #define ERLiCalibrator_H

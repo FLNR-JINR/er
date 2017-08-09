@@ -13,13 +13,13 @@
 #include "TClonesArray.h"
 
 #include "ERNeuRadPixelSignal.h"
-#include "ERRawEvent.h"
+#include "ERNeuRadRawEvent.h"
 
 class TArrayF;
 class TClonesArray;
 
 class ERNeuRadPixelSignal;
-class ERRawEvent;
+class ERNeuRadRawEvent;
 
 /** @task ERSimtoRaw 
  ** task for converting data from output digitizing files to
@@ -52,7 +52,7 @@ protected:
   TClonesArray *fPixelSignals;
 
   //Output arrays
-  ERRawEvent** fRawEvents;
+  ERNeuRadRawEvent** fRawEvents;
 
   Int_t fNChanels;
   Int_t fNPoints;

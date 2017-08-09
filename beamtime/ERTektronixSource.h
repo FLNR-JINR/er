@@ -1,3 +1,11 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #ifndef ERTektronixSource_H
 #define ERTektronixSource_H
 
@@ -11,7 +19,7 @@ using namespace std;
 
 #include "FairSource.h"
 
-#include "RawEvent.h"
+#include "ERNeuRadRawEvent.h"
 
 class ERTektronixSource : public FairSource
 {
@@ -49,7 +57,7 @@ class ERTektronixSource : public FairSource
     map<Int_t, Int_t> fCurrentFiles;
 
     //Output data
-    RawEvent** fRawEvents;
+   ERNeuRadRawEvent** fRawEvents;
 
     static Int_t fEvent;
   public:

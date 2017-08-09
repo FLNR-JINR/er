@@ -1,3 +1,10 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #include "ERTektronixSource.h"
 
@@ -8,7 +15,7 @@
 using namespace std;
 
 Int_t ERTektronixSource::fEvent = 0;
-
+//--------------------------------------------------------------------------------------------------
 ERTektronixSource::ERTektronixSource():
 fNPoints(1000),
 fNProcessedFiles(0),
@@ -17,14 +24,14 @@ fNChanels(4),
 fRawEvents(NULL)
 {
 }
-
+//--------------------------------------------------------------------------------------------------
 ERTektronixSource::ERTektronixSource(const ERTektronixSource& source){
 }
-
+//--------------------------------------------------------------------------------------------------
 ERTektronixSource::~ERTektronixSource(){
 
 }
-
+//--------------------------------------------------------------------------------------------------
 Bool_t ERTektronixSource::Init(){
 	//input files opening
 	ifstream* f = new ifstream();
@@ -53,10 +60,10 @@ Bool_t ERTektronixSource::Init(){
 	}
 	
 	//Register new objects in output file
-	fRawEvents = new RawEvent*[fNChanels];
+	fRawEvents = new ERNeuRadRawEvent*[fNChanels];
 	FairRootManager* ioman = FairRootManager::Instance();
 	for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
-		fRawEvents[iChanel] = new RawEvent(fNPoints);
+		fRawEvents[iChanel] = new ERNeuRadRawEvent(fNPoints);
 		TString bName;
 		bName.Form("ch%d.",iChanel+1);
 		ioman->Register(bName, "Tektronix", fRawEvents[iChanel], kTRUE);
@@ -64,7 +71,7 @@ Bool_t ERTektronixSource::Init(){
 	
 	return kTRUE;
 }
-
+//--------------------------------------------------------------------------------------------------
 Int_t ERTektronixSource::ReadEvent(UInt_t id){
 	Reset();
 	//Проверяем есть ли еще события для обработки
@@ -98,17 +105,18 @@ Int_t ERTektronixSource::ReadEvent(UInt_t id){
 	fEvent ++;
 	return 0;
 }
-
+//--------------------------------------------------------------------------------------------------
 void ERTektronixSource::Close(){
 }
-
+//--------------------------------------------------------------------------------------------------
 void ERTektronixSource::Reset(){
 	for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
 		fRawEvents[iChanel]->Reset();
 	}
 }
-
+//--------------------------------------------------------------------------------------------------
 void ERTektronixSource::AddFile(Int_t chanel, TString path){
 	fPaths[chanel].push_back(path);
 	cout << "Input file " << path << " added to " << chanel << "chanel" << endl;
 }
+//--------------------------------------------------------------------------------------------------

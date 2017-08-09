@@ -6,11 +6,11 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#include "ERRawEvent.h"
+#include "ERNeuRadRawEvent.h"
 
-ERRawEvent::ERRawEvent() : 
+ERNeuRadRawEvent::ERNeuRadRawEvent() : 
 //--------------------------------------------------------------------------------------------------
-TNamed("ERRawEvent", "ERRawEvent"),
+TNamed("ERNeuRadRawEvent", "ERNeuRadRawEvent"),
 fNPoints(1024)
 {
 	// TODO Auto-generated constructor stub
@@ -18,22 +18,22 @@ fNPoints(1024)
 	Reset();
 }
 //--------------------------------------------------------------------------------------------------
-ERRawEvent::ERRawEvent(const Int_t npoints) : fNPoints(npoints) {
+ERNeuRadRawEvent::ERNeuRadRawEvent(const Int_t npoints) : fNPoints(npoints) {
 	// TODO Auto-generated constructor stub
 	Init();
 	Reset();
 }
 //--------------------------------------------------------------------------------------------------
-ERRawEvent::~ERRawEvent() {
+ERNeuRadRawEvent::~ERNeuRadRawEvent() {
 	// TODO Auto-generated destructor stub
 }
 //--------------------------------------------------------------------------------------------------
-void ERRawEvent::Init() {
+void ERNeuRadRawEvent::Init() {
 	fAmp.Set(fNPoints);
 	fTime.Set(fNPoints);
 }
 //--------------------------------------------------------------------------------------------------
-void ERRawEvent::Reset() {
+void ERNeuRadRawEvent::Reset() {
 
   for (Int_t i = 0; i < fNPoints; i++) {
     fAmp[i] = 0;
@@ -45,47 +45,47 @@ void ERRawEvent::Reset() {
   fFinishTime = 0;
 }
 //--------------------------------------------------------------------------------------------------
-void ERRawEvent::PrintTime(Int_t i) {
+void ERNeuRadRawEvent::PrintTime(Int_t i) {
 		cout << fTime[i] << endl;
 }
 //--------------------------------------------------------------------------------------------------
-void ERRawEvent::PrintAmp(Int_t i) {
+void ERNeuRadRawEvent::PrintAmp(Int_t i) {
 		cout << fAmp[i] << endl;
 }
 //--------------------------------------------------------------------------------------------------
-void ERRawEvent::SetAmp(Double_t a, Int_t i) {
+void ERNeuRadRawEvent::SetAmp(Double_t a, Int_t i) {
 //	cout << fNPoints << endl;
 	if (i >= fNPoints) {
-		Error("ERRawEvent::SetAmp", "Array with raw amplitudes is overloaded!");
+		Error("ERNeuRadRawEvent::SetAmp", "Array with raw amplitudes is overloaded!");
 		return;
 	}
 	fAmp[i] = a;
 	return;
 }
 //--------------------------------------------------------------------------------------------------
-void ERRawEvent::SetTime(Double_t t, Int_t i) {
+void ERNeuRadRawEvent::SetTime(Double_t t, Int_t i) {
 	if (i >=fNPoints) {
-		Error("ERRawEvent::SetTime", "Array with raw times is overloaded!");
+		Error("ERNeuRadRawEvent::SetTime", "Array with raw times is overloaded!");
 		return;
 	}
 	fTime[i] = t;
 	return;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERRawEvent::GetTime(Int_t i) {
+Double_t ERNeuRadRawEvent::GetTime(Int_t i) {
 		return fTime[i];
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERRawEvent::GetAmp(Int_t i) {
+Double_t ERNeuRadRawEvent::GetAmp(Int_t i) {
 		return fAmp[i];
 }
 //--------------------------------------------------------------------------------------------------
-void ERRawEvent::SetStartTime(Double_t t) {
+void ERNeuRadRawEvent::SetStartTime(Double_t t) {
 	fStartTime = t;
 	return;
 }
 //--------------------------------------------------------------------------------------------------
-void ERRawEvent::SetFinishTime(Double_t t) {
+void ERNeuRadRawEvent::SetFinishTime(Double_t t) {
         fFinishTime = t;
         return;
 }

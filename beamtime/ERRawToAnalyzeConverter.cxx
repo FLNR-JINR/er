@@ -70,19 +70,19 @@ InitStatus ERRawToAnalyzeConverter::Init()
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
   //Get input objects
-  fRawEvents = new RawEvent*[fNChanels];
+  fRawEvents = new ERNeuRadRawEvent*[fNChanels];
   for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
     TString bName;
     bName.Form("ch%d.", iChanel+1);
-    fRawEvents[iChanel] = (RawEvent*) ioman->GetObject(bName);
+    fRawEvents[iChanel] = (ERNeuRadRawEvent*) ioman->GetObject(bName);
     if (!fRawEvents[iChanel])
       Fatal("Init", "Can`t find branch in input file!");
   }
 
   //Register output objects
-  fAEvents = new AEvent*[fNChanels];
+  fAEvents = new ERNeuRadAEvent*[fNChanels];
   for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
-    fAEvents[iChanel] = new AEvent(fNPoints);
+    fAEvents[iChanel] = new ERNeuRadAEvent(fNPoints);
     TString bName;
     bName.Form("Ach%d.",iChanel+1);
     ioman->Register(bName,"Analyze", fAEvents[iChanel], kTRUE);

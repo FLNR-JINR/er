@@ -6,8 +6,8 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERRawEvent_H
-#define ERRawEvent_H
+#ifndef ERNeuRadRawEvent_H
+#define ERNeuRadRawEvent_H
 
 #include <iostream>
 
@@ -20,12 +20,12 @@
 using std::cout;
 using std::endl;
 
-/** @class ERRawEvent 
+/** @class ERNeuRadRawEvent 
  ** class for raw data obtained from measurements or simulations
  ** @author V.Chudoba <chudoba@jinr.ru>
 **/
 
-class ERRawEvent: public TNamed {
+class ERNeuRadRawEvent: public TNamed {
 
 private:
 	TArrayD fAmp;	//array for raw amplitudes
@@ -39,10 +39,10 @@ private:
 	const Int_t fNPoints;
 
 public:
-	ERRawEvent();
-	ERRawEvent(const Int_t npoints);
-	virtual ~ERRawEvent();
-	ClassDef(ERRawEvent,1);
+	ERNeuRadRawEvent();
+	ERNeuRadRawEvent(const Int_t npoints);
+	virtual ~ERNeuRadRawEvent();
+	ClassDef(ERNeuRadRawEvent,1);
 
 	void Reset();
 	//Resets arrays to zeros
@@ -93,4 +93,4 @@ private:
 
 };
 
-#endif /* ERRawEvent_H */
+#endif /* ERNeuRadRawEvent_H */

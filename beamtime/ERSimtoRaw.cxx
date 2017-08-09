@@ -57,9 +57,9 @@ InitStatus ERSimtoRaw::Init()
 
 
   //Register output objects
-  fRawEvents = new ERRawEvent*[fNChanels];
+  fRawEvents = new ERNeuRadRawEvent*[fNChanels];
   for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
-    fRawEvents[iChanel] = new RawEvent(fNPoints);
+    fRawEvents[iChanel] = new ERNeuRadRawEvent(fNPoints);
     TString bName;
     bName.Form("ch%d.",iChanel+1);
     ioman->Register(bName,"Raw", fRawEvents[iChanel], kTRUE);
