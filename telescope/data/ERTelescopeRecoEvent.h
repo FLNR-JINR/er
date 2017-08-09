@@ -11,20 +11,17 @@
 
 class ERTelescopeRecoEvent : public TNamed {
 public:
+	Double_t x11,y11;
+	Double_t dep11,dep12,dep21,dep22,dep23,dep24,dep25,dep26,dep2sum;
+	Double_t t11, t11cm0, tmis11, tmis11cm0;
+	Double_t th1,phi1;
 
-	double xbd1,ybd1,xbd2,ybd2,xbd3,ybd3,xbd4,ybd4,xbd5,ybd5,xbd6,ybd6;
-
-	double x11,y11,x21,y21,x22,y22,x23,y23,x24,y24,x25,y25;
-	double th1,phi1,th2,phi2,t11,t22;
-	double dep11,dep12,dep21,dep22,dep23,dep24,dep25,dep26;
-	double t11cmp,t22cmp,pz11cmp,pz22cmp,th11cmp,th22cmp;
-	double al111,al112,al211,al212,al221,al222,al231,al232,al241,al242,al251,al252;
-	double tmis11,tmis22,thmis11,thmis22,phimis11,phimis22,exmis11,exmis22;
 	ERParticle ej11;
-	ERParticle ej22;
 	ERParticle mis11;
-	ERParticle mis22;
-	double dep2sum;
+	ERParticle ej11cm0;
+	ERParticle mis11cm0;
+	ERParticle projcm0;
+	ERParticle targetcm0;
 public:
 	ERTelescopeRecoEvent();
 	virtual ~ERTelescopeRecoEvent();

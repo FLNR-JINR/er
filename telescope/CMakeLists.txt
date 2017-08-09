@@ -43,7 +43,7 @@ data/ERQTelescopeSiDigi.cxx
 #beamtest
 ERQTelescopeCalibrator.cxx
 ERRTelescopeCalibrator.cxx
-ERTelescopeReconstructor.cxx
+#ERTelescopeReconstructor.cxx
 ERTelescopeReconstructorNew.cxx
 
 data/ERRTelescopeEvent.cxx
