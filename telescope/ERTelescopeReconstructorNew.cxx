@@ -83,7 +83,7 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
   FairRun* run = FairRun::Instance();
   run->MarkFill(kFALSE);
   //Условие отбора
-  if(fRTelescopeEvent->mC11==0 && fRTelescopeEvent->mC12==0 &&   //Множественность в RTelescope
+  if(fRTelescopeEvent->mC11==0 && /*fRTelescopeEvent->mC12==0 && */ //Множественность в RTelescope
     fRTelescopeEvent->eC11[0]>0 && fRTelescopeEvent->eC11[0]>0 && // Депозиты в RTelescope
     
     fQTelescopeEvent->mC21==0 && fQTelescopeEvent->mC22==0 &&     //Множественности в QTelescope

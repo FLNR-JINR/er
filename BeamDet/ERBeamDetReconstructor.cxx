@@ -81,7 +81,7 @@ void ERBeamDetReconstructor::Exec(Option_t* opt)
 void ERBeamDetReconstructor::Tof(){
   TRandom Rnd;
   char ShowTrack[10];
-  double tof_offset= 75.;
+  double tof_offset= 74.275;
          /*tof_offset = 75.;*/
   //      double tof_offset = 84.;
   double dt_F3,dt_F4,t_F3,t_F4;

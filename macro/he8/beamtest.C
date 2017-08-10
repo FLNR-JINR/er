@@ -1,7 +1,7 @@
 void beamtest(Int_t nEvents = 20)
 {
   TString workdir = gSystem->Getenv("VMCWORKDIR");
-	TString inFile = workdir + "/input/t_8he_026.root";
+	TString inFile = workdir + "/input/t_8he_027.root";
 
 	// --- Specify output file name (this is just an example)
 	TString outFile = "out10.root";
