@@ -86,8 +86,7 @@ InitStatus ERRTelescopeDigitizer::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void ERRTelescopeDigitizer::Exec(Option_t* opt)
-{
+void ERRTelescopeDigitizer::Exec(Option_t* opt){
 
   Reset();
   //Sort the points by sensors and sectors
@@ -97,17 +96,13 @@ void ERRTelescopeDigitizer::Exec(Option_t* opt)
     points[point->GetSectorNb()][point->GetSensorNb()].push_back(iPoint);
   }
 
-  map<Int_t, map<Int_t, vector<Int_t> > >::iterator  itSector;
-  map<Int_t, vector<Int_t> >::iterator               itSensor;
-  vector<Int_t>::iterator                            itPoint;
-
-  for(itSector = points.begin(); itSector != points.end(); ++itSector){
-    for(itSensor = itSector->second.begin(); itSensor != itSector->second.end(); ++itSensor) {
+  for(const auto &itSector: points){
+    for(const auto &itSensor: itSector.second){
       Float_t edep = 0.; //sum edep in sensor
       Float_t time = numeric_limits<float>::max(); // min time in plate
       
-      for (itPoint = itSensor->second.begin(); itPoint != itSensor->second.end(); ++itPoint){
-        ERRTelescopePoint* point = (ERRTelescopePoint*)(fRTelescopePoints->At(*itPoint));
+      for (const auto itPoint: itSensor.second){
+        ERRTelescopePoint* point = (ERRTelescopePoint*)(fRTelescopePoints->At(itPoint));
         edep += point->GetEnergyLoss();
 
         if (point->GetTime() < time){
@@ -121,10 +116,10 @@ void ERRTelescopeDigitizer::Exec(Option_t* opt)
 
       time = gRandom->Gaus(time, fTimeSigma);
 
-      ERRTelescopeDigi *digi = AddDigi(edep, time, itSector->first, itSensor->first);
+      ERRTelescopeDigi *digi = AddDigi(edep, time, itSector.first, itSensor.first);
 
-      for (itPoint = itSensor->second.begin(); itPoint != itSensor->second.end(); ++itPoint){
-        digi->AddLink(FairLink("RTelescopePoint", *itPoint));
+      for (const auto itPoint: itSensor.second){
+        digi->AddLink(FairLink("RTelescopePoint", itPoint));
       }
     }
   }

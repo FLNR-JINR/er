@@ -4,6 +4,8 @@
 #include <cmath>
 
 #include "ERNeuRadPoint.h"
+#include "FairLogger.h"
+
 #include<iostream>
 // -----   Default constructor   -------------------------------------------
 ERNeuRadPoint::ERNeuRadPoint()
@@ -63,12 +65,12 @@ ERNeuRadPoint::~ERNeuRadPoint()
 // -----   Public method Print   -------------------------------------------
 void ERNeuRadPoint::Print(const Option_t* opt /* = 0*/) const
 {
-  std::cout << "-I- ERNeuRadPoint: track " << fTrackID << " mother track = " << fMot0TrackID << std::endl;
-  std::cout << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << std::endl;
-  std::cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << std::endl;
-  std::cout << "    Time " << fTime << " ns,  Length " << fLength << " cm" << std::endl;
-  std::cout << "    Energy loss " << fELoss << " keV, Light yield " << fLightYield << " MeV "<< std::endl;
-  std::cout << "    Fiber number " << fFiberNb << " Pixel number " << fPixelNb << " Module number " << fModuleNb << std::endl;
+  LOG(INFO) << "-I- ERNeuRadPoint: track " << fTrackID << " mother track = " << fMot0TrackID <<  FairLogger::endl;
+  LOG(INFO) << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << FairLogger::endl;
+  LOG(INFO) << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << FairLogger::endl;
+  LOG(INFO) << "    Time " << fTime << " ns,  Length " << fLength << " cm" << FairLogger::endl;
+  LOG(INFO) << "    Energy loss " << fELoss << " keV, Light yield " << fLightYield << " MeV "<<  FairLogger::endl;
+  LOG(INFO) << "    Fiber number " << fFiberNb << " Pixel number " << fPixelNb << " Module number " << fModuleNb << FairLogger::endl;
 }
 // -------------------------------------------------------------------------
 

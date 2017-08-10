@@ -97,18 +97,14 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt)
     points[point->GetStationNb()][point->GetStripNb()].push_back(iPoint);
   }
 
-  map<Int_t, map<Int_t, vector<Int_t> > >::iterator itStation;
-  map<Int_t, vector<Int_t> >::iterator itStrip;
-  vector<Int_t>::iterator itPoint;
-
-  for (itStation = points.begin(); itStation != points.end(); ++itStation){
-    for (itStrip = itStation->second.begin(); itStrip != itStation->second.end(); ++itStrip){
+  for (const auto &itStation : points){
+    for (const auto &itStrip : itStation.second){
       
       Float_t edep = 0.; //sum edep in strip
       Float_t time = numeric_limits<float>::max(); // min time in strip
       
-      for (itPoint = itStrip->second.begin(); itPoint != itStrip->second.end(); ++itPoint){
-        ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)fQTelescopeSiPoints->At(*itPoint);
+      for (const auto itPoint : itStrip.second){
+        ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)fQTelescopeSiPoints->At(itPoint);
         edep += point->GetEnergyLoss();
         if (point->GetTime() < time){
           time = point->GetTime();
@@ -121,10 +117,10 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt)
 
       time = gRandom->Gaus(time, fSiTimeDispersion);
 
-      ERQTelescopeSiDigi* digi = AddSiDigi(edep, time, itStation->first, itStrip->first);
+      ERQTelescopeSiDigi* digi = AddSiDigi(edep, time, itStation.first, itStrip.first);
 
-      for (itPoint = itStrip->second.begin(); itPoint != itStrip->second.end(); ++itPoint){
-        digi->AddLink(FairLink("ERQTelescopeSiPoint",*itPoint));
+      for (const auto itPoint : itStrip.second){
+        digi->AddLink(FairLink("ERQTelescopeSiPoint",itPoint));
       }
     }
   }

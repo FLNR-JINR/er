@@ -1,12 +1,10 @@
-// -------------------------------------------------------------------------
-// -----                      ERNeuRadPoint header file                -----
-// -----                  Created 02/03/15  by v. Schetinin            -----
-// -------------------------------------------------------------------------
-
-
-/**  ERNeuRadPoint.h
- **/
-
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERNeuRadPoint_H
 #define ERNeuRadPoint_H
@@ -17,7 +15,11 @@
 
 #include "FairMCPoint.h"
 
-
+/** @class ERNeuRadPoint
+ ** @brief The data class for storing pieces of charged tracks in sensitive volumes in NeuRad
+ ** @author V.Schetinin <sch_vitaliy@mail.ru>
+ ** @version 1.0
+**/
 class ERNeuRadPoint : public FairMCPoint
 {
 

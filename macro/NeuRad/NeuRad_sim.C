@@ -8,7 +8,13 @@ void NeuRad_sim(Int_t nEvents = 1000){
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
- 
+  FairLogger *logger = FairLogger::GetLogger();
+  logger->SetLogFileName("sim.log");
+  logger->SetLogToScreen(kTRUE);
+  logger->SetLogToFile(kTRUE);
+  logger->SetLogVerbosityLevel("LOW");
+  logger->SetLogFileLevel("DEBUG");
+  logger->SetLogScreenLevel("INFO");
   // -----   Create simulation run   ----------------------------------------
   FairRunSim* run = new FairRunSim();
   /** Select transport engine
@@ -43,7 +49,7 @@ void NeuRad_sim(Int_t nEvents = 1000){
    * 2 - Print points after each event
    * 3 - - GEANT Step information
   */
-  Int_t verbose = 1;
+  Int_t verbose = 2;
   ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,verbose);
   neuRad->SetGeometryFileName("NeuRad.v4.geo.root");
   /* Select storing stepss

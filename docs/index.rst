@@ -11,6 +11,7 @@
       * Redmine - http://er.jinr.ru/develop/
       * github - https://github.com/ExpertRootGroup/er/
       * Jenkins - http://er.jinr.ru:8080
+      * doxygen - http://er.jinr.ru/doxygen/
 
 .. toctree::
    :maxdepth: 2

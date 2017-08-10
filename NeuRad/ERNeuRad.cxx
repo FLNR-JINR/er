@@ -8,8 +8,6 @@
 
 #include "ERNeuRad.h"
 
-#include <iostream>
-
 #include "TClonesArray.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
@@ -20,11 +18,12 @@
 #include "FairRun.h"
 #include "FairRunSim.h"
 #include "FairRuntimeDb.h"
+#include "FairLogger.h"
 
 #include "ERNeuRadGeoPar.h"
 #include "ERMCEventHeader.h"
-
-using namespace std;
+#include "ERNeuRadPoint.h"
+#include "ERNeuRadStep.h"
 
 //-------------------------------------------------------------------------------------------------
 ERNeuRad::ERNeuRad():
@@ -79,7 +78,8 @@ void ERNeuRad::Initialize(){
 void ERNeuRad::Register(){
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
-  Fatal("Init", "IO manager is not set"); 
+    LOG(FATAL) << "IO manager is not set" << FairLogger::endl;
+  
   ioman->Register("NeuRadPoint","NeuRad", fNeuRadPoints, kTRUE);
   ioman->Register("NeuRadFirstStep","NeuRad", fNeuRadFirstStep, kTRUE);
   ioman->Register("NeuRadStep","NeuRad", fNeuRadSteps, kTRUE);
@@ -177,7 +177,7 @@ void ERNeuRad::Reset() {
 //-------------------------------------------------------------------------------------------------
 void ERNeuRad::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
   Int_t nEntries = cl1->GetEntriesFast();
-  cout << "NeuRad: " << nEntries << " entries to add" << endl;
+  LOG(DEBUG) << "NeuRad: " << nEntries << " entries to add" << FairLogger::endl;
   TClonesArray& clref = *cl2;
   ERNeuRadPoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
@@ -186,7 +186,7 @@ void ERNeuRad::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
    oldpoint->SetTrackID(index);
    new (clref[cl2->GetEntriesFast()]) ERNeuRadPoint(*oldpoint);
   }
-  cout << "NeuRad: " << cl2->GetEntriesFast() << " merged entries" << endl;
+  LOG(DEBUG) << "NeuRad: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 }
 //-------------------------------------------------------------------------------------------------
 Bool_t ERNeuRad::CheckIfSensitive(std::string name) {
@@ -212,7 +212,7 @@ void ERNeuRad::StartNewPoint() {
   Int_t curVolId, corOffVolId;
   if(!(TString(gMC->CurrentVolOffName(1)).Contains("dead") &&
        TString(gMC->CurrentVolOffName(2)).Contains("pixel"))) {
-    Fatal("StartNewPoint", "Old version of geometry structure is used"); 
+    LOG(FATAL) << "Old version of geometry structure is used" << FairLogger::endl; 
   }
   curVolId = gMC->CurrentVolOffID(1,fFiberNb); 
   corOffVolId = gMC->CurrentVolOffID(2, fPixelNb);

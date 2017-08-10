@@ -17,8 +17,7 @@
 #include "FairVolume.h"
 
 #include "ERDetector.h"
-#include "ERNeuRadStep.h"
-#include "ERNeuRadPoint.h"
+#include "ERMCTrack.h" //for ExpertTrackingStatus
 
 class TClonesArray;
 class TLorentzVector;
@@ -28,7 +27,6 @@ class FairVolume;
 
 class ERNeuRadStep;
 class ERNeuRadPoint;
-
 
 /** @class ERNeuRad
  ** @brief Class for the MC transport of the NeuRad
