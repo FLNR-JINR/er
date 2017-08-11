@@ -1,17 +1,17 @@
-Double_t plateX = 20;
-Double_t plateY = 20;
-Double_t plateZ = 0.01;
+Double_t plasticX = 20;
+Double_t plasticY = 20;
+Double_t plasticZ = 0.01;
 
 Double_t gasX = 0.125;
 Double_t gasY = 5;
 Double_t gasZ = 0.8; //cm
 
-Int_t    platesCount = 2;
-Double_t plateOffsetZ = 1500;
+Int_t    plasticsCount = 2;
+Double_t plasticOffsetZ = 1500;
 
 Double_t mwpcOffsetZ = 20;
 
-Double_t TOFpozZInBeamdet = -((plateOffsetZ) / 2 + mwpcOffsetZ + 10);
+Double_t TOFpozZInBeamdet = -((plasticOffsetZ) / 2 + mwpcOffsetZ + 10);
 
 Double_t MWPCpozZInBeamdet = - (((mwpcOffsetZ) / 2) + 8);
 
@@ -110,21 +110,21 @@ Double_t shellY = gasY + shellThickness;
 Double_t shellZ = gasZ; 
 TGeoVolume* shell = gGeoManager->MakeBox("shell", pMedMylar, shellX, shellY, shellZ);
 
-plateX /= 2.0;
-plateY /= 2.0;
-plateZ /= 2.0;
-TGeoVolume* plate = gGeoManager->MakeBox("plate", pMedBC408, plateX, plateY, plateZ);
+plasticX /= 2.0;
+plasticY /= 2.0;
+plasticZ /= 2.0;
+TGeoVolume* plastic = gGeoManager->MakeBox("plastic", pMedBC408, plasticX, plasticY, plasticZ);
 
 //------------------ STRUCTURE  -----------------------------------------
 //------------------ Add fibers to det  --------------------------
 
 
-Double_t platePosZ = - plateOffsetZ / 2;
+Double_t plasticPosZ = - plasticOffsetZ / 2;
 
-for (Int_t i_plate = 0; i_plate < platesCount; i_plate++)
+for (Int_t i_plastic = 0; i_plastic < plasticsCount; i_plastic++)
 {
-  platePosZ = platePosZ + i_plate * plateOffsetZ;
-  TOF->AddNode(plate, i_plate  + 1, new TGeoCombiTrans(0, 0, platePosZ, fZeroRotation));
+  plasticPosZ = plasticPosZ + i_plastic * plasticOffsetZ;
+  TOF->AddNode(plastic, i_plastic  + 1, new TGeoCombiTrans(0, 0, plasticPosZ, fZeroRotation));
 }
 
 Double_t mwpcWidth = 5;

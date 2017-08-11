@@ -1,4 +1,4 @@
-void BeamDet_full(Int_t nEvents = 2000){
+void BeamDet_full(Int_t nEvents = 100){
   //---------------------Files-----------------------------------------------
   TString outFile= "full.root";
   TString parFile= "par.root";
@@ -37,7 +37,7 @@ void BeamDet_full(Int_t nEvents = 2000){
   */
   Int_t verbose = 0;
   ERBeamDet* beamDet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
-  beamDet->SetGeometryFileName("beamdet.v2.geo.root");
+  beamDet->SetGeometryFileName("beamdet.v3.geo.root");
 
   beamDet->SetIonPID(1000160280);
   fRun->AddModule(beamDet);
@@ -73,7 +73,7 @@ void BeamDet_full(Int_t nEvents = 2000){
   
   generator->SetPhiRange(0, 360);
 
-  Double32_t distanceToTarget = 1540;
+  Double32_t distanceToTarget = 1555;
   Double32_t sigmaOnTarget = 0.5;
   generator->SetSigmaXYZ(0, 0, -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
   //generator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -distanceToTarget);

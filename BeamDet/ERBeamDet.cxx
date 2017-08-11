@@ -209,7 +209,7 @@ Bool_t ERBeamDet::CheckIfSensitive(std::string name)
   if(volName.Contains("gas")) {
     return kTRUE;
   }
-  if(volName.Contains("plate")) {
+  if(volName.Contains("plastic")) {
     return kTRUE;
   }
   if(volName.Contains("targetH2")) {
@@ -276,7 +276,7 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
     gMC->TrackMomentum(fMomOut);
     TString volName = gMC->CurrentVolName();
     if (fELoss > 0.){
-      if(volName.Contains("plate"))
+      if(volName.Contains("plastic"))
       {
         gMC->CurrentVolID(fTofNb);
         AddTOFPoint();
