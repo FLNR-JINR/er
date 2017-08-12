@@ -21,7 +21,7 @@ using std::cout;
 using std::endl;
 
 /** @class ERNeuRadRawEvent 
- ** class for raw data obtained from measurements or simulations
+ ** @brief class for raw data obtained from measurements or simulations
  ** @author V.Chudoba <chudoba@jinr.ru>
 **/
 

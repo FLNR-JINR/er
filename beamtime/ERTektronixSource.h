@@ -21,6 +21,18 @@ using namespace std;
 
 #include "ERNeuRadRawEvent.h"
 
+class TString;
+
+class FairSource;
+
+class ERNeuRadRawEvent;
+
+/** @class ERTektronixSource
+ ** @brief task for reading raw data from text files 
+ ** @author I.Muzalevsky <ivanmuzalevskij@gmail.com>
+ ** @version 1.0
+**/
+
 class ERTektronixSource : public FairSource
 {
   public:

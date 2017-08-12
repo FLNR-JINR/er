@@ -18,6 +18,19 @@
 
 #include "ERNeuRadRawEvent.h"
 
+class TString;
+
+class FairSource;
+class FairRootManager;
+
+class ERNeuRadRawEvent;
+
+/** @class ERDRS4Source
+ ** @brief task for reading raw data from binary files
+ ** @author D.Kostyleva <kostyleva@jinr.ru>
+ ** @version 1.0
+**/
+
 typedef struct {
     char           tag[3];
     char           version;

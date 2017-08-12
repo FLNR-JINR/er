@@ -12,18 +12,21 @@
 #include "TArrayF.h"
 #include "TClonesArray.h"
 
+#include "FairTask.h"
+
 #include "ERNeuRadPixelSignal.h"
 #include "ERNeuRadRawEvent.h"
 
 class TArrayF;
 class TClonesArray;
 
+class FairTask;
+
 class ERNeuRadPixelSignal;
 class ERNeuRadRawEvent;
 
 /** @task ERSimtoRaw 
- ** task for converting data from output digitizing files to
- ** files with structure of class RawEvent
+ ** @brief task for converting data from output digitizing files to files with structure of class RawEvent
  ** @author  I.Muzalevsky <ivanmuzalevsky@gmail.com>
 **/ 
 

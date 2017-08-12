@@ -14,6 +14,17 @@
 #include "ERNeuRadRawEvent.h"
 #include "ERNeuRadAEvent.h"
 
+class FairTask;
+
+class ERNeuRadRawEvent;
+class ERNeuRadAEvent;
+
+/** @class ERRawToAnalyzeConverter
+ ** @brief task for analyzing raw data
+ ** @author V.Chudoba <chudoba@jinr.ru>
+ ** @version 1.0
+**/
+
 class ERRawToAnalyzeConverter : public FairTask {
 
 public:

@@ -34,9 +34,8 @@ class TF1;
 class ERNeuRadRawEvent;
 
 /** @class ERNeuRadAEvent
-** class for processing raw data and
-** getting any amplitude and time properties of signal
-** @author D.Kostyleva <kostyleva@jinr.ru>
+ ** @brief class for processing raw data and getting amp and time properties of signal
+ ** @author D.Kostyleva <kostyleva@jinr.ru>
 **/
 
 class ERNeuRadAEvent : public TNamed {
