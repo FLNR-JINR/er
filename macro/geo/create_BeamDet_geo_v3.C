@@ -84,11 +84,11 @@ TGeoMedium* pMedBC408 = gGeoMan->GetMedium("BC408");
 if ( ! pMedBC408 ) Fatal("Main", "Medium BC408 not found");
 // --------------------------------------------------------------------------
 // ----- Create media for MWPC ----------------------------------------------
-FairGeoMedium* mRPCgas      = geoMedia->getMedium("RPCgas");
-if ( ! mRPCgas ) Fatal("Main", "FairMedium RPCgas not found");
-geoBuild->createMedium(mRPCgas);
-TGeoMedium* pMedRPCgas = gGeoMan->GetMedium("RPCgas");
-if ( ! pMedRPCgas ) Fatal("Main", "Medium RPCgas not found");
+FairGeoMedium* mCF4      = geoMedia->getMedium("CF4_CH4");
+if ( ! mCF4 ) Fatal("Main", "FairMedium CF4_CH4 not found");
+geoBuild->createMedium(mCF4);
+TGeoMedium* pMedCF4 = gGeoMan->GetMedium("CF4_CH4");
+if ( ! pMedCF4 ) Fatal("Main", "Medium CF4_CH4 not found");
 
 FairGeoMedium* mKapton      = geoMedia->getMedium("kapton");
 if ( ! mKapton ) Fatal("Main", "FairMedium kapton not found");
@@ -101,6 +101,12 @@ if ( ! mAluminium ) Fatal("Main", "FairMedium aluminium not found");
 geoBuild->createMedium(mAluminium);
 TGeoMedium* pMedAluminium = gGeoMan->GetMedium("aluminium");
 if ( ! pMedAluminium ) Fatal("Main", "Medium aluminium not found");
+
+FairGeoMedium* mTungsten      = geoMedia->getMedium("tungsten");
+if ( ! mTungsten ) Fatal("Main", "FairMedium tungsten not found");
+geoBuild->createMedium(mTungsten);
+TGeoMedium* pMedTungsten = gGeoMan->GetMedium("tungsten");
+if ( ! pMedTungsten ) Fatal("Main", "Medium tungsten not found");
 // --------------------------------------------------------------------------
 // ------ Create media for target -------------------------------------------
 FairGeoMedium* mH2      = geoMedia->getMedium("H2");
@@ -148,16 +154,16 @@ TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, target
 gasVolX /= 2.;
 gasVolY /= 2.;
 gasVolZ /= 2.;
-TGeoVolume* gasVol = gGeoManager->MakeBox("MWPCVol", pMedRPCgas, gasVolX, gasVolY, gasVolZ);
+TGeoVolume* gasVol = gGeoManager->MakeBox("MWPCVol", pMedCF4, gasVolX, gasVolY, gasVolZ);
 
 TGeoVolume* MWPC = gGeoManager->MakeBox("MWPC", pMedKapton, gasVolX, gasVolY, gasVolZ + kaptonThickness);
 
 gasX /= 2.0;
 gasY /= 2.0;
 gasZ /= 2.0;
-TGeoVolume* gas = gGeoManager->MakeBox("gas", pMedRPCgas, gasX, gasY, gasZ);
+TGeoVolume* gas = gGeoManager->MakeBox("gas", pMedCF4, gasX, gasY, gasZ);
 
-TGeoVolume* gasPlane = gGeoManager->MakeBox("gasPlane", pMedRPCgas, gasVolX, gasVolY, gasZ + aluminiumThickness);
+TGeoVolume* gasPlane = gGeoManager->MakeBox("gasPlane", pMedCF4, gasVolX, gasVolY, gasZ + aluminiumThickness);
 // --------------------------------------------------------------------------
 // ---------------- ToF -----------------------------------------------------
 plasticX /= 2.0;
