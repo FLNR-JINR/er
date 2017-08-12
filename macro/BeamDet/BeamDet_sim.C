@@ -1,4 +1,4 @@
-void BeamDet_sim(Int_t nEvents = 2000){
+void BeamDet_sim(Int_t nEvents = 100){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -40,7 +40,7 @@ void BeamDet_sim(Int_t nEvents = 2000){
   */
   Int_t verbose = 0;
   ERBeamDet* beamDet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
-  beamDet->SetGeometryFileName("beamdet.v2.geo.root");
+  beamDet->SetGeometryFileName("beamdet.v3.geo.root");
 
   beamDet->SetIonPID(1000160280);
   run->AddModule(beamDet);

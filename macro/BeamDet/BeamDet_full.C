@@ -1,4 +1,4 @@
-void BeamDet_full(Int_t nEvents = 100){
+void BeamDet_full(Int_t nEvents = 50){
   //---------------------Files-----------------------------------------------
   TString outFile= "full.root";
   TString parFile= "par.root";

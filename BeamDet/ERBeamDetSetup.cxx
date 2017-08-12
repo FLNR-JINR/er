@@ -37,61 +37,64 @@ ERBeamDetSetup::ERBeamDetSetup(){
     }
 
     // ---- Getting MWPC geometry parameters---------------------------------
-    TGeoNode* mwpc = NULL;
-    for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
-        TString name = beamDet->GetDaughter(iNode)->GetName();
-        if ( name.Contains("MWPC", TString::kIgnoreCase) ) {
-            mwpc = beamDet->GetDaughter(iNode);
-            break;
-        }
-    }
-
+    TGeoNode*   mwpc = NULL;
     TGeoNode*   mwpcStation = NULL;
     Double_t    mwpcStationZ;
+    Double_t    mwpcStationZ1;
+    Double_t    mwpcStationZ2;
     TGeoMatrix* mwpcLocalPos;
     Double_t    mwpcMasterPos[3];
     TGeoNode*   plane = NULL;
     TGeoNode*   wire = NULL;
 
-    for (Int_t mwpcNb = 0; mwpcNb < mwpc->GetNdaughters(); mwpcNb++) {
-      mwpcStation = mwpc->GetDaughter(mwpcNb);
-      //---- Convertion mwpc station local position to global coordinates --
-      mwpcLocalPos = mwpcStation->GetMatrix();
-      mwpcLocalPos->LocalToMaster(mwpc->GetMatrix()->GetTranslation(), mwpcMasterPos);
-      mwpcStationZ = mwpcMasterPos[2];
-      //--------------------------------------------------------------------
-      for (Int_t planeNb = 0; planeNb < mwpcStation->GetNdaughters(); planeNb++) {
-        plane = mwpcStation->GetDaughter(planeNb);
-        for (Int_t wireNb = 0; wireNb < plane->GetNdaughters(); wireNb++) {
-          wire = plane->GetDaughter(wireNb);
-          Double_t x = wire->GetMatrix()->GetTranslation()[0];
-          Double_t y = wire->GetMatrix()->GetTranslation()[1];
-          (planeNb == 0) ? fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(x, y, mwpcStationZ)))
-                         : fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(y, x, mwpcStationZ)));
-          std::cout << "Wire " << wireNb << " position (" << fWires[mwpcNb][planeNb][wireNb]->fX << ", " 
-                                                          << fWires[mwpcNb][planeNb][wireNb]->fY << ", " 
-                                                          << mwpcStationZ << ") cm" << endl;
+    for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
+      TString name = beamDet->GetDaughter(iNode)->GetName();
+      if (name.Contains("MWPC", TString::kIgnoreCase) ) {
+        mwpc = beamDet->GetDaughter(iNode);
+        mwpcStationZ = mwpc->GetMatrix()->GetTranslation()[2]; 
+        (name.Contains("1", TString::kIgnoreCase)) ? mwpcStationZ1 = mwpcStationZ 
+                                                   : mwpcStationZ2 = mwpcStationZ;
+
+        for (Int_t mwpcNb = 0; mwpcNb < mwpc->GetNdaughters(); mwpcNb++) {
+          mwpcStation = mwpc->GetDaughter(mwpcNb);
+          //--------------------------------------------------------------------
+          for (Int_t planeNb = 0; planeNb < mwpcStation->GetNdaughters(); planeNb++) {
+            plane = mwpcStation->GetDaughter(planeNb);
+            for (Int_t wireNb = 0; wireNb < plane->GetNdaughters(); wireNb++) {
+              wire = plane->GetDaughter(wireNb);
+              Double_t x = wire->GetMatrix()->GetTranslation()[0];
+              Double_t y = wire->GetMatrix()->GetTranslation()[1];
+              (planeNb == 0) ? fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(x, y, mwpcStationZ)))
+                             : fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(y, x, mwpcStationZ)));
+              std::cout << "Wire " << wireNb << " position (" << fWires[mwpcNb][planeNb][wireNb]->fX << ", " 
+                                                              << fWires[mwpcNb][planeNb][wireNb]->fY << ", " 
+                                                              << mwpcStationZ << ") cm" << endl;
+            }
+          } 
         }
-      } 
+      }
     }
     // Stations located simmetrically relative to local center
-    fDistanceBetweenMWPC = 2 * TMath::Abs(mwpcStation->GetMatrix()->GetTranslation()[2]);
+    fDistanceBetweenMWPC = TMath::Abs(mwpcStationZ1 - mwpcStationZ2);
     cout << "The distance between MWPC stations: " << fDistanceBetweenMWPC << " cm;" << endl;
     //-----------------------------------------------------------------------
-    // ---- Getting TOF geometry parameters ---------------------------------
-    TGeoNode* tof = NULL;
-    TGeoNode* plate = NULL;
+    // ---- Getting tofPlastic geometry parameters ---------------------------------
+    TGeoNode* tofPlastic = NULL;
+    Double_t tofPlastic1Pos, tofPlastic2Pos;
     for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
         TString name = beamDet->GetDaughter(iNode)->GetName();
-        if ( name.Contains("TOF", TString::kIgnoreCase) ) {
-            tof = beamDet->GetDaughter(iNode);
-            plate = tof->GetDaughter(iNode);
-            // Plates located simmetrically relative to local center
-            fDistanceBetweenTOF = 2 * TMath::Abs(plate->GetMatrix()->GetTranslation()[2]);
-            std::cout<< "The distance between TOF plates: " << fDistanceBetweenTOF << " cm;" << std::endl;
-            break;
+        if ( name.Contains("plastic", TString::kIgnoreCase) ) {
+            tofPlastic = beamDet->GetDaughter(iNode);
+            if (name.Contains("1", TString::kIgnoreCase)) {
+              tofPlastic1Pos = tofPlastic->GetMatrix()->GetTranslation()[2];
+            }
+            else {
+              tofPlastic2Pos = tofPlastic->GetMatrix()->GetTranslation()[2];
+            }
         }
     }
+    fDistanceBetweenTOF = TMath::Abs(tofPlastic1Pos - tofPlastic2Pos);
+    std::cout<< "The distance between tofPlastic plastics: " << fDistanceBetweenTOF << " cm;" << std::endl;
     //-----------------------------------------------------------------------
     // ---- Getting target geometry parameters ------------------------------
     TGeoNode* target = NULL;

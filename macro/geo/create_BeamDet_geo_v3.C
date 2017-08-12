@@ -19,6 +19,8 @@ Double_t distBetweenXandY = 1.;
 Double_t aluminiumThickness = 5 * 1e-4;
 
 Double_t kaptonThickness = 12.5 * 1e-4;
+
+Double_t wireDiameter  = 20 * 1e-4;
 // --------------------------------------------------------------------------
 // ------ Position of detector's parts relative to zero ---------------------
 Double_t positionToF1 = -1550.;
@@ -53,11 +55,16 @@ void create_BeamDet_geo_v3()
   fZeroRotation->RotateX(0.);
   fZeroRotation->RotateY(0.);
   fZeroRotation->RotateZ(0.);
-    // Create a 90 degree rotation around Z axis
+  // Create a 90 degree rotation around Z axis
   TGeoRotation *f90ZRotation = new TGeoRotation();
   f90ZRotation->RotateX(0.);
   f90ZRotation->RotateY(0.);
   f90ZRotation->RotateZ(90.);
+  // Create a 90 degree rotation around X axis
+  TGeoRotation *f90XRotation = new TGeoRotation();
+  f90XRotation->RotateX(90.);
+  f90XRotation->RotateY(0.);
+  f90XRotation->RotateZ(0.);
 
   TGeoManager*   gGeoMan = NULL;
 // -------   Load media from media file   -----------------------------------
@@ -164,6 +171,8 @@ gasZ /= 2.0;
 TGeoVolume* gas = gGeoManager->MakeBox("gas", pMedCF4, gasX, gasY, gasZ);
 
 TGeoVolume* gasPlane = gGeoManager->MakeBox("gasPlane", pMedCF4, gasVolX, gasVolY, gasZ + aluminiumThickness);
+
+TGeoVolume* tungstenWire = gGeoManager->MakeTube("tungstenWire", pMedTungsten, 0, wireDiameter / 2, gasY);
 // --------------------------------------------------------------------------
 // ---------------- ToF -----------------------------------------------------
 plasticX /= 2.0;
@@ -172,6 +181,8 @@ plasticZ /= 2.0;
 TGeoVolume* plastic = gGeoManager->MakeBox("plastic", pMedBC408, plasticX, plasticY, plasticZ);
 // --------------------------------------------------------------------------
 //------------------ STRUCTURE  ---------------------------------------------
+gas->AddNode(tungstenWire, 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
+
 Int_t gasCount = gasVolX / (2 * gasX);
 
 Double_t gasPosX;
