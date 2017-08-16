@@ -25,24 +25,45 @@
   
    TString cut = "RTelescopeCalEvent.mC12==0 && BeamDetCalEvent.aF3r+BeamDetCalEvent.aF3l>400 && BeamDetCalEvent.aF3r+BeamDetCalEvent.aF3l<1200 && BeamDetCalEvent.tF4r-BeamDetCalEvent.tF3r>45 && BeamDetCalEvent.tF4r-BeamDetCalEvent.tF3r<54 && BeamDetCalEvent.tF4l > 50 && BeamDetCalEvent.tF4l < 100 && BeamDetCalEvent.tF4r > 50 && BeamDetCalEvent.tF4r < 100 && CUTG && TelescopeRecoEvent.dep11>2.5 && TelescopeRecoEvent.dep11-TelescopeRecoEvent.dep12<0.15 &&  TelescopeRecoEvent.dep11-TelescopeRecoEvent.dep12 > -0.35&& BeamDetRecoEvent.xbt*BeamDetRecoEvent.xbt+BeamDetRecoEvent.ybt*BeamDetRecoEvent.ybt<0.81 ";
    
-   t->Draw("RTelescopeCalEvent.nC11[0]:RTelescopeCalEvent.nC12[0] >> RTmap(20, 1., 21.,16, 1., 17 )",cut);
-   t->Draw("BeamDetRecoEvent.ybt:BeamDetRecoEvent.xbt >> TARmap(16, -3., 3., 16, -3., 3.)",cut);
+   t->Draw("RTelescopeCalEvent.nC11[0]:RTelescopeCalEvent.nC12[0] >> RTmap(20, 1., 21.,16, 1., 17 )");
+   t->Draw("BeamDetRecoEvent.ybt:BeamDetRecoEvent.xbt >> TARmap(16, -3., 3., 16, -3., 3.)");
    //,"RTelescopeCalEvent.mC12==0"
     TCanvas* canvasmis = new TCanvas("mis tests"); 
    
    canvasmis->Divide(4,3);
-   canvasmis->cd(1); t->Draw("BeamDetCalEvent.aF3r+BeamDetCalEvent.aF3l",cut);  
+   canvasmis->cd(1); t->Draw("BeamDetCalEvent.aF3r+BeamDetCalEvent.aF3l>>h1",cut);
+   TH1F *histo = (TH1F*)gROOT->FindObject("h1");
+   histo->GetXaxis()->SetTitle("My x-axis");
+   histo->GetYaxis()->SetTitle("My y-axis");
+   histo->SetNameTitle("aF3r+aF3l","aF3r+aF3l");
+   gPad->Update();
    //t->Draw("BeamDetCalEvent.aF3r+BeamDetCalEvent.aF3l");
    canvasmis->cd(2);   t->Draw("BeamDetCalEvent.tF4r-BeamDetCalEvent.tF3r",cut);
    canvasmis->cd(3);   t->Draw("BeamDetCalEvent.tF4l",cut);
    canvasmis->cd(4);   t->Draw("BeamDetCalEvent.tF4r",cut);
    canvasmis->cd(5);   t->Draw("TelescopeRecoEvent.dep11",cut);
    canvasmis->cd(6);   t->Draw("TelescopeRecoEvent.dep11-TelescopeRecoEvent.dep12",cut);
-   canvasmis->cd(7);   t->Draw("TelescopeRecoEvent.dep21:TelescopeRecoEvent.dep2sum",cut);
+
+   canvasmis->cd(7);   int n = t->Draw("TelescopeRecoEvent.dep21:TelescopeRecoEvent.dep2sum",cut,"goff");
+   TGraph *g = new TGraph(n,t->GetV1(),t->GetV2());
+   g->SetTitle("dep21 vs dep2sum");
+   g->GetXaxis()->SetTitle("dep21");
+   g->GetYaxis()->SetTitle("dep2sum");
+   g->Draw("ap");
+
    canvasmis->cd(8);   t->Draw("TelescopeRecoEvent.mis11n.Excitation",cut);
-   canvasmis->cd(9);    gDirectory->Get("RTmap")->Draw();
-   canvasmis->cd(10);    gDirectory->Get("TARmap")->Draw();
-    canvasmis->cd(11);  t->Draw("BeamDetRecoEvent.Tb",cut);
+
+   canvasmis->cd(9);   gDirectory->Get("RTmap")->Draw("colz");
+   TH2F* histo2 = (TH2F*)gROOT->FindObject("RTmap");
+   histo2->GetXaxis()->SetTitle("nC11");
+   histo2->GetYaxis()->SetTitle("nC12");
+   histo2->SetNameTitle("nC11 vs nC12","nC11 vs nC12");
+   gPad->Update();
+
+   canvasmis->cd(10);  gDirectory->Get("TARmap")->Draw("colz");
+  
+
+  canvasmis->cd(11);  t->Draw("BeamDetRecoEvent.Tb",cut);
     canvasmis->cd(12);  TPaveText *pt = new TPaveText(.05,.1,.95,.8);
   pt -> SetTextFont(53);
     pt-> SetTextSize(11); 
