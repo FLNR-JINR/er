@@ -23,7 +23,7 @@ ERQTelescopeCsIPoint::ERQTelescopeCsIPoint(Int_t eventID, Int_t trackID,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss,Int_t N_Station ,Int_t X_Strip, Int_t Y_Strip)
+		  Double_t tof, Double_t length, Double_t eLoss,Int_t N_Wall ,Int_t N_Block)
   : FairMCPoint(trackID, -1., posIn, momIn, tof, length, eLoss),
     fEventID(eventID),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),

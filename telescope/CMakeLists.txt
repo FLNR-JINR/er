@@ -18,11 +18,19 @@ include_directories( ${INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
 ${BASE_LINK_DIRECTORIES}
 ${FAIRROOT_LIBRARY_DIR}
-) 
+)
 
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
+
+ERQTelescope.cxx
+data/ERQTelescopeSiPoint.cxx
+data/ERQTelescopeCsIPoint.cxx
+data/ERQTelescopeEvent.cxx
+data/ERQTelescopeCalEvent.cxx
+ERQTelescopeCalibrator.cxx
+
 ERRTelescope.cxx
 ERRTelescopeHitFinder.cxx
 ERRTelescopeSetup.cxx
@@ -30,10 +38,7 @@ data/ERRTelescopePoint.cxx
 data/ERRTelescopeHit.cxx
 data/ERRTelescopeEvent.cxx
 data/ERRTelescopeCalEvent.cxx
-data/ERQTelescopeEvent.cxx
-data/ERQTelescopeCalEvent.cxx
 data/ERTelescopeRecoEvent.cxx
-ERQTelescopeCalibrator.cxx
 ERRTelescopeCalibrator.cxx
 ERTelescopeReconstructor.cxx
 )
@@ -42,9 +47,9 @@ ERTelescopeReconstructor.cxx
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
+Set(LINKDEF ERQTelescopeLinkDef.h)
 Set(LINKDEF ERRTelescopeLinkDef.h)
 Set(LIBRARY_NAME telescope)
 Set(DEPENDENCIES ERBase ERData Base Core)
 
 GENERATE_LIBRARY()
-

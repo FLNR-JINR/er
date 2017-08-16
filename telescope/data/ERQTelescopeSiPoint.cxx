@@ -40,7 +40,6 @@ ERQTelescopeSiPoint::ERQTelescopeSiPoint(const ERQTelescopeSiPoint& right)
   : FairMCPoint(right),
     fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
     fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out),
-    fSector(right.fSector), fSensor(right.fSensor)
     fN_Station(right.fN_Station), fX_Strip(right.fX_Strip), fY_Strip(right.fY_Strip)
 {
 }
