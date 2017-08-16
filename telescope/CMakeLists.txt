@@ -47,7 +47,7 @@ ERTelescopeReconstructor.cxx
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
-Set(LINKDEF ERQTelescopeLinkDef.h)
+#Set(LINKDEF ERQTelescopeLinkDef.h)
 Set(LINKDEF ERRTelescopeLinkDef.h)
 Set(LIBRARY_NAME telescope)
 Set(DEPENDENCIES ERBase ERData Base Core)

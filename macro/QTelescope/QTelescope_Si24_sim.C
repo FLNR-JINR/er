@@ -1,8 +1,8 @@
-void QTelescope_sim(Int_t nEvents = 1000)
+void QTelescope_Si24_sim(Int_t nEvents = 1000)
 {
 //---------------------Files-----------------------------------------------
-    TString outFile= "sim.root";
-    TString parFile= "par.root";
+    TString outFile= "sim_Si.root";
+    TString parFile= "par_Si.root";
 // ------------------------------------------------------------------------
 
 // -----   Timer   --------------------------------------------------------
@@ -40,29 +40,35 @@ void QTelescope_sim(Int_t nEvents = 1000)
  * 0 - only standard logs
  * 1 - Print points after each event
 */
-    Int_t verbose = 1;
+    Int_t verbose = 0;
     ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE,verbose);
     qtelescope->SetGeometryFileName("QTelescope.v1.geo.root");
     run->AddModule(qtelescope);
 // ------------------------------------------------------------------------
 // -----   Create PrimaryGenerator   --------------------------------------
     FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-    Int_t pdgId = 2212; // proton  beam
-    Double32_t theta1 = -43.;  // polar angle distribution
-    Double32_t theta2 = 43.;  //ПОДОБРАТЬ ТЕТТА_1 и ТЕТТА_2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    Double32_t kin_energy = .500; //GeV
-    Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
-    Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
-    FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-    boxGen->SetThetaRange(theta1, theta2);
-    boxGen->SetPRange(momentum, momentum);
-    boxGen->SetPhiRange(0, 360); // ?????????????????????????????????????????????????????????????????????
-    boxGen->SetBoxXYZ(0.,0.,0.,0.,0.);
 
-    primGen->AddGenerator(boxGen);
+    Int_t A = 24;
+    Int_t Z = 14;
+    Int_t Q = 14;
+
+    ERIonGenerator* generator = new ERIonGenerator("24Si", Z, A, Q, 1);
+    Double32_t kin_energy = 40 * 1e-3 * A; //GeV
+
+    Double_t mass = generator->Ion()->GetMass();
+    Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
+    generator->SetPRange(momentum, momentum);
+    Double32_t theta1 = -43.;  // polar angle distribution
+    Double32_t theta2 = 43.;
+    generator->SetThetaRange(theta1, theta2);
+    generator->SetPhiRange(0, 360);
+    generator->SetBoxXYZ(0.,0.,0.,0.,0.); //Егор, ты знаешь, что за бокс мы тут задаём?
+
+    primGen->AddGenerator(generator);
     run->SetGenerator(primGen);
 // ------------------------------------------------------------------------
 //-------Set visualisation flag to true------------------------------------
+
     run->SetStoreTraj(kTRUE);
 
 //-------Set LOG verbosity  -----------------------------------------------
@@ -90,8 +96,8 @@ void QTelescope_sim(Int_t nEvents = 1000)
     Double_t ctime = timer.CpuTime();
     cout << endl << endl;
     cout << "Macro finished succesfully." << endl;
-    cout << "Output file is QTelescope_proton_sim.root" << endl;
-    cout << "Parameter file is QTelescope_proton_par.root" << endl;
+    cout << "Output file is QTelescope_Si24_sim.root" << endl;
+    cout << "Parameter file is QTelescope_Si24_par.root" << endl;
     cout << "Real time " << rtime << " s, CPU time " << ctime
                          << "s" << endl << endl;
 }

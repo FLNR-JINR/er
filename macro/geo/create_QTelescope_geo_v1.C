@@ -113,7 +113,7 @@ Int_t fibers_in_det_X_Nb = 1;
 Int_t fibers_in_det_Y_Nb = 64;
 
 Double_t det_X = fiber_X * fibers_in_det_X_Nb;
-Double_t det_Y = fiber_Y * fibers_in_det_Y_Nb;
+Double_t det_Y = fiber_Y * fibers_in_det_Y_Nb ;
 Double_t det_Z = fiber_Z;
 Int_t i_fiber = 0;
 
@@ -139,13 +139,13 @@ for (Int_t i_Y_fiber = 0; i_Y_fiber < fibers_in_det_Y_Nb; i_Y_fiber++){
 
 
 
-det->AddNode(station,1,new TGeoCombiTrans(0,station_Y, first_wall_Z + fiber_Z, fZeroRotation));
+det->AddNode(station,1,new TGeoCombiTrans(0, 0, first_wall_Z + fiber_Z, fZeroRotation));
 
-det->AddNode(box_CsI,1,new TGeoCombiTrans(box_CsI_X,box_CsI_Y, blocks_of_CSI_Z + box_CsI_Z, fZeroRotation));
-det->AddNode(box_CsI,1,new TGeoCombiTrans(-box_CsI_X,box_CsI_Y, blocks_of_CSI_Z + box_CsI_Z, fZeroRotation));
-det->AddNode(box_CsI,1,new TGeoCombiTrans(box_CsI_X,box_CsI_Y + box_CsI_Y *2 ,
+det->AddNode(box_CsI,1,new TGeoCombiTrans(box_CsI_X,-box_CsI_Y, blocks_of_CSI_Z + box_CsI_Z, fZeroRotation));
+det->AddNode(box_CsI,2,new TGeoCombiTrans(-box_CsI_X,-box_CsI_Y, blocks_of_CSI_Z + box_CsI_Z, fZeroRotation));
+det->AddNode(box_CsI,3,new TGeoCombiTrans(box_CsI_X,-box_CsI_Y + box_CsI_Y *2 ,
   blocks_of_CSI_Z + box_CsI_Z, fZeroRotation));
-det->AddNode(box_CsI,1,new TGeoCombiTrans(-box_CsI_X,box_CsI_Y + box_CsI_Y *2 ,
+det->AddNode(box_CsI,4,new TGeoCombiTrans(-box_CsI_X,-box_CsI_Y + box_CsI_Y *2 ,
    blocks_of_CSI_Z + box_CsI_Z, fZeroRotation));
 
 int delta_Z = 12;
