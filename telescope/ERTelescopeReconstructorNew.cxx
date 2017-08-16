@@ -109,14 +109,14 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
   fOutEvent->dep2sum = fOutEvent->dep21 + fOutEvent->dep22 + fOutEvent->dep23 + fOutEvent->dep24 + fOutEvent->dep25 + fOutEvent->dep26;
   
   //Вычисляем координаты на RTelescope
-  Int_t sector = fRTelescopeEvent->nC11[0];
-  Int_t ring = fRTelescopeEvent->nC12[0];
+  Float_t sector = fRTelescopeEvent->nC11[0];
+  Float_t ring = fRTelescopeEvent->nC12[0];
 
-  Float_t nStrips = 16.;
+  Float_t nRings = 16.,nSectors = 16.;
   Float_t rmin = 1.6, rmax = 4.1;
   Float_t z = -10.;
-  Float_t phi = (sector-1/2)*2*TMath::Pi()/nStrips;
-  Float_t R = rmax-(ring-1/2)*(rmax-rmin)/nStrips;
+  Float_t phi = (sector-0.5)*2.*TMath::Pi()/nSectors + TMath::Pi()/2.;
+  Float_t R = rmax-(ring-0.5)*(rmax-rmin)/nRings;
   fOutEvent->x11 = R*TMath::Cos(phi);
   fOutEvent->y11 = R*TMath::Sin(phi);
 
