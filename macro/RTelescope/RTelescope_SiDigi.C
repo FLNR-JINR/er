@@ -21,18 +21,15 @@ void RTelescope_SiDigi(Int_t nEvents = 1000){
   //------------------------------------------------------------------------
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information
-  ERRTelescopeSiDigitizer* digitizer = new ERRTelescopeSiDigitizer(verbose);
+  ERRTelescopeDigitizer* digitizer = new ERRTelescopeDigitizer(verbose);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
 
   // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-
   FairParRootFileIo*  parInput = new FairParRootFileIo();
   parInput->open(parFile.Data(), "UPDATE");
-
   rtdb->setFirstInput(parInput);
-
   // -----   Intialise and run   --------------------------------------------
   FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   fRun->Init();

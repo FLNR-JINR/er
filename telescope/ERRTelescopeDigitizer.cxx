@@ -18,9 +18,9 @@ using namespace std;
 
 // ----------------------------------------------------------------------------
 ERRTelescopeDigitizer::ERRTelescopeDigitizer()
-  : FairTask("ER rtelescope digitization"), 
-  fSiPoints(NULL),  
-  fRTelescopeDigi(NULL), 
+  : FairTask("ER rtelescope digitization"),
+  fSiPoints(NULL),
+  fRTelescopeDigi(NULL),
   fElossSigma(0),
   fTimeSigma(0),
   fElossThreshold(0),
@@ -32,8 +32,8 @@ ERRTelescopeDigitizer::ERRTelescopeDigitizer()
 // ----------------------------------------------------------------------------
 ERRTelescopeDigitizer::ERRTelescopeDigitizer(Int_t verbose)
   : FairTask("ER rtelescope digitization ", verbose),
-  fSiPoints(NULL),  
-  fRTelescopeDigi(NULL), 
+  fSiPoints(NULL),
+  fRTelescopeDigi(NULL),
   fElossSigma(0),
   fTimeSigma(0),
   fElossThreshold(0),
@@ -66,21 +66,21 @@ InitStatus ERRTelescopeDigitizer::Init()
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
-  
-  fSiPoints = (TClonesArray*) ioman->GetObject("RTelescopePoint");
+
+  fSiPoints = (TClonesArray*) ioman->GetObject("RTelescopeSiPoint");
 
   if (!fSiPoints)
-    Fatal("Init", "Can`t find collection RTelescopePoint!"); 
+    Fatal("Init", "Can`t find collection RTelescopeSiPoint!");
 
 
   // Register output array fRTelescopeHits
-  fRTelescopeDigi = new TClonesArray("ERRTelescopeDigi",1000);
+  fRTelescopeDigi = new TClonesArray("ERRTelescopeSiDigi",1000);
 
   ioman->Register("RTelescopeDigi", "RTelescope Digi", fRTelescopeDigi, kTRUE);
 
   /*fRTelescopeSetup = ERRTelescopeSetup::Instance();
   fRTelescopeSetup->Print();*/
-   
+
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -105,7 +105,7 @@ void ERRTelescopeDigitizer::Exec(Option_t* opt)
     for(itSensor = itSector->second.begin(); itSensor != itSector->second.end(); ++itSensor) {
       Float_t edep = 0.; //sum edep in sensor
       Float_t time = numeric_limits<float>::max(); // min time in plate
-      
+
       for (itPoint = itSensor->second.begin(); itPoint != itSensor->second.end(); ++itPoint){
         ERRTelescopeSiPoint* point = (ERRTelescopeSiPoint*)(fSiPoints->At(*itPoint));
         edep += point->GetEnergyLoss();
@@ -121,10 +121,10 @@ void ERRTelescopeDigitizer::Exec(Option_t* opt)
 
       time = gRandom->Gaus(time, fTimeSigma);
 
-      ERRTelescopeDigi *digi = AddDigi(edep, time, itSector->first, itSensor->first);
+      ERRTelescopeSiDigi *digi = AddDigi(edep, time, itSector->first, itSensor->first);
 
       for (itPoint = itSensor->second.begin(); itPoint != itSensor->second.end(); ++itPoint){
-        digi->AddLink(FairLink("RTelescopePoint", *itPoint));
+        digi->AddLink(FairLink("RTelescopeSiPoint", *itPoint));
       }
     }
   }
@@ -142,16 +142,16 @@ void ERRTelescopeDigitizer::Reset()
 
 // ----------------------------------------------------------------------------
 void ERRTelescopeDigitizer::Finish()
-{   
+{
 
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERRTelescopeDigi* ERRTelescopeDigitizer::AddDigi(Float_t edep, Double_t time, Int_t sectorNb, Int_t sensorNb)
+ERRTelescopeSiDigi* ERRTelescopeDigitizer::AddDigi(Float_t edep, Double_t time, Int_t sectorNb, Int_t sensorNb)
 {
-  ERRTelescopeDigi *digi = new((*fRTelescopeDigi)[fRTelescopeDigi->GetEntriesFast()])
-              ERRTelescopeDigi(fRTelescopeDigi->GetEntriesFast(), edep, time, sectorNb, sensorNb);
+  ERRTelescopeSiDigi *digi = new((*fRTelescopeDigi)[fRTelescopeDigi->GetEntriesFast()])
+              ERRTelescopeSiDigi(fRTelescopeDigi->GetEntriesFast(), edep, time, sectorNb, sensorNb);
   return digi;
 }
 // ----------------------------------------------------------------------------
