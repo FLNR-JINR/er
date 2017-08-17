@@ -18,7 +18,7 @@ include_directories( ${INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
 ${BASE_LINK_DIRECTORIES}
 ${FAIRROOT_LIBRARY_DIR}
-) 
+)
 
 link_directories( ${LINK_DIRECTORIES})
 
@@ -27,12 +27,12 @@ set(SRCS
 #simulation
 ERRTelescope.cxx
 ERRTelescopeHitFinder.cxx
-ERRTelescopeDigitizer.cxx
+ERRTelescopeSiDigitizer.cxx
 ERRTelescopeSetup.cxx
 
 data/ERRTelescopeSiPoint.cxx
 data/ERRTelescopeCsIPoint.cxx
-data/ERRTelescopeDigi.cxx
+data/ERRTelescopeSiDigi.cxx
 data/ERRTelescopeHit.cxx
 
 ERQTelescope.cxx
@@ -62,4 +62,3 @@ Set(LIBRARY_NAME telescope)
 Set(DEPENDENCIES ERBase ERData Base Core)
 
 GENERATE_LIBRARY()
-
