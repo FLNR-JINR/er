@@ -27,7 +27,7 @@ set(SRCS
 #simulation
 ERRTelescope.cxx
 ERRTelescopeHitFinder.cxx
-ERRTelescopeSiDigitizer.cxx
+ERRTelescopeDigitizer.cxx
 ERRTelescopeSetup.cxx
 
 data/ERRTelescopeSiPoint.cxx
