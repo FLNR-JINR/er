@@ -20,7 +20,7 @@
 	# 6) No (without python)
 	# path: ~/fair_install/FairSoftInst
 
-BRANCH_NAME=may16p1
+BRANCH_NAME=mar17
 
 В случае, если установка прекращена из-за отсутствия пакетов, проверьте "~/fair_install/FairSoft/DEPENDENCIES" и следуйте инструкциям из него.
 
@@ -42,7 +42,7 @@ BRANCH_NAME=may16p1
 	make
 	make install
 
-BRANCH_NAME=v-16.06
+BRANCH_NAME=v-17.03a
 
 Установка ExpertRoot
 --------------------
