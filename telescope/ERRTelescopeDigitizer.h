@@ -41,9 +41,9 @@ public:
   virtual void Reset();
 
   /** Modifiers **/
-  void SetElossThreshold(Float_t th){fElossThreshold = th;}
-  void SetElossSigma(Float_t sigma) {fElossSigma = sigma;}
-  void SetTimeSigma(Float_t sigma) {fTimeSigma = sigma;}
+  void SetSiElossThreshold(Float_t th){fElossThreshold = th;}
+  void SetSiElossSigma(Float_t sigma) {fElossSigma = sigma;}
+  void SetSiTimeSigma(Float_t sigma) {fTimeSigma = sigma;}
   /** Accessors **/
   Float_t ElossDispersion() const {return fElossSigma;}
   Float_t TimeDispersionPar() const {return fTimeSigma;}
@@ -62,8 +62,7 @@ protected:
 
   //ERBeamDetSetup* fBeamDetSetup;
 protected:
-  ERRTelescopeSiDigi* AddDigi(Float_t edep, Double_t time, Int_t sectorNb, Int_t sensorNb);
-
+  ERRTelescopeSiDigi* AddSiDigi(Float_t edep, Double_t time, Int_t sectorNb, Int_t sensorNb);
 private:
   virtual void SetParContainers();
 

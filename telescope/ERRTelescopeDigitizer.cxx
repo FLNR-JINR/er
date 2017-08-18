@@ -74,7 +74,7 @@ InitStatus ERRTelescopeDigitizer::Init()
 
 
   // Register output array fRTelescopeHits
-  fRTelescopeDigi = new TClonesArray("ERRTelescopeSiDigi",1000);
+  fRTelescopeDigi = new TClonesArray("ERRTelescopeSiDigi",2 * 1000);
 
   ioman->Register("RTelescopeDigi", "RTelescope Digi", fRTelescopeDigi, kTRUE);
 
@@ -121,7 +121,8 @@ void ERRTelescopeDigitizer::Exec(Option_t* opt)
 
       time = gRandom->Gaus(time, fTimeSigma);
 
-      ERRTelescopeSiDigi *digi = AddDigi(edep, time, itSector->first, itSensor->first);
+      ERRTelescopeSiDigi *digi = AddSiDigi(edep, time, itSector->first, itSensor->first);
+
 
       for (itPoint = itSensor->second.begin(); itPoint != itSensor->second.end(); ++itPoint){
         digi->AddLink(FairLink("RTelescopeSiPoint", *itPoint));
@@ -148,10 +149,17 @@ void ERRTelescopeDigitizer::Finish()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERRTelescopeSiDigi* ERRTelescopeDigitizer::AddDigi(Float_t edep, Double_t time, Int_t sectorNb, Int_t sensorNb)
+ERRTelescopeSiDigi* ERRTelescopeDigitizer::AddSiDigi(Float_t edep, Double_t time, Int_t sectorNb, Int_t sensorNb)
 {
   ERRTelescopeSiDigi *digi = new((*fRTelescopeDigi)[fRTelescopeDigi->GetEntriesFast()])
-              ERRTelescopeSiDigi(fRTelescopeDigi->GetEntriesFast(), edep, time, sectorNb, sensorNb);
+        ERRTelescopeSiDigi(fRTelescopeDigi->GetEntriesFast(), edep, time, 0, sensorNb, 0);  // Side = 0 => sensor
+
+
+
+  digi = new((*fRTelescopeDigi)[fRTelescopeDigi->GetEntriesFast()])
+              ERRTelescopeSiDigi(fRTelescopeDigi->GetEntriesFast(), edep, time, sectorNb, 0, 1);   // Side = 1 => sector
+
+
   return digi;
 }
 // ----------------------------------------------------------------------------

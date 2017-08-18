@@ -15,12 +15,13 @@ ERRTelescopeSiDigi::ERRTelescopeSiDigi()
 {
 }
 
-ERRTelescopeSiDigi::ERRTelescopeSiDigi(Int_t id, Float_t Edep, Double_t time, Int_t sectorNb, Int_t sensorNb)
+ERRTelescopeSiDigi::ERRTelescopeSiDigi(Int_t id, Float_t Edep, Double_t time, Int_t sectorNb, Int_t sensorNb, Int_t side)
   :fID(id),
   fEdep(Edep),
   fTime(time),
   fSensorNb(sensorNb),
-  fSectorNb(sectorNb)
+  fSectorNb(sectorNb),
+  fSide(side)
 {
 }
 
@@ -29,7 +30,8 @@ ERRTelescopeSiDigi::ERRTelescopeSiDigi(const ERRTelescopeSiDigi& right)
   fEdep(right.fEdep),
   fTime(right.fTime),
   fSensorNb(right.fSensorNb),
-  fSectorNb(right.fSectorNb)
+  fSectorNb(right.fSectorNb),
+  fSide(right.fSide)
 {
 }
 
