@@ -12,6 +12,8 @@
 
 #include "ERRTelescopeSiPoint.h"
 #include "ERRTelescopeSiDigi.h"
+#include "ERRTelescopeCsIDigi.h"
+#include "ERRTelescopeCsIPoint.h"
 
 
 class ERRTelescopeDigitizer : public FairTask {
@@ -50,19 +52,23 @@ public:
 protected:
   //Input arrays
   TClonesArray *fSiPoints;
+  TClonesArray *fCsIPoints;
+
   //Output arrays
-  TClonesArray *fRTelescopeDigi;
+  TClonesArray *fRTelescopeSiDigi;
+  TClonesArray *fRTelescopeCsIDigi;
+
 
   Float_t fElossSigma;
   Float_t fTimeSigma;
-
   Float_t fElossThreshold;
-
   Float_t fDigiEloss;
 
   //ERBeamDetSetup* fBeamDetSetup;
 protected:
   ERRTelescopeSiDigi* AddSiDigi(Float_t edep, Double_t time, Int_t sectorNb, Int_t sensorNb);
+  ERRTelescopeCsIDigi* AddCsIDigi(Float_t edep, Double_t time, Int_t crystall);
+
 private:
   virtual void SetParContainers();
 

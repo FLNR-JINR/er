@@ -32,6 +32,7 @@ ERRTelescopeSetup.cxx
 
 data/ERRTelescopeSiPoint.cxx
 data/ERRTelescopeCsIPoint.cxx
+data/ERRTelescopeCsIDigi.cxx
 data/ERRTelescopeSiDigi.cxx
 data/ERRTelescopeHit.cxx
 

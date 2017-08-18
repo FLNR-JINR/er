@@ -12,6 +12,7 @@
 #pragma link C++ class ERRTelescopeSiPoint+;
 #pragma link C++ class ERRTelescopeCsIPoint+;
 #pragma link C++ class ERRTelescopeSiDigi+;
+#pragma link C++ class ERRTelescopeCsIDigi+;
 #pragma link C++ class ERRTelescopeHit+;
 
 #pragma link C++ class ERQTelescope+;
@@ -19,6 +20,8 @@
 
 #pragma link C++ class ERQTelescopeSiPoint+;
 #pragma link C++ class ERQTelescopeSiDigi+;
+
+
 
 #pragma link C++ class ERQTelescopeCalibrator+;
 #pragma link C++ class ERRTelescopeCalibrator+;
