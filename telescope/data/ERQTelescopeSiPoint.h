@@ -83,9 +83,9 @@ class ERQTelescopeSiPoint : public FairMCPoint
   // Int_t Sector() const {return fSector;}
   // Int_t Sensor() const {return fSensor;}
 
-  // Int_t          N_Station;     // Si
-  // Int_t          X_Strip;
-  // Int_t          Y_Strip;
+  Int_t          N_Station() {return fN_Station};     // Si
+  Int_t          X_Strip()   {return fX_Strip};
+  Int_t          Y_Strip()   {return fY_Strip};
 
   /** Check for distance between in and out **/
   Bool_t IsUsable() const;
