@@ -1,6 +1,6 @@
-void BeamDet_sim(Int_t nEvents = 100){
+void BeamDet_full(Int_t nEvents = 50){
   //---------------------Files-----------------------------------------------
-  TString outFile= "sim.root";
+  TString outFile= "full.root";
   TString parFile= "par.root";
   // ------------------------------------------------------------------------
 
@@ -8,30 +8,27 @@ void BeamDet_sim(Int_t nEvents = 100){
   TStopwatch timer;
   timer.Start(); 
   // ----
-  // -----   Create simulation run   ----------------------------------------
-  FairRunSim* run = new FairRunSim();
+  // -----   Create simulation fRun   ----------------------------------------
+  FairRunSim* fRun = new FairRunSim();
 /** Select transport engine
 * TGeant3
 * TGeant4
 **/
-  run->SetName("TGeant4");              // Transport engine
-  run->SetOutputFile(outFile.Data());          // Output file
-// ------------------------------------------------------------------------
-// -----   Runtime database   ---------------------------------------------
-  FairRuntimeDb* rtdb = run->GetRuntimeDb();
+  fRun->SetName("TGeant4");              // Transport engine
+  fRun->SetOutputFile(outFile.Data());          // Output file
 // ------------------------------------------------------------------------
 // -----   Create media   -------------------------------------------------
-  run->SetMaterials("media.geo");       // Materials
+  fRun->SetMaterials("media.geo");       // Materials
 // ------------------------------------------------------------------------
 
   //-------- Set MC event header --------------------------------------------
   ERMCEventHeader* header = new ERMCEventHeader();
-  run->SetMCEventHeader(header);
+  fRun->SetMCEventHeader(header);
   //---------------------------------
   // -----   Create detectors  ----------------------------------------------
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
-  run->AddModule(cave);
+  fRun->AddModule(cave);
 
   // Det definition
   /* Select verbosity level
@@ -43,11 +40,11 @@ void BeamDet_sim(Int_t nEvents = 100){
   beamDet->SetGeometryFileName("beamdet.v3.geo.root");
 
   beamDet->SetIonPID(1000160280);
-  run->AddModule(beamDet);
+  fRun->AddModule(beamDet);
 
  // FairModule* target = new ERTarget("BeamDetTarget", kTRUE, 1);
   //target->SetGeometryFileName("target.h.geo.root");
-  //run->AddModule(target);
+  //fRun->AddModule(target);
   // ---------------.q
   //--------------------------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------
@@ -59,9 +56,10 @@ void BeamDet_sim(Int_t nEvents = 100){
 
   ERIonMixGenerator* generator = new ERIonMixGenerator("28S", Z, A, Q, 1);
   Double32_t kin_energy = 40 * 1e-3 * 28; //GeV
+  generator->SetKinE(kin_energy);
+  generator->SetPSigmaOverP(0.003);
+  //generator->SetPSigma(6.7835, 6.7835*0.003);
   //generator->SetKinESigma(kin_energy, 0);
-  generator->SetPSigma(6.7835, 6.7835*0.003);
-//  generator->SetKinESigma(kin_energy, 0);
 
   /*
    * Set flag to spread corrdinates parameters on target and reconstruct   
@@ -75,36 +73,64 @@ void BeamDet_sim(Int_t nEvents = 100){
   
   generator->SetPhiRange(0, 360);
 
-  Double32_t distanceToTarget = 1533;
+  Double32_t distanceToTarget = 1555;
   Double32_t sigmaOnTarget = 0.5;
   generator->SetSigmaXYZ(0, 0, -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
   //generator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -distanceToTarget);
 
-  generator->AddBackgroundIon("26P", 15, 26, 15, 0.25);
-  generator->AddBackgroundIon("26S", 16, 26, 16, 0.25);
-  generator->AddBackgroundIon("24Si", 14, 24, 14, 0.25);
+  generator->AddBackgroundIon("26P", 15, 26, 15, 0.1 / 0.55);
+  generator->AddBackgroundIon("26S", 16, 26, 16, 0.15 / 0.55);
+  generator->AddBackgroundIon("24Si", 14, 24, 14, 0.2 / 0.55);
 
   primGen->AddGenerator(generator);
-  run->SetGenerator(primGen);
+  fRun->SetGenerator(primGen);
   // ------------------------------------------------------------------------
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kTRUE);
+  fRun->SetStoreTraj(kTRUE);
+  // ------------------------------------------------------------------------
+  // -----   fRuntime database   ---------------------------------------------
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  // ------------------------------------------------------------------------
 
-  //-------Set LOG verbosity  -----------------------------------------------
-  FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-  // —– Initialize simulation run ———————————— 
-  run->Init();
-  Int_t nSteps = -15000;
-
-  // —– Runtime database ——————————————— 
+  // —– fRuntime database ——————————————— 
   Bool_t kParameterMerged = kTRUE; 
   FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
-  parOut->open(parFile.Data()); 
+  parOut->open(parFile.Data());
+
   rtdb->setOutput(parOut); 
   rtdb->saveOutput(); 
   rtdb->print(); // 
-  // -----   Run simulation  ------------------------------------------------
-    run->Run(nEvents);
+ // ------------------------BeamDetDigitizer---------------------------------
+  ERBeamDetDigitizer* digitizer = new ERBeamDetDigitizer(verbose);
+  digitizer->SetMWPCElossThreshold(0.006);
+  digitizer->SetTofElossThreshold(0.006);
+  digitizer->SetTofElossSigmaOverEloss(0);
+  digitizer->SetTofTimeSigma(1e-10);
+  fRun->AddTask(digitizer);
+  // ------------------------------------------------------------------------
+  // -----------------------BeamDetTrackFinder------------------------------
+  ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(1);
+  fRun->AddTask(trackFinder);
+  // ------------------------------------------------------------------------
+  // -----------------------BeamDetTrackPID-------------------------------
+  ERBeamDetPID* pid = new ERBeamDetPID(1);
+  pid->SetPID(1000160280);
+  pid->SetIonMass(26.2716160);
+  //pid->SetBoxPID(203., 206., 0.005, 0.12);
+  pid->SetBoxPID(0., 500., 0., 1.);
+  pid->SetOffsetTOF(0.);
+  pid->SetProbabilityThreshold(0.5);
+
+  fRun->AddTask(pid);
+  // ------------------------------------------------------------------------
+
+  //-------Set LOG verbosity  -----------------------------------------------
+  FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
+  // —– Initialize simulation fRun ———————————— 
+  fRun->Init();
+  Int_t nSteps = -15000;
+  // -----   fRun simulation  ------------------------------------------------
+    fRun->Run(nEvents);
 
     // -----   Finish   -------------------------------------------------------
     timer.Stop();

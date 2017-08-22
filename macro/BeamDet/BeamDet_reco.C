@@ -1,9 +1,8 @@
-void BeamDet_digi(Int_t nEvents = 2000){
+void BeamDet_reco(Int_t nEvents = 2000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
-  TString outFile = "digi.root";
+  TString outFile = "reco.root";
   TString parFile = "par.root";
-  TString parOutFile = "parOut.root";
   // ------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -27,7 +26,20 @@ void BeamDet_digi(Int_t nEvents = 2000){
   digitizer->SetTofTimeSigma(1e-10);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
-  
+  // -----------------------BeamDetTrackFinder------------------------------
+  ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(1);
+  fRun->AddTask(trackFinder);
+  // ------------------------------------------------------------------------
+  // -----------------------BeamDetTrackPID-------------------------------
+  ERBeamDetPID* pid = new ERBeamDetPID(1);
+  pid->SetPID(1000160280);
+  pid->SetIonMass(26.2716160);
+  pid->SetBoxPID(203., 206., 0.005, 0.12);
+  pid->SetOffsetTOF(0.);
+  pid->SetProbabilityThreshold(0.5);
+
+  fRun->AddTask(pid);
+  // ------------------------------------------------------------------------
   // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
@@ -41,8 +53,6 @@ void BeamDet_digi(Int_t nEvents = 2000){
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
-  //FairParRootFileIo*  parIo2 = new FairParRootFileIo();
-  //parIo2->open(parOutFile.Data());
   rtdb->setOutput(parInput);
   rtdb->saveOutput();
   

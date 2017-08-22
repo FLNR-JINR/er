@@ -44,26 +44,20 @@ ERIonMixGenerator::~ERIonMixGenerator()
 // if (fIon) delete fIon;
 }
 
-void ERIonMixGenerator::AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q, Double_t probability)
+void ERIonMixGenerator::AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q, Double_t newIonProb)
 {
   SetPhiRange();
-  static Double_t sumProbability;
 
   if(fBgIons.size() == 0)
   {
-    sumProbability = 0;
+    fSumProbability = 0;
   }
 
-  sumProbability += probability;
+  fSumProbability += newIonProb;
 
-  if((sumProbability) >= 1)
-  {
-    LOG(DEBUG) << "Summary probability of appearing background ions more then 1"
-       << FairLogger::endl;
-    return ;
-  }
-
-  fBgIons.insert(std::make_pair(sumProbability, name));
+  fBgIons.insert(std::make_pair(fSumProbability, name));
+  
+  std::cout << "Prob " << fSumProbability << std::endl;
 
   FairRunSim* run = FairRunSim::Instance();
   if ( ! run ) {
@@ -80,13 +74,14 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
   TString  ionName;
   Double_t rigidityMin;
   Double_t rigidityMax;
-  Double_t gausRigidity;
+  Double_t gausRigidity, sigmaRigidity;
   Double_t pMin = fPMin, pMax = fPMax;
   Double_t pGaus = fGausP;
+  Double_t pSigma = fSigmaP;
   // Generate particles
   for (Int_t k = 0; k < fMult; k++) {
 
-    randResult = gRandom->Uniform(0., 1.);
+    randResult = gRandom->Uniform(0., 1.) * (fSumProbability + 1);
 
     auto it = std::find_if(fBgIons.begin(), fBgIons.end(),
                             [randResult](const std::pair<Double_t, TString> &t)->bool
@@ -117,7 +112,9 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
     if(fSigmaPIsSet)
     {
       gausRigidity = pGaus / fIon->GetZ() / 3;
+      sigmaRigidity = fSigmaP / fIon->GetZ() / 3;
       fGausP = gausRigidity * charge;
+      fSigmaP = sigmaRigidity * charge;
     }
 
     std::cout << "Pmin  " << fPMin << " Pmax " << fPMax << " GausP " << fGausP << std::endl;
@@ -139,6 +136,7 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
   fGausP = pGaus;
   fPMin = pMin;
   fPMax = pMax;
+  fSigmaP = pSigma;
   return kTRUE;
 }
 

@@ -12,7 +12,7 @@ Double_t targetH2Z = 0.4;   //cm
 
 Double_t transX = 0.;
 Double_t transY = 0.; 
-Double_t transZ = targetH2Z / 2;
+Double_t transZ = 0.;
 
 Double_t shellThickness = 1.5 * 1e-4;
 

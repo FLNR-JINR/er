@@ -1,10 +1,11 @@
-void BeamDet_digi(Int_t nEvents = 2000){
+void BeamDet_pid(Int_t nEvents = 2000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "sim.root";
-  TString outFile = "digi.root";
-  TString parFile = "par.root";
-  TString parOutFile = "parOut.root";
+  TString digiFile = "digi.root";
+  TString trackFile = "track.root";
+  TString outFile = "pid.root";
+  TString parFile = "par.root";    
   // ------------------------------------------------------------------------
+  
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -12,40 +13,35 @@ void BeamDet_digi(Int_t nEvents = 2000){
   
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(inFile);
+  fRun->SetInputFile(digiFile);
+  fRun->AddFriend(trackFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
-  //-------- Set MC event header --------------------------------------------
-  EREventHeader* header = new EREventHeader();
-  fRun->SetEventHeader(header);
-  //------------------------------------------------------------------------
-  // ------------------------BeamDetDigitizer---------------------------------
-  Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
-  ERBeamDetDigitizer* digitizer = new ERBeamDetDigitizer(verbose);
-  digitizer->SetMWPCElossThreshold(0.006);
-
-  digitizer->SetTofTimeSigma(1e-10);
-  fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
-  
+
+  // ------------------------ track finder---------------------------------
+  ERBeamDetPID* identification = new ERBeamDetPID(1);
+
+  identification->SetPID(1000160280);
+  identification->SetIonMass(26.2716160);
+  identification->SetBoxPID(189., 192., 0.02, 0.09);
+  identification->SetOffsetTOF(0.);
+  identification->SetProbabilityThreshold(0.5);
+
+  fRun->AddTask(identification);
+  // ------------------------------------------------------------------------
   // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-
-  FairParRootFileIo*  parInput = new FairParRootFileIo();
-  parInput->open(parFile.Data(), "UPDATE");
   
-  rtdb->setFirstInput(parInput);
+  FairParRootFileIo*  parIo1 = new FairParRootFileIo();
+  parIo1->open(parFile.Data(), "UPDATE");
+  rtdb->setFirstInput(parIo1);
   
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
-  //FairParRootFileIo*  parIo2 = new FairParRootFileIo();
-  //parIo2->open(parOutFile.Data());
-  rtdb->setOutput(parInput);
-  rtdb->saveOutput();
-  
+
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
@@ -57,5 +53,4 @@ void BeamDet_digi(Int_t nEvents = 2000){
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-
 }

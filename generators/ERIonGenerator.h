@@ -133,6 +133,10 @@ class ERIonGenerator : public FairGenerator
 
     void SetKinESigma(Double32_t kinE, Double32_t sigmaKinE); 
 
+    void SetKinE(Double32_t kinE);
+
+    void SetPSigmaOverP(Double32_t sigmaPOverP) { fSigmaP = sigmaPOverP*fGausP; fSigmaPIsSet = kTRUE;}
+
     void SetPSigma(Double32_t p=0 , Double32_t sigma = 1)
     {fGausP=p; fSigmaP=sigma; fSigmaPIsSet=kTRUE;}
 
@@ -175,6 +179,7 @@ class ERIonGenerator : public FairGenerator
     Double32_t fSigmaP;
     Double32_t fGausTheta;
     Double32_t fSigmaTheta;
+    Double32_t fKinE;
 
     Bool_t     fEtaRangeIsSet;       // True if eta range is set
     Bool_t     fYRangeIsSet;         // True if rapidity range is set

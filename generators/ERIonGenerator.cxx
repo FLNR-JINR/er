@@ -67,8 +67,6 @@ ERIonGenerator::ERIonGenerator(const Char_t* ionName, Int_t mult)
 }
 // ------------------------------------------------------------------------
 
-
-
 // -----   Default constructor   ------------------------------------------
 ERIonGenerator::ERIonGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mult)
   :FairGenerator(),
@@ -82,8 +80,9 @@ ERIonGenerator::ERIonGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mu
   fEtaRangeIsSet(0), fYRangeIsSet(0),fThetaRangeIsSet(0),
   fCosThetaIsSet(0), fPtRangeIsSet(0), fPRangeIsSet(0),
   fPointVtxIsSet(0),fBoxVtxIsSet(0),fDebug(0),fIon(NULL), fName(name), 
-  fBoxSigmaIsSet(0), fSpreadingOnTarget(0), 
-  fGausTheta(0), fSigmaTheta(0), fSigmaThetaIsSet(0) 
+  fBoxSigmaIsSet(0), fSpreadingOnTarget(0),
+  fGausTheta(0), fSigmaTheta(0), fSigmaThetaIsSet(0),
+  fKinE(0)
 {
   SetPhiRange();
   fIon= new FairIon(fName, z, a, q);
@@ -106,7 +105,10 @@ ERIonGenerator::~ERIonGenerator()
 }
 //_________________________________________________________________________
 
-
+void ERIonGenerator::SetKinE(Double32_t kinE) 
+{
+  fGausP = TMath::Sqrt(kinE*kinE + 2.*kinE*fIon->GetMass()); 
+}
 
 // -----   Public method SetExcitationEnergy   ----------------------------
 void ERIonGenerator::SetExcitationEnergy(Double_t eExc)
@@ -149,11 +151,6 @@ void ERIonGenerator::SpreadingParameters()
   else if (fPtRangeIsSet) { pt   = gRandom->Uniform(fPtMin,fPtMax); }
   if (fSigmaPIsSet) { pabs = gRandom->Gaus(fGausP,fSigmaP); fPRangeIsSet = kTRUE;}
 
- /* if(fSigmaKinEIsSet) { 
-    kinE = gRandom->Gaus(fGausKinE, fSigmaKinE);
-    pabs = TMath::Sqrt(kinE*kinE + 2.*kinE*kinE*fIon->GetMass());
-    fPRangeIsSet = kTRUE;
-  }*/
   if(fSigmaThetaIsSet) { theta = gRandom->Gaus(fGausTheta,fSigmaTheta) * TMath::DegToRad(); }
   if      (fThetaRangeIsSet) {
     if (fCosThetaIsSet)
@@ -197,8 +194,6 @@ void ERIonGenerator::SpreadingParameters()
     // Recontruction of beam start position
     std::cout << "Coord on target x = " << fX << "; y = " << fY << "; theta = " << theta << std::endl;
     Double_t l = fZ / TMath::Cos(theta);
-    //fX = fZ * TMath::Tan(-theta) /*+ l*TMath::Cos(phi)*/;
-    //fY = fZ * TMath::Tan(-theta) /*+ l*TMath::Sin(phi)*/;
     fX = l * TMath::Sin(theta) * TMath::Cos(phi) + fX;
     fY = l * TMath::Sin(theta) * TMath::Sin(phi) + fY;
     std::cout << "Coord on start x = " << fX << "; y = " << fY << "; theta = " << theta << std::endl; 

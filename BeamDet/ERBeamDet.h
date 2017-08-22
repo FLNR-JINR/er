@@ -11,6 +11,8 @@
 #include "ERBeamDetTOFPoint.h"
 #include "ERBeamDetMWPCPoint.h"
 #include "ERBeamDetTargetPoint.h"
+#include "ERBeamDetTrack.h"
+#include "ERBeamDetParticle.h"
 #include "TLorentzVector.h"
 #include "TClonesArray.h"
 
@@ -106,25 +108,35 @@ public:
   **/
   virtual Bool_t CheckIfSensitive(std::string name);
 
-private:
-  TClonesArray*  fTOFPoints;
-  TClonesArray*  fMWPCPoints; 
-  TClonesArray*  fTargetPoints;
+  void SetIonName(TString ionName){fIonName = ionName; fIonPIDIsSet = kTRUE;}
+  void SetIonPID(Int_t ionPID){fIonPID = ionPID; fIonPIDIsSet = kTRUE;}
 
-  Int_t          fEventID;           //!  event index
-  Int_t          fTrackID;           //!  track index
-  Int_t          fMot0TrackID;       //!  mother track index
-  Int_t          fPID;               //!  particle PDG
-  TLorentzVector fPosIn, fPosOut;     //!  position
-  TLorentzVector fMomIn, fMomOut;     //!  momentum
-  Double32_t     fTime;              //!  time
-  Double32_t     fLength;            //!  length
-  Double32_t     fELoss;             //!  energy loss
-  Double32_t     fLightYield;
-  Int_t          fTofNb;
-  Int_t          fMWPCNb;
-  Int_t          fMWPCPlaneNb;
-  Int_t          fMWPCWireNb;
+private:
+  TClonesArray*     fTOFPoints;
+  TClonesArray*     fMWPCPoints; 
+  TClonesArray*     fTargetPoints;
+
+  ERBeamDetParticle *fBeamDetMCProjectile;
+  ERBeamDetTrack    *fBeamDetMCTrack;
+
+  Int_t             fEventID;           //!  event index
+  Int_t             fTrackID;           //!  track index
+  Int_t             fMot0TrackID;       //!  mother track index
+  Int_t             fPID;               //!  particle PDG
+  TLorentzVector    fPosIn, fPosOut;    //!  position
+  TLorentzVector    fMomIn, fMomOut;    //!  momentum
+  Double32_t        fTime;              //!  time
+  Double32_t        fLength;            //!  length
+  Double32_t        fELoss;             //!  energy loss
+  Double32_t        fLightYield;
+  Int_t             fTofNb;
+  Int_t             fMWPCNb;
+  Int_t             fMWPCPlaneNb;
+  Int_t             fMWPCWireNb;
+  TString           fIonName;
+  Int_t             fIonPID;
+
+  Bool_t            fIonPIDIsSet;
  
   
 private:

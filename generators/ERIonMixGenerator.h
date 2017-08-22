@@ -54,11 +54,12 @@ class ERIonMixGenerator : public ERIonGenerator
     virtual ~ERIonMixGenerator();
 
     Bool_t ReadEvent(FairPrimaryGenerator* primGen);
-    void AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q, Double_t probability);
+    void AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q, Double_t newIonProb);
 
   private:
 
     std::map<Double_t, TString>  fBgIons;   // Background ions names with emegence probability
+    Double_t                     fSumProbability;
     
     ERIonMixGenerator(const ERIonMixGenerator&);
     ERIonMixGenerator& operator=(const ERIonMixGenerator&);

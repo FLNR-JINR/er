@@ -1,10 +1,10 @@
-void BeamDet_digi(Int_t nEvents = 2000){
+void BeamDet_track(Int_t nEvents = 2000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "sim.root";
-  TString outFile = "digi.root";
+  TString inFile = "digi.root";
+  TString outFile = "track.root";
   TString parFile = "par.root";
-  TString parOutFile = "parOut.root";
   // ------------------------------------------------------------------------
+  
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -15,37 +15,24 @@ void BeamDet_digi(Int_t nEvents = 2000){
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
-  //-------- Set MC event header --------------------------------------------
-  EREventHeader* header = new EREventHeader();
-  fRun->SetEventHeader(header);
-  //------------------------------------------------------------------------
-  // ------------------------BeamDetDigitizer---------------------------------
-  Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
-  ERBeamDetDigitizer* digitizer = new ERBeamDetDigitizer(verbose);
-  digitizer->SetMWPCElossThreshold(0.006);
-
-  digitizer->SetTofTimeSigma(1e-10);
-  fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
-  
+
+  // ------------------------ track finder---------------------------------
+  ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(1);
+  fRun->AddTask(trackFinder);
+  // ------------------------------------------------------------------------
   // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-
-  FairParRootFileIo*  parInput = new FairParRootFileIo();
-  parInput->open(parFile.Data(), "UPDATE");
   
-  rtdb->setFirstInput(parInput);
+  FairParRootFileIo*  parIo1 = new FairParRootFileIo();
+  parIo1->open(parFile.Data(), "UPDATE");
+  rtdb->setFirstInput(parIo1);
   
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
-  //FairParRootFileIo*  parIo2 = new FairParRootFileIo();
-  //parIo2->open(parOutFile.Data());
-  rtdb->setOutput(parInput);
-  rtdb->saveOutput();
-  
+
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
@@ -57,5 +44,6 @@ void BeamDet_digi(Int_t nEvents = 2000){
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-
+  
+  
 }

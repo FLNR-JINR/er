@@ -1,36 +1,45 @@
 // ----- BeamDet parameters -------------------------------------------------
+// ----- ToF parameters -----------------------------------------------------
 Double_t plasticX = 100;
 Double_t plasticY = 100;
 Double_t plasticZ = 0.01;
 
+// --------------------------------------------------------------------------
+// ----- MWPC parameters ----------------------------------------------------
+Double_t gasVolX = 5.;
+Double_t gasVolY = 5.;
+Double_t gasVolZ = 8.2;
+
 Double_t gasX = 0.125;
-Double_t gasY = 5;
-Double_t gasZ = 0.8; //cm
+Double_t gasY = 5.;
+Double_t gasZ = 0.6; //cm
 
-Int_t    plasticsCount = 2;
-Double_t plasticOffsetZ = 1500;
+Double_t distBetweenXandY = 1.;
 
-Double_t shellOffsetZ = 1.8;
-Double_t mwpcOffsetZ = 20;
-Double_t mwpcWidth = 5.;
-Double_t mwpcHeight = 5.;
+Double_t aluminiumThickness = 5 * 1e-4;
 
-Double_t TOFpozZInBeamdet = -((plasticOffsetZ) / 2 + mwpcOffsetZ + 10);
+Double_t kaptonThickness = 12.5 * 1e-4;
 
-Double_t MWPCpozZInBeamdet = - (((mwpcOffsetZ) / 2) + 8);
+Double_t wireDiameter  = 20 * 1e-4;
+// --------------------------------------------------------------------------
+// ------ Position of detector's parts relative to zero ---------------------
+Double_t positionToF1 = -1550.;
+Double_t positionToF2 = -50.;
 
+Double_t positionMWPC1 = -40.;
+Double_t positionMWPC2 = -8.;
 // -------- Target parameters -----------------------------------------------
-
 Double_t targetH2R = 2.;   //cm
 Double_t targetH2Z = 0.4;   //cm
+
+Double_t targetShellThickness = 20 * 1e-4;
 
 Double_t transTargetX = 0.;
 Double_t transTargetY = 0.; 
 Double_t transTargetZ = 0.;
+// --------------------------------------------------------------------------
 
-Double_t shellThickness = 1.5 * 1e-4;
-
-void create_BeamDet_geo_v2()
+void create_BeamDet_geo_v3()
 {
   // Create a global translation
   Float_t global_X = 0.;
@@ -46,11 +55,16 @@ void create_BeamDet_geo_v2()
   fZeroRotation->RotateX(0.);
   fZeroRotation->RotateY(0.);
   fZeroRotation->RotateZ(0.);
-    // Create a 90 degree rotation around Z axis
+  // Create a 90 degree rotation around Z axis
   TGeoRotation *f90ZRotation = new TGeoRotation();
   f90ZRotation->RotateX(0.);
   f90ZRotation->RotateY(0.);
   f90ZRotation->RotateZ(90.);
+  // Create a 90 degree rotation around X axis
+  TGeoRotation *f90XRotation = new TGeoRotation();
+  f90XRotation->RotateX(90.);
+  f90XRotation->RotateY(0.);
+  f90XRotation->RotateZ(0.);
 
   TGeoManager*   gGeoMan = NULL;
 // -------   Load media from media file   -----------------------------------
@@ -63,13 +77,13 @@ geoFace->readMedia();
 gGeoMan = gGeoManager;
 // --------------------------------------------------------------------------
 // -------   Geometry file name (output)   ----------------------------------
-TString geoFileName = geoPath + "/geometry/beamdet.v2.geo.root";
+TString geoFileName = geoPath + "/geometry/beamdet.v3.geo.root";
 // --------------------------------------------------------------------------
 // -----------------   Get and create the required media    -----------------
 FairGeoMedia*   geoMedia = geoFace->getMedia();
 FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
 
-// ----- Create media for TOF -----------------------------------------------
+// ----- Create media for ToF -----------------------------------------------
 FairGeoMedium* mBC408      = geoMedia->getMedium("BC408");
 if ( ! mBC408 ) Fatal("Main", "FairMedium BC408 not found");
 geoBuild->createMedium(mBC408);
@@ -77,17 +91,29 @@ TGeoMedium* pMedBC408 = gGeoMan->GetMedium("BC408");
 if ( ! pMedBC408 ) Fatal("Main", "Medium BC408 not found");
 // --------------------------------------------------------------------------
 // ----- Create media for MWPC ----------------------------------------------
-FairGeoMedium* mMylar = geoMedia->getMedium("mylar");
-if ( ! mMylar ) Fatal("Main", "FairMedium mylar not found");
-geoBuild->createMedium(mMylar);
-TGeoMedium* pMedMylar = gGeoMan->GetMedium("mylar");
-if ( ! pMedMylar ) Fatal("Main", "Medium mylar not found");
+FairGeoMedium* mCF4      = geoMedia->getMedium("CF4_CH4");
+if ( ! mCF4 ) Fatal("Main", "FairMedium CF4_CH4 not found");
+geoBuild->createMedium(mCF4);
+TGeoMedium* pMedCF4 = gGeoMan->GetMedium("CF4_CH4");
+if ( ! pMedCF4 ) Fatal("Main", "Medium CF4_CH4 not found");
 
-FairGeoMedium* mRPCgas      = geoMedia->getMedium("RPCgas");
-if ( ! mRPCgas ) Fatal("Main", "FairMedium RPCgas not found");
-geoBuild->createMedium(mRPCgas);
-TGeoMedium* pMedRPCgas = gGeoMan->GetMedium("RPCgas");
-if ( ! pMedRPCgas ) Fatal("Main", "Medium RPCgas not found");
+FairGeoMedium* mKapton      = geoMedia->getMedium("kapton");
+if ( ! mKapton ) Fatal("Main", "FairMedium kapton not found");
+geoBuild->createMedium(mKapton);
+TGeoMedium* pMedKapton = gGeoMan->GetMedium("kapton");
+if ( ! pMedKapton ) Fatal("Main", "Medium kapton not found");
+
+FairGeoMedium* mAluminium      = geoMedia->getMedium("aluminium");
+if ( ! mAluminium ) Fatal("Main", "FairMedium aluminium not found");
+geoBuild->createMedium(mAluminium);
+TGeoMedium* pMedAluminium = gGeoMan->GetMedium("aluminium");
+if ( ! pMedAluminium ) Fatal("Main", "Medium aluminium not found");
+
+FairGeoMedium* mTungsten      = geoMedia->getMedium("tungsten");
+if ( ! mTungsten ) Fatal("Main", "FairMedium tungsten not found");
+geoBuild->createMedium(mTungsten);
+TGeoMedium* pMedTungsten = gGeoMan->GetMedium("tungsten");
+if ( ! pMedTungsten ) Fatal("Main", "Medium tungsten not found");
 // --------------------------------------------------------------------------
 // ------ Create media for target -------------------------------------------
 FairGeoMedium* mH2      = geoMedia->getMedium("H2");
@@ -118,78 +144,65 @@ TGeoVolume* top   = new TGeoVolumeAssembly("TOP");
 gGeoMan->SetTopVolume(top);
 
 TGeoVolume* beamdet = new TGeoVolumeAssembly("beamdet");
-TGeoVolume* TOF     = new TGeoVolumeAssembly("TOF");
-TGeoVolume* MWPC    = new TGeoVolumeAssembly("MWPC");
+//TGeoVolume* MWPC    = new TGeoVolumeAssembly("MWPC");
 TGeoVolume* target  = new TGeoVolumeAssembly("target");
 
 // --------------------------------------------------------------------------
 // ---------------- target --------------------------------------------------
 targetH2Z /= 2.;
 
-Double_t targetShellR = targetH2R + shellThickness;
+Double_t targetShellR = targetH2R + targetShellThickness;
 Double_t targetShellZ = targetH2Z;
 
 TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, targetH2R, targetH2Z);
 TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, targetShellR, targetShellZ);
-//TGeoVolume *targetH2 = gGeoManager->MakeBox("targetH2", pH2, targetH2R, targetH2R, targetH2Z);
-//TGeoVolume *targetShell = gGeoManager->MakeBox("targetShell", pSteel, targetShellR, targetShellR, targetShellZ);
 // --------------------------------------------------------------------------
 // ----------------- MWPC ---------------------------------------------------
+gasVolX /= 2.;
+gasVolY /= 2.;
+gasVolZ /= 2.;
+TGeoVolume* gasVol = gGeoManager->MakeBox("MWPCVol", pMedCF4, gasVolX, gasVolY, gasVolZ);
+
+TGeoVolume* MWPC = gGeoManager->MakeBox("MWPC", pMedKapton, gasVolX, gasVolY, gasVolZ + kaptonThickness);
+
 gasX /= 2.0;
 gasY /= 2.0;
 gasZ /= 2.0;
-TGeoVolume* gas   = gGeoManager->MakeBox("gas", pMedRPCgas, gasX, gasY, gasZ);
+TGeoVolume* gas = gGeoManager->MakeBox("gas", pMedCF4, gasX, gasY, gasZ);
 
-Double_t shellThickness = 20 * 1e-4; //cm
-shellThickness /= 2.0;
-Double_t shellX = gasY + shellThickness;
-Double_t shellY = gasY + shellThickness;
-Double_t shellZ = gasZ + shellThickness; 
-TGeoVolume* shell = gGeoManager->MakeBox("shell", pMedMylar, shellX, shellY, shellZ);
+TGeoVolume* gasPlane = gGeoManager->MakeBox("gasPlane", pMedCF4, gasVolX, gasVolY, gasZ + aluminiumThickness);
+
+TGeoVolume* tungstenWire = gGeoManager->MakeTube("tungstenWire", pMedTungsten, 0, wireDiameter / 2, gasY);
 // --------------------------------------------------------------------------
-// ---------------- TOF -----------------------------------------------------
+// ---------------- ToF -----------------------------------------------------
 plasticX /= 2.0;
 plasticY /= 2.0;
 plasticZ /= 2.0;
 TGeoVolume* plastic = gGeoManager->MakeBox("plastic", pMedBC408, plasticX, plasticY, plasticZ);
 // --------------------------------------------------------------------------
 //------------------ STRUCTURE  ---------------------------------------------
+gas->AddNode(tungstenWire, 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
 
-Double_t plasticPosZ = - plasticOffsetZ / 2;
-
-for (Int_t i_plastic = 0; i_plastic < plasticsCount; i_plastic++)
-{
-  plasticPosZ = plasticPosZ + i_plastic * plasticOffsetZ;
-  TOF->AddNode(plastic, i_plastic  + 1, new TGeoCombiTrans(0, 0, plasticPosZ, fZeroRotation));
-}
-
-mwpcWidth /= 2.0;
-Int_t gasCountX = mwpcHeight / (2 * gasX);
+Int_t gasCount = gasVolX / (2 * gasX);
 
 Double_t gasPosX;
 
-for(Int_t i_gas = 1; i_gas <= gasCountX; i_gas++)
+for(Int_t i_gas = 1; i_gas <= 2*gasCount; i_gas++)
 {
-  gasPosX = mwpcWidth - gasX * 2 * (i_gas - 1) - gasX;
-  shell->AddNode(gas, i_gas, new TGeoCombiTrans(gasPosX, 0, 0, fZeroRotation));
+  gasPosX = gasVolX - gasX * 2 * (i_gas - 1) - gasX;
+  gasPlane->AddNode(gas, i_gas, new TGeoCombiTrans(gasPosX, 0, 0, fZeroRotation));
 }
 
-TGeoVolume* MWPC1   = gGeoManager->MakeBox("MWPC1", pMed0, shellX, shellY, 2*shellZ + shellOffsetZ);
-TGeoVolume* MWPC2   = gGeoManager->MakeBox("MWPC2", pMed0, shellX, shellY, 2*shellZ + shellOffsetZ);
+gasVol->AddNode(gasPlane, 1, new TGeoCombiTrans(0, 0, -distBetweenXandY / 2, fZeroRotation));
+gasVol->AddNode(gasPlane, 2, new TGeoCombiTrans(0, 0, distBetweenXandY / 2, f90ZRotation));
 
-mwpcOffsetZ /= 2.0;
+MWPC->AddNode(gasVol, 1, new TGeoCombiTrans(0, 0, 0, fZeroRotation));
 
-MWPC1->AddNode(shell, 1, new TGeoCombiTrans(0, 0, -shellOffsetZ / 2, fZeroRotation));
-MWPC1->AddNode(shell, 2, new TGeoCombiTrans(0, 0, shellOffsetZ / 2, f90ZRotation));
+beamdet->AddNode(plastic, 1, new TGeoCombiTrans(global_X, global_Y, positionToF1, fGlobalRotation));
+beamdet->AddNode(plastic, 2, new TGeoCombiTrans(global_X, global_Y, positionToF2, fGlobalRotation));
+beamdet->AddNode(MWPC, 1, new TGeoCombiTrans(global_X, global_Y, positionMWPC1, fGlobalRotation));
+beamdet->AddNode(MWPC, 2, new TGeoCombiTrans(global_X, global_Y, positionMWPC2, fGlobalRotation));
 
-MWPC2->AddNode(shell, 1, new TGeoCombiTrans(0, 0, -shellOffsetZ / 2, fZeroRotation));
-MWPC2->AddNode(shell, 2, new TGeoCombiTrans(0, 0, shellOffsetZ / 2, f90ZRotation));
-
-MWPC->AddNode(MWPC1, 1, new TGeoCombiTrans(0, 0, -mwpcOffsetZ, fZeroRotation));
-MWPC->AddNode(MWPC2, 2, new TGeoCombiTrans(0, 0, mwpcOffsetZ, fZeroRotation));
-
-beamdet->AddNode(TOF, 1, new TGeoCombiTrans(global_X, global_Y, TOFpozZInBeamdet, fGlobalRotation));
-beamdet->AddNode(MWPC, 1, new TGeoCombiTrans(global_X, global_Y, MWPCpozZInBeamdet, fGlobalRotation));
 
 targetShell->AddNode(targetH2, 1, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
 target->AddNode(targetShell, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
