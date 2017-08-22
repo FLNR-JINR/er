@@ -19,45 +19,35 @@ void create_RTelescope_geo_v3()
 
 	FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
     FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-  	TString geoPath = gSystem->Getenv("VMCWORKDIR");
-  	TString medFile = geoPath + "/geometry/media.geo";
-  	geoFace->setMediaFile(medFile);
-  	geoFace->readMedia();
+    TString geoPath = gSystem->Getenv("VMCWORKDIR");
+    TString medFile = geoPath + "/geometry/media.geo";
+    geoFace->setMediaFile(medFile);
+    geoFace->readMedia();
     TGeoManager* gGeoMan = gGeoManager;
-  	// -------   Geometry file name (output)   ----------------------------------
-  	TString geoFileName = geoPath + "/geometry/RTelescope.v5.geo.root";
+    // -------   Geometry file name (output)   ----------------------------------
+    TString geoFileName = geoPath + "/geometry/RTelescope.v3.geo.root";
 
 	// Common stuff
     FairGeoMedia*   geoMedia = geoFace->getMedia();
     FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
 
-
     FairGeoMedium* mpSi      = geoMedia->getMedium("silicon");
-  	if ( ! mpSi ) Fatal("Main", "FairMedium silicon not found");
-  	geoBuild->createMedium(mpSi);
-  	TGeoMedium* pSi = gGeoMan->GetMedium("silicon");
-  	if ( ! pSi ) Fatal("Main", "Medium silicon not found");
+    if ( ! mpSi ) Fatal("Main", "FairMedium silicon not found");
+    geoBuild->createMedium(mpSi);
+    TGeoMedium* pSi = gGeoMan->GetMedium("silicon");
+    if ( ! pSi ) Fatal("Main", "Medium silicon not found");
   
-  	FairGeoMedium* mpAir      = geoMedia->getMedium("Air");
-  	if ( ! mpAir ) Fatal("Main", "FairMedium Air not found");
-  	geoBuild->createMedium(mpAir);
-  	TGeoMedium* pAir= gGeoMan->GetMedium("Air");
-  	if ( ! pAir ) Fatal("Main", "Medium Air not found");
+    FairGeoMedium* mpAir      = geoMedia->getMedium("vacuum");
+    if ( ! mpAir ) Fatal("Main", "FairMedium vacuum not found");
+    geoBuild->createMedium(mpAir);
+    TGeoMedium* pAir= gGeoMan->GetMedium("vacuum");
+    if ( ! pAir ) Fatal("Main", "Medium vacuum not found");
 
-  	FairGeoMedium* mpCsI      = geoMedia->getMedium("CsI");
-  	if ( ! mpCsI ) Fatal("Main", "FairMedium Csi not found");
-  	geoBuild->createMedium(mpCsI);
-  	TGeoMedium* pCsI = gGeoMan->GetMedium("CsI");
-  	if ( ! pCsI ) Fatal("Main", "Medium CsI not found");
-
-	/*TGeoMaterial* mpAir = new TGeoMaterial("mpAir", 0, 0, 0);
-	TGeoMedium* pAir = new TGeoMedium("pAir", 1, mpAir);
-	TGeoMaterial* mpSi = new TGeoMaterial("mpSi", 0, 0, 0);
-	TGeoMedium* pSi = new TGeoMedium("pSi", 1, mpSi);
-	TGeoMaterial* mpMed0 = new TGeoMaterial("mpMed0", 0, 0, 0);
-	TGeoMedium* pMed0 = new TGeoMedium("pMed0", 1, mpMed0);
-	TGeoMaterial* mpCsI = new TGeoMaterial("mpCsI", 0, 0, 0);
-	TGeoMedium* pCsI = new TGeoMedium("pCsI", 1, mpCsI);*/
+    FairGeoMedium* mpCsI      = geoMedia->getMedium("CsI");
+    if ( ! mpCsI ) Fatal("Main", "FairMedium Csi not found");
+    geoBuild->createMedium(mpCsI);
+    TGeoMedium* pCsI = gGeoMan->GetMedium("CsI");
+    if ( ! pCsI ) Fatal("Main", "Medium CsI not found");
 
 	TGeoTranslation* zeroTrans = new TGeoTranslation("zeroTrans", 0., 0., 0.);
 	TGeoRotation* zeroRot = new TGeoRotation("zeroRot", 0., 0., 0.);
@@ -80,28 +70,36 @@ void create_RTelescope_geo_v3()
 
 	// Sensors
 	TString sensorName;
-	TGeoVolume* sensor_ring1[16];
+	TGeoVolume* sensor_ring1R1[16];
+	TGeoVolume* sensor_ring1R2[16];
 
 	for (UInt_t iSensor=0; iSensor<16; iSensor++) {
-		sensorName.Form("sensor_ring1_type%d", iSensor);
-		sensor_ring1[iSensor] = gGeoMan->MakeTubs(sensorName, pSi,
+		sensorName.Form("sensor_ring1R1_type%d", iSensor);
+		sensor_ring1R1[iSensor] = gGeoMan->MakeTubs(sensorName, pSi,
+			R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR, thickness1/2., 0., 360./16.);
+		sensor_ring1R2[iSensor] = gGeoMan->MakeTubs(sensorName, pSi,
 			R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR, thickness1/2., 0., 360./16.);
 	}
 
 	// Sectors
-	TGeoVolume* sector_ring1 = gGeoMan->MakeTubs("sector_ring1", pSi,
+	TGeoVolume* sector_ring1R1 = gGeoMan->MakeTubs("sector_ring1R1", pSi,
+		R_min, R_max, thickness1/2., 0., 360./16.);
+	TGeoVolume* sector_ring1R2 = gGeoMan->MakeTubs("sector_ring1R2", pSi,
 		R_min, R_max, thickness1/2., 0., 360./16.);
 
 	// Positioning sensors inside the sector
 	for (UInt_t iSensor=0; iSensor<16; iSensor++) {
-		sector_ring1->AddNode(sensor_ring1[iSensor], 1, zeroCombitrans);
+		sector_ring1R1->AddNode(sensor_ring1R1[iSensor], 1, zeroCombitrans);
+		sector_ring1R2->AddNode(sensor_ring1R2[iSensor], 1, zeroCombitrans);
 	}
 
 	// Dead ring
-	TGeoVolume* dead_ring1 = gGeoMan->MakeTubs("ring1_dead_zone", pSi,
+	TGeoVolume* dead_ring1R1 = gGeoMan->MakeTubs("ring1R1_dead_zone", pSi,
 		R_min-addendR_dead_inner1, R_max+addendR_dead_outer1,
 		(thickness_dead_before1 + thickness1 + thickness_dead_after1)/2., 0., 360.);
-
+    TGeoVolume* dead_ring1R2 = gGeoMan->MakeTubs("ring1R2_dead_zone", pSi,
+		R_min-addendR_dead_inner1, R_max+addendR_dead_outer1,
+		(thickness_dead_before1 + thickness1 + thickness_dead_after1)/2., 0., 360.);
 	// Positioning sectors inside the ring
 	TString curRotName;
 	for (UInt_t iSector=0; iSector<16; iSector++)
@@ -109,7 +107,8 @@ void create_RTelescope_geo_v3()
 		curRotName.Form("SectorRot1_%d", iSector);
 		TGeoRotation* curRot = new TGeoRotation(curRotName, 0., 0., (360./16.)*iSector);
 		TGeoCombiTrans* curCombitrans = new TGeoCombiTrans(*zeroTrans, *curRot);
-		dead_ring1->AddNode(sector_ring1, iSector+1, curCombitrans); //TODO check index - from 0 or from 1
+		dead_ring1R1->AddNode(sector_ring1R1, iSector+1, curCombitrans); //TODO check index - from 0 or from 1
+		dead_ring1R2->AddNode(sector_ring1R2, iSector+1, curCombitrans);
 	}
 
 	// ================================================================
@@ -121,11 +120,16 @@ void create_RTelescope_geo_v3()
 	Double_t addendR_dead_outer2 = 0.05;
 
 	// Sectors
-	TGeoVolume* sector_ring2 = gGeoMan->MakeTubs("sector_ring2", pSi,
+	TGeoVolume* sector_ring2R1 = gGeoMan->MakeTubs("sector_ring2R1", pSi,
+		R_min, R_max, thickness2/2., 0., 360./16.);
+	TGeoVolume* sector_ring2R2 = gGeoMan->MakeTubs("sector_ring2R2", pSi,
 		R_min, R_max, thickness2/2., 0., 360./16.);
 
 	// Dead ring
-	TGeoVolume* dead_ring2 = gGeoMan->MakeTubs("ring2_dead_zone", pSi,
+	TGeoVolume* dead_ring2R1 = gGeoMan->MakeTubs("ring2R1_dead_zone", pSi,
+		R_min-addendR_dead_inner2, R_max+addendR_dead_outer2,
+		(thickness_dead_before2 + thickness2 + thickness_dead_after2)/2., 0., 360.);
+	TGeoVolume* dead_ring2R2 = gGeoMan->MakeTubs("ring2R2_dead_zone", pSi,
 		R_min-addendR_dead_inner2, R_max+addendR_dead_outer2,
 		(thickness_dead_before2 + thickness2 + thickness_dead_after2)/2., 0., 360.);
 
@@ -135,7 +139,8 @@ void create_RTelescope_geo_v3()
 		curRotName.Form("SectorRot2_%d", iSector);
 		TGeoRotation* curRot = new TGeoRotation(curRotName, 0., 0., (360./16.)*iSector);
 		TGeoCombiTrans* curCombitrans = new TGeoCombiTrans(*zeroTrans, *curRot);
-		dead_ring2->AddNode(sector_ring2, iSector+1, curCombitrans); //TODO check index - from 0 or from 1
+		dead_ring2R1->AddNode(sector_ring2R1, iSector+1, curCombitrans); //TODO check index - from 0 or from 1
+		dead_ring2R2->AddNode(sector_ring2R2, iSector+1, curCombitrans);
 	}
 
 	// ================================================================
@@ -153,14 +158,14 @@ void create_RTelescope_geo_v3()
 
     //CsI crystall
 	thickness_dead = 0.0014;
-	Double_t cr1_dx1 = t1_dx1 - thickness_dead;
-	Double_t cr1_dx2 = t1_dx2 - thickness_dead;
-	Double_t cr1_dy = t1_dy - thickness_dead;
+	Double_t cr1_dx1 = t1_dx1 - thickness_dead*2;
+	Double_t cr1_dx2 = t1_dx2 - thickness_dead*2;
+	Double_t cr1_dy = t1_dy - thickness_dead*2;
 	Double_t cr1_dz = t1_dz;
-	Double_t cr2_dx1 = t2_dx1 - thickness_dead;
-	Double_t cr2_dx2 = t2_dx2 - thickness_dead;
-	Double_t cr2_dy1 = t2_dy1 - thickness_dead;
-	Double_t cr2_dy2 = t2_dy2 - thickness_dead;
+	Double_t cr2_dx1 = t2_dx1 - thickness_dead*2;
+	Double_t cr2_dx2 = t2_dx2 - thickness_dead*2;
+	Double_t cr2_dy1 = t2_dy1 - thickness_dead*2;
+	Double_t cr2_dy2 = t2_dy2 - thickness_dead*2;
 	Double_t cr2_dz = t2_dz;
 	
 
@@ -175,8 +180,10 @@ void create_RTelescope_geo_v3()
 	combitransOp3->RegisterYourself();
 	TGeoCompositeShape* crystalShapeDead = new TGeoCompositeShape("crystalShapeDead", "trd1+trd2:M");
 	TGeoCompositeShape* crystalShape = new TGeoCompositeShape("crystalShape", "cr1+cr2:P");
-	TGeoVolume* crystalVolDead = new TGeoVolume("crDead", crystalShapeDead, pSi);
-	TGeoVolume* crystalVol = new TGeoVolume("crystall", crystalShape, pCsI);
+	TGeoVolume* crystalVolDeadR1 = new TGeoVolume("crDeadR1", crystalShapeDead, pSi);
+	TGeoVolume* crystalVolR1 = new TGeoVolume("crystallR1", crystalShape, pCsI);
+	TGeoVolume* crystalVolDeadR2 = new TGeoVolume("crDeadR2", crystalShapeDead, pSi);
+	TGeoVolume* crystalVolR2 = new TGeoVolume("crystallR2", crystalShape, pCsI);
 	
 
 	Double_t alpha = 11.25;
@@ -187,11 +194,14 @@ void create_RTelescope_geo_v3()
 	// Inner radius is 1mm less that it should be
 	// to avoid overlaps due to mathematical errors
 
-	TGeoVolume* CsIarray = gGeoMan->MakeTubs("crystalArray", pAir,
+	TGeoVolume* CsIarrayR1 = gGeoMan->MakeTubs("crystalArrayR1", pAir,
+		x-0.1, (x+t1_dz+t2_dz)+0.1, 1.9/2., 0., 360.);
+	TGeoVolume* CsIarrayR2 = gGeoMan->MakeTubs("crystalArrayR2", pAir,
 		x-0.1, (x+t1_dz+t2_dz)+0.1, 1.9/2., 0., 360.);
 
 	// Positioning crystals inside the crystalArray container
-	crystalVolDead->AddNode(crystalVol, 1, zeroCombitrans);
+	crystalVolDeadR1->AddNode(crystalVolR1, 1, zeroCombitrans);
+	crystalVolDeadR2->AddNode(crystalVolR2, 1, zeroCombitrans);
 	TString curTransName;
 	for (UInt_t iCrystal=0; iCrystal<16; iCrystal++)
 	{
@@ -210,34 +220,34 @@ void create_RTelescope_geo_v3()
 		TGeoCombiTrans* curCombitrans = new TGeoCombiTrans(*curTrans, *curRot);
 
         //crystalVolDead->AddNode(crystalVol, iCrystal+1, zeroCombitrans);
-		CsIarray->AddNode(crystalVolDead, iCrystal+1, curCombitrans);
+		CsIarrayR1->AddNode(crystalVolDeadR1, iCrystal+1, curCombitrans);
+		CsIarrayR2->AddNode(crystalVolDeadR2, iCrystal+1, curCombitrans);
 	}
 
 	// ================================================================
 	// Top volume
 	gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
     gGeoMan->SetName("DETgeom");
-    //TGeoVolume* topVolume = new TGeoVolumeAssembly("TOP");
 	TGeoVolume* topVolume = gGeoMan->MakeBox("topVolume", pAir, 5000., 5000., 5000.);
 	gGeoMan->SetTopVolume(topVolume);
-	TGeoVolume* RTelescope1 = gGeoMan->MakeBox("RTelescope1Volume", pAir, 10., 10., 6.);
-	TGeoVolume* RTelescope2 = gGeoMan->MakeBox("RTelescope2Volume", pAir, 10., 10., 6.);
+	TGeoVolume* RTelescope1 = gGeoMan->MakeBox("RTelescope1", pAir, 10., 10., 6.);
+	TGeoVolume* RTelescope2 = gGeoMan->MakeBox("RTelescope2", pAir, 10., 10., 6.);
 
 	// Positioning ring1, ring2 and crystalArray inside top
 	TGeoTranslation* ring1Trans = new TGeoTranslation(0., 0., 0.);
 	TGeoCombiTrans* ring1Combitrans = new TGeoCombiTrans(*ring1Trans, *zeroRot);
-	RTelescope1->AddNode(dead_ring1, 1, ring1Combitrans);
-    RTelescope2->AddNode(dead_ring1, 1, ring1Combitrans);
+	RTelescope1->AddNode(dead_ring1R1, 1, ring1Combitrans);
+    RTelescope2->AddNode(dead_ring1R2, 1, ring1Combitrans);
 
 	TGeoTranslation* ring2Trans = new TGeoTranslation(0., 0., 1.);
 	TGeoCombiTrans* ring2Combitrans = new TGeoCombiTrans(*ring2Trans, *zeroRot);
-	RTelescope1->AddNode(dead_ring2, 1, ring2Combitrans);
-    RTelescope2->AddNode(dead_ring2, 1, ring2Combitrans);
+	RTelescope1->AddNode(dead_ring2R1, 1, ring2Combitrans);
+    RTelescope2->AddNode(dead_ring2R2, 1, ring2Combitrans);
 
 	TGeoTranslation* CsIarrayTrans = new TGeoTranslation(0., 0., 0.1 + t1_dy + thickness2);
 	TGeoCombiTrans* CsIarrayCombitrans = new TGeoCombiTrans(*CsIarrayTrans, *zeroRot);
-	RTelescope1->AddNode(CsIarray, 1, CsIarrayCombitrans);
-    RTelescope2->AddNode(CsIarray, 1, CsIarrayCombitrans);
+	RTelescope1->AddNode(CsIarrayR1, 1, CsIarrayCombitrans);
+    RTelescope2->AddNode(CsIarrayR2, 1, CsIarrayCombitrans);
 
     TGeoTranslation* rtelescope1Trans = new TGeoTranslation(0., 0., 0.);
     TGeoCombiTrans* rtelescope1Combitrans = new TGeoCombiTrans(*rtelescope1Trans, *zeroRot);
