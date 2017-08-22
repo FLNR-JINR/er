@@ -72,7 +72,7 @@ InitStatus ERBeamDetReconstructor::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERBeamDetReconstructor::Exec(Option_t* opt)
 {
-  std::cout << "####### ERBeamDetReconstructor EVENT " << fEvent++ << " #####" << std::endl;
+  std::cout << "####### ERBeamDetReconstructor EVENT " << header->HE8Event_nevent<< " #####" << std::endl;
   Reset();
   MWPC();
   Tof();
@@ -89,6 +89,7 @@ void ERBeamDetReconstructor::Tof(){
   //RawD.mtrack = 1;i_flag_MW = 1;
 
     header->mbeam = 0;
+
     // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
     //        fInCalEvent->tF3l = fInCalEvent->tF3l - fInCalEvent->tF4r+ParD.CLB[3][0][0][1];
     //        fInCalEvent->tF3r = fInCalEvent->tF3r - fInCalEvent->tF4r+ParD.CLB[3][1][0][1];
@@ -326,7 +327,8 @@ double ERBeamDetReconstructor::coordMW(UpstreamMatter* pT,ERBeamDetRecoEvent* pR
     {n += nMW[k-1];}
     Sn = (double)n/(double)mMW;
   }
-  Sn += (rand() %10000)/10000.-0.5;
+  //Sn += (rand() %10000)/10000.-0.5;
+  cout << pT->MWstep << " " << iMW << " " << Sn << " " << pT->MWNwires << " " << offset << endl;
   co = pT->MWstep*iMW*(Sn-(double)(pT->MWNwires+1)/2.)+offset;
   return co;
 }

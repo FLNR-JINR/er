@@ -40,7 +40,7 @@ void RTelescope_sim(Int_t nEvents = 1000){
   */
   Int_t verbose = 1;
   ERRTelescope* RTelescope= new ERRTelescope("ERRTelescope", kTRUE,verbose);
-  RTelescope->SetGeometryFileName("RTelescope.v2.geo.root");
+  RTelescope->SetGeometryFileName("DSRD.geo.root");
   run->AddModule(RTelescope);
   // ------------------------------------------------------------------------
 	

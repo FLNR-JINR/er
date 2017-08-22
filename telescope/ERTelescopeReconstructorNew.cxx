@@ -117,6 +117,7 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
   Float_t z = -10.;
   Float_t phi = (sector-0.5)*2.*TMath::Pi()/nSectors + TMath::Pi()/2.;
   Float_t R = rmax-(ring-0.5)*(rmax-rmin)/nRings;
+  cout << phi*TMath::RadToDeg() << " " << R << " " << ring << endl;
   fOutEvent->x11 = R*TMath::Cos(phi);
   fOutEvent->y11 = R*TMath::Sin(phi);
 

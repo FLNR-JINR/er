@@ -1,10 +1,10 @@
 void beamtest(Int_t nEvents = 20)
 {
   TString workdir = gSystem->Getenv("VMCWORKDIR");
-	TString inFile = workdir + "/input/t_8he_027.root";
+	TString inFile = workdir + "/input/t_8he_026.root";
 
 	// --- Specify output file name (this is just an example)
-	TString outFile = "out27.root";
+	TString outFile = "out26.root";
 
   std::cout << ">>> input file is " << inFile  << std::endl;
   std::cout << ">>> output file is " << outFile << std::endl;
@@ -53,7 +53,7 @@ void beamtest(Int_t nEvents = 20)
   timer.Start();
   std::cout << ">>> Starting run..." << std::endl;
   run->Init();
-  run->Run(0,nEvents);
+  run->Run(531812,531813);
 
   timer.Stop();
   
