@@ -16,63 +16,62 @@
 #include "ERRTelescopeCsIPoint.h"
 
 
-class ERRTelescopeDigitizer : public FairTask {
+class ERRTelescopeDigitizer : public FairTask 
+{
+    public:
+        /** Default constructor **/
+        ERRTelescopeDigitizer();
 
-public:
-  /** Default constructor **/
-  ERRTelescopeDigitizer();
+        /** Constructor
+        ** verbose: 1 - only standard log print, 2 - print digi information
+        **/
+        ERRTelescopeDigitizer(Int_t verbose);
 
-  /** Constructor
-  ** verbose: 1 - only standard log print, 2 - print digi information
-  **/
-  ERRTelescopeDigitizer(Int_t verbose);
+        /** Destructor **/
+        ~ERRTelescopeDigitizer();
 
-  /** Destructor **/
-  ~ERRTelescopeDigitizer();
+        /** Virtual method Init **/
+        virtual InitStatus Init();
 
-  /** Virtual method Init **/
-  virtual InitStatus Init();
+        /** Virtual method Exec **/
+        virtual void Exec(Option_t* opt);
 
-  /** Virtual method Exec **/
-  virtual void Exec(Option_t* opt);
+        /** Virtual method Finish **/
+        virtual void Finish();
 
-  /** Virtual method Finish **/
-  virtual void Finish();
+        /** Virtual method Reset **/
+        virtual void Reset();
 
-  /** Virtual method Reset **/
-  virtual void Reset();
+        /** Modifiers **/
+        void SetSiElossThreshold(Float_t th){fElossThreshold = th;}
+        void SetSiElossSigma(Float_t sigma) {fElossSigma = sigma;}
+        void SetSiTimeSigma(Float_t sigma) {fTimeSigma = sigma;}
+        /** Accessors **/
+        Float_t ElossDispersion() const {return fElossSigma;}
+        Float_t TimeDispersionPar() const {return fTimeSigma;}
+    protected:
+        //Input arrays
+        TClonesArray *fSiPoints;
+        TClonesArray *fCsIPoints;
 
-  /** Modifiers **/
-  void SetSiElossThreshold(Float_t th){fElossThreshold = th;}
-  void SetSiElossSigma(Float_t sigma) {fElossSigma = sigma;}
-  void SetSiTimeSigma(Float_t sigma) {fTimeSigma = sigma;}
-  /** Accessors **/
-  Float_t ElossDispersion() const {return fElossSigma;}
-  Float_t TimeDispersionPar() const {return fTimeSigma;}
-protected:
-  //Input arrays
-  TClonesArray *fSiPoints;
-  TClonesArray *fCsIPoints;
+        //Output arrays
+        TClonesArray *fRTelescopeSiDigi;
+        TClonesArray *fRTelescopeCsIDigi;
 
-  //Output arrays
-  TClonesArray *fRTelescopeSiDigi;
-  TClonesArray *fRTelescopeCsIDigi;
+        Float_t fElossSigma;
+        Float_t fTimeSigma;
+        Float_t fElossThreshold;
+        Float_t fDigiEloss;
 
+        //ERBeamDetSetup* fBeamDetSetup;
+        Int_t AddEdep( ERRTelescopeSiPoint *Sipoint, Double_t time, Float_t edep);
+        ERRTelescopeSiDigi* AddSiDigi(Int_t side, Int_t Nb, Int_t telescopeNb, Int_t detectorNb, Double_t time, Float_t edep);
+        ERRTelescopeCsIDigi* AddCsIDigi(Int_t telescopeNb, Int_t detectorNb, Float_t edep, Double_t time, Int_t crystall);
+       // void PointsToDigi(map<Int_t, map<Int_t, vector<Int_t>>> points, Int_t telescope, Int_t detector, ERRTelescopeSiDigi *si_digi);
 
-  Float_t fElossSigma;
-  Float_t fTimeSigma;
-  Float_t fElossThreshold;
-  Float_t fDigiEloss;
-
-  //ERBeamDetSetup* fBeamDetSetup;
-protected:
-  ERRTelescopeSiDigi* AddSiDigi(Float_t edep, Double_t time, Int_t sectorNb, Int_t sensorNb);
-  ERRTelescopeCsIDigi* AddCsIDigi(Float_t edep, Double_t time, Int_t crystall);
-
-private:
-  virtual void SetParContainers();
-
-  ClassDef(ERRTelescopeDigitizer,1)
+    private:
+        virtual void SetParContainers();
+        ClassDef(ERRTelescopeDigitizer,1)
 };
 
 #endif

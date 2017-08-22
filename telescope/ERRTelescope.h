@@ -124,6 +124,8 @@ private:
   Double32_t     fELoss;             //!  energy loss
   Int_t          fSectorNb;
   Int_t          fSensorNb;
+  Int_t          fTelescopeNb;
+  Int_t          fDetectorNb;
   Int_t          fCrystallNb;
   
   

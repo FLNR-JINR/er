@@ -20,7 +20,7 @@ class ERRTelescopeCsIDigi : public FairMultiLinkedData
 
   /** Constructor with arguments
    **/
-  ERRTelescopeCsIDigi(Int_t id, Float_t Edep, Double_t time, Int_t crystall);
+  ERRTelescopeCsIDigi(Int_t id, Int_t telescopeNb, Int_t detectorNb, Float_t Edep, Double_t time, Int_t crystall);
 
   /** Copy constructor **/
   ERRTelescopeCsIDigi(const ERRTelescopeCsIDigi&);
@@ -40,7 +40,8 @@ class ERRTelescopeCsIDigi : public FairMultiLinkedData
 
  protected:
   Int_t     fID;
-
+  Int_t     fTelescopeNb;
+  Int_t     fDetectorNb;
   Int_t     fCrystallNb;
   Double_t  fTime;
   Float_t   fEdep;

@@ -39,7 +39,7 @@ class ERRTelescopeCsIPoint : public FairMCPoint
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [KeV]
    **/
-  ERRTelescopeCsIPoint(Int_t eventID, Int_t trackID,
+  ERRTelescopeCsIPoint(Int_t eventID, Int_t trackID, Int_t telescopeNb, Int_t detectorNb,
 		  Int_t mot0trackID,
 		  Double_t mass,
 		  TVector3 posIn,
@@ -80,6 +80,8 @@ class ERRTelescopeCsIPoint : public FairMCPoint
   /** Point coordinates at given z from linear extrapolation **/
   Double_t GetX(Double_t z) const;
   Double_t GetY(Double_t z) const;
+  Int_t  GetTelescope() const  {return fTelescopeNb;}
+  Int_t  GetDetector() const  {return fDetectorNb;}
   Int_t GetCrystallNb() const {return fCrystallNb;}
 
   /** Check for distance between in and out **/
@@ -92,6 +94,8 @@ class ERRTelescopeCsIPoint : public FairMCPoint
   
   Int_t fEventID;
   Int_t fMot0TrackID;
+  Int_t     fTelescopeNb;
+  Int_t     fDetectorNb;
   Double_t fPID;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;

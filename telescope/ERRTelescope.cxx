@@ -140,7 +140,7 @@ void ERRTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset
 ERRTelescopeSiPoint* ERRTelescope::AddSiPoint() {
   TClonesArray& clref = *fSiPoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERRTelescopeSiPoint(fEventID, fTrackID, fMot0TrackID, fPID,
+  return new(clref[size]) ERRTelescopeSiPoint(fEventID, fTrackID, fTelescopeNb, fDetectorNb,fMot0TrackID, fPID,
                 TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
@@ -153,7 +153,7 @@ ERRTelescopeSiPoint* ERRTelescope::AddSiPoint() {
 ERRTelescopeCsIPoint* ERRTelescope::AddCsIPoint() {
   TClonesArray& clref = *fCsIPoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERRTelescopeCsIPoint(fEventID, fTrackID, fMot0TrackID, fPID,
+  return new(clref[size]) ERRTelescopeCsIPoint(fEventID, fTrackID, fTelescopeNb, fDetectorNb,fMot0TrackID, fPID,
                 TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
@@ -204,11 +204,15 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
       {
         gMC->CurrentVolID(fSensorNb);
         gMC->CurrentVolOffID(1, fSectorNb);
+        gMC->CurrentVolOffID(2, fDetectorNb);
+        gMC->CurrentVolOffID(3, fTelescopeNb);
         AddSiPoint();
       }
       if(volName.Contains("crystall"))
       {
         gMC->CurrentVolID(fCrystallNb);
+        gMC->CurrentVolOffID(1, fDetectorNb);
+        gMC->CurrentVolOffID(2, fTelescopeNb);
         AddCsIPoint();
       }
     }
