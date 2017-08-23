@@ -80,8 +80,8 @@ class ERRTelescopeCsIPoint : public FairMCPoint
   /** Point coordinates at given z from linear extrapolation **/
   Double_t GetX(Double_t z) const;
   Double_t GetY(Double_t z) const;
-  Int_t  GetTelescope() const  {return fTelescopeNb;}
-  Int_t  GetDetector() const  {return fDetectorNb;}
+  Int_t  GetTelescopeNb() const  {return fTelescopeNb;}
+  Int_t  GetDetectorNb() const  {return fDetectorNb;}
   Int_t GetCrystallNb() const {return fCrystallNb;}
 
   /** Check for distance between in and out **/

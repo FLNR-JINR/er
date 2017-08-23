@@ -95,132 +95,152 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
 {
     Reset();
     //Sort the points by sensors and sectors
-    // УТОЧНИТЬ КОЛИЧЕСТВО ДЕТЕКТОРОВ! ОТ этого зависит сортировка
-    map<Int_t, vector<Int_t>> points_Sector;
-    map<Int_t, vector<Int_t>> points_Ring;
+    //=====================================================
+    // СТОИТ ЛИ ВЫНОСИТЬ ЦИКЛ В ОТДЕЛЬНУЮ ФУНКЦИЮ ?
+    //=====================================================
+
+    map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>> SiPoints_Sector;
+    map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>> SiPoints_Ring;
   
     for (Int_t iPoint = 0; iPoint < fSiPoints->GetEntriesFast(); iPoint++)
     {
         ERRTelescopeSiPoint *point = (ERRTelescopeSiPoint *)fSiPoints->At(iPoint);
-        points_Sector[point->GetSectorNb()].push_back(iPoint);
-        points_Sector[point->GetSectorNb()].push_back(iPoint);
+        SiPoints_Ring[point->GetTelescopeNb()][point->GetDetectorNb()][point->GetSensorNb()].push_back(iPoint);
+        SiPoints_Sector[point->GetTelescopeNb()][point->GetDetectorNb()][point->GetSectorNb()].push_back(iPoint);
     }
 
-    map<Int_t, vector<Int_t>>::iterator    itSector;
-    map<Int_t, vector<Int_t>>::iterator    itRing;
-    vector<Int_t>::iterator                itPoint;
+    map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>>::iterator  itTelescope;
+    map<Int_t, map<Int_t, vector<Int_t>>>::iterator              itDetector;
+    map<Int_t, vector<Int_t>>::iterator                          iterNb;  //itSector or itRing ot itCrystall
+    vector<Int_t>::iterator                                      itPoint;
 
-    Int_t telescopeNb = -1;
     Int_t detectorNb = -1;
-                /*НЕ ЗАБЫТЬ ВЫТАЩИТЬ ИЗ ПОИНТА НОМЕРА ТЕЛЕСКОПА, ДЕТЕКТОРА
-                ----КАК ДЕЛАТЬ ГАУССА? */
-// !!!!
+    Int_t telescopeNb = -1;
     Int_t side = 0; //  0 - ring; 1 - sector
 
-    for(itRing = points_Ring.begin(); itRing != points_Ring.end(); ++itRing) 
+    for(itTelescope = SiPoints_Ring.begin(); itTelescope != SiPoints_Ring.end(); ++itTelescope) 
     {
-        Float_t edep = 0.;
-        Float_t time = numeric_limits<float>::max();
-        ERRTelescopeSiPoint *Sipoint = NULL;
-
-        for (itPoint = itRing->second.begin(); itPoint != itRing->second.end(); ++itPoint)
+        for (itDetector = itTelescope->second.begin(); itDetector != itTelescope->second.end(); ++itDetector)
         {
-            Sipoint = (ERRTelescopeSiPoint*)(fSiPoints->At(*itPoint));
-            edep += Sipoint->GetEnergyLoss();
+            for(iterNb = itDetector->second.begin(); iterNb != itDetector->second.end(); ++iterNb) 
+            {
+                Float_t edep = 0.;
+                Float_t time = numeric_limits<float>::max();
+                ERRTelescopeSiPoint *Sipoint = NULL;
 
-            if (Sipoint->GetTime() < time) 
-                time = Sipoint->GetTime();
+                for (itPoint = iterNb->second.begin(); itPoint != iterNb->second.end(); ++itPoint)
+                {
+                    Sipoint = (ERRTelescopeSiPoint*)(fSiPoints->At(*itPoint));
+                    edep += Sipoint->GetEnergyLoss();
+
+                    if (Sipoint->GetTime() < time) 
+                        time = Sipoint->GetTime();
+                }
+
+                if (edep < fElossThreshold)
+                    continue;
+
+                time = gRandom->Gaus(time, fTimeSigma);
+                edep = gRandom->Gaus(edep, fElossSigma);
+                telescopeNb = Sipoint->GetTelescopeNb();  // itTelescope->first ????
+                detectorNb = Sipoint->GetDetectorNb(); // itDetector->first ????
+                ERRTelescopeSiDigi  *si_digi = AddSiDigi(side, iterNb->first, telescopeNb, detectorNb, time, edep);
+
+            for (itPoint = iterNb->second.begin(); itPoint != iterNb->second.end(); ++itPoint)
+                si_digi->AddLink(FairLink("RTelescopeSiPoint", *itPoint));
+            }
         }
-
-        if (edep < fElossThreshold)
-            continue;
-
-        time = gRandom->Gaus(time, fTimeSigma);
-        edep = gRandom->Gaus(edep, fElossSigma);
-        telescopeNb = Sipoint->GetTelescopeNb();
-        detectorNb = Sipoint->GetDetectorNb();
-        ERRTelescopeSiDigi  *si_digi = AddSiDigi(side, itRing->first, telescopeNb, detectorNb, time, edep);
-
-        for (itPoint = itRing->second.begin(); itPoint != itRing->second.end(); ++itPoint)
-            si_digi->AddLink(FairLink("RTelescopeSiPoint", *itPoint));
     }
 
     side = 1;
 
-    for(itSector = points_Sector.begin(); itSector != points_Sector.end(); ++itSector) 
+    for(itTelescope = SiPoints_Sector.begin(); itTelescope != SiPoints_Sector.end(); ++itTelescope) 
     {
-        Float_t edep = 0.;
-        Float_t time = numeric_limits<float>::max();
-        ERRTelescopeSiPoint *Sipoint = NULL;
-
-        for (itPoint = itSector->second.begin(); itPoint != itSector->second.end(); ++itPoint)
+        for (itDetector = itTelescope->second.begin(); itDetector != itTelescope->second.end(); ++itDetector)
         {
-            Sipoint = (ERRTelescopeSiPoint*)(fSiPoints->At(*itPoint));
-            edep += Sipoint->GetEnergyLoss();
+            for(iterNb = itDetector->second.begin(); iterNb != itDetector->second.end(); ++iterNb) 
+            {
+                Float_t edep = 0.;
+                Float_t time = numeric_limits<float>::max();
+                ERRTelescopeSiPoint *Sipoint = NULL;
 
-            if (Sipoint->GetTime() < time) 
-                time = Sipoint->GetTime();
+                for (itPoint = iterNb->second.begin(); itPoint != iterNb->second.end(); ++itPoint)
+                {
+                    Sipoint = (ERRTelescopeSiPoint*)(fSiPoints->At(*itPoint));
+                    edep += Sipoint->GetEnergyLoss();
+
+                    if (Sipoint->GetTime() < time) 
+                        time = Sipoint->GetTime();
+                }
+
+                if (edep < fElossThreshold)
+                    continue;
+
+                time = gRandom->Gaus(time, fTimeSigma);
+                edep = gRandom->Gaus(edep, fElossSigma);
+                telescopeNb = Sipoint->GetTelescopeNb(); // itTelescope->first ????
+                detectorNb = Sipoint->GetDetectorNb(); // itDetector->first ????
+                ERRTelescopeSiDigi  *si_digi = AddSiDigi(side, iterNb->first, telescopeNb, detectorNb, time, edep);
+
+            for (itPoint = iterNb->second.begin(); itPoint != iterNb->second.end(); ++itPoint)
+                si_digi->AddLink(FairLink("RTelescopeSiPoint", *itPoint));
+            }
         }
-
-        if (edep < fElossThreshold)
-            continue;
-
-        time = gRandom->Gaus(time, fTimeSigma);
-        edep = gRandom->Gaus(edep, fElossSigma);
-        telescopeNb = Sipoint->GetTelescopeNb();
-        detectorNb = Sipoint->GetDetectorNb();
-        ERRTelescopeSiDigi *si_digi = AddSiDigi(side, itSector->first, telescopeNb, detectorNb, time, edep);
-
-        for (itPoint = itSector->second.begin(); itPoint != itSector->second.end(); ++itPoint)
-            si_digi->AddLink(FairLink("RTelescopeSiPoint", *itPoint));
     }
 
 // CSI CSI CSI
     
-    map<Int_t, vector<Int_t>> CsIpoints;
+    map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>> CsIpoints;
     
     for (Int_t iPoint = 0; iPoint < fCsIPoints->GetEntriesFast(); iPoint++)
     {
         ERRTelescopeCsIPoint *CsIpoint = (ERRTelescopeCsIPoint*)fCsIPoints->At(iPoint);
-        CsIpoints[CsIpoint->GetCrystallNb()].push_back(iPoint);
+        CsIpoints[CsIpoint->GetTelescopeNb()][CsIpoint->GetDetectorNb()][CsIpoint->GetCrystallNb()].push_back(iPoint);
     }
 
-    map<Int_t, vector<Int_t> >::iterator     itCrystall;
-
-
-    for(itCrystall = CsIpoints.begin(); itCrystall != CsIpoints.end(); ++itCrystall) 
+    for(itTelescope = CsIpoints.begin(); itTelescope != CsIpoints.end(); ++itTelescope) 
     {
-        Float_t edep = 0.; //sum edep in crystall
-        Float_t time = numeric_limits<float>::max(); // min time in plate
-
-        for (itPoint = itCrystall->second.begin(); itPoint != itCrystall->second.end(); ++itPoint)
+        for (itDetector = itTelescope->second.begin(); itDetector != itTelescope->second.end(); ++itDetector)
         {
-            ERRTelescopeCsIPoint* CsIpoint = (ERRTelescopeCsIPoint*)(fCsIPoints->At(*itPoint));
-            edep += CsIpoint->GetEnergyLoss();
+            for(iterNb = itDetector->second.begin(); iterNb != itDetector->second.end(); ++iterNb) 
+            {
+                Float_t edep = 0.;
+                Float_t time = numeric_limits<float>::max();
+                ERRTelescopeCsIPoint *CsIpoint = NULL;
+
+                for (itPoint = iterNb->second.begin(); itPoint != iterNb->second.end(); ++itPoint)
+                {
+                    CsIpoint = (ERRTelescopeCsIPoint*)(fCsIPoints->At(*itPoint));
+                    edep += CsIpoint->GetEnergyLoss();
+
+                    if (CsIpoint->GetTime() < time) 
+                        time = CsIpoint->GetTime();
+                }
+
+                if (edep < fElossThreshold)
+                    continue;
+
+                Float_t LC = 1.;
+                Float_t a = 0.07;
+                Float_t b = 0.02;
+
+                Float_t disp = a*a*edep + b*b*edep*edep;
+                edep = gRandom->Gaus(edep*LC, disp);
+                time = gRandom->Gaus(time, fTimeSigma); // time = 2000 ???
+                telescopeNb = CsIpoint->GetTelescopeNb(); // itTelescope->first ????
+                detectorNb = CsIpoint->GetDetectorNb(); // itDetector->first ????
+                ERRTelescopeCsIDigi *csi_digi = AddCsIDigi(telescopeNb, detectorNb, edep, 2000 , iterNb->first);
+
+                for (itPoint = iterNb->second.begin(); itPoint != iterNb->second.end(); ++itPoint)
+                    csi_digi->AddLink(FairLink("RTelescopeCsIPoint", *itPoint));
+            }
         }
-
-        Float_t LC = 1.;
-        Float_t a = 0.07;
-        Float_t b = 0.02;
-
-        Float_t disp = a*a*edep + b*b*edep*edep;
-        edep = gRandom->Gaus(edep*LC, disp);
-
-        ERRTelescopeCsIDigi *csi_digi = AddCsIDigi(telescopeNb, detectorNb, edep, 2000 , itCrystall->first);   // !!
-     // fLaBrElossInEvent += edep;  // !!
-
-
-     // edep = gRandom->Gaus(edep, fElossSigma);
-
-        if (edep < fElossThreshold)
-            continue;
-
-        for (itPoint = itCrystall->second.begin(); itPoint != itCrystall->second.end(); ++itPoint)
-            csi_digi->AddLink(FairLink("RTelescopeCsIPoint", *itPoint));
-
-     // time = gRandom->Gaus(time, fTimeSigma);
     }
 }
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------

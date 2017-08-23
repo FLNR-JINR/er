@@ -64,10 +64,8 @@ class ERRTelescopeDigitizer : public FairTask
         Float_t fDigiEloss;
 
         //ERBeamDetSetup* fBeamDetSetup;
-        Int_t AddEdep( ERRTelescopeSiPoint *Sipoint, Double_t time, Float_t edep);
         ERRTelescopeSiDigi* AddSiDigi(Int_t side, Int_t Nb, Int_t telescopeNb, Int_t detectorNb, Double_t time, Float_t edep);
         ERRTelescopeCsIDigi* AddCsIDigi(Int_t telescopeNb, Int_t detectorNb, Float_t edep, Double_t time, Int_t crystall);
-       // void PointsToDigi(map<Int_t, map<Int_t, vector<Int_t>>> points, Int_t telescope, Int_t detector, ERRTelescopeSiDigi *si_digi);
 
     private:
         virtual void SetParContainers();
