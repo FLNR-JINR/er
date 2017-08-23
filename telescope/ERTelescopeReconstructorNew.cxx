@@ -123,7 +123,6 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
 
   //From local to global
   fOutEvent->x11 = (-1.)*fOutEvent->x11;
-  fOutEvent->y11 = (-1.)*fOutEvent->y11;
 
   //Точка на RTelescope
   TVector3 rTelescopeHit(fOutEvent->x11,fOutEvent->y11,z);
