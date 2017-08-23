@@ -1,5 +1,5 @@
  {
- TString inFilename1="out.root";
+ TString inFilename1="out27.root";
 
     TFile* f2 = new TFile(inFilename1);
     cout << "File: " << f2->GetName() << endl;

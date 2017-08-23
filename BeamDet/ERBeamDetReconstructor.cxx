@@ -144,8 +144,9 @@ void ERBeamDetReconstructor::Tof(){
                 Tb = EiEo(header->UpMat.beam_TARwin,Tb,header->UpMat.FoilThick/cos(Vbeam.Theta()));
               else 
                 Tb = 0.;
+              cout << header->UpMat.TarThick << " " << header->UpMat.TarPress << " " << header->UpMat.TarTemp << " " << cos(Vbeam.Theta()) << endl;
               float range = header->UpMat.TarThick*header->UpMat.TarPress*TempNorm/header->UpMat.TarTemp/cos(Vbeam.Theta())/2.;
-              cout << "range:" << range << endl;
+              // /cout << "range:" << range << endl;
               if(Tb>0.1) Tb = EiEo(header->UpMat.beam_target,Tb,range);
               else Tb = 0.;
               p_beam = sqrt(pow(Tb+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));
@@ -328,7 +329,7 @@ double ERBeamDetReconstructor::coordMW(UpstreamMatter* pT,ERBeamDetRecoEvent* pR
     Sn = (double)n/(double)mMW;
   }
   //Sn += (rand() %10000)/10000.-0.5;
-  cout << pT->MWstep << " " << iMW << " " << Sn << " " << pT->MWNwires << " " << offset << endl;
+  // /cout << pT->MWstep << " " << iMW << " " << Sn << " " << pT->MWNwires << " " << offset << endl;
   co = pT->MWstep*iMW*(Sn-(double)(pT->MWNwires+1)/2.)+offset;
   return co;
 }
@@ -380,7 +381,7 @@ void ERBeamDetReconstructor::ElossTOFaMWPCaTarget(){
   }
   strcpy(ShowTrack,"visible");
   Tb = UpstreamEnergyLoss(&(header->UpMat),&(fOutEvent->projectile),header->ReIN.TOFis,header->ReIN.TRACKINGis,ShowTrack);
-  cout << "energey" <<Tb << endl;
+  //cout << "energey" <<Tb << endl;
   p_beam = sqrt(pow(Tb+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));
   fOutEvent->projectile.Part.SetPxPyPzE(0.,0.,p_beam,Tb+fOutEvent->projectile.Mass);
 
