@@ -10,32 +10,32 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 ERRTelescopeSiDigi::ERRTelescopeSiDigi()
-  :fID(-1),
-  fEdep(0.)
+    :fID(-1),
+    fEdep(0.)
 {
 }
 
-ERRTelescopeSiDigi::ERRTelescopeSiDigi(Int_t id, Float_t Edep, Double_t time, Int_t sectorNb, Int_t sensorNb, Int_t side)
-  :fID(id),
-  fEdep(Edep),
-  fTime(time),
-  fSensorNb(sensorNb),
-  fSectorNb(sectorNb),
-  fSide(side)
+ERRTelescopeSiDigi::ERRTelescopeSiDigi(Int_t id, Int_t side, Int_t Nb, Int_t telescopeNb, Int_t detectorNb, Double_t time, Float_t edep)
+    :fID(id),
+     fSide(side),      //  Side = 0 -- sensor ; Side = 1 -- sector ;
+     fNb(Nb),
+     fTelescopeNb(telescopeNb),
+     fDetectorNb(detectorNb),
+     fTime(time),
+     fEdep(edep)
 {
 }
 
 ERRTelescopeSiDigi::ERRTelescopeSiDigi(const ERRTelescopeSiDigi& right)
-  :fID(right.fID),
-  fEdep(right.fEdep),
-  fTime(right.fTime),
-  fSensorNb(right.fSensorNb),
-  fSectorNb(right.fSectorNb),
-  fSide(right.fSide)
+    :fID(right.fID),
+     fSide(right.fSide),      //  Side = 0 -- sensor ; Side = 1 -- sector ;
+     fNb(right.fNb),
+     fTelescopeNb(right.fTelescopeNb),
+     fDetectorNb(right.fDetectorNb),
+     fTime(right.fTime),
+     fEdep(right.fEdep)
 {
 }
-
-
 
 // -----   Destructor   ----------------------------------------------------
 ERRTelescopeSiDigi::~ERRTelescopeSiDigi()
@@ -45,8 +45,8 @@ ERRTelescopeSiDigi::~ERRTelescopeSiDigi()
 // -----   Public method Print   -------------------------------------------
 void ERRTelescopeSiDigi::Print(const Option_t* opt /* = 0 */) const
 {
-  std::cout << "-I- ERRTelescopeSiDigi:  " << endl;
-  std::cout << "    Edep : " << fEdep << endl;
+    std::cout << "-I- ERRTelescopeSiDigi:  " << endl;
+    std::cout << "    Edep : " << fEdep << endl;
 }
 // -------------------------------------------------------------------------
 

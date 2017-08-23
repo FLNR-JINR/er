@@ -8,6 +8,8 @@ using namespace std;
 // -----   Default constructor   -------------------------------------------
 ERRTelescopeSiPoint::ERRTelescopeSiPoint()
   : FairMCPoint(),
+    fTelescopeNb(0.),
+    fDetectorNb(0.),
     fX_out(0.), fY_out(0.), fZ_out(0.),
     fPx_out(0.), fPy_out(0.), fPz_out(0.),
     fSectorNb(-1), fSensorNb(-1),
@@ -19,7 +21,7 @@ ERRTelescopeSiPoint::ERRTelescopeSiPoint()
 
 
 // -----   Standard constructor   ------------------------------------------
-ERRTelescopeSiPoint::ERRTelescopeSiPoint(Int_t eventID, Int_t trackID,
+ERRTelescopeSiPoint::ERRTelescopeSiPoint(Int_t eventID, Int_t trackID,Int_t telescopeNb, Int_t detectorNb,
 		  Int_t mot0trackID,
 		  Double_t pid,
 		  TVector3 posIn,
@@ -27,6 +29,8 @@ ERRTelescopeSiPoint::ERRTelescopeSiPoint(Int_t eventID, Int_t trackID,
 		  Double_t tof, Double_t length, Double_t eLoss,Int_t sector,Int_t sensor)
   : FairMCPoint(trackID, -1., posIn, momIn, tof, length, eLoss),
     fEventID(eventID),
+    fTelescopeNb(telescopeNb),
+    fDetectorNb(detectorNb),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
     fSectorNb(sector), fSensorNb(sensor),
@@ -40,6 +44,8 @@ ERRTelescopeSiPoint::ERRTelescopeSiPoint(Int_t eventID, Int_t trackID,
 // -------------------------------------------------------------------------
 ERRTelescopeSiPoint::ERRTelescopeSiPoint(const ERRTelescopeSiPoint& right)
   : FairMCPoint(right),
+    fTelescopeNb(right.fTelescopeNb),
+    fDetectorNb(right.fDetectorNb),
     fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
     fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out),
     fSectorNb(right.fSectorNb), fSensorNb(right.fSensorNb),
