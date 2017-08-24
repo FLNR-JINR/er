@@ -8,7 +8,7 @@ void RTelescope_sim(Int_t nEvents = 1000){
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
- 
+
   // -----   Create simulation run   ----------------------------------------
   FairRunSim* run = new FairRunSim();
   /** Select transport engine
@@ -18,20 +18,20 @@ void RTelescope_sim(Int_t nEvents = 1000){
   run->SetName("TGeant4");              // Transport engine
   run->SetOutputFile(outFile.Data());          // Output file
   // ------------------------------------------------------------------------
-  
+
   // -----   Runtime database   ---------------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   // ------------------------------------------------------------------------
-  
+
   // -----   Create media   -------------------------------------------------
   run->SetMaterials("media.geo");       // Materials
   // ------------------------------------------------------------------------
 
-  // -----   Create detectors  ----------------------------------------------	
+  // -----   Create detectors  ----------------------------------------------
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
-	
+
   // ER NeuRad definition
   /* Select verbosity level
    * 1 - only standard logs
@@ -40,10 +40,10 @@ void RTelescope_sim(Int_t nEvents = 1000){
   */
   Int_t verbose = 1;
   ERRTelescope* RTelescope= new ERRTelescope("ERRTelescope", kTRUE,verbose);
-  RTelescope->SetGeometryFileName("RTelescope.v5.geo.root");
+  RTelescope->SetGeometryFileName("RTelescope.v3.geo.root");
   run->AddModule(RTelescope);
   // ------------------------------------------------------------------------
-	
+
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   Int_t pdgId = 2212; // proton  beam
@@ -61,18 +61,18 @@ void RTelescope_sim(Int_t nEvents = 1000){
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
-	
+
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
-	
-  //-------Set LOG verbosity  ----------------------------------------------- 
+
+  //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-  
+
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
   Int_t nSteps = -15000;
   //gMC->SetMaxNStep(nSteps);
-	
+
   // -----   Runtime database   ---------------------------------------------
   Bool_t kParameterMerged = kTRUE;
   FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
@@ -81,10 +81,10 @@ void RTelescope_sim(Int_t nEvents = 1000){
   rtdb->saveOutput();
   rtdb->print();
   // ---------------------------------------------------------
-  
+
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);
-  
+
   // -----   Finish   -------------------------------------------------------
   //neuRad->WriteHistos();
   timer.Stop();
