@@ -91,22 +91,22 @@ InitStatus ERRTelescopeDigitizer::Init()
     FairRootManager* ioman = FairRootManager::Instance();
     if ( ! ioman ) Fatal("Init", "No FairRootManager");
 
-    fSiPoints11 = (TClonesArray*) ioman->GetObject("fSiPoints11");
-    if ( ! fSiPoints11) Fatal("Init", "Can`t find collection fSiPoints11!");
+    fSiPoints11 = (TClonesArray*) ioman->GetObject("RTelescope1Si1Point");
+    if ( ! fSiPoints11) Fatal("Init", "Can`t find collection RTelescope1Si1Point!");
 
-    fSiPoints12 = (TClonesArray*) ioman->GetObject("fSiPoints11");
-    if ( ! fSiPoints11) Fatal("Init", "Can`t find collection fSiPoints11!");
+    fSiPoints12 = (TClonesArray*) ioman->GetObject("RTelescope1Si2Point");
+    if ( ! fSiPoints12) Fatal("Init", "Can`t find collection fSiPoints12!");
 
-    fSiPoints21 = (TClonesArray*) ioman->GetObject("fSiPoints11");
-    if ( ! fSiPoints11) Fatal("Init", "Can`t find collection fSiPoints11!");
+    fSiPoints21 = (TClonesArray*) ioman->GetObject("RTelescope2Si1Point");
+    if ( ! fSiPoints21) Fatal("Init", "Can`t find collection fSiPoints21!");
 
-    fSiPoints22 = (TClonesArray*) ioman->GetObject("fSiPoints11");
-    if ( ! fSiPoints11) Fatal("Init", "Can`t find collection fSiPoints11!");
+    fSiPoints22 = (TClonesArray*) ioman->GetObject("RTelescope2Si2Point");
+    if ( ! fSiPoints22) Fatal("Init", "Can`t find collection fSiPoints22!");
 
-    fCsIPoints1 = (TClonesArray*) ioman->GetObject("fCsIPoints1");
+    fCsIPoints1 = (TClonesArray*) ioman->GetObject("RTelescope1CsIPoint");
     if ( ! fCsIPoints1) Fatal("Init", "Can`t find collection fCsIPoints1!");
 
-    fCsIPoints2 = (TClonesArray*) ioman->GetObject("fCsIPoints2");
+    fCsIPoints2 = (TClonesArray*) ioman->GetObject("RTelescope2CsIPoint");
     if ( ! fCsIPoints2) Fatal("Init", "Can`t find collection fCsIPoints2!");
 
     // Register output array fRTelescopeHits
@@ -115,22 +115,22 @@ InitStatus ERRTelescopeDigitizer::Init()
 
     fRTelescope1Si1DigiR = new TClonesArray("ERRTelescopeSiDigi", 1000);
     ioman->Register("RTelescope1Si1DigiR", "RTelescope1 Si1 DigiR", fRTelescope1Si1DigiR, kTRUE);
-    
+
     fRTelescope1Si2DigiS = new TClonesArray("ERRTelescopeSiDigi", 1000);
     ioman->Register("RTelescope1Si2DigiS", "RTelescope1 Si2 DigiS", fRTelescope1Si2DigiS, kTRUE);
-    
+
     fRTelescope1CsIDigi = new TClonesArray("ERRTelescopeSiDigi", 1000);
     ioman->Register("RTelescope1CsIDigi", "RTelescope1 CsI Digi", fRTelescope1CsIDigi, kTRUE);
-    
+
     fRTelescope2Si1DigiS = new TClonesArray("ERRTelescopeSiDigi", 1000);
-    ioman->Register("RTelescop2Si1DigiS", "RTelescope2 Si1 DigiS", fRTelescope2Si1DigiS, kTRUE); 
-    
+    ioman->Register("RTelescop2Si1DigiS", "RTelescope2 Si1 DigiS", fRTelescope2Si1DigiS, kTRUE);
+
     fRTelescope2Si1DigiR = new TClonesArray("ERRTelescopeSiDigi", 1000);
     ioman->Register("RTelescope2Si1DigiR", "RTelescope2 Si1 DigiR", fRTelescope2Si1DigiR, kTRUE);
-    
+
     fRTelescope2Si2DigiS = new TClonesArray("ERRTelescopeSiDigi", 1000);
     ioman->Register("RTelescope2Si2DigiS", "RTelescope2 Si2 DigiS", fRTelescope2Si2DigiS, kTRUE);
-    
+
     fRTelescope2CsIDigi = new TClonesArray("ERRTelescopeSiDigi", 1000);
     ioman->Register("RTelescope2CsIDigi", "RTelescope2 CsI Digi", fRTelescope2CsIDigi, kTRUE);
 
@@ -149,7 +149,7 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
     map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>>            SiPoints_Sector;
     map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>>            SiPoints_Ring;
     map<Int_t, map<Int_t, map<Int_t, vector<Int_t>>>>::iterator  itTelescope_Si;
-    map<Int_t, map<Int_t, vector<Int_t>>>::iterator              itDetector;    
+    map<Int_t, map<Int_t, vector<Int_t>>>::iterator              itDetector;
     map<Int_t, vector<Int_t>>::iterator                          iterNb;
     vector<Int_t>::iterator                                      itPoint;
 
@@ -183,7 +183,7 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
         {
             ERRTelescopeSiPoint *point = (ERRTelescopeSiPoint *)SiBranch->At(iPoint);
             SiPoints_Sector[point->GetTelescopeNb()][point->GetDetectorNb()][point->GetSectorNb()].push_back(iPoint);
-            
+
             if (i % 2 == 0)
                 SiPoints_Ring[point->GetTelescopeNb()][point->GetDetectorNb()][point->GetSensorNb()].push_back(iPoint);
         }
@@ -192,11 +192,11 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
         Int_t telescopeNb = -1;
         Int_t side = 1; //  0 - ring; 1 - sector
 
-        for(itTelescope_Si = SiPoints_Sector.begin(); itTelescope_Si != SiPoints_Sector.end(); ++itTelescope_Si) 
+        for(itTelescope_Si = SiPoints_Sector.begin(); itTelescope_Si != SiPoints_Sector.end(); ++itTelescope_Si)
         {
             for (itDetector = itTelescope_Si->second.begin(); itDetector != itTelescope_Si->second.end(); ++itDetector)
             {
-                for(iterNb = itDetector->second.begin(); iterNb != itDetector->second.end(); ++iterNb) 
+                for(iterNb = itDetector->second.begin(); iterNb != itDetector->second.end(); ++iterNb)
                 {
                     Float_t edep = 0.;
                     Float_t time = numeric_limits<float>::max();
@@ -207,7 +207,7 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
                         Sipoint = (ERRTelescopeSiPoint*)(SiBranch->At(*itPoint));
                         edep += Sipoint->GetEnergyLoss();
 
-                        if (Sipoint->GetTime() < time) 
+                        if (Sipoint->GetTime() < time)
                             time = Sipoint->GetTime();
                     }
 
@@ -230,11 +230,11 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
         side = 0;
 
         if (i % 2 == 0)
-            for(itTelescope_Si = SiPoints_Ring.begin(); itTelescope_Si != SiPoints_Ring.end(); ++itTelescope_Si) 
+            for(itTelescope_Si = SiPoints_Ring.begin(); itTelescope_Si != SiPoints_Ring.end(); ++itTelescope_Si)
             {
                 for (itDetector = itTelescope_Si->second.begin(); itDetector != itTelescope_Si->second.end(); ++itDetector)
                 {
-                    for(iterNb = itDetector->second.begin(); iterNb != itDetector->second.end(); ++iterNb) 
+                    for(iterNb = itDetector->second.begin(); iterNb != itDetector->second.end(); ++iterNb)
                     {
                         Float_t edep = 0.;
                         Float_t time = numeric_limits<float>::max();
@@ -245,7 +245,7 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
                             Sipoint = (ERRTelescopeSiPoint*)(SiBranch->At(*itPoint));
                             edep += Sipoint->GetEnergyLoss();
 
-                            if (Sipoint->GetTime() < time) 
+                            if (Sipoint->GetTime() < time)
                                 time = Sipoint->GetTime();
                         }
 
@@ -266,10 +266,10 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
             }
     }
 
-    
+
     map<Int_t, map<Int_t, vector<Int_t>>>            CsIpoints;
     map<Int_t, map<Int_t, vector<Int_t>>>::iterator  itTelescope_CsI;
-    
+
     TClonesArray *CsIBranch = NULL;
 
     for(int i = 0; i < 2; ++i)
@@ -285,9 +285,9 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
             CsIpoints[CsIpoint->GetTelescopeNb()][CsIpoint->GetCrystallNb()].push_back(iPoint);
         }
 
-        for(itTelescope_CsI = CsIpoints.begin(); itTelescope_CsI != CsIpoints.end(); ++itTelescope_CsI) 
+        for(itTelescope_CsI = CsIpoints.begin(); itTelescope_CsI != CsIpoints.end(); ++itTelescope_CsI)
         {
-            for(iterNb = itTelescope_CsI->second.begin(); iterNb != itTelescope_CsI->second.end(); ++iterNb) 
+            for(iterNb = itTelescope_CsI->second.begin(); iterNb != itTelescope_CsI->second.end(); ++iterNb)
             {
                 Float_t edep = 0.;
                 Float_t time = numeric_limits<float>::max();
@@ -298,10 +298,10 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
                     CsIpoint = (ERRTelescopeCsIPoint*)(CsIBranch->At(*itPoint));
                     edep += CsIpoint->GetEnergyLoss();
 
-                    if (CsIpoint->GetTime() < time) 
+                    if (CsIpoint->GetTime() < time)
                         time = CsIpoint->GetTime();
                 }
-                
+
                 if (edep < fElossThreshold)
                     continue;
 
@@ -327,35 +327,35 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
 //----------------------------------------------------------------------------
 void ERRTelescopeDigitizer::Reset()
 {
-    if (fRTelescope1Si1DigiS) 
+    if (fRTelescope1Si1DigiS)
         fRTelescope1Si1DigiS->Delete();
 
-    if (fRTelescope1Si1DigiR) 
+    if (fRTelescope1Si1DigiR)
         fRTelescope1Si1DigiR->Delete();
 
-    if (fRTelescope1Si2DigiS) 
+    if (fRTelescope1Si2DigiS)
         fRTelescope1Si2DigiS->Delete();
 
-    if (fRTelescope2Si1DigiS) 
+    if (fRTelescope2Si1DigiS)
         fRTelescope2Si1DigiS->Delete();
 
-    if (fRTelescope2Si1DigiR) 
+    if (fRTelescope2Si1DigiR)
         fRTelescope2Si1DigiR->Delete();
 
-    if (fRTelescope2Si2DigiS) 
+    if (fRTelescope2Si2DigiS)
         fRTelescope2Si2DigiS->Delete();
 
-    if (fRTelescope1CsIDigi) 
+    if (fRTelescope1CsIDigi)
         fRTelescope1CsIDigi->Delete();
 
-    if (fRTelescope2CsIDigi) 
+    if (fRTelescope2CsIDigi)
         fRTelescope2CsIDigi->Delete();
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERRTelescopeDigitizer::Finish() 
-{ 
+void ERRTelescopeDigitizer::Finish()
+{
 }
 // ----------------------------------------------------------------------------
 
@@ -373,7 +373,7 @@ ERRTelescopeSiDigi* ERRTelescopeDigitizer::AddSiDigi( Int_t k, Int_t side, Int_t
             case 2: SiBranch = fRTelescope1Si2DigiS;
                     break;
             case 3: SiBranch = fRTelescope2Si1DigiS;
-                    break;                   
+                    break;
             case 4: SiBranch = fRTelescope2Si1DigiR;
                     break;
             case 5: SiBranch = fRTelescope2Si2DigiS;
@@ -400,7 +400,7 @@ ERRTelescopeCsIDigi* ERRTelescopeDigitizer::AddCsIDigi( Int_t k, Int_t telescope
 
     ERRTelescopeCsIDigi *csi_digi = new((*CsIBranch)[CsIBranch->GetEntriesFast()])
         ERRTelescopeCsIDigi(CsIBranch->GetEntriesFast(), telescopeNb, edep,time, crystall);
-    
+
     return csi_digi;
 }
 //-----------------------------------------------------------------------------
