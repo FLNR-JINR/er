@@ -36,6 +36,7 @@ class ERRTelescopeCsIDigi : public FairMultiLinkedData
   /* Accessors */
   Int_t ID () const {return fID;}
   Float_t Edep() const {return fEdep;}
+  Int_t TelescopeNb () const {return fTelescopeNb;}
   Int_t CrystallNB () const {return fCrystallNb;}
 
  protected:

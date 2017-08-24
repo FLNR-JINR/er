@@ -44,6 +44,8 @@ data/ERQTelescopeSiDigi.cxx
 
 #AculRaw
 data/AculRaw.cxx
+ERRTelescopeRawConverter.cxx
+
 
 
 #beamtest

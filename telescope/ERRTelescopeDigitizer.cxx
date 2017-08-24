@@ -78,7 +78,7 @@ InitStatus ERRTelescopeDigitizer::Init()
     if ( ! fCsIPoints) Fatal("Init", "Can`t find collection RTelescopeCsiPoint!");
 
     // Register output array fRTelescopeHits
-    fRTelescopeSiDigi = new TClonesArray("ERRTelescopeSiDigi", 5000);
+    fRTelescopeSiDigi = new TClonesArray("ERRTelescopeSiDigi", 1000);
     ioman->Register("RTelescopeSiDigi", "RTelescope Si Digi", fRTelescopeSiDigi, kTRUE);
     fRTelescopeCsIDigi = new TClonesArray("ERRTelescopeCsIDigi", 1000);
     ioman->Register("RTelescopeCsIDigi", "RTelescope CsI Digi", fRTelescopeCsIDigi, kTRUE);
@@ -248,6 +248,9 @@ void ERRTelescopeDigitizer::Reset()
 {
     if (fRTelescopeSiDigi) 
         fRTelescopeSiDigi->Delete();
+
+    if (fRTelescopeCsIDigi) 
+        fRTelescopeCsIDigi->Delete();
 }
 // ----------------------------------------------------------------------------
 
@@ -260,8 +263,6 @@ void ERRTelescopeDigitizer::Finish()
 // ----------------------------------------------------------------------------
 ERRTelescopeSiDigi* ERRTelescopeDigitizer::AddSiDigi(Int_t side, Int_t Nb, Int_t telescopeNb, Int_t detectorNb, Double_t time, Float_t edep)
 {
-    static int i = 0;
-
     ERRTelescopeSiDigi *si_digi = new((*fRTelescopeSiDigi)[fRTelescopeSiDigi->GetEntriesFast()])
             ERRTelescopeSiDigi(fRTelescopeSiDigi->GetEntriesFast(), side, Nb, telescopeNb, detectorNb, time, edep);  // Side = 0 => ring
 

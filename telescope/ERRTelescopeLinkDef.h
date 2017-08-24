@@ -22,8 +22,8 @@
 #pragma link C++ class ERQTelescopeSiDigi+;
 
 
-#pragma link C++ class AculRaw;
-
+#pragma link C++ class AculRaw+;
+#pragma link C++ class ERQTelescopeRawConverter+;
 
 
 

@@ -9,6 +9,8 @@
 
 
 
+#ifndef AculRaw_H
+#define AculRaw_H
 #include <TObject.h>
 
 #define	BLOCKSNUMBER 24
@@ -31,3 +33,4 @@ public:
 	Int_t	Reset();		//reseting of the read values
 
 };
+#endif

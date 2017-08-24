@@ -38,6 +38,10 @@ class ERRTelescopeSiDigi : public FairMultiLinkedData
 
         /* Accessors */
         Int_t ID () const {return fID;}
+        Int_t Nb () const {return fNb;}
+        Int_t TelescopeNb () const {return fTelescopeNb;}
+        Int_t DetectorNb () const {return fDetectorNb;}
+        Int_t Side () const {return fSide;}
         Float_t Edep() const {return fEdep;}
 
 
