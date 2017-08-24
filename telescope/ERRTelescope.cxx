@@ -18,7 +18,7 @@
 #include <iostream>
 
 // -----   Default constructor   -------------------------------------------
-ERRTelescope::ERRTelescope() : 
+ERRTelescope::ERRTelescope() :
   ERDetector("ERRTelescope", kTRUE),
   fSiPoints11(NULL),
   fSiPoints12(NULL),
@@ -28,7 +28,7 @@ ERRTelescope::ERRTelescope() :
   fCsIPoints2(NULL)
 {
   fSiPoints11 = new TClonesArray("ERRTelescopeSiPoint");
-  fSiPoints21 = new TClonesArray("ERRTelescopeSiPoint");
+  fSiPoints12 = new TClonesArray("ERRTelescopeSiPoint");
   fCsIPoints1 = new TClonesArray("ERRTelescopeCsIPoint");
   fSiPoints21 = new TClonesArray("ERRTelescopeSiPoint");
   fSiPoints22 = new TClonesArray("ERRTelescopeSiPoint");
@@ -40,7 +40,7 @@ ERRTelescope::ERRTelescope() :
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
-ERRTelescope::ERRTelescope(const char* name, Bool_t active, Int_t verbose) : 
+ERRTelescope::ERRTelescope(const char* name, Bool_t active, Int_t verbose) :
   ERDetector(name, active, 1),
   fSiPoints11(NULL),
   fSiPoints12(NULL),
@@ -50,7 +50,7 @@ ERRTelescope::ERRTelescope(const char* name, Bool_t active, Int_t verbose) :
   fCsIPoints2(NULL)
 {
   fSiPoints11 = new TClonesArray("ERRTelescopeSiPoint");
-  fSiPoints21 = new TClonesArray("ERRTelescopeSiPoint");
+  fSiPoints12 = new TClonesArray("ERRTelescopeSiPoint");
   fCsIPoints1 = new TClonesArray("ERRTelescopeCsIPoint");
   fSiPoints21 = new TClonesArray("ERRTelescopeSiPoint");
   fSiPoints22 = new TClonesArray("ERRTelescopeSiPoint");
@@ -66,8 +66,8 @@ ERRTelescope::~ERRTelescope() {
     delete fSiPoints11;
   }
   if (fSiPoints21) {
-    fSiPoints21->Delete();
-    delete fSiPoints21;
+    fSiPoints12->Delete();
+    delete fSiPoints12;
   }
   if (fCsIPoints1) {
     fCsIPoints1->Delete();
@@ -75,7 +75,7 @@ ERRTelescope::~ERRTelescope() {
   }
   if (fSiPoints21) {
     fSiPoints21->Delete();
-    delete fSiPoints21;  
+    delete fSiPoints21;
   }
   if (fSiPoints22) {
     fSiPoints22->Delete();
@@ -108,13 +108,13 @@ void ERRTelescope::EndOfEvent() {
 void ERRTelescope::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
-    Fatal("Init", "IO manager is not set"); 
+    Fatal("Init", "IO manager is not set");
   ioman->Register("RTelescope1Si1Point","RTelescope", fSiPoints11, kTRUE);
   ioman->Register("RTelescope1Si2Point","RTelescope", fSiPoints12, kTRUE);
-  //ioman->Register("RTelescope1CsIPoint","RTelescope", fCsIPoints1, kTRUE);
-  //ioman->Register("RTelescope1Si1Point","RTelescope", fSiPoints21, kTRUE);
-  //ioman->Register("RTelescope1Si2Point","RTelescope", fSiPoints22, kTRUE);
-  //ioman->Register("RTelescope1CsIPoint","RTelescope", fCsIPoints2, kTRUE);
+  ioman->Register("RTelescope1CsIPoint","RTelescope", fCsIPoints1, kTRUE);
+  ioman->Register("RTelescope2Si1Point","RTelescope", fSiPoints21, kTRUE);
+  ioman->Register("RTelescope2Si2Point","RTelescope", fSiPoints22, kTRUE);
+  ioman->Register("RTelescope2CsIPoint","RTelescope", fCsIPoints2, kTRUE);
 }
 // ----------------------------------------------------------------------------
 
@@ -236,7 +236,7 @@ ERRTelescopeSiPoint* ERRTelescope::AddSiPoint() {
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-              fTime, fLength, fELoss, 
+              fTime, fLength, fELoss,
               fSectorNb, fSensorNb);
   }
   if(fTelNb == 2){
@@ -249,7 +249,7 @@ ERRTelescopeSiPoint* ERRTelescope::AddSiPoint() {
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-              fTime, fLength, fELoss, 
+              fTime, fLength, fELoss,
               fSectorNb, fSensorNb);
   }
 }
@@ -264,7 +264,7 @@ ERRTelescopeCsIPoint* ERRTelescope::AddCsIPoint() {
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-              fTime, fLength, fELoss, 
+              fTime, fLength, fELoss,
               fCrystallNb);
   }
 }
@@ -286,7 +286,7 @@ Bool_t ERRTelescope::CheckIfSensitive(std::string name)
   }
   return kFALSE;
 }
-Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {  
+Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
   Int_t telnb;
   Int_t detnb;
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
@@ -300,13 +300,13 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
     fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     fPID = gMC->TrackPid(); // GeV/c2
   }
-  
+
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
 
-	if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume 
+	if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume
 	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
-	    gMC->IsTrackDisappeared()) 
-	{ 
+	    gMC->IsTrackDisappeared())
+	{
     gMC->TrackPosition(fPosOut);
     gMC->TrackMomentum(fMomOut);
     TString volName = gMC->CurrentVolName();
@@ -324,8 +324,8 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
         gMC->CurrentVolID(fSectorNb);
         gMC->CurrentVolOffID(2, fDetNb);
         gMC->CurrentVolOffID(3, fTelNb);
-        AddSiPoint(); 
-      } 
+        AddSiPoint();
+      }
       if(volName.Contains("crystall"))
       {
         gMC->CurrentVolID(fCrystallNb);
