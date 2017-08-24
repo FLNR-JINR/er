@@ -1,4 +1,4 @@
-void RTelescope_sim(Int_t nEvents = 1000){
+void RTelescope_sim(Int_t nEvents = 10){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
