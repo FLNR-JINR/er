@@ -228,10 +228,12 @@ void create_RTelescope_geo_v3()
 	// Top volume
 	gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
     gGeoMan->SetName("DETgeom");
-	TGeoVolume* topVolume = gGeoMan->MakeBox("topVolume", pAir, 5000., 5000., 5000.);
-	gGeoMan->SetTopVolume(topVolume);
-	TGeoVolume* RTelescope1 = gGeoMan->MakeBox("RTelescope1", pAir, 10., 10., 6.);
-	TGeoVolume* RTelescope2 = gGeoMan->MakeBox("RTelescope2", pAir, 10., 10., 6.);
+	TGeoVolume* top = new TGeoVolumeAssembly("TOP");
+	gGeoMan->SetTopVolume(top);
+	TGeoVolume* RTelescopes = new TGeoVolumeAssembly("RTelescopes");
+	TGeoVolume* RTelescope1 = new TGeoVolumeAssembly("RTelescope1");
+	TGeoVolume* RTelescope2 = new TGeoVolumeAssembly("RTelescope2");
+
 
 	// Positioning ring1, ring2 and crystalArray inside top
 	TGeoTranslation* ring1Trans = new TGeoTranslation(0., 0., 0.);
@@ -241,21 +243,23 @@ void create_RTelescope_geo_v3()
 
 	TGeoTranslation* ring2Trans = new TGeoTranslation(0., 0., 1.);
 	TGeoCombiTrans* ring2Combitrans = new TGeoCombiTrans(*ring2Trans, *zeroRot);
-	RTelescope1->AddNode(dead_ring2R1, 1, ring2Combitrans);
-    RTelescope2->AddNode(dead_ring2R2, 1, ring2Combitrans);
+	RTelescope1->AddNode(dead_ring2R1, 2, ring2Combitrans);
+    RTelescope2->AddNode(dead_ring2R2, 2, ring2Combitrans);
 
 	TGeoTranslation* CsIarrayTrans = new TGeoTranslation(0., 0., 0.1 + t1_dy + thickness2);
 	TGeoCombiTrans* CsIarrayCombitrans = new TGeoCombiTrans(*CsIarrayTrans, *zeroRot);
-	RTelescope1->AddNode(CsIarrayR1, 1, CsIarrayCombitrans);
-    RTelescope2->AddNode(CsIarrayR2, 1, CsIarrayCombitrans);
+	RTelescope1->AddNode(CsIarrayR1, 3, CsIarrayCombitrans);
+    RTelescope2->AddNode(CsIarrayR2, 3, CsIarrayCombitrans);
 
     TGeoTranslation* rtelescope1Trans = new TGeoTranslation(0., 0., 0.);
     TGeoCombiTrans* rtelescope1Combitrans = new TGeoCombiTrans(*rtelescope1Trans, *zeroRot);
-    topVolume->AddNode(RTelescope1, 1, rtelescope1Combitrans);
+    RTelescopes->AddNode(RTelescope1, 1, rtelescope1Combitrans);
 
     TGeoTranslation* rtelescope2Trans = new TGeoTranslation(0., 0., 7.);
     TGeoCombiTrans* rtelescope2Combitrans = new TGeoCombiTrans(*rtelescope2Trans, *zeroRot);
-    topVolume->AddNode(RTelescope2, 1, rtelescope2Combitrans);
+    RTelescopes->AddNode(RTelescope2, 2, rtelescope2Combitrans);
+
+    top->AddNode(RTelescopes, 1, zeroCombitrans);
 	// ================================================================
 	// Finalize, perform checks
 	gGeoMan->CloseGeometry();
@@ -263,10 +267,10 @@ void create_RTelescope_geo_v3()
 	gGeoMan->CheckGeometry();
 	gGeoMan->CheckOverlaps();
 	gGeoMan->PrintOverlaps();
-	topVolume->Draw();
+	top->Draw();
 
     TFile* geoFile = new TFile(geoFileName, "RECREATE");
-    topVolume->Write();
+    top->Write();
     geoFile->Close();
 
 	// ================================================================
