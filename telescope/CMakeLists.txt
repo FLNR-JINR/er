@@ -29,6 +29,7 @@ ERRTelescope.cxx
 ERRTelescopeHitFinder.cxx
 ERRTelescopeDigitizer.cxx
 ERRTelescopeSetup.cxx
+ERRTelescopeRawConverter.cxx
 
 data/ERRTelescopeSiPoint.cxx
 data/ERRTelescopeCsIPoint.cxx
@@ -44,8 +45,6 @@ data/ERQTelescopeSiDigi.cxx
 
 #AculRaw
 data/AculRaw.cxx
-ERRTelescopeRawConverter.cxx
-
 
 
 #beamtest

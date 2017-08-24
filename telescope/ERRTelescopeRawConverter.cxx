@@ -11,6 +11,7 @@
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include <iostream>
+#include <stdio.h>
 #include <algorithm>
 using namespace std;
 
@@ -78,23 +79,23 @@ InitStatus ERRTelescopeRawConverter::Init()
 
     fRTelescope1Si1DigiR = (TClonesArray*) ioman->GetObject("RTelescope1Si1DigiR");
     if ( ! fRTelescope1Si1DigiR) Fatal("Init", "Can`t find collection RTelescope1Si1DigiR!");
-    
+
     fRTelescope1Si2DigiS = (TClonesArray*) ioman->GetObject("RTelescope1Si2DigiS");
     if ( ! fRTelescope1Si2DigiS) Fatal("Init", "Can`t find collection RTelescope1Si2DigiS!");
-    
+
     fRTelescope1CsIDigi = (TClonesArray*) ioman->GetObject("RTelescope1CsIDigi");
     if ( ! fRTelescope1CsIDigi) Fatal("Init", "Can`t find collection RTelescope1CsIDigi!");
 
-    
+
     fRTelescope2Si1DigiS = (TClonesArray*) ioman->GetObject("RTelescope2Si1DigiS");
     if ( ! fRTelescope2Si1DigiS) Fatal("Init", "Can`t find collection RTelescope2Si1DigiS!");
 
     fRTelescope2Si1DigiR = (TClonesArray*) ioman->GetObject("RTelescope2Si1DigiR");
     if ( ! fRTelescope2Si1DigiR) Fatal("Init", "Can`t find collection RTelescope2Si1DigiR!");
-    
+
     fRTelescope2Si2DigiS = (TClonesArray*) ioman->GetObject("RTelescope2Si2DigiS");
     if ( ! fRTelescope2Si2DigiS) Fatal("Init", "Can`t find collection RTelescope2Si2DigiS!");
-    
+
     fRTelescope2CsIDigi = (TClonesArray*) ioman->GetObject("RTelescope2CsIDigi");
     if ( ! fRTelescope2CsIDigi) Fatal("Init", "Can`t find collection RTelescope2CsIDigi!");
 
@@ -132,7 +133,7 @@ void ERRTelescopeRawConverter::Exec(Option_t *opt)
             case 2: SiBranche = fRTelescope1Si2DigiS;
                     break;
             case 3: SiBranche = fRTelescope2Si1DigiS;
-                    break;                   
+                    break;
             case 4: SiBranche = fRTelescope2Si1DigiR;
                     break;
             case 5: SiBranche = fRTelescope2Si2DigiS;
@@ -151,7 +152,7 @@ void ERRTelescopeRawConverter::Exec(Option_t *opt)
             Int_t telescopeNb = si_digi->TelescopeNb();
             Int_t detectorNb = si_digi->DetectorNb();
             Int_t Side = si_digi->Side();                   // 1 - sector, 0 - ring
-            Int_t Nb = si_digi->Nb(); 
+            Int_t Nb = si_digi->Nb();
             Int_t edep = si_digi->Edep();
 
             Int_t j = 80 * (telescopeNb - 1) + (16 * detectorNb * (Side * detectorNb == 1 ? 0 : 1)) + Nb;
@@ -189,7 +190,7 @@ void ERRTelescopeRawConverter::Exec(Option_t *opt)
         {
             ERRTelescopeCsIDigi *csi_digi = (ERRTelescopeCsIDigi*)(CsIBranche->At(*it_Nb));
             Int_t telescopeNb = csi_digi->TelescopeNb();
-            Int_t Nb = csi_digi->CrystallNB(); 
+            Int_t Nb = csi_digi->CrystallNB();
             Int_t edep = csi_digi->Edep();
 
             Int_t j = 16 * (telescopeNb - 1) + Nb;
@@ -232,7 +233,7 @@ void ERRTelescopeRawConverter::GetParameters()
   }
 
   i = 0;
- 
+
   while ( fscanf (pCsIFile, "%d %d %d %lf %lf %lf %lf \n", &fi, &si, &ti, &df, &ds, &dt, &dfo) == 7   )
   {
     parameters_CsI[i][0]= si;
@@ -252,13 +253,13 @@ void ERRTelescopeRawConverter::GetParameters()
 //----------------------------------------------------------------------------
 void ERRTelescopeRawConverter::Reset()
 {
-    if (fAculRaw) 
+    if (fAculRaw)
         fAculRaw->Delete();
 }
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
-void ERRTelescopeRawConverter::Finish() 
-{ 
+void ERRTelescopeRawConverter::Finish()
+{
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

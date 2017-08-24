@@ -23,7 +23,7 @@
 
 
 #pragma link C++ class AculRaw+;
-#pragma link C++ class ERQTelescopeRawConverter+;
+#pragma link C++ class ERRTelescopeRawConverter+;
 
 
 
