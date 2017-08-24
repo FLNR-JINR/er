@@ -15,10 +15,9 @@ ERRTelescopeCsIDigi::ERRTelescopeCsIDigi()
 {
 }
 
-ERRTelescopeCsIDigi::ERRTelescopeCsIDigi(Int_t id, Int_t telescopeNb, Int_t detectorNb, Float_t Edep, Double_t time, Int_t crystall)
+ERRTelescopeCsIDigi::ERRTelescopeCsIDigi(Int_t id, Int_t telescopeNb, Float_t Edep, Double_t time, Int_t crystall)
   :fID(id),
   fTelescopeNb(telescopeNb),
-  fDetectorNb(detectorNb),
   fEdep(Edep),
   fTime(time),
   fCrystallNb(crystall)
@@ -28,7 +27,6 @@ ERRTelescopeCsIDigi::ERRTelescopeCsIDigi(Int_t id, Int_t telescopeNb, Int_t dete
 ERRTelescopeCsIDigi::ERRTelescopeCsIDigi(const ERRTelescopeCsIDigi& right)
   :fID(right.fID),
   fTelescopeNb(right.fTelescopeNb),
-  fDetectorNb(right.fDetectorNb),
   fEdep(right.fEdep),
   fTime(right.fTime),
   fCrystallNb(right.fCrystallNb)

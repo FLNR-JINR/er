@@ -51,12 +51,23 @@ class ERRTelescopeDigitizer : public FairTask
         Float_t TimeDispersionPar() const {return fTimeSigma;}
     protected:
         //Input arrays
-        TClonesArray *fSiPoints;
-        TClonesArray *fCsIPoints;
+        TClonesArray *fSiPoints11;
+        TClonesArray *fSiPoints12;
+        TClonesArray *fCsIPoints1;
+        TClonesArray *fSiPoints21;
+        TClonesArray *fSiPoints22;
+        TClonesArray *fCsIPoints2;
 
         //Output arrays
-        TClonesArray *fRTelescopeSiDigi;
-        TClonesArray *fRTelescopeCsIDigi;
+        TClonesArray *fRTelescope1Si1DigiS;
+        TClonesArray *fRTelescope1Si1DigiR;        
+        TClonesArray *fRTelescope1Si2DigiS;
+        TClonesArray *fRTelescope1CsIDigi;
+
+        TClonesArray *fRTelescope2Si1DigiS;
+        TClonesArray *fRTelescope2Si1DigiR;        
+        TClonesArray *fRTelescope2Si2DigiS;
+        TClonesArray *fRTelescope2CsIDigi;
 
         Float_t fElossSigma;
         Float_t fTimeSigma;
@@ -64,8 +75,8 @@ class ERRTelescopeDigitizer : public FairTask
         Float_t fDigiEloss;
 
         //ERBeamDetSetup* fBeamDetSetup;
-        ERRTelescopeSiDigi* AddSiDigi(Int_t side, Int_t Nb, Int_t telescopeNb, Int_t detectorNb, Double_t time, Float_t edep);
-        ERRTelescopeCsIDigi* AddCsIDigi(Int_t telescopeNb, Int_t detectorNb, Float_t edep, Double_t time, Int_t crystall);
+        ERRTelescopeSiDigi* AddSiDigi( Int_t k, Int_t side, Int_t Nb, Int_t telescopeNb, Int_t detectorNb, Double_t time, Float_t edep);
+        ERRTelescopeCsIDigi* AddCsIDigi( Int_t k, Int_t telescopeNb, Float_t edep, Double_t time, Int_t crystall);
 
     private:
         virtual void SetParContainers();

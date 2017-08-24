@@ -9,7 +9,6 @@ using namespace std;
 ERRTelescopeCsIPoint::ERRTelescopeCsIPoint()
   : FairMCPoint(),
     fTelescopeNb(0.),
-    fDetectorNb(0.),
     fX_out(0.), fY_out(0.), fZ_out(0.),
     fPx_out(0.), fPy_out(0.), fPz_out(0.),
     fCrystallNb(-1),
@@ -21,7 +20,7 @@ ERRTelescopeCsIPoint::ERRTelescopeCsIPoint()
 
 
 // -----   Standard constructor   ------------------------------------------
-ERRTelescopeCsIPoint::ERRTelescopeCsIPoint(Int_t eventID, Int_t trackID, Int_t telescopeNb,Int_t detectorNb,
+ERRTelescopeCsIPoint::ERRTelescopeCsIPoint(Int_t eventID, Int_t trackID, Int_t telescopeNb,
 		  Int_t mot0trackID,
 		  Double_t pid,
 		  TVector3 posIn,
@@ -30,7 +29,6 @@ ERRTelescopeCsIPoint::ERRTelescopeCsIPoint(Int_t eventID, Int_t trackID, Int_t t
   : FairMCPoint(trackID, -1., posIn, momIn, tof, length, eLoss),
     fEventID(eventID),
     fTelescopeNb(telescopeNb),
-    fDetectorNb(detectorNb),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
     fCrystallNb(crystall),
@@ -45,7 +43,6 @@ ERRTelescopeCsIPoint::ERRTelescopeCsIPoint(Int_t eventID, Int_t trackID, Int_t t
 ERRTelescopeCsIPoint::ERRTelescopeCsIPoint(const ERRTelescopeCsIPoint& right)
   : FairMCPoint(right),
     fTelescopeNb(right.fTelescopeNb),
-    fDetectorNb(right.fDetectorNb),
     fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
     fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out),
     fCrystallNb(right.fCrystallNb),

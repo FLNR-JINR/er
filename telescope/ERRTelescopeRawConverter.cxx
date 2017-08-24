@@ -11,7 +11,6 @@
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include <iostream>
-#include <stdio.h>
 #include <algorithm>
 using namespace std;
 
@@ -79,23 +78,23 @@ InitStatus ERRTelescopeRawConverter::Init()
 
     fRTelescope1Si1DigiR = (TClonesArray*) ioman->GetObject("RTelescope1Si1DigiR");
     if ( ! fRTelescope1Si1DigiR) Fatal("Init", "Can`t find collection RTelescope1Si1DigiR!");
-
+    
     fRTelescope1Si2DigiS = (TClonesArray*) ioman->GetObject("RTelescope1Si2DigiS");
     if ( ! fRTelescope1Si2DigiS) Fatal("Init", "Can`t find collection RTelescope1Si2DigiS!");
-
+    
     fRTelescope1CsIDigi = (TClonesArray*) ioman->GetObject("RTelescope1CsIDigi");
     if ( ! fRTelescope1CsIDigi) Fatal("Init", "Can`t find collection RTelescope1CsIDigi!");
 
-
+    
     fRTelescope2Si1DigiS = (TClonesArray*) ioman->GetObject("RTelescope2Si1DigiS");
     if ( ! fRTelescope2Si1DigiS) Fatal("Init", "Can`t find collection RTelescope2Si1DigiS!");
 
     fRTelescope2Si1DigiR = (TClonesArray*) ioman->GetObject("RTelescope2Si1DigiR");
     if ( ! fRTelescope2Si1DigiR) Fatal("Init", "Can`t find collection RTelescope2Si1DigiR!");
-
+    
     fRTelescope2Si2DigiS = (TClonesArray*) ioman->GetObject("RTelescope2Si2DigiS");
     if ( ! fRTelescope2Si2DigiS) Fatal("Init", "Can`t find collection RTelescope2Si2DigiS!");
-
+    
     fRTelescope2CsIDigi = (TClonesArray*) ioman->GetObject("RTelescope2CsIDigi");
     if ( ! fRTelescope2CsIDigi) Fatal("Init", "Can`t find collection RTelescope2CsIDigi!");
 
@@ -120,42 +119,42 @@ void ERRTelescopeRawConverter::Exec(Option_t *opt)
     vector<Int_t>               SiDigi;
     vector<Int_t>::iterator     it_Nb;
 
-    TClonesArray *SiBranche = NULL;
+    TClonesArray *SiBranch = NULL;
 
     for(Int_t i = 0; i < 6; ++i)
     {
         switch(i)
         {
-            case 0: SiBranche = fRTelescope1Si1DigiS;
+            case 0: SiBranch = fRTelescope1Si1DigiS;
                     break;
-            case 1: SiBranche = fRTelescope1Si1DigiR;
+            case 1: SiBranch = fRTelescope1Si1DigiR;
                     break;
-            case 2: SiBranche = fRTelescope1Si2DigiS;
+            case 2: SiBranch = fRTelescope1Si2DigiS;
                     break;
-            case 3: SiBranche = fRTelescope2Si1DigiS;
+            case 3: SiBranch = fRTelescope2Si1DigiS;  
+                    break;                   
+            case 4: SiBranch = fRTelescope2Si1DigiR;
                     break;
-            case 4: SiBranche = fRTelescope2Si1DigiR;
-                    break;
-            case 5: SiBranche = fRTelescope2Si2DigiS;
+            case 5: SiBranch = fRTelescope2Si2DigiS;
                     break;
         }
 
-        for(Int_t iDigi = 0; iDigi < SiBranche->GetEntriesFast(); ++iDigi)
+        for(Int_t iDigi = 0; iDigi < SiBranch->GetEntriesFast(); ++iDigi)
         {
-            ERRTelescopeSiDigi *digi = (ERRTelescopeSiDigi *)SiBranche->At(iDigi);
+            ERRTelescopeSiDigi *digi = (ERRTelescopeSiDigi *)SiBranch->At(iDigi);
             SiDigi.push_back(iDigi);
         }
 
         for(it_Nb = SiDigi.begin(); it_Nb < SiDigi.end(); ++it_Nb)
         {
-            ERRTelescopeSiDigi *si_digi = (ERRTelescopeSiDigi*)(SiBranche->At(*it_Nb));
+            ERRTelescopeSiDigi *si_digi = (ERRTelescopeSiDigi*)(SiBranch->At(*it_Nb));
             Int_t telescopeNb = si_digi->TelescopeNb();
             Int_t detectorNb = si_digi->DetectorNb();
             Int_t Side = si_digi->Side();                   // 1 - sector, 0 - ring
-            Int_t Nb = si_digi->Nb();
+            Int_t Nb = si_digi->Nb(); 
             Int_t edep = si_digi->Edep();
 
-            Int_t j = 80 * (telescopeNb - 1) + (16 * detectorNb * (Side * detectorNb == 1 ? 0 : 1)) + Nb;
+            Int_t j = 80*(telescopeNb - 1) + 16*(detectorNb - 1) + 16*(Side == 1 ? 0 : 1) + Nb;
             Int_t StationNb = parameters_Si[j][0];
             Int_t ChanelNb = parameters_Si[j][1];
             Int_t a = parameters_Si[j][2];
@@ -168,29 +167,29 @@ void ERRTelescopeRawConverter::Exec(Option_t *opt)
 
     vector<Int_t>    CsIDigi;
 
-    TClonesArray *CsIBranche = NULL;
+    TClonesArray *CsIBranch = NULL;
 
     for(Int_t i = 0; i < 2; ++i)
     {
         switch(i)
         {
-            case 0: CsIBranche = fRTelescope1CsIDigi;
+            case 0: CsIBranch = fRTelescope1CsIDigi;
                     break;
-            case 1: CsIBranche = fRTelescope2CsIDigi;
+            case 1: CsIBranch = fRTelescope2CsIDigi;
                     break;
         }
 
-        for(Int_t iDigi = 0; iDigi < CsIBranche->GetEntriesFast(); ++iDigi)
+        for(Int_t iDigi = 0; iDigi < CsIBranch->GetEntriesFast(); ++iDigi)
         {
-            ERRTelescopeCsIDigi *digi = (ERRTelescopeCsIDigi *)CsIBranche->At(iDigi);
+            ERRTelescopeCsIDigi *digi = (ERRTelescopeCsIDigi *)CsIBranch->At(iDigi);
             CsIDigi.push_back(iDigi);
         }
 
         for(it_Nb = CsIDigi.begin(); it_Nb < CsIDigi.end(); ++it_Nb)
         {
-            ERRTelescopeCsIDigi *csi_digi = (ERRTelescopeCsIDigi*)(CsIBranche->At(*it_Nb));
+            ERRTelescopeCsIDigi *csi_digi = (ERRTelescopeCsIDigi*)(CsIBranch->At(*it_Nb));
             Int_t telescopeNb = csi_digi->TelescopeNb();
-            Int_t Nb = csi_digi->CrystallNB();
+            Int_t Nb = csi_digi->CrystallNB(); 
             Int_t edep = csi_digi->Edep();
 
             Int_t j = 16 * (telescopeNb - 1) + Nb;
@@ -198,7 +197,17 @@ void ERRTelescopeRawConverter::Exec(Option_t *opt)
             Int_t ChanelNb = parameters_CsI[j][1];
             Int_t a = parameters_CsI[j][2];
             Int_t b = parameters_CsI[j][3];
-            Int_t ACP = (edep - b) / a;
+            Int_t p = parameters_CsI[j][4];
+            Int_t x0 = 500;
+            Int_t N1 = x0; // N1 = x0 = 500 
+            Int_t ACP = 0;
+            Int_t c2 = a*(x0 - p) / (a*x0 + b);
+            Int_t c1 = (a*x0 + b) / pow(x0-p, c2);
+
+            if (edep > 0 && edep < c1 * pow(N1-p, c2))
+                ACP = pow( edep/c1, c2);
+            else
+                ACP = (edep - b) / a;
 
             ((AculRaw *)fAculRaw->At(0))->C3[StationNb][ChanelNb] = ACP;
         }
@@ -210,20 +219,18 @@ void ERRTelescopeRawConverter::Exec(Option_t *opt)
 void ERRTelescopeRawConverter::GetParameters()
 {
     Int_t     i = 0;
-    Int_t     fi;    // first int
-    Int_t     si;     // second int
-    Int_t     ti;
-    Double_t  df;  // double first
-    Double_t  ds;  // second
-    Double_t  dt;  // third
-    Double_t  dfo;
+    Int_t     si;  // station
+    Int_t     ti;  // chanel
+    Double_t  df;  // a - coefficient
+    Double_t  ds;  // b - coefficient
+    Double_t  dt;  // p - piedestal 
     FILE     *pSiFile;
     FILE     *pCsIFile;
 
   pSiFile = fopen ("beSi1.cal","a+");
-  pCsIFile = fopen ("beCsIp1.cal","a+");  //"beCsIa1.cal"
+  pCsIFile = fopen ("beCsIp1.cal","a+");  //"beCsIa1.cal"  for alpha
 
-  while ( fscanf (pSiFile, "%d %d %d %lf %lf %lf \n", &fi, &si, &ti, &df, &ds, &dt) == 6  )
+  while ( fscanf (pSiFile, "%*d %d %d %lf %lf %*lf \n", &si, &ti, &df, &ds) == 4) // check it
   {
     parameters_Si[i][0]= si;
     parameters_Si[i][1]= ti;
@@ -233,15 +240,14 @@ void ERRTelescopeRawConverter::GetParameters()
   }
 
   i = 0;
-
-  while ( fscanf (pCsIFile, "%d %d %d %lf %lf %lf %lf \n", &fi, &si, &ti, &df, &ds, &dt, &dfo) == 7   )
+ 
+  while ( fscanf (pCsIFile, "%*d %d %d %lf %lf %lf %*lf \n", &si, &ti, &df, &ds, &dt) == 5)
   {
     parameters_CsI[i][0]= si;
     parameters_CsI[i][1]= ti;
     parameters_CsI[i][2]= df;
     parameters_CsI[i][3]= ds;
     parameters_CsI[i][4]= dt;
-    parameters_CsI[i][5]= dfo;
     ++i;
   }
 
@@ -253,13 +259,13 @@ void ERRTelescopeRawConverter::GetParameters()
 //----------------------------------------------------------------------------
 void ERRTelescopeRawConverter::Reset()
 {
-    if (fAculRaw)
+    if (fAculRaw) 
         fAculRaw->Delete();
 }
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
-void ERRTelescopeRawConverter::Finish()
-{
+void ERRTelescopeRawConverter::Finish() 
+{ 
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

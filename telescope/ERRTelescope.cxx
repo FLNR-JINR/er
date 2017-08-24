@@ -259,7 +259,7 @@ ERRTelescopeCsIPoint* ERRTelescope::AddCsIPoint() {
   if(fDetNb == 3){
     TClonesArray& clref = (fTelNb ==1) ? *fCsIPoints1 : *fCsIPoints2;
     size = clref.GetEntriesFast();
-    return new(clref[size]) ERRTelescopeCsIPoint(fEventID, fTrackID, fTelNb, fDetNb,fMot0TrackID, fPID,
+    return new(clref[size]) ERRTelescopeCsIPoint(fEventID, fTrackID, fTelNb, fMot0TrackID, fPID,
                 TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
@@ -329,7 +329,7 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
       if(volName.Contains("crystall"))
       {
         gMC->CurrentVolID(fCrystallNb);
-        gMC->CurrentVolOffID(2, fDetNb);
+        // gMC->CurrentVolOffID(2, fDetNb);
         gMC->CurrentVolOffID(3, fTelNb);
         AddCsIPoint();
       }

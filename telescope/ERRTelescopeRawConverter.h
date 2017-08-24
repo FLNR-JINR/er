@@ -44,7 +44,7 @@ class ERRTelescopeRawConverter : public FairTask
         void GetParameters();
 
         Float_t parameters_Si[160][4];
-        Float_t parameters_CsI[32][6];
+        Float_t parameters_CsI[32][5];
 
     protected:
         //Input arrays
