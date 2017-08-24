@@ -36,7 +36,7 @@ void create_RTelescope_geo_v3()
     geoBuild->createMedium(mpSi);
     TGeoMedium* pSi = gGeoMan->GetMedium("silicon");
     if ( ! pSi ) Fatal("Main", "Medium silicon not found");
-  
+
     FairGeoMedium* mpAir      = geoMedia->getMedium("vacuum");
     if ( ! mpAir ) Fatal("Main", "FairMedium vacuum not found");
     geoBuild->createMedium(mpAir);
@@ -89,8 +89,8 @@ void create_RTelescope_geo_v3()
 
 	// Positioning sensors inside the sector
 	for (UInt_t iSensor=0; iSensor<16; iSensor++) {
-		sector_ring1R1->AddNode(sensor_ring1R1[iSensor], 1, zeroCombitrans);
-		sector_ring1R2->AddNode(sensor_ring1R2[iSensor], 1, zeroCombitrans);
+		sector_ring1R1->AddNode(sensor_ring1R1[iSensor], iSensor +1 , zeroCombitrans);
+		sector_ring1R2->AddNode(sensor_ring1R2[iSensor], iSensor+ 1 , zeroCombitrans);
 	}
 
 	// Dead ring
@@ -167,7 +167,7 @@ void create_RTelescope_geo_v3()
 	Double_t cr2_dy1 = t2_dy1 - thickness_dead*2;
 	Double_t cr2_dy2 = t2_dy2 - thickness_dead*2;
 	Double_t cr2_dz = t2_dz;
-	
+
 
 	// Complex crystal shape
 	TGeoTrd1* trd1 = new TGeoTrd1("trd1", t1_dx1/2., t1_dx2/2., t1_dy/2., t1_dz/2.);
@@ -184,7 +184,7 @@ void create_RTelescope_geo_v3()
 	TGeoVolume* crystalVolR1 = new TGeoVolume("crystallR1", crystalShape, pCsI);
 	TGeoVolume* crystalVolDeadR2 = new TGeoVolume("crDeadR2", crystalShapeDead, pSi);
 	TGeoVolume* crystalVolR2 = new TGeoVolume("crystallR2", crystalShape, pCsI);
-	
+
 
 	Double_t alpha = 11.25;
 	Double_t x = (t1_dx1/2.) / TMath::Tan(alpha*TMath::DegToRad());
@@ -208,7 +208,7 @@ void create_RTelescope_geo_v3()
 		curTransName.Form("CrystalTrans%d", iCrystal);
 		curRotName.Form("CrystalRot%d", iCrystal);
 
-		TGeoTranslation* curTrans = new TGeoTranslation(curTransName, 
+		TGeoTranslation* curTrans = new TGeoTranslation(curTransName,
 			radi*TMath::Sin(2.*alpha*TMath::DegToRad()*iCrystal),
 			-radi*TMath::Cos(2.*alpha*TMath::DegToRad()*iCrystal),
 			0.);
@@ -227,7 +227,7 @@ void create_RTelescope_geo_v3()
 	// ================================================================
 	// Top volume
 	gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
-    gGeoMan->SetName("DETgeom");
+  gGeoMan->SetName("DETgeom");
 	TGeoVolume* top = new TGeoVolumeAssembly("TOP");
 	gGeoMan->SetTopVolume(top);
 	TGeoVolume* RTelescopes = new TGeoVolumeAssembly("RTelescopes");

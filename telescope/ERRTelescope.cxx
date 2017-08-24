@@ -310,20 +310,26 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
     gMC->TrackPosition(fPosOut);
     gMC->TrackMomentum(fMomOut);
     TString volName = gMC->CurrentVolName();
-	  if (fELoss > 0.){
+	  // if (fELoss > 0.)
+    {
       if(volName.Contains("sensor"))
       {
         gMC->CurrentVolID(fSensorNb);
         gMC->CurrentVolOffID(1, fSectorNb);
-        gMC->CurrentVolOffID(3, fDetNb);
-        gMC->CurrentVolOffID(4, fTelNb);
-        AddSiPoint();
-      }
-      if(volName.Contains("sector"))
-      {
-        gMC->CurrentVolID(fSectorNb);
         gMC->CurrentVolOffID(2, fDetNb);
         gMC->CurrentVolOffID(3, fTelNb);
+
+        // std :: cout<< "Sensor_"<< fSectorNb <<"Sector_" << fSectorNb << "Detector_" << fDetNb <<"Telescope_"<<fTelNb <<std::endl;
+
+        AddSiPoint();
+      }
+      if(volName.Contains("sector_ring2R"))
+      {
+
+        gMC->CurrentVolID(fSectorNb);
+        gMC->CurrentVolOffID(1, fDetNb);
+        gMC->CurrentVolOffID(2, fTelNb);
+        // std :: cout<< "Sector_" << fSectorNb << "Detector_" << fDetNb <<"Telescope_"<<fTelNb <<std::endl;
         AddSiPoint();
       }
       if(volName.Contains("crystall"))
@@ -331,6 +337,11 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
         gMC->CurrentVolID(fCrystallNb);
         // gMC->CurrentVolOffID(2, fDetNb);
         gMC->CurrentVolOffID(3, fTelNb);
+
+        // std :: cout << "CRYSTALL TELESCOPE" << std::endl;
+        // std :: cout << fDetNb << std::endl;
+        // std :: cout << fTelNb << std::endl;
+
         AddCsIPoint();
       }
     }
