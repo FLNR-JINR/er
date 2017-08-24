@@ -335,7 +335,7 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
       if(volName.Contains("crystall"))
       {
         gMC->CurrentVolID(fCrystallNb);
-        // gMC->CurrentVolOffID(2, fDetNb);
+        gMC->CurrentVolOffID(2, fDetNb);
         gMC->CurrentVolOffID(3, fTelNb);
 
         // std :: cout << "CRYSTALL TELESCOPE" << std::endl;
