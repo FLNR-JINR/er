@@ -1,4 +1,4 @@
-void RTelescope_RawConverter(Int_t nEvents = 1000){
+void RTelescope_RawConverter(Int_t nEvents = 10){
   //---------------------Files-----------------------------------------------
   TString inFile = "digi.root";
   TString outFile = "convert.root";

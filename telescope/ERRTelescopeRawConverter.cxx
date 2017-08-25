@@ -147,7 +147,7 @@ void ERRTelescopeRawConverter::Exec(Option_t *opt)
 
         for(it_Nb = SiDigi.begin(); it_Nb < SiDigi.end(); ++it_Nb)
         {
-            ERRTelescopeSiDigi *si_digi = (ERRTelescopeSiDigi*)(SiBranch->At(*it_Nb));
+            ERRTelescopeSiDigi *si_digi = (ERRTelescopeSiDigi*)SiBranch->At(*it_Nb);
             Int_t telescopeNb = si_digi->TelescopeNb();
             Int_t detectorNb = si_digi->DetectorNb();
             Int_t Side = si_digi->Side();                   // 1 - sector, 0 - ring
