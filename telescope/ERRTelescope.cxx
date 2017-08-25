@@ -308,7 +308,7 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
     gMC->TrackPosition(fPosOut);
     gMC->TrackMomentum(fMomOut);
     TString volName = gMC->CurrentVolName();
-	   if (fELoss >= 0.)
+	   if (fELoss > 0.)
     {
       if(volName.Contains("sensor"))
       {
