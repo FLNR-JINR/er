@@ -287,8 +287,6 @@ Bool_t ERRTelescope::CheckIfSensitive(std::string name)
   return kFALSE;
 }
 Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
-  Int_t telnb;
-  Int_t detnb;
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     fELoss  = 0.;
     fEventID = gMC->CurrentEvent();
@@ -310,7 +308,7 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
     gMC->TrackPosition(fPosOut);
     gMC->TrackMomentum(fMomOut);
     TString volName = gMC->CurrentVolName();
-	  // if (fELoss > 0.)
+	   if (fELoss >= 0.)
     {
       if(volName.Contains("sensor"))
       {
@@ -319,8 +317,8 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
         gMC->CurrentVolOffID(2, fDetNb);
         gMC->CurrentVolOffID(3, fTelNb);
 
-        // std :: cout<< "Sensor_"<< fSectorNb <<"Sector_" << fSectorNb << "Detector_" << fDetNb <<"Telescope_"<<fTelNb <<std::endl;
-
+         //std :: cout<< "Sensor_"<< fSectorNb <<"Sector_" << fSectorNb << "Detector_" << fDetNb <<"Telescope_"<<fTelNb <<std::endl;
+        
         AddSiPoint();
       }
       if(volName.Contains("sector_ring2R"))
@@ -329,18 +327,19 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
         gMC->CurrentVolID(fSectorNb);
         gMC->CurrentVolOffID(1, fDetNb);
         gMC->CurrentVolOffID(2, fTelNb);
-        // std :: cout<< "Sector_" << fSectorNb << "Detector_" << fDetNb <<"Telescope_"<<fTelNb <<std::endl;
+        //std :: cout<< "Sector_" << fSectorNb << "Detector_" << fDetNb <<"Telescope_"<<fTelNb <<std::endl;
         AddSiPoint();
       }
       if(volName.Contains("crystall"))
       {
-        gMC->CurrentVolID(fCrystallNb);
+        gMC->CurrentVolOffID(1,fCrystallNb);
         gMC->CurrentVolOffID(2, fDetNb);
         gMC->CurrentVolOffID(3, fTelNb);
 
-        // std :: cout << "CRYSTALL TELESCOPE" << std::endl;
-        // std :: cout << fDetNb << std::endl;
-        // std :: cout << fTelNb << std::endl;
+         //std :: cout << "CRYSTALL TELESCOPE" << std::endl;
+         //std :: cout << fCrystallNb << std::endl;
+         //std :: cout << fDetNb << std::endl;
+         //std :: cout << fTelNb << std::endl;
 
         AddCsIPoint();
       }
