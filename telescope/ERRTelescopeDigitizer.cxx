@@ -123,7 +123,7 @@ InitStatus ERRTelescopeDigitizer::Init()
     ioman->Register("RTelescope1CsIDigi", "RTelescope1 CsI Digi", fRTelescope1CsIDigi, kTRUE);
 
     fRTelescope2Si1DigiS = new TClonesArray("ERRTelescopeSiDigi", 1000);
-    ioman->Register("RTelescop2Si1DigiS", "RTelescope2 Si1 DigiS", fRTelescope2Si1DigiS, kTRUE);
+    ioman->Register("RTelescope2Si1DigiS", "RTelescope2 Si1 DigiS", fRTelescope2Si1DigiS, kTRUE);
 
     fRTelescope2Si1DigiR = new TClonesArray("ERRTelescopeSiDigi", 1000);
     ioman->Register("RTelescope2Si1DigiR", "RTelescope2 Si1 DigiR", fRTelescope2Si1DigiR, kTRUE);
@@ -150,6 +150,15 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
     map<Int_t, vector<Int_t>>             SiPoints_Ring;
     map<Int_t, vector<Int_t>>::iterator   iterNb;
     vector<Int_t>::iterator               itPoint;
+
+    char str[8][20] = { "RTelescope1Si1DigiR", 
+                        "RTelescope1Si2DigiS", 
+                        "RTelescope2Si1DigiS", 
+                        "RTelescope2Si1DigiR", 
+                        "RTelescope2Si2DigiS", 
+                        "RTelescope1CsIDigi",   
+                        "RTelescope2CsIDigi" 
+                       };
 
     TClonesArray *SiBranch = NULL;
 
@@ -206,7 +215,7 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
             ERRTelescopeSiDigi  *si_digi = AddSiDigi( k, side, iterNb->first, telescopeNb, detectorNb, time, edep);
 
             for (itPoint = iterNb->second.begin(); itPoint != iterNb->second.end(); ++itPoint)
-                si_digi->AddLink(FairLink("ERRTelescopeSiDigi", *itPoint));
+                si_digi->AddLink(FairLink( str[k], *itPoint));
         }
 
         SiPoints_Sector.clear();
@@ -240,7 +249,7 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
                 ERRTelescopeSiDigi  *si_digi = AddSiDigi( k, side, iterNb->first, telescopeNb, detectorNb, time, edep);
 
                 for (itPoint = iterNb->second.begin(); itPoint != iterNb->second.end(); ++itPoint)
-                    si_digi->AddLink(FairLink("ERRTelescopeSiDigi", *itPoint));
+                    si_digi->AddLink(FairLink( str[k], *itPoint));
             }
 
             SiPoints_Ring.clear();
@@ -292,7 +301,7 @@ void ERRTelescopeDigitizer::Exec(Option_t *opt)
             ERRTelescopeCsIDigi *csi_digi = AddCsIDigi( i, telescopeNb, edep, 2000 , iterNb->first);
 
             for (itPoint = iterNb->second.begin(); itPoint != iterNb->second.end(); ++itPoint)
-                csi_digi->AddLink(FairLink( "ERRTelescopeCsIDigi", *itPoint));
+                csi_digi->AddLink(FairLink( str[i + 6], *itPoint));
         }
 
         CsIpoints.clear();
@@ -366,13 +375,10 @@ ERRTelescopeCsIDigi* ERRTelescopeDigitizer::AddCsIDigi( Int_t k, Int_t telescope
 {
     TClonesArray *CsIBranch = NULL;
 
-    switch(k)
-        {
-            case 0: CsIBranch = fRTelescope1CsIDigi;
-                    break;
-            case 1: CsIBranch = fRTelescope2CsIDigi;
-                    break;
-        }
+    if (!k)
+        CsIBranch = fRTelescope1CsIDigi;
+    else
+        CsIBranch = fRTelescope2CsIDigi;
 
     ERRTelescopeCsIDigi *csi_digi = new((*CsIBranch)[CsIBranch->GetEntriesFast()])
         ERRTelescopeCsIDigi(CsIBranch->GetEntriesFast(), telescopeNb, edep, time, crystall);

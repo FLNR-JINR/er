@@ -99,8 +99,8 @@ InitStatus ERRTelescopeRawConverter::Init()
     if ( ! fRTelescope2CsIDigi) Fatal("Init", "Can`t find collection RTelescope2CsIDigi!");
 
     // Register output array fRTelescopeHits
-    fAculRaw = new TClonesArray("AculRaw", 1);
-    ioman->Register("RTelescopeAculRaw", "RTelescope Acul Raw", fAculRaw, kTRUE);
+    fAculRaw = new AculRaw();
+    ioman->Register("RTelescopeAculRaw.", "RTelescope Acul Raw", fAculRaw, kTRUE);
 
   /*fRTelescopeSetup = ERRTelescopeSetup::Instance();
     fRTelescopeSetup->Print();*/
@@ -148,21 +148,23 @@ void ERRTelescopeRawConverter::Exec(Option_t *opt)
         for(it_Nb = SiDigi.begin(); it_Nb < SiDigi.end(); ++it_Nb)
         {
             ERRTelescopeSiDigi *si_digi = (ERRTelescopeSiDigi*)SiBranch->At(*it_Nb);
-            Int_t telescopeNb = si_digi->TelescopeNb();
-            Int_t detectorNb = si_digi->DetectorNb();
-            Int_t Side = si_digi->Side();                   // 1 - sector, 0 - ring
-            Int_t Nb = si_digi->Nb(); 
-            Int_t edep = si_digi->Edep();
+            Int_t  telescopeNb = si_digi->TelescopeNb();
+            Int_t  detectorNb = si_digi->DetectorNb();
+            Int_t  Side = si_digi->Side();                   // 1 - sector, 0 - ring
+            Int_t  Nb = si_digi->Nb(); 
+            Int_t  edep = si_digi->Edep();
 
-            Int_t j = 80*(telescopeNb - 1) + 16*(detectorNb - 1) + 16*(Side == 1 ? 0 : 1) + Nb;
-            Int_t StationNb = parameters_Si[j][0];
-            Int_t ChanelNb = parameters_Si[j][1];
-            Int_t a = parameters_Si[j][2];
-            Int_t b = parameters_Si[j][3];
-            Int_t ACP = (edep - b) / a;
+            Int_t  j = 80*(telescopeNb - 1) + 16*(detectorNb - 1) + 16*(Side == 1 ? 0 : 1) + Nb;
+            Int_t  StationNb = parameters_Si[j][0];
+            Int_t  ChanelNb = parameters_Si[j][1];
+            Double_t  a = parameters_Si[j][2];
+            Double_t  b = parameters_Si[j][3];
+            Double_t  ACP = (edep - b) / a;
 
-            ((AculRaw *)fAculRaw->At(0))->C3[StationNb][ChanelNb] = ACP;
+            fAculRaw->C3[StationNb][ChanelNb] = ACP;
         }
+
+        SiDigi.clear();
     }
 
     vector<Int_t>    CsIDigi;
@@ -171,13 +173,10 @@ void ERRTelescopeRawConverter::Exec(Option_t *opt)
 
     for(Int_t i = 0; i < 2; ++i)
     {
-        switch(i)
-        {
-            case 0: CsIBranch = fRTelescope1CsIDigi;
-                    break;
-            case 1: CsIBranch = fRTelescope2CsIDigi;
-                    break;
-        }
+        if (!i)
+            CsIBranch = fRTelescope1CsIDigi;
+        else
+            CsIBranch = fRTelescope2CsIDigi;
 
         for(Int_t iDigi = 0; iDigi < CsIBranch->GetEntriesFast(); ++iDigi)
         {
@@ -195,22 +194,24 @@ void ERRTelescopeRawConverter::Exec(Option_t *opt)
             Int_t j = 16 * (telescopeNb - 1) + Nb;
             Int_t StationNb = parameters_CsI[j][0];
             Int_t ChanelNb = parameters_CsI[j][1];
-            Int_t a = parameters_CsI[j][2];
-            Int_t b = parameters_CsI[j][3];
-            Int_t p = parameters_CsI[j][4];
+            Double_t a = parameters_CsI[j][2];
+            Double_t b = parameters_CsI[j][3];
+            Double_t p = parameters_CsI[j][4];
             Int_t x0 = 500;
             Int_t N1 = x0; // N1 = x0 = 500 
-            Int_t ACP = 0;
-            Int_t c2 = a*(x0 - p) / (a*x0 + b);
-            Int_t c1 = (a*x0 + b) / pow(x0-p, c2);
+            Double_t ACP = 0;
+            Double_t c2 = a*(x0 - p) / (a*x0 + b);
+            Double_t c1 = (a*x0 + b) / pow(x0-p, c2);
 
             if (edep > 0 && edep < c1 * pow(N1-p, c2))
                 ACP = pow( edep/c1, c2);
             else
                 ACP = (edep - b) / a;
 
-            ((AculRaw *)fAculRaw->At(0))->C3[StationNb][ChanelNb] = ACP;
+            fAculRaw->C3[StationNb][ChanelNb] = ACP;
         }
+
+        CsIDigi.clear();
     }
 }
 //----------------------------------------------------------------------------
@@ -234,8 +235,8 @@ void ERRTelescopeRawConverter::GetParameters()
   {
     parameters_Si[i][0]= si;
     parameters_Si[i][1]= ti;
-    parameters_Si[i][2]= df;
-    parameters_Si[i][3]= ds;
+    parameters_Si[i][1]= df;
+    parameters_Si[i][2]= ds;
     ++i;
   }
 
@@ -245,9 +246,9 @@ void ERRTelescopeRawConverter::GetParameters()
   {
     parameters_CsI[i][0]= si;
     parameters_CsI[i][1]= ti;
-    parameters_CsI[i][2]= df;
-    parameters_CsI[i][3]= ds;
-    parameters_CsI[i][4]= dt;
+    parameters_CsI[i][0]= df;
+    parameters_CsI[i][1]= ds;
+    parameters_CsI[i][2]= dt;
     ++i;
   }
 

@@ -11,18 +11,18 @@
 
 #ifndef AculRaw_H
 #define AculRaw_H
-#include <TObject.h>
+#include <TNamed.h>
 
 #define	BLOCKSNUMBER 24
 #define ADDRESSNUMBER 16
 
 
-class AculRaw : public TObject
+class AculRaw : public TNamed
 {
 public:
 
 	Int_t	mwpcReg[4];							//information about MWPCx plane in the register format
-	Int_t	C3[BLOCKSNUMBER][ADDRESSNUMBER];	//information from crate C3
+	Int_t	C3[BLOCKSNUMBER][ADDRESSNUMBER];	//information from crate C3 
 	Int_t	trigger;
 
 	AculRaw();

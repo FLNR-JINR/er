@@ -59,7 +59,7 @@ class ERRTelescopeRawConverter : public FairTask
         TClonesArray *fRTelescope2CsIDigi;
 
         //Output array
-        TClonesArray *fAculRaw;
+        AculRaw *fAculRaw;
 
     private:
         virtual void SetParContainers();
