@@ -14,6 +14,29 @@ crystal - crystalArray x16 same - top
 
 void create_RTelescope_geo_v3()
 {
+	// All dimension in cm
+	// the inner and outer radius of the sensitive zone of silicon detectors
+    Double_t R_min = 1.6;
+	Double_t R_max = 4.2;
+
+	// Ring1(DSSD)
+	Double_t thickness1 = 0.0285;
+	Double_t thickness_dead_front1 = 0.0001;
+	Double_t thickness_dead_back1 = 0.00015;
+	Double_t R_dead_inner1 = R_min - 0.05;
+	Double_t R_dead_outer1 = R_max + 0.05;
+	Int_t dssd_sec_num = 32;
+	Int_t dssd_sens_num = 32;
+	Double_t deltaR = (R_max-R_min)/dssd_sens_num;
+
+	//Ring2(SSSD)
+	Double_t thickness2 = 0.1;
+	Double_t thickness_dead_front2 = 0.0001;
+	Double_t thickness_dead_back2 = 0.00015;
+	Double_t R_dead_inner2 = R_min - 0.05;
+	Double_t R_dead_outer2 = R_max + 0.05;
+	Int_t sssd_sec_num = 32;
+
 	// Create geometry manager
 	//TGeoManager* gGeoManager = new TGeoManager("geom", "geom");
 
@@ -54,19 +77,8 @@ void create_RTelescope_geo_v3()
 	TGeoCombiTrans* zeroCombitrans = new TGeoCombiTrans(*zeroTrans, *zeroRot);
 
 	// ================================================================
-	// All dimension in cm
-	Double_t R_min = 1.6;
-	Double_t R_max = 4.2;
-	Double_t deltaR = (R_max-R_min)/32.;
 
-	// ================================================================
 	// Ring1
-
-	Double_t thickness1 = 0.0285;
-	Double_t thickness_dead_before1 = 0.0001;
-	Double_t thickness_dead_after1 = 0.00015;
-	Double_t addendR_dead_inner1 = 0.05;
-	Double_t addendR_dead_outer1 = 0.05;
 	Float_t rsp_min = 2000.;
     Float_t rsp_max = rsp_min + thickness1;
     Float_t thsp_min = TMath::ATan(R_min/rsp_min)*TMath::RadToDeg();
@@ -74,51 +86,40 @@ void create_RTelescope_geo_v3()
 
 	// Sensors
 	TString sensorName;
-	TGeoVolume* sensor_ring1R1[32];
-	TGeoVolume* sensor_ring1R2[32];
+	TGeoVolume* sensor_ring1R1[dssd_sens_num];
+	TGeoVolume* sensor_ring1R2[dssd_sens_num];
 	Float_t thsp_min1;
     Float_t thsp_max1;
 
-	for (UInt_t iSensor=0; iSensor<32; iSensor++) {
+	for (UInt_t iSensor=0; iSensor<dssd_sens_num; iSensor++) {
 		sensorName.Form("sensor_ring1R1_type%d", iSensor);
-		//sensor_ring1R1[iSensor] = gGeoMan->MakeTubs(sensorName, pSi,
-			//R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR, thickness1/2., 0., 360./32.);
-		//sensor_ring1R2[iSensor] = gGeoMan->MakeTubs(sensorName, pSi,
-			//R_min+iSensor*deltaR, R_min+(iSensor+1)*deltaR, thickness1/2., 0., 360./32.);
 		 thsp_min1 = TMath::ATan((R_min+iSensor*deltaR)/rsp_min)*TMath::RadToDeg();
 		 thsp_max1 = TMath::ATan((R_min+(iSensor+1)*deltaR)/rsp_max)*TMath::RadToDeg();
-		 sensor_ring1R1[iSensor]= gGeoMan->MakeSphere(sensorName, pSi,rsp_min,rsp_max,thsp_min1,thsp_max1,0,360./32.);
-		 sensor_ring1R2[iSensor]= gGeoMan->MakeSphere(sensorName, pSi,rsp_min,rsp_max,thsp_min1,thsp_max1,0,360./32.);
+		 sensor_ring1R1[iSensor]= gGeoMan->MakeSphere(sensorName, pSi,rsp_min,rsp_max,thsp_min1,thsp_max1,0,360./dssd_sec_num);
+		 sensor_ring1R2[iSensor]= gGeoMan->MakeSphere(sensorName, pSi,rsp_min,rsp_max,thsp_min1,thsp_max1,0,360./dssd_sec_num);
 	}
 
-	// Sectors
-	//TGeoVolume* sector_ring1R1 = gGeoMan->MakeTubs("sector_ring1R1", pSi,
-		//R_min, R_max, thickness1/2., 0., 360./32.);
-	//TGeoVolume* sector_ring1R2 = gGeoMan->MakeTubs("sector_ring1R2", pSi,
-		//R_min, R_max, thickness1/2., 0., 360./32.);
-	TGeoVolume* sector_ring1R1 = gGeoMan->MakeSphere("sector_ring1R1",pSi,rsp_min,rsp_max,thsp_min,thsp_max,0,360./32.);
-	TGeoVolume* sector_ring1R2 = gGeoMan->MakeSphere("sector_ring1R2",pSi,rsp_min,rsp_max,thsp_min,thsp_max,0,360./32.);
+	TGeoVolume* sector_ring1R1 = gGeoMan->MakeSphere("sector_ring1R1",pSi,rsp_min,rsp_max,thsp_min,thsp_max,0,360./dssd_sec_num);
+	TGeoVolume* sector_ring1R2 = gGeoMan->MakeSphere("sector_ring1R2",pSi,rsp_min,rsp_max,thsp_min,thsp_max,0,360./dssd_sec_num);
 
 	// Positioning sensors inside the sector
-	for (UInt_t iSensor=0; iSensor<32; iSensor++) {
+	for (UInt_t iSensor=0; iSensor<dssd_sens_num; iSensor++) {
 		sector_ring1R1->AddNode(sensor_ring1R1[iSensor], iSensor +1 , zeroCombitrans);
 		sector_ring1R2->AddNode(sensor_ring1R2[iSensor], iSensor+ 1 , zeroCombitrans);
 	}
 
 	// Dead ring
-	Double_t R_min1 = R_min - addendR_dead_inner1;
-	Double_t R_max1 = R_max + addendR_dead_outer1;
-	Float_t rsp_max1 = rsp_min + thickness_dead_before1 + thickness1 + thickness_dead_after1;
-    Float_t thsp_min2 = TMath::ATan(R_min1/rsp_min)*TMath::RadToDeg();
-    Float_t thsp_max2 = TMath::ATan(R_max1/rsp_max1)*TMath::RadToDeg();
+	Float_t rsp_max1 = rsp_min + thickness_dead_front1 + thickness1 + thickness_dead_back1;
+    Float_t thsp_min2 = TMath::ATan(R_dead_inner1/rsp_min)*TMath::RadToDeg();
+    Float_t thsp_max2 = TMath::ATan(R_dead_outer1/rsp_max1)*TMath::RadToDeg();
 	TGeoVolume* dead_ring1R1 = gGeoMan->MakeSphere("ring1R1_dead_zone",pSi,rsp_min,rsp_max1,thsp_min2,thsp_max2,0.,360.);
     TGeoVolume* dead_ring1R2 = gGeoMan->MakeSphere("ring1R2_dead_zone",pSi,rsp_min,rsp_max1,thsp_min2,thsp_max2,0.,360.);
 	// Positioning sectors inside the ring
 	TString curRotName;
-	for (UInt_t iSector=0; iSector<32; iSector++)
+	for (UInt_t iSector=0; iSector<dssd_sec_num; iSector++)
 	{
 		curRotName.Form("SectorRot1_%d", iSector);
-		TGeoRotation* curRot = new TGeoRotation(curRotName, 0., 0., (360./32.)*iSector);
+		TGeoRotation* curRot = new TGeoRotation(curRotName, 0., 0., (360./dssd_sec_num)*iSector);
 		TGeoCombiTrans* curCombitrans = new TGeoCombiTrans(*zeroTrans, *curRot);
 		dead_ring1R1->AddNode(sector_ring1R1, iSector+1, curCombitrans); //TODO check index - from 0 or from 1
 		dead_ring1R2->AddNode(sector_ring1R2, iSector+1, curCombitrans);
@@ -126,40 +127,27 @@ void create_RTelescope_geo_v3()
 
 	// ================================================================
 	// Ring2
-	Double_t thickness2 = 0.1;
-	Double_t thickness_dead_before2 = 0.0001;
-	Double_t thickness_dead_after2 = 0.00015;
-	Double_t addendR_dead_inner2 = 0.05;
-	Double_t addendR_dead_outer2 = 0.05;
 	Float_t rsp_max2 = rsp_min + thickness2;
     Float_t thsp_min3 = TMath::ATan(R_min/rsp_min)*TMath::RadToDeg();
     Float_t thsp_max3 = TMath::ATan(R_max/rsp_max2)*TMath::RadToDeg();
 
 	// Sectors
-	TGeoVolume* sector_ring2R1 = gGeoMan->MakeSphere("sector_ring2R1",pSi,rsp_min,rsp_max2,thsp_min3,thsp_max3,0,360./32.);
-	TGeoVolume* sector_ring2R2 = gGeoMan->MakeSphere("sector_ring2R2",pSi,rsp_min,rsp_max2,thsp_min3,thsp_max3,0,360./32.);
+	TGeoVolume* sector_ring2R1 = gGeoMan->MakeSphere("sector_ring2R1",pSi,rsp_min,rsp_max2,thsp_min3,thsp_max3,0.,360./sssd_sec_num);
+	TGeoVolume* sector_ring2R2 = gGeoMan->MakeSphere("sector_ring2R2",pSi,rsp_min,rsp_max2,thsp_min3,thsp_max3,0.,360./sssd_sec_num);
 
 	// Dead ring
-	Double_t R_min2 = R_min - addendR_dead_inner2;
-	Double_t R_max2 = R_max + addendR_dead_outer2;
-	Float_t rsp_max3 = rsp_min + thickness_dead_before2 + thickness2 + thickness_dead_after2;
-    Float_t thsp_min4 = TMath::ATan(R_min2/rsp_min)*TMath::RadToDeg();
-    Float_t thsp_max4 = TMath::ATan(R_max2/rsp_max3)*TMath::RadToDeg();
-	//TGeoVolume* dead_ring2R1 = gGeoMan->MakeTubs("ring2R1_dead_zone", pSi,
-	//	R_min-addendR_dead_inner2, R_max+addendR_dead_outer2,
-	//	(thickness_dead_before2 + thickness2 + thickness_dead_after2)/2., 0., 360.);
-	//TGeoVolume* dead_ring2R2 = gGeoMan->MakeTubs("ring2R2_dead_zone", pSi,
-	//	R_min-addendR_dead_inner2, R_max+addendR_dead_outer2,
-	//	(thickness_dead_before2 + thickness2 + thickness_dead_after2)/2., 0., 360.);
+	Float_t rsp_max3 = rsp_min + thickness_dead_front2 + thickness2 + thickness_dead_back2;
+    Float_t thsp_min4 = TMath::ATan(R_dead_inner2/rsp_min)*TMath::RadToDeg();
+    Float_t thsp_max4 = TMath::ATan(R_dead_outer2/rsp_max3)*TMath::RadToDeg();
 	TGeoVolume* dead_ring2R1 = gGeoMan->MakeSphere("ring2R1_dead_zone",pSi,rsp_min,rsp_max3,thsp_min4,thsp_max4,0.,360.);
-    TGeoVolume* dead_ring2R2 = gGeoMan->MakeSphere("ring2R2_dead_zone",pSi,rsp_min,rsp_max3,thsp_min4,thsp_max4,0,360.);
+    TGeoVolume* dead_ring2R2 = gGeoMan->MakeSphere("ring2R2_dead_zone",pSi,rsp_min,rsp_max3,thsp_min4,thsp_max4,0.,360.);
 
 
 	// Positioning sectors inside the ring
-	for (UInt_t iSector=0; iSector<32; iSector++)
+	for (UInt_t iSector=0; iSector<sssd_sec_num; iSector++)
 	{
 		curRotName.Form("SectorRot2_%d", iSector);
-		TGeoRotation* curRot = new TGeoRotation(curRotName, 0., 0., (360./32.)*iSector);
+		TGeoRotation* curRot = new TGeoRotation(curRotName, 0., 0., (360./sssd_sec_num)*iSector);
 		TGeoCombiTrans* curCombitrans = new TGeoCombiTrans(*zeroTrans, *curRot);
 		dead_ring2R1->AddNode(sector_ring2R1, iSector+1, curCombitrans); //TODO check index - from 0 or from 1
 		dead_ring2R2->AddNode(sector_ring2R2, iSector+1, curCombitrans);
@@ -209,7 +197,7 @@ void create_RTelescope_geo_v3()
 
 
 	Double_t alpha = 11.25;
-	Double_t x = (t1_dx1/2.) / TMath::Tan(alpha*TMath::DegToRad());
+	Double_t x = ((t1_dx1+0.04)/2.) / TMath::Tan(alpha*TMath::DegToRad());
 	Double_t radi = x + (t1_dz/2.);
 
 	// crystalArray container shape
@@ -241,7 +229,6 @@ void create_RTelescope_geo_v3()
 
 		TGeoCombiTrans* curCombitrans = new TGeoCombiTrans(*curTrans, *curRot);
 
-        //crystalVolDead->AddNode(crystalVol, iCrystal+1, zeroCombitrans);
 		CsIarrayR1->AddNode(crystalVolDeadR1, iCrystal+1, curCombitrans);
 		CsIarrayR2->AddNode(crystalVolDeadR2, iCrystal+1, curCombitrans);
 	}
@@ -258,17 +245,17 @@ void create_RTelescope_geo_v3()
 
 
 	// Positioning ring1, ring2 and crystalArray inside top
-	TGeoTranslation* ring1Trans = new TGeoTranslation(0., 0., -2000.);
+	TGeoTranslation* ring1Trans = new TGeoTranslation(0., 0., -rsp_min - 1.);
 	TGeoCombiTrans* ring1Combitrans = new TGeoCombiTrans(*ring1Trans, *zeroRot);
 	RTelescope1->AddNode(dead_ring1R1, 1, ring1Combitrans);
     RTelescope2->AddNode(dead_ring1R2, 1, ring1Combitrans);
 
-	TGeoTranslation* ring2Trans = new TGeoTranslation(0., 0., -2001.);
+	TGeoTranslation* ring2Trans = new TGeoTranslation(0., 0., -rsp_min);
 	TGeoCombiTrans* ring2Combitrans = new TGeoCombiTrans(*ring2Trans, *zeroRot);
 	RTelescope1->AddNode(dead_ring2R1, 2, ring2Combitrans);
     RTelescope2->AddNode(dead_ring2R2, 2, ring2Combitrans);
 
-	TGeoTranslation* CsIarrayTrans = new TGeoTranslation(0., 0., 0.1 + t1_dy + thickness2 - 1);
+	TGeoTranslation* CsIarrayTrans = new TGeoTranslation(0., 0., t1_dy/2 + thickness2 + 0.1);
 	TGeoCombiTrans* CsIarrayCombitrans = new TGeoCombiTrans(*CsIarrayTrans, *zeroRot);
 	RTelescope1->AddNode(CsIarrayR1, 3, CsIarrayCombitrans);
     RTelescope2->AddNode(CsIarrayR2, 3, CsIarrayCombitrans);
@@ -277,7 +264,7 @@ void create_RTelescope_geo_v3()
     TGeoCombiTrans* rtelescope1Combitrans = new TGeoCombiTrans(*rtelescope1Trans, *zeroRot);
     RTelescopes->AddNode(RTelescope1, 1, rtelescope1Combitrans);
 
-    TGeoTranslation* rtelescope2Trans = new TGeoTranslation(0., 0., 7.);
+    TGeoTranslation* rtelescope2Trans = new TGeoTranslation(0., 0., 7);
     TGeoCombiTrans* rtelescope2Combitrans = new TGeoCombiTrans(*rtelescope2Trans, *zeroRot);
     RTelescopes->AddNode(RTelescope2, 2, rtelescope2Combitrans);
 
