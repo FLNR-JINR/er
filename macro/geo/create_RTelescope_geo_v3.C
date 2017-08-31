@@ -15,7 +15,7 @@ crystal - crystalArray x16 same - top
 void create_RTelescope_geo_v3()
 {
 	// All dimension in cm
-	// the inner and outer radius of the sensitive zone of silicon detectors
+	// the inner and outer radii of the sensitive zone of silicon detectors
     Double_t R_min = 1.6;
 	Double_t R_max = 4.2;
 
@@ -26,7 +26,8 @@ void create_RTelescope_geo_v3()
 	Double_t R_dead_inner1 = R_min - 0.05;
 	Double_t R_dead_outer1 = R_max + 0.05;
 	Int_t dssd_sec_num = 32;
-	Int_t dssd_sens_num = 32;
+	Int_t dssd_sens_num = 32; //number of rings. A Sensor is a segment of a ring inside a sector
+
 	Double_t deltaR = (R_max-R_min)/dssd_sens_num;
 
 	//Ring2(SSSD)
@@ -78,7 +79,7 @@ void create_RTelescope_geo_v3()
 
 	// ================================================================
 
-	// Ring1
+	// Ring1.Due to a bug in the tubes, the sphere with a big radius is used instead.
 	Float_t rsp_min = 2000.;
     Float_t rsp_max = rsp_min + thickness1;
     Float_t thsp_min = TMath::ATan(R_min/rsp_min)*TMath::RadToDeg();
