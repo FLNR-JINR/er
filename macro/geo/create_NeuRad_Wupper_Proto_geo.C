@@ -1,6 +1,6 @@
 /*
 Neurad prototype for Wuppertal tests. With one 64-pixel MAPMT H12700  
-Todo SB: creare or find material for black paper, currently polypropilen is used!
+Todo SB: create or find material for black paper, currently polypropilen is used!
 */
 
 #include <iomanip>
@@ -22,7 +22,7 @@ void create_NeuRad_Wupper_Proto_geo()
   Double_t fiber_X = 0.3; //cm
   Double_t fiber_Y = 0.3; //cm
   Double_t fiber_Z = 25.; //cm
-  Double_t dead_cladding_thick = 0.005; //cm dead layer between fibers (cladidng and wrapping)
+  Double_t dead_cladding_thick = 0.005; //cm dead layer between fibers (cladidng and painting)
   Double_t submodule_wrapping = 0.01; //cm Teflon wrapping around 8x8 fibers assembly
   Double_t housing_Thick=0.01; //cm Paper wrapping (housing) around module
   Double_t ersatz_pmt_Z = 0.24; //cm simulation of the overall pmt material
@@ -104,16 +104,18 @@ void create_NeuRad_Wupper_Proto_geo()
   TGeoVolume* pixel = gGeoManager->MakeBox("pixel", pMed0, pixel_X/2., pixel_Y/2., fiber_Z/2.);
     
   //-------------------------submodule-------------------
- 
-  TGeoVolume* submodule = new TGeoVolumeAssembly("submodule");
   Double_t submodule_X = pixel_X*pixels_in_submodule_X + 2.*submodule_wrapping;
   Double_t submodule_Y = pixel_Y*pixels_in_submodule_Y + 2.*submodule_wrapping;
-  //------------------ teflon  module  -----------------------------------------
+  TGeoVolume* submodule = gGeoManager->MakeBox("submodule", pTefl, submodule_X/2., submodule_Y/2., fiber_Z/2.);
+
+  
+  //------------------ volume assmbly module  -----------------------------------------
   
   Double_t module_X = submodule_X*submodules_in_module_X+2.*housing_Thick;
   Double_t module_Y = submodule_Y*submodules_in_module_Y+2.*housing_Thick;
-  Double_t module_Z = fiber_Z+2.*(ersatz_pmt_Z+cover_Z);
-  TGeoVolume* module =  gGeoManager->MakeBox("module", pTefl, module_X/2., module_Y/2., module_Z/2.);
+  // Double_t module_Z = fiber_Z+2.*(ersatz_pmt_Z+cover_Z);
+ // TGeoVolume* module =  gGeoManager->MakeBox("module", pTefl, module_X/2., module_Y/2., module_Z/2.);
+  TGeoVolume* module = new TGeoVolumeAssembly("module");
   
   
    //------------------  ersatz PMT, paper wrapping (module housing) and cover -----------------------------------------
