@@ -53,7 +53,7 @@ class ERNeuRadDigiPar : public FairParGenericSet
     /** Modifiers**/
     
     /** Accessories  **/
-    Int_t   NofFibers()     const {return fNofFibers;}
+    Int_t   NofFibers()     const {return fNofPixels;}
     Int_t   NofModules()    const {return fNofModules;}
     //@todo добавить обработку выхода зза границу
     Double_t PixelQuantumEfficiency (Int_t iFiber) const {return (*fPixelQuantumEfficiency)[iFiber];}
@@ -68,7 +68,7 @@ class ERNeuRadDigiPar : public FairParGenericSet
     TArrayF* fPixelSigma;
     TArrayF* fPixelCrosstalks;
     TArrayF* fFiberCrosstalks;
-    Int_t fNofFibers;
+    Int_t fNofPixels;
     Int_t fNofModules;
     Bool_t fUseCrosstalks;
     Int_t fRowNofFibers;
