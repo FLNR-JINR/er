@@ -9,6 +9,7 @@ using namespace std;
 #include "TMath.h"
 
 #include "ERSupport.h"
+#include "ERHe8EventHeader.h"
 
 // ----------------------------------------------------------------------------
 ERTelescopeReconstructorNew::ERTelescopeReconstructorNew()
@@ -97,6 +98,19 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
   else
     return;
 
+  //Проекции projectile на первые две плоскости QTelescope
+  ERHe8EventHeader* header = (ERHe8EventHeader*)run->GetEventHeader();
+
+  double Zdist;
+  if(abs(header->UpMat.MWclosXNum)==1) Zdist = header->UpMat.MWclosDist + header->UpMat.MWXYdist/2.;
+  else if(abs(header->UpMat.MWclosXNum)==2) Zdist = header->UpMat.MWclosDist - header->UpMat.MWXYdist/2.;
+
+  fOutEvent->xbd1 = fBeamDetEvent->xmw2 - (Zdist-10.0)*tan(fProjectile->Part.Theta())*cos(fProjectile->Part.Phi());
+  fOutEvent->ybd1 = fBeamDetEvent->ymw2 - (Zdist-10.0)*tan(fProjectile->Part.Theta())*sin(fProjectile->Part.Phi());
+
+  fOutEvent->xbd2 = fBeamDetEvent->xmw2 - (Zdist-25.0)*tan(fProjectile->Part.Theta())*cos(fProjectile->Part.Phi());
+  fOutEvent->ybd2 = fBeamDetEvent->ymw2 - (Zdist-25.0)*tan(fProjectile->Part.Theta())*sin(fProjectile->Part.Phi());
+
   //Читаем депозиты
   fOutEvent->dep11 = fRTelescopeEvent->eC11[0];
   fOutEvent->dep12 = fRTelescopeEvent->eC12[0];
@@ -115,14 +129,14 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
   Float_t nRings = 16.,nSectors = 16.;
   Float_t rmin = 1.6, rmax = 4.1;
   Float_t z = -10.;
-  Float_t phi = (sector-0.5)*2.*TMath::Pi()/nSectors + TMath::Pi()/2.;
+  Float_t phi = (sector-0.5)*2.*TMath::Pi()/nSectors; //+ TMath::Pi()/2.;
   Float_t R = rmax-(ring-0.5)*(rmax-rmin)/nRings;
   //cout << phi*TMath::RadToDeg() << " " << R << " " << ring << endl;
   fOutEvent->x11 = R*TMath::Cos(phi);
   fOutEvent->y11 = R*TMath::Sin(phi);
 
   //From local to global
-  fOutEvent->x11 = (-1.)*fOutEvent->x11;
+  fOutEvent->y11 = (-1.)*fOutEvent->y11;
 
   //Точка на RTelescope
   TVector3 rTelescopeHit(fOutEvent->x11,fOutEvent->y11,z);

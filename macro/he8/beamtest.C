@@ -1,10 +1,10 @@
 void beamtest(Int_t nEvents = 20)
 {
   TString workdir = gSystem->Getenv("VMCWORKDIR");
-	TString inFile = workdir + "/input/t_8he_025.root";
+	TString inFile = workdir + "/input/t_8he_027.root";
 
 	// --- Specify output file name (this is just an example)
-	TString outFile = "out25.root";
+	TString outFile = "ou27.root";
 
   std::cout << ">>> input file is " << inFile  << std::endl;
   std::cout << ">>> output file is " << outFile << std::endl;
@@ -14,8 +14,14 @@ void beamtest(Int_t nEvents = 20)
   source->SetFile(inFile,"AnalysisxTree","HE8Event");
   //source->AddFile(workdir + "/input/t_8he_025.root");
 
-  ERQTelescopeEvent* qTelEvent = new ERQTelescopeEvent();
-  source->AddEvent(qTelEvent);
+  // --- Run
+  FairRunOnline *run = new FairRunOnline(source);
+  run->SetOutputFile(outFile);
+
+  ERHe8EventHeader* header = new ERHe8EventHeader();
+  run->SetEventHeader(header);
+
+  //Raw Events
 
   ERBeamDetEvent* beamDetEvent = new ERBeamDetEvent();
   source->AddEvent(beamDetEvent);
@@ -23,12 +29,14 @@ void beamtest(Int_t nEvents = 20)
   ERRTelescopeEvent* rTelescopeEvent = new ERRTelescopeEvent();
   source->AddEvent(rTelescopeEvent);
 
-  // --- Run
-  FairRunOnline *run = new FairRunOnline(source);
-  run->SetOutputFile(outFile);
+  ERQTelescopeEvent* qTelEvent = new ERQTelescopeEvent();
+  source->AddEvent(qTelEvent);
 
-  ERHe8EventHeader* header = new ERHe8EventHeader();
-  run->SetEventHeader(header);
+  //Calibration
+
+  ERBeamDetCalibrator* beamDetCalibrator = new ERBeamDetCalibrator();
+  beamDetCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
+  run->AddTask(beamDetCalibrator);
 
   ERRTelescopeCalibrator* rTelCalibrator = new ERRTelescopeCalibrator();
   rTelCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
@@ -38,9 +46,7 @@ void beamtest(Int_t nEvents = 20)
   qTelCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
   run->AddTask(qTelCalibrator);
 
-  ERBeamDetCalibrator* beamDetCalibrator = new ERBeamDetCalibrator();
-  beamDetCalibrator->SetParametersFile(workdir + "/input/clb4sonya.dat");
-  run->AddTask(beamDetCalibrator);
+  //Reconstructor
 
   ERBeamDetReconstructor* beamDetRecon = new ERBeamDetReconstructor(1);
   run->AddTask(beamDetRecon);
