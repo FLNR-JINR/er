@@ -24,7 +24,7 @@ Double_t thickness_dead_back1 = 0.00015;
 Double_t R_dead_inner1 = R_min - 0.05;
 Double_t R_dead_outer1 = R_max + 0.05;
 Int_t dssd_sec_num = 32;
-Int_t dssd_sens_num = 32; //number of rings. A Sensor is a segment of a ring inside a sector
+const Int_t dssd_sens_num = 32; //number of rings. A Sensor is a segment of a ring inside a sector
 
 Double_t deltaR = (R_max-R_min)/dssd_sens_num;
 
