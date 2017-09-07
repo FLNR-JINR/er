@@ -1,0 +1,23 @@
+<?xml version = "1.0" encoding = "utf - 8" ?>
+<BeamDetParts>
+  <ToFTypes>
+    <ToF id = "ToF1">
+      <plasticGeometry X = "100" Y = "100" Z = "0.01"/>
+      <plasticMedia media = "BC408"/>
+    </ToF>
+  </ToFTypes>
+  <MWPCTypes>
+    <MWPC id = "MWPC1">
+      <gasVolGeometry   X = "5."    Y = "5." Z = "8.2"/>
+      <gasStripGeometry X = "0.125" Y = "5." Z = "0.6"/>
+      <distBetweenXandYStrips dist = "1."/>
+      <aluminiumThickness thickness = "5 * 1e-4"/>
+      <kaptonThickness thickness = "12.5 * 1e-4"/>
+      <wireDiameter wireDiameter = "20 * 1e-4"/>
+      <kaptonMedia media = "kapton"/>
+      <aluminiumMedia media = "aluminium"/>
+      <tungstenMedia media = "tungsten"/>
+      <gasMedia media = "CF4_CH4"/>
+    </MWPC>
+  </MWPCTypes>
+</BeamDetParts>

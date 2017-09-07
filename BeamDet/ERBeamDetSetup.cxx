@@ -1,7 +1,6 @@
 #include "ERBeamDetSetup.h"
 
 #include <iostream>
-using namespace std;
 
 #include "TGeoTube.h"
 #include "TError.h"
@@ -9,6 +8,11 @@ using namespace std;
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 #include "TROOT.h"
+#include <Riostream.h>
+#include <TDOMParser.h>
+#include <TXMLAttr.h>
+#include <TXMLNode.h>
+#include <TList.h>
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -18,6 +22,9 @@ using namespace std;
 #include "FairGeoInterface.h"
 #include "FairGeoBuilder.h"
 #include "FairGeoMedia.h"
+
+using namespace std;
+
 
 ERBeamDetSetup* ERBeamDetSetup::fInstance = NULL;
 Double_t        ERBeamDetSetup::fTargetR = 0;
@@ -33,30 +40,25 @@ Double_t ERBeamDetSetup::fPlasticZ = 0.01;
 Double_t ERBeamDetSetup::fGasVolX = 5.;
 Double_t ERBeamDetSetup::fGasVolY = 5.;
 Double_t ERBeamDetSetup::fGasVolZ = 8.2;
-
 Double_t ERBeamDetSetup::fGasX = 0.125;
 Double_t ERBeamDetSetup::fGasY = 5.;
 Double_t ERBeamDetSetup::fGasZ = 0.6; //cm
-
 Double_t ERBeamDetSetup::fDistBetweenXandY = 1.;
-
 Double_t ERBeamDetSetup::fAluminiumThickness = 5 * 1e-4;
-
 Double_t ERBeamDetSetup::fKaptonThickness = 12.5 * 1e-4;
-
 Double_t ERBeamDetSetup::fWireDiameter  = 20 * 1e-4;
 // --------------------------------------------------------------------------
 // ------ fPosition of detector's parts relative to zero ---------------------
 Double_t ERBeamDetSetup::fPositionToF1 = -1550.;
 Double_t ERBeamDetSetup::fPositionToF2 = -50.;
-
 Double_t ERBeamDetSetup::fPositionMWPC1 = -40.;
 Double_t ERBeamDetSetup::fPositionMWPC2 = -8.;
 // -------- fTarget parameters -----------------------------------------------
 Double_t ERBeamDetSetup::fTargetH2R = 2.;   //cm
 Double_t ERBeamDetSetup::fTargetH2Z = 0.4;   //cm
-
 Double_t ERBeamDetSetup::fTargetShellThickness = 20 * 1e-4;
+
+TString  ERBeamDetSetup::fParamsXmlFileName = "equip.xml";
 
 ERBeamDetSetup::ERBeamDetSetup() {
   // --- Catch absence of TGeoManager
@@ -139,17 +141,19 @@ ERBeamDetSetup::ERBeamDetSetup() {
   TGeoNode* fTarget = NULL;
   for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
     TString name = beamDet->GetDaughter(iNode)->GetName();
-    if ( name.Contains("fTarget", TString::kIgnoreCase) ) {
+    if ( name.Contains("Target", TString::kIgnoreCase) ) {
       fTarget = beamDet->GetDaughter(iNode);
       TGeoNode* shell = fTarget->GetDaughter(0);
       TGeoNode* h2 = shell->GetDaughter(0);
       TGeoTube* h2Tube = (TGeoTube*)h2->GetVolume()->GetShape();
       fTargetR = h2Tube->GetRmax();
-      std::cout<< "fTarget radius " << fTargetR << " cm;" << std::endl;
+      std::cout<< "Target radius " << fTargetR << " cm;" << std::endl;
       break;
     }
   }
   //-----------------------------------------------------------------------
+ // gSystem->Load("libXMLParser.so");
+  ParseXmlParameters();
   std::cout << "ERBeamDetSetup initialized! "<< std::endl;
 }
 
@@ -182,13 +186,42 @@ Double_t ERBeamDetSetup::WireZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
   return fWires[mwpcNb][planeNb][wireNb]->fZ;
 }
 
+void ERBeamDetSetup::ParseXmlParameters() {
+  TDOMParser *domParser;// 
+  domParser = new TDOMParser;
+  Int_t parsecode = domParser->ParseFile(fParamsXmlFileName);
+  if (parsecode < 0) {
+     cerr << domParser->GetParseCodeMessage(parsecode) << endl;
+ //    return -1;
+  }
+  TXMLNode * node = domParser->GetXMLDocument()->GetRootNode();
+  
+  if(node->GetNodeType() == TXMLNode::kXMLElementNode) {
+    cout << "____Node name " << node->GetNodeName() << endl;
+    /*if (strcmp(node->GetNodeName(), "Tof") == 0) {
+     Int_t id=0;
+     if (node->HasAttributes()) {
+        TList *attrList = node->GetAttributes();
+        TXMLAttr *attr = 0;
+        TIter next(attrList);
+        while ((attr=(TXMLAttr*)next())) {
+           if (strcmp(attr->GetName(), "ID") == 0) {
+              id = atoi(attr->GetValue());
+              break;
+           }
+        }
+     }
+     listOfPerson->Add(ParsePerson(node->GetChildren(), id));*/
+  }
+  //return 0;
+}
+
 void ERBeamDetSetup::ConstructGeometry() {
   // ----- BeamDet parameters -------------------------------------------------
   Double_t transTargetX = 0.;
   Double_t transTargetY = 0.; 
   Double_t transTargetZ = 0.;
   // --------------------------------------------------------------------------
-
   // Create a global translation
   Float_t global_X = 0.;
   Float_t global_Y = 0.;
@@ -310,16 +343,13 @@ void ERBeamDetSetup::ConstructGeometry() {
   fGasVolY /= 2.;
   fGasVolZ /= 2.;
   TGeoVolume* gasVol = gGeoManager->MakeBox("MWPCVol", pMedCF4, fGasVolX, fGasVolY, fGasVolZ);
-
   TGeoVolume* MWPC = gGeoManager->MakeBox("MWPC", pMedKapton, fGasVolX, fGasVolY, fGasVolZ + fKaptonThickness);
 
   fGasX /= 2.0;
   fGasY /= 2.0;
   fGasZ /= 2.0;
   TGeoVolume* gas = gGeoManager->MakeBox("gas", pMedCF4, fGasX, fGasY, fGasZ);
-
   TGeoVolume* gasPlane = gGeoManager->MakeBox("gasPlane", pMedCF4, fGasVolX, fGasVolY, fGasZ + fAluminiumThickness);
-
   TGeoVolume* tungstenWire = gGeoManager->MakeTube("tungstenWire", pMedTungsten, 0, fWireDiameter / 2, fGasY);
   // --------------------------------------------------------------------------
   // ---------------- ToF -----------------------------------------------------
