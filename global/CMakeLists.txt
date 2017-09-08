@@ -12,6 +12,8 @@ ${CMAKE_SOURCE_DIR}/data/
 ${CMAKE_SOURCE_DIR}/global/
 ${CMAKE_SOURCE_DIR}/telescope/data
 ${CMAKE_SOURCE_DIR}/ND/data
+${CMAKE_SOURCE_DIR}/global/data
+${CMAKE_SOURCE_DIR}/BeamDet/data
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -25,6 +27,8 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 ERLi10Reconstructor.cxx
+ERHe10Reconstructor.cxx
+data/ERHe10RecoEvent.cxx
 )
 
 # fill list of header files from list of source files

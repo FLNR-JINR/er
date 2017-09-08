@@ -77,9 +77,9 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
 
   Reset();
 
-  fProjectile = &(fBeamDetEvent->projectile);
-  fTarget = &(fBeamDetEvent->target);
-  fCM0 = &(fBeamDetEvent->CM0);
+  ERParticle* projectile = &(fBeamDetEvent->projectile);
+  ERParticle* target = &(fBeamDetEvent->target);
+  ERParticle* CM0 = &(fBeamDetEvent->CM0);
 
   FairRun* run = FairRun::Instance();
   run->MarkFill(kFALSE);
@@ -105,11 +105,11 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
   if(abs(header->UpMat.MWclosXNum)==1) Zdist = header->UpMat.MWclosDist + header->UpMat.MWXYdist/2.;
   else if(abs(header->UpMat.MWclosXNum)==2) Zdist = header->UpMat.MWclosDist - header->UpMat.MWXYdist/2.;
 
-  fOutEvent->xbd1 = fBeamDetEvent->xmw2 - (Zdist-10.0)*tan(fProjectile->Part.Theta())*cos(fProjectile->Part.Phi());
-  fOutEvent->ybd1 = fBeamDetEvent->ymw2 - (Zdist-10.0)*tan(fProjectile->Part.Theta())*sin(fProjectile->Part.Phi());
+  fOutEvent->xbd1 = fBeamDetEvent->xmw2 - (Zdist-10.0)*tan(projectile->Part.Theta())*cos(projectile->Part.Phi());
+  fOutEvent->ybd1 = fBeamDetEvent->ymw2 - (Zdist-10.0)*tan(projectile->Part.Theta())*sin(projectile->Part.Phi());
 
-  fOutEvent->xbd2 = fBeamDetEvent->xmw2 - (Zdist-25.0)*tan(fProjectile->Part.Theta())*cos(fProjectile->Part.Phi());
-  fOutEvent->ybd2 = fBeamDetEvent->ymw2 - (Zdist-25.0)*tan(fProjectile->Part.Theta())*sin(fProjectile->Part.Phi());
+  fOutEvent->xbd2 = fBeamDetEvent->xmw2 - (Zdist-25.0)*tan(projectile->Part.Theta())*cos(projectile->Part.Phi());
+  fOutEvent->ybd2 = fBeamDetEvent->ymw2 - (Zdist-25.0)*tan(projectile->Part.Theta())*sin(projectile->Part.Phi());
 
   //Читаем депозиты
   fOutEvent->dep11 = fRTelescopeEvent->eC11[0];
@@ -128,7 +128,6 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
 
   Float_t nRings = 16.,nSectors = 16.;
   Float_t rmin = 1.6, rmax = 4.1;
-  Float_t z = -10.;
   Float_t phi = (sector-0.5)*2.*TMath::Pi()/nSectors; //+ TMath::Pi()/2.;
   Float_t R = rmax-(ring-0.5)*(rmax-rmin)/nRings;
   //cout << phi*TMath::RadToDeg() << " " << R << " " << ring << endl;
@@ -138,6 +137,7 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
   //From local to global
   fOutEvent->y11 = (-1.)*fOutEvent->y11;
 
+  Float_t z = -10.;
   //Точка на RTelescope
   TVector3 rTelescopeHit(fOutEvent->x11,fOutEvent->y11,z);
   //Точка на мишени
@@ -158,52 +158,6 @@ void ERTelescopeReconstructorNew::Exec(Option_t* opt)
   ej11.AtNumber = 1;
   fOutEvent->t11 = T;
   fOutEvent->ej11 = ej11;
-  //Собираем четырех вектор mis He10
-  Float_t Mmis = 9363; //Масса He10
-  //Импульс миса
-  TVector3 Pmis(fProjectile->Part.Px()-ej11.Part.Px(),
-                fProjectile->Part.Py()-ej11.Part.Py(),
-                fProjectile->Part.Pz()-ej11.Part.Pz());
-  //***************** Подход СИ *****************************/
-  //Полная энергия миса
-  Float_t Emis =  TMath::Sqrt(Pmis.Mag2()+pow(Mmis,2));
-  //Кинетическая энергия миса
-  Float_t Tmis = Emis-Mmis;
-  //Энергия возбуждения миса
-  Float_t Exmis = fProjectile->Part.E()+fTarget->Mass-ej11.Part.E()-Tmis-Mmis;
-
-  //Пересчет с текущим приближением Exmis
-  Emis = TMath::Sqrt(Pmis.Mag2()+pow(Mmis+Exmis,2));
-  Tmis = Emis-Mmis-Exmis;
-  Exmis = fProjectile->Part.E()+fTarget->Mass-ej11.Part.E()-Tmis-Mmis;
-  //Формируем выходной объект
-  ERParticle mis;
-  mis.Mass = Mmis;
-  mis.Excitation = Exmis;
-  mis.Part.SetVect(Pmis);
-  mis.Part.SetE(Tmis+Exmis+Mmis);
-  fOutEvent->mis11 = mis;
-  //************************************************************/
-  Emis = fProjectile->Part.E()+fTarget->Mass-ej11.Part.E();
-  Exmis= sqrt(pow(Emis,2)- Pmis.Mag2()) - Mmis;
-  ERParticle misNew;
-  misNew.Mass = Mmis;
-  misNew.Excitation = Exmis;
-  misNew.Part.SetVect(Pmis);
-  misNew.Part.SetE(Emis);
-  fOutEvent->mis11n = misNew;
-  //************************************************************/
-  //Бустируем все в центр масс первой реакции и заносим в дерево
-  fProjectile->Part.Boost(-fCM0->Part.BoostVector());
-  fTarget->Part.Boost(-fCM0->Part.BoostVector());
-  ej11.Part.Boost(-fCM0->Part.BoostVector());
-  mis.Part.Boost(-fCM0->Part.BoostVector());
-  misNew.Part.Boost(-fCM0->Part.BoostVector());
-  fOutEvent->mis11cm0 = mis;
-  fOutEvent->mis11ncm0 = misNew;
-  fOutEvent->ej11cm0 = ej11;
-  fOutEvent->projcm0 = (*fProjectile);
-  fOutEvent->targetcm0 = (*fTarget);
 }
 //----------------------------------------------------------------------------
 void ERTelescopeReconstructorNew::Reset()

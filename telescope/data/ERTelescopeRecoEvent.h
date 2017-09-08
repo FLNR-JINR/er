@@ -18,11 +18,7 @@ public:
 	Double_t xbd1,ybd1,xbd2,ybd2;
 
 	ERParticle ej11;
-	ERParticle mis11,mis11n;
-	ERParticle ej11cm0;
-	ERParticle mis11cm0,mis11ncm0;
-	ERParticle projcm0;
-	ERParticle targetcm0;
+	
 public:
 	ERTelescopeRecoEvent();
 	virtual ~ERTelescopeRecoEvent();

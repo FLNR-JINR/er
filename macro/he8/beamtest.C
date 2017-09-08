@@ -4,7 +4,7 @@ void beamtest(Int_t nEvents = 20)
 	TString inFile = workdir + "/input/t_8he_027.root";
 
 	// --- Specify output file name (this is just an example)
-	TString outFile = "ou27.root";
+	TString outFile = "out27.root";
 
   std::cout << ">>> input file is " << inFile  << std::endl;
   std::cout << ">>> output file is " << outFile << std::endl;
@@ -53,6 +53,9 @@ void beamtest(Int_t nEvents = 20)
 
   ERTelescopeReconstructorNew* telescopeRecon = new ERTelescopeReconstructorNew(1);
   run->AddTask(telescopeRecon);
+
+  ERHe10Reconstructor* he10Recon = new ERHe10Reconstructor(1);
+  run->AddTask(he10Recon);
   
   // --- Start run
   TStopwatch timer;

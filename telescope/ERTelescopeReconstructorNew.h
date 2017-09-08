@@ -57,11 +57,6 @@ protected:
   ERTelescopeRecoEvent* fOutEvent;
 
   Int_t fEvent;
-  //particles
-  ERParticle* fProjectile;
-  ERParticle* fTarget;
-  ERParticle* fCM0;
-
 private:
 
   virtual void SetParContainers();
