@@ -16,11 +16,11 @@ Double_t gasZ = 0.6; //cm
 
 Double_t distBetweenXandY = 1.;
 
-Double_t aluminiumThickness = 5 * 1e-4;
+Double_t aluminiumThickness = 5 * 1e-4; // cathode
 
-Double_t kaptonThickness = 12.5 * 1e-4;
+Double_t kaptonThickness = 12.5 * 1e-4; //kaptonWindow
 
-Double_t wireDiameter  = 20 * 1e-4;
+Double_t wireDiameter  = 20 * 1e-4; //anodeWire
 // --------------------------------------------------------------------------
 // ------ Position of detector's parts relative to zero ---------------------
 Double_t positionToF1 = -1550.;
@@ -170,7 +170,7 @@ gasY /= 2.0;
 gasZ /= 2.0;
 TGeoVolume* gas = gGeoManager->MakeBox("gas", pMedCF4, gasX, gasY, gasZ);
 
-TGeoVolume* gasPlane = gGeoManager->MakeBox("gasPlane", pMedCF4, gasVolX, gasVolY, gasZ + aluminiumThickness);
+TGeoVolume* gasPlane = gGeoManager->MakeBox("gasPlane", pMedAluminium, gasVolX, gasVolY, gasZ + aluminiumThickness);
 
 TGeoVolume* tungstenWire = gGeoManager->MakeTube("tungstenWire", pMedTungsten, 0, wireDiameter / 2, gasY);
 // --------------------------------------------------------------------------
@@ -181,7 +181,7 @@ plasticZ /= 2.0;
 TGeoVolume* plastic = gGeoManager->MakeBox("plastic", pMedBC408, plasticX, plasticY, plasticZ);
 // --------------------------------------------------------------------------
 //------------------ STRUCTURE  ---------------------------------------------
-gas->AddNode(tungstenWire, 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
+//gas->AddNode(tungstenWire, 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
 
 Int_t gasCount = gasVolX / (2 * gasX);
 

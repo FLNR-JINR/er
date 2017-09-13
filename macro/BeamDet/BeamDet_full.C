@@ -65,22 +65,22 @@ void BeamDet_full(Int_t nEvents = 50){
    * Set flag to spread corrdinates parameters on target and reconstruct   
    * coordinates of beam start by received values 
   */
-  generator->SpreadingOnTarget();
+  //generator->SpreadingOnTarget();
 
   Double32_t theta = 0;
   Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
   generator->SetThetaSigma(theta, sigmaTheta);
   
-  generator->SetPhiRange(0, 360);
+  generator->SetPhiRange(0, 360); //BeamDetMWPCPoint.fPlaneNb == 1&& BeamDetMWPCPoint.fMWPCNb == 1 && BeamDetMWPCPoint.fPid > 3000
 
   Double32_t distanceToTarget = 1555;
   Double32_t sigmaOnTarget = 0.5;
-  generator->SetSigmaXYZ(0, 0, -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
-  //generator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -distanceToTarget);
+  //generator->SetSigmaXYZ(0, 0, -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
+  generator->SetXYZ(0.0625,0.0625, -distanceToTarget);
 
-  generator->AddBackgroundIon("26P", 15, 26, 15, 0.1 / 0.55);
+  /*generator->AddBackgroundIon("26P", 15, 26, 15, 0.1 / 0.55);
   generator->AddBackgroundIon("26S", 16, 26, 16, 0.15 / 0.55);
-  generator->AddBackgroundIon("24Si", 14, 24, 14, 0.2 / 0.55);
+  generator->AddBackgroundIon("24Si", 14, 24, 14, 0.2 / 0.55);*/
 
   primGen->AddGenerator(generator);
   fRun->SetGenerator(primGen);
