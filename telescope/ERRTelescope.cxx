@@ -275,10 +275,10 @@ Bool_t ERRTelescope::CheckIfSensitive(std::string name)
 {
   //cout << name << endl; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!change this method!!!!!!!!!!!!!!!!!!
   TString volName = name;
-  if(volName.Contains("sensor")) {
+  if(volName.Contains("sensor_sensitive")) {
     return kTRUE;
   }
-  if(volName.Contains("sector")) {
+  if(volName.Contains("sector_sensitive")) {
     return kTRUE;
   }
   if(volName.Contains("crystall")) {
@@ -310,7 +310,7 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
     TString volName = gMC->CurrentVolName();
 	   if (fELoss > 0.)
     {
-      if(volName.Contains("sensor"))
+      if(volName.Contains("sensor_sensitive"))
       {
         gMC->CurrentVolID(fSensorNb);
         gMC->CurrentVolOffID(1, fSectorNb);
@@ -321,7 +321,7 @@ Bool_t ERRTelescope::ProcessHits(FairVolume* vol) {
         
         AddSiPoint();
       }
-      if(volName.Contains("sector_ring2R"))
+      if(volName.Contains("sector_sensitive"))
       {
 
         gMC->CurrentVolID(fSectorNb);

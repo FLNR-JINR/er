@@ -94,7 +94,7 @@ void create_RTelescope_geo_v3()
     Float_t thsp_max1;
     for (UInt_t iSensor=0; iSensor<dssd_sens_num; iSensor++)
     {
-        sensorName.Form("sensor_ring1R1_type%d", iSensor);
+        sensorName.Form("sensor_sensitive_ring1R1_type%d", iSensor);
         thsp_min1 = TMath::ATan((R_min+iSensor*deltaR)/rsp_min)*TMath::RadToDeg();
 	thsp_max1 = TMath::ATan((R_min+(iSensor+1)*deltaR)/rsp_max)*TMath::RadToDeg();
 	sensor_ring1R1[iSensor]= gGeoMan->MakeSphere(sensorName, pSi,rsp_min,rsp_max,thsp_min1,thsp_max1,0,360./dssd_sec_num);
@@ -137,8 +137,8 @@ void create_RTelescope_geo_v3()
     Float_t thsp_max3 = TMath::ATan(R_max/rsp_max2)*TMath::RadToDeg();
 
     // Sectors
-    TGeoVolume* sector_ring2R1 = gGeoMan->MakeSphere("sector_ring2R1",pSi,rsp_min,rsp_max2,thsp_min3,thsp_max3,0.,360./sssd_sec_num);
-    TGeoVolume* sector_ring2R2 = gGeoMan->MakeSphere("sector_ring2R2",pSi,rsp_min,rsp_max2,thsp_min3,thsp_max3,0.,360./sssd_sec_num);
+    TGeoVolume* sector_ring2R1 = gGeoMan->MakeSphere("sector_sensitive_ring2R1",pSi,rsp_min,rsp_max2,thsp_min3,thsp_max3,0.,360./sssd_sec_num);
+    TGeoVolume* sector_ring2R2 = gGeoMan->MakeSphere("sector_sensitive_ring2R2",pSi,rsp_min,rsp_max2,thsp_min3,thsp_max3,0.,360./sssd_sec_num);
 
     // Dead ring
     Float_t rsp_max3 = rsp_min + thickness_dead_front2 + thickness2 + thickness_dead_back2;
