@@ -206,7 +206,7 @@ ERBeamDetTOFPoint* ERBeamDet::AddTOFPoint()
 Bool_t ERBeamDet::CheckIfSensitive(std::string name)
 {
   TString volName = name;
-  if(volName.Contains("gas")) {
+  if(volName.Contains("gasStrip")) {
     return kTRUE;
   }
   if(volName.Contains("plastic")) {
@@ -281,11 +281,11 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
         gMC->CurrentVolID(fTofNb);
         AddTOFPoint();
       }
-      if(volName.Contains("gas"))
+      if(volName.Contains("gasStrip"))
       {
         gMC->CurrentVolOffID(0, fMWPCWireNb);
         gMC->CurrentVolOffID(1, fMWPCPlaneNb);
-        gMC->CurrentVolOffID(2, fMWPCNb);
+        gMC->CurrentVolOffID(3, fMWPCNb);
         AddMWPCPoint();
       }
       if(volName.Contains("targetH2"))

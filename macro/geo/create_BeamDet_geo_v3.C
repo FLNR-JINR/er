@@ -168,7 +168,7 @@ TGeoVolume* MWPC = gGeoManager->MakeBox("MWPC", pMedKapton, gasVolX, gasVolY, ga
 gasX /= 2.0;
 gasY /= 2.0;
 gasZ /= 2.0;
-TGeoVolume* gas = gGeoManager->MakeBox("gas", pMedCF4, gasX, gasY, gasZ);
+TGeoVolume* gasStrip = gGeoManager->MakeBox("gasStrip", pMedCF4, gasX, gasY, gasZ);
 
 TGeoVolume* gasPlane = gGeoManager->MakeBox("gasPlane", pMedAluminium, gasVolX, gasVolY, gasZ + aluminiumThickness);
 
@@ -181,7 +181,7 @@ plasticZ /= 2.0;
 TGeoVolume* plastic = gGeoManager->MakeBox("plastic", pMedBC408, plasticX, plasticY, plasticZ);
 // --------------------------------------------------------------------------
 //------------------ STRUCTURE  ---------------------------------------------
-//gas->AddNode(tungstenWire, 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
+//gasStrip->AddNode(tungstenWire, 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
 
 Int_t gasCount = gasVolX / (2 * gasX);
 
@@ -190,7 +190,7 @@ Double_t gasPosX;
 for(Int_t i_gas = 1; i_gas <= 2*gasCount; i_gas++)
 {
   gasPosX = gasVolX - gasX * 2 * (i_gas - 1) - gasX;
-  gasPlane->AddNode(gas, i_gas, new TGeoCombiTrans(gasPosX, 0, 0, fZeroRotation));
+  gasPlane->AddNode(gasStrip, i_gas, new TGeoCombiTrans(gasPosX, 0, 0, fZeroRotation));
 }
 
 gasVol->AddNode(gasPlane, 1, new TGeoCombiTrans(0, 0, -distBetweenXandY / 2, fZeroRotation));
@@ -202,7 +202,6 @@ beamdet->AddNode(plastic, 1, new TGeoCombiTrans(global_X, global_Y, positionToF1
 beamdet->AddNode(plastic, 2, new TGeoCombiTrans(global_X, global_Y, positionToF2, fGlobalRotation));
 beamdet->AddNode(MWPC, 1, new TGeoCombiTrans(global_X, global_Y, positionMWPC1, fGlobalRotation));
 beamdet->AddNode(MWPC, 2, new TGeoCombiTrans(global_X, global_Y, positionMWPC2, fGlobalRotation));
-
 
 targetShell->AddNode(targetH2, 1, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
 target->AddNode(targetShell, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));

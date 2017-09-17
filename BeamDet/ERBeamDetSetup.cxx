@@ -35,18 +35,23 @@ map<Int_t, map<Int_t, map<Int_t, ERBeamDetWire*>>>ERBeamDetSetup::fWires;
 Double_t ERBeamDetSetup::fPlasticX = 100;
 Double_t ERBeamDetSetup::fPlasticY = 100;
 Double_t ERBeamDetSetup::fPlasticZ = 0.01;
+TString  ERBeamDetSetup::fPlasticMedia = "BC408";
 // --------------------------------------------------------------------------
 // ----- MWPC parameters ----------------------------------------------------
 Double_t ERBeamDetSetup::fGasVolX = 5.;
 Double_t ERBeamDetSetup::fGasVolY = 5.;
 Double_t ERBeamDetSetup::fGasVolZ = 8.2;
-Double_t ERBeamDetSetup::fGasX = 0.125;
-Double_t ERBeamDetSetup::fGasY = 5.;
-Double_t ERBeamDetSetup::fGasZ = 0.6; //cm
+Double_t ERBeamDetSetup::fGasStripX = 0.125;
+Double_t ERBeamDetSetup::fGasStripY = 5.;
+Double_t ERBeamDetSetup::fGasStripZ = 0.6; //cm
 Double_t ERBeamDetSetup::fDistBetweenXandY = 1.;
 Double_t ERBeamDetSetup::fAluminiumThickness = 5 * 1e-4;
 Double_t ERBeamDetSetup::fKaptonThickness = 12.5 * 1e-4;
 Double_t ERBeamDetSetup::fWireDiameter  = 20 * 1e-4;
+TString  ERBeamDetSetup::fKaptonMedia = "kapton";
+TString  ERBeamDetSetup::fAluminiumMedia = "aluminium";
+TString  ERBeamDetSetup::fTungstenMedia = "tungsten";
+TString  ERBeamDetSetup::fGasMedia = "CF4_CH4";
 // --------------------------------------------------------------------------
 // ------ fPosition of detector's parts relative to zero ---------------------
 Double_t ERBeamDetSetup::fPositionToF1 = -1550.;
@@ -59,6 +64,9 @@ Double_t ERBeamDetSetup::fTargetH2Z = 0.4;   //cm
 Double_t ERBeamDetSetup::fTargetShellThickness = 20 * 1e-4;
 
 TString  ERBeamDetSetup::fParamsXmlFileName = "equip.xml";
+TString  ERBeamDetSetup::fToFType = "ToF1";
+TString  ERBeamDetSetup::fMWPCType = "MWPC1";
+
 
 ERBeamDetSetup::ERBeamDetSetup() {
   // --- Catch absence of TGeoManager
@@ -92,27 +100,26 @@ ERBeamDetSetup::ERBeamDetSetup() {
     TString name = beamDet->GetDaughter(iNode)->GetName();
     if (name.Contains("MWPC", TString::kIgnoreCase) ) {
       mwpc = beamDet->GetDaughter(iNode);
+      Int_t mwpcNb = iNode - 2;
       mwpcStationZ = mwpc->GetMatrix()->GetTranslation()[2]; 
       (name.Contains("1", TString::kIgnoreCase)) ? mwpcStationZ1 = mwpcStationZ 
                                                  : mwpcStationZ2 = mwpcStationZ;
+      mwpcStation = mwpc->GetDaughter(0);
+      //--------------------------------------------------------------------
+      for (Int_t planeNb = 0; planeNb < mwpcStation->GetNdaughters(); planeNb++) {
+        plane = mwpcStation->GetDaughter(planeNb);
 
-      for (Int_t mwpcNb = 0; mwpcNb < mwpc->GetNdaughters(); mwpcNb++) {
-        mwpcStation = mwpc->GetDaughter(mwpcNb);
-        //--------------------------------------------------------------------
-        for (Int_t planeNb = 0; planeNb < mwpcStation->GetNdaughters(); planeNb++) {
-          plane = mwpcStation->GetDaughter(planeNb);
-          for (Int_t wireNb = 0; wireNb < plane->GetNdaughters(); wireNb++) {
-            wire = plane->GetDaughter(wireNb);
-            Double_t x = wire->GetMatrix()->GetTranslation()[0];
-            Double_t y = wire->GetMatrix()->GetTranslation()[1];
-            (planeNb == 0) ? fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(x, y, mwpcStationZ)))
-                           : fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(y, x, mwpcStationZ)));
-            std::cout << "Wire " << wireNb << " fPosition (" << fWires[mwpcNb][planeNb][wireNb]->fX << ", " 
-                                                            << fWires[mwpcNb][planeNb][wireNb]->fY << ", " 
-                                                            << mwpcStationZ << ") cm" << endl;
-          }
-        } 
-      }
+        for (Int_t wireNb = 0; wireNb < plane->GetNdaughters(); wireNb++) {
+          wire = plane->GetDaughter(wireNb);
+          Double_t x = wire->GetMatrix()->GetTranslation()[0];
+          Double_t y = wire->GetMatrix()->GetTranslation()[1];
+          (planeNb == 0) ? fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(x, y, mwpcStationZ)))
+                         : fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(y, x, mwpcStationZ)));
+          std::cout << "Wire " << wireNb << " fPosition (" << fWires[mwpcNb][planeNb][wireNb]->fX << ", " 
+                                                          << fWires[mwpcNb][planeNb][wireNb]->fY << ", " 
+                                                          << mwpcStationZ << ") cm" << endl;
+        }
+      } 
     }
   }
   // Stations located simmetrically relative to local center
@@ -124,7 +131,7 @@ ERBeamDetSetup::ERBeamDetSetup() {
   Double_t tofPlastic1Pos, tofPlastic2Pos;
   for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
     TString name = beamDet->GetDaughter(iNode)->GetName();
-    if ( name.Contains("fPlastic", TString::kIgnoreCase) ) {
+    if ( name.Contains("plastic", TString::kIgnoreCase) ) {
       tofPlastic = beamDet->GetDaughter(iNode);
       if (name.Contains("1", TString::kIgnoreCase)) {
         tofPlastic1Pos = tofPlastic->GetMatrix()->GetTranslation()[2];
@@ -135,7 +142,7 @@ ERBeamDetSetup::ERBeamDetSetup() {
     }
   }
   fDistanceBetweenTOF = TMath::Abs(tofPlastic1Pos - tofPlastic2Pos);
-  std::cout<< "The distance between tofPlastic fPlastics: " << fDistanceBetweenTOF << " cm;" << std::endl;
+  std::cout<< "The distance between plastics: " << fDistanceBetweenTOF << " cm;" << std::endl;
   //-----------------------------------------------------------------------
   // ---- Getting fTarget geometry parameters ------------------------------
   TGeoNode* fTarget = NULL;
@@ -153,17 +160,17 @@ ERBeamDetSetup::ERBeamDetSetup() {
   }
   //-----------------------------------------------------------------------
  // gSystem->Load("libXMLParser.so");
-  ParseXmlParameters();
+  //ParseXmlParameters();
   std::cout << "ERBeamDetSetup initialized! "<< std::endl;
 }
-
+//--------------------------------------------------------------------------------------------------
 ERBeamDetSetup* ERBeamDetSetup::Instance(){
   if (fInstance == NULL)
     return new ERBeamDetSetup();
   else
     return fInstance;
 }
-
+//--------------------------------------------------------------------------------------------------
 Int_t ERBeamDetSetup::SetParContainers(){
       // Get run and runtime database
   FairRun* run = FairRun::Instance();
@@ -173,49 +180,179 @@ Int_t ERBeamDetSetup::SetParContainers(){
   if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
 
 }
-
+//--------------------------------------------------------------------------------------------------
 Double_t ERBeamDetSetup::WireX(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
   return fWires[mwpcNb][planeNb][wireNb]->fX;
 }
-
+//--------------------------------------------------------------------------------------------------
 Double_t ERBeamDetSetup::WireY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
   return fWires[mwpcNb][planeNb][wireNb]->fY;
 }
-
+//--------------------------------------------------------------------------------------------------
 Double_t ERBeamDetSetup::WireZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
   return fWires[mwpcNb][planeNb][wireNb]->fZ;
 }
-
+//--------------------------------------------------------------------------------------------------
+void ERBeamDetSetup::GetToFParameters(TXMLNode *node) {
+  cout << "Pasrsing ToF " << node->GetNextNode()->GetNodeName() << endl;
+  TList *attrList = node->GetNextNode()->GetAttributes();
+  TXMLAttr *attr = 0;
+  TIter next(attrList);
+  while ((attr=(TXMLAttr*)next())) {
+    if (strcasecmp("id", attr->GetName()) == 0) {
+      break;
+    }
+  }
+  if(strcasecmp(fToFType, attr->GetValue()) == 0) {
+    for( node = node->GetNextNode()->GetChildren()->GetNextNode(); node; node = node->GetNextNode()) {
+      if(strcasecmp(node->GetNodeName(), "plasticGeometry")) {
+        cout << "In rparsing ToF cycle" << endl;
+        attrList = node->GetAttributes();
+        attr = 0;
+        TIter nextPlasticAttr(attrList);
+        while ((attr=(TXMLAttr*)nextPlasticAttr())) {
+          if (strcasecmp("X", attr->GetName()) == 0) {
+            fPlasticX = atof(attr->GetValue());
+          }
+          if (strcasecmp("Y", attr->GetName()) == 0) {
+            fPlasticY = atof(attr->GetValue());
+          }
+          if (strcasecmp("Z", attr->GetName()) == 0) {
+            fPlasticZ = atof(attr->GetValue());
+          }
+        }
+      }
+      if(strcasecmp(node->GetNodeName(), "plasticMedia")) {
+        fPlasticMedia = node->GetContent();
+      }
+    }
+  }
+}
+//--------------------------------------------------------------------------------------------------
+void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
+  cout << "Pasrsing MWPC " << node->GetNextNode()->GetNodeName() << endl;
+  TList *attrList = node->GetNextNode()->GetAttributes();
+  TXMLAttr *attr = 0;
+  TIter next(attrList);
+  while ((attr=(TXMLAttr*)next())) {
+    if (strcasecmp("id", attr->GetName()) == 0) {
+      break;
+    }
+  }
+  if(strcasecmp(fMWPCType, attr->GetValue()) == 0) {
+    for( node = node->GetChildren()->GetNextNode(); node; node = node->GetNextNode()) {
+      if(strcasecmp(node->GetNodeName(), "gasVolGeometry")) {
+        attrList = node->GetAttributes();
+        attr = 0;
+        TIter nextGasVolAttr(attrList);
+        while ((attr=(TXMLAttr*)nextGasVolAttr())) {
+          if (strcasecmp("X", attr->GetName()) == 0) {
+            fGasVolX = atof(attr->GetValue());
+          }
+          if (strcasecmp("Y", attr->GetName()) == 0) {
+            fGasVolY = atof(attr->GetValue());
+          }
+          if (strcasecmp("Z", attr->GetName()) == 0) {
+            fGasVolZ = atof(attr->GetValue());
+          }
+        }
+      }
+      if(strcasecmp(node->GetNodeName(), "gasStripGeometry")) {
+        attrList = node->GetAttributes();
+        attr = 0;
+        TIter nextGasStripAttr(attrList);
+        while ((attr=(TXMLAttr*)nextGasStripAttr())) {
+          if (strcasecmp("X", attr->GetName()) == 0) {
+            fGasStripX = atof(attr->GetValue());
+          }
+          if (strcasecmp("Y", attr->GetName()) == 0) {
+            fGasStripY = atof(attr->GetValue());
+          }
+          if (strcasecmp("Z", attr->GetName()) == 0) {
+            fGasStripZ = atof(attr->GetValue());
+          }
+        }
+      }
+      if(strcasecmp(node->GetNodeName(), "distBetweenXandYStrips")) {
+        fDistBetweenXandY = atof(node->GetContent());
+      }
+      if(strcasecmp(node->GetNodeName(), "aluminiumThickness")) {
+        fAluminiumThickness = atof(node->GetContent());
+      }
+      if(strcasecmp(node->GetNodeName(), "kaptonThickness")) {
+        fKaptonThickness = atof(node->GetContent());
+      }
+      if(strcasecmp(node->GetNodeName(), "wireDiameter")) {
+        fWireDiameter = atof(node->GetContent());
+      }
+      if(strcasecmp(node->GetNodeName(), "kaptonMedia")) {
+        fKaptonMedia = node->GetContent();
+      }
+      if(strcasecmp(node->GetNodeName(), "aluminiumMedia")) {
+        fAluminiumMedia = node->GetContent();
+      }
+      if(strcasecmp(node->GetNodeName(), "tungstenMedia")) {
+        fTungstenMedia = node->GetContent();
+      }
+      if(strcasecmp(node->GetNodeName(), "gasMedia")) {
+        fGasMedia = node->GetContent();
+      }
+    }
+  }
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERBeamDetSetup::PrintDetectorParameters(void) {
+  cout << "------------------------------------------------" << endl;
+  cout << "Detector's parameters from " << fParamsXmlFileName << endl;
+  cout << "ToF " << fToFType << " parameters:" << endl  
+       << "   X = " << fPlasticX
+       << "; Y = " << fPlasticY 
+       << "; Z = " << fPlasticZ << endl
+       << "   media = " << fPlasticMedia << endl;
+  cout << "MWPC " << fMWPCType << " parameters: " << endl
+       << "   GasVolX = " << fGasVolX
+       << "; GasVolY = " << fGasVolY 
+       << "; GasVolZ = " << fGasVolZ << endl
+       << "   GasStripX = " << fGasStripX
+       << "; GasStripY = " << fGasStripY 
+       << "; GasStripZ = " << fGasStripZ << endl
+       << "   Distance between X & Y strips = " << fDistBetweenXandY << endl
+       << "   Aluminium thickness = " << fAluminiumThickness << endl
+       << "   Kapton thickness = " << fKaptonThickness << endl
+       << "   Wire diameter = " << fWireDiameter << endl
+       << "   Kapton media = " << fKaptonMedia << endl
+       << "   Aluminium media = " << fAluminiumMedia << endl
+       << "   Tungsten media = " << fTungstenMedia << endl
+       << "   gasStrip media = " << fGasMedia << endl;
+}
+//--------------------------------------------------------------------------------------------------
 void ERBeamDetSetup::ParseXmlParameters() {
   TDOMParser *domParser;// 
   domParser = new TDOMParser;
+  //domParser->SetValidate(false); // do not validate with DTD
   Int_t parsecode = domParser->ParseFile(fParamsXmlFileName);
   if (parsecode < 0) {
      cerr << domParser->GetParseCodeMessage(parsecode) << endl;
  //    return -1;
   }
-  TXMLNode * node = domParser->GetXMLDocument()->GetRootNode();
-  
-  if(node->GetNodeType() == TXMLNode::kXMLElementNode) {
-    cout << "____Node name " << node->GetNodeName() << endl;
-    /*if (strcmp(node->GetNodeName(), "Tof") == 0) {
-     Int_t id=0;
-     if (node->HasAttributes()) {
-        TList *attrList = node->GetAttributes();
-        TXMLAttr *attr = 0;
-        TIter next(attrList);
-        while ((attr=(TXMLAttr*)next())) {
-           if (strcmp(attr->GetName(), "ID") == 0) {
-              id = atoi(attr->GetValue());
-              break;
-           }
-        }
-     }
-     listOfPerson->Add(ParsePerson(node->GetChildren(), id));*/
+  TXMLNode *rootNode = domParser->GetXMLDocument()->GetRootNode();
+  TXMLNode *detPartNode = rootNode->GetChildren();
+  TXMLNode *curNode;
+
+  for ( ; detPartNode; detPartNode = detPartNode->GetNextNode()) { // detector's part
+    curNode = detPartNode;
+    if(strcasecmp(curNode->GetNodeName(), "ToFTypes")) {
+      //cout << "Cmp ToF " << detPartNode->GetNextNode()->GetNodeName() << endl;
+      GetToFParameters(detPartNode->GetNextNode()->GetChildren());
+    }
+    if(strcasecmp(curNode->GetNodeName(), "MWPCTypes")) {
+      //cout << "Cmp MWPC " << detPartNode->GetNodeName() << endl;
+      GetMWPCParameters(detPartNode->GetNextNode()->GetChildren());
+    }
   }
   //return 0;
 }
-
+//--------------------------------------------------------------------------------------------------
 void ERBeamDetSetup::ConstructGeometry() {
   // ----- BeamDet parameters -------------------------------------------------
   Double_t transTargetX = 0.;
@@ -265,35 +402,35 @@ void ERBeamDetSetup::ConstructGeometry() {
   FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
 
   // ----- Create media for ToF -----------------------------------------------
-  FairGeoMedium* mBC408      = geoMedia->getMedium("BC408");
-  if ( ! mBC408 ) Fatal("Main", "FairMedium BC408 not found");
-  geoBuild->createMedium(mBC408);
-  TGeoMedium* pMedBC408 = gGeoMan->GetMedium("BC408");
-  if ( ! pMedBC408 ) Fatal("Main", "Medium BC408 not found");
+  FairGeoMedium* mPlastic      = geoMedia->getMedium(fPlasticMedia);
+  if ( ! mPlastic ) Fatal("Main", "FairMedium Plastic not found");
+  geoBuild->createMedium(mPlastic);
+  TGeoMedium* pMedPlastic = gGeoMan->GetMedium(fPlasticMedia);
+  if ( ! pMedPlastic ) Fatal("Main", "Medium Plastic not found");
   // --------------------------------------------------------------------------
   // ----- Create media for MWPC ----------------------------------------------
-  FairGeoMedium* mCF4      = geoMedia->getMedium("CF4_CH4");
-  if ( ! mCF4 ) Fatal("Main", "FairMedium CF4_CH4 not found");
+  FairGeoMedium* mCF4      = geoMedia->getMedium(fGasMedia);
+  if ( ! mCF4 ) Fatal("Main", "FairMedium for gasStrip not found");
   geoBuild->createMedium(mCF4);
-  TGeoMedium* pMedCF4 = gGeoMan->GetMedium("CF4_CH4");
-  if ( ! pMedCF4 ) Fatal("Main", "Medium CF4_CH4 not found");
+  TGeoMedium* pMedCF4 = gGeoMan->GetMedium(fGasMedia);
+  if ( ! pMedCF4 ) Fatal("Main", "Medium for gasStrip not found");
 
-  FairGeoMedium* mKapton      = geoMedia->getMedium("kapton");
+  FairGeoMedium* mKapton      = geoMedia->getMedium(fKaptonMedia);
   if ( ! mKapton ) Fatal("Main", "FairMedium kapton not found");
   geoBuild->createMedium(mKapton);
-  TGeoMedium* pMedKapton = gGeoMan->GetMedium("kapton");
+  TGeoMedium* pMedKapton = gGeoMan->GetMedium(fKaptonMedia);
   if ( ! pMedKapton ) Fatal("Main", "Medium kapton not found");
 
-  FairGeoMedium* mAluminium      = geoMedia->getMedium("aluminium");
+  FairGeoMedium* mAluminium      = geoMedia->getMedium(fAluminiumMedia);
   if ( ! mAluminium ) Fatal("Main", "FairMedium aluminium not found");
   geoBuild->createMedium(mAluminium);
-  TGeoMedium* pMedAluminium = gGeoMan->GetMedium("aluminium");
+  TGeoMedium* pMedAluminium = gGeoMan->GetMedium(fAluminiumMedia);
   if ( ! pMedAluminium ) Fatal("Main", "Medium aluminium not found");
 
-  FairGeoMedium* mTungsten      = geoMedia->getMedium("tungsten");
+  FairGeoMedium* mTungsten      = geoMedia->getMedium(fTungstenMedia);
   if ( ! mTungsten ) Fatal("Main", "FairMedium tungsten not found");
   geoBuild->createMedium(mTungsten);
-  TGeoMedium* pMedTungsten = gGeoMan->GetMedium("tungsten");
+  TGeoMedium* pMedTungsten = gGeoMan->GetMedium(fTungstenMedia);
   if ( ! pMedTungsten ) Fatal("Main", "Medium tungsten not found");
   // --------------------------------------------------------------------------
   // ------ Create media for fTarget -------------------------------------------
@@ -345,30 +482,30 @@ void ERBeamDetSetup::ConstructGeometry() {
   TGeoVolume* gasVol = gGeoManager->MakeBox("MWPCVol", pMedCF4, fGasVolX, fGasVolY, fGasVolZ);
   TGeoVolume* MWPC = gGeoManager->MakeBox("MWPC", pMedKapton, fGasVolX, fGasVolY, fGasVolZ + fKaptonThickness);
 
-  fGasX /= 2.0;
-  fGasY /= 2.0;
-  fGasZ /= 2.0;
-  TGeoVolume* gas = gGeoManager->MakeBox("gas", pMedCF4, fGasX, fGasY, fGasZ);
-  TGeoVolume* gasPlane = gGeoManager->MakeBox("gasPlane", pMedCF4, fGasVolX, fGasVolY, fGasZ + fAluminiumThickness);
-  TGeoVolume* tungstenWire = gGeoManager->MakeTube("tungstenWire", pMedTungsten, 0, fWireDiameter / 2, fGasY);
+  fGasStripX /= 2.0;
+  fGasStripY /= 2.0;
+  fGasStripZ /= 2.0;
+  TGeoVolume* gasStrip = gGeoManager->MakeBox("gasStrip", pMedCF4, fGasStripX, fGasStripY, fGasStripZ);
+  TGeoVolume* gasPlane = gGeoManager->MakeBox("gasPlane", pMedCF4, fGasVolX, fGasVolY, fGasStripZ + fAluminiumThickness);
+  TGeoVolume* tungstenWire = gGeoManager->MakeTube("tungstenWire", pMedTungsten, 0, fWireDiameter / 2, fGasStripY);
   // --------------------------------------------------------------------------
   // ---------------- ToF -----------------------------------------------------
   fPlasticX /= 2.0;
   fPlasticY /= 2.0;
   fPlasticZ /= 2.0;
-  TGeoVolume* plastic = gGeoManager->MakeBox("plastic", pMedBC408, fPlasticX, fPlasticY, fPlasticZ);
+  TGeoVolume* plastic = gGeoManager->MakeBox("plastic", pMedPlastic, fPlasticX, fPlasticY, fPlasticZ);
   // --------------------------------------------------------------------------
   //------------------ STRUCTURE  ---------------------------------------------
-  gas->AddNode(tungstenWire, 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
+  gasStrip->AddNode(tungstenWire, 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
 
-  Int_t gasCount = fGasVolX / (2 * fGasX);
+  Int_t gasCount = fGasVolX / (2 * fGasStripX);
 
   Double_t gasPosX;
 
   for(Int_t i_gas = 1; i_gas <= 2*gasCount; i_gas++)
   {
-    gasPosX = fGasVolX - fGasX * 2 * (i_gas - 1) - fGasX;
-    gasPlane->AddNode(gas, i_gas, new TGeoCombiTrans(gasPosX, 0, 0, fZeroRotation));
+    gasPosX = fGasVolX - fGasStripX * 2 * (i_gas - 1) - fGasStripX;
+    gasPlane->AddNode(gasStrip, i_gas, new TGeoCombiTrans(gasPosX, 0, 0, fZeroRotation));
   }
 
   gasVol->AddNode(gasPlane, 1, new TGeoCombiTrans(0, 0, -fDistBetweenXandY / 2, fZeroRotation));
@@ -398,5 +535,5 @@ void ERBeamDetSetup::ConstructGeometry() {
   //geoFile->Close();
   // --------------------------------------------------------------------------
 }
-
+//--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetSetup)

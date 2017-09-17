@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "TString.h"
+#include <TXMLNode.h>
 #include "Rtypes.h"
 
 using namespace std;
@@ -36,6 +37,7 @@ public:
   static Double_t DistanceBetweenMWPC() {return fDistanceBetweenMWPC;}
   static Double_t DistanceBetweenTOF() {return fDistanceBetweenTOF;}
   static Double_t TargetR() {return fTargetR;}
+  static Double_t PrintDetectorParameters(void);
 
   /* Modifiers */
   static void SetXmlParametersFile(TString xmlFileName) {fParamsXmlFileName = xmlFileName;}
@@ -46,6 +48,8 @@ public:
 
 private:
   static void ParseXmlParameters();
+  static void GetToFParameters(TXMLNode *node);
+  static void GetMWPCParameters(TXMLNode *node);
 
   static ERBeamDetSetup* fInstance;
   static Double_t        fTargetR;
@@ -56,18 +60,23 @@ private:
   static Double_t fPlasticX;
   static Double_t fPlasticY;
   static Double_t fPlasticZ;
+  static TString  fPlasticMedia;
   // --------------------------------------------------------------------------
   // ----- MWPC parameters ----------------------------------------------------
   static Double_t fGasVolX;
   static Double_t fGasVolY;
   static Double_t fGasVolZ;
-  static Double_t fGasX;
-  static Double_t fGasY;
-  static Double_t fGasZ; //cm
+  static Double_t fGasStripX;
+  static Double_t fGasStripY;
+  static Double_t fGasStripZ; //cm
   static Double_t fDistBetweenXandY;
   static Double_t fAluminiumThickness;
   static Double_t fKaptonThickness;
   static Double_t fWireDiameter;
+  static TString  fKaptonMedia;
+  static TString  fAluminiumMedia;
+  static TString  fTungstenMedia;
+  static TString  fGasMedia;
   // --------------------------------------------------------------------------
   // ------ fPosition of detector's parts relative to zero ---------------------
   static Double_t fPositionToF1;
@@ -80,6 +89,8 @@ private:
   static Double_t fTargetShellThickness;
 
   static TString  fParamsXmlFileName;
+  static TString  fToFType;
+  static TString  fMWPCType;
 
   ClassDef(ERBeamDetSetup,1)
 
