@@ -1,0 +1,39 @@
+<!ELEMENT BeamDetParts (ToFTypes, MWPCTypes)>
+<!ELEMENT ToFTypes (ToF+)>
+<!ELEMENT ToF (plasticGeometry, plasticMedia)>
+<!ATTLIST ToF
+  id ID #REQUIRED
+>
+<!ELEMENT plasticGeometry EMPTY>
+<!ATTLIST plasticGeometry
+  X CDATA #REQUIRED
+  Y CDATA #REQUIRED
+  Z CDATA #REQUIRED
+>
+<!ELEMENT plasticMedia (#PCDATA)>
+
+<!ELEMENT MWPCTypes (MWPC+)>
+<!ELEMENT MWPC (gasVolGeometry,gasStripGeometry, distBetweenXandYStrips, aluminiumThickness, kaptonThickness, wireDiameter, kaptonMedia, aluminiumMedia, tungstenMedia, gasMedia)> 
+<!ATTLIST MWPC
+  id ID #REQUIRED
+> 
+<!ELEMENT gasVolGeometry EMPTY>
+<!ATTLIST gasVolGeometry
+  X CDATA #REQUIRED
+  Y CDATA #REQUIRED
+  Z CDATA #REQUIRED
+>
+<!ELEMENT gasStripGeometry EMPTY>
+<!ATTLIST gasStripGeometry
+  X CDATA #REQUIRED
+  Y CDATA #REQUIRED
+  Z CDATA #REQUIRED
+>
+<!ELEMENT distBetweenXandYStrips (#PCDATA)>
+<!ELEMENT aluminiumThickness (#PCDATA)>
+<!ELEMENT kaptonThickness (#PCDATA)>
+<!ELEMENT wireDiameter (#PCDATA)>
+<!ELEMENT kaptonMedia (#PCDATA)>
+<!ELEMENT aluminiumMedia (#PCDATA)>
+<!ELEMENT tungstenMedia (#PCDATA)>
+<!ELEMENT gasMedia (#PCDATA)>
