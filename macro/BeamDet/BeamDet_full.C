@@ -30,6 +30,8 @@ void BeamDet_full(Int_t nEvents = 50){
   cave->SetGeometryFileName("cave.geo");
   fRun->AddModule(cave);
 
+  ERBeamDetSetup* setup = ERBeamDetSetup::Instance();
+
   // Det definition
   /* Select verbosity level
    * 0 - only standard logs
@@ -37,7 +39,7 @@ void BeamDet_full(Int_t nEvents = 50){
   */
   Int_t verbose = 0;
   ERBeamDet* beamDet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
-  beamDet->SetGeometryFileName("beamdet.v3.geo.root");
+  //beamDet->SetGeometryFileName("beamdet.v3.geo.root");
 
   beamDet->SetIonPID(1000160280);
   fRun->AddModule(beamDet);
@@ -76,7 +78,7 @@ void BeamDet_full(Int_t nEvents = 50){
   Double32_t distanceToTarget = 1555;
   Double32_t sigmaOnTarget = 0.5;
   //generator->SetSigmaXYZ(0, 0, -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
-  generator->SetXYZ(0.0625,0.0625, -distanceToTarget);
+  generator->SetXYZ(0.0625, 0.0625, -distanceToTarget);
 
   /*generator->AddBackgroundIon("26P", 15, 26, 15, 0.1 / 0.55);
   generator->AddBackgroundIon("26S", 16, 26, 16, 0.15 / 0.55);

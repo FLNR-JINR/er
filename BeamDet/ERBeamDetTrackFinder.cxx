@@ -60,6 +60,7 @@ InitStatus ERBeamDetTrackFinder::Init()
 
   fBeamDetSetup = ERBeamDetSetup::Instance();
   fBeamDetSetup->SetParContainers();
+  fBeamDetSetup->GetGeoParamsFromParContainer();
    
   return kSUCCESS;
 }

@@ -69,11 +69,19 @@ TString  ERBeamDetSetup::fMWPCType = "MWPC1";
 
 
 ERBeamDetSetup::ERBeamDetSetup() {
+
+  //-----------------------------------------------------------------------
+ // gSystem->Load("libXMLParser.so");
+ // ParseXmlParameters();
+  std::cout << "ERBeamDetSetup initialized! "<< std::endl;
+}
+//-------------------------------------------------------------------------
+void ERBeamDetSetup::GetGeoParamsFromParContainer() {
   // --- Catch absence of TGeoManager
   if ( ! gGeoManager ) {
     std::cerr << "ERBeamDetSetup: cannot initialise without TGeoManager!"<< std::endl;
   }
-
+ 
   gGeoManager->CdTop();
   TGeoNode* cave = gGeoManager->GetCurrentNode();
   TGeoNode* beamDet  = NULL;
@@ -157,11 +165,8 @@ ERBeamDetSetup::ERBeamDetSetup() {
       std::cout<< "Target radius " << fTargetR << " cm;" << std::endl;
       break;
     }
-  }
-  //-----------------------------------------------------------------------
- // gSystem->Load("libXMLParser.so");
-  //ParseXmlParameters();
-  std::cout << "ERBeamDetSetup initialized! "<< std::endl;
+  } 
+  std::cout << "ERBeamDetSetup: read parameters from parContainer! "<< std::endl; 
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetSetup* ERBeamDetSetup::Instance(){
@@ -230,7 +235,10 @@ void ERBeamDetSetup::GetToFParameters(TXMLNode *node) {
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
-  cout << "Pasrsing MWPC " << node->GetNextNode()->GetNodeName() << endl;
+  for( ; node->GetNodeName() != "MWPC"; node = node->GetNextNode()) {
+    cout << "Pasrsing MWPC " << node->GetNodeName() << endl;
+  }
+  cout << "Pasrsing MWPC " << node->GetNodeName() << endl;
   TList *attrList = node->GetNextNode()->GetAttributes();
   TXMLAttr *attr = 0;
   TIter next(attrList);
@@ -327,7 +335,8 @@ Double_t ERBeamDetSetup::PrintDetectorParameters(void) {
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetSetup::ParseXmlParameters() {
-  TDOMParser *domParser;// 
+  TDOMParser *domParser;//
+  //gROOT->ProcessLine(".O 0"); 
   domParser = new TDOMParser;
   //domParser->SetValidate(false); // do not validate with DTD
   Int_t parsecode = domParser->ParseFile(fParamsXmlFileName);
@@ -346,8 +355,9 @@ void ERBeamDetSetup::ParseXmlParameters() {
       GetToFParameters(detPartNode->GetNextNode()->GetChildren());
     }
     if(strcasecmp(curNode->GetNodeName(), "MWPCTypes")) {
+      curNode = detPartNode->GetNextNode();
       //cout << "Cmp MWPC " << detPartNode->GetNodeName() << endl;
-      GetMWPCParameters(detPartNode->GetNextNode()->GetChildren());
+      GetMWPCParameters(curNode->GetNextNode());
     }
   }
   //return 0;
@@ -386,7 +396,7 @@ void ERBeamDetSetup::ConstructGeometry() {
 
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------
-  FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
+  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();//new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
   TString geoPath = gSystem->Getenv("VMCWORKDIR");
   TString medFile = geoPath + "/geometry/media.geo";
@@ -496,7 +506,7 @@ void ERBeamDetSetup::ConstructGeometry() {
   TGeoVolume* plastic = gGeoManager->MakeBox("plastic", pMedPlastic, fPlasticX, fPlasticY, fPlasticZ);
   // --------------------------------------------------------------------------
   //------------------ STRUCTURE  ---------------------------------------------
-  gasStrip->AddNode(tungstenWire, 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
+ // gasStrip->AddNode(tungstenWire, 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
 
   Int_t gasCount = fGasVolX / (2 * fGasStripX);
 
@@ -525,10 +535,12 @@ void ERBeamDetSetup::ConstructGeometry() {
   beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fZeroRotation));
   top->AddNode(beamdet, 1, new TGeoCombiTrans(global_X ,global_Y, global_Z, fGlobalRotation));
    // ---------------   Finish   -----------------------------------------------
-  gGeoMan->CloseGeometry();
-  gGeoMan->CheckOverlaps(0.001);
-  gGeoMan->PrintOverlaps();
-  gGeoMan->Test();
+  //gGeoMan->CloseGeometry();
+  //gGeoMan->CheckOverlaps(0.001);
+  //gGeoMan->PrintOverlaps();
+  //gGeoMan->Test();
+
+  gGeoManager = gGeoMan;
 
   //TFile* geoFile = new TFile(geoFileName, "RECREATE");
   top->Write();

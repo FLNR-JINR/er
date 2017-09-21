@@ -2,18 +2,19 @@
 // -----                        ERBeamDet source file                   -----
 // -----                  Created 03/15  by V.Schetinin                -----
 // -------------------------------------------------------------------------
-#include "FairRootManager.h"
-#include "FairRun.h"
-#include "FairRunSim.h"
-#include "FairRuntimeDb.h"
+#include <iostream>
+
 #include "TClonesArray.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
 
-#include "ERBeamDet.h"
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRunSim.h"
+#include "FairRuntimeDb.h"
 
-#include <iostream>
+#include "ERBeamDet.h"
 
 // -----   Default constructor   -------------------------------------------
 ERBeamDet::ERBeamDet() :
@@ -49,6 +50,8 @@ ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
 
   fBeamDetMCProjectile = new ERBeamDetParticle(); 
   fBeamDetMCTrack      = new ERBeamDetTrack();
+
+  fBeamDetSetup = ERBeamDetSetup::Instance();
  //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
@@ -216,6 +219,10 @@ Bool_t ERBeamDet::CheckIfSensitive(std::string name)
     return kTRUE;
   }
   return kFALSE;
+}
+//-----------------------------------------------------------------------------
+void ERBeamDet::ConstructGeometry() {
+  fBeamDetSetup->ConstructGeometry();
 }
 // ----------------------------------------------------------------------------
 ClassImp(ERBeamDet)

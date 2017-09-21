@@ -42,6 +42,8 @@ public:
   /* Modifiers */
   static void SetXmlParametersFile(TString xmlFileName) {fParamsXmlFileName = xmlFileName;}
 
+  static void GetGeoParamsFromParContainer();
+
   static void ConstructGeometry();
 
   static Int_t    SetParContainers();
@@ -52,6 +54,7 @@ private:
   static void GetMWPCParameters(TXMLNode *node);
 
   static ERBeamDetSetup* fInstance;
+  static Bool_t          fIsGettingGeoPar;
   static Double_t        fTargetR;
   static Double_t        fDistanceBetweenMWPC;
   static Double_t        fDistanceBetweenTOF;
