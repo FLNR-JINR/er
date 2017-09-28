@@ -129,6 +129,7 @@ public:
 	int mbeam;
 	int mtrack;
 	int mp1,mp2;
+  void SetReactionInputFile(TString file){fReactionInputFile = file;}
 public:
 	ERHe8EventHeader();
 	Bool_t Register(TTree* tree, TString branchName);
@@ -137,15 +138,16 @@ public:
 	UpstreamMatter UpMat;		//!
 	int NofUnObsPart; 			//!
 	char projname[5];			//!
-  	char tarname[5];  			//!
-  	char DetectedPart[32];		//!
-  	char UnObservedPart[32];	//!
-  	int NofDetPart;				//!
-    int NofInPart;				//!
+	char tarname[5];  			//!
+	char DetectedPart[32];		//!
+	char UnObservedPart[32];	//!
+	int NofDetPart;				//!
+  int NofInPart;				//!
 protected:
 	void ReadInputFile();
 	void ReactionPreparation();
 	int HowMuchParticles(char* str);
+  TString fReactionInputFile;
 	ClassDef(ERHe8EventHeader, 1)
 
 };

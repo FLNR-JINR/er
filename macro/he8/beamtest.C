@@ -19,6 +19,7 @@ void beamtest(Int_t nEvents = 20)
   run->SetOutputFile(outFile);
 
   ERHe8EventHeader* header = new ERHe8EventHeader();
+  header->SetReactionInputFile("ReactionInput.dat");
   run->SetEventHeader(header);
 
   //Raw Events
@@ -49,12 +50,14 @@ void beamtest(Int_t nEvents = 20)
   //Reconstructor
 
   ERBeamDetReconstructor* beamDetRecon = new ERBeamDetReconstructor(1);
+  beamDetRecon->SetTofOffset(74.275);
   run->AddTask(beamDetRecon);
 
   ERTelescopeReconstructorNew* telescopeRecon = new ERTelescopeReconstructorNew(1);
   run->AddTask(telescopeRecon);
 
   ERHe10Reconstructor* he10Recon = new ERHe10Reconstructor(1);
+  he10Recon->SetMisMass(9363);
   run->AddTask(he10Recon);
   
   // --- Start run

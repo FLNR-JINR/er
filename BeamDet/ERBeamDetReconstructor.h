@@ -44,6 +44,8 @@ public:
   /** Virtual method Reset **/
   virtual void Reset();
 
+  void SetTofOffset(Float_t tofOffset){fTofOffset = tofOffset;}
+
 protected:
   //Input objects
   ERBeamDetEvent* fInEvent;
@@ -115,6 +117,8 @@ protected:
   Это некие расстояния, нужные при определении точки входа налетающего иона в мишень. M - measured P-played
   */
   double MdistX,MdistY,MdistZ;
+
+  Float_t fTofOffset;
 private:
 
   virtual void SetParContainers();

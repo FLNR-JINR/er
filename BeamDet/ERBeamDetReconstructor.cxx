@@ -81,9 +81,6 @@ void ERBeamDetReconstructor::Exec(Option_t* opt)
 void ERBeamDetReconstructor::Tof(){
   TRandom Rnd;
   char ShowTrack[10];
-  double tof_offset= 74.275;
-         /*tof_offset = 75.;*/
-  //      double tof_offset = 84.;
   double dt_F3,dt_F4,t_F3,t_F4;
   header->mtrack = i_flag_MW;
   //RawD.mtrack = 1;i_flag_MW = 1;
@@ -114,7 +111,7 @@ void ERBeamDetReconstructor::Tof(){
     // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
     //          fInCalEvent->tofb = t_F4 - t_F3 + tof_0;
     // ********************************* measurement of absolute TOF value tof_offset = dT1-L0*(dT1-dT0)/(L1-L0)*******************************
-          fOutEvent->tofb = t_F4 - t_F3 + tof_offset;
+          fOutEvent->tofb = t_F4 - t_F3 + fTofOffset;
     //if(fInCalEvent->tofb<130.) 
     //{printf("ntF3l=%i,ntF3r=%i,ntF4l=%i,ntF4r=%i\n",RawD.ntF3l,RawD.ntF3r,RawD.ntF4l,RawD.ntF4r);
     //printf("tF3l=%lf,tF3r=%lf,tF4l=%lf,tF4r=%lf,  TOF=%lf\n",fInCalEvent->tF3l,fInCalEvent->tF3r,fInCalEvent->tF4l,fInCalEvent->tF4r,fInCalEvent->tofb);

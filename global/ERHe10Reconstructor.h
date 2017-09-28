@@ -37,6 +37,7 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
+  void SetMisMass(Float_t mass){fMisMass = mass;}
   /** Accessors **/ 
 protected:
   ERTelescopeRecoEvent* fRTelescopeEvent;
@@ -47,6 +48,7 @@ protected:
 
 private:
   virtual void SetParContainers();
+  Float_t fMisMass;
   
   ClassDef(ERHe10Reconstructor,1)
 };

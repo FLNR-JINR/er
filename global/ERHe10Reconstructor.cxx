@@ -79,7 +79,7 @@ void ERHe10Reconstructor::Exec(Option_t* opt)
 
   ERParticle* ej11 = &(fRTelescopeEvent->ej11);
   //Собираем четырех вектор mis He10
-  Float_t Mmis = 9363; //Масса He10
+  Float_t Mmis = fMisMass; //Масса He10
   //Импульс миса
   TVector3 Pmis(projectile->Part.Px()-ej11->Part.Px(),
                 projectile->Part.Py()-ej11->Part.Py(),

@@ -40,7 +40,7 @@ void ERHe8EventHeader::ReadInputFile(){
   ReIN.WriteRawTrack = false;
   /******************** Readout ReactionInput.dat ************************/
   printf("************************************************************\n");
-  TString filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/ReactionInput.dat");
+  TString filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/") + fReactionInputFile;
   FILE *F1 = fopen(filePath.Data(),"r");
   if(F1==NULL) {printf("ERHe8EventHeader: File ReactionInput.dat was not found\n");}
   else
