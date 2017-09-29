@@ -72,7 +72,7 @@ ERBeamDetSetup::ERBeamDetSetup() {
 
   //-----------------------------------------------------------------------
  // gSystem->Load("libXMLParser.so");
-  ParseXmlParameters();
+  //ParseXmlParameters();
   std::cout << "ERBeamDetSetup initialized! "<< std::endl;
 }
 //-------------------------------------------------------------------------
