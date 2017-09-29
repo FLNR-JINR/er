@@ -405,7 +405,7 @@ void ERBeamDetSetup::ConstructGeometry() {
   gGeoMan = gGeoManager;
   // --------------------------------------------------------------------------
   // -------   Geometry file name (output)   ----------------------------------
- // TString geoFileName = geoPath + "/geometry/beamdet.v3.geo.root";
+  TString geoFileName = geoPath + "/geometry/beamdet.temp.root";
   // --------------------------------------------------------------------------
   // -----------------   Get and create the required media    -----------------
   FairGeoMedia*   geoMedia = geoFace->getMedia();
@@ -469,7 +469,7 @@ void ERBeamDetSetup::ConstructGeometry() {
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   gGeoMan->SetName("BeamDetGeom");
   TGeoVolume* top   = new TGeoVolumeAssembly("TOP");
-  gGeoMan->SetTopVolume(top);
+  //gGeoMan->SetTopVolume(top);
 
   TGeoVolume* beamdet = new TGeoVolumeAssembly("beamdet");
   //TGeoVolume* MWPC    = new TGeoVolumeAssembly("MWPC");
@@ -540,11 +540,11 @@ void ERBeamDetSetup::ConstructGeometry() {
   //gGeoMan->PrintOverlaps();
   //gGeoMan->Test();
 
-  gGeoManager = gGeoMan;
+  //gGeoManager = gGeoMan;
 
-  //TFile* geoFile = new TFile(geoFileName, "RECREATE");
+  TFile* geoFile = new TFile(geoFileName, "RECREATE");
   top->Write();
-  //geoFile->Close();
+  geoFile->Close();
   // --------------------------------------------------------------------------
 }
 //--------------------------------------------------------------------------------------------------

@@ -223,6 +223,8 @@ Bool_t ERBeamDet::CheckIfSensitive(std::string name)
 //-----------------------------------------------------------------------------
 void ERBeamDet::ConstructGeometry() {
   fBeamDetSetup->ConstructGeometry();
+  SetGeometryFileName("beamdet.temp.root");
+  ConstructRootGeometry();
 }
 // ----------------------------------------------------------------------------
 ClassImp(ERBeamDet)
