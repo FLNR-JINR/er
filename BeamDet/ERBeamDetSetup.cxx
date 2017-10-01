@@ -64,8 +64,13 @@ Double_t ERBeamDetSetup::fTargetH2Z = 0.4;   //cm
 Double_t ERBeamDetSetup::fTargetShellThickness = 20 * 1e-4;
 
 TString  ERBeamDetSetup::fParamsXmlFileName = "equip.xml";
-TString  ERBeamDetSetup::fToFType = "ToF1";
-TString  ERBeamDetSetup::fMWPCType = "MWPC1";
+TString  ERBeamDetSetup::fToFType1 = "ToF1";
+TString  ERBeamDetSetup::fToFType2 = "ToF1";
+TString  ERBeamDetSetup::fMWPCType1 = "MWPC1";
+TString  ERBeamDetSetup::fMWPCType2 = "MWPC1";
+
+Bool_t   ERBeamDetSetup::fFirstToFIsSet = false;
+Bool_t   ERBeamDetSetup::fFirstMWPCIsSet = false;
 
 
 ERBeamDetSetup::ERBeamDetSetup() {
@@ -75,6 +80,31 @@ ERBeamDetSetup::ERBeamDetSetup() {
   ParseXmlParameters();
   PrintDetectorParameters();
   std::cout << "ERBeamDetSetup initialized! "<< std::endl;
+}
+//-------------------------------------------------------------------------
+void ERBeamDetSetup::AddMWPC(TString type, Double_t position)
+{
+  if(!fFirstMWPCIsSet) {
+    fMWPCType1 = type;
+    fPositionMWPC1 =  position;
+    fFirstMWPCIsSet = true;
+  }
+  else {
+    fMWPCType2 = type;
+    fPositionMWPC2 =  position;
+  }
+}
+void ERBeamDetSetup::AddToF(TString type, Double_t position)
+{
+  if(!fFirstMWPCIsSet) {
+    fToFType1 = type;
+    fPositionToF1 =  position;
+    fFirstToFIsSet = true;
+  }
+  else {
+    fToFType2 = type;
+    fPositionToF2 =  position;
+  }
 }
 //-------------------------------------------------------------------------
 void ERBeamDetSetup::GetGeoParamsFromParContainer() {
@@ -210,7 +240,7 @@ void ERBeamDetSetup::GetToFParameters(TXMLNode *node) {
       break;
     }
   }
-  if(!strcasecmp(fToFType, attr->GetValue())) {
+  if(!strcasecmp(fToFType1, attr->GetValue())) {
     cout << "Tof value " << attr->GetValue() << endl;
     for( node = node->GetChildren(); node; node = node->GetNextNode()) {
       if(!strcasecmp(node->GetNodeName(), "plasticGeometry")) {
@@ -247,7 +277,7 @@ void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
       break;
     }
   }
-  if(!strcasecmp(fMWPCType, attr->GetValue())) {
+  if(!strcasecmp(fMWPCType1, attr->GetValue())) {
     for( node = node->GetChildren(); node; node = node->GetNextNode()) {
       if(!strcasecmp(node->GetNodeName(), "gasVolGeometry")) {
         attrList = node->GetAttributes();
@@ -312,12 +342,12 @@ void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
 Double_t ERBeamDetSetup::PrintDetectorParameters(void) {
   cout << "------------------------------------------------" << endl;
   cout << "Detector's parameters from " << fParamsXmlFileName << endl;
-  cout << "ToF " << fToFType << " parameters:" << endl  
+  cout << "ToF " << fToFType1 << " parameters:" << endl  
        << "   X = " << fPlasticX
        << "; Y = " << fPlasticY 
        << "; Z = " << fPlasticZ << endl
        << "   media = " << fPlasticMedia << endl;
-  cout << "MWPC " << fMWPCType << " parameters: " << endl
+  cout << "MWPC " << fMWPCType1 << " parameters: " << endl
        << "   GasVolX = " << fGasVolX
        << "; GasVolY = " << fGasVolY 
        << "; GasVolZ = " << fGasVolZ << endl

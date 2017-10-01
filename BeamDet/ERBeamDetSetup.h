@@ -41,11 +41,11 @@ public:
 
   /* Modifiers */
   static void SetXmlParametersFile(TString xmlFileName) {fParamsXmlFileName = xmlFileName;}
+  static void AddMWPC(TString type, Double_t position); 
+  static void AddToF(TString type, Double_t position);
 
   static void GetGeoParamsFromParContainer();
-
   static void ConstructGeometry();
-
   static Int_t    SetParContainers();
 
 private:
@@ -55,6 +55,8 @@ private:
 
   static ERBeamDetSetup* fInstance;
   static Bool_t          fIsGettingGeoPar;
+  static Bool_t          fFirstMWPCIsSet;
+  static Bool_t          fFirstToFIsSet;
   static Double_t        fTargetR;
   static Double_t        fDistanceBetweenMWPC;
   static Double_t        fDistanceBetweenTOF;
@@ -92,8 +94,10 @@ private:
   static Double_t fTargetShellThickness;
 
   static TString  fParamsXmlFileName;
-  static TString  fToFType;
-  static TString  fMWPCType;
+  static TString  fToFType1;
+  static TString  fToFType2;
+  static TString  fMWPCType1;
+  static TString  fMWPCType2;
 
   ClassDef(ERBeamDetSetup,1)
 
