@@ -73,12 +73,12 @@ private:
   static Double_t fGasStripY;
   static Double_t fGasStripZ; //cm
   static Double_t fDistBetweenXandY;
-  static Double_t fAluminiumThickness;
-  static Double_t fKaptonThickness;
-  static Double_t fWireDiameter;
-  static TString  fKaptonMedia;
-  static TString  fAluminiumMedia;
-  static TString  fTungstenMedia;
+  static Double_t fCathodeThickness;
+  static Double_t fKaptonWindowThickness;
+  static Double_t fAnodeWireDiameter;
+  static TString  fKaptonWindowMedia;
+  static TString  fCathodeMedia;
+  static TString  fAnodeWireMedia;
   static TString  fGasMedia;
   // --------------------------------------------------------------------------
   // ------ fPosition of detector's parts relative to zero ---------------------

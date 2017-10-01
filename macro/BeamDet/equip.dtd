@@ -13,7 +13,7 @@
 <!ELEMENT plasticMedia (#PCDATA)>
 
 <!ELEMENT MWPCTypes (MWPC+)>
-<!ELEMENT MWPC (gasVolGeometry,gasStripGeometry, distBetweenXandYStrips, aluminiumThickness, kaptonThickness, wireDiameter, kaptonMedia, aluminiumMedia, tungstenMedia, gasMedia)> 
+<!ELEMENT MWPC (gasVolGeometry,gasStripGeometry, distBetweenXandYStrips, cathodeThickness, kaptonWindowThickness, anodeWireDiameter, kaptonWindowMedia, cathodeMedia, anodeWireMedia, gasMedia)> 
 <!ATTLIST MWPC
   id ID #REQUIRED
 > 
@@ -30,10 +30,10 @@
   Z CDATA #REQUIRED
 >
 <!ELEMENT distBetweenXandYStrips (#PCDATA)>
-<!ELEMENT aluminiumThickness (#PCDATA)>
-<!ELEMENT kaptonThickness (#PCDATA)>
-<!ELEMENT wireDiameter (#PCDATA)>
-<!ELEMENT kaptonMedia (#PCDATA)>
-<!ELEMENT aluminiumMedia (#PCDATA)>
-<!ELEMENT tungstenMedia (#PCDATA)>
+<!ELEMENT cathodeThickness (#PCDATA)>
+<!ELEMENT kaptonWindowThickness (#PCDATA)>
+<!ELEMENT anodeWireDiameter (#PCDATA)>
+<!ELEMENT kaptonWindowMedia (#PCDATA)>
+<!ELEMENT cathodeMedia (#PCDATA)>
+<!ELEMENT anodeWireMedia (#PCDATA)>
 <!ELEMENT gasMedia (#PCDATA)>
