@@ -101,6 +101,7 @@ void BeamDet_sim(Int_t nEvents = 10){
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
   // —– Initialize simulation run ———————————— 
   run->Init();
+  setup->PrintDetectorParametersToFile("listing.txt");
   Int_t nSteps = -15000;
 
   // —– Runtime database ——————————————— 

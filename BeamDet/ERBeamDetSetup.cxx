@@ -1,6 +1,6 @@
 #include "ERBeamDetSetup.h"
 
-#include <iostream>
+#include <ostream>
 
 #include "TGeoTube.h"
 #include "TError.h"
@@ -56,16 +56,16 @@ vector<TString>  ERBeamDetSetup::fAnodeWireMedia;
 vector<TString>  ERBeamDetSetup::fGasMedia;
 // --------------------------------------------------------------------------
 // ------ fPosition of detector's parts relative to zero ---------------------
-vector<Double_t> ERBeamDetSetup::fPositionToF1;
-vector<Double_t> ERBeamDetSetup::fPositionMWPC1;
+vector<Double_t> ERBeamDetSetup::fPositionToF;
+vector<Double_t> ERBeamDetSetup::fPositionMWPC;
 // -------- fTarget parameters -----------------------------------------------
 Double_t ERBeamDetSetup::fTargetH2R = 2.;   //cm
 Double_t ERBeamDetSetup::fTargetH2Z = 0.4;   //cm
 Double_t ERBeamDetSetup::fTargetShellThickness = 20 * 1e-4;
 
 TString  ERBeamDetSetup::fParamsXmlFileName = "equip.xml";
-vector<TString>  ERBeamDetSetup::fToFType1;
-vector<TString>  ERBeamDetSetup::fMWPCType1;
+vector<TString>  ERBeamDetSetup::fToFType;
+vector<TString>  ERBeamDetSetup::fMWPCType;
 
 
 ERBeamDetSetup::ERBeamDetSetup() {
@@ -75,13 +75,13 @@ ERBeamDetSetup::ERBeamDetSetup() {
 }
 //-------------------------------------------------------------------------
 void ERBeamDetSetup::AddMWPC(TString type, Double_t position) {
-  fPositionMWPC1.push_back(position);
-  fMWPCType1.push_back(type);
+  fPositionMWPC.push_back(position);
+  fMWPCType.push_back(type);
   fMWPCCount++;
 }
 void ERBeamDetSetup::AddToF(TString type, Double_t position) {
-  fPositionToF1.push_back(position);
-  fToFType1.push_back(type);
+  fPositionToF.push_back(position);
+  fToFType.push_back(type);
   fToFCount++;
 }
 //-------------------------------------------------------------------------
@@ -227,8 +227,8 @@ void ERBeamDetSetup::GetToFParameters(TXMLNode *node) {
       else {
         continue;
       }
-      cout << "ToF type " << fToFType1[i] << " " << attr->GetValue() << endl;
-      if(!strcasecmp(fToFType1[i], attr->GetValue())) {
+      cout << "ToF type " << fToFType[i] << " " << attr->GetValue() << endl;
+      if(!strcasecmp(fToFType[i], attr->GetValue())) {
         cout << "Tof value " << attr->GetValue() << endl;
         TXMLNode* curNode2 = curNode->GetChildren();
         for(; curNode2; curNode2 = curNode2->GetNextNode()) {
@@ -278,7 +278,7 @@ void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
         continue;
       }
       //cout << "Pasrsing MWPC " << node->GetNodeName() << endl;
-      if(!strcasecmp(fMWPCType1[i], attr->GetValue())) {
+      if(!strcasecmp(fMWPCType[i], attr->GetValue())) {
         TXMLNode* curNode2 = curNode->GetChildren();
         for(; curNode2; curNode2 = curNode2->GetNextNode()) {
           if(!strcasecmp(curNode2->GetNodeName(), "gasVolGeometry")) {
@@ -343,32 +343,75 @@ void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
   }
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERBeamDetSetup::PrintDetectorParameters(void) {
+void ERBeamDetSetup::PrintDetectorParameters(void) {
   cout << "------------------------------------------------" << endl;
   cout << "Detector's parameters from " << fParamsXmlFileName << endl;
+  cout << "------------------------------------------------" << endl;
+  cout << "ToFs parameters:" << endl;
   for(Int_t i = 0; i < fToFCount; i++) {
-    cout << "ToF_" + i << fToFType1[i] << " parameters:" << endl  
-         << "   X = " << fPlasticX[i]
+    cout << "ToF_"+TString::Itoa(i+1, 10) << " is " << fToFType[i] << " with parameters:" << endl
+         << "\tpositionZ = " << fPositionToF[i] << endl
+         << "\tX = " << fPlasticX[i]
          << "; Y = " << fPlasticY[i] 
          << "; Z = " << fPlasticZ[i] << endl
-         << "   plasticMedia = " << fPlasticMedia[i] << endl;
+         << "\tplasticMedia = " << fPlasticMedia[i] << endl << endl;
   }
+  cout << "------------------------------------------------" << endl;
+  cout << "MWPCs parameters:" << endl;
   for(Int_t i = 0; i < fMWPCCount; i++) {
-    cout << "MWPC " << fMWPCType1[i] << " parameters: " << endl
-         << "   GasVolX = " << fGasVolX[i]
+    cout << "MWPC_"+TString::Itoa(i+1, 10) << " is " << fMWPCType[i] << " with parameters: " << endl
+         << "\tpositionZ = " << fPositionMWPC[i] << endl
+         << "\tGasVolX = " << fGasVolX[i]
          << "; GasVolY = " << fGasVolY[i] 
          << "; GasVolZ = " << fGasVolZ[i] << endl
-         << "   GasStripX = " << fGasStripX[i]
+         << "\tGasStripX = " << fGasStripX[i]
          << "; GasStripY = " << fGasStripY[i] 
          << "; GasStripZ = " << fGasStripZ[i] << endl
-         << "   Distance between X & Y strips = " << fDistBetweenXandY[i] << endl
-         << "   Cathode thickness = " << fCathodeThickness[i] << endl
-         << "   KaptonWindow thickness = " << fKaptonWindowThickness[i] << endl
-         << "   Wire diameter = " << fAnodeWireDiameter[i] << endl
-         << "   KaptonWindow media = " << fKaptonWindowMedia[i] << endl
-         << "   Cathode media = " << fCathodeMedia[i] << endl
-         << "   AnodeWire media = " << fAnodeWireMedia[i] << endl
-         << "   gasStrip media = " << fGasMedia[i] << endl;
+         << "\tDistance between X & Y strips = " << fDistBetweenXandY[i] << endl
+         << "\tCathode thickness = " << fCathodeThickness[i] << endl
+         << "\tKaptonWindow thickness = " << fKaptonWindowThickness[i] << endl
+         << "\tWire diameter = " << fAnodeWireDiameter[i] << endl
+         << "\tKaptonWindow media = " << fKaptonWindowMedia[i] << endl
+         << "\tCathode media = " << fCathodeMedia[i] << endl
+         << "\tAnodeWire media = " << fAnodeWireMedia[i] << endl
+         << "\tgasStrip media = " << fGasMedia[i] << endl << endl;
+  }
+}
+//--------------------------------------------------------------------------------------------------
+void ERBeamDetSetup::PrintDetectorParametersToFile(TString fileName) {
+  ofstream listingFile;
+  listingFile.open(fileName);
+  listingFile << "------------------------------------------------" << endl;
+  listingFile << "Detector's parameters from " << fParamsXmlFileName << endl;
+  listingFile << "------------------------------------------------" << endl;
+  listingFile << "ToFs parameters:" << endl;
+  for(Int_t i = 0; i < fToFCount; i++) {
+    listingFile << "ToF_"+TString::Itoa(i+1, 10) << " is " << fToFType[i] << " with parameters:" << endl  
+         << "\tpositionZ = " << fPositionToF[i] << endl
+         << "\tX = " << fPlasticX[i]
+         << "; Y = " << fPlasticY[i] 
+         << "; Z = " << fPlasticZ[i] << endl
+         << "\tplasticMedia = " << fPlasticMedia[i] << endl << endl;
+  }
+  listingFile << "------------------------------------------------" << endl;
+  listingFile << "MWPCs parameters:" << endl;
+  for(Int_t i = 0; i < fMWPCCount; i++) {
+    listingFile << "MWPC_"+TString::Itoa(i+1, 10) << " is " << fMWPCType[i] << " with parameters: " << endl
+         << "\tpositionZ = " << fPositionMWPC[i] << endl
+         << "\tGasVolX = " << fGasVolX[i]
+         << "; GasVolY = " << fGasVolY[i] 
+         << "; GasVolZ = " << fGasVolZ[i] << endl
+         << "\tGasStripX = " << fGasStripX[i]
+         << "; GasStripY = " << fGasStripY[i] 
+         << "; GasStripZ = " << fGasStripZ[i] << endl
+         << "\tDistance between X & Y strips = " << fDistBetweenXandY[i] << endl
+         << "\tCathode thickness = " << fCathodeThickness[i] << endl
+         << "\tKaptonWindow thickness = " << fKaptonWindowThickness[i] << endl
+         << "\tWire diameter = " << fAnodeWireDiameter[i] << endl
+         << "\tKaptonWindow media = " << fKaptonWindowMedia[i] << endl
+         << "\tCathode media = " << fCathodeMedia[i] << endl
+         << "\tAnodeWire media = " << fAnodeWireMedia[i] << endl
+         << "\tgasStrip media = " << fGasMedia[i] << endl << endl;
   }
 }
 //--------------------------------------------------------------------------------------------------
@@ -546,18 +589,18 @@ void ERBeamDetSetup::ConstructGeometry() {
     fGasVolX[i] /= 2.;
     fGasVolY[i] /= 2.;
     fGasVolZ[i] /= 2.;
-    gasVol.push_back(gGeoManager->MakeBox("MWPCVol_" + fMWPCType1[i], pMedCF4[i], 
+    gasVol.push_back(gGeoManager->MakeBox("MWPCVol_" + fMWPCType[i], pMedCF4[i], 
                                           fGasVolX[i], fGasVolY[i], fGasVolZ[i]));
-    MWPC.push_back(gGeoManager->MakeBox("MWPC_" + fMWPCType1[i], pMedKaptonWindow[i], 
+    MWPC.push_back(gGeoManager->MakeBox("MWPC_" + fMWPCType[i], pMedKaptonWindow[i], 
                                         fGasVolX[i], fGasVolY[i], fGasVolZ[i] + fKaptonWindowThickness[i]));
     fGasStripX[i] /= 2.0;
     fGasStripY[i] /= 2.0;
     fGasStripZ[i] /= 2.0;
-    gasStrip.push_back(gGeoManager->MakeBox("gasStrip_" + fMWPCType1[i], pMedCF4[i], 
+    gasStrip.push_back(gGeoManager->MakeBox("gasStrip_" + fMWPCType[i], pMedCF4[i], 
                                             fGasStripX[i], fGasStripY[i], fGasStripZ[i]));
-    gasPlane.push_back(gGeoManager->MakeBox("gasPlane_" + fMWPCType1[i], pMedCF4[i], 
+    gasPlane.push_back(gGeoManager->MakeBox("gasPlane_" + fMWPCType[i], pMedCF4[i], 
                                             fGasVolX[i], fGasVolY[i], fGasStripZ[i] + fCathodeThickness[i]));
-    anodeWire.push_back(gGeoManager->MakeTube("anodeWire_" + fMWPCType1[i], pMedAnodeWire[i], 
+    anodeWire.push_back(gGeoManager->MakeTube("anodeWire_" + fMWPCType[i], pMedAnodeWire[i], 
                                               0, fAnodeWireDiameter[i] / 2, fGasStripY[i]));
   }
   // --------------------------------------------------------------------------
@@ -567,7 +610,7 @@ void ERBeamDetSetup::ConstructGeometry() {
     fPlasticX[i] /= 2.0;
     fPlasticY[i] /= 2.0;
     fPlasticZ[i] /= 2.0;
-    plastic.push_back(gGeoManager->MakeBox("plastic_" + fToFType1[i], pMedPlastic[i], 
+    plastic.push_back(gGeoManager->MakeBox("plastic_" + fToFType[i], pMedPlastic[i], 
                                            fPlasticX[i], fPlasticY[i], fPlasticZ[i]));
   }
   // --------------------------------------------------------------------------
@@ -587,10 +630,10 @@ void ERBeamDetSetup::ConstructGeometry() {
     gasVol[i]->AddNode(gasPlane[i], 2, new TGeoCombiTrans(0, 0, fDistBetweenXandY[i] / 2, f90ZRotation));
 
     MWPC[i]->AddNode(gasVol[i], 1, new TGeoCombiTrans(0, 0, 0, fZeroRotation));
-    beamdet->AddNode(MWPC[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionMWPC1[i], fGlobalRotation));
+    beamdet->AddNode(MWPC[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionMWPC[i], fGlobalRotation));
   }
   for(Int_t i = 0; i < fToFCount; i++) {
-    beamdet->AddNode(plastic[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionToF1[i], fGlobalRotation));
+    beamdet->AddNode(plastic[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionToF[i], fGlobalRotation));
   }
   targetShell->AddNode(targetH2, 1, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
   target->AddNode(targetShell, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));

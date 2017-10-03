@@ -37,7 +37,8 @@ public:
   static Double_t DistanceBetweenMWPC() {return fDistanceBetweenMWPC;}
   static Double_t DistanceBetweenTOF() {return fDistanceBetweenTOF;}
   static Double_t TargetR() {return fTargetR;}
-  static Double_t PrintDetectorParameters(void);
+  static void     PrintDetectorParameters(void);
+  static void     PrintDetectorParametersToFile(TString fileName);
 
   /* Modifiers */
   static void SetXmlParametersFile(TString xmlFileName) {fParamsXmlFileName = xmlFileName;}
@@ -84,16 +85,16 @@ private:
   static vector<TString>  fGasMedia;
   // --------------------------------------------------------------------------
   // ------ fPosition of detector's parts relative to zero ---------------------
-  static vector<Double_t> fPositionToF1;
-  static vector<Double_t> fPositionMWPC1;
+  static vector<Double_t> fPositionToF;
+  static vector<Double_t> fPositionMWPC;
   // -------- Target parameters -----------------------------------------------
   static Double_t fTargetH2R;   //cm
   static Double_t fTargetH2Z;   //cm
   static Double_t fTargetShellThickness;
 
   static TString  fParamsXmlFileName;
-  static vector<TString>  fToFType1;
-  static vector<TString>  fMWPCType1;
+  static vector<TString>  fToFType;
+  static vector<TString>  fMWPCType;
 
   ClassDef(ERBeamDetSetup,1)
 
