@@ -571,12 +571,10 @@ void ERBeamDetSetup::ConstructGeometry() {
 
   // --------------------------------------------------------------------------
   // ---------------- fTarget --------------------------------------------------
-  fTargetH2Z /= 2.;
-
   Double_t fTargetShellR = fTargetH2R + fTargetShellThickness;
-  Double_t fTargetShellZ = fTargetH2Z + fTargetShellThickness;
+  Double_t fTargetShellZ = fTargetH2Z/2 + fTargetShellThickness;
 
-  TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, fTargetH2R, fTargetH2Z);
+  TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, fTargetH2R, fTargetH2Z/2);
   TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, fTargetShellR, fTargetShellZ);
   // --------------------------------------------------------------------------
   // ----------------- MWPC ---------------------------------------------------
@@ -586,43 +584,34 @@ void ERBeamDetSetup::ConstructGeometry() {
   vector<TGeoVolume*> gasPlane;
   vector<TGeoVolume*> anodeWire;
   for(Int_t i = 0; i < fMWPCCount; i++) {
-    fGasVolX[i] /= 2.;
-    fGasVolY[i] /= 2.;
-    fGasVolZ[i] /= 2.;
     gasVol.push_back(gGeoManager->MakeBox("MWPCVol_" + fMWPCType[i], pMedCF4[i], 
-                                          fGasVolX[i], fGasVolY[i], fGasVolZ[i]));
+                                          fGasVolX[i]/2, fGasVolY[i]/2, fGasVolZ[i]/2));
     MWPC.push_back(gGeoManager->MakeBox("MWPC_" + fMWPCType[i], pMedKaptonWindow[i], 
-                                        fGasVolX[i], fGasVolY[i], fGasVolZ[i] + fKaptonWindowThickness[i]));
-    fGasStripX[i] /= 2.0;
-    fGasStripY[i] /= 2.0;
-    fGasStripZ[i] /= 2.0;
+                                        fGasVolX[i]/2, fGasVolY[i]/2, fGasVolZ[i]/2 + fKaptonWindowThickness[i]));
     gasStrip.push_back(gGeoManager->MakeBox("gasStrip_" + fMWPCType[i], pMedCF4[i], 
-                                            fGasStripX[i], fGasStripY[i], fGasStripZ[i]));
+                                            fGasStripX[i]/2, fGasStripY[i]/2, fGasStripZ[i]/2));
     gasPlane.push_back(gGeoManager->MakeBox("gasPlane_" + fMWPCType[i], pMedCF4[i], 
-                                            fGasVolX[i], fGasVolY[i], fGasStripZ[i] + fCathodeThickness[i]));
+                                            fGasVolX[i]/2, fGasVolY[i]/2, fGasStripZ[i]/2 + fCathodeThickness[i]));
     anodeWire.push_back(gGeoManager->MakeTube("anodeWire_" + fMWPCType[i], pMedAnodeWire[i], 
-                                              0, fAnodeWireDiameter[i] / 2, fGasStripY[i]));
+                                              0, fAnodeWireDiameter[i] / 2, fGasStripY[i]/2));
   }
   // --------------------------------------------------------------------------
   // ---------------- ToF -----------------------------------------------------
   vector<TGeoVolume*> plastic;
   for(Int_t i = 0; i < fToFCount; i++) {
-    fPlasticX[i] /= 2.0;
-    fPlasticY[i] /= 2.0;
-    fPlasticZ[i] /= 2.0;
     plastic.push_back(gGeoManager->MakeBox("plastic_" + fToFType[i], pMedPlastic[i], 
-                                           fPlasticX[i], fPlasticY[i], fPlasticZ[i]));
+                                           fPlasticX[i]/2, fPlasticY[i]/2, fPlasticZ[i]/2));
   }
   // --------------------------------------------------------------------------
   //------------------ STRUCTURE  ---------------------------------------------
  // gasStrip->AddNode(anodeWire, 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
   for(Int_t i = 0; i < fMWPCCount; i++) {
-    Int_t gasCount = fGasVolX[i] / (2 * fGasStripX[i]);
+    Int_t gasCount = (fGasVolX[i]/2) / (fGasStripX[i]);
     Double_t gasPosX;
 
     for(Int_t i_gas = 1; i_gas <= 2*gasCount; i_gas++)
     {
-      gasPosX = fGasVolX[i] - fGasStripX[i] * 2 * (i_gas - 1) - fGasStripX[i];
+      gasPosX = fGasVolX[i]/2 - fGasStripX[i] * (i_gas - 1) - fGasStripX[i]/2;
       gasPlane[i]->AddNode(gasStrip[i], i_gas, new TGeoCombiTrans(gasPosX, 0, 0, fZeroRotation));
     }
 
