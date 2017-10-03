@@ -1,4 +1,4 @@
-void BeamDet_sim(Int_t nEvents = 100){
+void BeamDet_sim(Int_t nEvents = 10){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -41,6 +41,13 @@ void BeamDet_sim(Int_t nEvents = 100){
   Int_t verbose = 0;
   ERBeamDet* beamDet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
   //beamDet->SetGeometryFileName("beamdet.temp.root");
+  ERBeamDetSetup* setup = ERBeamDetSetup::Instance();
+
+  setup->SetXmlParametersFile("equip.xml");
+  setup->AddMWPC("MWPC1", -40.);
+  setup->AddMWPC("MWPC1", -8.);
+  setup->AddToF("ToF1",-1550.);
+  setup->AddToF("ToF2",-50.);
 
   //beamDet->SetIonPID(1000160280);
   run->AddModule(beamDet);

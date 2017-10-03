@@ -6,6 +6,10 @@
       <plasticGeometry X = "100" Y = "100" Z = "0.01"/>
       <plasticMedia>BC408</plasticMedia>
     </ToF>
+    <ToF id = "ToF2">
+      <plasticGeometry X = "50" Y = "100" Z = "0.01"/>
+      <plasticMedia>BC408</plasticMedia>
+    </ToF>
   </ToFTypes>
   <MWPCTypes>
     <MWPC id = "MWPC1">
