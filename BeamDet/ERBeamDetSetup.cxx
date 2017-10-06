@@ -344,74 +344,74 @@ void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetSetup::PrintDetectorParameters(void) {
-  cout << "------------------------------------------------" << endl;
-  cout << "Detector's parameters from " << fParamsXmlFileName << endl;
-  cout << "------------------------------------------------" << endl;
-  cout << "ToFs parameters:" << endl;
+  cout << "------------------------------------------------" << "\r\n";
+  cout << "Detector's parameters from " << fParamsXmlFileName << "\r\n";
+  cout << "------------------------------------------------" << "\r\n";
+  cout << "ToFs parameters:" << "\r\n";
   for(Int_t i = 0; i < fToFCount; i++) {
-    cout << "ToF_"+TString::Itoa(i+1, 10) << " is " << fToFType[i] << " with parameters:" << endl
-         << "\tpositionZ = " << fPositionToF[i] << endl
+    cout << "ToF_"+TString::Itoa(i+1, 10) << " is " << fToFType[i] << " with parameters:" << "\r\n"
+         << "\tpositionZ = " << fPositionToF[i] << "\r\n"
          << "\tX = " << fPlasticX[i]
          << "; Y = " << fPlasticY[i] 
-         << "; Z = " << fPlasticZ[i] << endl
-         << "\tplasticMedia = " << fPlasticMedia[i] << endl << endl;
+         << "; Z = " << fPlasticZ[i] << "\r\n"
+         << "\tplasticMedia = " << fPlasticMedia[i] << "\r\n" << "\r\n";
   }
-  cout << "------------------------------------------------" << endl;
-  cout << "MWPCs parameters:" << endl;
+  cout << "------------------------------------------------" << "\r\n";
+  cout << "MWPCs parameters:" << "\r\n";
   for(Int_t i = 0; i < fMWPCCount; i++) {
-    cout << "MWPC_"+TString::Itoa(i+1, 10) << " is " << fMWPCType[i] << " with parameters: " << endl
-         << "\tpositionZ = " << fPositionMWPC[i] << endl
+    cout << "MWPC_"+TString::Itoa(i+1, 10) << " is " << fMWPCType[i] << " with parameters: " << "\r\n"
+         << "\tpositionZ = " << fPositionMWPC[i] << "\r\n"
          << "\tGasVolX = " << fGasVolX[i]
          << "; GasVolY = " << fGasVolY[i] 
-         << "; GasVolZ = " << fGasVolZ[i] << endl
+         << "; GasVolZ = " << fGasVolZ[i] << "\r\n"
          << "\tGasStripX = " << fGasStripX[i]
          << "; GasStripY = " << fGasStripY[i] 
-         << "; GasStripZ = " << fGasStripZ[i] << endl
-         << "\tDistance between X & Y strips = " << fDistBetweenXandY[i] << endl
-         << "\tCathode thickness = " << fCathodeThickness[i] << endl
-         << "\tKaptonWindow thickness = " << fKaptonWindowThickness[i] << endl
-         << "\tWire diameter = " << fAnodeWireDiameter[i] << endl
-         << "\tKaptonWindow media = " << fKaptonWindowMedia[i] << endl
-         << "\tCathode media = " << fCathodeMedia[i] << endl
-         << "\tAnodeWire media = " << fAnodeWireMedia[i] << endl
-         << "\tgasStrip media = " << fGasMedia[i] << endl << endl;
+         << "; GasStripZ = " << fGasStripZ[i] << "\r\n"
+         << "\tDistance between X & Y strips = " << fDistBetweenXandY[i] << "\r\n"
+         << "\tCathode thickness = " << fCathodeThickness[i] << "\r\n"
+         << "\tKaptonWindow thickness = " << fKaptonWindowThickness[i] << "\r\n"
+         << "\tWire diameter = " << fAnodeWireDiameter[i] << "\r\n"
+         << "\tKaptonWindow media = " << fKaptonWindowMedia[i] << "\r\n"
+         << "\tCathode media = " << fCathodeMedia[i] << "\r\n"
+         << "\tAnodeWire media = " << fAnodeWireMedia[i] << "\r\n"
+         << "\tgasStrip media = " << fGasMedia[i] << "\r\n" << "\r\n";
   }
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetSetup::PrintDetectorParametersToFile(TString fileName) {
   ofstream listingFile;
   listingFile.open(fileName);
-  listingFile << "------------------------------------------------" << endl;
-  listingFile << "Detector's parameters from " << fParamsXmlFileName << endl;
-  listingFile << "------------------------------------------------" << endl;
-  listingFile << "ToFs parameters:" << endl;
+  listingFile << "------------------------------------------------" << "\r\n";
+  listingFile << "Detector's parameters from " << fParamsXmlFileName << "\r\n";
+  listingFile << "------------------------------------------------" << "\r\n";
+  listingFile << "ToFs parameters:" << "\r\n";
   for(Int_t i = 0; i < fToFCount; i++) {
-    listingFile << "ToF_"+TString::Itoa(i+1, 10) << " is " << fToFType[i] << " with parameters:" << endl  
-         << "\tpositionZ = " << fPositionToF[i] << endl
+    listingFile << "ToF_"+TString::Itoa(i+1, 10) << " is " << fToFType[i] << " with parameters:" << "\r\n"  
+         << "\tpositionZ = " << fPositionToF[i] << "\r\n"
          << "\tX = " << fPlasticX[i]
          << "; Y = " << fPlasticY[i] 
-         << "; Z = " << fPlasticZ[i] << endl
-         << "\tplasticMedia = " << fPlasticMedia[i] << endl << endl;
+         << "; Z = " << fPlasticZ[i] << "\r\n"
+         << "\tplasticMedia = " << fPlasticMedia[i] << "\r\n" << "\r\n";
   }
-  listingFile << "------------------------------------------------" << endl;
-  listingFile << "MWPCs parameters:" << endl;
+  listingFile << "------------------------------------------------" << "\r\n";
+  listingFile << "MWPCs parameters:" << "\r\n";
   for(Int_t i = 0; i < fMWPCCount; i++) {
-    listingFile << "MWPC_"+TString::Itoa(i+1, 10) << " is " << fMWPCType[i] << " with parameters: " << endl
-         << "\tpositionZ = " << fPositionMWPC[i] << endl
+    listingFile << "MWPC_"+TString::Itoa(i+1, 10) << " is " << fMWPCType[i] << " with parameters: " << "\r\n"
+         << "\tpositionZ = " << fPositionMWPC[i] << "\r\n"
          << "\tGasVolX = " << fGasVolX[i]
          << "; GasVolY = " << fGasVolY[i] 
-         << "; GasVolZ = " << fGasVolZ[i] << endl
+         << "; GasVolZ = " << fGasVolZ[i] << "\r\n"
          << "\tGasStripX = " << fGasStripX[i]
          << "; GasStripY = " << fGasStripY[i] 
-         << "; GasStripZ = " << fGasStripZ[i] << endl
-         << "\tDistance between X & Y strips = " << fDistBetweenXandY[i] << endl
-         << "\tCathode thickness = " << fCathodeThickness[i] << endl
-         << "\tKaptonWindow thickness = " << fKaptonWindowThickness[i] << endl
-         << "\tWire diameter = " << fAnodeWireDiameter[i] << endl
-         << "\tKaptonWindow media = " << fKaptonWindowMedia[i] << endl
-         << "\tCathode media = " << fCathodeMedia[i] << endl
-         << "\tAnodeWire media = " << fAnodeWireMedia[i] << endl
-         << "\tgasStrip media = " << fGasMedia[i] << endl << endl;
+         << "; GasStripZ = " << fGasStripZ[i] << "\r\n"
+         << "\tDistance between X & Y strips = " << fDistBetweenXandY[i] << "\r\n"
+         << "\tCathode thickness = " << fCathodeThickness[i] << "\r\n"
+         << "\tKaptonWindow thickness = " << fKaptonWindowThickness[i] << "\r\n"
+         << "\tWire diameter = " << fAnodeWireDiameter[i] << "\r\n"
+         << "\tKaptonWindow media = " << fKaptonWindowMedia[i] << "\r\n"
+         << "\tCathode media = " << fCathodeMedia[i] << "\r\n"
+         << "\tAnodeWire media = " << fAnodeWireMedia[i] << "\r\n"
+         << "\tgasStrip media = " << fGasMedia[i] << "\r\n" << "\r\n";
   }
 }
 //--------------------------------------------------------------------------------------------------
@@ -590,7 +590,7 @@ void ERBeamDetSetup::ConstructGeometry() {
                                         fGasVolX[i]/2, fGasVolY[i]/2, fGasVolZ[i]/2 + fKaptonWindowThickness[i]));
     gasStrip.push_back(gGeoManager->MakeBox("gasStrip_" + fMWPCType[i], pMedCF4[i], 
                                             fGasStripX[i]/2, fGasStripY[i]/2, fGasStripZ[i]/2));
-    gasPlane.push_back(gGeoManager->MakeBox("gasPlane_" + fMWPCType[i], pMedCF4[i], 
+    gasPlane.push_back(gGeoManager->MakeBox("gasPlane_" + fMWPCType[i], pMedCathode[i], 
                                             fGasVolX[i]/2, fGasVolY[i]/2, fGasStripZ[i]/2 + fCathodeThickness[i]));
     anodeWire.push_back(gGeoManager->MakeTube("anodeWire_" + fMWPCType[i], pMedAnodeWire[i], 
                                               0, fAnodeWireDiameter[i] / 2, fGasStripY[i]/2));
