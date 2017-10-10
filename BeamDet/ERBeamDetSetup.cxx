@@ -604,11 +604,10 @@ void ERBeamDetSetup::ConstructGeometry() {
   }
   // --------------------------------------------------------------------------
   //------------------ STRUCTURE  ---------------------------------------------
- // gasStrip->AddNode(anodeWire, 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
   for(Int_t i = 0; i < fMWPCCount; i++) {
+    gasStrip[i]->AddNode(anodeWire[i], 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
     Int_t gasCount = (fGasVolX[i]/2) / (fGasStripX[i]);
     Double_t gasPosX;
-
     for(Int_t i_gas = 1; i_gas <= 2*gasCount; i_gas++)
     {
       gasPosX = fGasVolX[i]/2 - fGasStripX[i] * (i_gas - 1) - fGasStripX[i]/2;
