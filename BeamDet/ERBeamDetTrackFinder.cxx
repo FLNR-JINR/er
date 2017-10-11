@@ -60,6 +60,7 @@ InitStatus ERBeamDetTrackFinder::Init()
 
   fBeamDetSetup = ERBeamDetSetup::Instance();
   fBeamDetSetup->SetParContainers();
+  fBeamDetSetup->GetGeoParamsFromParContainer();
    
   return kSUCCESS;
 }
@@ -97,7 +98,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
 
   ERBeamDetMWPCDigi* digi; 
 
-  digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiX1->At(0);
+  digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiX1->At(0); 
   xFar = fBeamDetSetup->WireX(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
 
   digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiY1->At(0);

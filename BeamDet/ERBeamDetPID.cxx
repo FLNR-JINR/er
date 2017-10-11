@@ -15,6 +15,7 @@ using namespace std;
 #include <iostream>
 
 #include "ERDetectorList.h"
+#include "ERBeamDetSetup.h"
 
 // ----------------------------------------------------------------------------
 ERBeamDetPID::ERBeamDetPID()
@@ -61,6 +62,7 @@ InitStatus ERBeamDetPID::Init()
 
   fBeamDetSetup = ERBeamDetSetup::Instance();
   fBeamDetSetup->SetParContainers();
+  fBeamDetSetup->GetGeoParamsFromParContainer();
      
   return kSUCCESS;
 }

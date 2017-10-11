@@ -7,14 +7,16 @@
 #ifndef ERBeamDet_H
 #define ERBeamDet_H
 
+#include "TLorentzVector.h"
+#include "TClonesArray.h"
+
 #include "ERDetector.h"
 #include "ERBeamDetTOFPoint.h"
 #include "ERBeamDetMWPCPoint.h"
 #include "ERBeamDetTargetPoint.h"
 #include "ERBeamDetTrack.h"
 #include "ERBeamDetParticle.h"
-#include "TLorentzVector.h"
-#include "TClonesArray.h"
+#include "ERBeamDetSetup.h"
 
 class ERBeamDet : public ERDetector
 {
@@ -108,10 +110,14 @@ public:
   **/
   virtual Bool_t CheckIfSensitive(std::string name);
 
+  virtual void ConstructGeometry();
+
   void SetIonName(TString ionName){fIonName = ionName; fIonPIDIsSet = kTRUE;}
   void SetIonPID(Int_t ionPID){fIonPID = ionPID; fIonPIDIsSet = kTRUE;}
 
 private:
+  ERBeamDetSetup    *fBeamDetSetup;
+
   TClonesArray*     fTOFPoints;
   TClonesArray*     fMWPCPoints; 
   TClonesArray*     fTargetPoints;

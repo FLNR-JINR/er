@@ -2,18 +2,19 @@
 // -----                        ERBeamDet source file                   -----
 // -----                  Created 03/15  by V.Schetinin                -----
 // -------------------------------------------------------------------------
-#include "FairRootManager.h"
-#include "FairRun.h"
-#include "FairRunSim.h"
-#include "FairRuntimeDb.h"
+#include <iostream>
+
 #include "TClonesArray.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
 
-#include "ERBeamDet.h"
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRunSim.h"
+#include "FairRuntimeDb.h"
 
-#include <iostream>
+#include "ERBeamDet.h"
 
 // -----   Default constructor   -------------------------------------------
 ERBeamDet::ERBeamDet() :
@@ -49,6 +50,8 @@ ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
 
   fBeamDetMCProjectile = new ERBeamDetParticle(); 
   fBeamDetMCTrack      = new ERBeamDetTrack();
+
+  fBeamDetSetup = ERBeamDetSetup::Instance();
  //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
@@ -206,7 +209,7 @@ ERBeamDetTOFPoint* ERBeamDet::AddTOFPoint()
 Bool_t ERBeamDet::CheckIfSensitive(std::string name)
 {
   TString volName = name;
-  if(volName.Contains("gas")) {
+  if(volName.Contains("gasStrip")) {
     return kTRUE;
   }
   if(volName.Contains("plastic")) {
@@ -216,6 +219,12 @@ Bool_t ERBeamDet::CheckIfSensitive(std::string name)
     return kTRUE;
   }
   return kFALSE;
+}
+//-----------------------------------------------------------------------------
+void ERBeamDet::ConstructGeometry() {
+  fBeamDetSetup->ConstructGeometry();
+  SetGeometryFileName("beamdet.temp.root");
+  ConstructRootGeometry();
 }
 // ----------------------------------------------------------------------------
 ClassImp(ERBeamDet)
@@ -281,11 +290,11 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
         gMC->CurrentVolID(fTofNb);
         AddTOFPoint();
       }
-      if(volName.Contains("gas"))
+      if(volName.Contains("gasStrip"))
       {
         gMC->CurrentVolOffID(0, fMWPCWireNb);
         gMC->CurrentVolOffID(1, fMWPCPlaneNb);
-        gMC->CurrentVolOffID(2, fMWPCNb);
+        gMC->CurrentVolOffID(3, fMWPCNb);
         AddMWPCPoint();
       }
       if(volName.Contains("targetH2"))

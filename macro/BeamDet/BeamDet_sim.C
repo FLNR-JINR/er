@@ -1,4 +1,4 @@
-void BeamDet_sim(Int_t nEvents = 100){
+void BeamDet_sim(Int_t nEvents = 10){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -40,9 +40,16 @@ void BeamDet_sim(Int_t nEvents = 100){
   */
   Int_t verbose = 0;
   ERBeamDet* beamDet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
-  beamDet->SetGeometryFileName("beamdet.v3.geo.root");
+  //beamDet->SetGeometryFileName("beamdet.temp.root");
+  ERBeamDetSetup* setup = ERBeamDetSetup::Instance();
 
-  beamDet->SetIonPID(1000160280);
+  setup->SetXmlParametersFile("equip.xml");
+  setup->AddMWPC("MWPC1", -40.);
+  setup->AddMWPC("MWPC1", -8.);
+  setup->AddToF("ToF1",-150.);
+  setup->AddToF("ToF1",-50.);
+
+  //beamDet->SetIonPID(1000160280);
   run->AddModule(beamDet);
 
  // FairModule* target = new ERTarget("BeamDetTarget", kTRUE, 1);
@@ -94,6 +101,7 @@ void BeamDet_sim(Int_t nEvents = 100){
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
   // —– Initialize simulation run ———————————— 
   run->Init();
+  setup->PrintDetectorParametersToFile("listing.txt");
   Int_t nSteps = -15000;
 
   // —– Runtime database ——————————————— 
