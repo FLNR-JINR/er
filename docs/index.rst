@@ -22,6 +22,7 @@
    fairroot
    howto
    dev
+   beamdet
    decays
    neurad
    gadast
