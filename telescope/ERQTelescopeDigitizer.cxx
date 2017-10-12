@@ -94,7 +94,7 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt)
   map<Int_t, map<Int_t, vector<Int_t> > > points;
   for (Int_t iPoint = 0; iPoint < fQTelescopeSiPoints->GetEntriesFast(); iPoint++){
     ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)fQTelescopeSiPoints->At(iPoint);
-    points[point->GetStationNb()][point->GetStripNb()].push_back(iPoint);
+    points[point->N_Station()][point->X_Strip()].push_back(iPoint);
   }
 
   for (const auto &itStation : points){

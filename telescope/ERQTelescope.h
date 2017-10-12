@@ -1,7 +1,10 @@
 // -------------------------------------------------------------------------
-// -----                        ERQTelescope header file                      -----
+// -----                        ERQTelescope header file                   -----
 // -----                  Created data  by developer name              -----
 // -------------------------------------------------------------------------
+
+/**  ERQTelescope.h
+ **/
 
 
 #ifndef ERQTelescope_H
@@ -9,11 +12,17 @@
 
 #include "ERDetector.h"
 #include "ERQTelescopeSiPoint.h"
-#include "TLorentzVector.h"
-#include "TClonesArray.h"
+#include "ERQTelescopeCsIPoint.h"
 
-class ERQTelescope : public ERDetector
+#include "TLorentzVector.h"
+
+class TClonesArray;
+class FairVolume;
+class TF1;
+
+class ERQTelescope : public FairDetector
 {
+
 public:
 
   /** Default constructor **/
@@ -87,7 +96,14 @@ public:
    *@param offset  Index offset
    **/
   virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2,
-                          Int_t offset);
+			  Int_t offset);
+
+
+  /** Virtaul method Construct geometry
+   **
+   ** Constructs the ERQTelescope geometry
+   **/
+  virtual void ConstructGeometry();
 
    /** Virtaul method Initialize
    **
@@ -96,7 +112,7 @@ public:
   virtual void Initialize();
 
   /** Virtaul method CheckIfSensitive
-        **Check whether a volume is sensitive.
+	**Check whether a volume is sensitive.
   ** @param(name)  Volume name
   ** @value        kTRUE if volume is sensitive, else kFALSE
   **
@@ -104,28 +120,46 @@ public:
   **/
   virtual Bool_t CheckIfSensitive(std::string name);
 
-private:
-  TClonesArray*  fSiPoints;
+  /** Virtaul method SetGeomVersion
+  **/
+  void SetGeomVersion(Int_t vers ) { fVersion = vers; }
 
-  Int_t          fEventID;           //!  event index
-  Int_t          fTrackID;           //!  track index
-  Int_t          fMot0TrackID;       //!  mother track index
-  Int_t          fPID;               //!  particle PDG
-  TLorentzVector fPosIn, fPosOut;     //!  position
-  TLorentzVector fMomIn, fMomOut;     //!  momentum
-  Double32_t     fTime;              //!  time
-  Double32_t     fLength;            //!  length
-  Double32_t     fELoss;             //!  energy loss
-  Int_t          fStationNb;
-  Int_t          fStripNb;
- 
-  
+private:
+  TClonesArray*  fSiPoint;         //!  The point collection
+  TClonesArray*  fCsIPoint;        //!  The point collection
+  Int_t fVersion;                    //! geometry version
+
+  Int_t          eventID;           //!  event index
+  Int_t          trackID;           //!  track index
+  Int_t          mot0TrackID;       //!  0th mother track index
+  Double_t       mass;              //!  mass
+  TLorentzVector posIn, posOut;    //!  position
+  TLorentzVector momIn, momOut;    //!  momentum
+  Double32_t     time;              //!  time
+  Double32_t     length;            //!  length
+  Double32_t     eLoss;             //!  energy loss
+  Int_t          fN_Station;     // Si
+  Int_t          fX_Strip;
+  Int_t          fY_Strip;
+  Int_t          fN_Block;   // CsI (0-3)
+  Int_t          fN_Wall;
+
+
 private:
   /** Private method AddPoint
    **
-   ** Adds a ERQTelescopePoint to the Point Collection
+   ** Adds a NeuRadPoint to the Point Collection
    **/
-  ERQTelescopeSiPoint*   AddSiPoint();
+
+  ERQTelescopeSiPoint* Add_SiPoint();
+  ERQTelescopeCsIPoint* Add_CsIPoint();
+
+  /** Private method ResetParameters
+   **
+   ** Resets the private members for the track parameters
+   **/
+  void ResetParameters();
+
   ClassDef(ERQTelescope,1);
 };
 

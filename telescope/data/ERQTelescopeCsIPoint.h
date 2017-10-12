@@ -1,15 +1,15 @@
 // -------------------------------------------------------------------------
-// -----                      ERQTelescopeSiPoint header file                -----
+// -----                      ERQTelescopeCsIPoint header file                -----
 // -----                  Created data  developerName                  -----
 // -------------------------------------------------------------------------
 
 
-/**  ERQTelescopeSiPoint.h
+/**  ERQTelescopeCsIPoint.h
  **/
 
 
-#ifndef ERQTelescopeSiPoint_H
-#define ERQTelescopeSiPoint_H
+#ifndef ERQTelescopeCsIPoint_H
+#define ERQTelescopeCsIPoint_H
 
 
 #include "TObject.h"
@@ -18,13 +18,13 @@
 #include "FairMCPoint.h"
 
 
-class ERQTelescopeSiPoint : public FairMCPoint
+class ERQTelescopeCsIPoint : public FairMCPoint
 {
 
  public:
 
   /** Default constructor **/
-  ERQTelescopeSiPoint();
+  ERQTelescopeCsIPoint();
 
 
   /** Constructor with arguments
@@ -39,24 +39,23 @@ class ERQTelescopeSiPoint : public FairMCPoint
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [KeV]
    **/
-  ERQTelescopeSiPoint(Int_t eventID, Int_t trackID,
+  ERQTelescopeCsIPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t N_Station ,Int_t X_Strip, Int_t Y_Strip);
-
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t N_Wall ,Int_t N_Block);
 
 
   /** Copy constructor **/
-  ERQTelescopeSiPoint(const ERQTelescopeSiPoint&);
+  ERQTelescopeCsIPoint(const ERQTelescopeCsIPoint&);
 
 
   /** Destructor **/
-  virtual ~ERQTelescopeSiPoint();
+  virtual ~ERQTelescopeCsIPoint();
 
 
-  ERQTelescopeSiPoint& operator=(const ERQTelescopeSiPoint&) { return *this; }
+  ERQTelescopeCsIPoint& operator=(const ERQTelescopeCsIPoint&) { return *this; }
 
 
   /** Accessors **/
@@ -73,7 +72,6 @@ class ERQTelescopeSiPoint : public FairMCPoint
   Double_t GetPzOut()           const { return fPz_out; }
   Double_t GetMass()            const { return fMass; }
 
-
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
   void MomentumOut(TVector3& mom) { mom.SetXYZ(fPx_out,fPy_out,fPz_out); }
@@ -85,10 +83,8 @@ class ERQTelescopeSiPoint : public FairMCPoint
   // Int_t Sector() const {return fSector;}
   // Int_t Sensor() const {return fSensor;}
 
-  Int_t          N_Station() {return fN_Station;}     // Si
-  Int_t          X_Strip()   {return fX_Strip;}
-  Int_t          Y_Strip()   {return fY_Strip;}
-
+  Int_t          N_Wall()  {return fN_Wall;}
+  Int_t          N_Block() {return fN_Block;}
 
   /** Check for distance between in and out **/
   Bool_t IsUsable() const;
@@ -103,10 +99,8 @@ class ERQTelescopeSiPoint : public FairMCPoint
   Double_t fMass;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
-  Int_t          fN_Station;     // Si
-  Int_t          fX_Strip;
-  Int_t          fY_Strip;
-  ClassDef(ERQTelescopeSiPoint,1)
+  Int_t          fN_Wall;     // СsI
+  Int_t          fN_Block;
+  ClassDef(ERQTelescopeCsIPoint,1)
 };
 #endif
-

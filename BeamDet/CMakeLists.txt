@@ -48,7 +48,7 @@ set(SRCS
 CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERBeamDetLinkDef.h)
-Set(LIBRARY_NAME Beamdet)
+Set(LIBRARY_NAME ERBeamDet)
 Set(DEPENDENCIES ERBase ERData Base Core Geom XMLParser)
 
 GENERATE_LIBRARY()
