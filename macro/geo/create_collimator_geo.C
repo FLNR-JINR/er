@@ -12,7 +12,7 @@ void create_collimator_geo()
 
   Double_t transX = 0.;
   Double_t transY = 0.;
-  Double_t transZ = 1.;
+  Double_t transZ = 2.5;
 
   TGeoManager*   gGeoMan = NULL;
 
@@ -29,7 +29,7 @@ void create_collimator_geo()
   gGeoMan = gGeoManager;
   // --------------------------------------------------------------------------
 
-  // -------   Geometry file name (output)   ----------------------------------
+  // -------   Geometry file name (output)   ---------------чё за хуйню ты мне скину-------------------
   TString geoFileName = geoPath + "/geometry/collimator.geo.root";
   // --------------------------------------------------------------------------
   
@@ -60,9 +60,9 @@ void create_collimator_geo()
   // --------------------------------------------------------------------------
 
   //------------------ target -----------------------------------------
-  Double_t R_min = .3;   //cm
+  Double_t R_min = .0;   //cm
   Double_t R_max = 10.;   //cm
-  Double_t Z = 2.;   //cm
+  Double_t Z = 5.;   //cm
   Z /= 2.;
   TGeoVolume *target = gGeoManager->MakeTube("target_vol", pFe, R_min, R_max,Z);
   
