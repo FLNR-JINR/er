@@ -134,8 +134,8 @@ void create_NeuRad_Wupper_Proto_geo()
   Int_t i_fiber = 0;
   for (Int_t i_Y_fiber = 0; i_Y_fiber < fibers_in_pixel_Y; i_Y_fiber++){
     for (Int_t i_X_fiber = 0; i_X_fiber < fibers_in_pixel_X; i_X_fiber++){
-      Double_t fiber_in_pixel_X_trans = pixel_X/2. - fiber_X*(i_X_fiber+0.5);
-      Double_t fiber_in_pixel_Y_trans = pixel_Y/2. - fiber_Y*(i_Y_fiber+0.5);
+      Double_t fiber_in_pixel_X_trans = -pixel_X/2. + fiber_X/2. + fiber_X * i_X_fiber;
+      Double_t fiber_in_pixel_Y_trans = -pixel_Y/2. + fiber_Y/2. + fiber_Y * i_Y_fiber; 
       Double_t fiber_in_pixel_Z_trans = 0.;
       pixel->AddNode( dead_cladding, i_fiber, new TGeoCombiTrans(fiber_in_pixel_X_trans, 
                                                             fiber_in_pixel_Y_trans,
@@ -149,8 +149,10 @@ void create_NeuRad_Wupper_Proto_geo()
   Int_t i_pixel = 0;
   for (Int_t i_Y_pixel = 0; i_Y_pixel < pixels_in_submodule_Y; i_Y_pixel++){
     for (Int_t i_X_pixel = 0; i_X_pixel < pixels_in_submodule_X; i_X_pixel++){
-      Double_t pixel_in_submodule_X_trans = pixel_X*(pixels_in_submodule_X/2.-i_X_pixel-0.5);
-      Double_t pixel_in_submodule_Y_trans = pixel_Y*(pixels_in_submodule_Y/2.-i_Y_pixel-0.5);
+      //Double_t pixel_in_submodule_X_trans = pixel_X*(pixels_in_submodule_X/2.-i_X_pixel-0.5);
+      //Double_t pixel_in_submodule_Y_trans = pixel_Y*(pixels_in_submodule_Y/2.-i_Y_pixel-0.5);
+      Double_t pixel_in_submodule_X_trans = - submodule_X/2 + submodule_wrapping + pixel_X/2 + pixel_X * i_X_pixel;
+      Double_t pixel_in_submodule_Y_trans = - submodule_Y/2 + submodule_wrapping + pixel_Y/2 + pixel_Y * i_Y_pixel;
       Double_t pixel_in_submodule_Z_trans = 0.;
       submodule->AddNode( pixel, i_pixel, new TGeoCombiTrans(pixel_in_submodule_X_trans, 
                                                             pixel_in_submodule_Y_trans,
@@ -164,9 +166,11 @@ Int_t i_submodule = 0;
   for (Int_t i_Y_submodule = 0; i_Y_submodule < submodules_in_module_Y; i_Y_submodule++){
     for (Int_t i_X_submodule = 0; i_X_submodule <submodules_in_module_X; i_X_submodule++){
     
-      Double_t submodule_in_module_X_trans = submodule_X*(submodules_in_module_X/2.-i_X_submodule-0.5);
-      Double_t submodule_in_module_Y_trans = submodule_Y*(submodules_in_module_Y/2.-i_Y_submodule-0.5);
-    Double_t submodule_in_module_Z_trans = 0.;
+      //Double_t submodule_in_module_X_trans = submodule_X*(submodules_in_module_X/2.-i_X_submodule-0.5);
+      //Double_t submodule_in_module_Y_trans = submodule_Y*(submodules_in_module_Y/2.-i_Y_submodule-0.5);
+      Double_t submodule_in_module_X_trans = - module_X + housing_Thick + submodule_X/2 + submodule_X * i_X_submodule;
+      Double_t submodule_in_module_Y_trans = - module_Y + housing_Thick + submodule_Y/2 + submodule_Y * i_Y_submodule;
+      Double_t submodule_in_module_Z_trans = 0.;
       module->AddNode( submodule, i_submodule, new TGeoCombiTrans(submodule_in_module_X_trans, 
                                                             submodule_in_module_Y_trans,
                                                             submodule_in_module_Z_trans, 
