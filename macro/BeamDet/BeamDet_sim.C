@@ -49,7 +49,6 @@ void BeamDet_sim(Int_t nEvents = 10){
   setup->AddToF("ToF1",-150.);
   setup->AddToF("ToF1",-50.);
 
-  //beamDet->SetIonPID(1000160280);
   run->AddModule(beamDet);
 
  // FairModule* target = new ERTarget("BeamDetTarget", kTRUE, 1);
