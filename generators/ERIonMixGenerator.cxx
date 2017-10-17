@@ -9,6 +9,7 @@
 #include "ERIonMixGenerator.h"
 
 #include <stdio.h>                      // for NULL, sprintf
+#include <algorithm>
 
 #include "Riosfwd.h"                    // for ostream
 #include "TDatabasePDG.h"               // for TDatabasePDG

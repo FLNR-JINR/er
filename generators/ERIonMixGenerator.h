@@ -9,12 +9,13 @@
 #ifndef ERIonMixGenerator_H
 #define ERIonMixGenerator_H
 
-#include "FairGenerator.h"              // for FairGenerator
-#include "ERIonGenerator.h"
+#include <map>
 
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
-#include <map>
-#include <algorithm>
+
+#include "FairGenerator.h"              // for FairGenerator
+
+#include "ERIonGenerator.h"
 
 class FairIon;
 class FairPrimaryGenerator;
