@@ -50,13 +50,6 @@ class ERBeamDet : public ERDetector
 
   public:
 
-    /** @brief Defines the action to be taken when a step is inside the
-     ** active volume. Creates a ERBeamDetPoint and adds it to the
-     ** collection.
-     ** @param vol  Pointer to the active volume
-    **/
-    virtual Bool_t ProcessHits(FairVolume* vol = 0);
-
     /** @brief Virtual method BeginEvent.
      ** Virtual from FairDetector.
     **/
@@ -115,6 +108,13 @@ class ERBeamDet : public ERDetector
      ** Virtual from FairDetector.
     **/
     virtual void ConstructGeometry();
+
+    /** @brief Defines the action to be taken when a step is inside the
+     ** active volume. Creates a ERBeamDetPoint and adds it to the
+     ** collection.
+     ** @param vol  Pointer to the active volume
+    **/
+    virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
   private:
     /** @brief Adds a ERBeamDetToFPoint to the ToFPoints Collection **/
