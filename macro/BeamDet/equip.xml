@@ -16,9 +16,9 @@
       <gasVolGeometry   X = "5."    Y = "5." Z = "8.2"/>
       <gasStripGeometry X = "0.125" Y = "5." Z = "0.6"/>
       <distBetweenXandYStrips>1</distBetweenXandYStrips>
-      <cathodeThickness>0.005</cathodeThickness>
+      <cathodeThickness>0.0005</cathodeThickness>
       <kaptonWindowThickness>0.00125</kaptonWindowThickness>
-      <anodeWireDiameter>0.002</anodeWireDiameter>
+      <anodeWireDiameter>0.0002</anodeWireDiameter>
       <kaptonWindowMedia>kapton</kaptonWindowMedia>
       <cathodeMedia>aluminium</cathodeMedia>
       <anodeWireMedia>tungsten</anodeWireMedia>

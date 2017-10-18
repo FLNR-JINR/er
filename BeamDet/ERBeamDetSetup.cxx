@@ -419,14 +419,14 @@ void ERBeamDetSetup::ParseXmlParameters() {
   TDOMParser *domParser;//
   //gROOT->ProcessLine(".O 0"); 
   domParser = new TDOMParser;
-  //domParser->SetValidate(false); // do not validate with DTD
+  domParser->SetValidate(false); // do not validate with DTD
   Int_t parsecode = domParser->ParseFile(fParamsXmlFileName);
   if (parsecode < 0) {
      cerr << domParser->GetParseCodeMessage(parsecode) << endl;
  //    return -1;
   }
   TXMLNode *rootNode = domParser->GetXMLDocument()->GetRootNode();
-  TXMLNode *detPartNode = rootNode->GetChildren();
+  TXMLNode *detPartNode = rootNode->GetChildren()->GetNextNode()->GetChildren();
   TXMLNode *curNode;
   for ( ; detPartNode; detPartNode = detPartNode->GetNextNode()) { // detector's part
     if(!strcasecmp(detPartNode->GetNodeName(), "ToFTypes")) {

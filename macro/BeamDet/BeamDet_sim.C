@@ -2,6 +2,8 @@ void BeamDet_sim(Int_t nEvents = 10){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
+  TString geoPath = gSystem->Getenv("VMCWORKDIR");
+  TString partsFile = geoPath + "/db/BeamDet/BeamDetParts.xml";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -43,10 +45,10 @@ void BeamDet_sim(Int_t nEvents = 10){
   //beamDet->SetGeometryFileName("beamdet.temp.root");
   ERBeamDetSetup* setup = ERBeamDetSetup::Instance();
 
-  setup->SetXmlParametersFile("equip.xml");
+  setup->SetXmlParametersFile(partsFile);
   setup->AddMWPC("MWPC1", -40.);
   setup->AddMWPC("MWPC1", -8.);
-  setup->AddToF("ToF1",-150.);
+  setup->AddToF("ToF1",-1550.);
   setup->AddToF("ToF1",-50.);
 
   run->AddModule(beamDet);
