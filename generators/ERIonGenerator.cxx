@@ -19,8 +19,6 @@
 #include "FairPrimaryGenerator.h"       // for FairPrimaryGenerator
 #include "FairRunSim.h"                 // for FairRunSim
 #include "FairLogger.h"                 // for logging
-#include <FairLoggerio.h>               // for NULL, sprintf
-
 //-------------------------------------------------------------------------------------------------
 ERIonGenerator::ERIonGenerator()
   :FairGenerator(),
