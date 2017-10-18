@@ -26,7 +26,7 @@ ERBeamDet::ERBeamDet() :
   fMWPCPoints(NULL),
   fTargetPoints(NULL)
 {
-  fToFPoints    = new TClonesArray("ERBeamDetTOFPoint");
+  fToFPoints    = new TClonesArray("ERBeamDetToFPoint");
   fMWPCPoints   = new TClonesArray("ERBeamDetMWPCPoint");
   fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
   fBeamDetMCProjectile = new ERBeamDetParticle(); 
@@ -42,7 +42,7 @@ ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
     fMWPCPoints(NULL),
     fTargetPoints(NULL)
 {
-  fToFPoints    = new TClonesArray("ERBeamDetTOFPoint");
+  fToFPoints    = new TClonesArray("ERBeamDetToFPoint");
   fMWPCPoints   = new TClonesArray("ERBeamDetMWPCPoint");
   fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
   fBeamDetMCProjectile = new ERBeamDetParticle(); 
@@ -87,7 +87,7 @@ void ERBeamDet::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
     Fatal("Init", "IO manager is not set");
-  ioman->Register("BeamDetTOFPoint","BeamDet", fToFPoints, kTRUE);
+  ioman->Register("BeamDetToFPoint","BeamDet", fToFPoints, kTRUE);
   ioman->Register("BeamDetMWPCPoint","BeamDet", fMWPCPoints, kTRUE);
   ioman->Register("BeamDetTargetPoint","BeamDet", fTargetPoints, kTRUE);
   ioman->Register("BeamDetMCParticle.", "BeamDet MC Particle", fBeamDetMCProjectile, kTRUE);
@@ -108,7 +108,7 @@ void ERBeamDet::Print(Option_t *option) const
 {
   if(fToFPoints->GetEntriesFast() > 0) {
     for (Int_t iPoint = 0; iPoint < fToFPoints->GetEntriesFast(); iPoint++){
-      ERBeamDetTOFPoint* point = (ERBeamDetTOFPoint*)fToFPoints->At(iPoint);
+      ERBeamDetToFPoint* point = (ERBeamDetToFPoint*)fToFPoints->At(iPoint);
       point->Print();
     }
   }
@@ -136,12 +136,12 @@ void ERBeamDet::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
   Int_t nEntries = cl1->GetEntriesFast();
   LOG(FATAL) << "BeamDet: " << nEntries << " entries to add" << FairLogger::endl;
   TClonesArray& clref = *cl2;
-  ERBeamDetTOFPoint* oldpoint = NULL;
+  ERBeamDetToFPoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
-    oldpoint = (ERBeamDetTOFPoint*) cl1->At(i);
+    oldpoint = (ERBeamDetToFPoint*) cl1->At(i);
     Int_t index = oldpoint->GetTrackID() + offset;
     oldpoint->SetTrackID(index);
-    new (clref[cl2->GetEntriesFast()]) ERBeamDetTOFPoint(*oldpoint);
+    new (clref[cl2->GetEntriesFast()]) ERBeamDetToFPoint(*oldpoint);
   }
   LOG(FATAL) << "BeamDet: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 }
@@ -226,7 +226,7 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
     if (fELoss > 0.){
       if(volName.Contains("plastic")) {
         gMC->CurrentVolID(fToFNb);
-        AddTOFPoint();
+        AddToFPoint();
       }
       if(volName.Contains("gasStrip")) {
         gMC->CurrentVolOffID(0, fMWPCWireNb);
@@ -242,10 +242,10 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
   return kTRUE;
 }
 //-------------------------------------------------------------------------------------------------
-ERBeamDetTOFPoint* ERBeamDet::AddTOFPoint() {
+ERBeamDetToFPoint* ERBeamDet::AddToFPoint() {
   TClonesArray& clref = *fToFPoints;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERBeamDetTOFPoint(fEventID, fTrackID, fMot0TrackID, fPID,
+  return new(clref[size]) ERBeamDetToFPoint(fEventID, fTrackID, fMot0TrackID, fPID,
               TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),

@@ -11,9 +11,9 @@
 #include "FairTask.h"
 
 #include "ERBeamDetMWPCPoint.h"
-#include "ERBeamDetTOFPoint.h"
+#include "ERBeamDetToFPoint.h"
 #include "ERBeamDetMWPCDigi.h"
-#include "ERBeamDetTOFDigi.h"
+#include "ERBeamDetToFDigi.h"
 
 
 class ERBeamDetDigitizer : public FairTask {
@@ -43,51 +43,51 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  void SetTofElossThreshold(Float_t th){fTOFElossThreshold = th;}
+  void SetToFElossThreshold(Float_t th){fToFElossThreshold = th;}
   void SetMWPCElossThreshold(Float_t th){fMWPCElossThreshold = th;}
-  void SetTofElossSigma(Float_t sigma) {fElossSigmaTOF = sigma;}
+  void SetToFElossSigma(Float_t sigma) {fElossSigmaToF = sigma;}
   void SetMWPCElossSigma(Float_t sigma) {fElossSigmaMWPC = sigma;}
-  void SetTofTimeSigma(Float_t sigma) {fTimeSigmaTOF = sigma;}
+  void SetToFTimeSigma(Float_t sigma) {fTimeSigmaToF = sigma;}
   void SetMWPCTimeSigma(Float_t sigma) {fTimeSigmaMWPC = sigma;}
 
 
-  void SetTofElossSigmaOverEloss(Float_t sigma)  // set parameter to formula: fElossSigmaTOF = edep * fElossSigmaOverElossTOF / TMath::Sqrt(edep);
+  void SetToFElossSigmaOverEloss(Float_t sigma)  // set parameter to formula: fElossSigmaToF = edep * fElossSigmaOverElossToF / TMath::Sqrt(edep);
   {
-    fElossSigmaOverElossTOF = sigma; 
-    fSigmaEOverETOFIsSet = kTRUE;
+    fElossSigmaOverElossToF = sigma; 
+    fSigmaEOverEToFIsSet = kTRUE;
   }
 
   /** Accessors **/ 
-  Float_t TimeDispersionPar() const {return fTimeSigmaTOF;}
+  Float_t TimeDispersionPar() const {return fTimeSigmaToF;}
 protected:
   //Input arrays
-  TClonesArray *fBeamDetTOFPoints;
+  TClonesArray *fBeamDetToFPoints;
   TClonesArray *fBeamDetMWPCPoints;
   //Output arrays
-  TClonesArray *fBeamDetTOFDigi1;
-  TClonesArray *fBeamDetTOFDigi2;
+  TClonesArray *fBeamDetToFDigi1;
+  TClonesArray *fBeamDetToFDigi2;
 
   TClonesArray *fBeamDetMWPCDigiX1;
   TClonesArray *fBeamDetMWPCDigiX2;
   TClonesArray *fBeamDetMWPCDigiY1;
   TClonesArray *fBeamDetMWPCDigiY2;
   
-  Float_t fElossSigmaOverElossTOF;
-  Float_t fElossSigmaTOF;
-  Float_t fTimeSigmaTOF;
+  Float_t fElossSigmaOverElossToF;
+  Float_t fElossSigmaToF;
+  Float_t fTimeSigmaToF;
   Float_t fElossSigmaMWPC;
   Float_t fTimeSigmaMWPC;
 
-  Float_t fTOFElossThreshold;
+  Float_t fToFElossThreshold;
   Float_t fMWPCElossThreshold;
 
   Float_t fDigiEloss;
 
-  Bool_t  fSigmaEOverETOFIsSet;
+  Bool_t  fSigmaEOverEToFIsSet;
 
 protected:
   ERBeamDetMWPCDigi* AddMWPCDigi(Float_t edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
-  ERBeamDetTOFDigi*  AddTOFDigi(Float_t edep, Double_t time, Int_t tofNb);
+  ERBeamDetToFDigi*  AddToFDigi(Float_t edep, Double_t time, Int_t tofNb);
 private:
   virtual void SetParContainers();
   

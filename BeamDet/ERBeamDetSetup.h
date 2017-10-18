@@ -35,7 +35,7 @@ public:
   static Double_t WireY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
   static Double_t WireZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
   static Double_t DistanceBetweenMWPC() {return fDistanceBetweenMWPC;}
-  static Double_t DistanceBetweenTOF() {return fDistanceBetweenTOF;}
+  static Double_t DistanceBetweenToF() {return fDistanceBetweenToF;}
   static Double_t TargetR() {return fTargetR;}
   static void     PrintDetectorParameters(void);
   static void     PrintDetectorParametersToFile(TString fileName);
@@ -60,7 +60,7 @@ private:
   static Int_t           fToFCount;
   static Double_t        fTargetR;
   static Double_t        fDistanceBetweenMWPC;
-  static Double_t        fDistanceBetweenTOF;
+  static Double_t        fDistanceBetweenToF;
   static map<Int_t, map<Int_t, map<Int_t, ERBeamDetWire*>>> fWires;
   // ----- ToF parameters -----------------------------------------------------
   static vector<Double_t> fPlasticX;

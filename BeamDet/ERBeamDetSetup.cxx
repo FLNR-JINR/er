@@ -30,7 +30,7 @@ ERBeamDetSetup* ERBeamDetSetup::fInstance = NULL;
 Double_t        ERBeamDetSetup::fTargetR = 0;
 Int_t           ERBeamDetSetup::fMWPCCount = 0;
 Int_t           ERBeamDetSetup::fToFCount = 0;
-Double_t        ERBeamDetSetup::fDistanceBetweenTOF = 0;
+Double_t        ERBeamDetSetup::fDistanceBetweenToF = 0;
 Double_t        ERBeamDetSetup::fDistanceBetweenMWPC = 0;
 map<Int_t, map<Int_t, map<Int_t, ERBeamDetWire*>>>ERBeamDetSetup::fWires;
 // ----- ToF parameters -----------------------------------------------------
@@ -158,8 +158,8 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
       }
     }
   }
-  fDistanceBetweenTOF = TMath::Abs(tofPlastic1Pos - tofPlastic2Pos);
-  std::cout<< "The distance between plastics: " << fDistanceBetweenTOF << " cm;" << std::endl;
+  fDistanceBetweenToF = TMath::Abs(tofPlastic1Pos - tofPlastic2Pos);
+  std::cout<< "The distance between plastics: " << fDistanceBetweenToF << " cm;" << std::endl;
   //-----------------------------------------------------------------------
   // ---- Getting fTarget geometry parameters ------------------------------
   TGeoNode* fTarget = NULL;

@@ -19,20 +19,20 @@ using namespace std;
 // ----------------------------------------------------------------------------
 ERBeamDetDigitizer::ERBeamDetDigitizer()
   : FairTask("ER beamdet digitization"), 
-  fBeamDetTOFPoints(NULL), 
+  fBeamDetToFPoints(NULL), 
   fBeamDetMWPCPoints(NULL), 
-  fBeamDetTOFDigi1(NULL), 
-  fBeamDetTOFDigi2(NULL), 
+  fBeamDetToFDigi1(NULL), 
+  fBeamDetToFDigi2(NULL), 
   fBeamDetMWPCDigiX1(NULL),
   fBeamDetMWPCDigiX2(NULL),
   fBeamDetMWPCDigiY1(NULL),
   fBeamDetMWPCDigiY2(NULL),
-  fElossSigmaTOF(0),
-  fTimeSigmaTOF(0),
+  fElossSigmaToF(0),
+  fTimeSigmaToF(0),
   fElossSigmaMWPC(0),
   fTimeSigmaMWPC(0),
   fMWPCElossThreshold(0),
-  fTOFElossThreshold(0),
+  fToFElossThreshold(0),
   fDigiEloss(0)
 {
 }
@@ -41,23 +41,23 @@ ERBeamDetDigitizer::ERBeamDetDigitizer()
 // ----------------------------------------------------------------------------
 ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
   : FairTask("ER beamdet digitization ", verbose),
-  fBeamDetTOFPoints(NULL), 
+  fBeamDetToFPoints(NULL), 
   fBeamDetMWPCPoints(NULL), 
-  fBeamDetTOFDigi1(NULL), 
-  fBeamDetTOFDigi2(NULL), 
+  fBeamDetToFDigi1(NULL), 
+  fBeamDetToFDigi2(NULL), 
   fBeamDetMWPCDigiX1(NULL),
   fBeamDetMWPCDigiX2(NULL),
   fBeamDetMWPCDigiY1(NULL),
   fBeamDetMWPCDigiY2(NULL),
-  fElossSigmaTOF(0),
-  fTimeSigmaTOF(0),
+  fElossSigmaToF(0),
+  fTimeSigmaToF(0),
   fElossSigmaMWPC(0),
   fTimeSigmaMWPC(0),
   fMWPCElossThreshold(0),
-  fTOFElossThreshold(0),
+  fToFElossThreshold(0),
   fDigiEloss(0),
-  fElossSigmaOverElossTOF(0),
-  fSigmaEOverETOFIsSet(0)
+  fElossSigmaOverElossToF(0),
+  fSigmaEOverEToFIsSet(0)
 {
 }
 // ----------------------------------------------------------------------------
@@ -87,18 +87,18 @@ InitStatus ERBeamDetDigitizer::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
-  fBeamDetTOFPoints = (TClonesArray*) ioman->GetObject("BeamDetTOFPoint");
+  fBeamDetToFPoints = (TClonesArray*) ioman->GetObject("BeamDetToFPoint");
   fBeamDetMWPCPoints = (TClonesArray*) ioman->GetObject("BeamDetMWPCPoint");
 
-  if (!fBeamDetTOFPoints)
-    Fatal("Init", "Can`t find collection BeamDetTOFPoint!"); 
+  if (!fBeamDetToFPoints)
+    Fatal("Init", "Can`t find collection BeamDetToFPoint!"); 
 
   if (!fBeamDetMWPCPoints)
     Fatal("Init", "Can`t find collection BeamDetMWPCPoint!"); 
 
   // Register output array fRTelescopeHits
-  fBeamDetTOFDigi1 = new TClonesArray("ERBeamDetTOFDigi",1000);
-  fBeamDetTOFDigi2 = new TClonesArray("ERBeamDetTOFDigi",1000);
+  fBeamDetToFDigi1 = new TClonesArray("ERBeamDetToFDigi",1000);
+  fBeamDetToFDigi2 = new TClonesArray("ERBeamDetToFDigi",1000);
 
   fBeamDetMWPCDigiX1 = new TClonesArray("ERBeamDetMWPCDigi",1000);
   fBeamDetMWPCDigiX2 = new TClonesArray("ERBeamDetMWPCDigi",1000);
@@ -106,8 +106,8 @@ InitStatus ERBeamDetDigitizer::Init()
   fBeamDetMWPCDigiY2 = new TClonesArray("ERBeamDetMWPCDigi",1000);
 
 
-  ioman->Register("BeamDetTOFDigi1", "BeamDetTOF Digi", fBeamDetTOFDigi1, kTRUE);
-  ioman->Register("BeamDetTOFDigi2", "BeamDetTOF Digi", fBeamDetTOFDigi2, kTRUE);
+  ioman->Register("BeamDetToFDigi1", "BeamDetToF Digi", fBeamDetToFDigi1, kTRUE);
+  ioman->Register("BeamDetToFDigi2", "BeamDetToF Digi", fBeamDetToFDigi2, kTRUE);
 
   ioman->Register("BeamDetMWPCDigiX1", "BeamDetMWPC x1 Digi", fBeamDetMWPCDigiX1, kTRUE);
   ioman->Register("BeamDetMWPCDigiX2", "BeamDetMWPC x2 Digi", fBeamDetMWPCDigiX2, kTRUE);
@@ -127,22 +127,22 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
 
   Reset();
 
-  map<Int_t, vector<Int_t>> pointsTOF;
-  for (Int_t iPoint = 0; iPoint < fBeamDetTOFPoints->GetEntriesFast(); iPoint++){
-    ERBeamDetTOFPoint* point = (ERBeamDetTOFPoint*)fBeamDetTOFPoints->At(iPoint);
-    pointsTOF[point->GetTOFNb()].push_back(iPoint);
+  map<Int_t, vector<Int_t>> pointsToF;
+  for (Int_t iPoint = 0; iPoint < fBeamDetToFPoints->GetEntriesFast(); iPoint++){
+    ERBeamDetToFPoint* point = (ERBeamDetToFPoint*)fBeamDetToFPoints->At(iPoint);
+    pointsToF[point->GetToFNb()].push_back(iPoint);
   }
 
   map<Int_t, vector<Int_t> >::iterator  itPlate;
-  vector<Int_t>::iterator               itTOFPoint;
+  vector<Int_t>::iterator               itToFPoint;
 
-  for(itPlate = pointsTOF.begin(); itPlate != pointsTOF.end(); ++itPlate){
+  for(itPlate = pointsToF.begin(); itPlate != pointsToF.end(); ++itPlate){
   
     Float_t edep = 0.; //sum edep in plate
     Float_t time = numeric_limits<float>::max(); // min time in plate
     
-    for (itTOFPoint = itPlate->second.begin(); itTOFPoint != itPlate->second.end(); ++itTOFPoint){
-      ERBeamDetTOFPoint* point = (ERBeamDetTOFPoint*)(fBeamDetTOFPoints->At(*itTOFPoint));
+    for (itToFPoint = itPlate->second.begin(); itToFPoint != itPlate->second.end(); ++itToFPoint){
+      ERBeamDetToFPoint* point = (ERBeamDetToFPoint*)(fBeamDetToFPoints->At(*itToFPoint));
       edep += point->GetEnergyLoss();
 
       if (point->GetTime() < time){
@@ -150,21 +150,21 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
       }
     }
 
-    if(fSigmaEOverETOFIsSet) {
-      fElossSigmaTOF = edep * fElossSigmaOverElossTOF / TMath::Sqrt(edep);
+    if(fSigmaEOverEToFIsSet) {
+      fElossSigmaToF = edep * fElossSigmaOverElossToF / TMath::Sqrt(edep);
     }
     
-    edep = gRandom->Gaus(edep, fElossSigmaTOF);
+    edep = gRandom->Gaus(edep, fElossSigmaToF);
 
-    if (edep < fTOFElossThreshold)
+    if (edep < fToFElossThreshold)
       continue;
 
-    time = gRandom->Gaus(time, fTimeSigmaTOF);
+    time = gRandom->Gaus(time, fTimeSigmaToF);
 
-    ERBeamDetTOFDigi *digi = AddTOFDigi(edep, time, itPlate->first);
+    ERBeamDetToFDigi *digi = AddToFDigi(edep, time, itPlate->first);
 
-    for (itTOFPoint = itPlate->second.begin(); itTOFPoint != itPlate->second.end(); ++itTOFPoint){
-      digi->AddLink(FairLink("BeamDetTOFPoint", *itTOFPoint));
+    for (itToFPoint = itPlate->second.begin(); itToFPoint != itPlate->second.end(); ++itToFPoint){
+      digi->AddLink(FairLink("BeamDetToFPoint", *itToFPoint));
     }
   }
    //Sort the MWPCpoints by MWPC, planes and wires
@@ -226,11 +226,11 @@ void ERBeamDetDigitizer::Reset()
   if (fBeamDetMWPCDigiY2) {
     fBeamDetMWPCDigiY2->Delete();
   }
-  if (fBeamDetTOFDigi1) {
-    fBeamDetTOFDigi1->Delete();
+  if (fBeamDetToFDigi1) {
+    fBeamDetToFDigi1->Delete();
   }
-  if (fBeamDetTOFDigi2) {
-    fBeamDetTOFDigi2->Delete();
+  if (fBeamDetToFDigi2) {
+    fBeamDetToFDigi2->Delete();
   }
 }
 // ----------------------------------------------------------------------------
@@ -267,16 +267,16 @@ ERBeamDetMWPCDigi* ERBeamDetDigitizer::AddMWPCDigi(Float_t edep, Double_t time, 
   return digi;
 }
 
-ERBeamDetTOFDigi* ERBeamDetDigitizer::AddTOFDigi(Float_t edep, Double_t time, Int_t tofNb)
+ERBeamDetToFDigi* ERBeamDetDigitizer::AddToFDigi(Float_t edep, Double_t time, Int_t tofNb)
 {
-  ERBeamDetTOFDigi *digi; 
+  ERBeamDetToFDigi *digi; 
   if(tofNb == 1) {
-    digi = new((*fBeamDetTOFDigi1)[fBeamDetTOFDigi1->GetEntriesFast()])
-                ERBeamDetTOFDigi(fBeamDetTOFDigi1->GetEntriesFast(), edep, time, tofNb);
+    digi = new((*fBeamDetToFDigi1)[fBeamDetToFDigi1->GetEntriesFast()])
+                ERBeamDetToFDigi(fBeamDetToFDigi1->GetEntriesFast(), edep, time, tofNb);
   }
   if(tofNb == 2) {
-    digi = new((*fBeamDetTOFDigi2)[fBeamDetTOFDigi2->GetEntriesFast()])
-                ERBeamDetTOFDigi(fBeamDetTOFDigi2->GetEntriesFast(), edep, time, tofNb);
+    digi = new((*fBeamDetToFDigi2)[fBeamDetToFDigi2->GetEntriesFast()])
+                ERBeamDetToFDigi(fBeamDetToFDigi2->GetEntriesFast(), edep, time, tofNb);
   }
   return digi;
 }

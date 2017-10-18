@@ -13,7 +13,7 @@
 #include "TClonesArray.h"
 
 #include "ERDetector.h"
-#include "ERBeamDetTOFPoint.h"
+#include "ERBeamDetToFPoint.h"
 #include "ERBeamDetMWPCPoint.h"
 #include "ERBeamDetTargetPoint.h"
 #include "ERBeamDetTrack.h"
@@ -118,7 +118,7 @@ class ERBeamDet : public ERDetector
 
   private:
     /** @brief Adds a ERBeamDetToFPoint to the ToFPoints Collection **/
-    ERBeamDetTOFPoint*    AddTOFPoint();
+    ERBeamDetToFPoint*    AddToFPoint();
 
     /** @brief Adds a ERBeamDetMWPCPoint to the MWPCPoints Collection **/
     ERBeamDetMWPCPoint*   AddMWPCPoint();

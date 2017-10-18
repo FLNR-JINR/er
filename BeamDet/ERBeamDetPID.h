@@ -10,7 +10,7 @@
 
 #include "FairTask.h"
 
-#include "ERBeamDetTOFDigi.h"
+#include "ERBeamDetToFDigi.h"
 #include "ERBeamDetTrack.h"
 #include "ERBeamDetParticle.h"
 #include "ERBeamDetSetup.h"
@@ -43,14 +43,14 @@ public:
   
   /** Modifiers **/
   void SetPID(Int_t pdg) {fPID = pdg;}
-  void SetBoxPID(Double_t tof1, Double_t tof2, Double_t dE1, Double_t dE2)
+  void SetBoxPID(Double_t ToF1, Double_t ToF2, Double_t dE1, Double_t dE2)
   {
-    fTOF1 = tof1;
-    fTOF2 = tof2;
+    fToF1 = ToF1;
+    fToF2 = ToF2;
     fdE1  = dE1;
     fdE2  = dE2;
   }
-  void SetOffsetTOF(Double_t offsetTOF) {fOffsetTOF = offsetTOF;}
+  void SeToFfsetToF(Double_t offsetToF) {fOffsetToF = offsetToF;}
   void SetIonMass(Double_t mass) {fIonMass = mass;}
   void SetProbabilityThreshold(Double_t probabilityThreshold) {fProbabilityThreshold = probabilityThreshold;}
   /** Accessors **/ 
@@ -59,14 +59,14 @@ protected:
   ERBeamDetSetup *fBeamDetSetup;
   
   //Input arrays
-  TClonesArray   *fBeamDetTOFDigi1;
-  TClonesArray   *fBeamDetTOFDigi2;
+  TClonesArray   *fBeamDetToFDigi1;
+  TClonesArray   *fBeamDetToFDigi2;
   ERBeamDetTrack *fBeamDetTrack;
 
   Int_t          fPID;
-  Double_t       fTOF1, fTOF2;
+  Double_t       fToF1, fToF2;
   Double_t       fdE1, fdE2;
-  Double_t       fOffsetTOF;
+  Double_t       fOffsetToF;
   Double_t       fIonMass;
   Double_t       fProbabilityThreshold;
 
