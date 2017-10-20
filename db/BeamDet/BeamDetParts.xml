@@ -1,41 +1,39 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<data-set xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<BeamDetParts>
-		<ToFTypes>
-			<ToF id="ToF1">
-				<plasticGeometry X="100" Y="100" Z="0.01"/>
-				<plasticMedia>BC408</plasticMedia>
-			</ToF>
-			<ToF id="ToF2">
-				<plasticGeometry X="100" Y="100" Z="0.01"/>
-				<plasticMedia>BC408</plasticMedia>
-			</ToF>
-		</ToFTypes>
-		<MWPCTypes>
-			<MWPC id="MWPC1">
-				<gasVolGeometry X="5" Y="5" Z="8.2"/>
-				<gasStripGeometry X="0.125" Y="5" Z="0.6"/>
-				<distBetweenXandYStrips>1</distBetweenXandYStrips>
-				<cathodeThickness>0.0005</cathodeThickness>
-				<kaptonWindowThickness>0.00125</kaptonWindowThickness>
-				<anodeWireDiameter>0.002</anodeWireDiameter>
-				<kaptonWindowMedia>kapton</kaptonWindowMedia>
-				<cathodeMedia>aluminium</cathodeMedia>
-				<anodeWireMedia>tungsten</anodeWireMedia>
-				<gasMedia>CF4_CH4</gasMedia>
-			</MWPC>
-			<MWPC id="MWPC2">
-				<gasVolGeometry X="5" Y="5" Z="8.2"/>
-				<gasStripGeometry X="0.125" Y="5" Z="0.6"/>
-				<distBetweenXandYStrips>1</distBetweenXandYStrips>
-				<cathodeThickness>0.0005</cathodeThickness>
-				<kaptonWindowThickness>0.00125</kaptonWindowThickness>
-				<anodeWireDiameter>0.002</anodeWireDiameter>
-				<kaptonWindowMedia>kapton</kaptonWindowMedia>
-				<cathodeMedia>aluminium</cathodeMedia>
-				<anodeWireMedia>tungsten</anodeWireMedia>
-				<gasMedia>CF4_CH4</gasMedia>
-			</MWPC>
-		</MWPCTypes>
-	</BeamDetParts>
-</data-set>
+<BeamDetParts>
+	<ToFTypes>
+		<ToF id="ToF1">
+			<plasticGeometry X="100" Y="100" Z="0.01"/>
+			<plasticMedia>BC408</plasticMedia>
+		</ToF>
+		<ToF id="ToF2">
+			<plasticGeometry X="100" Y="100" Z="0.01"/>
+			<plasticMedia>BC408</plasticMedia>
+		</ToF>
+	</ToFTypes>
+	<MWPCTypes>
+		<MWPC id="MWPC1">
+			<gasVolGeometry X="5" Y="5" Z="8.2"/>
+			<gasStripGeometry X="0.125" Y="5" Z="0.6"/>
+			<distBetweenXandYStrips>1</distBetweenXandYStrips>
+			<cathodeThickness>0.0005</cathodeThickness>
+			<kaptonWindowThickness>0.00125</kaptonWindowThickness>
+			<anodeWireDiameter>0.002</anodeWireDiameter>
+			<kaptonWindowMedia>kapton</kaptonWindowMedia>
+			<cathodeMedia>aluminium</cathodeMedia>
+			<anodeWireMedia>tungsten</anodeWireMedia>
+			<gasMedia>CF4_CH4</gasMedia>
+		</MWPC>
+		<MWPC id="MWPC2">
+			<gasVolGeometry X="5" Y="5" Z="8.2"/>
+			<gasStripGeometry X="0.125" Y="5" Z="0.6"/>
+			<distBetweenXandYStrips>1</distBetweenXandYStrips>
+			<cathodeThickness>0.0005</cathodeThickness>
+			<kaptonWindowThickness>0.00125</kaptonWindowThickness>
+			<anodeWireDiameter>0.002</anodeWireDiameter>
+			<kaptonWindowMedia>kapton</kaptonWindowMedia>
+			<cathodeMedia>aluminium</cathodeMedia>
+			<anodeWireMedia>tungsten</anodeWireMedia>
+			<gasMedia>CF4_CH4</gasMedia>
+		</MWPC>
+	</MWPCTypes>
+</BeamDetParts>
