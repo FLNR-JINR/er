@@ -1,14 +1,15 @@
-// -------------------------------------------------------------------------
-// -----                   ERIonMixGenerator source file                 -----
-// -----                   Created by            -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #include "ERIonMixGenerator.h"
 
-#include "FairIon.h"                    // for FairIon
-#include "FairParticle.h"               // for FairParticle
-#include "FairPrimaryGenerator.h"       // for FairPrimaryGenerator
-#include "FairRunSim.h"                 // for FairRunSim
-#include "FairLogger.h"                 // for logging
+#include <stdio.h>                      // for NULL, sprintf
+#include <algorithm>
 
 #include "Riosfwd.h"                    // for ostream
 #include "TDatabasePDG.h"               // for TDatabasePDG
@@ -18,9 +19,12 @@
 #include "TRandom.h"
 #include "TMath.h"
 
-#include <stdio.h>                      // for NULL, sprintf
-
-// -----   Default constructor   ------------------------------------------
+#include "FairIon.h"                    // for FairIon
+#include "FairParticle.h"               // for FairParticle
+#include "FairPrimaryGenerator.h"       // for FairPrimaryGenerator
+#include "FairRunSim.h"                 // for FairRunSim
+#include "FairLogger.h"                 // for logging
+//-------------------------------------------------------------------------------------------------
 ERIonMixGenerator::ERIonMixGenerator()
   : ERIonGenerator()
 {
@@ -28,37 +32,28 @@ ERIonMixGenerator::ERIonMixGenerator()
 //               << " Please do not use the default constructor! " 
 //               << FairLogger::endl;
 }
-// ------------------------------------------------------------------------
-
-// -----   Default constructor   ------------------------------------------
+//-------------------------------------------------------------------------------------------------
 ERIonMixGenerator::ERIonMixGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mult)
   : ERIonGenerator(name, z, a, q, mult)
 {
   fBgIons.clear();
 }
-//_________________________________________________________________________
-
-// -----   Destructor   ---------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 ERIonMixGenerator::~ERIonMixGenerator()
 {
 // if (fIon) delete fIon;
 }
-
+//-------------------------------------------------------------------------------------------------
 void ERIonMixGenerator::AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q, Double_t newIonProb)
 {
   SetPhiRange();
 
-  if(fBgIons.size() == 0)
-  {
+  if(fBgIons.size() == 0) {
     fSumProbability = 0;
   }
-
   fSumProbability += newIonProb;
-
   fBgIons.insert(std::make_pair(fSumProbability, name));
-  
-  std::cout << "Prob " << fSumProbability << std::endl;
-
+  LOG(DEBUG) << "Prob " << fSumProbability << FairLogger::endl;
   FairRunSim* run = FairRunSim::Instance();
   if ( ! run ) {
     LOG(ERROR) << "No FairRun instantised!" 
@@ -67,7 +62,7 @@ void ERIonMixGenerator::AddBackgroundIon(TString name, Int_t z, Int_t a, Int_t q
     run->AddNewIon(new FairIon(name, z, a, q));
   }
 }
-
+//-------------------------------------------------------------------------------------------------
 Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 {
   Double_t randResult;
@@ -101,37 +96,31 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 
     Double_t charge = thisPart->Charge();
 
-    if(fPRangeIsSet){
-
+    if(fPRangeIsSet) {
       rigidityMin = pMin / fIon->GetZ() / 3;
       rigidityMax = pMax / fIon->GetZ() / 3;
 	    fPMin = rigidityMin * charge;
 	    fPMax = rigidityMax * charge;
     }
 
-    if(fSigmaPIsSet)
-    {
+    if(fSigmaPIsSet) {
       gausRigidity = pGaus / fIon->GetZ() / 3;
       sigmaRigidity = fSigmaP / fIon->GetZ() / 3;
       fGausP = gausRigidity * charge;
       fSigmaP = sigmaRigidity * charge;
     }
-
-    std::cout << "Pmin  " << fPMin << " Pmax " << fPMax << " GausP " << fGausP << std::endl;
+    LOG(DEBUG) << "Pmin  " << fPMin << " Pmax " << fPMax << " GausP " << fGausP << FairLogger::endl;
 
     SpreadingParameters();
-
     int pdgType = thisPart->PdgCode();
 
-    std::cout << "ERIonGenerator: Generating " << fMult << " ions of type "
+    LOG(DEBUG) << "ERIonGenerator: Generating " << fMult << " ions of type "
         << ionName << " (PDG code " << pdgType << ")" 
-        << std::endl;
-    std::cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz
+        << FairLogger::endl;
+    LOG(DEBUG) << "    Momentum (" << fPx << ", " << fPy << ", " << fPz
         << ") Gev from vertex (" << fX << ", " << fY
-        << ", " << fZ << ") cm" << std::endl;
+        << ", " << fZ << ") cm" << FairLogger::endl;
     primGen->AddTrack(pdgType, fPx, fPy, fPz, fX, fY, fZ);
-
-
   }
   fGausP = pGaus;
   fPMin = pMin;
@@ -139,5 +128,5 @@ Bool_t ERIonMixGenerator::ReadEvent(FairPrimaryGenerator* primGen)
   fSigmaP = pSigma;
   return kTRUE;
 }
-
+//-------------------------------------------------------------------------------------------------
 ClassImp(ERIonMixGenerator)

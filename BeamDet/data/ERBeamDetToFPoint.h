@@ -1,15 +1,15 @@
 // -------------------------------------------------------------------------
-// -----                      ERBeamDetTOFPoint header file                -----
+// -----                      ERBeamDetToFPoint header file                -----
 // -----                  Created data  developerName                  -----
 // -------------------------------------------------------------------------
 
 
-/**  ERBeamDetTOFPoint.h
+/**  ERBeamDetToFPoint.h
  **/
 
 
-#ifndef ERBeamDetTOFPoint_H
-#define ERBeamDetTOFPoint_H
+#ifndef ERBeamDetToFPoint_H
+#define ERBeamDetToFPoint_H
 
 
 #include "TObject.h"
@@ -17,13 +17,13 @@
 
 #include "FairMCPoint.h"
 
-class ERBeamDetTOFPoint : public FairMCPoint
+class ERBeamDetToFPoint : public FairMCPoint
 {
 
  public:
 
   /** Default constructor **/
-  ERBeamDetTOFPoint();
+  ERBeamDetToFPoint();
 
 
   /** Constructor with arguments
@@ -35,28 +35,28 @@ class ERBeamDetTOFPoint : public FairMCPoint
    *@param posOut   Coordinates at exit of point [cm]
    *@param momIn    Momentum of track at entrance [GeV]
    *@param momOut   Momentum of track at exit [GeV]
-   *@param tof      Time since event start [ns]
+   *@param ToF      Time since event start [ns]
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [KeV]
    **/
-  ERBeamDetTOFPoint(Int_t eventID, 
+  ERBeamDetToFPoint(Int_t eventID, 
                   Int_t trackID,
                   Int_t mot0trackID,
                   Int_t pid,
                   TVector3 posIn,
                   TVector3 posOut, TVector3 momIn, TVector3 momOut,
-                  Double_t tof, Double_t length, Double_t eLoss, Double_t lightYield, Int_t tofNb);
+                  Double_t ToF, Double_t length, Double_t eLoss, Double_t lightYield, Int_t ToFNb);
 
 
   /** Copy constructor **/
-  ERBeamDetTOFPoint(const ERBeamDetTOFPoint&);
+  ERBeamDetToFPoint(const ERBeamDetToFPoint&);
 
 
   /** Destructor **/
-  virtual ~ERBeamDetTOFPoint();
+  virtual ~ERBeamDetToFPoint();
 
 
-  ERBeamDetTOFPoint& operator=(const ERBeamDetTOFPoint&) { return *this; }
+  ERBeamDetToFPoint& operator=(const ERBeamDetToFPoint&) { return *this; }
 
 
   /** Accessors **/
@@ -72,7 +72,7 @@ class ERBeamDetTOFPoint : public FairMCPoint
   Double_t GetPyOut()           const { return fPy_out; }
   Double_t GetPzOut()           const { return fPz_out; }
   Int_t    GetPID()             const { return fPid; }
-  Int_t    GetTOFNb()           const { return fTofNb; }
+  Int_t    GetToFNb()           const { return fToFNb; }
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
@@ -98,8 +98,8 @@ class ERBeamDetTOFPoint : public FairMCPoint
   Double32_t  fX_out,  fY_out,  fZ_out;
   Double32_t  fPx_out, fPy_out, fPz_out;
   Double_t    fLightYield;
-  Int_t       fTofNb;
+  Int_t       fToFNb;
 
-  ClassDef(ERBeamDetTOFPoint,1)
+  ClassDef(ERBeamDetToFPoint,1)
 };
 #endif

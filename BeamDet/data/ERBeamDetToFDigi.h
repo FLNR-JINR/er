@@ -1,10 +1,10 @@
 // -------------------------------------------------------------------------
-// -----                      ERBeamDetTOFDigi header file             -----
+// -----                      ERBeamDetToFDigi header file             -----
 // -----                      Created   by               -----
 // -------------------------------------------------------------------------
 
-#ifndef ERBeamDetTOFDigi_H
-#define ERBeamDetTOFDigi_H
+#ifndef ERBeamDetToFDigi_H
+#define ERBeamDetToFDigi_H
 
 
 #include "TObject.h"
@@ -12,23 +12,23 @@
 
 #include "FairMultiLinkedData.h"
 
-class ERBeamDetTOFDigi : public FairMultiLinkedData
+class ERBeamDetToFDigi : public FairMultiLinkedData
 {
  public:
   /** Default constructor **/
-  ERBeamDetTOFDigi();
+  ERBeamDetToFDigi();
   
   /** Constructor with arguments
    **/
-  ERBeamDetTOFDigi(Int_t id, Float_t Edep, Double_t time, Int_t tofNb);
+  ERBeamDetToFDigi(Int_t id, Float_t Edep, Double_t time, Int_t tofNb);
                    
   /** Copy constructor **/
-  ERBeamDetTOFDigi(const ERBeamDetTOFDigi&);
+  ERBeamDetToFDigi(const ERBeamDetToFDigi&);
 
   /** Destructor **/
-  virtual ~ERBeamDetTOFDigi();
+  virtual ~ERBeamDetToFDigi();
 
-  ERBeamDetTOFDigi& operator=(const ERBeamDetTOFDigi&) { return *this; }
+  ERBeamDetToFDigi& operator=(const ERBeamDetToFDigi&) { return *this; }
 
   /** Output to screen **/
   virtual void Print(const Option_t* opt = 0) const;
@@ -37,16 +37,16 @@ class ERBeamDetTOFDigi : public FairMultiLinkedData
   Int_t    ID () const {return fID;}
   Float_t  Edep() const {return fEdep;}
   Double_t GetTime() const {return fTime;}
-  Int_t    GetTOFNb() const {return fTOFNb;}
+  Int_t    GetToFNb() const {return fToFNb;}
   
  protected:
   Int_t     fID;
 
-  Int_t     fTOFNb;
+  Int_t     fToFNb;
   Double_t  fTime;
   Float_t   fEdep;
   
-  ClassDef(ERBeamDetTOFDigi,1)
+  ClassDef(ERBeamDetToFDigi,1)
 
 };
 

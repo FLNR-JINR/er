@@ -51,8 +51,8 @@ InitStatus ERBeamDetPID::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
-  fBeamDetTOFDigi1 = (TClonesArray*) ioman->GetObject("BeamDetTOFDigi1");
-  fBeamDetTOFDigi2 = (TClonesArray*) ioman->GetObject("BeamDetTOFDigi2");
+  fBeamDetToFDigi1 = (TClonesArray*) ioman->GetObject("BeamDetToFDigi1");
+  fBeamDetToFDigi2 = (TClonesArray*) ioman->GetObject("BeamDetToFDigi2");
   fBeamDetTrack  = (ERBeamDetTrack*) ioman->GetObject("BeamDetTrack.");
 
   // Register output object fProjectile
@@ -72,13 +72,13 @@ InitStatus ERBeamDetPID::Init()
 void ERBeamDetPID::Exec(Option_t* opt)
 { 
   Reset();
-  if (!fBeamDetTrack || !fBeamDetTOFDigi1->At(0) || !fBeamDetTOFDigi2->At(0))
+  if (!fBeamDetTrack || !fBeamDetToFDigi1->At(0) || !fBeamDetToFDigi2->At(0))
   {
     cout  << "ERBeamDetPID: No track" << endl;
     return;
   }
 
-  Double_t tof1, tof2, tof;
+  Double_t ToF1, ToF2, ToF;
   Double_t dE1, dE2, dE;
   Double_t probability;
 
@@ -93,23 +93,23 @@ void ERBeamDetPID::Exec(Option_t* opt)
   //Double_t mass = 26.2716160;//particle->Mass();
   Double_t p, energy;
 
-  ERBeamDetTOFDigi* digi;
+  ERBeamDetToFDigi* digi;
 
-  digi = (ERBeamDetTOFDigi*)fBeamDetTOFDigi1->At(0);
-  tof1 = digi->GetTime();
+  digi = (ERBeamDetToFDigi*)fBeamDetToFDigi1->At(0);
+  ToF1 = digi->GetTime();
   dE1 = digi->Edep();
-  cout << "dE1 = " << dE1 << " TOF1 = " << tof1 << endl;
-  digi = (ERBeamDetTOFDigi*)fBeamDetTOFDigi2->At(0);
-  tof2 = digi->GetTime();
+  cout << "dE1 = " << dE1 << " ToF1 = " << ToF1 << endl;
+  digi = (ERBeamDetToFDigi*)fBeamDetToFDigi2->At(0);
+  ToF2 = digi->GetTime();
   dE2 = digi->Edep();
-  cout << "dE2 = " << dE2 << " TOF2 = " << tof2 << endl;
+  cout << "dE2 = " << dE2 << " ToF2 = " << ToF2 << endl;
 
   dE = dE1 + dE2;
-  cout << "dE = " << dE << " Gev; " << " TOF1 = " << tof1 << " ns;" << " TOF2 = " << tof2 << " ns;" << endl;
-  tof = tof2 - tof1 + fOffsetTOF;
-  cout << "dE = " << dE << " Gev; " << " TOF = " << tof << " ns;" << endl;
+  cout << "dE = " << dE << " Gev; " << " ToF1 = " << ToF1 << " ns;" << " ToF2 = " << ToF2 << " ns;" << endl;
+  ToF = ToF2 - ToF1 + fOffsetToF;
+  cout << "dE = " << dE << " Gev; " << " ToF = " << ToF << " ns;" << endl;
 
-  if(tof <= fTOF1 || tof >= fTOF2 || dE <= fdE1 || dE >= fdE2){
+  if(ToF <= fToF1 || ToF >= fToF2 || dE <= fdE1 || dE >= fdE2){
     probability = 0;
   }
   else {
@@ -123,7 +123,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
     return ;
   }
 
-  beta = fBeamDetSetup->DistanceBetweenTOF() * 1e-2 / (tof * 1e-9) / TMath::C();
+  beta = fBeamDetSetup->DistanceBetweenToF() * 1e-2 / (ToF * 1e-9) / TMath::C();
   if(beta <= 0 || beta >= 1) {
     std::cout << "Wrong beta " << beta << std::endl;
     FairRun* run = FairRun::Instance();
