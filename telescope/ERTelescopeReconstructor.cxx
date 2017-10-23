@@ -6,6 +6,8 @@ using namespace std;
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "FairLogger.h"
+
 #include "TMath.h"
 
 #include "ERSupport.h"
@@ -85,7 +87,7 @@ InitStatus ERTelescopeReconstructor::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERTelescopeReconstructor::Exec(Option_t* opt)
 {
-  std::cout << "####### ERTelescopeReconstructor EVENT " << fEvent++ << " #####" << std::endl;
+  LOG(DEBUG) << "ERTelescopeReconstructor "<< fEvent++ << FairLogger::endl;
 
   Reset();
 
@@ -94,7 +96,6 @@ void ERTelescopeReconstructor::Exec(Option_t* opt)
   CM0 = &(fBeamDetEvent->CM0);
 
   ReadDeposites();
-
 
   FairRun* run = FairRun::Instance();
   run->MarkFill(kFALSE);

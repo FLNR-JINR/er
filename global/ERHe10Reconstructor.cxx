@@ -72,7 +72,6 @@ InitStatus ERHe10Reconstructor::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERHe10Reconstructor::Exec(Option_t* opt)
 {
-  std::cout << "ERHe10Reconstructor: "<< std::endl;
   ERParticle* projectile = &(fBeamDetEvent->projectile);
   ERParticle* target = &(fBeamDetEvent->target);
   ERParticle* CM0 = &(fBeamDetEvent->CM0);

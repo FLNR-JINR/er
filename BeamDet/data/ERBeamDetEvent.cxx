@@ -47,9 +47,7 @@ Int_t ERBeamDetEvent::Process(){
 	naF3r=QDC[1];
 	naF4r=QDC[2];
 	naF4l=QDC[3];
-	cout << nx1 << endl;
 	return 0;
 }
-
 
 ClassImp(ERBeamDetEvent);

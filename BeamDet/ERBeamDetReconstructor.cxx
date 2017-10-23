@@ -7,6 +7,7 @@ using namespace std;
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
+#include "FairLogger.h"
 
 #include "ERSupport.h"
 
@@ -72,7 +73,7 @@ InitStatus ERBeamDetReconstructor::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERBeamDetReconstructor::Exec(Option_t* opt)
 {
-  std::cout << "####### ERBeamDetReconstructor EVENT " << header->HE8Event_nevent<< " #####" << std::endl;
+  LOG(DEBUG) << "ERBeamDetReconstructor" << fEvent++ << FairLogger::endl;
   Reset();
   MWPC();
   Tof();
@@ -141,9 +142,7 @@ void ERBeamDetReconstructor::Tof(){
                 Tb = EiEo(header->UpMat.beam_TARwin,Tb,header->UpMat.FoilThick/cos(Vbeam.Theta()));
               else 
                 Tb = 0.;
-              cout << header->UpMat.TarThick << " " << header->UpMat.TarPress << " " << header->UpMat.TarTemp << " " << cos(Vbeam.Theta()) << endl;
               float range = header->UpMat.TarThick*header->UpMat.TarPress*TempNorm/header->UpMat.TarTemp/cos(Vbeam.Theta())/2.;
-              // /cout << "range:" << range << endl;
               if(Tb>0.1) Tb = EiEo(header->UpMat.beam_target,Tb,range);
               else Tb = 0.;
               p_beam = sqrt(pow(Tb+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));

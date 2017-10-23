@@ -6,6 +6,7 @@ using namespace std;
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "FairLogger.h"
 #include "TMath.h"
 
 #include "ERSupport.h"
@@ -73,7 +74,7 @@ InitStatus ERTelescopeReconstructorNew::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERTelescopeReconstructorNew::Exec(Option_t* opt)
 {
-  std::cout << "####### ERTelescopeReconstructorNew EVENT " << fEvent++ << " #####" << std::endl;
+  LOG(DEBUG) << "ERTelescopeReconstructorNew "<< fEvent++ << FairLogger::endl;
 
   Reset();
 
