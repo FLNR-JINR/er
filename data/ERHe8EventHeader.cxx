@@ -27,12 +27,12 @@ void ERHe8EventHeader::ReadInputFile(){
   ReIN.Simulation = false;
   ReIN.Vertex = false;
   ReIN.DetectorTune = false;
-  ReIN.TOFis = false;
+  ReIN.ToFis = false;
   ReIN.TRACKINGis = false;
   ReIN.TrackCheck = false;
   ReIN.WriteRawData = false;
   ReIN.WriteCalData = false;
-  ReIN.WriteTofData = false;
+  ReIN.WriteToFData = false;
   ReIN.WriteTrackData = false;
   ReIN.WriteTelData = false;
   ReIN.WritePhysData = false;
@@ -57,7 +57,7 @@ void ERHe8EventHeader::ReadInputFile(){
     fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.DetectorTune = true;}
     fscanf(F1,"%s %s\n",Zeros,Zeros);
-    if(!strcmp(Zeros,"yes")) {ReIN.TOFis = true;}
+    if(!strcmp(Zeros,"yes")) {ReIN.ToFis = true;}
     fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.TRACKINGis = true;}
     fscanf(F1,"%s %s\n",Zeros,Zeros);
@@ -67,7 +67,7 @@ void ERHe8EventHeader::ReadInputFile(){
     fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.WriteCalData = true;}
     fscanf(F1,"%s %s\n",Zeros,Zeros);
-    if(!strcmp(Zeros,"yes")) {ReIN.WriteTofData = true;}
+    if(!strcmp(Zeros,"yes")) {ReIN.WriteToFData = true;}
     fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.WriteTrackData = true;}
     fscanf(F1,"%s %s\n",Zeros,Zeros);
@@ -115,22 +115,22 @@ void ERHe8EventHeader::ReadInputFile(){
   fclose(F1);
   }
   UpMat.MWcathThick *= UpMat.MWNcathodes;
-  /*********************** Readout TOF parameters:************************/
-  if(ReIN.TOFis)
+  /*********************** Readout ToF parameters:************************/
+  if(ReIN.ToFis)
   {
-  filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/tof.dat");
+  filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/ToF.dat");
   FILE *F1 = fopen(filePath.Data(),"r");
-  if(F1==NULL) {printf("Main: File tof.dat was not found\n");}
+  if(F1==NULL) {printf("Main: File ToF.dat was not found\n");}
   else
   { 
     fscanf(F1,"%s %lf %lf\n",UpMat.PlasticMatter1,&UpMat.PlasticAngle1,&UpMat.PlasticThick1);
     fscanf(F1,"%s %lf %lf\n",UpMat.PlasticMatter2,&UpMat.PlasticAngle2,&UpMat.PlasticThick2);
     fscanf(F1,"%s %lf\n",Zeros,&UpMat.PlasticDist);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.TofRes);
+    fscanf(F1,"%s %lf\n",Zeros,&UpMat.ToFRes);
     fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.tF3l_rng,&UpMat.tF3r_rng);
     fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.tF4l_rng,&UpMat.tF4r_rng);
     fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.tF3_dlt,&UpMat.tF4_dlt);
-    printf("Main: File tof.dat has been read\n");
+    printf("Main: File ToF.dat has been read\n");
   }
   fclose(F1);
   UpMat.PlasticThick1/=cos(UpMat.PlasticAngle1*rad);

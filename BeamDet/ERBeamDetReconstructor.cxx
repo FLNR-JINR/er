@@ -65,7 +65,7 @@ InitStatus ERBeamDetReconstructor::Init()
   fOutEvent->target.Part.SetPxPyPzE(0.,0.,0.,fOutEvent->target.Mass);
   ReadDeDx();
   DefineBeamEnergy();
-  ElossTOFaMWPCaTarget();
+  ElossToFaMWPCaTarget();
 
   return kSUCCESS;
 }
@@ -75,10 +75,10 @@ void ERBeamDetReconstructor::Exec(Option_t* opt)
   std::cout << "####### ERBeamDetReconstructor EVENT " << header->HE8Event_nevent<< " #####" << std::endl;
   Reset();
   MWPC();
-  Tof();
+  ToF();
 }
 //----------------------------------------------------------------------------
-void ERBeamDetReconstructor::Tof(){
+void ERBeamDetReconstructor::ToF(){
   TRandom Rnd;
   char ShowTrack[10];
   double dt_F3,dt_F4,t_F3,t_F4;
@@ -87,7 +87,7 @@ void ERBeamDetReconstructor::Tof(){
 
     header->mbeam = 0;
 
-    // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
+    // ****************** measurement of ToF spread around ToF_0, calculated from the magnetic field in the 2nd dipole ************************
     //        fInCalEvent->tF3l = fInCalEvent->tF3l - fInCalEvent->tF4r+ParD.CLB[3][0][0][1];
     //        fInCalEvent->tF3r = fInCalEvent->tF3r - fInCalEvent->tF4r+ParD.CLB[3][1][0][1];
     //        fInCalEvent->tF4l = fInCalEvent->tF4l - fInCalEvent->tF4r+ParD.CLB[4][1][0][1];
@@ -103,26 +103,26 @@ void ERBeamDetReconstructor::Tof(){
     //        if(fabs(dt_F4)<=header->UpMat.tF4_dlt&&fabs(dt_F3)<=header->UpMat.tF3_dlt)
     //        {
     //printf("*********************************\n");
-    //          t_F3 = (Rnd.Gaus(fInCalEvent->tF3l,header->UpMat.TofRes/2.35)+Rnd.Gaus(fInCalEvent->tF3r,header->UpMat.TofRes/2.35))/2;
-    //          t_F4 = (Rnd.Gaus(fInCalEvent->tF4l,header->UpMat.TofRes/2.35)+Rnd.Gaus(fInCalEvent->tF4r,header->UpMat.TofRes/2.35))/2.;
-          t_F4 = Rnd.Gaus(fInCalEvent->tF4l,header->UpMat.TofRes/2.35);
-          t_F3 = Rnd.Gaus(fInCalEvent->tF3r,header->UpMat.TofRes/2.35);
-    //          t_F4 = Rnd.Gaus((fInCalEvent->tF4l+fInCalEvent->tF4r)/2,header->UpMat.TofRes/2.35);
-    // ****************** measurement of TOF spread around tof_0, calculated from the magnetic field in the 2nd dipole ************************
-    //          fInCalEvent->tofb = t_F4 - t_F3 + tof_0;
-    // ********************************* measurement of absolute TOF value tof_offset = dT1-L0*(dT1-dT0)/(L1-L0)*******************************
-          fOutEvent->tofb = t_F4 - t_F3 + fTofOffset;
-    //if(fInCalEvent->tofb<130.) 
+    //          t_F3 = (Rnd.Gaus(fInCalEvent->tF3l,header->UpMat.ToFRes/2.35)+Rnd.Gaus(fInCalEvent->tF3r,header->UpMat.ToFRes/2.35))/2;
+    //          t_F4 = (Rnd.Gaus(fInCalEvent->tF4l,header->UpMat.ToFRes/2.35)+Rnd.Gaus(fInCalEvent->tF4r,header->UpMat.ToFRes/2.35))/2.;
+          t_F4 = Rnd.Gaus(fInCalEvent->tF4l,header->UpMat.ToFRes/2.35);
+          t_F3 = Rnd.Gaus(fInCalEvent->tF3r,header->UpMat.ToFRes/2.35);
+    //          t_F4 = Rnd.Gaus((fInCalEvent->tF4l+fInCalEvent->tF4r)/2,header->UpMat.ToFRes/2.35);
+    // ****************** measurement of ToF spread around ToF_0, calculated from the magnetic field in the 2nd dipole ************************
+    //          fInCalEvent->ToFb = t_F4 - t_F3 + ToF_0;
+    // ********************************* measurement of absolute ToF value ToF_offset = dT1-L0*(dT1-dT0)/(L1-L0)*******************************
+          fOutEvent->ToFb = t_F4 - t_F3 + fToFOffset;
+    //if(fInCalEvent->ToFb<130.) 
     //{printf("ntF3l=%i,ntF3r=%i,ntF4l=%i,ntF4r=%i\n",RawD.ntF3l,RawD.ntF3r,RawD.ntF4l,RawD.ntF4r);
-    //printf("tF3l=%lf,tF3r=%lf,tF4l=%lf,tF4r=%lf,  TOF=%lf\n",fInCalEvent->tF3l,fInCalEvent->tF3r,fInCalEvent->tF4l,fInCalEvent->tF4r,fInCalEvent->tofb);
-    //printf("t_F3=%lf,t_F4=%lf,(fInCalEvent->tF3l+fInCalEvent->tF3r)/2=%lf,(fInCalEvent->tF4l+fInCalEvent->tF4r)/2=%lf,  TOF=%lf\n",t_F3,t_F4,(fInCalEvent->tF3l+fInCalEvent->tF3r)/2,
-    //(fInCalEvent->tF4l+fInCalEvent->tF4r)/2,(fInCalEvent->tF4l+fInCalEvent->tF4r-fInCalEvent->tF3l-fInCalEvent->tF3r)/2+ tof_offset);}
+    //printf("tF3l=%lf,tF3r=%lf,tF4l=%lf,tF4r=%lf,  ToF=%lf\n",fInCalEvent->tF3l,fInCalEvent->tF3r,fInCalEvent->tF4l,fInCalEvent->tF4r,fInCalEvent->ToFb);
+    //printf("t_F3=%lf,t_F4=%lf,(fInCalEvent->tF3l+fInCalEvent->tF3r)/2=%lf,(fInCalEvent->tF4l+fInCalEvent->tF4r)/2=%lf,  ToF=%lf\n",t_F3,t_F4,(fInCalEvent->tF3l+fInCalEvent->tF3r)/2,
+    //(fInCalEvent->tF4l+fInCalEvent->tF4r)/2,(fInCalEvent->tF4l+fInCalEvent->tF4r-fInCalEvent->tF3l-fInCalEvent->tF3r)/2+ ToF_offset);}
     // ****************************************************************************************************************************************
-          if(fInCalEvent->aF4r+fInCalEvent->aF4l>500.&&fOutEvent->tofb<150.&&fOutEvent->tofb>60.)
+          if(fInCalEvent->aF4r+fInCalEvent->aF4l>500.&&fOutEvent->ToFb<150.&&fOutEvent->ToFb>60.)
           {
 
-            beta_b = header->UpMat.PlasticDist/fOutEvent->tofb/slight;
-            fOutEvent->p_beam = 1./fOutEvent->tofb;
+            beta_b = header->UpMat.PlasticDist/fOutEvent->ToFb/slight;
+            fOutEvent->p_beam = 1./fOutEvent->ToFb;
             if(beta_b>0.&&beta_b<=1.)
             {
               header->mbeam = 1;
@@ -134,7 +134,7 @@ void ERBeamDetReconstructor::Tof(){
                 p_beam/beta_b);
               fOutEvent->Tb0 = fOutEvent->projectile.Part.E()-fOutEvent->projectile.Mass;
               
-              Tb = UpstreamEnergyLoss(&(header->UpMat),&(fOutEvent->projectile),header->ReIN.TOFis,header->ReIN.TRACKINGis,ShowTrack);
+              Tb = UpstreamEnergyLoss(&(header->UpMat),&(fOutEvent->projectile),header->ReIN.ToFis,header->ReIN.TRACKINGis,ShowTrack);
               if(fOutEvent->Tb>0.1&&!strcmp(header->UpMat.HeatScreenAns,"yes")) 
                 Tb = EiEo(header->UpMat.beam_TARwin,Tb,header->UpMat.HeatScreenThick/cos(Vbeam.Theta()));
               if(Tb>0.1)
@@ -345,7 +345,7 @@ int ERBeamDetReconstructor::mcluMW(int mMW,int* nMW){
   return i;
 }
 //----------------------------------------------------------------------------
-void ERBeamDetReconstructor::ElossTOFaMWPCaTarget(){
+void ERBeamDetReconstructor::ElossToFaMWPCaTarget(){
   /*
   Есть два способа определения энергии конкретного
   налетающего иона по времени пролета. Более прогрессивный, но пока не
@@ -360,24 +360,24 @@ void ERBeamDetReconstructor::ElossTOFaMWPCaTarget(){
   времен. Получается пик с некоторым центром. Положение центра пика
   сопоставляется энергии, вычисленной через B*rho/ энергия каждого
   конкретного иона считается через его ТОF - в зависимости от положения
-  измерннного TOF относительно центра пика. Так вот, положение центра
-  пика измеренных некалиброванных TOF- называется tof_0.
+  измерннного ToF относительно центра пика. Так вот, положение центра
+  пика измеренных некалиброванных ToF- называется ToF_0.
   */
   char ShowTrack[10];
   double range = header->UpMat.PlasticThick2;
 
-  Tb = EiEo(header->UpMat.beam_TOF,fOutEvent->projectile.Part.E()-fOutEvent->projectile.Mass,header->UpMat.PlasticThick2);
+  Tb = EiEo(header->UpMat.beam_ToF,fOutEvent->projectile.Part.E()-fOutEvent->projectile.Mass,header->UpMat.PlasticThick2);
   cout << "energey" <<Tb << endl;
   p_beam = sqrt(pow(Tb+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));
   fOutEvent->projectile.Part.SetPxPyPzE(0.,0.,p_beam,Tb+fOutEvent->projectile.Mass);
-  if(header->ReIN.TOFis)
+  if(header->ReIN.ToFis)
   {
-    tof_0 = header->UpMat.PlasticDist/sqrt(1-pow(fOutEvent->projectile.Mass/fOutEvent->projectile.Part.E(),2))/slight;
+    ToF_0 = header->UpMat.PlasticDist/sqrt(1-pow(fOutEvent->projectile.Mass/fOutEvent->projectile.Part.E(),2))/slight;
     printf("\n");
-    printf("TOF measured between two plastics on the base of %lf cm is %lf ns\n",header->UpMat.PlasticDist,tof_0);
+    printf("ToF measured between two plastics on the base of %lf cm is %lf ns\n",header->UpMat.PlasticDist,ToF_0);
   }
   strcpy(ShowTrack,"visible");
-  Tb = UpstreamEnergyLoss(&(header->UpMat),&(fOutEvent->projectile),header->ReIN.TOFis,header->ReIN.TRACKINGis,ShowTrack);
+  Tb = UpstreamEnergyLoss(&(header->UpMat),&(fOutEvent->projectile),header->ReIN.ToFis,header->ReIN.TRACKINGis,ShowTrack);
   //cout << "energey" <<Tb << endl;
   p_beam = sqrt(pow(Tb+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));
   fOutEvent->projectile.Part.SetPxPyPzE(0.,0.,p_beam,Tb+fOutEvent->projectile.Mass);
@@ -422,10 +422,10 @@ double ERBeamDetReconstructor::UpstreamEnergyLoss(UpstreamMatter* pU,ERParticle*
   if(Cond1)
   {
     range = pU->PlasticThick2;
-    Tb = EiEo(pU->beam_TOF,pP->Part.E()-pP->Mass,range);  /*Energy after 2nd plastic*/
+    Tb = EiEo(pU->beam_ToF,pP->Part.E()-pP->Mass,range);  /*Energy after 2nd plastic*/
     if(!strcmp(Show,Matter))
     {
-      printf("TOF PLASTIC2 (%s), Thickness=%lf cm\n",pU->PlasticMatter2,pU->PlasticThick2);
+      printf("ToF PLASTIC2 (%s), Thickness=%lf cm\n",pU->PlasticMatter2,pU->PlasticThick2);
       printf("%lf MeV (%lfA MeV)\n",Tb,Tb/pP->AtMass);
     }
   }
@@ -530,12 +530,12 @@ void ERBeamDetReconstructor::ReadDeDx(){
   char Matter[128];
   TString filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/eloss/");
 
-  /********************* For the TOF plastic *****************************/
+  /********************* For the ToF plastic *****************************/
   strcpy(Matter,filePath.Data());
   strcat(Matter,fOutEvent->projectile.NameOfNucleus);
   strcat(Matter,"_");
   strcat(Matter,header->UpMat.PlasticMatter1);
-  ReadRint(Matter,header->UpMat.beam_TOF);
+  ReadRint(Matter,header->UpMat.beam_ToF);
   /********************* For the MWPC windows ****************************/
   strcpy(Matter,filePath.Data());
   strcat(Matter,fOutEvent->projectile.NameOfNucleus);

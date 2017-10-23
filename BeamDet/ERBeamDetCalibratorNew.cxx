@@ -14,7 +14,7 @@ ERBeamDetCalibratorNew::ERBeamDetCalibratorNew()
   : FairTask("Convert Raw event to analyse event"),
   fInEvent(NULL),
   fPath(""),
-  fBeamDetTOFDigi(NULL), 
+  fBeamDetToFDigi(NULL), 
   fBeamDetMWPCDigi(NULL),
   fEvent(0)
 {
@@ -26,7 +26,7 @@ ERBeamDetCalibratorNew::ERBeamDetCalibratorNew(Int_t verbose)
   : FairTask("Convert Raw event to analyse event", verbose),
   fInEvent(NULL),
   fPath(""),
-  fBeamDetTOFDigi(NULL), 
+  fBeamDetToFDigi(NULL), 
   fBeamDetMWPCDigi(NULL),
   fEvent(0)
 {
@@ -78,10 +78,10 @@ InitStatus ERBeamDetCalibratorNew::Init()
       Fatal("Init", "Can`t find branch in input file!");
 
   // Register output array fRTelescopeHits
-  fBeamDetTOFDigi = new TClonesArray("ERBeamDetTOFDigi",1000);
+  fBeamDetToFDigi = new TClonesArray("ERBeamDetToFDigi",1000);
   fBeamDetMWPCDigi = new TClonesArray("ERBeamDetMWPCDigi",1000);
 
-  ioman->Register("BeamDetTOFDigi", "BeamDetTOF Digi", fBeamDetTOFDigi, kTRUE);
+  ioman->Register("BeamDetToFDigi", "BeamDetToF Digi", fBeamDetToFDigi, kTRUE);
   ioman->Register("BeamDetMWPCDigi", "BeamDetMWPC Digi", fBeamDetMWPCDigi, kTRUE);
 
   return kSUCCESS;
@@ -107,11 +107,11 @@ void ERBeamDetCalibratorNew::Exec(Option_t* opt)
   Double_t time, edep;
   time = (fInEvent->ntF3r+Ran.Uniform(-0.5,0.5))*CLB[2][1][0][0];
   edep = (fInEvent->naF3r+Ran.Uniform(-0.5,0.5));
-  AddTOFDigi(edep,time,0);
+  AddToFDigi(edep,time,0);
 
   time = (fInEvent->ntF4l+Ran.Uniform(-0.5,0.5))*CLB[3][1][0][0];
   edep = (fInEvent->naF4l+Ran.Uniform(-0.5,0.5));
-  AddTOFDigi(edep,time,1);
+  AddToFDigi(edep,time,1);
 }
 //----------------------------------------------------------------------------
 
@@ -121,8 +121,8 @@ void ERBeamDetCalibratorNew::Reset()
   if (fBeamDetMWPCDigi) {
     fBeamDetMWPCDigi->Delete();
   }
-  if (fBeamDetTOFDigi) {
-    fBeamDetTOFDigi->Delete();
+  if (fBeamDetToFDigi) {
+    fBeamDetToFDigi->Delete();
   }
 }
 // ----------------------------------------------------------------------------
@@ -139,10 +139,10 @@ ERBeamDetMWPCDigi* ERBeamDetCalibratorNew::AddMWPCDigi(Float_t edep, Double_t ti
   return digi;
 }
 
-ERBeamDetTOFDigi* ERBeamDetCalibratorNew::AddTOFDigi(Float_t edep, Double_t time, Int_t tofNb)
+ERBeamDetToFDigi* ERBeamDetCalibratorNew::AddToFDigi(Float_t edep, Double_t time, Int_t ToFNb)
 {
-  ERBeamDetTOFDigi *digi = new((*fBeamDetTOFDigi)[fBeamDetTOFDigi->GetEntriesFast()])
-              ERBeamDetTOFDigi(fBeamDetTOFDigi->GetEntriesFast(), edep, time, tofNb);
+  ERBeamDetToFDigi *digi = new((*fBeamDetToFDigi)[fBeamDetToFDigi->GetEntriesFast()])
+              ERBeamDetToFDigi(fBeamDetToFDigi->GetEntriesFast(), edep, time, ToFNb);
   return digi;
 }
 //-----------------------------------------------------------------------------

@@ -105,9 +105,9 @@ void BeamDet_full(Int_t nEvents = 50){
  // ------------------------BeamDetDigitizer---------------------------------
   ERBeamDetDigitizer* digitizer = new ERBeamDetDigitizer(verbose);
   digitizer->SetMWPCElossThreshold(0.006);
-  digitizer->SetTofElossThreshold(0.006);
-  digitizer->SetTofElossSigmaOverEloss(0);
-  digitizer->SetTofTimeSigma(1e-10);
+  digitizer->SetToFElossThreshold(0.006);
+  digitizer->SetToFElossSigmaOverEloss(0);
+  digitizer->SetToFTimeSigma(1e-10);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   // -----------------------BeamDetTrackFinder------------------------------
@@ -120,7 +120,7 @@ void BeamDet_full(Int_t nEvents = 50){
   pid->SetIonMass(26.2716160);
   //pid->SetBoxPID(203., 206., 0.005, 0.12);
   pid->SetBoxPID(0., 500., 0., 1.);
-  pid->SetOffsetTOF(0.);
+  pid->SetOffsetToF(0.);
   pid->SetProbabilityThreshold(0.5);
 
   fRun->AddTask(pid);

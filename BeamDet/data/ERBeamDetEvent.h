@@ -14,7 +14,7 @@
 class ERBeamDetEvent: public ERRawEvent {
 
 public:
-	//TOF
+	//ToF
 	UShort_t TDC[16];
 	UShort_t QDC[16];
 

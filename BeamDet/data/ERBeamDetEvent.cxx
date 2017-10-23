@@ -16,7 +16,7 @@ ERBeamDetEvent::~ERBeamDetEvent(){
 }
 
 Bool_t ERBeamDetEvent::Register(TTree* tree, TString branchName){
-	//TOF
+	//ToF
 	tree->SetBranchAddress(branchName + TString(".TDC[16]"),TDC);
 	tree->SetBranchAddress(branchName + TString(".QDC[16]"),QDC);
 

@@ -100,4 +100,5 @@ class ERBeamDetTargetPoint : public FairMCPoint
 
   ClassDef(ERBeamDetTargetPoint,1)
 };
+
 #endif
