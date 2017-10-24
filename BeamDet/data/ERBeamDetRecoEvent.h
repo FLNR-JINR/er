@@ -11,8 +11,8 @@
 
 class ERBeamDetRecoEvent : public TNamed {
 public:
-	//Tof
-	double tofb,tcm;
+	//ToF
+	double ToFb,tcm;
 	float Tb;
 	float Tb0;
 	ERParticle projectile;

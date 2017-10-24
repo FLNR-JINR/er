@@ -14,7 +14,7 @@
 
 #include "ERBeamDetEvent.h"
 #include "ERBeamDetMWPCDigi.h"
-#include "ERBeamDetTOFDigi.h"
+#include "ERBeamDetToFDigi.h"
 
 class ERBeamDetCalibratorNew : public FairTask {
 
@@ -47,7 +47,7 @@ protected:
   //Input objects
   ERBeamDetEvent* fInEvent;
   //Output arrays
-  TClonesArray *fBeamDetTOFDigi;
+  TClonesArray *fBeamDetToFDigi;
   TClonesArray *fBeamDetMWPCDigi;
 
   Int_t fEvent;
@@ -58,7 +58,7 @@ protected:
   double CLB[8][10][32][5];
 
   ERBeamDetMWPCDigi* AddMWPCDigi(Float_t edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
-  ERBeamDetTOFDigi*  AddTOFDigi(Float_t edep, Double_t time, Int_t tofNb);
+  ERBeamDetToFDigi*  AddToFDigi(Float_t edep, Double_t time, Int_t ToFNb);
 private:
 
   virtual void SetParContainers();

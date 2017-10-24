@@ -23,7 +23,7 @@ void BeamDet_reco(Int_t nEvents = 2000){
   ERBeamDetDigitizer* digitizer = new ERBeamDetDigitizer(verbose);
   digitizer->SetMWPCElossThreshold(0.006);
 
-  digitizer->SetTofTimeSigma(1e-10);
+  digitizer->SetToFTimeSigma(1e-10);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   // -----------------------BeamDetTrackFinder------------------------------
@@ -35,7 +35,7 @@ void BeamDet_reco(Int_t nEvents = 2000){
   pid->SetPID(1000160280);
   pid->SetIonMass(26.2716160);
   pid->SetBoxPID(203., 206., 0.005, 0.12);
-  pid->SetOffsetTOF(0.);
+  pid->SetOffsetToF(0.);
   pid->SetProbabilityThreshold(0.5);
 
   fRun->AddTask(pid);

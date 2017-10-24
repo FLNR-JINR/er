@@ -24,7 +24,7 @@ void BeamDet_digi(Int_t nEvents = 2000){
   ERBeamDetDigitizer* digitizer = new ERBeamDetDigitizer(verbose);
   digitizer->SetMWPCElossThreshold(0.006);
 
-  digitizer->SetTofTimeSigma(1e-10);
+  digitizer->SetToFTimeSigma(1e-10);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   

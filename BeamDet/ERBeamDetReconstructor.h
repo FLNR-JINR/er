@@ -44,7 +44,7 @@ public:
   /** Virtual method Reset **/
   virtual void Reset();
 
-  void SetTofOffset(Float_t tofOffset){fTofOffset = tofOffset;}
+  void SetToFOffset(Float_t ToFOffset){fToFOffset = ToFOffset;}
 
 protected:
   //Input objects
@@ -54,12 +54,12 @@ protected:
   //Output object
   ERBeamDetRecoEvent* fOutEvent;
 
-  void Tof();
+  void ToF();
   void MWPC();
   double coordMW(UpstreamMatter* pT,ERBeamDetRecoEvent* pR,char* MWid,char* XY);
   int mcluMW(int mMW,int* nMW);
   void DefineBeamEnergy();
-  void ElossTOFaMWPCaTarget();
+  void ElossToFaMWPCaTarget();
   double Stepantsov(char* D,int Z,double A,double I);
   void ReadDeDx();
   
@@ -102,7 +102,7 @@ protected:
   // вспомогательные переменные для кин энергии
   double Tp1,Tp2,Tp3;
 
-  double tof_0;
+  double ToF_0;
   //кинетическая энергия target + projectile в центре масс.
   double t_cm;
   // энергетический эффект реакции - сколько энергии высвобождается, если "+", сколько поглощается, если "-"
@@ -118,7 +118,7 @@ protected:
   */
   double MdistX,MdistY,MdistZ;
 
-  Float_t fTofOffset;
+  Float_t fToFOffset;
 private:
 
   virtual void SetParContainers();
