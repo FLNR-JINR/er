@@ -50,7 +50,7 @@ void beamtest(Int_t nEvents = 20)
   //Reconstructor
 
   ERBeamDetReconstructor* beamDetRecon = new ERBeamDetReconstructor(1);
-  beamDetRecon->SetTofOffset(74.275);
+  beamDetRecon->SetToFOffset(74.275);
   run->AddTask(beamDetRecon);
 
   ERTelescopeReconstructorNew* telescopeRecon = new ERTelescopeReconstructorNew(1);
