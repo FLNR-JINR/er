@@ -25,7 +25,7 @@ class FairPrimaryGenerator;
  ** @author M.Kozlov <kozlov.m.your@yandex.ru>
  ** @version 1.0
  **
- ** The ERIonGenerator defines the parameters of primary ion and background ions 
+ ** The ERIonMixGenerator defines the parameters of primary ion and background ions 
  ** which participates in simulation. It provides interfaces for determining  
  ** different types of dimentional, angular and energy distributions 
  ** at beam start position.
