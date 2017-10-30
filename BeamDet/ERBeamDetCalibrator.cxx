@@ -1,9 +1,6 @@
 #include "ERBeamDetCalibrator.h"
 
-#include<iostream>
-using namespace std;
-
-
+#include <iostream>
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -49,10 +46,10 @@ InitStatus ERBeamDetCalibrator::Init()
   if (fPath == "") Fatal("Init", "No parameters file in ERBeamDetCalibrator");
 
   FILE *F2 = fopen(fPath.Data(),"r");
-  if(F2==NULL) 
-    Fatal("Init", TString("ERBeamDetCalibrator: file ") + fPath + TString(" is not found"));
-  else
-  {
+  if(F2==NULL) {
+    //Fatal("Init", TString("ERBeamDetCalibrator: file ") + fPath + TString(" is not found"));
+    Fatal("Init", "ERBeamDetCalibrator: file %s is not found", fPath.Data());
+  } else {
     double a,b,t;
     char comments[128];
     int it,il,is;
@@ -113,5 +110,5 @@ void ERBeamDetCalibrator::Finish()
 {   
 }
 // ----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+
 ClassImp(ERBeamDetCalibrator)

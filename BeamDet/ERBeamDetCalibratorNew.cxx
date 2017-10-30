@@ -1,9 +1,6 @@
 #include "ERBeamDetCalibratorNew.h"
 
-#include<iostream>
-using namespace std;
-
-
+#include <iostream>
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -51,10 +48,10 @@ InitStatus ERBeamDetCalibratorNew::Init()
   if (fPath == "") Fatal("Init", "No parameters file in ERBeamDetCalibratorNew");
 
   FILE *F2 = fopen(fPath.Data(),"r");
-  if(F2==NULL) 
-    Fatal("Init", TString("ERBeamDetCalibratorNew: file ") + fPath + TString(" is not found"));
-  else
-  {
+  if(F2==NULL) {
+    //Fatal("Init", TString("ERBeamDetCalibratorNew: file ") + fPath + TString(" is not found"));
+    Fatal("Init", "ERBeamDetCalibratorNew: file %s is not found", fPath.Data());
+  } else {
     double a,b,t;
     char comments[128];
     int it,il,is;
@@ -133,6 +130,8 @@ void ERBeamDetCalibratorNew::Reset()
 void ERBeamDetCalibratorNew::Finish()
 {   
 }
+//-----------------------------------------------------------------------------
+
 // ----------------------------------------------------------------------------
 ERBeamDetMWPCDigi* ERBeamDetCalibratorNew::AddMWPCDigi(Float_t edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb)
 {
@@ -140,7 +139,9 @@ ERBeamDetMWPCDigi* ERBeamDetCalibratorNew::AddMWPCDigi(Float_t edep, Double_t ti
               ERBeamDetMWPCDigi(fBeamDetMWPCDigi->GetEntriesFast(), edep, time, mwpcNb, planeNb, wireNb);
   return digi;
 }
+//-----------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------
 ERBeamDetToFDigi* ERBeamDetCalibratorNew::AddToFDigi(Float_t edep, Double_t time, Int_t ToFNb)
 {
   ERBeamDetToFDigi *digi = new((*fBeamDetToFDigi)[fBeamDetToFDigi->GetEntriesFast()])
@@ -148,4 +149,5 @@ ERBeamDetToFDigi* ERBeamDetCalibratorNew::AddToFDigi(Float_t edep, Double_t time
   return digi;
 }
 //-----------------------------------------------------------------------------
+
 ClassImp(ERBeamDetCalibratorNew)

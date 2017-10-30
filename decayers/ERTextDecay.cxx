@@ -106,10 +106,11 @@ Bool_t ERTextDecay::ReadFile(){
   return kTRUE;
 }
 
-Bool_t ERTextDecay::Stepping(){
-  if (gMC->CurrentEvent() > fDecays.size()-1)
-    Fatal("ERTextDecay::BeginEvent",TString("Events count in file") 
-                                            + fFileName + TString(" less currenet event number"));
+Bool_t ERTextDecay::Stepping() {
+  if (gMC->CurrentEvent() > fDecays.size()-1) {
+    Fatal("ERTextDecay::BeginEvent", "Events count in file %s less currenet event number", fFileName.Data());
+  }
+
   if(!fDecayFinish && gMC->TrackPid() == fInputIonPDG->PdgCode() &&  gMC->CurrentVolName() == fVolumeName){
     gMC->SetMaxStep(0.01);
     gMC->TrackPosition(fDecayPos);
