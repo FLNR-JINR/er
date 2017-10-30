@@ -1,9 +1,6 @@
 #include "ERQTelescopeCalibrator.h"
 
-#include<iostream>
-using namespace std;
-
-
+#include <iostream>
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -49,10 +46,10 @@ InitStatus ERQTelescopeCalibrator::Init()
   if (fPath == "") Fatal("Init", "No parameters file in ERQTelescopeCalibrator");
 
   FILE *F2 = fopen(fPath.Data(),"r");
-  if(F2==NULL) 
-    Fatal("Init", TString("ERQTelescopeCalibrator: file ") + fPath + TString(" is not found"));
-  else
-  {
+  if(F2==NULL) {
+    //Fatal("Init", TString("ERQTelescopeCalibrator: file ") + fPath + TString(" is not found"));
+    Fatal("Init", "ERQTelescopeCalibrator: file %s is not found", fPath.Data());
+  } else {
     double a,b,t;
     char comments[128];
     int it,il,is;
@@ -74,8 +71,9 @@ InitStatus ERQTelescopeCalibrator::Init()
   
   //Get input objects
   fInEvent = (ERQTelescopeEvent*)ioman->GetObject("QTelescopeEvent.");
-  if (!fInEvent)
-      Fatal("Init", "Can`t find branch in input file!");
+  if (!fInEvent) {
+      Fatal("Init", "Can't find branch in input file!");
+  }
 
   fOutEvent = new ERQTelescopeCalEvent();
   ioman->Register("QTelescopeCalEvent.","Analyze",fOutEvent, kTRUE);
@@ -94,7 +92,7 @@ void ERQTelescopeCalibrator::Exec(Option_t* opt)
 
   double EP;
   
-for(int imu=0;imu<=fInEvent->mD21;imu++)  /* D21 X16 */
+  for(int imu=0;imu<=fInEvent->mD21;imu++)  /* D21 X16 */
   {
     EP=CLB[1][0][fInEvent->nD21[imu]][0]*(fInEvent->neD21[imu]+Ran.Uniform(-0.5,0.5))+CLB[1][0][fInEvent->nD21[imu]][1];
     if(EP>CLB[1][0][fInEvent->nD21[imu]][2])
@@ -189,5 +187,5 @@ void ERQTelescopeCalibrator::Finish()
 {   
 }
 // ----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+
 ClassImp(ERQTelescopeCalibrator)

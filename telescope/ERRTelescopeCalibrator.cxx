@@ -1,9 +1,6 @@
 #include "ERRTelescopeCalibrator.h"
 
-#include<iostream>
-using namespace std;
-
-
+#include <iostream>
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -49,10 +46,10 @@ InitStatus ERRTelescopeCalibrator::Init()
   if (fPath == "") Fatal("Init", "No parameters file in ERRTelescopeCalibrator");
 
   FILE *F2 = fopen(fPath.Data(),"r");
-  if(F2==NULL) 
-    Fatal("Init", TString("RDsrdCalibrator: file ") + fPath + TString(" is not found"));
-  else
-  {
+  if(F2==NULL) {
+    //Fatal("Init", TString("RDsrdCalibrator: file ") + fPath + TString(" is not found"));
+    Fatal("Init", "ERRTelescopeCalibrator: file %s is not found", fPath.Data());
+  } else {
     double a,b,t;
     char comments[128];
     int it,il,is;
@@ -74,8 +71,9 @@ InitStatus ERRTelescopeCalibrator::Init()
   
   //Get input objects
   fInEvent = (ERRTelescopeEvent*)ioman->GetObject("RTelescopeEvent.");
-  if (!fInEvent)
-      Fatal("Init", "Can`t find branch in input file!");
+  if (!fInEvent) {
+      Fatal("Init", "Can't find branch in input file!");
+  }
 
   fOutEvent = new ERRTelescopeCalEvent();
   ioman->Register("RTelescopeCalEvent.","Analyze",fOutEvent, kTRUE);
@@ -129,5 +127,5 @@ void ERRTelescopeCalibrator::Finish()
 {   
 }
 // ----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+
 ClassImp(ERRTelescopeCalibrator)
