@@ -159,7 +159,7 @@ else(EXPERTROOT_MINIMAL)
   find_package(RuleChecker)
 endif(EXPERTROOT_MINIMAL)
 
-MESSAGE(STATUS "GEANT4 = "${GEANT4_INCLUDE_DIR})
+MESSAGE(STATUS "GEANT4 = " ${GEANT4_INCLUDE_DIR})
 
 # set a variable which should be used in all CMakeLists.txt
 # Defines all basic include directories from fairbase
