@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                        ERNeuRadHitFinderWBT header file          -----
+// -----                  ERNeuRadHitFinderWBT header file             -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
@@ -16,6 +16,7 @@
 class ERNeuRadHitFinderWBT : public FairTask {
 
 public:
+
   /** Default constructor **/
   ERNeuRadHitFinderWBT();
 
@@ -38,9 +39,12 @@ public:
   
   /** Modifiers **/
   /** Accessors **/
+
 protected:
+
   //Input arrays
   TClonesArray *fNeuRadPMTSignals;
+
   //Output arrays
   TClonesArray *fNeuRadHits;
 
@@ -49,12 +53,15 @@ protected:
   static Int_t fEvent;
 
 protected:
+
   ERNeuRadHitWBT* AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
                          Int_t  ModuleIndex, Int_t FiberIndex, Float_t time, Float_t qInteg);
+
 private:
+
   virtual void SetParContainers();
   
   ClassDef(ERNeuRadHitFinderWBT,1)
 };
 
-#endif
+#endif // ERNeuRadHitFinderWBT_H

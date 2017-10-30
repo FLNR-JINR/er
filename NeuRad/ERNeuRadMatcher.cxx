@@ -1,5 +1,6 @@
 #include "ERNeuRadMatcher.h"
 
+#include <iostream>
 #include <vector>
 #include <map>
 
@@ -9,12 +10,9 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include<iostream>
 
 #include "ERNeuRadHit.h"
 #include "ERNeuRadStep.h"
-
-using namespace std;
 
 // ----------------------------------------------------------------------------
 ERNeuRadMatcher::ERNeuRadMatcher()
@@ -26,7 +24,7 @@ ERNeuRadMatcher::ERNeuRadMatcher()
     fHdxyLess6OF(NULL),
     fHdxyTF(NULL),
     fHdxyLess6TF(NULL),
-    FairTask("ER muSi hit producing scheme")
+    FairTask("ER muSi hit producing scheme") //TODO muSi ???
 {
 }
 // ----------------------------------------------------------------------------
@@ -41,7 +39,7 @@ ERNeuRadMatcher::ERNeuRadMatcher(Int_t verbose)
     fHdxyLess6OF(NULL),
     fHdxyTF(NULL),
     fHdxyLess6TF(NULL),
-    FairTask("ER muSi hit producing scheme ", verbose)
+    FairTask("ER muSi hit producing scheme ", verbose) //TODO muSi ???
 {
 }
 // ----------------------------------------------------------------------------
@@ -101,15 +99,17 @@ InitStatus ERNeuRadMatcher::Init()
 void ERNeuRadMatcher::Exec(Option_t* opt)
 {
   ERNeuRadStep* step = (ERNeuRadStep*)fNeuRadFirstSteps->At(0);
-  //Одно файберная мода
+
+  //Однофайберная мода
   if (fNeuRadHits->GetEntriesFast() == 1){
     ERNeuRadHit* hit = (ERNeuRadHit*)fNeuRadHits->At(0);
     Double_t dist = TMath::Sqrt((hit->GetX()-step->GetX())*(hit->GetX()-step->GetX()) + 
                                 (hit->GetY()-step->GetY())*(hit->GetY()-step->GetY()));
-    cerr << dist << endl;
+    std::cerr << dist << std::endl;
     fHdxyOF->Fill(dist);
-    if(dist < 0.6)
+    if (dist < 0.6) {
       fHdxyLess6OF->Fill(dist);
+    }
   }
 
   //Двухфайберная мода
@@ -117,24 +117,26 @@ void ERNeuRadMatcher::Exec(Option_t* opt)
     ERNeuRadHit* hit1 = (ERNeuRadHit*)fNeuRadHits->At(0);
     ERNeuRadHit* hit2 = (ERNeuRadHit*)fNeuRadHits->At(0);
     Double_t dist = 0.;
-    if (hit1->Time() < hit2->Time()){
+    if (hit1->Time() < hit2->Time()) {
       dist = TMath::Sqrt((hit1->GetX()-step->GetX())*(hit1->GetX()-step->GetX()) + 
                                 (hit1->GetY()-step->GetY())*(hit1->GetY()-step->GetY()));
-    }else{
+    } else {
       dist = TMath::Sqrt((hit2->GetX()-step->GetX())*(hit2->GetX()-step->GetX()) + 
                                 (hit2->GetY()-step->GetY())*(hit2->GetY()-step->GetY()));
     }
 
     fHdxyTF->Fill(dist);
-    if(dist < 0.6)
+    if(dist < 0.6) {
       fHdxyLess6TF->Fill(dist);
+    }
   }
-  //Много файберная мода
-  if (fNeuRadHits->GetEntriesFast() > 0){
+
+  //Многофайберная мода
+  if (fNeuRadHits->GetEntriesFast() > 0) {
     //Находим самый первый хит
     ERNeuRadHit* firstHit;
     Float_t minTime = 999999999.;
-    for(Int_t iHit = 0; iHit < fNeuRadHits->GetEntriesFast(); iHit++){
+    for(Int_t iHit = 0; iHit < fNeuRadHits->GetEntriesFast(); iHit++) {
       ERNeuRadHit* hit = (ERNeuRadHit*)fNeuRadHits->At(iHit);
       if (hit->Time() < minTime){
         minTime = hit->Time();

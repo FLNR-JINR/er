@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                        ERNeuRadViewer header file             -----
+// -----                  ERNeuRadViewer header file                   -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
@@ -37,7 +37,9 @@ public:
   /** Modifiers **/
 
   /** Accessors **/
+
 protected:
+
   //Input arrays
   TClonesArray *fNeuRadPixelSignals;
   
@@ -45,9 +47,10 @@ protected:
   TFile* fFile;
 
 private:
+
   virtual void SetParContainers();
   
   ClassDef(ERNeuRadViewer,1)
 };
 
-#endif
+#endif // ERNeuRadViewer_H

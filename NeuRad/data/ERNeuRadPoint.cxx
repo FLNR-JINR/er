@@ -6,7 +6,8 @@
 #include "ERNeuRadPoint.h"
 #include "FairLogger.h"
 
-#include<iostream>
+#include <iostream>
+
 // -----   Default constructor   -------------------------------------------
 ERNeuRadPoint::ERNeuRadPoint()
   : FairMCPoint(),
@@ -15,8 +16,6 @@ ERNeuRadPoint::ERNeuRadPoint()
 {
 }
 // -------------------------------------------------------------------------
-
-
 
 // -----   Standard constructor   ------------------------------------------
 ERNeuRadPoint::ERNeuRadPoint(Int_t eventID, Int_t trackID,
@@ -38,8 +37,6 @@ ERNeuRadPoint::ERNeuRadPoint(Int_t eventID, Int_t trackID,
 }
 // -------------------------------------------------------------------------
 
-
-
 // -------------------------------------------------------------------------
 ERNeuRadPoint::ERNeuRadPoint(const ERNeuRadPoint& right)
   : FairMCPoint(right),
@@ -52,15 +49,11 @@ ERNeuRadPoint::ERNeuRadPoint(const ERNeuRadPoint& right)
 }
 // -------------------------------------------------------------------------
 
-
-
 // -----   Destructor   ----------------------------------------------------
 ERNeuRadPoint::~ERNeuRadPoint()
 {
 }
 // -------------------------------------------------------------------------
-
-
 
 // -----   Public method Print   -------------------------------------------
 void ERNeuRadPoint::Print(const Option_t* opt /* = 0*/) const
@@ -74,8 +67,6 @@ void ERNeuRadPoint::Print(const Option_t* opt /* = 0*/) const
 }
 // -------------------------------------------------------------------------
 
-
-
 // -----   Point x coordinate from linear extrapolation   ------------------
 Double_t ERNeuRadPoint::GetX(Double_t z) const
 {
@@ -86,8 +77,6 @@ Double_t ERNeuRadPoint::GetX(Double_t z) const
 }
 // -------------------------------------------------------------------------
 
-
-
 // -----   Point y coordinate from linear extrapolation   ------------------
 Double_t ERNeuRadPoint::GetY(Double_t z) const
 {
@@ -97,8 +86,6 @@ Double_t ERNeuRadPoint::GetY(Double_t z) const
   return ( fY + (z-fZ) / dz * (fY_out-fY) );
 }
 // -------------------------------------------------------------------------
-
-
 
 // -----   Public method IsUsable   ----------------------------------------
 Bool_t ERNeuRadPoint::IsUsable() const
@@ -132,4 +119,5 @@ Double_t ERNeuRadPoint::GetLength() const{
   return sqrt((fX_out-fX)*(fX_out-fX) + (fY_out-fY)*(fY_out-fY) + (fZ_out-fZ)*(fZ_out-fZ) );
 }
 //-------------------------------------------------------------------------
+
 ClassImp(ERNeuRadPoint)

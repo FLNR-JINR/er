@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                        ERNeuRadHitFinderMF header file          -----
+// -----                  ERNeuRadHitFinderMF header file              -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
@@ -16,6 +16,7 @@
 class ERNeuRadHitFinderMF : public FairTask {
 
 public:
+
   /** Default constructor **/
   ERNeuRadHitFinderMF();
 
@@ -37,12 +38,15 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  inline void SetPixelThreshold(Float_t pixelThreshold){fPixelThreshold = pixelThreshold;}
-  inline void SetModuleThreshold(Float_t moduleThreshold){fModuleThreshold = moduleThreshold;}
+  inline void SetPixelThreshold(Float_t pixelThreshold) {fPixelThreshold = pixelThreshold;}
+  inline void SetModuleThreshold(Float_t moduleThreshold) {fModuleThreshold = moduleThreshold;}
   /** Accessors **/
+
 protected:
+
   //Input arrays
   TClonesArray *fNeuRadDigis;
+
   //Output arrays
   TClonesArray *fNeuRadHits;
 
@@ -54,11 +58,14 @@ protected:
   Float_t fModuleThreshold;
 
 protected:
+
   ERNeuRadHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t  ModuleIndex, Int_t FiberIndex, Float_t time);
+
 private:
+
   virtual void SetParContainers();
   
   ClassDef(ERNeuRadHitFinderMF,1)
 };
 
-#endif
+#endif // ERNeuRadHitFinderMF_H

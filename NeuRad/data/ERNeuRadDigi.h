@@ -1,11 +1,10 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadDigi header file             -----
+// -----                  ERNeuRadDigi header file                     -----
 // -----                  Created 03/15  by V. Schetinin               -----
 // -------------------------------------------------------------------------
 
 #ifndef ERNeuRadDigi_H
 #define ERNeuRadDigi_H
-
 
 #include "TObject.h"
 #include "TVector3.h"
@@ -14,7 +13,9 @@
 
 class ERNeuRadDigi : public FairMultiLinkedData
 {
- public:
+
+public:
+
   /** Default constructor **/
   ERNeuRadDigi();
   
@@ -41,41 +42,35 @@ class ERNeuRadDigi : public FairMultiLinkedData
   /** Output to screen **/
   virtual void Print(const Option_t* opt = 0) const;
 
-  void SetTDC(Double_t time){fTDC = time;}
-  Double_t TDC(){return fTDC;}
-
+  void SetTDC(Double_t time) {fTDC = time;}
   void SetFrontTDC(Double_t time){fFrontTDC = time;}
-  Double_t FrontTDC(){return fFrontTDC;}
-  
   void SetBackTDC(Double_t time){fBackTDC = time;}
-  Double_t BackTDC() const {return fBackTDC;}
-
   void SetQDC(Double_t charge){fQDC = charge;}
-  Double_t QDC(){return fQDC;}
-
   void SetID(Int_t id){fID = id;}
-  Int_t ID(){return fID;}
-  
   void SetFiberIndex(Int_t fiber){fFiberIndex = fiber;}
-  Int_t FiberIndex(){return fFiberIndex;}
-
   void SetModuleIndex(Int_t bundle){fModuleIndex = bundle;}
-  Int_t ModuleIndex(){return fModuleIndex;}
 
-  Int_t Side() {return fSide;}
+  Double_t TDC() const {return fTDC;}
+  Double_t FrontTDC() const {return fFrontTDC;}
+  Double_t BackTDC() const {return fBackTDC;}
+  Double_t QDC() const {return fQDC;}
+  Int_t ID() const {return fID;}
+  Int_t FiberIndex() const {return fFiberIndex;}
+  Int_t ModuleIndex() const {return fModuleIndex;}
+  Int_t Side() const {return fSide;}
   
- protected:
-  Int_t fID;
+protected:
+
+  Double32_t fTDC;
   Double32_t fFrontTDC;
   Double32_t fBackTDC;
-  Double32_t fTDC;
   Double32_t fQDC;
+  Int_t fID;
   Int_t fFiberIndex;
   Int_t fModuleIndex;
   Int_t fSide; //0 - front, 1 - back
 
   ClassDef(ERNeuRadDigi,1)
-
 };
 
-#endif
+#endif // ERNeuRadDigi_H

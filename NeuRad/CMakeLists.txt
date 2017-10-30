@@ -52,4 +52,3 @@ Set(LIBRARY_NAME NeuRad)
 Set(DEPENDENCIES ERBase ERData Base Core Geom)
 
 GENERATE_LIBRARY()
-

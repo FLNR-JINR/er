@@ -9,7 +9,6 @@
 #ifndef ERNeuRadPoint_H
 #define ERNeuRadPoint_H
 
-
 #include "TObject.h"
 #include "TVector3.h"
 
@@ -23,11 +22,10 @@
 class ERNeuRadPoint : public FairMCPoint
 {
 
- public:
+public:
 
   /** Default constructor **/
   ERNeuRadPoint();
-
 
   /** Constructor with arguments
    *@param EventID  Index of Event
@@ -59,9 +57,7 @@ class ERNeuRadPoint : public FairMCPoint
   /** Destructor **/
   virtual ~ERNeuRadPoint();
 
-
   ERNeuRadPoint& operator=(const ERNeuRadPoint&) { return *this; }
-
 
   /** Accessors **/
   Int_t GetEventID() const { return fEventID; }
@@ -123,7 +119,7 @@ class ERNeuRadPoint : public FairMCPoint
   void SetZIn(Double_t zin) {fZ = zin;}
   void SetZOut(Double_t zout) {fZ_out = zout;}
   
- protected:
+protected:
   
   Int_t fEventID;
   Int_t fMot0TrackID;
@@ -142,4 +138,5 @@ class ERNeuRadPoint : public FairMCPoint
 
   ClassDef(ERNeuRadPoint,1)
 };
-#endif
+
+#endif // ERNeuRadPoint_H

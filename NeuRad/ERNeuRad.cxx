@@ -41,6 +41,7 @@ ERNeuRad::ERNeuRad():
   flGeoPar->SetName( GetName());
   fVerboseLevel = 1;
 }
+
 //-------------------------------------------------------------------------------------------------
 ERNeuRad::ERNeuRad(const char* name, Bool_t active, Int_t verbose):
   ERDetector(name, active),
@@ -54,6 +55,7 @@ ERNeuRad::ERNeuRad(const char* name, Bool_t active, Int_t verbose):
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
 }
+
 //-------------------------------------------------------------------------------------------------
 ERNeuRad::~ERNeuRad(){
   if (fNeuRadPoints) {
@@ -61,6 +63,7 @@ ERNeuRad::~ERNeuRad(){
     delete fNeuRadPoints;
   }
 }
+
 //-------------------------------------------------------------------------------------------------
 TClonesArray* ERNeuRad::GetCollection(Int_t iColl) const {
   if (iColl == 0) 
@@ -68,12 +71,14 @@ TClonesArray* ERNeuRad::GetCollection(Int_t iColl) const {
   else 
     return NULL;
 }
+
 //-------------------------------------------------------------------------------------------------
 void ERNeuRad::Initialize(){
   FairDetector::Initialize();
   FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
   ERNeuRadGeoPar* par=(ERNeuRadGeoPar*)(rtdb->getContainer("ERNeuRadGeoPar"));
 }
+
 //-------------------------------------------------------------------------------------------------
 void ERNeuRad::Register(){
   FairRootManager* ioman = FairRootManager::Instance();
@@ -84,6 +89,7 @@ void ERNeuRad::Register(){
   ioman->Register("NeuRadFirstStep","NeuRad", fNeuRadFirstStep, kTRUE);
   ioman->Register("NeuRadStep","NeuRad", fNeuRadSteps, kTRUE);
 }
+
 //-------------------------------------------------------------------------------------------------
 Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   // Set constants for Birk's Law implentation
@@ -146,6 +152,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   
   return kTRUE;
 }
+
 //-------------------------------------------------------------------------------------------------
 void ERNeuRad::EndOfEvent() {
   if (fVerbose > 1){
@@ -159,6 +166,7 @@ void ERNeuRad::EndOfEvent() {
 
   Reset();
 }
+
 //-------------------------------------------------------------------------------------------------
 void ERNeuRad::Print(Option_t *option) const {
   for (Int_t i_point = 0; i_point < fNeuRadPoints->GetEntriesFast(); i_point++) {
@@ -166,6 +174,7 @@ void ERNeuRad::Print(Option_t *option) const {
     point->Print();
   }
 }
+
 //-------------------------------------------------------------------------------------------------
 void ERNeuRad::Reset() {
   fNeuRadPoints->Clear();
@@ -174,6 +183,7 @@ void ERNeuRad::Reset() {
   fFullEnergy = 0.;
   fFullLY = 0.;
 }
+
 //-------------------------------------------------------------------------------------------------
 void ERNeuRad::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
   Int_t nEntries = cl1->GetEntriesFast();
@@ -188,6 +198,7 @@ void ERNeuRad::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
   }
   LOG(DEBUG) << "NeuRad: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 }
+
 //-------------------------------------------------------------------------------------------------
 Bool_t ERNeuRad::CheckIfSensitive(std::string name) {
   TString volName = name;
@@ -196,6 +207,7 @@ Bool_t ERNeuRad::CheckIfSensitive(std::string name) {
   }
   return kFALSE;
 }
+
 //-------------------------------------------------------------------------------------------------
 void ERNeuRad::StartNewPoint() {
   fELoss  = 0.;
@@ -224,6 +236,7 @@ void ERNeuRad::StartNewPoint() {
   matrix.MasterToLocal(globalPos,localPos);
   fPosInLocal.SetXYZ(localPos[0],localPos[1],localPos[2]);
 }
+
 //-------------------------------------------------------------------------------------------------
 void ERNeuRad::FinishNewPoint() {
   gMC->TrackPosition(fPosOut);
@@ -236,6 +249,7 @@ void ERNeuRad::FinishNewPoint() {
     fFullLY+=fLightYield;
   }                
 }
+
 //-------------------------------------------------------------------------------------------------
 ERNeuRadPoint* ERNeuRad::AddPoint() {
   TClonesArray& clref = *fNeuRadPoints;
@@ -244,6 +258,7 @@ ERNeuRadPoint* ERNeuRad::AddPoint() {
     fModuleNb,fMass, fPosIn.Vect(),fPosInLocal,fPosOut.Vect(),fMomIn.Vect(),fMomOut.Vect(),fTimeIn,
     fTimeOut,fTrackLength, fELoss, fLightYield,gMC->TrackPid(), gMC->TrackCharge());
 }
+
 //-------------------------------------------------------------------------------------------------
 ERNeuRadStep* ERNeuRad::AddFirstStep() {
   TClonesArray& clref = *fNeuRadFirstStep;
@@ -268,6 +283,7 @@ ERNeuRadStep* ERNeuRad::AddStep(){
     gMC->TrackTime() * 1.0e09, gMC->TrackStep(), gMC->TrackPid(), gMC->TrackMass(),fTrackStatus,
     gMC->Edep(), gMC->TrackCharge(), fProcessesID); 
 }
+
 //-------------------------------------------------------------------------------------------------
 Double_t ERNeuRad::CurPointLen(TLorentzVector& posIn) {
   TLorentzVector posOut;
@@ -276,5 +292,6 @@ Double_t ERNeuRad::CurPointLen(TLorentzVector& posIn) {
                     (posIn.Y() - posOut.Y())*(posIn.X() - posOut.X()) + 
                     (posIn.Z() - posOut.Z())*(posIn.Z() - posOut.Z()));
 }
+
 //-------------------------------------------------------------------------------------------------
 ClassImp(ERNeuRad)

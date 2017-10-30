@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                        ERNeuRadMatcher header file          -----
+// -----                  ERNeuRadMatcher header file                  -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
@@ -38,9 +38,11 @@ public:
 
   /** Accessors **/
 protected:
+
   //Input arrays
   TClonesArray *fNeuRadHits;
   TClonesArray* fNeuRadFirstSteps;
+  
   //Output arrays
 
   //Output histos
@@ -52,9 +54,10 @@ protected:
   TH1F* fHdxyLess6TF;
 
 private:
+
   virtual void SetParContainers();
   
   ClassDef(ERNeuRadMatcher,1)
 };
 
-#endif
+#endif // ERNeuRadMatcher_H

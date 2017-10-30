@@ -7,13 +7,11 @@
 #include "FairGenericParRootFileIo.h"
 #include "FairParAsciiFileIo.h"
 #include "FairParRootFileIo.h"
-#include<iostream>
 
 #include "TString.h"
 #include "TMath.h"
 
 #include <iostream>
-
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -33,21 +31,14 @@ ERNeuRadDigiPar::ERNeuRadDigiPar(const char* name,
     fPixelCrosstalks(NULL),
     fFiberCrosstalks(NULL)
 {
-cout << "ERNeuRadDigiPar" << endl;
-
+  std::cout << "ERNeuRadDigiPar" << std::endl;
 }
-// -------------------------------------------------------------------------
-
-
 
 // -----   Destructor   ----------------------------------------------------
 ERNeuRadDigiPar::~ERNeuRadDigiPar()
 {
   clear();
-
 }
-// -------------------------------------------------------------------------
-
 
 // -----   Public method clear   -------------------------------------------
 void ERNeuRadDigiPar::clear()
@@ -55,7 +46,6 @@ void ERNeuRadDigiPar::clear()
   status = kFALSE;
   resetInputVersions();
 }
-// -------------------------------------------------------------------------
 
 // -----   Public method print ---------------------------------------
 void ERNeuRadDigiPar::print()
@@ -95,22 +85,22 @@ void ERNeuRadDigiPar::print()
 
   std::cout << "*****************************************" << std::endl;
 }
+
 //------------------------------------------------------
 void ERNeuRadDigiPar::putParams(FairParamList* l)
 { 
 }
 
 //------------------------------------------------------
-
 Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 {
-  cout << "ERNeuRadDigiPar Filling ..." << endl;
+  std::cout << "ERNeuRadDigiPar Filling ..." << endl;
 
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
   fNofFibers = setup->RowNofPixels()*setup->RowNofPixels();
   fNofModules = setup->RowNofModules()*setup->RowNofModules();
 
-  cout << "fNofFibers " << fNofFibers << endl;
+  std::cout << "fNofFibers " << fNofFibers << endl;
 
   fPixelQuantumEfficiency = new TArrayF(fNofFibers);
   fPixelGain = new TArrayF(fNofFibers);
@@ -138,24 +128,26 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
   fPixelSigma->Set(fNofFibers),
   fPixelCrosstalks->Set(fNofFibers*9);
   fFiberCrosstalks->Set(fNofFibers*9);
-  cout << "fPixelQuantumEfficiency " << fPixelQuantumEfficiency->GetSize() << endl;
+  std::cout << "fPixelQuantumEfficiency " << fPixelQuantumEfficiency->GetSize() << endl;
   return kTRUE;
 }
+
 //------------------------------------------------------
 Bool_t ERNeuRadDigiPar::init(FairParIo* input){
 	std::cout << input->getFilename() << std::endl;
   if ( TString(input->getFilename()).Contains(".digi")){
     FairGenericParAsciiFileIo* p=new FairGenericParAsciiFileIo(((FairParAsciiFileIo*)input)->getFile());
-	return p->init(this);
+	  return p->init(this);
   }
   if ( TString(input->getFilename()).Contains(".root")){ 
     FairGenericParRootFileIo* p=new FairGenericParRootFileIo(((FairParRootFileIo*)input)->getParRootFile());
-	return p->init(this);
+	  return p->init(this);
   }
   return kFALSE;
 }
+
 //------------------------------------------------------
-void ERNeuRadDigiPar::Crosstalks(Int_t iPixel, TArrayF& crosstalks) const{
+void ERNeuRadDigiPar::Crosstalks(Int_t iPixel, TArrayF& crosstalks) const {
   //Возвращает матрицу три на три. Каждый элемент матрицы - кростолк к соответствующему соседу.
   //Центральая ячейка - вероятность фотонов, которые останутся в волокне.
   //Вне зависимости от того, что написано в файле параметров потом пересчитывается, чтобы суммарная вероятнсть была равна 1  

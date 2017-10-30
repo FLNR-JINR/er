@@ -3,18 +3,15 @@
 // -----                  Created 02/03/15  by v. Schetinin            -----
 // -------------------------------------------------------------------------
 
-
 /**  ERNeuRadStep.h
  **/
 
 #ifndef ERNeuRadStep_H
 #define ERNeuRadStep_H
 
-
 #include "TObject.h"
 #include "TVector3.h"
 #include "TArrayI.h"
-
 
 #include "FairMultiLinkedData.h"
 
@@ -22,7 +19,8 @@
 
 class ERNeuRadStep : public FairMultiLinkedData
 {
- public:
+
+public:
 
   /** Default constructor **/
   ERNeuRadStep();
@@ -54,10 +52,8 @@ class ERNeuRadStep : public FairMultiLinkedData
       Double_t charge,
       TArrayI  processID);
 
-
   /** Copy constructor **/
   ERNeuRadStep(const ERNeuRadStep&);
-
 
   /** Destructor **/
   virtual ~ERNeuRadStep();
@@ -74,9 +70,9 @@ class ERNeuRadStep : public FairMultiLinkedData
   void Print();
   
   static ExpertTrackingStatus GetTrackStatus();
-  
- protected:
-  
+
+protected:
+
   Int_t fEventID;
   Int_t fStepNr;
   Int_t fTrackID;
@@ -98,4 +94,5 @@ class ERNeuRadStep : public FairMultiLinkedData
 
   ClassDef(ERNeuRadStep,1)
 };
-#endif
+
+#endif //ERNeuRadStep_H

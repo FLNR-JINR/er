@@ -1,5 +1,6 @@
 #include "ERNeuRadHitFinderWBT.h"
 
+#include <iostream>
 #include <vector>
 #include <map>
 
@@ -9,15 +10,13 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include<iostream>
 
 #include "ERDetectorList.h"
 #include "ERNeuRadPixelSignal.h"
 #include "ERNeuRadSetup.h"
 
-using namespace std;
-
 Int_t ERNeuRadHitFinderWBT::fEvent = 0;
+
 // ----------------------------------------------------------------------------
 ERNeuRadHitFinderWBT::ERNeuRadHitFinderWBT()
   : FairTask("ER NeuRad hit producing scheme")
@@ -115,7 +114,6 @@ void ERNeuRadHitFinderWBT::Reset()
 // ----------------------------------------------------------------------------
 void ERNeuRadHitFinderWBT::Finish()
 {   
-
 }
 // ----------------------------------------------------------------------------
 
@@ -130,5 +128,6 @@ ERNeuRadHitWBT* ERNeuRadHitFinderWBT::AddHit(Int_t detID, TVector3& pos, TVector
   return hit;
 }
 // ----------------------------------------------------------------------------
+
 //-----------------------------------------------------------------------------
 ClassImp(ERNeuRadHitFinderWBT)

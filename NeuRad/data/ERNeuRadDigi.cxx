@@ -1,12 +1,11 @@
 // -------------------------------------------------------------------------
-// -----                       ERNeuRadDigi source file                -----
-// -----           Created 11/12/15  by V.Schetinin        			   -----
+// -----           ERNeuRadDigi source file                            -----
+// -----           Created 11/12/15  by V.Schetinin                    -----
 // -------------------------------------------------------------------------
 
 #include "ERNeuRadDigi.h"
-#include<iostream>
 
-using namespace std;
+#include <iostream>
 
 // -----   Default constructor   -------------------------------------------
 ERNeuRadDigi::ERNeuRadDigi()
@@ -46,8 +45,6 @@ ERNeuRadDigi::ERNeuRadDigi(const ERNeuRadDigi& right)
 {
 }
 
-
-
 // -----   Destructor   ----------------------------------------------------
 ERNeuRadDigi::~ERNeuRadDigi()
 {
@@ -56,11 +53,11 @@ ERNeuRadDigi::~ERNeuRadDigi()
 // -----   Public method Print   -------------------------------------------
 void ERNeuRadDigi::Print(const Option_t* opt /* = 0 */) const
 {
-  std::cout << "-I- ERNeuRadDigi:  " << endl;
-  std::cout << "    Fiber : " << fFiberIndex << endl;
-  std::cout << "    Module : " << fModuleIndex << endl;
-  std::cout << "    FrontTDC: " << fFrontTDC << " BackTDC " << fBackTDC << " TDC " << fTDC << endl;
-  std::cout << "    QDC: " << fQDC << endl;
+  std::cout << "-I- ERNeuRadDigi:  " << std::endl;
+  std::cout << "    Fiber : " << fFiberIndex << std::endl;
+  std::cout << "    Module : " << fModuleIndex << std::endl;
+  std::cout << "    FrontTDC: " << fFrontTDC << " BackTDC " << fBackTDC << " TDC " << fTDC << std::endl;
+  std::cout << "    QDC: " << fQDC << std::endl;
 }
 // -------------------------------------------------------------------------
 

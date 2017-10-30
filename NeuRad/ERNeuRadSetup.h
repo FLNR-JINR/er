@@ -1,9 +1,6 @@
 // -------------------------------------------------------------------------
-
 // -----                        ERNeuRadSetup header file              -----
-
 // -----                        V.Schetinin (sch_vitaliy@mail.ru)      -----
-
 // -------------------------------------------------------------------------
 
 #ifndef ERNEURADSETUP_H
@@ -11,17 +8,18 @@
 
 #include <vector>
 #include "Rtypes.h"
-#include "ERNeuRadDigiPar.h"
 
+//TODO fix
+#include "ERNeuRadDigiPar.h"
 class ERNeuRadDigiPar;
 
-struct ERNeuRadModule{
+struct ERNeuRadModule {
         Float_t fX;
         Float_t fY;
         ERNeuRadModule(Float_t x, Float_t y){fX = x; fY = y;}
 };
 
-struct ERNeuRadFiber{
+struct ERNeuRadFiber {
         Float_t fX;
         Float_t fY;
         ERNeuRadFiber(Float_t x, Float_t y){fX = x; fY = y;}
@@ -39,7 +37,9 @@ class ERNeuRadSetup {
     static Int_t fRowNofModules;
     static Int_t fRowNofPixels;
     ERNeuRadSetup();
+
 public:
+
     static ERNeuRadSetup* Instance();
     static Int_t   NofFibers();
     static Int_t   NofPixels();
@@ -61,9 +61,8 @@ public:
     static Int_t RowNofModules();
     static Bool_t UseCrosstalks();
     static Int_t SetParContainers();
-    ClassDef(ERNeuRadSetup,1)
 
+    ClassDef(ERNeuRadSetup,1)
 };
 
-#endif
-
+#endif // ERNEURADSETUP_H

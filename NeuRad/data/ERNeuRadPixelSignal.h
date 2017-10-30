@@ -3,10 +3,8 @@
 // -----                  Created 02/03/15  by v. Schetinin            -----
 // -------------------------------------------------------------------------
 
-
 #ifndef ERNeuRadPixelSignal_H
 #define ERNeuRadPixelSignal_H
-
 
 #include "TObject.h"
 #include "TVector3.h"
@@ -49,15 +47,16 @@ protected:
 
   Double_t OnePEFunction(Double_t time, Double_t amplitude);
   Int_t OnePETime(Double_t amplitude);
+
 public:
 
-        Double_t GetStartTime(){
- 	       return fStartTime;
-        }
+  Double_t GetStartTime(){
+     return fStartTime;
+  }
 
-        Double_t GetFinishTime(){
-	        return fFinishTime;
-        }
+  Double_t GetFinishTime(){
+    return fFinishTime;
+  }
 
 	Float_t GetPEamp(Int_t i) {
                 return fPEAmplitudes[i];
@@ -110,12 +109,11 @@ public:
   Int_t Side() const {return fSide;}
   Double_t AmplitudesSum() const {return fPEAmplitudesSum;}
 
-
-    //constants
+  //constants
   //Гранулирование сигнала по времени
-  static const Double_t cdT; //ns
+  static const Double_t cdT; // ns
   
   ClassDef(ERNeuRadPixelSignal,1);
 };
 
-#endif
+#endif // ERNeuRadPixelSignal_H

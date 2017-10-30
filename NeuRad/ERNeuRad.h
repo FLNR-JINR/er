@@ -9,7 +9,6 @@
 #ifndef ERNeuRad_H
 #define ERNeuRad_H
 
-
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
 #include "TArrayI.h"
@@ -37,21 +36,23 @@ class ERNeuRadPoint;
  ** transport simulation. It constructs the NeuRad transport geometry
  ** and creates objects of type ERNeuRadPoins and ERNeuRadSteps if requested.
 **/
-class ERNeuRad : public ERDetector {
+class ERNeuRad : public ERDetector
+{
 
-  public:
-    
+public:
+
     /** @brief Default constructor **/
     ERNeuRad();
-    
+
     /** @brief Standard constructor
      ** @param name    ERNeuRad detector name
      ** @param active  sensitivity flag
-     ** @param verbose Verbosity level. 1 - only standart logs, 2 - Print points after each event, 
-                                        3 - GEANT Step information
+     ** @param verbose Verbosity level. 1 - only standart logs,
+     **                                 2 - Print points after each event, 
+     **                                 3 - GEANT Step information.
     **/
     ERNeuRad(const char* name, Bool_t active, Int_t verbose);
-    
+
     /** @brief Destructor **/
     virtual ~ERNeuRad();
 
@@ -77,7 +78,7 @@ class ERNeuRad : public ERDetector {
     **/
     virtual TClonesArray* GetCollection(Int_t iColl) const;
 
-  public:
+public:
 
     /** @brief Initialisation
      ** class method FairDetector::Initialize() is called.
@@ -90,7 +91,7 @@ class ERNeuRad : public ERDetector {
      ** Abstract from FairDetector.
     **/
     virtual void Register();
-    
+
     /** @brief Virtual method 
      ** Defines the action to be taken when a step is inside the active volume. Creates a 
      ** ERNeuRadPoint and adds it to the collection.
@@ -98,19 +99,19 @@ class ERNeuRad : public ERDetector {
      ** Virtual from FairDetector.
     **/
     virtual Bool_t ProcessHits(FairVolume* vol = 0);
-    
+
     /** @brief Action at end of event
      ** Short status log and Reset().
      ** Virtual from FairDetector.
     **/
     virtual void EndOfEvent();
-    
+
     /** @brief Screen log
-      ** Prints NeuRadPoint information
-      ** Virtual from TObject.
+     ** Prints NeuRadPoint information
+     ** Virtual from TObject.
     **/
     virtual void Print(Option_t *option="") const;
-    
+
     /** @brief Clears the point and steps collections
      ** Virtual from FairDetector
     **/
@@ -122,8 +123,7 @@ class ERNeuRad : public ERDetector {
      ** @param offset  Index offset
      ** Virtual from FairDetector
     **/
-    virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2,
-          Int_t offset);
+    virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset);
 
     /** @brief Check whether a volume is sensitive.
      ** @param name  Volume name
@@ -133,7 +133,8 @@ class ERNeuRad : public ERDetector {
     **/
     virtual Bool_t CheckIfSensitive(std::string name);
 
-  private:
+private:
+
     /** @brief Start new point creation. Reinit current point data **/
     void StartNewPoint();
 
@@ -142,21 +143,22 @@ class ERNeuRad : public ERDetector {
 
     /** @brief Adds a NeuRadPoint to the Point Collection **/
     ERNeuRadPoint* AddPoint();
-    
+
     /** @brief Adds a NeuRadStep to the PrimaryStep Collection **/
     ERNeuRadStep* AddFirstStep();
-          
+
     /** @brief Adds a NeuRadStep to the Steps Collection **/      
     ERNeuRadStep* AddStep();
-            
+
     /** @brief return current point length **/    
     Double_t CurPointLen(TLorentzVector& posIn);
-    
-  private:
+
+private:
+
     TClonesArray*  fNeuRadPoints;     ///< The point collection
     TClonesArray*  fNeuRadFirstStep;  ///< The first step collection
     TClonesArray*  fNeuRadSteps;      ///< The steps collection
-      
+
     Bool_t fStorePrimarySteps;        ///< Flag to storing firs step in sensetive volume
     Bool_t fStoreAllSteps;            ///< Flag to storing all steps in sensetive volume
     Int_t   fVerbose;                 ///< Verbosity level                
@@ -166,14 +168,14 @@ class ERNeuRad : public ERDetector {
 
     /* current step information*/
 
-    Int_t fEventID;                   ///< event index
-    Int_t fTrackID;                   ///< track index
-    Int_t fMot0TrackID;               ///< 0th mother track index
-    Double_t fMass;                   ///< mass
+    Int_t          fEventID;          ///< event index
+    Int_t          fTrackID;          ///< track index
+    Int_t          fMot0TrackID;      ///< 0th mother track index
+    Double_t       fMass;             ///< mass
     TLorentzVector fPosIn;            ///< point start  position
     TLorentzVector fPosOut;           ///< point finish  position
     TLorentzVector fCurPosIn;         ///< current step position
-    TVector3 fPosInLocal;             ///< point position in sensetive volume CS
+    TVector3       fPosInLocal;       ///< point position in sensetive volume CS
     TLorentzVector fMomIn;            ///< point start momentum
     TLorentzVector fMomOut;           ///< point start momentum
     TLorentzVector fCurMomIn;         ///< current step momentum
@@ -187,9 +189,9 @@ class ERNeuRad : public ERDetector {
     Int_t          fModuleNb;         ///< number of module in NeuRad
     Int_t          fStepNb;           ///< current step numb in this active volumes
     ExpertTrackingStatus fTrackStatus; ///< curren track stutus (transport, stop, disappeared, ...) 
-    TArrayI  fProcessesID;            ///< VMC prcess IDs in step
+    TArrayI        fProcessesID;      ///< VMC prcess IDs in step
 
-  ClassDef(ERNeuRad,1);
+    ClassDef(ERNeuRad,1)
 };
 
-#endif 
+#endif // ERNeuRad_H

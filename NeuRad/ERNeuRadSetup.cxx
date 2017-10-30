@@ -1,7 +1,6 @@
 #include "ERNeuRadSetup.h"
 
-#include<iostream>
-using namespace std;
+#include <iostream>
 
 #include "TGeoBBox.h"
 #include "TError.h"

@@ -2,7 +2,6 @@
 // -----                      ERNeuRadStep source file                 -----
 // -------------------------------------------------------------------------
 
-
 #include "ERNeuRadStep.h"
 
 #include "TVirtualMC.h"
@@ -16,8 +15,6 @@ ERNeuRadStep::ERNeuRadStep()
 {
 }
 // -------------------------------------------------------------------------
-
-
 
 // -----   Standard constructor   ------------------------------------------
 ERNeuRadStep::ERNeuRadStep(Int_t eventID, Int_t stepNr,Int_t trackID,
@@ -46,8 +43,6 @@ ERNeuRadStep::ERNeuRadStep(Int_t eventID, Int_t stepNr,Int_t trackID,
 }
 // -------------------------------------------------------------------------
 
-
-
 // -------------------------------------------------------------------------
 ERNeuRadStep::ERNeuRadStep(const ERNeuRadStep& right)
   : fEventID(right.fEventID),  fStepNr(right.fStepNr), fTrackID(right.fTrackID), 
@@ -60,8 +55,6 @@ ERNeuRadStep::ERNeuRadStep(const ERNeuRadStep& right)
 {
 }
 // -------------------------------------------------------------------------
-
-
 
 // -----   Destructor   ----------------------------------------------------
 ERNeuRadStep::~ERNeuRadStep()
@@ -93,7 +86,7 @@ void ERNeuRadStep::Print()
   std::cout << "-I- STEPINFO:" << std::endl;
   TString flag;
   switch (fTrackStatus) {
-    case Entering :      flag="enters to";               break;
+    case Entering : flag="enters to";               break;
     case Exiting :  flag="exits from";              break;
     case Inside :   flag="inside";                  break;
     case Stop :     flag="stopped in";              break;
@@ -130,4 +123,5 @@ ExpertTrackingStatus ERNeuRadStep::GetTrackStatus(){
   
 }
 // ----------------------------------------------------------------------------
+
 ClassImp(ERNeuRadStep)

@@ -1,11 +1,12 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadPixelSignal source file           -----
+// -----                     ERNeuRadPixelSignal source file           -----
 // -------------------------------------------------------------------------
-#include "ERNeuRadPixelSignal.h"
-#include "TMath.h"
-#include <iostream>
 
-using namespace std;
+#include "ERNeuRadPixelSignal.h"
+
+#include "TMath.h"
+
+#include <iostream>
 
 const Double_t ERNeuRadPixelSignal::cdT = 0.1; //ns
 
@@ -55,7 +56,6 @@ void ERNeuRadPixelSignal::AddPhotoElectron(ERNeuRadPhotoElectron* pe){
 
 	fCurFPoint++;
 }
-
 
 void ERNeuRadPixelSignal::Generate(){
 	//добавление к общему сигналу
@@ -133,7 +133,7 @@ std::vector<Double_t> ERNeuRadPixelSignal::Intersections(Double_t discriminatorT
 	return intersections;
 } 
 
- Double_t ERNeuRadPixelSignal::Integ(const Double_t start,const Double_t finish){
+Double_t ERNeuRadPixelSignal::Integ(const Double_t start,const Double_t finish){
   //Вычисления интеграла сигнала методом трапеций
   if (finish<fStartTime)
     return 0;
@@ -153,17 +153,17 @@ std::vector<Double_t> ERNeuRadPixelSignal::Intersections(Double_t discriminatorT
   }
   
   return res;
- }
+}
 
- Double_t ERNeuRadPixelSignal::FirstInteg(const Double_t window){
+Double_t ERNeuRadPixelSignal::FirstInteg(const Double_t window){
  	//Возвращает интеграл сигнала в окне window, начиная с начального узла сигнала
  	if ((fStartTime + window) > fFinishTime )
  	  return Integ(fStartTime, fFinishTime);
  	else
  		return Integ(fStartTime, fStartTime+window);
- }
+}
 
- Float_t ERNeuRadPixelSignal::ThresholdTime(Float_t peThreshold){
+Float_t ERNeuRadPixelSignal::ThresholdTime(Float_t peThreshold){
  	//Возвращает время пересечения сигнала порога peThreshold [количество фотоэлектронов]
  	Int_t i = 0;
  	while((fResFunctionRoot[i] < peThreshold*OnePEIntegral()) && i < (fResFunctionRoot.GetSize()-1)){
@@ -176,7 +176,7 @@ std::vector<Double_t> ERNeuRadPixelSignal::Intersections(Double_t discriminatorT
  	if (i==fResFunctionRoot.GetSize()-1)
  		return -1;
  	return (peThreshold*OnePEIntegral()-fResFunctionRoot[prevI])/(fResFunctionRoot[lastI]-fResFunctionRoot[prevI])*(lastT-prevT)+prevT;
- }
+}
 
 Double_t ERNeuRadPixelSignal::OnePEIntegral(){
 	Double_t res = 0.;

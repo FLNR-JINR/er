@@ -1,10 +1,10 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadPhotoElectron source file           -----
+// -----                   ERNeuRadPhotoElectron source file           -----
 // -------------------------------------------------------------------------
+
 #include "ERNeuRadPhotoElectron.h"
 
 #include <iostream>
-using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 ERNeuRadPhotoElectron::ERNeuRadPhotoElectron():
@@ -14,17 +14,28 @@ ERNeuRadPhotoElectron::ERNeuRadPhotoElectron():
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
-ERNeuRadPhotoElectron::ERNeuRadPhotoElectron(Int_t index, Int_t side,Double_t lyTime,  Double_t cathode_time, Double_t anode_time, 
-							Int_t photon_count, Double_t amplitude):
-	fIndex(index),fSide(side),fLYTime(lyTime), fCathodeTime(cathode_time), fAnodeTime(anode_time),fPhotonCount(photon_count),fAmplitude(amplitude)
+ERNeuRadPhotoElectron::ERNeuRadPhotoElectron(Int_t index,
+												Int_t side,
+												Double_t lyTime,
+												Double_t cathode_time,
+												Double_t anode_time,
+												Int_t photon_count,
+												Double_t amplitude):
+	fIndex(index),
+	fSide(side),
+	fLYTime(lyTime),
+	fCathodeTime(cathode_time),
+	fAnodeTime(anode_time),
+	fPhotonCount(photon_count),
+	fAmplitude(amplitude)
 {
 }
 // -------------------------------------------------------------------------
 
 void ERNeuRadPhotoElectron::Print(){
-	cout << "PE: "<< fIndex << endl <<
-		"Side: " << fSide << " Cathode Time: " << fCathodeTime << " AnodeTime: " << fAnodeTime << endl <<
-		"Photon count: " << fPhotonCount<< " Amplitude: " << fAmplitude << " LYTime:" <<  fLYTime << endl;
+	std::cout << "PE: " << fIndex << std::endl;
+	std::cout << "Side: " << fSide << " Cathode Time: " << fCathodeTime << " AnodeTime: " << fAnodeTime << std::endl;
+	std::cout << "Photon count: " << fPhotonCount << " Amplitude: " << fAmplitude << " LYTime:" << fLYTime << std::endl;
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -32,4 +43,5 @@ ERNeuRadPhotoElectron::~ERNeuRadPhotoElectron()
 {
 }
 // -------------------------------------------------------------------------
+
 ClassImp(ERNeuRadPhotoElectron)

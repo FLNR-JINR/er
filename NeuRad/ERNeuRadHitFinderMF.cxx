@@ -1,5 +1,6 @@
 #include "ERNeuRadHitFinderMF.h"
 
+#include <iostream>
 #include <vector>
 #include <map>
 
@@ -9,15 +10,13 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include<iostream>
 
 #include "ERDetectorList.h"
 #include "ERNeuRadDigi.h"
 #include "ERNeuRadSetup.h"
 
-using namespace std;
-
 Int_t ERNeuRadHitFinderMF::fEvent = 0;
+
 // ----------------------------------------------------------------------------
 ERNeuRadHitFinderMF::ERNeuRadHitFinderMF()
   : fPixelThreshold(2.),
@@ -154,5 +153,6 @@ ERNeuRadHit* ERNeuRadHitFinderMF::AddHit(Int_t detID, TVector3& pos, TVector3& d
   return hit;
 }
 // ----------------------------------------------------------------------------
+
 //-----------------------------------------------------------------------------
 ClassImp(ERNeuRadHitFinderMF)
