@@ -1,17 +1,17 @@
-
 #include "ERDRS4Source.h"
 
 #include "RawEvent.h"
 
 #include <iostream>
-using namespace std;
 
 ERDRS4Source::ERDRS4Source():
-fNChanels(4),
-fNPoints(1024)
+    fNChanels(4),
+    fNPoints(1024)
 {
 }
-ERDRS4Source::ERDRS4Source(const ERDRS4Source& source){
+
+ERDRS4Source::ERDRS4Source(const ERDRS4Source& source)
+{
 }
 
 ERDRS4Source::~ERDRS4Source(){
@@ -19,7 +19,7 @@ ERDRS4Source::~ERDRS4Source(){
 }
 
 Bool_t ERDRS4Source::Init(){
-	cerr << "Init" << endl;
+	std::cerr << "Init" << std::endl;
 	f = fopen(fPath.Data(), "r");
 	if (f == NULL) {
 		printf("Cannot find file \'%s\'\n", fPath.Data());
@@ -43,8 +43,8 @@ Bool_t ERDRS4Source::Init(){
 
 Int_t ERDRS4Source::ReadHeader()
 {
-	size_t nReadElements;
-	
+    size_t nReadElements;
+
 	// read file header
 	nReadElements = fread(&fh, sizeof(fh), 1, f);
 	if (fh.tag[0] != 'D' || fh.tag[1] != 'R' || fh.tag[2] != 'S') {
@@ -107,7 +107,7 @@ Int_t ERDRS4Source::ReadHeader()
 
 Int_t ERDRS4Source::ReadEvent(UInt_t id)
 {
-	size_t nReadElements;
+    size_t nReadElements;
 
 	//reset Events
 	//read event header
