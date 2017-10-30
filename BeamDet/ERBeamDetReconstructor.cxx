@@ -1,7 +1,6 @@
 #include "ERBeamDetReconstructor.h"
 
-#include<iostream>
-using namespace std;
+#include <iostream>
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -78,6 +77,7 @@ void ERBeamDetReconstructor::Exec(Option_t* opt)
   MWPC();
   ToF();
 }
+
 //----------------------------------------------------------------------------
 void ERBeamDetReconstructor::ToF(){
   TRandom Rnd;
@@ -325,7 +325,7 @@ double ERBeamDetReconstructor::coordMW(UpstreamMatter* pT,ERBeamDetRecoEvent* pR
     Sn = (double)n/(double)mMW;
   }
   //Sn += (rand() %10000)/10000.-0.5;
-  // /cout << pT->MWstep << " " << iMW << " " << Sn << " " << pT->MWNwires << " " << offset << endl;
+  // std::cout << pT->MWstep << " " << iMW << " " << Sn << " " << pT->MWNwires << " " << offset << std::endl;
   co = pT->MWstep*iMW*(Sn-(double)(pT->MWNwires+1)/2.)+offset;
   return co;
 }
@@ -366,7 +366,7 @@ void ERBeamDetReconstructor::ElossToFaMWPCaTarget(){
   double range = header->UpMat.PlasticThick2;
 
   Tb = EiEo(header->UpMat.beam_ToF,fOutEvent->projectile.Part.E()-fOutEvent->projectile.Mass,header->UpMat.PlasticThick2);
-  cout << "energey" <<Tb << endl;
+  std::cout << "energey" << Tb << std::endl;
   p_beam = sqrt(pow(Tb+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));
   fOutEvent->projectile.Part.SetPxPyPzE(0.,0.,p_beam,Tb+fOutEvent->projectile.Mass);
   if(header->ReIN.ToFis)
@@ -377,7 +377,7 @@ void ERBeamDetReconstructor::ElossToFaMWPCaTarget(){
   }
   strcpy(ShowTrack,"visible");
   Tb = UpstreamEnergyLoss(&(header->UpMat),&(fOutEvent->projectile),header->ReIN.ToFis,header->ReIN.TRACKINGis,ShowTrack);
-  //cout << "energey" <<Tb << endl;
+  // std::cout << "energey" << Tb << std::endl;
   p_beam = sqrt(pow(Tb+fOutEvent->projectile.Mass,2)-pow(fOutEvent->projectile.Mass,2));
   fOutEvent->projectile.Part.SetPxPyPzE(0.,0.,p_beam,Tb+fOutEvent->projectile.Mass);
 
@@ -461,7 +461,7 @@ void ERBeamDetReconstructor::Finish()
 }
 // ----------------------------------------------------------------------------
 void ERBeamDetReconstructor::DefineBeamEnergy(){
-  cout << "Define beam energy" << endl;
+  std::cout << "Define beam energy" << std::endl;
   char RightEnUn1[]="MeV";
   char RightEnUn2[]="MeV/n";
   char RightEnUn3[]="A";
@@ -474,7 +474,7 @@ void ERBeamDetReconstructor::DefineBeamEnergy(){
   else if(!strcmp(header->ReIN.EnergyUn,RightEnUn2)) Tb *= fOutEvent->projectile.AtMass;
   else if(!strcmp(header->ReIN.EnergyUn,RightEnUn3)){
     Tb = Stepantsov(Dipole,fOutEvent->projectile.AtNumber,fOutEvent->projectile.Mass,Tb);
-    cout << "Stepantsov energey:" << Tb << endl;
+    std::cout << "Stepantsov energey:" << Tb << std::endl;
   }
   else printf("Main: wrong energy unit\n");
   Tboutput = Tb;

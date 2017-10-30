@@ -108,6 +108,8 @@ Bool_t ERTextDecay::ReadFile(){
 
 Bool_t ERTextDecay::Stepping() {
   if (gMC->CurrentEvent() > fDecays.size()-1) {
+    //Fatal("ERTextDecay::BeginEvent",TString("Events count in file") 
+    //                                        + fFileName + TString(" less currenet event number"));
     Fatal("ERTextDecay::BeginEvent", "Events count in file %s less currenet event number", fFileName.Data());
   }
 

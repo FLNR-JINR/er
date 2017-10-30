@@ -1,5 +1,4 @@
 #include <iostream>
-using namespace std;
 
 #include "ERHe8EventHeader.h"
 
@@ -16,13 +15,13 @@ Bool_t ERHe8EventHeader::Register(TTree* tree, TString branchName){
 	tree->SetBranchAddress(branchName + TString(".time"),&HE8Event_time);
 
 	ReadInputFile();
-  ReactionPreparation();
-  
+	ReactionPreparation();
+
 	return kTRUE;
 }
 //-----------------------------------------------------------------------------
 void ERHe8EventHeader::ReadInputFile(){
-  cout << "Filling header from input files" << endl;
+  std::cout << "Filling header from input files" << std::endl;
   char Zeros[32];
   ReIN.Simulation = false;
   ReIN.Vertex = false;
@@ -119,6 +118,8 @@ void ERHe8EventHeader::ReadInputFile(){
   fclose(F2);
   }
   UpMat.MWcathThick *= UpMat.MWNcathodes;
+
+  //TODO Check that this section works correctly!!! ========================
   /*********************** Readout ToF parameters:************************/
   if(ReIN.ToFis)
   {
@@ -143,6 +144,7 @@ void ERHe8EventHeader::ReadInputFile(){
   UpMat.PlasticThick1/=cos(UpMat.PlasticAngle1*rad);
   UpMat.PlasticThick2/=cos(UpMat.PlasticAngle2*rad);
   }
+
   /********************* Readout Target parameters:***********************/
   filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/target.dat");
   F1 = fopen(filePath.Data(),"r");
@@ -176,7 +178,7 @@ void ERHe8EventHeader::ReadInputFile(){
 }
 //-----------------------------------------------------------------------------
 void ERHe8EventHeader::ReactionPreparation(){
-  cout << " Separate Input and Output channels " << endl;
+  std::cout << " Separate Input and Output channels " << std::endl;
   char ReaNa[32];
   char InputChannel[32];
   char OutputChannel[32];
@@ -192,7 +194,7 @@ void ERHe8EventHeader::ReactionPreparation(){
   plett = strtok(ReIN.ReactionName,"-");
   strcpy(InputChannel,plett);
 
-  cout << "Define if there is any resonance in the Output channel" << endl;
+  std::cout << "Define if there is any resonance in the Output channel" << std::endl;
   int NofPartRes = 0;
   plett = strchr(OutputChannelTemp,'[');
   if(plett!=NULL)
@@ -222,7 +224,7 @@ void ERHe8EventHeader::ReactionPreparation(){
   }
   else strcpy(OutputChannel,OutputChannelTemp);
   
-  cout << "Separate Detected and Unobserved particles in the Output channel" << endl;
+  std::cout << "Separate Detected and Unobserved particles in the Output channel" << std::endl;
   char zero[]="";
   NofUnObsPart = 0;
   strcpy(DetectedPart,OutputChannel);
@@ -236,13 +238,13 @@ void ERHe8EventHeader::ReactionPreparation(){
     NofUnObsPart = HowMuchParticles(UnObservedPart);
   }
   
-  cout << "How much Input and Detected particles" << endl;
+  std::cout << "How much Input and Detected particles" << std::endl;
   NofInPart = HowMuchParticles(InputChannel);
   if(NofInPart<2||NofInPart>2) {printf("Wrong number of particles in the Input channel\n");}
   NofDetPart = HowMuchParticles(DetectedPart);
   if(NofDetPart==0) {printf("Wrong number of detected particles\n");}
 
-  cout  << "Define particles in the input channel" << endl;
+  std::cout << "Define particles in the input channel" << std::endl;
 
   plett = strtok(InputChannel,"+");
   strcpy(projname,plett);

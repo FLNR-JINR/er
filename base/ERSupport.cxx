@@ -71,7 +71,7 @@ int ReadRint(char* Fname,double Ranges[][105]){
       else if(!strcmp(unR,"m")) {Rng=r*100.0;}
       else if(!strcmp(unR,"km")) {Rng=r*100000.0;}
       else {printf("Error of reading in ReadRint b: %s %s\n",unE,unR);}
-      
+  
       Ranges[0][i]=Energy;
       Ranges[1][i]=Rng;
       i++;

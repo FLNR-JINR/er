@@ -3,8 +3,7 @@
 
 #include "TClonesArray.h"
 
-#include<iostream>
-using namespace std;
+#include <iostream>
 
 // ----------------------------------------------------------------------------
 
@@ -72,8 +71,6 @@ void ERSimtoRaw::Exec(Option_t* opt)
   if ( !(fEvent%100000) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
   Int_t simSize,side,counter,PEnum;
   Double_t maxAmp, StartTime, FinishTime;
-
-
   
   FairRun* run = FairRun::Instance();
   run->MarkFill(kFALSE);
