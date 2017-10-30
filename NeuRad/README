@@ -1,0 +1,24 @@
+ERNeuRad - основной класс детектора
+
+ERNeuRadContFact
+ERNeuRadDigiPar
+ERNeuRadDigitizer
+ERNeuRadGeoPar
+ERNeuRad
+ERNeuRadHitFinder
+ERNeuRadHitFinderMF
+ERNeuRadHitFinderWBT
+ERNeuRadLinkDef
+ERNeuRadMatcher
+ERNeuRadSetup
+ERNeuRadViewer
+
+data/
+
+ERNeuRadDigi
+ERNeuRadHit
+ERNeuRadHitWBT
+ERNeuRadPhotoElectron
+ERNeuRadPixelSignal
+ERNeuRadPoint
+ERNeuRadStep
