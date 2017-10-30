@@ -56,10 +56,12 @@ InitStatus ERRTelescopeCalibrator::Init()
     double a,b,t;
     char comments[128];
     int it,il,is;
-    fscanf(F2,"%s %s %s %s %s %s %s\n",comments,comments,comments,comments,comments,comments,comments);
+    int res;
+    res = fscanf(F2,"%s %s %s %s %s %s %s\n",comments,comments,comments,comments,comments,comments,comments);
     while(!feof(F2))
     {
-      fscanf(F2,"%i %i %i %lf %lf %lf %s\n",&it,&il,&is,&a,&b,&t,comments);
+      int res2;
+      res2 = fscanf(F2,"%i %i %i %lf %lf %lf %s\n",&it,&il,&is,&a,&b,&t,comments);
       CLB[it][il][is][0] = b;
       CLB[it][il][is][1] = a;
       CLB[it][il][is][2] = t;

@@ -50,32 +50,33 @@ int ReadRint(char* Fname,double Ranges[][105]){
   return 1;}
   else
   {
-  printf("ReadRint: File %s has been read\n",Fname);
-  while (fgets(DummyA,256,F2)) {if(strstr(DummyA,termA)) break;}
-  i=0;
-  while (strcmp(unE,"GeV"))
-  {
-  //printf("%i\n",i);
-  fscanf(F2,"%lf %s %s %lf %lf %s %s %s %s %s\n",&e,unE,dee,
-  &den,&r,unR,b,un3,cc,un4);
-  if(!strcmp(unE,"keV")) {Energy=e/1000.0;}
-  else if(!strcmp(unE,"MeV")) {Energy=e;}
-  else if(!strcmp(unE,"GeV")) {Energy=e*1000.0;}
-  else {printf("Error of reading in ReadRint a: %s %s\n",unE,unR);}
+    printf("ReadRint: File %s has been read\n",Fname);
+    while (fgets(DummyA,256,F2)) {if(strstr(DummyA,termA)) break;}
+    i=0;
+    while (strcmp(unE,"GeV"))
+    {
+      int res;
+      //printf("%i\n",i);
+      res = fscanf(F2,"%lf %s %s %lf %lf %s %s %s %s %s\n",&e,unE,dee,
+      &den,&r,unR,b,un3,cc,un4);
+      if(!strcmp(unE,"keV")) {Energy=e/1000.0;}
+      else if(!strcmp(unE,"MeV")) {Energy=e;}
+      else if(!strcmp(unE,"GeV")) {Energy=e*1000.0;}
+      else {printf("Error of reading in ReadRint a: %s %s\n",unE,unR);}
 
-  if(!strcmp(unR,"A")) {Rng=r*1.0E-8;}
-  else if(!strcmp(unR,"um")) {Rng=r/10000.0;}
-  else if(!strcmp(unR,"mm")) {Rng=r/10.0;}
-  else if(!strcmp(unR,"cm")) {Rng=r;}
-  else if(!strcmp(unR,"m")) {Rng=r*100.0;}
-  else if(!strcmp(unR,"km")) {Rng=r*100000.0;}
-  else {printf("Error of reading in ReadRint b: %s %s\n",unE,unR);}
-  
-  Ranges[0][i]=Energy;
-  Ranges[1][i]=Rng;
-  i++;
-  }
-  fclose(F2);
+      if(!strcmp(unR,"A")) {Rng=r*1.0E-8;}
+      else if(!strcmp(unR,"um")) {Rng=r/10000.0;}
+      else if(!strcmp(unR,"mm")) {Rng=r/10.0;}
+      else if(!strcmp(unR,"cm")) {Rng=r;}
+      else if(!strcmp(unR,"m")) {Rng=r*100.0;}
+      else if(!strcmp(unR,"km")) {Rng=r*100000.0;}
+      else {printf("Error of reading in ReadRint b: %s %s\n",unE,unR);}
+      
+      Ranges[0][i]=Energy;
+      Ranges[1][i]=Rng;
+      i++;
+    }
+    fclose(F2);
   }
   for (i=0;i<4;++i)
   {
@@ -83,8 +84,10 @@ int ReadRint(char* Fname,double Ranges[][105]){
     y[i]=Ranges[1][i];
   }
   if(intrp4(x,y,c))
-  {printf("1 Interpolation error 1 intrp4=%i\n",intrp4(x,y,c));
-  return 1;}
+  {
+    printf("1 Interpolation error 1 intrp4=%i\n",intrp4(x,y,c));
+    return 1;
+  }
 
   Ranges[2][0]=c[0];
   Ranges[3][0]=c[1];
@@ -98,7 +101,9 @@ int ReadRint(char* Fname,double Ranges[][105]){
   }
 
   if(intrp4(x,y,c))
-  {printf("2 Interpolation error 2 intrp4=%i\n",intrp4(x,y,c));return 1;}
+  {
+    printf("2 Interpolation error 2 intrp4=%i\n",intrp4(x,y,c));return 1;
+  }
 
   Ranges[6][0]= c[0];
   Ranges[7][0]= c[1];
@@ -146,7 +151,9 @@ int ReadRint(char* Fname,double Ranges[][105]){
     x[3] = Ranges[1][i+2];
 
     if(intrp4(x,y,c))
-    {printf("4 Interpolation error 4 intrp4=%i\n",intrp4(x,y,c));return 1;}
+    {
+      printf("4 Interpolation error 4 intrp4=%i\n",intrp4(x,y,c));return 1;
+    }
     Ranges[6][i] = c[0];
     Ranges[7][i] = c[1];
     Ranges[8][i] = c[2];
@@ -165,16 +172,19 @@ int ReadRint(char* Fname,double Ranges[][105]){
 
   return 0;
 }
+
 //-----------------------------------------------------------------------------
-int intrp4(double* x,double* y, double* c){
+int intrp4(double* x,double* y, double* c)
+{
   //______________________________________________________________________
   //  returns c0,c1,c2,c3 coeff. of y= c0 + c1*x + c2*x^2 + c3*x^3 function 
   //     passing through 4 points:
   //     x1,y1; x2,y2; x3,y3; x4,y4
   //______________________________________________________________________|
-      double d0,d1,d2,d3;
-      double x12,x13,x22,x23,x32,x33,x42,x43;
-      int rp4;
+  double d0,d1,d2,d3;
+  double x12,x13,x22,x23,x32,x33,x42,x43;
+  int rp4;
+
   x12 = x[0]*x[0];
   x13 = x12*x[0];
   x22 = x[1]*x[1];

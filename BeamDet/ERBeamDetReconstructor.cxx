@@ -417,7 +417,7 @@ void ERBeamDetReconstructor::Reset()
 //-----------------------------------------------------------------------------
 double ERBeamDetReconstructor::UpstreamEnergyLoss(UpstreamMatter* pU,ERParticle* pP,bool Cond1, bool Cond2,char* Show){
   char Matter[32]="visible";
-  double Tb,range;
+  double Tb,range; //TODO fix this!!!
   if(Cond1)
   {
     range = pU->PlasticThick2;

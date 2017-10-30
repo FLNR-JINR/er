@@ -25,7 +25,8 @@ double ERParticle::ReturnMass(char* NON,char* WayMass)
   {
   while(!feof(F1))
   {
-    fscanf(F1,"%s %d %d %lf %s %lf\n",Name,&z,&a,&MassExcess,TimeUnit,&LifeTime);
+    int res;
+    res = fscanf(F1,"%s %d %d %lf %s %lf\n",Name,&z,&a,&MassExcess,TimeUnit,&LifeTime);
     if (!strcmp(NON,Name))
     {massa=AMU*(double)a+MassExcess;break;}
   }
@@ -48,7 +49,8 @@ void ERParticle::ParticleID(char* name, char* path){
   {
     while(!feof(F1))
     {
-      fscanf(F1,"%s %d %d %lf %s %lf\n",nucl,&z,&a,&MassExcess,
+      int res;
+      res = fscanf(F1,"%s %d %d %lf %s %lf\n",nucl,&z,&a,&MassExcess,
         TimeUnit,&LifeTime);
       if (!strcmp(name,nucl))
       {

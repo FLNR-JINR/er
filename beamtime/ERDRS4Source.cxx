@@ -41,9 +41,12 @@ Bool_t ERDRS4Source::Init(){
 	return kTRUE;
 }
 
-Int_t ERDRS4Source::ReadHeader(){
+Int_t ERDRS4Source::ReadHeader()
+{
+	size_t nReadElements;
+	
 	// read file header
-	fread(&fh, sizeof(fh), 1, f);
+	nReadElements = fread(&fh, sizeof(fh), 1, f);
 	if (fh.tag[0] != 'D' || fh.tag[1] != 'R' || fh.tag[2] != 'S') {
 		printf("Found invalid file header in file \'%s\', aborting.\n", filename);
 		return 0;
@@ -55,7 +58,7 @@ Int_t ERDRS4Source::ReadHeader(){
 	}
 
 	// read time header
-	fread(&th, sizeof(th), 1, f);
+	nReadElements = fread(&th, sizeof(th), 1, f);
 	if (memcmp(th.time_header, "TIME", 4) != 0) {
 		printf("Invalid time header in file \'%s\', aborting.\n", filename);
 		return 0;
@@ -63,7 +66,7 @@ Int_t ERDRS4Source::ReadHeader(){
 
 	for (b = 0 ; ; b++) {
 		// read board header
-		fread(&bh, sizeof(bh), 1, f);
+		nReadElements = fread(&bh, sizeof(bh), 1, f);
 		if (memcmp(bh.bn, "B#", 2) != 0) {
 			// probably event header found
 			fseek(f, -4, SEEK_CUR);
@@ -75,7 +78,7 @@ Int_t ERDRS4Source::ReadHeader(){
 		// read time bin widths
 		memset(bin_width[b], sizeof(bin_width[0]), 0);
 		for (chn=0 ; chn<5 ; chn++) {
-			fread(&ch, sizeof(ch), 1, f);
+			nReadElements = fread(&ch, sizeof(ch), 1, f);
 			if (ch.c[0] != 'C') {
 				// event header found
 				fseek(f, -4, SEEK_CUR);
@@ -83,7 +86,7 @@ Int_t ERDRS4Source::ReadHeader(){
 			}
 			i = ch.cn[2] - '0' - 1;
 			printf("Found timing calibration for channel #%d\n", i+1);
-			fread(&bin_width[b][i][0], sizeof(float), 1024, f);
+			nReadElements = fread(&bin_width[b][i][0], sizeof(float), 1024, f);
 			/*my printf
 		printf("bin width %d \n", bin_width[b][i][10]); */
 			// fix for 2048 bin mode: double channel
@@ -102,7 +105,9 @@ Int_t ERDRS4Source::ReadHeader(){
 	sumdt = sumdt2 = 0;
 }
 
-Int_t ERDRS4Source::ReadEvent(UInt_t id){
+Int_t ERDRS4Source::ReadEvent(UInt_t id)
+{
+	size_t nReadElements;
 
 	//reset Events
 	//read event header
@@ -118,14 +123,14 @@ Int_t ERDRS4Source::ReadEvent(UInt_t id){
 	for (b=0 ; b<n_boards ; b++) {
 
 		// read board header
-		fread(&bh, sizeof(bh), 1, f);
+		nReadElements = fread(&bh, sizeof(bh), 1, f);
 		if (memcmp(bh.bn, "B#", 2) != 0) {
 			printf("Invalid board header in file \'%s\', aborting.\n", filename);
 			return 0;
 		}
 
 		// read trigger cell
-		fread(&tch, sizeof(tch), 1, f);
+		nReadElements = fread(&tch, sizeof(tch), 1, f);
 		if (memcmp(tch.tc, "T#", 2) != 0) {
 			printf("Invalid trigger cell header in file \'%s\', aborting.\n", filename);
 			return 0;
@@ -138,7 +143,7 @@ Int_t ERDRS4Source::ReadEvent(UInt_t id){
 		for (chn=0 ; chn<4 ; chn++) {
 
 			// read channel header
-			fread(&ch, sizeof(ch), 1, f);
+			nReadElements = fread(&ch, sizeof(ch), 1, f);
 			if (ch.c[0] != 'C') {
 				// event header found
 				fseek(f, -4, SEEK_CUR);
@@ -146,8 +151,8 @@ Int_t ERDRS4Source::ReadEvent(UInt_t id){
 			}
 			chn_index = ch.cn[2] - '0' - 1;
 			//	printf("print channel %d \n",chn_index);
-			fread(&scaler, sizeof(int), 1, f);
-			fread(voltage, sizeof(short), 1024, f);
+			nReadElements = fread(&scaler, sizeof(int), 1, f);
+			nReadElements = fread(voltage, sizeof(short), 1024, f);
 
 			for (i=0 ; i<1024 ; i++) {
 				// convert data to volts

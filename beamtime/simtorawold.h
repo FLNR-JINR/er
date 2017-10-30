@@ -3,8 +3,8 @@
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
-#ifndef ERSimtoRaw_H
-#define ERRSimtoRaw_H
+#ifndef ERSimtoRawOld_H
+#define ERSimtoRawOld_H
 
 #include "FairTask.h"
 
@@ -56,4 +56,4 @@ protected:
   ClassDef(ERRawToAnalyzeConverter,1)*/
 };
 
-#endif
+#endif // ERSimtoRawOld_H

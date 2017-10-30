@@ -42,46 +42,48 @@ void ERHe8EventHeader::ReadInputFile(){
   printf("************************************************************\n");
   TString filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/") + fReactionInputFile;
   FILE *F1 = fopen(filePath.Data(),"r");
-  if(F1==NULL) {printf("ERHe8EventHeader: File ReactionInput.dat was not found\n");}
-  else
-  {
-    fscanf(F1,"%s\n",ReIN.ReactionName);
-    fscanf(F1,"%s %s\n",ReIN.AboutBeam,ReIN.EnergyUn);
-    fscanf(F1,"%s %s\n",ReIN.AboutSlit,ReIN.SlitUn);
-    fscanf(F1,"%s %s\n",Zeros,ReIN.Mechanism);
-    fscanf(F1,"%s %s\n",Zeros,ReIN.Fname);
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+  if(F1==NULL) {
+    printf("ERHe8EventHeader: File ReactionInput.dat was not found\n");
+  } else {
+    int res;
+    res = fscanf(F1,"%s\n",ReIN.ReactionName);
+    res = fscanf(F1,"%s %s\n",ReIN.AboutBeam,ReIN.EnergyUn);
+    res = fscanf(F1,"%s %s\n",ReIN.AboutSlit,ReIN.SlitUn);
+    res = fscanf(F1,"%s %s\n",Zeros,ReIN.Mechanism);
+    res = fscanf(F1,"%s %s\n",Zeros,ReIN.Fname);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.Simulation = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.Vertex = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.DetectorTune = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.ToFis = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.TRACKINGis = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.TrackCheck = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.WriteRawData = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.WriteCalData = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.WriteToFData = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.WriteTrackData = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.WriteTelData = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.WritePhysData = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.WritePlayData = true;}
-    fscanf(F1,"%s %s\n",Zeros,Zeros);
+    res = fscanf(F1,"%s %s\n",Zeros,Zeros);
     if(!strcmp(Zeros,"yes")) {ReIN.WriteRawTrack = true;}
 
     for(int m=0;m<8;m++)
     {
-      fscanf(F1,"%s %i\n",Zeros,&ReIN.ifill[m]);
+      int res2;
+      res2 = fscanf(F1,"%s %i\n",Zeros,&ReIN.ifill[m]);
     }
     printf("Main: File ReactionInput.dat has been read\n");
   }
@@ -91,48 +93,53 @@ void ERHe8EventHeader::ReadInputFile(){
   if(ReIN.TRACKINGis)
   {
     filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/track.dat");
-    F1 = fopen(filePath.Data(),"r");
-    if(F1==NULL) {printf("Main: File track.dat was not found\n");}
-    else  
-    { 
-      fscanf(F1,"%s %s %lf\n",Zeros,UpMat.MWwinMatter,&UpMat.MWwinThick);
-      fscanf(F1,"%s %s %lf\n",Zeros,UpMat.MWgasMatter,&UpMat.MWgasThick);
-      fscanf(F1,"%s %s %lf\n",Zeros,UpMat.MWcathMatter,&UpMat.MWcathThick);
-      fscanf(F1,"%s %i\n",Zeros,&UpMat.MWNcathodes);
-      fscanf(F1,"%s %lf\n",Zeros,&UpMat.MWXYdist);
-      fscanf(F1,"%s %lf\n",Zeros,&UpMat.MWstep);
-      fscanf(F1,"%s %i\n",Zeros,&UpMat.MWNwires);
-      fscanf(F1,"%s\n",Zeros);
-      fscanf(F1,"%s %lf\n",Zeros,&UpMat.MWfarDist);
-      fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.MWfarXshift,&UpMat.MWfarYshift);
-      fscanf(F1,"%s %i %i\n",Zeros,&UpMat.MWfarXNum,&UpMat.MWfarYNum);
-      fscanf(F1,"%s\n",Zeros);
-      fscanf(F1,"%s %lf\n",Zeros,&UpMat.MWclosDist);
-      fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.MWclosXshift,&UpMat.MWclosYshift);
-      fscanf(F1,"%s %i %i\n",Zeros,&UpMat.MWclosXNum,&UpMat.MWclosYNum);
+    FILE *F2 = fopen(filePath.Data(),"r");
+    if(F2==NULL)
+    {
+      printf("Main: File track.dat was not found\n");
+    } else {
+      int res;
+      res = fscanf(F1,"%s %s %lf\n",Zeros,UpMat.MWwinMatter,&UpMat.MWwinThick);
+      res = fscanf(F1,"%s %s %lf\n",Zeros,UpMat.MWgasMatter,&UpMat.MWgasThick);
+      res = fscanf(F1,"%s %s %lf\n",Zeros,UpMat.MWcathMatter,&UpMat.MWcathThick);
+      res = fscanf(F1,"%s %i\n",Zeros,&UpMat.MWNcathodes);
+      res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.MWXYdist);
+      res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.MWstep);
+      res = fscanf(F1,"%s %i\n",Zeros,&UpMat.MWNwires);
+      res = fscanf(F1,"%s\n",Zeros);
+      res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.MWfarDist);
+      res = fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.MWfarXshift,&UpMat.MWfarYshift);
+      res = fscanf(F1,"%s %i %i\n",Zeros,&UpMat.MWfarXNum,&UpMat.MWfarYNum);
+      res = fscanf(F1,"%s\n",Zeros);
+      res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.MWclosDist);
+      res = fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.MWclosXshift,&UpMat.MWclosYshift);
+      res = fscanf(F1,"%s %i %i\n",Zeros,&UpMat.MWclosXNum,&UpMat.MWclosYNum);
       printf("Main: File track.dat has been read\n");
     }
-  fclose(F1);
+  fclose(F2);
   }
   UpMat.MWcathThick *= UpMat.MWNcathodes;
   /*********************** Readout ToF parameters:************************/
   if(ReIN.ToFis)
   {
-  filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/tof.dat");
-  FILE *F1 = fopen(filePath.Data(),"r");
-  if(F1==NULL) {printf("Main: File tof.dat was not found\n");}
+    filePath = gSystem->Getenv("VMCWORKDIR") + TString("/input/tof.dat");
+    FILE *F3 = fopen(filePath.Data(),"r");
+    if(F3==NULL) {
+      printf("Main: File tof.dat was not found\n");
+    }
   else
-  { 
-    fscanf(F1,"%s %lf %lf\n",UpMat.PlasticMatter1,&UpMat.PlasticAngle1,&UpMat.PlasticThick1);
-    fscanf(F1,"%s %lf %lf\n",UpMat.PlasticMatter2,&UpMat.PlasticAngle2,&UpMat.PlasticThick2);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.PlasticDist);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.ToFRes);
-    fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.tF3l_rng,&UpMat.tF3r_rng);
-    fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.tF4l_rng,&UpMat.tF4r_rng);
-    fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.tF3_dlt,&UpMat.tF4_dlt);
+  {
+    int res;
+    res = fscanf(F1,"%s %lf %lf\n",UpMat.PlasticMatter1,&UpMat.PlasticAngle1,&UpMat.PlasticThick1);
+    res = fscanf(F1,"%s %lf %lf\n",UpMat.PlasticMatter2,&UpMat.PlasticAngle2,&UpMat.PlasticThick2);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.PlasticDist);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.ToFRes);
+    res = fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.tF3l_rng,&UpMat.tF3r_rng);
+    res = fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.tF4l_rng,&UpMat.tF4r_rng);
+    res = fscanf(F1,"%s %lf %lf\n",Zeros,&UpMat.tF3_dlt,&UpMat.tF4_dlt);
     printf("Main: File tof.dat has been read\n");
   }
-  fclose(F1);
+  fclose(F3);
   UpMat.PlasticThick1/=cos(UpMat.PlasticAngle1*rad);
   UpMat.PlasticThick2/=cos(UpMat.PlasticAngle2*rad);
   }
@@ -141,26 +148,27 @@ void ERHe8EventHeader::ReadInputFile(){
   F1 = fopen(filePath.Data(),"r");
   if(F1==NULL) printf("Main: File target.dat was not found\n");
   else
-  { 
-    fscanf(F1,"%s %s\n",Zeros,UpMat.TarShape);
-    fscanf(F1,"%s %lf %lf %lf\n",Zeros,&UpMat.TarXshift,&UpMat.TarYshift,&UpMat.TarZshift);
-    fscanf(F1,"%s %s %lf\n",Zeros,UpMat.TarFoilMatter,&UpMat.FoilThick);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarRadius);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarHeight);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarWallThick);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarEntrHoleRad);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.MeniskSize);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarTemp);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarPress);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarAngle);
-    fscanf(F1,"%s %s\n",Zeros,UpMat.HeatScreenAns);
-    fscanf(F1,"%s %s %lf\n",Zeros,UpMat.HeatScreenMatter,&UpMat.HeatScreenThick);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.InHscrRad);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.HscrWallWidth);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.HscrHeight);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.EntrHRad);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.ExHX);
-    fscanf(F1,"%s %lf\n",Zeros,&UpMat.ExHY);
+  {
+    int res;
+    res = fscanf(F1,"%s %s\n",Zeros,UpMat.TarShape);
+    res = fscanf(F1,"%s %lf %lf %lf\n",Zeros,&UpMat.TarXshift,&UpMat.TarYshift,&UpMat.TarZshift);
+    res = fscanf(F1,"%s %s %lf\n",Zeros,UpMat.TarFoilMatter,&UpMat.FoilThick);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarRadius);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarHeight);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarWallThick);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarEntrHoleRad);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.MeniskSize);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarTemp);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarPress);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.TarAngle);
+    res = fscanf(F1,"%s %s\n",Zeros,UpMat.HeatScreenAns);
+    res = fscanf(F1,"%s %s %lf\n",Zeros,UpMat.HeatScreenMatter,&UpMat.HeatScreenThick);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.InHscrRad);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.HscrWallWidth);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.HscrHeight);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.EntrHRad);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.ExHX);
+    res = fscanf(F1,"%s %lf\n",Zeros,&UpMat.ExHY);
     printf("Main: File target.dat has been read\n");
   }
   fclose(F1);

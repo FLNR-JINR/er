@@ -6,7 +6,7 @@
 #include "FairFileHeader.h"             // for FairFileHeader
 #include "FairGeoInterface.h"           // for FairGeoInterface
 #include "FairGeoLoader.h"              // for FairGeoLoader
-#include<iostream>                 // for FairLogger, MESSAGE_ORIGIN
+#include <iostream>                     // for FairLogger, MESSAGE_ORIGIN
 #include "FairMCEventHeader.h"          // for FairMCEventHeader
 #include "FairMesh.h"                   // for FairMesh
 #include "FairModule.h"                 // for FairModule
@@ -18,7 +18,7 @@
 #include "FairTask.h"                   // for FairTask
 #include "FairTrajFilter.h"             // for FairTrajFilter
 
-#include "Riosfwd.h"                    // for ostream
+#include <iosfwd>                       // for ostream
 #include "TCollection.h"                // for TIter
 #include "TGeoManager.h"                // for gGeoManager
 #include "TList.h"                      // for TList
@@ -136,8 +136,6 @@ void  ERRunSim::Init(){
   geopar->setChanged();
   geopar->setInputVersion(fRunId,1);
 
-
-
   /**Set the configuration for MC engine*/
   SetMCConfig();
   fRootManager->WriteFileHeader(fFileHeader);
@@ -148,6 +146,7 @@ void  ERRunSim::Init(){
       Fatal("ERRunSim::Init", "Decayer init problem");
   }
 }
+
 void ERRunSim::SetMCConfig()
 {
   /** Private method for setting simulation and/or Geane configuration and cuts*/

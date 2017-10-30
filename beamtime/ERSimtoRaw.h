@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 #ifndef ERSimtoRaw_H
-#define ERRSimtoRaw_H
+#define ERSimtoRaw_H
 
 #include "FairTask.h"
 
@@ -51,10 +51,11 @@ protected:
   TArrayF fResFunctionRoot; 
 
 
+  // TODO why would you comment this?
 /*private:
   virtual void SetParContainers();
   
   ClassDef(ERRawToAnalyzeConverter,1)*/
 };
 
-#endif
+#endif // ERSimtoRaw_H
