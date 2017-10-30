@@ -39,7 +39,7 @@ public:
   ERBeamDetDigitizer();
 
   /** @brief Constructor. 
-   ** verbose: 1 - only standard log print, 2 - print digi information. 
+   ** @param verbose: 1 - only standard log print, 2 - print digi information. 
   **/
   ERBeamDetDigitizer(Int_t verbose);
 
@@ -96,14 +96,14 @@ public:
   **/
   virtual InitStatus Init();
 
-  /** @brief Defines the transformation actions of all input data (Point) to 
+  /** @brief Defines the transformation actions for all input data (Point) to 
    ** output data (Digi) for each event. 
   **/
   virtual void Exec(Option_t* opt);
 
   /** @brief Resets all output data. **/
   virtual void Reset();
-  
+
   /** @brief Defines actions in the end of digitization. **/
   virtual void Finish();
 
