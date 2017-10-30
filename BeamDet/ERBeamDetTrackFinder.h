@@ -29,7 +29,7 @@
  ** cordinate in MWPC stations. Through number of wire we get MWPC coordinates 
  ** (\f$X_1, Y_1, X_2, Y_2\f$) by means of global geo manager in ERBeamDetSetup.
  ** Ion track approximated by straight line passing through (\f$X_1, Y_1\f$) and
- ** (\f$X_1, Y_1\f$) points.
+ ** (\f$X_2, Y_2\f$) points.
 **/
 
 class ERBeamDetTrackFinder : public FairTask {
