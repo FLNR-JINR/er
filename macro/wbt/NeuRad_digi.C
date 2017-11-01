@@ -25,6 +25,7 @@ void NeuRad_digi(Int_t nEvents = 10000){
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
+  // /digitizer->SetUseCrosstalks(kFALSE);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   
@@ -33,7 +34,7 @@ void NeuRad_digi(Int_t nEvents = 10000){
   
   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
   TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
-  NeuRadDetDigiFile += "/parameters/NeuRad_wbt.digi.par";
+  NeuRadDetDigiFile += "/parameters/NeuRad.digi.v3.par";
   parInput1->open(NeuRadDetDigiFile.Data(),"in");
 
   FairParRootFileIo*  parInput2 = new FairParRootFileIo();

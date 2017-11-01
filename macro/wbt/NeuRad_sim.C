@@ -37,7 +37,7 @@ void NeuRad_sim(Int_t nEvents = 100000){
 
   ERCollimator* collimator = new ERCollimator();
   collimator->SetGeometryFileName("collimator.geo.root");
-	run->AddModule(collimator);
+	//run->AddModule(collimator);
   // ER NeuRad definition
   /* Select verbosity level
    * 1 - only standard logs
@@ -46,7 +46,7 @@ void NeuRad_sim(Int_t nEvents = 100000){
   */
   Int_t verbose = 1;
   ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,verbose);
-  neuRad->SetGeometryFileName("NeuRad_wbt.geo.root");
+  neuRad->SetGeometryFileName("NeuRad.v4.geo.root");
   /* Select storing stepss
    * not store steps
    * SetStorePrimarySteps() - store only primary particle step
@@ -99,7 +99,6 @@ void NeuRad_sim(Int_t nEvents = 100000){
   run->Run(nEvents);
   
   // -----   Finish   -------------------------------------------------------
-  neuRad->WriteHistos();
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();

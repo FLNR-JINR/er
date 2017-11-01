@@ -202,7 +202,7 @@ void ERNeuRad::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
 //-------------------------------------------------------------------------------------------------
 Bool_t ERNeuRad::CheckIfSensitive(std::string name) {
   TString volName = name;
-  if(volName.Contains("fiber") && !volName.Contains("dead") ) {
+  if(volName.Contains("fiber") /*&& !volName.Contains("dead") */) {
     return kTRUE;
   }
   return kFALSE;
@@ -226,9 +226,27 @@ void ERNeuRad::StartNewPoint() {
        TString(gMC->CurrentVolOffName(2)).Contains("pixel"))) {
     LOG(FATAL) << "Old version of geometry structure is used" << FairLogger::endl; 
   }
+
   curVolId = gMC->CurrentVolOffID(1,fFiberNb); 
   corOffVolId = gMC->CurrentVolOffID(2, fPixelNb);
   corOffVolId = gMC->CurrentVolOffID(3, fModuleNb);
+
+  //Пересчитываем номер пикселя если введены субмодули
+  if (TString(gMC->CurrentVolOffName(3)).Contains("submodul")){
+    Int_t pixel_in_submodule_X = 4;
+    Int_t pixel_in_submodule_Y = 4;
+    Int_t submodule_in_module_X = 2;
+    Int_t submodule_in_module_Y = 2;
+    Int_t pixel_row = fPixelNb/pixel_in_submodule_X;
+    Int_t pixel_col = fPixelNb%pixel_in_submodule_X;
+    Int_t subm_row = fModuleNb/submodule_in_module_X;
+    Int_t subm_col = fModuleNb%submodule_in_module_X;
+    fPixelNb = subm_row*submodule_in_module_X*pixel_in_submodule_X*pixel_in_submodule_Y
+                +pixel_row*submodule_in_module_X*pixel_in_submodule_X
+                +subm_col*pixel_in_submodule_X+pixel_col;
+    corOffVolId = gMC->CurrentVolOffID(4, fModuleNb);
+  }
+
   TGeoHMatrix matrix;
   gMC->GetTransformation(gMC->CurrentVolPath(), matrix);
   Double_t globalPos[3],localPos[3];

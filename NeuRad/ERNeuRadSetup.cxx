@@ -55,6 +55,29 @@ ERNeuRadSetup::ERNeuRadSetup(){
     fRowNofPixels = Int_t(TMath::Sqrt(module->GetNdaughters()));
     fRowNofFibers = Int_t(TMath::Sqrt(pixel->GetNdaughters()));
 
+    //Обработка субмодулей в новой геометрии
+    Int_t iSubm = -1; //Любой subm
+    Int_t nSubm = 0;
+    for (Int_t iNode = 0; iNode < module->GetNdaughters(); iNode++){
+      if (TString(module->GetDaughter(iNode)->GetName()).Contains("submodul")){
+        iSubm = iNode;
+        nSubm++;
+      }
+    }
+    Int_t nPixel_in_subm = 0;
+    if (iSubm > -1){
+      std::cout << "Submodules in geometry!" << std::endl;
+      TGeoNode* subm = module->GetDaughter(iSubm);
+      for (Int_t iNode = 0; iNode < subm->GetNdaughters(); iNode++){
+        if (TString(subm->GetDaughter(iNode)->GetName()).Contains("pixel")){
+          pixel = subm->GetDaughter(iNode);
+          nPixel_in_subm++;
+        }
+      }
+      fRowNofPixels = Int_t(TMath::Sqrt(nSubm))*Int_t(TMath::Sqrt(nPixel_in_subm));
+      fRowNofFibers = Int_t(TMath::Sqrt(pixel->GetNdaughters()));
+    }
+
     std::cout << "NeuRad  modules in row count:" << fRowNofModules << std::endl;
     std::cout << "NeuRad  pixels in row count:" << fRowNofPixels << std::endl;
     std::cout << "NeuRad  fibers in row count:" << fRowNofFibers << std::endl;

@@ -12,16 +12,13 @@
 #include "TMath.h"
 
 #include <iostream>
-using std::cout;
-using std::cerr;
-using std::endl;
 
 // -----   Standard constructor   ------------------------------------------
 ERNeuRadDigiPar::ERNeuRadDigiPar(const char* name,
     const char* title,
     const char* context)
   : FairParGenericSet(name, title, context),
-    fNofFibers(-1),
+    fNofPixels(-1),
     fNofModules(-1),
     fUseCrosstalks(kFALSE),
     fRowNofFibers(-1),
@@ -50,13 +47,13 @@ void ERNeuRadDigiPar::clear()
 // -----   Public method print ---------------------------------------
 void ERNeuRadDigiPar::print()
 {
-  fRowNofFibers = (Int_t)TMath::Sqrt(fNofFibers);
+  fRowNofFibers = (Int_t)TMath::Sqrt(fNofPixels);
   
   std::cout << "*****************************************" << std::endl;
   std::cout << "          ERNeuRadDigiPar                " << std::endl;
   std::cout << "*****************************************" << std::endl;
   std::cout << "   ERNeuRadNofModules: " <<  fNofModules <<  std::endl;
-  std::cout << "   ERNeuRadNofFibers: " <<  fNofFibers <<  std::endl;
+  std::cout << "   ERNeuRadNofPixels: " <<  fNofPixels <<  std::endl;
   std::cout << "   ERNeuRadPixelQuantumEfficiency: " <<  std::endl;
   for (Int_t iFiber = 0; iFiber < fRowNofFibers; iFiber++){
     std::cout << "     ";
@@ -94,19 +91,19 @@ void ERNeuRadDigiPar::putParams(FairParamList* l)
 //------------------------------------------------------
 Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 {
-  std::cout << "ERNeuRadDigiPar Filling ..." << endl;
+  std::cout << "ERNeuRadDigiPar Filling ..." << std::endl;
 
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
-  fNofFibers = setup->RowNofPixels()*setup->RowNofPixels();
+  fNofPixels = setup->RowNofPixels()*setup->RowNofPixels();
   fNofModules = setup->RowNofModules()*setup->RowNofModules();
 
-  std::cout << "fNofFibers " << fNofFibers << endl;
+  std::cout << "fNofPixels " << fNofPixels << std::endl;
 
-  fPixelQuantumEfficiency = new TArrayF(fNofFibers);
-  fPixelGain = new TArrayF(fNofFibers);
-  fPixelSigma = new TArrayF(fNofFibers),
-  fPixelCrosstalks = new TArrayF(fNofFibers*9);
-  fFiberCrosstalks = new TArrayF(fNofFibers*9);
+  fPixelQuantumEfficiency = new TArrayF(fNofPixels);
+  fPixelGain = new TArrayF(fNofPixels);
+  fPixelSigma = new TArrayF(fNofPixels),
+  fPixelCrosstalks = new TArrayF(fNofPixels*9);
+  fFiberCrosstalks = new TArrayF(fNofPixels*9);
 
   if (!l) { return kFALSE; }
   if ( ! l->fill("ERNeuRadPixelQuantumEfficiency", fPixelQuantumEfficiency) ) { return kFALSE; }
@@ -123,12 +120,12 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
     fUseCrosstalks = kTRUE;
   }
 
-  fPixelQuantumEfficiency->Set(fNofFibers);
-  fPixelGain->Set(fNofFibers);
-  fPixelSigma->Set(fNofFibers),
-  fPixelCrosstalks->Set(fNofFibers*9);
-  fFiberCrosstalks->Set(fNofFibers*9);
-  std::cout << "fPixelQuantumEfficiency " << fPixelQuantumEfficiency->GetSize() << endl;
+  fPixelQuantumEfficiency->Set(fNofPixels);
+  fPixelGain->Set(fNofPixels);
+  fPixelSigma->Set(fNofPixels),
+  fPixelCrosstalks->Set(fNofPixels*9);
+  fFiberCrosstalks->Set(fNofPixels*9);
+  std::cout << "fPixelQuantumEfficiency " << fPixelQuantumEfficiency->GetSize() << std::endl;
   return kTRUE;
 }
 
