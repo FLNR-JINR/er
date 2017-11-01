@@ -14,6 +14,7 @@
 class ERNeuRadViewer : public FairTask {
 
 public:
+
   /** Default constructor **/
   ERNeuRadViewer();
 

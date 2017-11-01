@@ -3,9 +3,6 @@
 // -----                  Created 02/03/15  by v. Schetinin            -----
 // -------------------------------------------------------------------------
 
-/**  ERNeuRadStep.h
- **/
-
 #ifndef ERNeuRadStep_H
 #define ERNeuRadStep_H
 
@@ -90,9 +87,8 @@ protected:
   Double_t fEloss;
   Double_t fCharge;
   TArrayI fProcessID;
-  
 
   ClassDef(ERNeuRadStep,1)
 };
 
-#endif //ERNeuRadStep_H
+#endif // ERNeuRadStep_H

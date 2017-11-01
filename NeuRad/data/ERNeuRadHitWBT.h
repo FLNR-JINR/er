@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                        ERNeuRadHitWBT header file                   -----
+// -----                     ERNeuRadHitWBT header file                -----
 // -----                     Created 03/16  by V.Schetinin             -----
 // -------------------------------------------------------------------------
 
@@ -12,18 +12,27 @@ class ERNeuRadHitWBT : public ERNeuRadHit {
 
 private:
 
-	Float_t fQInteg;
+    Float_t fQInteg; //TODO what is this
 
 public:
 
-	ERNeuRadHitWBT(){}
-	ERNeuRadHitWBT(Int_t id, Int_t detID, TVector3& pos, TVector3& dpos,  Int_t refIndex,
-					Int_t ModuleIndex, Int_t FiberIndex, Float_t time, Float_t QInteg);
+    ERNeuRadHitWBT() {}
 
-	Float_t QInteg() {return fQInteg;}
+    ERNeuRadHitWBT(Int_t id,
+                   Int_t detID,
+                   TVector3& pos,
+                   TVector3& dpos,
+                   Int_t refIndex,
+                   Int_t ModuleIndex,
+                   Int_t FiberIndex,
+                   Float_t time,
+                   Float_t QInteg);
 
-	ClassDef(ERNeuRadHitWBT, 1)
+    //TODO Destructor?
 
+    Float_t QInteg() const {return fQInteg;}
+
+    ClassDef(ERNeuRadHitWBT, 1)
 };
 
 #endif // ERNeuRadHitWBT_H

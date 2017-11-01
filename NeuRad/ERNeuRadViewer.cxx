@@ -1,7 +1,6 @@
 #include "ERNeuRadViewer.h"
 
 #include <iostream>
-using namespace std;
 
 #include "TGraph.h"
 #include "TArrayF.h"
@@ -68,7 +67,6 @@ InitStatus ERNeuRadViewer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERNeuRadViewer::Exec(Option_t* opt)
 {
-  
   TString dirTitle;
   dirTitle.Form("Event%d",FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber());
   TDirectory* dir = fFile->mkdir(dirTitle.Data());

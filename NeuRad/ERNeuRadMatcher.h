@@ -42,7 +42,7 @@ protected:
   //Input arrays
   TClonesArray *fNeuRadHits;
   TClonesArray* fNeuRadFirstSteps;
-  
+
   //Output arrays
 
   //Output histos

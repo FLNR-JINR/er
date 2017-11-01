@@ -14,21 +14,27 @@ ERNeuRadDigi::ERNeuRadDigi()
   fBackTDC(0.),
   fTDC(0.),
   fQDC(0.),
-  fFiberIndex(-1),
   fModuleIndex(-1),
+  fFiberIndex(-1),
   fSide(-1)
 {
 }
 
-ERNeuRadDigi::ERNeuRadDigi(Int_t id, Double_t frontTDC, Double_t backTDC, Double_t tdc,
-                  Double_t qdc, Int_t bundle, Int_t fiber, Int_t side)
+ERNeuRadDigi::ERNeuRadDigi(Int_t id,
+                           Double_t frontTDC,
+                           Double_t backTDC,
+                           Double_t tdc,
+                           Double_t qdc,
+                           Int_t bundle,
+                           Int_t fiber,
+                           Int_t side)
   :fID(id),
   fFrontTDC(frontTDC),
   fBackTDC(backTDC),
   fTDC(tdc),
   fQDC(qdc),
-  fFiberIndex(fiber),
   fModuleIndex(bundle),
+  fFiberIndex(fiber),
   fSide(side)
 {
 }
@@ -39,8 +45,8 @@ ERNeuRadDigi::ERNeuRadDigi(const ERNeuRadDigi& right)
   fBackTDC(right.fBackTDC),
   fTDC(right.fTDC),
   fQDC(right.fQDC),
-  fFiberIndex(right.fFiberIndex),
   fModuleIndex(right.fModuleIndex),
+  fFiberIndex(right.fFiberIndex),
   fSide(right.fSide)
 {
 }

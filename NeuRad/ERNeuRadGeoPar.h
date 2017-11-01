@@ -13,29 +13,31 @@ class FairParamList;
 
 class ERNeuRadGeoPar : public FairParGenericSet
 {
-  public:
+public:
 
     /** List of FairGeoNodes for sensitive  volumes */
-    TObjArray*      fGeoSensNodes;
+    TObjArray* fGeoSensNodes;
 
     /** List of FairGeoNodes for sensitive  volumes */
-    TObjArray*      fGeoPassNodes;
+    TObjArray* fGeoPassNodes;
 
     ERNeuRadGeoPar(const char* name="ERNeuRadGeoPar",
                            const char* title="NeuRad Geometry Parameters",
                            const char* context="TestDefaultContext");
     ~ERNeuRadGeoPar(void);
+
     void clear(void);
     void putParams(FairParamList*);
     Bool_t getParams(FairParamList*);
     TObjArray* GetGeoSensitiveNodes() {return fGeoSensNodes;}
     TObjArray* GetGeoPassiveNodes()   {return fGeoPassNodes;}
 
-  private:
+private:
+
     ERNeuRadGeoPar(const ERNeuRadGeoPar&);
     ERNeuRadGeoPar& operator=(const ERNeuRadGeoPar&);
 
     ClassDef(ERNeuRadGeoPar,1)
 };
 
-#endif /* ERNeuRadGeoPar_H */
+#endif // ERNeuRadGeoPar_H

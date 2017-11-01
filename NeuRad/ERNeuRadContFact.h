@@ -12,14 +12,16 @@ class FairContainer;
 
 class ERNeuRadContFact : public FairContFact
 {
+
 private:
-	
+
     void setAllContainers();
 
 public:
 
     ERNeuRadContFact();
     ~ERNeuRadContFact() {}
+
     FairParSet* createContainer(FairContainer*);
 
     ClassDef( ERNeuRadContFact,0)

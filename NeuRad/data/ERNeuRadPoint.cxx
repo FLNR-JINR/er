@@ -1,6 +1,7 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadPoint source file            -----
+// -----                          ERNeuRadPoint source file            -----
 // -------------------------------------------------------------------------
+
 #include <cmath>
 
 #include "ERNeuRadPoint.h"
@@ -20,11 +21,12 @@ ERNeuRadPoint::ERNeuRadPoint()
 // -----   Standard constructor   ------------------------------------------
 ERNeuRadPoint::ERNeuRadPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
-      Int_t fiberNb, Int_t pixelNb, Int_t moduleNb,
+          Int_t fiberNb, Int_t pixelNb, Int_t moduleNb,
 		  Double_t mass,
 		  TVector3 posIn, TVector3 posInLoc,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t timeIn, Double_t timeOut, Double_t trackLength, Double_t eLoss, Double_t lightYield, Int_t pid, Double_t charge)
+		  Double_t timeIn, Double_t timeOut, Double_t trackLength,
+		  Double_t eLoss, Double_t lightYield, Int_t pid, Double_t charge)
   : FairMCPoint(trackID, -1., posIn, momIn, timeIn, 0., eLoss),
     fEventID(eventID),
     fFiberNb(fiberNb), fPixelNb(pixelNb),fModuleNb(moduleNb),
@@ -97,25 +99,25 @@ Bool_t ERNeuRadPoint::IsUsable() const
 // -------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
-Double_t ERNeuRadPoint::GetPIn()   const{
+Double_t ERNeuRadPoint::GetPIn() const {
   return sqrt(fPx*fPx + fPy*fPy + fPz*fPz);
 }
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
-Double_t ERNeuRadPoint::GetPOut()  const{
+Double_t ERNeuRadPoint::GetPOut() const {
   return sqrt(fPx_out*fPx_out + fPy_out*fPy_out + fPz_out*fPz_out);
 }
 //-------------------------------------------------------------------------
-Double_t ERNeuRadPoint::GetP(Double_t pointLen) const{
+Double_t ERNeuRadPoint::GetP(Double_t pointLen) const {
   return GetPIn() + (GetPOut() - GetPIn())*pointLen/GetLength();
 }
 //-------------------------------------------------------------------------
-Double_t ERNeuRadPoint::GetTime(Double_t pointLen) const{
+Double_t ERNeuRadPoint::GetTime(Double_t pointLen) const {
   return fTime + (fTimeOut - fTime)*pointLen/GetLength();
 }
 //-------------------------------------------------------------------------
-Double_t ERNeuRadPoint::GetLength() const{
+Double_t ERNeuRadPoint::GetLength() const {
   return sqrt((fX_out-fX)*(fX_out-fX) + (fY_out-fY)*(fY_out-fY) + (fZ_out-fZ)*(fZ_out-fZ) );
 }
 //-------------------------------------------------------------------------

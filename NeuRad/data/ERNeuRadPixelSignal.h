@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadPixelSignal header file            -----
+// -----                  ERNeuRadPixelSignal header file              -----
 // -----                  Created 02/03/15  by v. Schetinin            -----
 // -------------------------------------------------------------------------
 
@@ -21,99 +21,87 @@ class ERNeuRadPixelSignal : public FairMultiLinkedData {
 
 protected:
 
-  Int_t fPixelNb;
-  Int_t fModuleNb;
-  Int_t fSide;
-  //Массив амплитуд фотоэлектронов сигнала
-  TArrayF fPEAmplitudes;     
-  //Суммарная амплитуда фотоэлектронов сигнала
-  Double_t fPEAmplitudesSum;
-  //Массив времен прихоа на анод фотоэлектронов сигнала
-  TArrayF fPEAnodeTimes;
-  //Массив длин одноэлектронных сигналов
-  TArrayI fPETimes;     //!
-  //Количество фотоэлектронов в сигнале
-  Int_t fPECount;
+    Int_t fPixelNb;
+    Int_t fModuleNb;
+    Int_t fSide;
+    //Массив амплитуд фотоэлектронов сигнала
+    TArrayF fPEAmplitudes;     
+    //Суммарная амплитуда фотоэлектронов сигнала
+    Double_t fPEAmplitudesSum;
+    //Массив времен прихоа на анод фотоэлектронов сигнала
+    TArrayF fPEAnodeTimes;
+    //Массив длин одноэлектронных сигналов
+    TArrayI fPETimes;     //!
+    //Количество фотоэлектронов в сигнале
+    Int_t fPECount;
 
-  Int_t fCurFPoint;
+    Int_t fCurFPoint;
 
-  Double_t fStartTime;
-  Double_t fFinishTime;
+    Double_t fStartTime;
+    Double_t fFinishTime;
 
-  //Используется для работы с общем сигналом. Так как была необходима адресная арифметика
-  Float_t* fResFunction;    //!
-  //Хранит результирующий сигнал, как значения функции в узлах
-  TArrayF fResFunctionRoot; 
+    //Используется для работы с общем сигналом. Так как была необходима адресная арифметика
+    Float_t* fResFunction;    //!
+    //Хранит результирующий сигнал, как значения функции в узлах
+    TArrayF fResFunctionRoot; 
 
-  Double_t OnePEFunction(Double_t time, Double_t amplitude);
-  Int_t OnePETime(Double_t amplitude);
+    Double_t OnePEFunction(Double_t time, Double_t amplitude);
+    Int_t OnePETime(Double_t amplitude);
 
 public:
 
-  Double_t GetStartTime(){
-     return fStartTime;
-  }
+    Double_t GetStartTime() const {return fStartTime;}
+    Double_t GetFinishTime() const {return fFinishTime;}
+    Float_t GetPEamp(Int_t i) const {return fPEAmplitudes[i];}
+    Float_t GetPEtime(Int_t i) const {return fPEAnodeTimes[i];}
+    Int_t GetPECount() const {return fPECount;}
 
-  Double_t GetFinishTime(){
-    return fFinishTime;
-  }
+    /** Default constructor **/
+    ERNeuRadPixelSignal();
 
-	Float_t GetPEamp(Int_t i) {
-                return fPEAmplitudes[i];
-	}
-        Float_t GetPEtime(Int_t i) {
-                return fPEAnodeTimes[i];
-        }
-	Int_t GetPECount() {
-		return fPECount;
-	}
+    /** Constructor with arguments **/
+    ERNeuRadPixelSignal(Int_t iModule, Int_t iPixel, Int_t fpoints_count, Int_t side);
 
-  /** Default constructor **/
-  ERNeuRadPixelSignal();
+    virtual ~ERNeuRadPixelSignal();
 
-  /** Constructor with arguments **/
-  ERNeuRadPixelSignal(Int_t iModule, Int_t iPixel, Int_t fpoints_count, Int_t side);
+    virtual void AddPhotoElectron(ERNeuRadPhotoElectron* fpoint);
 
-  virtual ~ERNeuRadPixelSignal();
-  
-  virtual void AddPhotoElectron(ERNeuRadPhotoElectron* fpoint);
+    virtual void Generate();
 
-  virtual void Generate();
+    virtual bool Exist(){return fCurFPoint > 0;}
 
-  virtual bool Exist(){return fCurFPoint > 0;}
-  
-  TArrayF* ResultSignal() {return &fResFunctionRoot;}
+    TArrayF* ResultSignal() {return &fResFunctionRoot;}
 
-  //пока заглушки
-  virtual std::vector<Double_t> Intersections(Double_t discriminatorThreshold);
+    //пока заглушки
+    virtual std::vector<Double_t> Intersections(Double_t discriminatorThreshold);
 
-  virtual Double_t MaxInteg(const Double_t window, const Double_t dt) {return -1.;}
-  virtual Double_t Integ(const Double_t start,const Double_t finish);
-  virtual Double_t FirstInteg(const Double_t window);
-  virtual Double_t FullInteg(){return Integ(fStartTime,fFinishTime);}
-  virtual Double_t Mean(const Double_t time) {return -1.;}
+    virtual Double_t MaxInteg(const Double_t window, const Double_t dt) {return -1.;}
+    virtual Double_t Integ(const Double_t start,const Double_t finish);
+    virtual Double_t FirstInteg(const Double_t window);
+    virtual Double_t FullInteg() {return Integ(fStartTime,fFinishTime);}
+    virtual Double_t Mean(const Double_t time) {return -1.;}
 
-  virtual Double_t StartTime() {return fStartTime;} 
-  virtual Double_t FinishTime() {return fFinishTime;}
+    virtual Double_t StartTime() const {return fStartTime;} 
+    virtual Double_t FinishTime() const {return fFinishTime;}
 
-  virtual Float_t ThresholdTime(Float_t peThreshold);
+    virtual Float_t ThresholdTime(Float_t peThreshold);
 
-  virtual Double_t OnePEIntegral();
+    virtual Double_t OnePEIntegral();
 
-  virtual Int_t PECount() {return fPECount;}
+    virtual Int_t PECount() const {return fPECount;}
 
-  Double_t  dT() {return cdT;}
+    Double_t  dT() const {return cdT;}
 
-  Int_t ModuleNb() const {return fModuleNb;}
-  Int_t PixelNb() const {return fPixelNb;}
-  Int_t Side() const {return fSide;}
-  Double_t AmplitudesSum() const {return fPEAmplitudesSum;}
+    Int_t ModuleNb() const {return fModuleNb;}
+    Int_t PixelNb() const {return fPixelNb;}
+    Int_t Side() const {return fSide;}
+    Double_t AmplitudesSum() const {return fPEAmplitudesSum;}
 
-  //constants
-  //Гранулирование сигнала по времени
-  static const Double_t cdT; // ns
-  
-  ClassDef(ERNeuRadPixelSignal,1);
+    //constants
+    //Гранулирование сигнала по времени
+    static const Double_t cdT; // ns
+
+    ClassDef(ERNeuRadPixelSignal,1)
 };
 
 #endif // ERNeuRadPixelSignal_H

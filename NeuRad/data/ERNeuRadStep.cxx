@@ -90,7 +90,7 @@ void ERNeuRadStep::Print()
     case Exiting :  flag="exits from";              break;
     case Inside :   flag="inside";                  break;
     case Stop :     flag="stopped in";              break;
-    default:                                        flag="unknown tracking status"; break;  
+    default:        flag="unknown tracking status"; break;  
   }
   
   LOG(INFO) << "STEP = " << fStepNr << " particle="<< sParticle << "(" << fPID << ") Edep = " 
@@ -109,7 +109,7 @@ void ERNeuRadStep::Print()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ExpertTrackingStatus ERNeuRadStep::GetTrackStatus(){
+ExpertTrackingStatus ERNeuRadStep::GetTrackStatus() {
   if(gMC->IsTrackAlive()) {
     if(gMC->IsTrackEntering())      
       return Entering;

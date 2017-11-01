@@ -14,15 +14,15 @@
 class ERNeuRadDigiPar;
 
 struct ERNeuRadModule {
-        Float_t fX;
-        Float_t fY;
-        ERNeuRadModule(Float_t x, Float_t y){fX = x; fY = y;}
+    Float_t fX;
+    Float_t fY;
+    ERNeuRadModule(Float_t x, Float_t y) {fX = x; fY = y;}
 };
 
 struct ERNeuRadFiber {
-        Float_t fX;
-        Float_t fY;
-        ERNeuRadFiber(Float_t x, Float_t y){fX = x; fY = y;}
+    Float_t fX;
+    Float_t fY;
+    ERNeuRadFiber(Float_t x, Float_t y) {fX = x; fY = y;}
 };
 
 class ERNeuRadSetup {

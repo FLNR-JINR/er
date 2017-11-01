@@ -100,7 +100,7 @@ void ERNeuRadMatcher::Exec(Option_t* opt)
 {
   ERNeuRadStep* step = (ERNeuRadStep*)fNeuRadFirstSteps->At(0);
 
-  //Однофайберная мода
+  // Однофайберная мода
   if (fNeuRadHits->GetEntriesFast() == 1){
     ERNeuRadHit* hit = (ERNeuRadHit*)fNeuRadHits->At(0);
     Double_t dist = TMath::Sqrt((hit->GetX()-step->GetX())*(hit->GetX()-step->GetX()) + 
@@ -112,7 +112,7 @@ void ERNeuRadMatcher::Exec(Option_t* opt)
     }
   }
 
-  //Двухфайберная мода
+  // Двухфайберная мода
   if (fNeuRadHits->GetEntriesFast() == 2 || fNeuRadHits->GetEntriesFast() == 1){
     ERNeuRadHit* hit1 = (ERNeuRadHit*)fNeuRadHits->At(0);
     ERNeuRadHit* hit2 = (ERNeuRadHit*)fNeuRadHits->At(0);
@@ -131,9 +131,9 @@ void ERNeuRadMatcher::Exec(Option_t* opt)
     }
   }
 
-  //Многофайберная мода
+  // Многофайберная мода
   if (fNeuRadHits->GetEntriesFast() > 0) {
-    //Находим самый первый хит
+    // Находим самый первый хит
     ERNeuRadHit* firstHit;
     Float_t minTime = 999999999.;
     for(Int_t iHit = 0; iHit < fNeuRadHits->GetEntriesFast(); iHit++) {

@@ -52,7 +52,6 @@ public:
       
   /** Copy constructor **/
   ERNeuRadPoint(const ERNeuRadPoint&);
-  
 
   /** Destructor **/
   virtual ~ERNeuRadPoint();
@@ -95,7 +94,6 @@ public:
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
   void MomentumOut(TVector3& mom) { mom.SetXYZ(fPx_out,fPy_out,fPz_out); }
 
-
   /** Point coordinates at given z from linear extrapolation **/
   //@todo проверить эти функции
   Double_t GetX(Double_t z) const;
@@ -111,7 +109,7 @@ public:
 
   /** Modifies  **/
   void SetLightYield(Double_t ly) {fLightYield = ly;}
-  void SetTimeIn(Double_t t){fTimeIn = t;}
+  void SetTimeIn(Double_t t) {fTimeIn = t;}
   void SetXIn(Double_t xin) {fX = xin;}
   void SetXOut(Double_t xout) {fX_out = xout;}
   void SetYIn(Double_t yin) {fY = yin;}
@@ -120,7 +118,7 @@ public:
   void SetZOut(Double_t zout) {fZ_out = zout;}
   
 protected:
-  
+
   Int_t fEventID;
   Int_t fMot0TrackID;
   Int_t fFiberNb;

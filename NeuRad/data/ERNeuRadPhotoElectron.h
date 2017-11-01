@@ -12,36 +12,41 @@ class ERNeuRadPhotoElectron : public FairMultiLinkedData {
 
 private:
 
-	Int_t fIndex;
-	Int_t fSide; //0 - front , 1 - back
-	Double_t fCathodeTime;
-	Double_t fAnodeTime;
-	Int_t fPhotonCount;
-	Double_t fAmplitude;
-	Double_t fLYTime;
+    Int_t fIndex;
+    Int_t fSide; //0 - front , 1 - back
+    Double_t fLYTime;
+    Double_t fCathodeTime;
+    Double_t fAnodeTime;
+    Int_t fPhotonCount;
+    Double_t fAmplitude;
 
 public:
 
-	/** Default constructor **/
-	ERNeuRadPhotoElectron();
-	ERNeuRadPhotoElectron(Int_t index, Int_t side, Double_t lyTime, Double_t cathode_time, Double_t anode_time, Int_t photon_count, 
-	Double_t amplitude);
+    /** Default constructor **/
+    ERNeuRadPhotoElectron();
+    ERNeuRadPhotoElectron(Int_t index,
+                          Int_t side,
+                          Double_t lyTime,
+                          Double_t cathode_time,
+                          Double_t anode_time,
+                          Int_t photon_count, 
+                          Double_t amplitude);
 
-	/** Destructor **/
-	~ERNeuRadPhotoElectron();
+    /** Destructor **/
+    ~ERNeuRadPhotoElectron();
 
-	/** Accessors **/
-	Int_t     Index()        {return fIndex;}
-	Int_t     Side()         {return fSide;}
-	Double_t  LYTime()       {return fLYTime;}
-	Double_t  CathodeTime()  {return fCathodeTime;}
-	Double_t  AnodeTime()    {return fAnodeTime;}
-	Int_t     PhotonCount()  {return fPhotonCount;}
-	Double_t  Amplitude()    {return fAmplitude;}
+    /** Accessors **/
+    Int_t     Index()        const {return fIndex;}
+    Int_t     Side()         const {return fSide;}
+    Double_t  LYTime()       const {return fLYTime;}
+    Double_t  CathodeTime()  const {return fCathodeTime;}
+    Double_t  AnodeTime()    const {return fAnodeTime;}
+    Int_t     PhotonCount()  const {return fPhotonCount;}
+    Double_t  Amplitude()    const {return fAmplitude;}
 
-	void Print();
+    void Print() const;
 
-	ClassDef(ERNeuRadPhotoElectron,1)
+    ClassDef(ERNeuRadPhotoElectron,1)
 };
 
 #endif // ERNeuRadPhotoElectron_H

@@ -1,5 +1,6 @@
 #include "ERNeuRadHitFinder.h"
 
+#include <iostream>
 #include <vector>
 #include <map>
 
@@ -9,15 +10,13 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include<iostream>
 
 #include "ERDetectorList.h"
 #include "ERNeuRadPixelSignal.h"
 #include "ERNeuRadSetup.h"
 
-using namespace std;
-
 Int_t ERNeuRadHitFinder::fEvent = 0;
+
 // ----------------------------------------------------------------------------
 ERNeuRadHitFinder::ERNeuRadHitFinder()
   : FairTask("ER muSi hit producing scheme")
@@ -90,10 +89,10 @@ void ERNeuRadHitFinder::Exec(Option_t* opt)
 
   for (Int_t iSignal=0; iSignal <  fNeuRadPMTSignals->GetEntriesFast(); iSignal++){
     ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fNeuRadPMTSignals->At(iSignal);
-    cerr << "0" << endl;
+    std::cerr << "0" << std::endl;
     if (signal->Side()==0){
       //Ищем пару с другой стороны
-      cerr << "1" << endl;
+      std::cerr << "1" << std::endl;
       Bool_t founded=kFALSE;
       Int_t jBackSignal = -1;
       for (Int_t jSignal=0; jSignal<fNeuRadPMTSignals->GetEntriesFast(); jSignal++){
@@ -107,7 +106,7 @@ void ERNeuRadHitFinder::Exec(Option_t* opt)
 
       if (founded){
         ERNeuRadPixelSignal* signalBack = (ERNeuRadPixelSignal*)fNeuRadPMTSignals->At(jBackSignal);
-        cerr << signal->FullInteg() << " " << fPixelThreshold*signal->OnePEIntegral()<< " " <<signalBack->FullInteg()<< endl;
+        std::cerr << signal->FullInteg() << " " << fPixelThreshold*signal->OnePEIntegral()<< " " <<signalBack->FullInteg()<< std::endl;
         if (signal->FullInteg() > fPixelThreshold*signal->OnePEIntegral() && signalBack->FullInteg() > fPixelThreshold*signal->OnePEIntegral()){
           targetHitSignal = signal;
           hitNumber++;
@@ -139,8 +138,7 @@ void ERNeuRadHitFinder::Reset()
 
 // ----------------------------------------------------------------------------
 void ERNeuRadHitFinder::Finish()
-{   
-
+{
 }
 // ----------------------------------------------------------------------------
 
@@ -153,5 +151,6 @@ ERNeuRadHit* ERNeuRadHitFinder::AddHit(Int_t detID, TVector3& pos, TVector3& dpo
   return hit;
 }
 // ----------------------------------------------------------------------------
+
 //-----------------------------------------------------------------------------
 ClassImp(ERNeuRadHitFinder)
