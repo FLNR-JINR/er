@@ -1,8 +1,8 @@
 /********************************************************************************
  *              Copyright (C) Joint Institute for Nuclear Research              *
  *                                                                              *
- *              This software is distributed under the terms of the             * 
- *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
@@ -41,15 +41,26 @@ public:
    *@param eLoss    Energy deposit [KeV]
    *@param lightYield    Energy deposit [MeV]
    **/
-  ERNeuRadPoint(Int_t eventID, Int_t trackID,
-		  Int_t mot0trackID,
-      Int_t fiberNb, Int_t pixelNb, Int_t moduleNb, 
-		  Double_t mass,
-		  TVector3 posIn, TVector3 posInLoc,
-		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t timeIn, Double_t timeOut,Double_t trackLength, Double_t eLoss,
-      Double_t lightYield, Int_t pid, Double_t charge) ;
-      
+  ERNeuRadPoint(Int_t eventID,
+      Int_t trackID,
+      Int_t mot0trackID,
+      Int_t fiberNb,
+      Int_t pixelNb,
+      Int_t moduleNb,
+      Double_t mass,
+      TVector3 posIn,
+      TVector3 posInLoc,
+      TVector3 posOut,
+      TVector3 momIn,
+      TVector3 momOut,
+      Double_t timeIn,
+      Double_t timeOut,
+      Double_t trackLength,
+      Double_t eLoss,
+      Double_t lightYield,
+      Int_t pid,
+      Double_t charge);
+
   /** Copy constructor **/
   ERNeuRadPoint(const ERNeuRadPoint&);
 
@@ -113,10 +124,10 @@ public:
   void SetXIn(Double_t xin) {fX = xin;}
   void SetXOut(Double_t xout) {fX_out = xout;}
   void SetYIn(Double_t yin) {fY = yin;}
-  void SetYOut(Double_t yout) {fY_out = yout;}  
+  void SetYOut(Double_t yout) {fY_out = yout;}
   void SetZIn(Double_t zin) {fZ = zin;}
   void SetZOut(Double_t zout) {fZ_out = zout;}
-  
+
 protected:
 
   Int_t fEventID;
@@ -125,7 +136,7 @@ protected:
   Int_t fPixelNb;
   Int_t fModuleNb;
   Double_t fMass;
-  Double32_t fXlocal,  fYlocal,  fZlocal;
+  Double32_t fXlocal, fYlocal, fZlocal;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
   Double_t fTimeIn, fTimeOut;

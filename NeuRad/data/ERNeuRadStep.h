@@ -1,22 +1,20 @@
 // -------------------------------------------------------------------------
-// -----                      ERNeuRadStep header file             -----
+// -----                  ERNeuRadStep header file                     -----
 // -----                  Created 02/03/15  by v. Schetinin            -----
 // -------------------------------------------------------------------------
 
 #ifndef ERNeuRadStep_H
 #define ERNeuRadStep_H
 
-#include "TObject.h"
 #include "TVector3.h"
 #include "TArrayI.h"
 
 #include "FairMultiLinkedData.h"
 
-#include "ERMCTrack.h"
+#include "ERMCTrack.h" //for ExpertTrackingStatus
 
 class ERNeuRadStep : public FairMultiLinkedData
 {
-
 public:
 
   /** Default constructor **/
@@ -26,28 +24,30 @@ public:
    *@param EventID  Index of Event
    *@param trackID  Index of MCTrack
    *@param mot0trackID Index of Mother MCTrack
-   *@param fiberNb number of fiber in module
-   *@param pos    Coordinates at entrance of point [cm]
-   *@param mom    Momentum of track first step[GeV]
+   *@param fiberNb     Number of fiber in module
+   *@param pos      Coordinates at entrance of point [cm]
+   *@param mom      Momentum of track first step [GeV]
    *@param tof      Time since event start [ns]
-   *@param length Track length since creation [cm]
+   *@param length   Track length since creation [cm]
    *@param pid   
    **/
-  ERNeuRadStep(Int_t eventID, Int_t stepNr,Int_t trackID,
-		  Int_t mot0trackID,
+  ERNeuRadStep(Int_t eventID,
+      Int_t stepNr,
+      Int_t trackID,
+      Int_t mot0trackID,
       Int_t fiberNb,
       Int_t pixelNb,
       Int_t moduleNb,
-		  TVector3 pos, 
+      TVector3 pos, 
       TVector3 mom, 
-		  Double_t tof, 
+      Double_t tof, 
       Double_t length, 
       Int_t pid,
       Double_t mass,
       ExpertTrackingStatus trackStatus,
       Double_t eLoss,
       Double_t charge,
-      TArrayI  processID);
+      TArrayI processID);
 
   /** Copy constructor **/
   ERNeuRadStep(const ERNeuRadStep&);
@@ -64,6 +64,7 @@ public:
   Double_t GetX() const {return fX;}
   Double_t GetY() const {return fY;}
   Double_t GetZ() const {return fZ;}
+
   void Print();
   
   static ExpertTrackingStatus GetTrackStatus();

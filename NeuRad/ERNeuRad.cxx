@@ -85,9 +85,9 @@ void ERNeuRad::Register(){
   if (!ioman)
     LOG(FATAL) << "IO manager is not set" << FairLogger::endl;
   
-  ioman->Register("NeuRadPoint","NeuRad", fNeuRadPoints, kTRUE);
-  ioman->Register("NeuRadFirstStep","NeuRad", fNeuRadFirstStep, kTRUE);
-  ioman->Register("NeuRadStep","NeuRad", fNeuRadSteps, kTRUE);
+  ioman->Register("NeuRadPoint", "NeuRad", fNeuRadPoints, kTRUE);
+  ioman->Register("NeuRadFirstStep", "NeuRad", fNeuRadFirstStep, kTRUE);
+  ioman->Register("NeuRadStep", "NeuRad", fNeuRadSteps, kTRUE);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   fStepNb++;
   
   if (fStoreAllSteps) {
-    ERNeuRadStep* step =  AddStep();
+    ERNeuRadStep* step = AddStep();
     if (fVerbose > 2)
       step->Print();
   }
@@ -284,19 +284,21 @@ ERNeuRadStep* ERNeuRad::AddFirstStep() {
   gMC->StepProcesses(fProcessesID);
   gMC->TrackPosition(fCurPosIn);
   gMC->TrackMomentum(fCurMomIn);
+
   return new(clref[0]) ERNeuRadStep(fEventID,fStepNb, fTrackID, fMot0TrackID, fFiberNb, fPixelNb,
    fModuleNb,fCurPosIn.Vect(), fCurMomIn.Vect(), gMC->TrackTime() * 1.0e09, gMC->TrackStep(), 
    gMC->TrackPid(), gMC->TrackMass(), fTrackStatus, gMC->Edep(), gMC->TrackCharge(), fProcessesID);
 }
 
 // -----   Private method AddStep   --------------------------------------------
-ERNeuRadStep* ERNeuRad::AddStep(){
+ERNeuRadStep* ERNeuRad::AddStep() {
   TClonesArray& clref = *fNeuRadSteps;
   fTrackStatus = ERNeuRadStep::GetTrackStatus();
   gMC->StepProcesses(fProcessesID);
   gMC->TrackPosition(fCurPosIn);
   gMC->TrackMomentum(fCurMomIn);
-  return new(clref[fNeuRadSteps->GetEntriesFast()])ERNeuRadStep(fEventID,fStepNb, fTrackID, 
+
+  return new(clref[fNeuRadSteps->GetEntriesFast()]) ERNeuRadStep(fEventID,fStepNb, fTrackID, 
     fMot0TrackID, fFiberNb, fPixelNb, fModuleNb, fCurPosIn.Vect(), fCurMomIn.Vect(),
     gMC->TrackTime() * 1.0e09, gMC->TrackStep(), gMC->TrackPid(), gMC->TrackMass(),fTrackStatus,
     gMC->Edep(), gMC->TrackCharge(), fProcessesID); 
@@ -307,7 +309,7 @@ Double_t ERNeuRad::CurPointLen(TLorentzVector& posIn) {
   TLorentzVector posOut;
   gMC->TrackPosition(posOut);
   return TMath::Sqrt((posIn.X() - posOut.X())*(posIn.X() - posOut.X()) + 
-                    (posIn.Y() - posOut.Y())*(posIn.X() - posOut.X()) + 
+                    (posIn.Y() - posOut.Y())*(posIn.Y() - posOut.Y()) + 
                     (posIn.Z() - posOut.Z())*(posIn.Z() - posOut.Z()));
 }
 
