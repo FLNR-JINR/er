@@ -222,7 +222,8 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
       //Амплиту одноэлектронного сигнала
       Double_t PixelGain = fNeuRadSetup->PixelGain(peModule,pePixel);
       Double_t PixelSigma = fNeuRadSetup->PixelSigma(peModule,pePixel);
-      Double_t peAmplitude = TMath::Abs(gRandom->Gaus(PixelGain, PixelSigma));
+      //Double_t peAmplitude = TMath::Abs(gRandom->Gaus(PixelGain, PixelSigma));
+      Double_t peAmplitude = TMath::Abs(fNeuRadSetup->peAmp(85.8656,30.6158,447.112,447.111,52.,433.,141.)->GetRandom());
       sumAmplitude+=peAmplitude;
       //Задержка динодной системы и джиттер
       Double_t peAnodeTime = peCathodeTime + (Double_t)gRandom->Gaus(fPixelDelay, fPixelJitter);
