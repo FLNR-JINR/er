@@ -6,7 +6,7 @@
 
 #include "TMath.h"
 
-#include <iostream>
+#include "ERNeuRadPhotoElectron.h"
 
 const Double_t ERNeuRadPixelSignal::cdT = 0.1; // ns
 
