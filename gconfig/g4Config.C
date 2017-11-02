@@ -18,7 +18,7 @@ void Config()
 ///
 /// The third argument activates the special processes in the TG4SpecialPhysicsList,
 /// which implement VMC features:
-/// - stepLimiter       - step limiter (default) 
+/// - stepLimiter       - step limiter (default)
 /// - specialCuts       - VMC cuts
 /// - specialControls   - VMC controls for activation/inactivation selected processes
 /// - stackPopper       - stackPopper process
@@ -27,14 +27,14 @@ void Config()
 
     //gSystem->Load("libR3BPlist.so");
 
-  TG4RunConfiguration* runConfiguration 
+  TG4RunConfiguration* runConfiguration
              = new TG4RunConfiguration("geomRoot", "QGSP_BERT_HP", "specialCuts+stackPopper");
             // = new TG4RunConfiguration("geomRoot", "QBBC", "stackPopper");
 
-  //TG4RunConfiguration* runConfiguration 
+  //TG4RunConfiguration* runConfiguration
   //         = new TG4RunConfiguration("geomRoot", "emStandard", "stepLimiter+specialCuts+specialControls");
 
-/// Create the G4 VMC 
+/// Create the G4 VMC
    TGeant4* geant4 = new TGeant4("TGeant4", "The Geant4 Monte Carlo", runConfiguration);
    cout << "Geant4 has been created." << endl;
 
@@ -45,23 +45,21 @@ void Config()
    stack->SetMinPoints(0);
    geant4->SetStack(stack);
 
- 
-   /*   
+   /*
    if(FairRunSim::Instance()->IsExtDecayer()){
       TVirtualMCDecayer* decayer = TPythia6Decayer::Instance();
       geant4->SetExternalDecayer(decayer);
    }
    */
-  
+
 /// Customise Geant4 setting
 /// (verbose level, global range cut, ..)
 
    TString configm(gSystem->Getenv("VMCWORKDIR"));
-   configm1 = configm + "/gconfig/g4config.in";
+   TString configm1 = configm + "/gconfig/g4config.in";
    cout << " -I g4Config() using g4conf  macro: " << configm1 << endl;
 
    //set geant4 specific stuff
-  geant4->SetMaxNStep(30000);  // default is 30000
-  geant4->ProcessGeantMacro(configm1.Data());
-
+   geant4->SetMaxNStep(30000);  // default is 30000
+   geant4->ProcessGeantMacro(configm1.Data());
 }
