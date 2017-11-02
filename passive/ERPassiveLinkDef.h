@@ -10,6 +10,4 @@
 #pragma link C++ class ERTarget+;
 #pragma link C++ class ERCollimator+;
 
-
-#endif
-
+#endif // __CINT__

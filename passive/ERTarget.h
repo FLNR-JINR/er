@@ -3,31 +3,30 @@
 
 #include "ERDetector.h"
 
-#include "TClonesArray.h"
+#include <TClonesArray.h>
 #include <TString.h>
 
-
-class ERTarget : public ERDetector {
-	static	Double_t fThickness;
+class ERTarget : public ERDetector
+{
+	static Double_t fThickness;
 	Int_t fVersion;
 	TClonesArray*  fTargetPoints;     //!  The point collection //fix
+
 public:
+
  /** Default constructor **/
   ERTarget();
-  
-  
+
   /** Standard constructor.
    *@param name    ERTarget ERTarget name
    *@param active  sensitivity flag
    *@param verbose Verbosity level. 1 - only standart logs, 2 - Print points after each event, 3 - GEANT Step information
    **/
   ERTarget(const char* name, Bool_t active, Int_t verbose);
-  
-  
+
   /** Destructor **/
   virtual ~ERTarget();
-  
-  
+
   /** Virtual method ProcessHits
    **   
    ** Defines the action to be taken when a step is inside the
@@ -36,8 +35,7 @@ public:
    *@param vol  Pointer to the active volume
    **/
   virtual Bool_t ProcessHits(FairVolume* vol = 0);
-  
-  
+
   /** Virtual method BeginEvent
    **
    **/
@@ -56,24 +54,20 @@ public:
    **/
   virtual void Register();
   
-  
   /** Accessor to the point collection **/
   virtual TClonesArray* GetCollection(Int_t iColl) const;
-  
-  
+
   /** Virtual method Print
    **
    ** Screen output of hit collection.
    **/
   virtual void Print(Option_t *option="") const;
   
-  
   /** Virtual method Reset
    **
    ** Clears the point collection
    **/
   virtual void Reset();
-  
   
   /** Virtual method CopyClones
    **
@@ -84,7 +78,6 @@ public:
    **/
   virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2,
 			  Int_t offset);
-  
   
   /** Virtaul method Construct geometry
    **
@@ -111,9 +104,9 @@ public:
   **/
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
   
-  static Double_t Thickness(){return fThickness;}
+  static Double_t Thickness() {return fThickness;}
 
-  ClassDef(ERTarget,1);
+  ClassDef(ERTarget,1)
 };
 
-#endif //ERTarget_H
+#endif // ERTarget_H

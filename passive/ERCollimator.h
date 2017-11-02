@@ -1,33 +1,35 @@
-
 #ifndef ERCollimator_H
 #define ERCollimator_H
 
 #include "FairModule.h"
 
-class ERCollimator : public FairModule {
+class TGeoCombiTrans;
 
-  public:
+class ERCollimator : public FairModule
+{
+public:
 
-    /** Default constructor **/
+	/** Default constructor **/
+	ERCollimator();
 
-    ERCollimator();
+	/** Constructor with file name
+	** @param fileName  Name of geometry file
+	**
+	** This constructor will force the target geometry to be
+	** constructed from a geometry file (ROOT format only).
+	**/
+	ERCollimator(const char* fileName);
 
-    /** Constructor with file name
-     ** @param fileName  Name of geometry file
-     **
-     ** This constructor will force the target geometry to be
-     ** constructed from a geometry file (ROOT format only).
-     **/
+	/** Destructor **/
+	virtual ~ERCollimator();
 
-    ERCollimator(const char* fileName);
+	/** Built the geometry **/
+	virtual void ConstructGeometry();
 
-    /** Destructor **/
-    virtual ~ERCollimator();
+private:
+	TGeoCombiTrans* fPositionRotation;
 
-    /** Built the geometry **/
-    virtual void ConstructGeometry();
-
-    ClassDef(ERCollimator,1)
+	ClassDef(ERCollimator,1)
 };
 
-#endif
+#endif // ERCollimator_H

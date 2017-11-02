@@ -1,4 +1,5 @@
-#include <iostream>
+#include "ERTarget.h"
+
 #include <stdlib.h>
 
 #include "TVirtualMC.h"
@@ -13,11 +14,8 @@
 #include "FairGeoVolume.h"
 #include "FairGeoNode.h"
 
-#include "ERTarget.h"
 #include "ERMCEventHeader.h"
 #include "ERGeoPassivePar.h"
-
-using namespace std;
 
 // -----   Initialsisation of static variables   --------------------------
 Double_t ERTarget::fThickness = 2.; //cm
@@ -34,11 +32,11 @@ ERTarget::ERTarget(const char* name, Bool_t active, Int_t verbose):ERDetector(na
 }
 
 ERTarget::~ERTarget()
-{
-  
+{ 
 }
 
-Bool_t ERTarget::ProcessHits(FairVolume* vol){
+Bool_t ERTarget::ProcessHits(FairVolume* vol)
+{
   /*
   FairRunSim* run = FairRunSim::Instance();
 
@@ -60,16 +58,13 @@ Bool_t ERTarget::ProcessHits(FairVolume* vol){
   return kTRUE;
 }
 
-void ERTarget::BeginEvent(){
-
+void ERTarget::BeginEvent() {
 }
 
-void ERTarget::EndOfEvent(){
-
+void ERTarget::EndOfEvent() {
 }
 
-void ERTarget::Register(){
-
+void ERTarget::Register() {
 }
 
 TClonesArray* ERTarget::GetCollection(Int_t iColl) const {
@@ -79,43 +74,39 @@ TClonesArray* ERTarget::GetCollection(Int_t iColl) const {
     return NULL;
 }
 
-void ERTarget::Print(Option_t *option) const{
+void ERTarget::Print(Option_t *option) const {
 
 }
 
-void ERTarget::Reset(){
-
+void ERTarget::Reset() {
 }
 
-void ERTarget::CopyClones(TClonesArray* cl1, TClonesArray* cl2,
-        Int_t offset){  
+void ERTarget::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {  
 }
 
 void ERTarget::ConstructGeometry()
 {
   TString fileName = GetGeometryFileName();
   if(fileName.EndsWith(".root")) {
-    std::cout << "Constructing Target geometry from ROOT file " << fileName.Data() << std::endl;
+    LOG(INFO) << "Constructing Target geometry from ROOT file " << fileName.Data() << FairLogger::endl;
     ConstructRootGeometry();
   } else {
-    LOG(FATAL) << "Target geometry file name is not set" << std::endl;
+    LOG(FATAL) << "Target geometry file name is not set" << FairLogger::endl;
     exit(1);
   }
 }
 
-void ERTarget::Initialize(){
+void ERTarget::Initialize() {
   FairDetector::Initialize();
 }
-
 
 Bool_t ERTarget::CheckIfSensitive(std::string name)
 {
   TString volName = name;
-  if(volName.Contains("target_vol")) {
+  if(volName.Contains("target_vol")) { //TODO серъёзно?
     return kTRUE;
   }
   return kFALSE;
 }
 
 ClassImp(ERTarget)
-

@@ -45,7 +45,7 @@ void sim(Int_t nEvents = 1000){
   */
   Int_t verbose = 1;
   ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,verbose);
-  neuRad->SetGeometryFileName("NeuRad.v3.geo.root");
+  neuRad->SetGeometryFileName("NeuRad.v4.geo.root");
   /* Select storing stepss
    * not store steps
    * SetStorePrimarySteps() - store only primary particle step
@@ -97,7 +97,7 @@ void sim(Int_t nEvents = 1000){
   run->Run(nEvents);
   
   // -----   Finish   -------------------------------------------------------
-  neuRad->WriteHistos();
+//  neuRad->WriteHistos();
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
