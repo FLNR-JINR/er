@@ -1,5 +1,6 @@
 // --- General Media Defs. for EXPERT
-//----------------------------------------------------------
+// Material format: https://fairroot.gsi.de/?q=node/34
+// Material info: http://geant4.cern.ch/UserDocumentation/UsersGuides/ForApplicationDeveloper/html/apas06.html
 Air                3  14.01  16.  39.95  7.  8.  18.  1.205e-3  .78 
 .21  .01
                    1  1  20.  .001
@@ -58,15 +59,13 @@ NaI                2  22.989770  126.904470  11.  53.  3.670  0.15337  0.84663
                    0
 
 
-BC408              2  1.00794  12.0107  1.  6.  1.032  0.0764  0.916
+BC408              2  1.00794  12.0107  1.  6.  1.032   0.084   0.916
                    1  1  20.  .001
                    0
+                   
 Stilbene           2  12.01  14.  1.  6.  0.9707  0.44  0.56
                    1  1  20.  .001
                    0
-//BC408              1  1.00794  1. 1.032
-//                   1  1  20.  .001
-//                   0
 
 helium             1  4.  2.  0.000125
                    0  1  20.  0.001
