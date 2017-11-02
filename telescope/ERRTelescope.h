@@ -11,7 +11,8 @@
 #define ERRTelescope_H
 
 #include "ERDetector.h"
-#include "ERRTelescopePoint.h"
+#include "ERRTelescopeSiPoint.h"
+#include "ERRTelescopeCsIPoint.h"
 #include "TLorentzVector.h"
 #include "TClonesArray.h"
 
@@ -107,9 +108,14 @@ public:
   ** The decision is based on the volume name.
   **/
   virtual Bool_t CheckIfSensitive(std::string name);
-  
+
 private:
-  TClonesArray*  fRTelescopePoints;     //!  The point collection
+  TClonesArray*  fSiPoints11;     //!  The point collection
+  TClonesArray*  fSiPoints12;
+  TClonesArray*  fCsIPoints1;;
+  TClonesArray*  fSiPoints21;
+  TClonesArray*  fSiPoints22;
+  TClonesArray*  fCsIPoints2;
   
   Int_t          fEventID;           //!  event index
   Int_t          fTrackID;           //!  track index
@@ -120,8 +126,11 @@ private:
   Double32_t     fTime;              //!  time
   Double32_t     fLength;            //!  length
   Double32_t     fELoss;             //!  energy loss
-  Int_t          fSectorNb;
+  Int_t          fSectorNb;    
   Int_t          fSensorNb;
+  Int_t          fCrystallNb;
+  Int_t          fDetNb;
+  Int_t          fTelNb;
   
   
 private:
@@ -129,8 +138,8 @@ private:
    **
    ** Adds a RTelescopePoint to the Point Collection
    **/
-  
-  ERRTelescopePoint* AddPoint();
+  ERRTelescopeSiPoint* AddSiPoint();
+  ERRTelescopeCsIPoint* AddCsIPoint();
   /** Private method ResetParameters
    **
    ** Resets the private members for the track parameters

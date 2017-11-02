@@ -18,49 +18,44 @@ include_directories( ${INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
 ${BASE_LINK_DIRECTORIES}
 ${FAIRROOT_LIBRARY_DIR}
-)
+) 
 
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 
-#Qtelescope
-##simulation
-
-ERQTelescope.cxx
-ERQTelescopeDigitizer.cxx
-data/ERQTelescopeSiPoint.cxx
-data/ERQTelescopeCsIPoint.cxx
-data/ERQTelescopeSiDigi.cxx
-
-##beamtest
-ERQTelescopeCalibrator.cxx
-data/ERQTelescopeEvent.cxx
-data/ERQTelescopeCalEvent.cxx
-
-#RTelescope
-##simulation
-
+#simulation
 ERRTelescope.cxx
 ERRTelescopeDigitizer.cxx
 ERRTelescopeHitFinder.cxx
 ERRTelescopeSetup.cxx
 
-data/ERRTelescopePoint.cxx
-data/ERRTelescopeDigi.cxx
+data/ERRTelescopeCsIPoint.cxx
+data/ERRTelescopeSiPoint.cxx
+data/ERRTelescopeCsIDigi.cxx
+data/ERRTelescopeSiDigi.cxx
 data/ERRTelescopeHit.cxx
 
-##beamtest
+ERQTelescope.cxx
+ERQTelescopeDigitizer.cxx
+
+data/ERQTelescopeSiPoint.cxx
+data/ERQTelescopeSiDigi.cxx
+
+#AculRaw
+data/AculRaw.cxx
+
+
+#beamtest
+ERQTelescopeCalibrator.cxx
 ERRTelescopeCalibrator.cxx
+ERTelescopeReconstructorNew.cxx
 
 data/ERRTelescopeEvent.cxx
 data/ERRTelescopeCalEvent.cxx
+data/ERQTelescopeEvent.cxx
+data/ERQTelescopeCalEvent.cxx
 data/ERTelescopeRecoEvent.cxx
-
-
-#common
-#ERTelescopeReconstructor.cxx
-ERTelescopeReconstructorNew.cxx
 )
 
 # fill list of header files from list of source files
@@ -69,6 +64,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERTelescopeLinkDef.h)
 Set(LIBRARY_NAME telescope)
-Set(DEPENDENCIES ERBase ERData Base Core ERBeamDet)
+Set(DEPENDENCIES ERBase ERData Base Core)
 
 GENERATE_LIBRARY()
+

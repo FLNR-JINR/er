@@ -1,15 +1,15 @@
 // -------------------------------------------------------------------------
-// -----                      ERRTelescopePoint header file                -----
+// -----                      ERRTelescopeCsIPoint header file                -----
 // -----                  Created data  developerName                  -----
 // -------------------------------------------------------------------------
 
 
-/**  ERRTelescopePoint.h
+/**  ERRTelescopeCsIPoint.h
  **/
 
 
-#ifndef ERRTelescopePoint_H
-#define ERRTelescopePoint_H
+#ifndef ERRTelescopeCsIPoint_H
+#define ERRTelescopeCsIPoint_H
 
 
 #include "TObject.h"
@@ -18,13 +18,13 @@
 #include "FairMCPoint.h"
 
 
-class ERRTelescopePoint : public FairMCPoint 
+class ERRTelescopeCsIPoint : public FairMCPoint 
 {
 
  public:
 
   /** Default constructor **/
-  ERRTelescopePoint();
+  ERRTelescopeCsIPoint();
 
 
   /** Constructor with arguments
@@ -39,23 +39,23 @@ class ERRTelescopePoint : public FairMCPoint
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [KeV]
    **/
-  ERRTelescopePoint(Int_t eventID, Int_t trackID,
+  ERRTelescopeCsIPoint(Int_t eventID, Int_t trackID, Int_t telescopeNb,
 		  Int_t mot0trackID,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t sector,Int_t sensor);
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t crystall);
 
 
   /** Copy constructor **/
-  ERRTelescopePoint(const ERRTelescopePoint&);
+  ERRTelescopeCsIPoint(const ERRTelescopeCsIPoint&);
 
 
   /** Destructor **/
-  virtual ~ERRTelescopePoint();
+  virtual ~ERRTelescopeCsIPoint();
 
 
-  ERRTelescopePoint& operator=(const ERRTelescopePoint&) { return *this; }
+  ERRTelescopeCsIPoint& operator=(const ERRTelescopeCsIPoint&) { return *this; }
 
 
   /** Accessors **/
@@ -80,8 +80,8 @@ class ERRTelescopePoint : public FairMCPoint
   /** Point coordinates at given z from linear extrapolation **/
   Double_t GetX(Double_t z) const;
   Double_t GetY(Double_t z) const;
-  Int_t GetSectorNb() const {return fSectorNb;}
-  Int_t GetSensorNb() const {return fSensorNb;}
+  Int_t  GetTelescopeNb() const  {return fTelescopeNb;}
+  Int_t GetCrystallNb() const {return fCrystallNb;}
 
   /** Check for distance between in and out **/
   Bool_t IsUsable() const;
@@ -93,11 +93,12 @@ class ERRTelescopePoint : public FairMCPoint
   
   Int_t fEventID;
   Int_t fMot0TrackID;
+  Int_t     fTelescopeNb;
   Double_t fPID;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
-  Int_t fSectorNb, fSensorNb;
+  Int_t fCrystallNb;
 
-  ClassDef(ERRTelescopePoint,1)
+  ClassDef(ERRTelescopeCsIPoint,1)
 };
 #endif

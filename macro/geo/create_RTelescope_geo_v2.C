@@ -65,12 +65,23 @@ TGeoManager*   gGeoMan = NULL;
 
   //------------------ RTelescope -----------------------------------------
   Double_t R_min = 1.6; //cm
-  Double_t R_max = 4.1;   //cm
+  Double_t R_max = 4.2;   //cm
   Double_t thin = 0.1;   //cm
   Float_t rsp_min = 2000.;
   Float_t rsp_max = rsp_min + thin;
   Float_t thsp_min = TMath::ATan(R_min/rsp_min)*TMath::RadToDeg();
   Float_t thsp_max = TMath::ATan(R_max/rsp_max)*TMath::RadToDeg();
+
+  //---------------------passive Si rings-----------------------------------------
+  Double_t R1_min = 1.5;
+  Double_t R1_max = 1.6;
+  Float_t thsp1_min = TMath::ATan(R1_min/rsp_min)*TMath::RadToDeg();
+  Float_t thsp1_max = TMath::ATan(R1_max/rsp_max)*TMath::RadToDeg();
+
+  Double_t R2_min = 4.2;
+  Double_t R2_max = 5.0;
+  Float_t thsp2_min = TMath::ATan(R2_min/rsp_min)*TMath::RadToDeg();
+  Float_t thsp2_max = TMath::ATan(R2_max/rsp_max)*TMath::RadToDeg(); 
 
   //------------------ CsI crystall-----------------------------------------
   //-------------------First trapezoid--------------------------------------
@@ -101,10 +112,14 @@ TGeoManager*   gGeoMan = NULL;
   Double_t deltaR = (R_max-R_min)/16;
   for (Int_t iSector=0; iSector < 16; iSector++){
     TGeoVolume *sector = gGeoManager->MakeSphere("sector",pSi,rsp_min,rsp_max,thsp_min,thsp_max,0,22.5);
+    TGeoVolume *ring1_Si = gGeoManager->MakeSphere("ring1Si",pSi,rsp_min,rsp_max,thsp1_min,thsp1_max,0,22.5);
+    TGeoVolume *ring2_Si = gGeoManager->MakeSphere("ring2Si",pSi,rsp_min,rsp_max,thsp2_min,thsp2_max,0,22.5);
     TGeoRotation *rotation = new TGeoRotation();
     rotation->RotateX(0.); 
     rotation->RotateY(0.);
     rotation->RotateZ(22.5*iSector);
+    RTelescope->AddNode(ring1_Si, iSector, new TGeoCombiTrans(.0,.0,-2000., rotation));
+    RTelescope->AddNode(ring2_Si, iSector, new TGeoCombiTrans(.0,.0,-2000., rotation));
     RTelescope->AddNode(sector, iSector, new TGeoCombiTrans(.0,.0,-2000., rotation));
 
     for (Int_t iSensor=0; iSensor < 16; iSensor++){
