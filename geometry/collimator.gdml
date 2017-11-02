@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+  <define>
+    <position name="collimatorVol_1inTOPpos" x="0" y="0" z="0" unit="cm"/>
+  </define>
+  <materials>
+    <material name="lead" Z="82">
+      <D unit="g/cm3" value="11.34"/>
+      <atom unit="g/mole" value="207.1"/>
+    </material>
+  </materials>
+  <solids>
+    <box name="boxShape" x="4.5" y="9" z="9" lunit="cm"/>
+    <tube name="tube1Shape" rmin="0" rmax="0.6" z="4" startphi="0" deltaphi="360" aunit="deg" lunit="cm"/>
+    <subtraction name="TGeoCompositeShape0x1">
+      <first ref="boxShape"/>
+      <second ref="tube1Shape"/>
+      <position name="TGeoCompositeShape0x1tube1Shapepos" x="0" y="0" z="-3.5" unit="cm"/>
+    </subtraction>
+    <tube name="tube2Shape" rmin="0" rmax="0.2" z="8" startphi="0" deltaphi="360" aunit="deg" lunit="cm"/>
+    <subtraction name="TGeoCompositeShape">
+      <first ref="TGeoCompositeShape0x1"/>
+      <second ref="tube2Shape"/>
+      <position name="TGeoCompositeShapetube2Shapepos" x="0" y="0" z="2" unit="cm"/>
+    </subtraction>
+    <tube name="tube3Shape" rmin="0" rmax="0.2" z="3.41496268634" startphi="0" deltaphi="360" aunit="deg" lunit="cm"/>
+    <subtraction name="collimatorShape">
+      <first ref="TGeoCompositeShape"/>
+      <second ref="tube3Shape"/>
+      <position name="collimatorShapetube3Shapepos" x="0.15" y="0" z="3" unit="cm"/>
+      <rotation name="collimatorShapetube3Shaperot" x="0" y="5.7105931375" z="0" unit="deg"/>
+    </subtraction>
+  </solids>
+  <structure>
+    <volume name="collimatorVol">
+      <materialref ref="lead"/>
+      <solidref ref="collimatorShape"/>
+    </volume>
+    <assembly name="TOP">
+      <physvol name="collimatorVol_1" copynumber="1">
+        <volumeref ref="collimatorVol"/>
+        <positionref ref="collimatorVol_1inTOPpos"/>
+      </physvol>
+    </assembly>
+  </structure>
+  <setup name="default" version="1.0">
+    <world ref="TOP"/>
+  </setup>
+</gdml>

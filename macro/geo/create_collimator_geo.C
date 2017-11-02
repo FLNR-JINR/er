@@ -1,84 +1,92 @@
-#include <iomanip>
-#include <iostream>
-#include "TGeoManager.h"
-#include "TMath.h"
-
-
+// All dimensions in cm
+// Я добавляю у размеров цилиндров по одному сантиметру и выдвигаю их из бокса соответственно
+// на 0.5 см чтобы не было совпадающих граней и хорошо рисовалось в openGL.
+// А тоненький цилиндр делаю ещё чуть длиннее, чтобы хорошо рисовался стык цилиндров.
 
 void create_collimator_geo()
 {
-  // Create a zero rotation
-  TGeoRotation *fZeroRotation = new TGeoRotation();
+	TString erPath = gSystem->Getenv("VMCWORKDIR");
 
-  Double_t transX = 0.;
-  Double_t transY = 0.;
-  Double_t transZ = 2.5;
+	// Output paths
+	TString outGeoFilenameRoot = erPath + "/geometry/collimator.geo.root";
+	TString outGeoFilenameGdml = erPath + "/geometry/collimator.gdml";
 
-  TGeoManager*   gGeoMan = NULL;
+	// Input paths
+	TString medFile = erPath + "/geometry/media.geo";
 
-  fZeroRotation->RotateX(0.);
-  fZeroRotation->RotateY(0.);
-  fZeroRotation->RotateZ(0.);
-  // -------   Load media from media file   -----------------------------------
-  FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
-  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-  TString geoPath = gSystem->Getenv("VMCWORKDIR");
-  TString medFile = geoPath + "/geometry/media.geo";
-  geoFace->setMediaFile(medFile);
-  geoFace->readMedia();
-  gGeoMan = gGeoManager;
-  // --------------------------------------------------------------------------
+	// Materials and media
+	FairGeoLoader* geoLoad = new FairGeoLoader("TGeo", "FairGeoLoader");
+	FairGeoInterface* geoFace = geoLoad->getGeoInterface();
+	geoFace->setMediaFile(medFile);
+	geoFace->readMedia();
+	FairGeoMedia* geoMedia = geoFace->getMedia();
+	FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
 
-  // -------   Geometry file name (output)   ---------------чё за хуйню ты мне скину-------------------
-  TString geoFileName = geoPath + "/geometry/collimator.geo.root";
-  // --------------------------------------------------------------------------
-  
-  // -----------------   Get and create the required media    -----------------
-  FairGeoMedia*   geoMedia = geoFace->getMedia();
-  FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
+	// Geometry manager
+	TGeoManager* geoM = (TGeoManager*)gROOT->FindObject("FAIRGeom");
 
-  FairGeoMedium* mFe      = geoMedia->getMedium("ferum");
-  if ( ! mFe ) Fatal("Main", "FairMedium ferum not found");
-  geoBuild->createMedium(mFe);
-  TGeoMedium* pFe = gGeoMan->GetMedium("ferum");
-  if ( ! pFe ) Fatal("Main", "Medium ferum not found");
-  
-  FairGeoMedium* vacuum      = geoMedia->getMedium("vacuum");
-  if ( ! vacuum ) Fatal("Main", "FairMedium vacuum not found");
-  geoBuild->createMedium(vacuum);
-  TGeoMedium* pMed0 = gGeoMan->GetMedium("vacuum");
-  if ( ! pMed0 ) Fatal("Main", "Medium vacuum not found");
-  // --------------------------------------------------------------------------
-  
-  //------------------------- VOLUMES -----------------------------------------
-  
-  // --------------   Create geometry and top volume  -------------------------
-  gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
-  gGeoMan->SetName("DETgeom");
-  TGeoVolume* top = new TGeoVolumeAssembly("TOP");
-  gGeoMan->SetTopVolume(top);
-  // --------------------------------------------------------------------------
+	TString mediumName;
+	mediumName = "lead";
+	FairGeoMedium* mFe = geoMedia->getMedium(mediumName);
+	if (!mFe) Fatal("create_collimator_geo", "FairMedium %s not found", mediumName.Data());
+	geoBuild->createMedium(mFe);
+	TGeoMedium* pFe = geoM->GetMedium(mediumName);
+	if (!pFe) Fatal("create_collimator_geo", "Medium %s not found", mediumName.Data());
 
-  //------------------ target -----------------------------------------
-  Double_t R_min = .0;   //cm
-  Double_t R_max = 10.;   //cm
-  Double_t Z = 5.;   //cm
-  Z /= 2.;
-  TGeoVolume *target = gGeoManager->MakeTube("target_vol", pFe, R_min, R_max,Z);
-  
-  //------------------ STRUCTURE  -----------------------------------------
-  TGeoVolume* targetAss = new TGeoVolumeAssembly("target");
-  targetAss->AddNode(target, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
-  top->AddNode(targetAss, 1, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
+	// Collimator -------------------------------
+	// Operands shapes
+	TGeoBBox* boxShape = new TGeoBBox("boxShape", 4.5/2., 9./2., 9./2.);
+	TGeoTube* tube1Shape = new TGeoTube("tube1Shape", 0., 0.6, 3./2.+1./2.);
+	TGeoTube* tube2Shape = new TGeoTube("tube2Shape", 0., 0.2, 6./2.+1./2.+1./2.);
 
-  // ---------------   Finish   -----------------------------------------------
-  gGeoMan->CloseGeometry();
-  gGeoMan->CheckOverlaps(0.001);
-  gGeoMan->PrintOverlaps();
-  gGeoMan->Test();
+	// Operands matrices
+	TGeoRotation* rotNoRot = new TGeoRotation("rotNoRot", 0., 0., 0.);
+	rotNoRot->RegisterYourself();
+	TGeoCombiTrans* M1 = new TGeoCombiTrans("M1", 0., 0., -3.-1./2., rotNoRot);
+	TGeoCombiTrans* M2 = new TGeoCombiTrans("M2", 0., 0., 1.5+1./2., rotNoRot);
+	M1->RegisterYourself();
+	M2->RegisterYourself();
 
-  TFile* geoFile = new TFile(geoFileName, "RECREATE");
-  top->Write();
-  geoFile->Close();
-  // --------------------------------------------------------------------------
-}	
+	// Third operand - rotated cylinder - false hole
+	Double_t alpha = TMath::ATan(3./30.)*180./TMath::Pi();
+	TGeoRotation* rotAlpha = new TGeoRotation("rotAlpha", 0., 0., 0.);
+	rotAlpha->RotateY(alpha);
+	rotAlpha->RegisterYourself();
+	Double_t shift_X = 0.15;
+	Double_t shift_Z = 1.5+1.5;
+	Double_t tube3len = TMath::Sqrt(3.*3.+0.3*0.3);
+	TGeoCombiTrans* M3 = new TGeoCombiTrans("M3", shift_X, 0., shift_Z, rotAlpha);
+	M3->RegisterYourself();
+	TGeoTube* tube3Shape = new TGeoTube("tube3Shape", 0., 0.2, tube3len/2.+0.2); // +0.2 to be on the safe side
+
+	// Shape
+	TGeoCompositeShape* collimatorShape = new TGeoCompositeShape("collimatorShape",
+		"boxShape-tube1Shape:M1-tube2Shape:M2-tube3Shape:M3");
+
+	// Volume
+	TGeoVolume* collimatorVol = new TGeoVolume("collimatorVol", collimatorShape, pFe);
+
+	// World ------------------------------------
+	TGeoVolume* topVol = new TGeoVolumeAssembly("TOP");
+
+	// Structure
+	topVol->AddNode(collimatorVol, 1);
+
+	// Finalize
+	geoM->SetTopVolume(topVol);
+	geoM->CloseGeometry();
+	geoM->CheckOverlaps();
+	geoM->CheckGeometry();
+	geoM->CheckGeometryFull();
+
+	// Export
+	geoM->Export(outGeoFilenameGdml);
+
+	TFile* outGeoFileRoot = new TFile(outGeoFilenameRoot, "RECREATE");
+	geoM->GetTopVolume()->Write();
+	outGeoFileRoot->Close();
+
+	// Draw
+	TBrowser* bro = new TBrowser("bro", "bro");
+	geoM->GetTopVolume()->Draw("ogl");
+}

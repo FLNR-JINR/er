@@ -1,4 +1,4 @@
-void sim(Int_t nEvents = 1000){
+void sim(Int_t nEvents = 1){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -81,7 +81,7 @@ void sim(Int_t nEvents = 1000){
   
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
-  Int_t nSteps = -15000;
+  Int_t nSteps = -15000; //TODO Why negative?
   //gMC->SetMaxNStep(nSteps);
 	
   // -----   Runtime database   ---------------------------------------------
