@@ -62,7 +62,7 @@ vector<Double_t> ERBeamDetSetup::fPositionMWPC;
 Double_t ERBeamDetSetup::fTargetH2R = 2.;   //cm
 Double_t ERBeamDetSetup::fTargetH2Z = 0.4;   //cm
 Double_t ERBeamDetSetup::fTargetShellThicknessSide = 20 * 1e-4;
-Double_t ERBeamDetSetup::fTargetShellThicknessZ = 60 * 1e-4;
+Double_t ERBeamDetSetup::fTargetShellThicknessZ = 6 * 1e-4;
 
 TString  ERBeamDetSetup::fParamsXmlFileName = "equip.xml";
 vector<TString>  ERBeamDetSetup::fToFType;
