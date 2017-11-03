@@ -61,7 +61,8 @@ vector<Double_t> ERBeamDetSetup::fPositionMWPC;
 // -------- fTarget parameters -----------------------------------------------
 Double_t ERBeamDetSetup::fTargetH2R = 2.;   //cm
 Double_t ERBeamDetSetup::fTargetH2Z = 0.4;   //cm
-Double_t ERBeamDetSetup::fTargetShellThickness = 20 * 1e-4;
+Double_t ERBeamDetSetup::fTargetShellThicknessSide = 20 * 1e-4;
+Double_t ERBeamDetSetup::fTargetShellThicknessZ = 60 * 1e-4;
 
 TString  ERBeamDetSetup::fParamsXmlFileName = "equip.xml";
 vector<TString>  ERBeamDetSetup::fToFType;
@@ -426,11 +427,13 @@ void ERBeamDetSetup::ParseXmlParameters() {
  //    return -1;
   }
   TXMLNode *rootNode = domParser->GetXMLDocument()->GetRootNode();
-  TXMLNode *detPartNode = rootNode->GetChildren()->GetNextNode()->GetChildren();
+  TXMLNode *detPartNode = rootNode->GetChildren()->GetNextNode();//->GetChildren();
   TXMLNode *curNode;
+        cout << "Cmp ToF "  << endl;
+
   for ( ; detPartNode; detPartNode = detPartNode->GetNextNode()) { // detector's part
     if(!strcasecmp(detPartNode->GetNodeName(), "ToFTypes")) {
-     // cout << "Cmp ToF " << detPartNode->GetNodeName() << endl;
+      cout << "Cmp ToF " << detPartNode->GetNodeName() << endl;
       GetToFParameters(detPartNode->GetChildren());
     }
     if(!strcasecmp(detPartNode->GetNodeName(), "MWPCTypes")) {
@@ -571,8 +574,8 @@ void ERBeamDetSetup::ConstructGeometry() {
 
   // --------------------------------------------------------------------------
   // ---------------- fTarget --------------------------------------------------
-  Double_t fTargetShellR = fTargetH2R + fTargetShellThickness;
-  Double_t fTargetShellZ = fTargetH2Z/2 + fTargetShellThickness;
+  Double_t fTargetShellR = fTargetH2R + fTargetShellThicknessSide;
+  Double_t fTargetShellZ = fTargetH2Z/2 + fTargetShellThicknessZ;
 
   TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, fTargetH2R, fTargetH2Z/2);
   TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, fTargetShellR, fTargetShellZ);
