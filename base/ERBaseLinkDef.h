@@ -7,6 +7,10 @@
 #pragma link C++ class ERDetector+;
 #pragma link C++ class ERMCApplication+;
 #pragma link C++ class ERRunSim+;
+#pragma link C++ class ERDetectorContFact+;
+#pragma link C++ class ERDetectorGeoPar+;
+#pragma link C++ class ERDigitizer+;
+
 //#pragma link C++ class ERRunAna+;
 
 #endif

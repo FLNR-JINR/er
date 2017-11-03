@@ -6,6 +6,7 @@ set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
 ${ROOT_INCLUDE_DIR}
 ${GEANT4_INCLUDE_DIR}
+${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/data
 ${CMAKE_SOURCE_DIR}/passive
@@ -27,6 +28,9 @@ ERDetector.cxx
 ERMCApplication.cxx
 ERRunSim.cxx
 ERSupport.cxx
+ERDetectorContFact.cxx
+ERDetectorGeoPar.cxx
+ERDigitizer.cxx
 )
 
 # fill list of header files from list of source files
