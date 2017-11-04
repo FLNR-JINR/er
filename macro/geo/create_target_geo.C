@@ -1,82 +1,77 @@
-#include <iomanip>
-#include <iostream>
-#include "TGeoManager.h"
-#include "TMath.h"
-
-
-// Create a zero rotation
-TGeoRotation *fZeroRotation = new TGeoRotation();
-
-Double_t transX = 0.;
-Double_t transY = 0.;
-Double_t transZ = 1.;
-
-TGeoManager*   gGeoMan = NULL;
-
 void create_target_geo()
 {
-  fZeroRotation->RotateX(0.);
-  fZeroRotation->RotateY(0.);
-  fZeroRotation->RotateZ(0.);
-  // -------   Load media from media file   -----------------------------------
-  FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
+  TString erPath = gSystem->Getenv("VMCWORKDIR");
+
+  // Output paths
+  TString outGeoFilenameRoot = erPath + "/geometry/target.geo.root";
+  TString outGeoFilenameGdml = erPath + "/geometry/target.gdml";
+
+  // Input paths
+  TString medFile = erPath + "/geometry/media.geo";
+
+  // Materials and media
+  FairGeoLoader* geoLoad = new FairGeoLoader("TGeo", "FairGeoLoader");
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-  TString geoPath = gSystem->Getenv("VMCWORKDIR");
-  TString medFile = geoPath + "/geometry/media.geo";
   geoFace->setMediaFile(medFile);
   geoFace->readMedia();
-  gGeoMan = gGeoManager;
-  // --------------------------------------------------------------------------
-
-  // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/target.geo.root";
-  // --------------------------------------------------------------------------
-  
-  // -----------------   Get and create the required media    -----------------
-  FairGeoMedia*   geoMedia = geoFace->getMedia();
+  FairGeoMedia* geoMedia = geoFace->getMedia();
   FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
 
-  FairGeoMedium* mBe      = geoMedia->getMedium("beryllium");
-  if ( ! mBe ) Fatal("Main", "FairMedium beryllium not found");
-  geoBuild->createMedium(mBe);
-  TGeoMedium* pBe = gGeoMan->GetMedium("beryllium");
-  if ( ! pBe ) Fatal("Main", "Medium silicon not found");
-  
-  FairGeoMedium* vacuum      = geoMedia->getMedium("vacuum");
-  if ( ! vacuum ) Fatal("Main", "FairMedium vacuum not found");
-  geoBuild->createMedium(vacuum);
-  TGeoMedium* pMed0 = gGeoMan->GetMedium("vacuum");
-  if ( ! pMed0 ) Fatal("Main", "Medium vacuum not found");
-  // --------------------------------------------------------------------------
-  
-  //------------------------- VOLUMES -----------------------------------------
-  
-  // --------------   Create geometry and top volume  -------------------------
-  gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
-  gGeoMan->SetName("DETgeom");
-  TGeoVolume* top = new TGeoVolumeAssembly("TOP");
-  gGeoMan->SetTopVolume(top);
-  // --------------------------------------------------------------------------
+  // Geometry manager
+  TGeoManager* geoM = (TGeoManager*)gROOT->FindObject("FAIRGeom");
 
-  //------------------ target -----------------------------------------
-  Double_t target_R = 2.;   //cm
-  Double_t target_Z = 2.;   //cm
-  target_Z /= 2.;
-  TGeoVolume *target = gGeoManager->MakeTube("target_vol", pBe, 0, target_R, target_Z);
+  TString mediumName;
+
+  mediumName = "beryllium";
+  FairGeoMedium* mberyllium = geoMedia->getMedium(mediumName);
+  if (!mberyllium) Fatal("create_target_geo", "FairMedium %s not found", mediumName.Data());
+  geoBuild->createMedium(mberyllium);
+  TGeoMedium* pberyllium = geoM->GetMedium(mediumName);
+  if (!pberyllium) Fatal("create_target_geo", "Medium %s not found", mediumName.Data());
+
+  // General dimensions
+  Double_t transX = 0.; // cm
+  Double_t transY = 0.; // cm
+  Double_t transZ = 1.; // cm
+  Double_t target_R = 2.; // cm
+  Double_t target_Z = 2.; // cm
   
-  //------------------ STRUCTURE  -----------------------------------------
-  TGeoVolume* targetAss = new TGeoVolumeAssembly("target");
-  targetAss->AddNode(target, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
-  top->AddNode(targetAss, 1, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
+  // Shapes
+  TGeoTube* targetShape = new TGeoTube("targetShape", 0., target_R, target_Z/2.);
 
-  // ---------------   Finish   -----------------------------------------------
-  gGeoMan->CloseGeometry();
-  gGeoMan->CheckOverlaps(0.001);
-  gGeoMan->PrintOverlaps();
-  gGeoMan->Test();
+  // Volumes
+  TGeoVolume* targetVol = new TGeoVolume("targetVol", targetShape, pberyllium);
 
-  TFile* geoFile = new TFile(geoFileName, "RECREATE");
-  top->Write();
-  geoFile->Close();
-  // --------------------------------------------------------------------------
-}	
+  // Matrices
+  TGeoRotation* rotNoRot = new TGeoRotation("rotNoRot", 0., 0., 0.);
+  rotNoRot->RegisterYourself();
+
+  // This is the one but last level in the hierarchy
+  // This volume-assembly is the only volume to be inserted into TOP
+  TGeoVolumeAssembly* subdetectorVolAss = new TGeoVolumeAssembly("target");
+  subdetectorVolAss->AddNode(targetVol, 1,
+    new TGeoCombiTrans("mTargetVolInTarget", transX, transY, transZ, rotNoRot));
+
+  // World ------------------------------------
+  TGeoVolumeAssembly* topVolAss = new TGeoVolumeAssembly("TOP");
+  topVolAss->AddNode(subdetectorVolAss, 1);
+
+  // Finalize
+  geoM->SetTopVolume(topVolAss);
+  geoM->CloseGeometry();
+  geoM->CheckOverlaps();
+  geoM->PrintOverlaps();
+  //geoM->CheckGeometry();
+  //geoM->CheckGeometryFull();
+  //geoM->Test();
+
+  // Export
+  //geoM->Export(outGeoFilenameGdml);
+  TFile* outGeoFileRoot = new TFile(outGeoFilenameRoot, "RECREATE");
+  geoM->GetTopVolume()->Write();
+  outGeoFileRoot->Close();
+
+  // Draw
+  TBrowser* bro = new TBrowser("bro", "bro");
+  geoM->GetTopVolume()->Draw("ogl");
+}
