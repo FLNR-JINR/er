@@ -32,7 +32,8 @@ Double_t positionMWPC2 = -8.;
 Double_t targetH2R = 2.;   //cm
 Double_t targetH2Z = 0.4;   //cm
 
-Double_t targetShellThickness = 20 * 1e-4;
+Double_t targetShellThicknessSide = 20 * 1e-4;
+Double_t targetShellThicknessZ = 6 * 1e-4;
 
 Double_t transTargetX = 0.;
 Double_t transTargetY = 0.; 
@@ -151,8 +152,8 @@ TGeoVolume* target  = new TGeoVolumeAssembly("target");
 // ---------------- target --------------------------------------------------
 targetH2Z /= 2.;
 
-Double_t targetShellR = targetH2R + targetShellThickness;
-Double_t targetShellZ = targetH2Z;
+Double_t targetShellR = targetH2R + targetShellThicknessSide;
+Double_t targetShellZ = targetH2Z + targetShellThicknessZ;
 
 TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, targetH2R, targetH2Z);
 TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, targetShellR, targetShellZ);
