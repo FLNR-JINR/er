@@ -65,7 +65,7 @@ ERIonGenerator::ERIonGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mu
   fPMin(0),fPMax(0),fThetaMin(0),fThetaMax(0),fX(0),fY(0),fZ(0),
   fX1(0),fY1(0),fX2(0),fY2(0), 
   fGausX(0), fGausY(0), fGausP(0),
-  fSigmaX(0), fSigmaY(0), fSigmaKinEIsSet(0), fSigmaPIsSet(0),
+  fSigmaX(0), fSigmaY(0), fSigmaPIsSet(0),
   fSigmaP(0), 
   fEtaRangeIsSet(0), fYRangeIsSet(0),fThetaRangeIsSet(0),
   fCosThetaIsSet(0), fPtRangeIsSet(0), fPRangeIsSet(0),

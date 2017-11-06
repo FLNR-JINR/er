@@ -1,8 +1,12 @@
-#include "ERBeamDetTrackFinder.h"
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
-#include <vector>
-#include <iostream>
-using namespace std;
+#include "ERBeamDetTrackFinder.h"
 
 #include "TVector3.h"
 #include "TMath.h"
@@ -10,38 +14,25 @@ using namespace std;
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include <iostream>
+#include "FairLogger.h"
 
-#include "ERDetectorList.h"
+using namespace std;
 
-// ----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::ERBeamDetTrackFinder()
   : FairTask("ER BeamDet track finding scheme")
 {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::ERBeamDetTrackFinder(Int_t verbose)
   : FairTask("ER BeamDet track finding scheme ", verbose)
 {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::~ERBeamDetTrackFinder()
 {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-void ERBeamDetTrackFinder::SetParContainers()
-{
-
-}
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 InitStatus ERBeamDetTrackFinder::Init()
 {
   // Get input array
@@ -52,7 +43,6 @@ InitStatus ERBeamDetTrackFinder::Init()
   fBeamDetMWPCDigiX2 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiX2");
   fBeamDetMWPCDigiY1 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiY1");
   fBeamDetMWPCDigiY2 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiY2");
-
   // Register output array fBeamDetHits
   fBeamDetTrack = (ERBeamDetTrack*)new ERBeamDetTrack();
 
@@ -64,19 +54,17 @@ InitStatus ERBeamDetTrackFinder::Init()
    
   return kSUCCESS;
 }
-// -------------------------------------------------------------------------
-
-// -----   Public method Exec   --------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void ERBeamDetTrackFinder::Exec(Option_t* opt)
 { 
   Reset();
-  std::cout << std::endl;
+  LOG(DEBUG) << FairLogger::endl;
 
   if(fBeamDetMWPCDigiX1->GetEntriesFast() > 1 ||
      fBeamDetMWPCDigiX2->GetEntriesFast() > 1 ||
      fBeamDetMWPCDigiY1->GetEntriesFast() > 1 || 
      fBeamDetMWPCDigiY2->GetEntriesFast() > 1 ) {
-    std::cout << "Multiplicity more than one" << std::endl;
+    LOG(DEBUG) << "Multiplicity more than one" << FairLogger::endl;
     FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
     return ;
@@ -86,7 +74,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
      fBeamDetMWPCDigiX2->GetEntriesFast() < 1 ||
      fBeamDetMWPCDigiY1->GetEntriesFast() < 1 || 
      fBeamDetMWPCDigiY2->GetEntriesFast() < 1 ) {
-    std::cout << "Multiplicity less than one" << std::endl;
+    LOG(DEBUG) << "Multiplicity less than one" << FairLogger::endl;
     FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
     return ;
@@ -116,40 +104,41 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   TVector3 hitClose(xClose, yClose, zClose);
   TVector3 vectorOnTarget = hitClose - hitFar;
 
-  cout << "Theta = " << vectorOnTarget.Theta() << "; Phi = " << vectorOnTarget.Phi() << endl;
+  cout << "Theta = " << vectorOnTarget.Theta() << "; Phi = " << vectorOnTarget.Phi() << FairLogger::endl;
 
   Double_t xTarget = xClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Cos(vectorOnTarget.Phi());
   Double_t yTarget = yClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Sin(vectorOnTarget.Phi());
 
-  std::cout << "xFar = " <<  xFar << "; yFar = " << yFar << "; zFar = " << zFar << endl
-            << "xClose = " <<  xClose << "; yClose = " << yClose << "; zClose = " << zClose << endl;
+  LOG(DEBUG) << "xFar = " <<  xFar << "; yFar = " << yFar << "; zFar = " << zFar << FairLogger::endl
+            << "xClose = " <<  xClose << "; yClose = " << yClose << "; zClose = " << zClose << FairLogger::endl;
 
   if(TMath::Sqrt(xTarget*xTarget + yTarget*yTarget) <= fBeamDetSetup->TargetR()) {
     AddTrack(xTarget, yTarget, 0, vectorOnTarget.Unit());
   }
-  std::cout << "Point on target " << "(" << xTarget << ", " 
-                                         << yTarget << ") cm" << endl;
+  LOG(DEBUG) << "Point on target " << "(" << xTarget << ", " 
+                                         << yTarget << ") cm" << FairLogger::endl;
 }
-//----------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void ERBeamDetTrackFinder::Reset()
 {
   if (fBeamDetTrack) {
     fBeamDetTrack->Clear();
   }
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void ERBeamDetTrackFinder::Finish()
 {   
   
 }
-// ----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 ERBeamDetTrack* ERBeamDetTrackFinder::AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v)
 {
   fBeamDetTrack->AddParameters(xt, yt, zt, v);
 }
-//-----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+void ERBeamDetTrackFinder::SetParContainers()
+{
+
+}
+//--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetTrackFinder)

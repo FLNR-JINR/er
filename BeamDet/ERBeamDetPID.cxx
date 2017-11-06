@@ -1,52 +1,35 @@
 #include "ERBeamDetPID.h"
 
-#include <vector>
-#include <iostream>
-using namespace std;
-
 #include "TVector3.h"
 #include "TMath.h"
+#include "TDatabasePDG.h"
+#include "TParticlePDG.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "TDatabasePDG.h"
-#include "TParticlePDG.h"
-#include <iostream>
+#include "FairLogger.h"
 
 #include "ERDetectorList.h"
 #include "ERBeamDetSetup.h"
 
-// ----------------------------------------------------------------------------
+using namespace std;
+
+//--------------------------------------------------------------------------------------------------
 ERBeamDetPID::ERBeamDetPID()
   : FairTask("ER BeamDet particle finding scheme")
 {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 ERBeamDetPID::ERBeamDetPID(Int_t verbose)
   : FairTask("ER BeamDet particle finding scheme ", verbose)
 {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-ERBeamDetPID::~ERBeamDetPID()
-{
+//--------------------------------------------------------------------------------------------------
+ERBeamDetPID::~ERBeamDetPID() {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-void ERBeamDetPID::SetParContainers()
-{
-
-}
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-InitStatus ERBeamDetPID::Init()
-{
+//--------------------------------------------------------------------------------------------------
+InitStatus ERBeamDetPID::Init() {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
@@ -66,15 +49,11 @@ InitStatus ERBeamDetPID::Init()
      
   return kSUCCESS;
 }
-// -------------------------------------------------------------------------
-
-// -----   Public method Exec   --------------------------------------------
-void ERBeamDetPID::Exec(Option_t* opt)
-{ 
+//--------------------------------------------------------------------------------------------------
+void ERBeamDetPID::Exec(Option_t* opt) { 
   Reset();
-  if (!fBeamDetTrack || !fBeamDetToFDigi1->At(0) || !fBeamDetToFDigi2->At(0))
-  {
-    cout  << "ERBeamDetPID: No track" << endl;
+  if (!fBeamDetTrack || !fBeamDetToFDigi1->At(0) || !fBeamDetToFDigi2->At(0)) {
+    LOG(DEBUG)  << "ERBeamDetPID: No track" << FairLogger::endl;
     return;
   }
 
@@ -86,8 +65,8 @@ void ERBeamDetPID::Exec(Option_t* opt)
   Double_t gamma;
   /*TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPID);
   if ( ! particle ) {
-      cout << "ERIonGenerator: Ion " << fPID
-      << " not found in database!" << endl;
+      LOG(DEBUG) << "ERIonGenerator: Ion " << fPID
+      << " not found in database!" << FairLogger::endl;
       return ;
     }*/
   //Double_t mass = 26.2716160;//particle->Mass();
@@ -98,16 +77,16 @@ void ERBeamDetPID::Exec(Option_t* opt)
   digi = (ERBeamDetToFDigi*)fBeamDetToFDigi1->At(0);
   ToF1 = digi->GetTime();
   dE1 = digi->Edep();
-  cout << "dE1 = " << dE1 << " ToF1 = " << ToF1 << endl;
+  LOG(DEBUG) << "dE1 = " << dE1 << " ToF1 = " << ToF1 << FairLogger::endl;
   digi = (ERBeamDetToFDigi*)fBeamDetToFDigi2->At(0);
   ToF2 = digi->GetTime();
   dE2 = digi->Edep();
-  cout << "dE2 = " << dE2 << " ToF2 = " << ToF2 << endl;
+  LOG(DEBUG) << "dE2 = " << dE2 << " ToF2 = " << ToF2 << FairLogger::endl;
 
   dE = dE1 + dE2;
-  cout << "dE = " << dE << " Gev; " << " ToF1 = " << ToF1 << " ns;" << " ToF2 = " << ToF2 << " ns;" << endl;
+  LOG(DEBUG) << "dE = " << dE << " Gev; " << " ToF1 = " << ToF1 << " ns;" << " ToF2 = " << ToF2 << " ns;" << FairLogger::endl;
   ToF = ToF2 - ToF1 + fOffsetToF;
-  cout << "dE = " << dE << " Gev; " << " ToF = " << ToF << " ns;" << endl;
+  LOG(DEBUG) << "dE = " << dE << " Gev; " << " ToF = " << ToF << " ns;" << FairLogger::endl;
 
   if(ToF <= fToF1 || ToF >= fToF2 || dE <= fdE1 || dE >= fdE2){
     probability = 0;
@@ -117,7 +96,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
   }
 
   if(probability < fProbabilityThreshold) {
-    std::cout << "Probability " << probability << " less then threshold " << fProbabilityThreshold << std::endl;
+    LOG(DEBUG) << "Probability " << probability << " less then threshold " << fProbabilityThreshold << FairLogger::endl;
     FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
     return ;
@@ -125,7 +104,7 @@ void ERBeamDetPID::Exec(Option_t* opt)
 
   beta = fBeamDetSetup->DistanceBetweenToF() * 1e-2 / (ToF * 1e-9) / TMath::C();
   if(beta <= 0 || beta >= 1) {
-    std::cout << "Wrong beta " << beta << std::endl;
+    LOG(DEBUG) << "Wrong beta " << beta << FairLogger::endl;
     FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
     return ;
@@ -141,33 +120,26 @@ void ERBeamDetPID::Exec(Option_t* opt)
   pz = p * TMath::Cos(fBeamDetTrack->GetVector().Theta());
 
   energy = fIonMass * gamma;
-  std::cout << "PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
-            << " energy: " << energy << "; probability " << probability << std::endl;
+  LOG(DEBUG) << "PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
+            << " energy: " << energy << "; probability " << probability << FairLogger::endl;
 
   AddParticle(fPID, TLorentzVector(px, py, pz, energy), probability);
 }
-//----------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------
-void ERBeamDetPID::Reset()
-{
+//--------------------------------------------------------------------------------------------------
+void ERBeamDetPID::Reset() {
   if (fProjectile) {
     fProjectile->Clear();
   }
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-void ERBeamDetPID::Finish()
-{   
-  
+//--------------------------------------------------------------------------------------------------
+void ERBeamDetPID::Finish(){    
 }
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability)
-{
+//--------------------------------------------------------------------------------------------------
+ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability){
  fProjectile->AddParameters(pid, fourMomentum, probability); 
 }
-//-----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+void ERBeamDetPID::SetParContainers() {
+}
+//--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetPID)

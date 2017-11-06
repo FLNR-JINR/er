@@ -209,8 +209,8 @@ class ERIonGenerator : public FairGenerator
      ** Method SetKinE() defines ion kinetic energy that is recalculated 
      ** to the momentum. Momentum is normally distributed according to 
      ** standart deviation that is defined by SetPSigmaOverP() method.
-    */
-    ///</@{
+    **/
+    ///@{
     /** @brief Defines fixed ion kinetic energy that is recalculated to the momentum
      ** according to equation \f[ P=\sqrt{T^2+2*T*m*c^2}\f], 
      ** where  \f$T\f$ - kinetic energy.
@@ -223,7 +223,7 @@ class ERIonGenerator : public FairGenerator
      ** @param sigmaPOverP  percentage of ion momentum.
     **/
     void SetPSigmaOverP(Double32_t sigmaPOverP) { fSigmaP = sigmaPOverP*fGausP; fSigmaPIsSet = kTRUE;}
-    ///</@}
+    ///@}
 
     /** @brief Defines Gaussian distribution of ion momentum [GeV].
      ** @param p       momentum [GeV].
@@ -277,29 +277,28 @@ class ERIonGenerator : public FairGenerator
     Double32_t fThetaMin, fThetaMax; ///< Polar angle range in lab system [degree]
     Double32_t fX, fY, fZ;           ///< Point vertex coordinates [cm]
     Double32_t fX1, fY1, fX2, fY2;   ///< Box vertex coords (x1,y1)->(x2,y2)
-    Double32_t fPx, fPy, fPz;
-    Double32_t fGausX, fGausY; 
-    Double32_t fSigmaX, fSigmaY;  
-    Double32_t fGausP;   
-    Double32_t fSigmaP;
-    Double32_t fGausTheta;
-    Double32_t fSigmaTheta;
-    Double32_t fKinE;
+    Double32_t fPx, fPy, fPz;        ///< Momentum projection [GeV]
+    Double32_t fGausX, fGausY;       ///< Amplitude values of coordinates in Gauss distibution [cm]
+    Double32_t fSigmaX, fSigmaY;     ///< Coordinates normal deviation [cm]
+    Double32_t fGausP;               ///< Amplitude value of momentum in Gauss distibution [GeV]
+    Double32_t fSigmaP;              ///< Momentum normal deviation [GeV]
+    Double32_t fGausTheta;           ///< Amplitude value of theta angle in Gauss distibution [degree]
+    Double32_t fSigmaTheta;          ///< Theta angle normal deviation [degree]
+    Double32_t fKinE;                ///< Kinetic energy [GeV]
 
     Bool_t     fEtaRangeIsSet;       ///< True if eta range is set
     Bool_t     fYRangeIsSet;         ///< True if rapidity range is set
     Bool_t     fThetaRangeIsSet;     ///< True if theta range is set
     Bool_t     fCosThetaIsSet;       ///< True if uniform distribution in cos(theta) is set (default -> not set)
     Bool_t     fPtRangeIsSet;        ///< True if transverse momentum range is set
-    Bool_t     fPRangeIsSet;         ///< True if abs.momentum range is set
+    Bool_t     fPRangeIsSet;         ///< True if abs momentum range is set
     Bool_t     fPointVtxIsSet;       ///< True if point vertex is set
     Bool_t     fBoxVtxIsSet;         ///< True if box vertex is set
-    Bool_t     fBoxSigmaIsSet;
-    Bool_t     fSigmaKinEIsSet;
-    Bool_t     fSigmaPIsSet;
+    Bool_t     fBoxSigmaIsSet;       ///< True if Gauss distribution for coordinates is set
+    Bool_t     fSigmaPIsSet;         ///< True if Gauss distribution for momentum is set
     Bool_t     fDebug;               ///< Debug switch
-    Bool_t     fSpreadingOnTarget;
-    Bool_t     fSigmaThetaIsSet;
+    Bool_t     fSpreadingOnTarget;   ///< True if parameters are spreaded on target and reconstructed to beam start position.
+    Bool_t     fSigmaThetaIsSet;     ///< True if Gauss distribution for theta angle is set
 
  private:
     ERIonGenerator(const ERIonGenerator&);

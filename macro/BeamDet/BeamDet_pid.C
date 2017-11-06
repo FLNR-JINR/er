@@ -25,7 +25,7 @@ void BeamDet_pid(Int_t nEvents = 2000){
   identification->SetPID(1000160280);
   identification->SetIonMass(26.2716160);
   identification->SetBoxPID(189., 192., 0.02, 0.09);
-  identification->SeToFfsetToF(0.);
+  identification->SetOffsetToF(0.);
   identification->SetProbabilityThreshold(0.5);
 
   fRun->AddTask(identification);

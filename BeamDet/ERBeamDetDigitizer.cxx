@@ -1,6 +1,12 @@
-#include "ERBeamDetDigitizer.h"
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
-#include <vector>
+#include "ERBeamDetDigitizer.h"
 
 #include "TVector3.h"
 #include "TGeoMatrix.h"
@@ -10,13 +16,13 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include <iostream>
-#include <algorithm>
-using namespace std;
+#include "FairLogger.h"
 
 #include "ERDetectorList.h"
 
-// ----------------------------------------------------------------------------
+using namespace std;
+
+//--------------------------------------------------------------------------------------------------
 ERBeamDetDigitizer::ERBeamDetDigitizer()
   : FairTask("ER beamdet digitization"), 
   fBeamDetToFPoints(NULL), 
@@ -32,13 +38,10 @@ ERBeamDetDigitizer::ERBeamDetDigitizer()
   fElossSigmaMWPC(0),
   fTimeSigmaMWPC(0),
   fMWPCElossThreshold(0),
-  fToFElossThreshold(0),
-  fDigiEloss(0)
+  fToFElossThreshold(0)
 {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
   : FairTask("ER beamdet digitization ", verbose),
   fBeamDetToFPoints(NULL), 
@@ -55,34 +58,15 @@ ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
   fTimeSigmaMWPC(0),
   fMWPCElossThreshold(0),
   fToFElossThreshold(0),
-  fDigiEloss(0),
   fElossSigmaOverElossToF(0),
   fSigmaEOverEToFIsSet(0)
 {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-ERBeamDetDigitizer::~ERBeamDetDigitizer()
-{
+//--------------------------------------------------------------------------------------------------
+ERBeamDetDigitizer::~ERBeamDetDigitizer() {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-void ERBeamDetDigitizer::SetParContainers()
-{
-  // Get run and runtime database
-  FairRun* run = FairRun::Instance();
-  if ( ! run ) Fatal("SetParContainers", "No analysis run");
-
-  FairRuntimeDb* rtdb = run->GetRuntimeDb();
-  if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
-}
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-InitStatus ERBeamDetDigitizer::Init()
-{
+//--------------------------------------------------------------------------------------------------
+InitStatus ERBeamDetDigitizer::Init() {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
@@ -119,9 +103,7 @@ InitStatus ERBeamDetDigitizer::Init()
    
   return kSUCCESS;
 }
-// -------------------------------------------------------------------------
-
-// -----   Public method Exec   --------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void ERBeamDetDigitizer::Exec(Option_t* opt)
 {
 
@@ -163,7 +145,8 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
 
     ERBeamDetToFDigi *digi = AddToFDigi(edep, time, itPlate->first);
 
-    for (itToFPoint = itPlate->second.begin(); itToFPoint != itPlate->second.end(); ++itToFPoint){
+    itToFPoint = itPlate->second.begin();
+    for (; itToFPoint != itPlate->second.end(); ++itToFPoint){
       digi->AddLink(FairLink("BeamDetToFPoint", *itToFPoint));
     }
   }
@@ -185,8 +168,9 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
       
         Float_t edep = 0.; //sum edep in wire
         Float_t time = numeric_limits<float>::max(); // min time in wire
-        
-        for (itMWPCPoint = itWire->second.begin(); itMWPCPoint != itWire->second.end(); ++itMWPCPoint){
+
+        itMWPCPoint = itWire->second.begin();
+        for (; itMWPCPoint != itWire->second.end(); ++itMWPCPoint){
           ERBeamDetMWPCPoint* point = (ERBeamDetMWPCPoint*)(fBeamDetMWPCPoints->At(*itMWPCPoint));
           edep += point->GetEnergyLoss();
           if (point->GetTime() < time){
@@ -200,18 +184,17 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
 
         time = gRandom->Gaus(time, fTimeSigmaMWPC);
 
-        ERBeamDetMWPCDigi *digi = AddMWPCDigi(edep, time, itMWPC->first, itPlane->first, itWire->first);
-
-        for (itMWPCPoint = itWire->second.begin(); itMWPCPoint != itWire->second.end(); ++itMWPCPoint){
+        ERBeamDetMWPCDigi *digi = AddMWPCDigi(edep, time, 
+                                              itMWPC->first, itPlane->first, itWire->first);
+        itMWPCPoint = itWire->second.begin();
+        for (; itMWPCPoint != itWire->second.end(); ++itMWPCPoint){
           digi->AddLink(FairLink("BeamDetMWPCPoint", *itMWPCPoint));
         }
       }
     }
   }
 }
-//----------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void ERBeamDetDigitizer::Reset()
 {
   if (fBeamDetMWPCDigiX1) {
@@ -233,42 +216,40 @@ void ERBeamDetDigitizer::Reset()
     fBeamDetToFDigi2->Delete();
   }
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-void ERBeamDetDigitizer::Finish()
-{   
+//--------------------------------------------------------------------------------------------------
+void ERBeamDetDigitizer::Finish() {   
 
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-ERBeamDetMWPCDigi* ERBeamDetDigitizer::AddMWPCDigi(Float_t edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb)
-{
+//--------------------------------------------------------------------------------------------------
+ERBeamDetMWPCDigi* ERBeamDetDigitizer::AddMWPCDigi(Float_t edep, Double_t time, 
+                                                   Int_t mwpcNb, Int_t planeNb, Int_t wireNb) {
   ERBeamDetMWPCDigi *digi;
   if(mwpcNb == 1) {
     if(planeNb == 1) {
       digi = new((*fBeamDetMWPCDigiX1)[fBeamDetMWPCDigiX1->GetEntriesFast()])
-              ERBeamDetMWPCDigi(fBeamDetMWPCDigiX1->GetEntriesFast(), edep, time, mwpcNb, planeNb, wireNb);
+              ERBeamDetMWPCDigi(fBeamDetMWPCDigiX1->GetEntriesFast(), edep, time, 
+                                mwpcNb, planeNb, wireNb);
     } else {
       digi = new((*fBeamDetMWPCDigiY1)[fBeamDetMWPCDigiY1->GetEntriesFast()])
-              ERBeamDetMWPCDigi(fBeamDetMWPCDigiY1->GetEntriesFast(), edep, time, mwpcNb, planeNb, wireNb);
+              ERBeamDetMWPCDigi(fBeamDetMWPCDigiY1->GetEntriesFast(), edep, time, 
+                                mwpcNb, planeNb, wireNb);
     }
   }
   if(mwpcNb == 2) {
     if(planeNb == 1) {
       digi = new((*fBeamDetMWPCDigiX2)[fBeamDetMWPCDigiX2->GetEntriesFast()])
-              ERBeamDetMWPCDigi(fBeamDetMWPCDigiX2->GetEntriesFast(), edep, time, mwpcNb, planeNb, wireNb);
+              ERBeamDetMWPCDigi(fBeamDetMWPCDigiX2->GetEntriesFast(), edep, time, 
+                                mwpcNb, planeNb, wireNb);
     } else {
       digi = new((*fBeamDetMWPCDigiY2)[fBeamDetMWPCDigiY2->GetEntriesFast()])
-              ERBeamDetMWPCDigi(fBeamDetMWPCDigiY2->GetEntriesFast(), edep, time, mwpcNb, planeNb, wireNb);
+              ERBeamDetMWPCDigi(fBeamDetMWPCDigiY2->GetEntriesFast(), edep, time, 
+                                mwpcNb, planeNb, wireNb);
     }
   }
   return digi;
 }
-
-ERBeamDetToFDigi* ERBeamDetDigitizer::AddToFDigi(Float_t edep, Double_t time, Int_t tofNb)
-{
+//--------------------------------------------------------------------------------------------------
+ERBeamDetToFDigi* ERBeamDetDigitizer::AddToFDigi(Float_t edep, Double_t time, Int_t tofNb) {
   ERBeamDetToFDigi *digi; 
   if(tofNb == 1) {
     digi = new((*fBeamDetToFDigi1)[fBeamDetToFDigi1->GetEntriesFast()])
@@ -280,6 +261,14 @@ ERBeamDetToFDigi* ERBeamDetDigitizer::AddToFDigi(Float_t edep, Double_t time, In
   }
   return digi;
 }
-// ----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+void ERBeamDetDigitizer::SetParContainers() {
+  // Get run and runtime database
+  FairRun* run = FairRun::Instance();
+  if ( ! run ) Fatal("SetParContainers", "No analysis run");
+
+  FairRuntimeDb* rtdb = run->GetRuntimeDb();
+  if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
+}
+//--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetDigitizer)
