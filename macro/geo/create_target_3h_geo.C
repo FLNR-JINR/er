@@ -1,94 +1,97 @@
-#include <iomanip>
-#include <iostream>
-#include "TGeoManager.h"
-#include "TMath.h"
-
-
-// Create a zero rotation
-TGeoRotation *fZeroRotation = new TGeoRotation();
-
-Double_t transX = 0.;
-Double_t transY = 0.; 
-Double_t transZ = 1.;
-
-Double_t targetR = 2.;   //cm
-Double_t target3HZ = .02;
-Double_t targetShell = .5;   //cm
-
-TGeoManager*   gGeoMan = NULL;
-
 void create_target_3h_geo()
 {
-  fZeroRotation->RotateX(0.);
-  fZeroRotation->RotateY(0.);
-  fZeroRotation->RotateZ(0.);
-  // -------   Load media from media file   -----------------------------------
-  FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
+  TString erPath = gSystem->Getenv("VMCWORKDIR");
+
+  // Output paths
+  TString outGeoFilenameRoot = erPath + "/geometry/target.3h.geo.root";
+  TString outGeoFilenameGdml = erPath + "/geometry/target.3h.gdml";
+
+  // Input paths
+  TString medFile = erPath + "/geometry/media.geo";
+
+  // Materials and media
+  FairGeoLoader* geoLoad = new FairGeoLoader("TGeo", "FairGeoLoader");
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-  TString geoPath = gSystem->Getenv("VMCWORKDIR");
-  TString medFile = geoPath + "/geometry/media.geo";
   geoFace->setMediaFile(medFile);
   geoFace->readMedia();
-  gGeoMan = gGeoManager;
-  // --------------------------------------------------------------------------
-
-  // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/target.3h.geo.root";
-  // --------------------------------------------------------------------------
-  
-  // -----------------   Get and create the required media    -----------------
-  FairGeoMedia*   geoMedia = geoFace->getMedia();
+  FairGeoMedia* geoMedia = geoFace->getMedia();
   FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
 
-  FairGeoMedium* m3H      = geoMedia->getMedium("tritium");
-  if ( ! m3H ) Fatal("Main", "FairMedium tritium not found");
-  geoBuild->createMedium(m3H);
-  TGeoMedium* p3H = gGeoMan->GetMedium("tritium");
-  if ( ! p3H ) Fatal("Main", "Medium tritium not found"); 
+  // Geometry manager
+  TGeoManager* geoM = (TGeoManager*)gROOT->FindObject("FAIRGeom");
 
-  FairGeoMedium* mMylar      = geoMedia->getMedium("mylar");
-  if ( ! mMylar ) Fatal("Main", "FairMedium mylar not found");
-  geoBuild->createMedium(mMylar);
-  TGeoMedium* pMylar = gGeoMan->GetMedium("mylar");
-  if ( ! pMylar ) Fatal("Main", "Medium mylar not found");
-  
-  FairGeoMedium* vacuum      = geoMedia->getMedium("vacuum");
-  if ( ! vacuum ) Fatal("Main", "FairMedium vacuum not found");
-  geoBuild->createMedium(vacuum);
-  TGeoMedium* pMed0 = gGeoMan->GetMedium("vacuum");
-  if ( ! pMed0 ) Fatal("Main", "Medium vacuum not found");
-  // --------------------------------------------------------------------------
-  
-  //------------------------- VOLUMES -----------------------------------------
-  
-  // --------------   Create geometry and top volume  -------------------------
-  gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
-  gGeoMan->SetName("DETgeom");
-  TGeoVolume* top = new TGeoVolumeAssembly("TOP");
-  gGeoMan->SetTopVolume(top);
-  // --------------------------------------------------------------------------
+  TString mediumName;
 
-  //------------------ target -----------------------------------------
-  TGeoVolume *target3H = gGeoManager->MakeTube("target3H", p3H, 0, targetR, target3HZ/2.);
-  Double_t shellRadius = targetR+targetShell;
-  Double_t shellZ = target3HZ+targetShell;
-  TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pMylar, 0, shellRadius, shellZ/2.);
+  mediumName = "mylar";
+  FairGeoMedium* mmylar = geoMedia->getMedium(mediumName);
+  if (!mmylar) Fatal("create_target_3h_geo", "FairMedium %s not found", mediumName.Data());
+  geoBuild->createMedium(mmylar);
+  TGeoMedium* pmylar = geoM->GetMedium(mediumName);
+  if (!pmylar) Fatal("create_target_3h_geo", "Medium %s not found", mediumName.Data());
 
-  targetShell->AddNode(target3H, 0, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
+  mediumName = "tritium";
+  FairGeoMedium* mtritium = geoMedia->getMedium(mediumName);
+  if (!mtritium) Fatal("create_target_3h_geo", "FairMedium %s not found", mediumName.Data());
+  geoBuild->createMedium(mtritium);
+  TGeoMedium* ptritium = geoM->GetMedium(mediumName);
+  if (!ptritium) Fatal("create_target_3h_geo", "Medium %s not found", mediumName.Data());
 
-  //------------------ STRUCTURE  -----------------------------------------
-  TGeoVolume* target = new TGeoVolumeAssembly("target");
-  target->AddNode(targetShell, 0, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
-  top->AddNode(target, 0, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
+  // General dimensions
+  Double_t transX = 0.; // cm
+  Double_t transY = 0.; // cm
+  Double_t transZ = 1.; // cm
+  Double_t target3HR = 2.; // cm
+  Double_t target3HZ = .02; // cm
+  Double_t shellOuterThickness = 0.5; // cm default=[0.5]
+  Double_t shellZThickness = 0.25; // cm default=[0.25]
 
-  // ---------------   Finish   -----------------------------------------------    
-  gGeoMan->CloseGeometry();
-  gGeoMan->CheckOverlaps(0.001);
-  gGeoMan->PrintOverlaps();
-  gGeoMan->Test();
+  // Shapes
+  TGeoTube* target3HShape = new TGeoTube("target3HShape",
+    0.,
+    target3HR,
+    target3HZ/2.);
+  TGeoTube* targetShellShape = new TGeoTube("targetShellShape",
+    0.,
+    target3HR + shellOuterThickness,
+    (target3HZ + 2*shellZThickness)/2.);
 
-  TFile* geoFile = new TFile(geoFileName, "RECREATE");
-  top->Write();
-  geoFile->Close();
-  // --------------------------------------------------------------------------
-}	
+  // Volumes
+  TGeoVolume* target3HVol = new TGeoVolume("target3HVol", target3HShape, ptritium);
+  TGeoVolume* targetShellVol = new TGeoVolume("targetShellVol", targetShellShape, pmylar);
+
+  // Matrices
+  TGeoRotation* rotNoRot = new TGeoRotation("rotNoRot", 0., 0., 0.);
+  rotNoRot->RegisterYourself();
+
+  // Structure
+  targetShellVol->AddNode(target3HVol, 1);
+
+  // This is the one but last level in the hierarchy
+  // This volume-assembly is the only volume to be inserted into TOP
+  TGeoVolumeAssembly* subdetectorVolAss = new TGeoVolumeAssembly("target_3h");
+  subdetectorVolAss->AddNode(targetShellVol, 1,
+    new TGeoCombiTrans("mTarget3HVolInTarget", transX, transY, transZ, rotNoRot));
+
+  // World ------------------------------------
+  TGeoVolumeAssembly* topVolAss = new TGeoVolumeAssembly("TOP");
+  topVolAss->AddNode(subdetectorVolAss, 1);
+
+  // Finalize
+  geoM->SetTopVolume(topVolAss);
+  geoM->CloseGeometry();
+  geoM->CheckOverlaps();
+  geoM->PrintOverlaps();
+  //geoM->CheckGeometry();
+  //geoM->CheckGeometryFull();
+  //geoM->Test();
+
+  // Export
+  //geoM->Export(outGeoFilenameGdml);
+  TFile* outGeoFileRoot = new TFile(outGeoFilenameRoot, "RECREATE");
+  geoM->GetTopVolume()->Write();
+  outGeoFileRoot->Close();
+
+  // Draw
+  TBrowser* bro = new TBrowser("bro", "bro");
+  geoM->GetTopVolume()->Draw("ogl");
+}
