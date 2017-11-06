@@ -20,7 +20,7 @@ class TClonesArray;
 class FairVolume;
 class TF1;
 
-class ERQTelescope : public FairDetector
+class ERQTelescope : public ERDetector
 {
 
 public:
@@ -97,13 +97,6 @@ public:
    **/
   virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2,
 			  Int_t offset);
-
-
-  /** Virtaul method Construct geometry
-   **
-   ** Constructs the ERQTelescope geometry
-   **/
-  virtual void ConstructGeometry();
 
    /** Virtaul method Initialize
    **

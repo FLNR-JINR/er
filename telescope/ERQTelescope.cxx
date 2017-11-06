@@ -14,7 +14,7 @@ using namespace std;
 #include "TString.h"
 // -----   Default constructor   -------------------------------------------
 ERQTelescope::ERQTelescope() :
-  FairDetector("ERQTelescope", kTRUE),
+  ERDetector("ERQTelescope", kTRUE),
   fSiPoint(NULL),
   fCsIPoint(NULL)
 {
@@ -29,7 +29,7 @@ ERQTelescope::ERQTelescope() :
 // -------------------------------------------------------------------------
 // -----   Standard constructor   ------------------------------------------
 ERQTelescope::ERQTelescope(const char* name, Bool_t active, Int_t verbose)
-  : FairDetector(name, active,1),
+  : ERDetector(name, active,1),
   fSiPoint(NULL),
   fCsIPoint(NULL)
   {
@@ -211,21 +211,6 @@ void ERQTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset
    new (clref[cl2->GetEntriesFast()]) ERQTelescopeSiPoint(*oldpoint);
   }
   LOG(INFO) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
-}
-// ----------------------------------------------------------------------------
-
-
-
-// -----   Public method ConstructGeometry   ----------------------------------
-void ERQTelescope::ConstructGeometry() {
-  TString fileName = GetGeometryFileName();
-  if(fileName.EndsWith(".root")) {
-    cout << "Constructing ERQTelescope geometry from ROOT file " << fileName.Data() << FairLogger::endl;
-    ConstructRootGeometry();
-  } else {
-    cerr << "Geometry file name is not set" << FairLogger::endl;
-  }
-
 }
 // ----------------------------------------------------------------------------
 
