@@ -72,13 +72,13 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   //Double_t mass = 26.2716160;//particle->Mass();
   Double_t p, energy;
 
-  ERBeamDetToFDigi* digi;
+  ERBeamDetTOFDigi* digi;
 
-  digi = (ERBeamDetToFDigi*)fBeamDetToFDigi1->At(0);
+  digi = (ERBeamDetTOFDigi*)fBeamDetToFDigi1->At(0);
   ToF1 = digi->GetTime();
   dE1 = digi->Edep();
   LOG(DEBUG) << "dE1 = " << dE1 << " ToF1 = " << ToF1 << FairLogger::endl;
-  digi = (ERBeamDetToFDigi*)fBeamDetToFDigi2->At(0);
+  digi = (ERBeamDetTOFDigi*)fBeamDetToFDigi2->At(0);
   ToF2 = digi->GetTime();
   dE2 = digi->Edep();
   LOG(DEBUG) << "dE2 = " << dE2 << " ToF2 = " << ToF2 << FairLogger::endl;

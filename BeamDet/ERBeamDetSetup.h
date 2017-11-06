@@ -90,7 +90,9 @@ private:
   // -------- Target parameters -----------------------------------------------
   static Double_t fTargetH2R;   //cm
   static Double_t fTargetH2Z;   //cm
-  static Double_t fTargetShellThickness;
+  static Double_t fTargetShellThicknessSide;
+  static Double_t fTargetShellThicknessZ;
+
 
   static TString  fParamsXmlFileName;
   static vector<TString>  fToFType;

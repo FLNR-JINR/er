@@ -1,15 +1,15 @@
 // -------------------------------------------------------------------------
-// -----                      ERBeamDetToFPoint header file                -----
+// -----                      ERBeamDetTOFPoint header file                -----
 // -----                  Created data  developerName                  -----
 // -------------------------------------------------------------------------
 
 
-/**  ERBeamDetToFPoint.h
+/**  ERBeamDetTOFPoint.h
  **/
 
 
-#ifndef ERBeamDetToFPoint_H
-#define ERBeamDetToFPoint_H
+#ifndef ERBeamDetTOFPoint_H
+#define ERBeamDetTOFPoint_H
 
 
 #include "TObject.h"
@@ -17,13 +17,13 @@
 
 #include "FairMCPoint.h"
 
-class ERBeamDetToFPoint : public FairMCPoint
+class ERBeamDetTOFPoint : public FairMCPoint
 {
 
  public:
 
   /** Default constructor **/
-  ERBeamDetToFPoint();
+  ERBeamDetTOFPoint();
 
 
   /** Constructor with arguments
@@ -39,7 +39,7 @@ class ERBeamDetToFPoint : public FairMCPoint
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [KeV]
    **/
-  ERBeamDetToFPoint(Int_t eventID, 
+  ERBeamDetTOFPoint(Int_t eventID, 
                   Int_t trackID,
                   Int_t mot0trackID,
                   Int_t pid,
@@ -49,14 +49,14 @@ class ERBeamDetToFPoint : public FairMCPoint
 
 
   /** Copy constructor **/
-  ERBeamDetToFPoint(const ERBeamDetToFPoint&);
+  ERBeamDetTOFPoint(const ERBeamDetTOFPoint&);
 
 
   /** Destructor **/
-  virtual ~ERBeamDetToFPoint();
+  virtual ~ERBeamDetTOFPoint();
 
 
-  ERBeamDetToFPoint& operator=(const ERBeamDetToFPoint&) { return *this; }
+  ERBeamDetTOFPoint& operator=(const ERBeamDetTOFPoint&) { return *this; }
 
 
   /** Accessors **/
@@ -100,6 +100,6 @@ class ERBeamDetToFPoint : public FairMCPoint
   Double_t    fLightYield;
   Int_t       fToFNb;
 
-  ClassDef(ERBeamDetToFPoint,1)
+  ClassDef(ERBeamDetTOFPoint,1)
 };
 #endif

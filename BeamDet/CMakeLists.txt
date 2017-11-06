@@ -22,14 +22,14 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-    data/ERBeamDetToFPoint.cxx
+    data/ERBeamDetTOFPoint.cxx
     data/ERBeamDetMWPCPoint.cxx
     data/ERBeamDetTargetPoint.cxx
     data/ERBeamDetEvent.cxx
 	data/ERBeamDetCalEvent.cxx
 	data/ERBeamDetRecoEvent.cxx
 	data/ERBeamDetMWPCDigi.cxx
-	data/ERBeamDetToFDigi.cxx
+	data/ERBeamDetTOFDigi.cxx
 	data/ERBeamDetTrack.cxx
 	data/ERBeamDetParticle.cxx
 

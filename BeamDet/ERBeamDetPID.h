@@ -13,7 +13,7 @@
 
 #include "FairTask.h"
 
-#include "ERBeamDetToFDigi.h"
+#include "ERBeamDetTOFDigi.h"
 #include "ERBeamDetTrack.h"
 #include "ERBeamDetParticle.h"
 #include "ERBeamDetSetup.h"

@@ -1,19 +1,19 @@
 // -------------------------------------------------------------------------
-// -----                      ERBeamDetToFPoint source file                   -----
+// -----                      ERBeamDetTOFPoint source file                   -----
 // -------------------------------------------------------------------------
 
-#include "ERBeamDetToFPoint.h"
+#include "ERBeamDetTOFPoint.h"
 #include <iostream>
 using namespace std;
 // -----   Default constructor   -------------------------------------------
-ERBeamDetToFPoint::ERBeamDetToFPoint()
+ERBeamDetTOFPoint::ERBeamDetTOFPoint()
   : FairMCPoint(),
     fX_out(0.), fY_out(0.), fZ_out(0.),
     fPx_out(0.), fPy_out(0.), fPz_out(0.)
 {
 }
 // -------------------------------------------------------------------------
-ERBeamDetToFPoint::ERBeamDetToFPoint(Int_t eventID, Int_t trackID,
+ERBeamDetTOFPoint::ERBeamDetTOFPoint(Int_t eventID, Int_t trackID,
                   Int_t mot0trackID,
                   Int_t pid,
                   TVector3 posIn,
@@ -29,7 +29,7 @@ ERBeamDetToFPoint::ERBeamDetToFPoint(Int_t eventID, Int_t trackID,
 {
 }
 // -------------------------------------------------------------------------
-ERBeamDetToFPoint::ERBeamDetToFPoint(const ERBeamDetToFPoint& right)
+ERBeamDetTOFPoint::ERBeamDetTOFPoint(const ERBeamDetTOFPoint& right)
   : FairMCPoint(right),
     fPid(right.fPid),
     fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
@@ -37,13 +37,13 @@ ERBeamDetToFPoint::ERBeamDetToFPoint(const ERBeamDetToFPoint& right)
 {
 }
 // -------------------------------------------------------------------------
-ERBeamDetToFPoint::~ERBeamDetToFPoint()
+ERBeamDetTOFPoint::~ERBeamDetTOFPoint()
 {
 }
 // -------------------------------------------------------------------------
-void ERBeamDetToFPoint::Print(const Option_t* opt /* = 0*/) const
+void ERBeamDetTOFPoint::Print(const Option_t* opt /* = 0*/) const
 {
-  cout << "-I- ERBeamDetToFPoint: track " << fTrackID << " mother track = " << fMot0TrackID << endl;
+  cout << "-I- ERBeamDetTOFPoint: track " << fTrackID << " mother track = " << fMot0TrackID << endl;
   cout << "    particle ID " << fPid << endl;
   cout << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << endl;
   cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << endl;
@@ -52,7 +52,7 @@ void ERBeamDetToFPoint::Print(const Option_t* opt /* = 0*/) const
 }
 // -------------------------------------------------------------------------
 // -----   Point x coordinate from linear extrapolation   ------------------
-Double_t ERBeamDetToFPoint::GetX(Double_t z) const
+Double_t ERBeamDetTOFPoint::GetX(Double_t z) const
 {
   if ( (fZ_out-z)*(fZ-z) >= 0. ) return (fX_out+fX)/2.;
   Double_t dz = fZ_out - fZ;
@@ -61,7 +61,7 @@ Double_t ERBeamDetToFPoint::GetX(Double_t z) const
 // -------------------------------------------------------------------------
 
 // -----   Point y coordinate from linear extrapolation   ------------------
-Double_t ERBeamDetToFPoint::GetY(Double_t z) const
+Double_t ERBeamDetTOFPoint::GetY(Double_t z) const
 {
   if ( (fZ_out-z)*(fZ-z) >= 0. ) return (fY_out+fY)/2.;
   Double_t dz = fZ_out - fZ;
@@ -70,11 +70,11 @@ Double_t ERBeamDetToFPoint::GetY(Double_t z) const
 }
 // -------------------------------------------------------------------------
 // -----   Public method IsUsable   ----------------------------------------
-Bool_t ERBeamDetToFPoint::IsUsable() const
+Bool_t ERBeamDetTOFPoint::IsUsable() const
 {
   Double_t dz = fZ_out - fZ;
   if ( TMath::Abs(dz) < 1.e-4 ) return kFALSE;
   return kTRUE;
 }
 // -------------------------------------------------------------------------
-ClassImp(ERBeamDetToFPoint)
+ClassImp(ERBeamDetTOFPoint)

@@ -1,21 +1,21 @@
 // -------------------------------------------------------------------------
-// -----                       ERBeamDetToFDigi source file                -----
+// -----                       ERBeamDetTOFDigi source file                -----
 // -----           			   Created   by        			   -----
 // -------------------------------------------------------------------------
 
-#include "ERBeamDetToFDigi.h"
+#include "ERBeamDetTOFDigi.h"
 #include<iostream>
 
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
-ERBeamDetToFDigi::ERBeamDetToFDigi()
+ERBeamDetTOFDigi::ERBeamDetTOFDigi()
   :fID(-1),
   fEdep(0.)
 {
 }
 
-ERBeamDetToFDigi::ERBeamDetToFDigi(Int_t id, Float_t Edep, Double_t time, Int_t tofNb)
+ERBeamDetTOFDigi::ERBeamDetTOFDigi(Int_t id, Float_t Edep, Double_t time, Int_t tofNb)
   :fID(id),
   fEdep(Edep),
   fTime(time),
@@ -23,7 +23,7 @@ ERBeamDetToFDigi::ERBeamDetToFDigi(Int_t id, Float_t Edep, Double_t time, Int_t 
 {
 }
 
-ERBeamDetToFDigi::ERBeamDetToFDigi(const ERBeamDetToFDigi& right)
+ERBeamDetTOFDigi::ERBeamDetTOFDigi(const ERBeamDetTOFDigi& right)
   :fID(right.fID),
   fEdep(right.fEdep),
   fTime(right.fTime),
@@ -34,16 +34,16 @@ ERBeamDetToFDigi::ERBeamDetToFDigi(const ERBeamDetToFDigi& right)
 
 
 // -----   Destructor   ----------------------------------------------------
-ERBeamDetToFDigi::~ERBeamDetToFDigi()
+ERBeamDetTOFDigi::~ERBeamDetTOFDigi()
 {
 }
 
 // -----   Public method Print   -------------------------------------------
-void ERBeamDetToFDigi::Print(const Option_t* opt /* = 0 */) const
+void ERBeamDetTOFDigi::Print(const Option_t* opt /* = 0 */) const
 {
-  std::cout << "-I- ERBeamDetToFDigi:  " << endl;
+  std::cout << "-I- ERBeamDetTOFDigi:  " << endl;
   std::cout << "    Edep : " << fEdep << endl;
 }
 // -------------------------------------------------------------------------
 
-ClassImp(ERBeamDetToFDigi)
+ClassImp(ERBeamDetTOFDigi)

@@ -14,9 +14,9 @@
 #include "FairTask.h"
 
 #include "ERBeamDetMWPCPoint.h"
-#include "ERBeamDetToFPoint.h"
+#include "ERBeamDetTOFPoint.h"
 #include "ERBeamDetMWPCDigi.h"
-#include "ERBeamDetToFDigi.h"
+#include "ERBeamDetTOFDigi.h"
 
 
 class ERBeamDetDigitizer : public FairTask {
@@ -111,8 +111,8 @@ protected:
   /** @brief Adds a ERBeamDetMWPCDigi to the output Collections **/
   ERBeamDetMWPCDigi* AddMWPCDigi(Float_t edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
   
-  /** @brief Adds a ERBeamDetToFDigi to the output Collections **/
-  ERBeamDetToFDigi*  AddToFDigi(Float_t edep, Double_t time, Int_t tofNb);
+  /** @brief Adds a ERBeamDetTOFDigi to the output Collections **/
+  ERBeamDetTOFDigi*  AddToFDigi(Float_t edep, Double_t time, Int_t tofNb);
 
 protected:
   //Input arrays

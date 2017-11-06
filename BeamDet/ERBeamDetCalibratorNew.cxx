@@ -77,7 +77,7 @@ InitStatus ERBeamDetCalibratorNew::Init()
       Fatal("Init", "Can`t find branch in input file!");
 
   // Register output array fRTelescopeHits
-  fBeamDetToFDigi = new TClonesArray("ERBeamDetToFDigi",1000);
+  fBeamDetToFDigi = new TClonesArray("ERBeamDetTOFDigi",1000);
   fBeamDetMWPCDigi = new TClonesArray("ERBeamDetMWPCDigi",1000);
 
   ioman->Register("BeamDetToFDigi", "BeamDetToF Digi", fBeamDetToFDigi, kTRUE);
@@ -142,10 +142,10 @@ ERBeamDetMWPCDigi* ERBeamDetCalibratorNew::AddMWPCDigi(Float_t edep, Double_t ti
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-ERBeamDetToFDigi* ERBeamDetCalibratorNew::AddToFDigi(Float_t edep, Double_t time, Int_t ToFNb)
+ERBeamDetTOFDigi* ERBeamDetCalibratorNew::AddToFDigi(Float_t edep, Double_t time, Int_t ToFNb)
 {
-  ERBeamDetToFDigi *digi = new((*fBeamDetToFDigi)[fBeamDetToFDigi->GetEntriesFast()])
-              ERBeamDetToFDigi(fBeamDetToFDigi->GetEntriesFast(), edep, time, ToFNb);
+  ERBeamDetTOFDigi *digi = new((*fBeamDetToFDigi)[fBeamDetToFDigi->GetEntriesFast()])
+              ERBeamDetTOFDigi(fBeamDetToFDigi->GetEntriesFast(), edep, time, ToFNb);
   return digi;
 }
 //-----------------------------------------------------------------------------

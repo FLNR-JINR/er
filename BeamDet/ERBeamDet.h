@@ -13,7 +13,7 @@
 #include "TClonesArray.h"
 
 #include "ERDetector.h"
-#include "ERBeamDetToFPoint.h"
+#include "ERBeamDetTOFPoint.h"
 #include "ERBeamDetMWPCPoint.h"
 #include "ERBeamDetTargetPoint.h"
 #include "ERBeamDetTrack.h"
@@ -48,7 +48,17 @@ class ERBeamDet : public ERDetector
     /** @brief Destructor **/
     virtual ~ERBeamDet();
 
+    void SetIonName(TString ionName){fIonName = ionName; fIonPIDIsSet = kTRUE;}
+    void SetIonPID(Int_t ionPID){fIonPID = ionPID; fIonPIDIsSet = kTRUE;}
+
   public:
+
+    /** @brief Defines the action to be taken when a step is inside the
+     ** active volume. Creates a ERBeamDetPoint and adds it to the
+     ** collection.
+     ** @param vol  Pointer to the active volume
+    **/
+    virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
     /** @brief Virtual method BeginEvent.
      ** Virtual from FairDetector.
@@ -109,16 +119,9 @@ class ERBeamDet : public ERDetector
     **/
     virtual void ConstructGeometry();
 
-    /** @brief Defines the action to be taken when a step is inside the
-     ** active volume. Creates a ERBeamDetPoint and adds it to the
-     ** collection.
-     ** @param vol  Pointer to the active volume
-    **/
-    virtual Bool_t ProcessHits(FairVolume* vol = 0);
-
   private:
     /** @brief Adds a ERBeamDetToFPoint to the ToFPoints Collection **/
-    ERBeamDetToFPoint*    AddToFPoint();
+    ERBeamDetTOFPoint*    AddTOFPoint();
 
     /** @brief Adds a ERBeamDetMWPCPoint to the MWPCPoints Collection **/
     ERBeamDetMWPCPoint*   AddMWPCPoint();
@@ -153,7 +156,11 @@ class ERBeamDet : public ERDetector
     Int_t             fMWPCPlaneNb;       ///< gas strip array number in MWPC station
     Int_t             fMWPCWireNb;        ///< wire number in gas strip array
 
-  ClassDef(ERBeamDet,1);
+    TString           fIonName;
+    Int_t             fIonPID;
+    Bool_t            fIonPIDIsSet;
+
+    ClassDef(ERBeamDet,1);
 };
 
 #endif

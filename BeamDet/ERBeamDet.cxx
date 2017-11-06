@@ -26,13 +26,16 @@ ERBeamDet::ERBeamDet() :
   fMWPCPoints(NULL),
   fTargetPoints(NULL)
 {
-  fToFPoints    = new TClonesArray("ERBeamDetToFPoint");
+  fToFPoints    = new TClonesArray("ERBeamDetTOFPoint");
   fMWPCPoints   = new TClonesArray("ERBeamDetMWPCPoint");
   fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
+
   fBeamDetMCProjectile = new ERBeamDetParticle(); 
   fBeamDetMCTrack      = new ERBeamDetTrack();
+  //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
+
   fVerboseLevel = 1;
 }
 //-------------------------------------------------------------------------------------------------
@@ -42,14 +45,18 @@ ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
     fMWPCPoints(NULL),
     fTargetPoints(NULL)
 {
-  fToFPoints    = new TClonesArray("ERBeamDetToFPoint");
+  fToFPoints    = new TClonesArray("ERBeamDetTOFPoint");
   fMWPCPoints   = new TClonesArray("ERBeamDetMWPCPoint");
   fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
+
   fBeamDetMCProjectile = new ERBeamDetParticle(); 
   fBeamDetMCTrack      = new ERBeamDetTrack();
+
   fBeamDetSetup = ERBeamDetSetup::Instance();
+ //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
+
   fVerboseLevel = verbose;
 }
 //-------------------------------------------------------------------------------------------------
@@ -74,6 +81,10 @@ ERBeamDet::~ERBeamDet() {
   }
 }
 //-------------------------------------------------------------------------------------------------
+void ERBeamDet::Initialize() {
+  FairDetector::Initialize();
+}
+//-------------------------------------------------------------------------------------------------
 void ERBeamDet::BeginEvent() {
 }
 //-------------------------------------------------------------------------------------------------
@@ -90,6 +101,7 @@ void ERBeamDet::Register() {
   ioman->Register("BeamDetToFPoint","BeamDet", fToFPoints, kTRUE);
   ioman->Register("BeamDetMWPCPoint","BeamDet", fMWPCPoints, kTRUE);
   ioman->Register("BeamDetTargetPoint","BeamDet", fTargetPoints, kTRUE);
+
   ioman->Register("BeamDetMCParticle.", "BeamDet MC Particle", fBeamDetMCProjectile, kTRUE);
   ioman->Register("BeamDetMCTrack.", "BeamDet MC track", fBeamDetMCTrack, kTRUE);
 }
@@ -108,7 +120,7 @@ void ERBeamDet::Print(Option_t *option) const
 {
   if(fToFPoints->GetEntriesFast() > 0) {
     for (Int_t iPoint = 0; iPoint < fToFPoints->GetEntriesFast(); iPoint++){
-      ERBeamDetToFPoint* point = (ERBeamDetToFPoint*)fToFPoints->At(iPoint);
+      ERBeamDetTOFPoint* point = (ERBeamDetTOFPoint*)fToFPoints->At(iPoint);
       point->Print();
     }
   }
@@ -136,18 +148,48 @@ void ERBeamDet::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
   Int_t nEntries = cl1->GetEntriesFast();
   LOG(FATAL) << "BeamDet: " << nEntries << " entries to add" << FairLogger::endl;
   TClonesArray& clref = *cl2;
-  ERBeamDetToFPoint* oldpoint = NULL;
+  ERBeamDetTOFPoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
-    oldpoint = (ERBeamDetToFPoint*) cl1->At(i);
+    oldpoint = (ERBeamDetTOFPoint*) cl1->At(i);
     Int_t index = oldpoint->GetTrackID() + offset;
     oldpoint->SetTrackID(index);
-    new (clref[cl2->GetEntriesFast()]) ERBeamDetToFPoint(*oldpoint);
+    new (clref[cl2->GetEntriesFast()]) ERBeamDetTOFPoint(*oldpoint);
   }
   LOG(FATAL) << "BeamDet: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 }
 //-------------------------------------------------------------------------------------------------
-void ERBeamDet::Initialize() {
-  FairDetector::Initialize();
+ERBeamDetTargetPoint* ERBeamDet::AddTargetPoint() {
+  TClonesArray& clref = *fTargetPoints;
+  Int_t size = clref.GetEntriesFast();
+  return new(clref[size]) ERBeamDetTargetPoint(fEventID, fTrackID, fMot0TrackID, fPID,
+              TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
+              TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
+              TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
+              TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+              fTime,fLength,fELoss, fLightYield);
+}
+//-------------------------------------------------------------------------------------------------
+ERBeamDetMWPCPoint* ERBeamDet::AddMWPCPoint() {
+  TClonesArray& clref = *fMWPCPoints;
+  Int_t size = clref.GetEntriesFast();
+  return new(clref[size]) ERBeamDetMWPCPoint(fEventID, fTrackID, fMot0TrackID, fPID,
+              TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
+              TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
+              TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
+              TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+              fTime,fLength,fELoss, fLightYield,
+              fMWPCNb, fMWPCPlaneNb, fMWPCWireNb); 
+}
+//-------------------------------------------------------------------------------------------------
+ERBeamDetTOFPoint* ERBeamDet::AddTOFPoint() {
+  TClonesArray& clref = *fToFPoints;
+  Int_t size = clref.GetEntriesFast();
+  return new(clref[size]) ERBeamDetTOFPoint(fEventID, fTrackID, fMot0TrackID, fPID,
+              TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
+              TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
+              TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
+              TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+              fTime,fLength,fELoss, fLightYield, fToFNb);
 }
 //-------------------------------------------------------------------------------------------------
 Bool_t ERBeamDet::CheckIfSensitive(std::string name) {
@@ -171,7 +213,7 @@ void ERBeamDet::ConstructGeometry() {
 }
 //-------------------------------------------------------------------------------------------------
 Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
-          // Set constants for Birk's Law implentation
+	        // Set constants for Birk's Law implentation
   static const Double_t dP = 1.032 ;
   static const Double_t BirkC1 =  0.013/dP;
   static const Double_t BirkC2 =  9.6e-6/(dP * dP);
@@ -197,7 +239,7 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
 
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
 
-  Double_t      curLightYield = 0;
+  Double_t		  curLightYield = 0;
 
   // Correction for all charge states
   if (gMC->TrackCharge()!=0) { // Return the charge of the track currently transported
@@ -226,7 +268,7 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
     if (fELoss > 0.){
       if(volName.Contains("plastic")) {
         gMC->CurrentVolID(fToFNb);
-        AddToFPoint();
+        AddTOFPoint();
       }
       if(volName.Contains("gasStrip")) {
         gMC->CurrentVolOffID(0, fMWPCWireNb);
@@ -240,40 +282,6 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
     }
   }
   return kTRUE;
-}
-//-------------------------------------------------------------------------------------------------
-ERBeamDetToFPoint* ERBeamDet::AddToFPoint() {
-  TClonesArray& clref = *fToFPoints;
-  Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERBeamDetToFPoint(fEventID, fTrackID, fMot0TrackID, fPID,
-              TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
-              TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
-              TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
-              TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-              fTime,fLength,fELoss, fLightYield, fToFNb);
-}
-//-------------------------------------------------------------------------------------------------
-ERBeamDetMWPCPoint* ERBeamDet::AddMWPCPoint() {
-  TClonesArray& clref = *fMWPCPoints;
-  Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERBeamDetMWPCPoint(fEventID, fTrackID, fMot0TrackID, fPID,
-              TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
-              TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
-              TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
-              TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-              fTime,fLength,fELoss, fLightYield,
-              fMWPCNb, fMWPCPlaneNb, fMWPCWireNb); 
-}
-//-------------------------------------------------------------------------------------------------
-ERBeamDetTargetPoint* ERBeamDet::AddTargetPoint() {
-  TClonesArray& clref = *fTargetPoints;
-  Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERBeamDetTargetPoint(fEventID, fTrackID, fMot0TrackID, fPID,
-              TVector3(fPosIn.X(),  fPosIn.Y(), fPosIn.Z()),
-              TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
-              TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
-              TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-              fTime,fLength,fELoss, fLightYield);
 }
 //-------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDet)
