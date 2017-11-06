@@ -41,6 +41,7 @@ ERQTelescopeDigitizer.cxx
 
 data/ERQTelescopeSiPoint.cxx
 data/ERQTelescopeSiDigi.cxx
+data/ERQTelescopeCsIPoint.cxx
 
 #AculRaw
 data/AculRaw.cxx
@@ -49,7 +50,7 @@ data/AculRaw.cxx
 #beamtest
 ERQTelescopeCalibrator.cxx
 ERRTelescopeCalibrator.cxx
-ERTelescopeReconstructorNew.cxx
+#ERTelescopeReconstructorNew.cxx
 
 data/ERRTelescopeEvent.cxx
 data/ERRTelescopeCalEvent.cxx
