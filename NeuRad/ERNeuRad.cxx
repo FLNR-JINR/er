@@ -1,8 +1,8 @@
 /********************************************************************************
  *              Copyright (C) Joint Institute for Nuclear Research              *
  *                                                                              *
- *              This software is distributed under the terms of the             * 
- *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
@@ -26,13 +26,13 @@
 #include "ERNeuRadStep.h"
 
 //-------------------------------------------------------------------------------------------------
-ERNeuRad::ERNeuRad():
-  ERDetector("ERNeuRad", kTRUE),
-  fStorePrimarySteps(kFALSE),
-  fStoreAllSteps(kFALSE),
-  fNeuRadPoints(NULL),
-  fNeuRadFirstStep(NULL),
-  fNeuRadSteps(NULL)
+ERNeuRad::ERNeuRad()
+  : ERDetector("ERNeuRad", kTRUE),
+    fStorePrimarySteps(kFALSE),
+    fStoreAllSteps(kFALSE),
+    fNeuRadPoints(NULL),
+    fNeuRadFirstStep(NULL),
+    fNeuRadSteps(NULL)
 {
   fNeuRadPoints = new TClonesArray("ERNeuRadPoint");
   fNeuRadFirstStep = new TClonesArray("ERNeuRadStep");
@@ -43,11 +43,11 @@ ERNeuRad::ERNeuRad():
 }
 
 //-------------------------------------------------------------------------------------------------
-ERNeuRad::ERNeuRad(const char* name, Bool_t active, Int_t verbose):
-  ERDetector(name, active),
-  fVerbose(verbose),
-  fStorePrimarySteps(kFALSE),
-  fStoreAllSteps(kFALSE)
+ERNeuRad::ERNeuRad(const char* name, Bool_t active, Int_t verbose)
+  : ERDetector(name, active),
+    fVerbose(verbose),
+    fStorePrimarySteps(kFALSE),
+    fStoreAllSteps(kFALSE)
 {
   fNeuRadPoints = new TClonesArray("ERNeuRadPoint");
   fNeuRadFirstStep = new TClonesArray("ERNeuRadStep");
@@ -57,7 +57,7 @@ ERNeuRad::ERNeuRad(const char* name, Bool_t active, Int_t verbose):
 }
 
 //-------------------------------------------------------------------------------------------------
-ERNeuRad::~ERNeuRad(){
+ERNeuRad::~ERNeuRad() {
   if (fNeuRadPoints) {
     fNeuRadPoints->Delete();
     delete fNeuRadPoints;
@@ -66,25 +66,25 @@ ERNeuRad::~ERNeuRad(){
 
 //-------------------------------------------------------------------------------------------------
 TClonesArray* ERNeuRad::GetCollection(Int_t iColl) const {
-  if (iColl == 0) 
+  if (iColl == 0)
     return fNeuRadPoints;
-  else 
+  else
     return NULL;
 }
 
 //-------------------------------------------------------------------------------------------------
-void ERNeuRad::Initialize(){
+void ERNeuRad::Initialize() {
   FairDetector::Initialize();
   FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
   ERNeuRadGeoPar* par=(ERNeuRadGeoPar*)(rtdb->getContainer("ERNeuRadGeoPar"));
 }
 
 //-------------------------------------------------------------------------------------------------
-void ERNeuRad::Register(){
+void ERNeuRad::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
     LOG(FATAL) << "IO manager is not set" << FairLogger::endl;
-  
+
   ioman->Register("NeuRadPoint", "NeuRad", fNeuRadPoints, kTRUE);
   ioman->Register("NeuRadFirstStep", "NeuRad", fNeuRadFirstStep, kTRUE);
   ioman->Register("NeuRadStep", "NeuRad", fNeuRadSteps, kTRUE);
@@ -93,28 +93,28 @@ void ERNeuRad::Register(){
 //-------------------------------------------------------------------------------------------------
 Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   // Set constants for Birk's Law implentation
-  static const Double_t dP = 1.032 ;
+  static const Double_t dP = 1.032;
   static const Double_t BirkC1 =  0.013/dP;
-  static const Double_t BirkC2 =  9.6e-6/(dP * dP);
-  
+  static const Double_t BirkC2 =  9.6e-6/(dP*dP);
+
   /** Track information to be stored until the track leaves the
       active volume. **/
-  
+
   if (gMC->IsTrackEntering()) { // Return true if this is the first step of the track in the current volume
     StartNewPoint();
     if (fNeuRadFirstStep->GetEntriesFast() == 0)
       AddFirstStep();
   }
-  
-  if (fStorePrimarySteps && fMot0TrackID == -1 && fNeuRadSteps->GetEntriesFast() == 0){
+
+  if (fStorePrimarySteps && fMot0TrackID == -1 && fNeuRadSteps->GetEntriesFast() == 0) {
     ERNeuRadStep* step =  AddStep();
       if (fVerbose > 2)
         step->Print();
   }
-  
+
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
   fStepNb++;
-  
+
   if (fStoreAllSteps) {
     ERNeuRadStep* step = AddStep();
     if (fVerbose > 2)
@@ -138,18 +138,18 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
       fLightYield+=curLightYield;
     }
   }
-  
-	if (gMC->IsTrackExiting() || //true if this is the last step of the track in the current volume 
+
+	if (gMC->IsTrackExiting() || //true if this is the last step of the track in the current volume
 	    gMC->IsTrackStop()    || //true if the track energy has fallen below the threshold
-	    gMC->IsTrackDisappeared()) { 
+	    gMC->IsTrackDisappeared()) {
     FinishNewPoint();
 	}
-  
+
   if (CurPointLen(fPosIn) > 4.) {
     FinishNewPoint();
     StartNewPoint();
   }
-  
+
   return kTRUE;
 }
 
@@ -224,15 +224,15 @@ void ERNeuRad::StartNewPoint() {
   Int_t curVolId, corOffVolId;
   if(!(TString(gMC->CurrentVolOffName(1)).Contains("dead") &&
        TString(gMC->CurrentVolOffName(2)).Contains("pixel"))) {
-    LOG(FATAL) << "Old version of geometry structure is used" << FairLogger::endl; 
+    LOG(FATAL) << "Old version of geometry structure is used" << FairLogger::endl;
   }
 
-  curVolId = gMC->CurrentVolOffID(1,fFiberNb); 
+  curVolId = gMC->CurrentVolOffID(1, fFiberNb);
   corOffVolId = gMC->CurrentVolOffID(2, fPixelNb);
   corOffVolId = gMC->CurrentVolOffID(3, fModuleNb);
 
   //Пересчитываем номер пикселя если введены субмодули
-  if (TString(gMC->CurrentVolOffName(3)).Contains("submodul")){
+  if (TString(gMC->CurrentVolOffName(3)).Contains("submodul")) {
     Int_t pixel_in_submodule_X = 4;
     Int_t pixel_in_submodule_Y = 4;
     Int_t submodule_in_module_X = 2;
@@ -259,22 +259,38 @@ void ERNeuRad::StartNewPoint() {
 void ERNeuRad::FinishNewPoint() {
   gMC->TrackPosition(fPosOut);
   gMC->TrackMomentum(fMomOut);
-  fTimeOut = gMC->TrackTime() * 1.0e09; 
-  
+  fTimeOut = gMC->TrackTime() * 1.0e09;
+
   if (fELoss > 0.) {
     AddPoint();
-    fFullEnergy+=fELoss;
-    fFullLY+=fLightYield;
-  }                
+    fFullEnergy += fELoss;
+    fFullLY += fLightYield;
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
 ERNeuRadPoint* ERNeuRad::AddPoint() {
   TClonesArray& clref = *fNeuRadPoints;
-  Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERNeuRadPoint(fEventID, fTrackID, fMot0TrackID, fFiberNb,fPixelNb,
-    fModuleNb,fMass, fPosIn.Vect(),fPosInLocal,fPosOut.Vect(),fMomIn.Vect(),fMomOut.Vect(),fTimeIn,
-    fTimeOut,fTrackLength, fELoss, fLightYield,gMC->TrackPid(), gMC->TrackCharge());
+  return new(clref[fNeuRadPoints->GetEntriesFast()])
+                      ERNeuRadPoint(fEventID,
+                                    fTrackID,
+                                    fMot0TrackID,
+                                    fFiberNb,
+                                    fPixelNb,
+                                    fModuleNb,
+                                    fMass,
+                                    fPosIn.Vect(),
+                                    fPosInLocal,
+                                    fPosOut.Vect(),
+                                    fMomIn.Vect(),
+                                    fMomOut.Vect(),
+                                    fTimeIn,
+                                    fTimeOut,
+                                    fTrackLength,
+                                    fELoss,
+                                    fLightYield,
+                                    gMC->TrackPid(),
+                                    gMC->TrackCharge());
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -285,9 +301,23 @@ ERNeuRadStep* ERNeuRad::AddFirstStep() {
   gMC->TrackPosition(fCurPosIn);
   gMC->TrackMomentum(fCurMomIn);
 
-  return new(clref[0]) ERNeuRadStep(fEventID,fStepNb, fTrackID, fMot0TrackID, fFiberNb, fPixelNb,
-   fModuleNb,fCurPosIn.Vect(), fCurMomIn.Vect(), gMC->TrackTime() * 1.0e09, gMC->TrackStep(), 
-   gMC->TrackPid(), gMC->TrackMass(), fTrackStatus, gMC->Edep(), gMC->TrackCharge(), fProcessesID);
+  return new(clref[0]) ERNeuRadStep(fEventID,
+                                    fStepNb,
+                                    fTrackID,
+                                    fMot0TrackID,
+                                    fFiberNb,
+                                    fPixelNb,
+                                    fModuleNb,
+                                    fCurPosIn.Vect(),
+                                    fCurMomIn.Vect(),
+                                    gMC->TrackTime() * 1.0e09,
+                                    gMC->TrackStep(),
+                                    gMC->TrackPid(),
+                                    gMC->TrackMass(),
+                                    fTrackStatus,
+                                    gMC->Edep(),
+                                    gMC->TrackCharge(),
+                                    fProcessesID);
 }
 
 // -----   Private method AddStep   --------------------------------------------
@@ -298,19 +328,33 @@ ERNeuRadStep* ERNeuRad::AddStep() {
   gMC->TrackPosition(fCurPosIn);
   gMC->TrackMomentum(fCurMomIn);
 
-  return new(clref[fNeuRadSteps->GetEntriesFast()]) ERNeuRadStep(fEventID,fStepNb, fTrackID, 
-    fMot0TrackID, fFiberNb, fPixelNb, fModuleNb, fCurPosIn.Vect(), fCurMomIn.Vect(),
-    gMC->TrackTime() * 1.0e09, gMC->TrackStep(), gMC->TrackPid(), gMC->TrackMass(),fTrackStatus,
-    gMC->Edep(), gMC->TrackCharge(), fProcessesID); 
+  return new(clref[fNeuRadSteps->GetEntriesFast()])
+                       ERNeuRadStep(fEventID,
+                                    fStepNb,
+                                    fTrackID,
+                                    fMot0TrackID,
+                                    fFiberNb,
+                                    fPixelNb,
+                                    fModuleNb,
+                                    fCurPosIn.Vect(),
+                                    fCurMomIn.Vect(),
+                                    gMC->TrackTime() * 1.0e09,
+                                    gMC->TrackStep(),
+                                    gMC->TrackPid(),
+                                    gMC->TrackMass(),
+                                    fTrackStatus,
+                                    gMC->Edep(),
+                                    gMC->TrackCharge(),
+                                    fProcessesID);
 }
 
 //-------------------------------------------------------------------------------------------------
 Double_t ERNeuRad::CurPointLen(TLorentzVector& posIn) {
   TLorentzVector posOut;
   gMC->TrackPosition(posOut);
-  return TMath::Sqrt((posIn.X() - posOut.X())*(posIn.X() - posOut.X()) + 
-                    (posIn.Y() - posOut.Y())*(posIn.Y() - posOut.Y()) + 
-                    (posIn.Z() - posOut.Z())*(posIn.Z() - posOut.Z()));
+  return TMath::Sqrt((posIn.X() - posOut.X())*(posIn.X() - posOut.X()) +
+                     (posIn.Y() - posOut.Y())*(posIn.Y() - posOut.Y()) +
+                     (posIn.Z() - posOut.Z())*(posIn.Z() - posOut.Z()));
 }
 
 //-------------------------------------------------------------------------------------------------
