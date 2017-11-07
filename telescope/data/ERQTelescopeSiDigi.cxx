@@ -1,20 +1,24 @@
-// -------------------------------------------------------------------------
-// -----                       ERQTelescopeSiDigi source file                -----
-// -----           			   Created   by        			   -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #include "ERQTelescopeSiDigi.h"
-#include<iostream>
+
+#include "FairLogger.h"
 
 using namespace std;
 
-// -----   Default constructor   -------------------------------------------
+//-------------------------------------------------------------------------------------------------
 ERQTelescopeSiDigi::ERQTelescopeSiDigi()
   :fID(-1),
   fEdep(0.)
 {
 }
-
+//-------------------------------------------------------------------------------------------------
 ERQTelescopeSiDigi::ERQTelescopeSiDigi(Int_t id, Float_t Edep, Double_t time, Int_t stationNb, Int_t stripNb)
   :fID(id),
   fEdep(Edep),
@@ -23,7 +27,7 @@ ERQTelescopeSiDigi::ERQTelescopeSiDigi(Int_t id, Float_t Edep, Double_t time, In
   fStripNb(stripNb)
 {
 }
-
+//-------------------------------------------------------------------------------------------------
 ERQTelescopeSiDigi::ERQTelescopeSiDigi(const ERQTelescopeSiDigi& right)
   :fID(right.fID),
   fEdep(right.fEdep),
@@ -32,20 +36,13 @@ ERQTelescopeSiDigi::ERQTelescopeSiDigi(const ERQTelescopeSiDigi& right)
   fStripNb(right.fStripNb)
 {
 }
-
-
-
-// -----   Destructor   ----------------------------------------------------
-ERQTelescopeSiDigi::~ERQTelescopeSiDigi()
-{
+//-------------------------------------------------------------------------------------------------
+ERQTelescopeSiDigi::~ERQTelescopeSiDigi(){
 }
-
-// -----   Public method Print   -------------------------------------------
-void ERQTelescopeSiDigi::Print(const Option_t* opt /* = 0 */) const
-{
-  std::cout << "-I- ERQTelescopeSiDigi:  " << endl;
-  std::cout << "    Edep : " << fEdep << endl;
+//-------------------------------------------------------------------------------------------------
+void ERQTelescopeSiDigi::Print(const Option_t* opt /* = 0 */) const {
+  LOG(DEBUG) << "-I- ERQTelescopeSiDigi:  " << FairLogger::endl;
+  LOG(DEBUG) << "    Edep : " << fEdep << FairLogger::endl;
 }
-// -------------------------------------------------------------------------
-
+//-------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeSiDigi)

@@ -1,22 +1,18 @@
-// -------------------------------------------------------------------------
-// -----                      ERQTelescopeCsIPoint header file                -----
-// -----                  Created data  developerName                  -----
-// -------------------------------------------------------------------------
-
-
-/**  ERQTelescopeCsIPoint.h
- **/
-
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERQTelescopeCsIPoint_H
 #define ERQTelescopeCsIPoint_H
-
 
 #include "TObject.h"
 #include "TVector3.h"
 
 #include "FairMCPoint.h"
-
 
 class ERQTelescopeCsIPoint : public FairMCPoint
 {
@@ -94,13 +90,13 @@ class ERQTelescopeCsIPoint : public FairMCPoint
 
  protected:
 
-  Int_t fEventID;
-  Int_t fMot0TrackID;
-  Double_t fMass;
+  Int_t      fEventID;
+  Int_t      fMot0TrackID;
+  Double_t   fMass;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
-  Int_t          fN_Wall;     // СsI
-  Int_t          fN_Block;
+  Int_t      fN_Wall;     // СsI
+  Int_t      fN_Block;
   ClassDef(ERQTelescopeCsIPoint,1)
 };
 #endif

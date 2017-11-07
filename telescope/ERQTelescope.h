@@ -1,11 +1,10 @@
-// -------------------------------------------------------------------------
-// -----                        ERQTelescope header file                   -----
-// -----                  Created data  by developer name              -----
-// -------------------------------------------------------------------------
-
-/**  ERQTelescope.h
- **/
-
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERQTelescope_H
 #define ERQTelescope_H
@@ -122,15 +121,15 @@ private:
   TClonesArray*  fCsIPoint;        //!  The point collection
   Int_t fVersion;                    //! geometry version
 
-  Int_t          eventID;           //!  event index
-  Int_t          trackID;           //!  track index
-  Int_t          mot0TrackID;       //!  0th mother track index
-  Double_t       mass;              //!  mass
-  TLorentzVector posIn, posOut;    //!  position
-  TLorentzVector momIn, momOut;    //!  momentum
-  Double32_t     time;              //!  time
-  Double32_t     length;            //!  length
-  Double32_t     eLoss;             //!  energy loss
+  Int_t          fEventID;           //!  event index
+  Int_t          fTrackID;           //!  track index
+  Int_t          fMot0TrackID;       //!  0th mother track index
+  Double_t       fMass;              //!  mass
+  TLorentzVector fPosIn, fPosOut;    //!  position
+  TLorentzVector fMomIn, fMomOut;    //!  momentum
+  Double32_t     fTime;              //!  time
+  Double32_t     fLength;            //!  length
+  Double32_t     fEloss;             //!  energy loss
   Int_t          fN_Station;     // Si
   Int_t          fX_Strip;
   Int_t          fY_Strip;

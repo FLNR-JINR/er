@@ -1,6 +1,14 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #include "ERQTelescopeDigitizer.h"
 
-#include <vector>
+#include <limits>
 
 #include "TVector3.h"
 #include "TGeoMatrix.h"
@@ -11,16 +19,13 @@
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairLink.h"
-
-#include <iostream>
-#include <map>
-#include <vector>
-#include <limits>
-using namespace std;
+#include "FairLogger.h"
 
 #include "ERDetectorList.h"
 
-// ----------------------------------------------------------------------------
+using namespace std;
+
+//-------------------------------------------------------------------------------------------------
 ERQTelescopeDigitizer::ERQTelescopeDigitizer()
   : FairTask("ER beamdet digitization"), 
   fQTelescopeSiPoints(NULL), 
@@ -31,9 +36,7 @@ ERQTelescopeDigitizer::ERQTelescopeDigitizer()
   fDigiEloss(0)
 {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 ERQTelescopeDigitizer::ERQTelescopeDigitizer(Int_t verbose)
   : FairTask("ER beamdet digitization ", verbose),
   fQTelescopeSiPoints(NULL), 
@@ -44,17 +47,12 @@ ERQTelescopeDigitizer::ERQTelescopeDigitizer(Int_t verbose)
   fDigiEloss(0)
 {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 ERQTelescopeDigitizer::~ERQTelescopeDigitizer()
 {
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-void ERQTelescopeDigitizer::SetParContainers()
-{
+//-------------------------------------------------------------------------------------------------
+void ERQTelescopeDigitizer::SetParContainers() {
   // Get run and runtime database
   FairRunAna* run = FairRunAna::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
@@ -62,11 +60,8 @@ void ERQTelescopeDigitizer::SetParContainers()
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-InitStatus ERQTelescopeDigitizer::Init()
-{
+//-------------------------------------------------------------------------------------------------
+InitStatus ERQTelescopeDigitizer::Init() {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
@@ -83,18 +78,15 @@ InitStatus ERQTelescopeDigitizer::Init()
    
   return kSUCCESS;
 }
-// -------------------------------------------------------------------------
-
-// -----   Public method Exec   --------------------------------------------
-void ERQTelescopeDigitizer::Exec(Option_t* opt)
-{
+//-------------------------------------------------------------------------------------------------
+void ERQTelescopeDigitizer::Exec(Option_t* opt) {
   Reset();
 
   //Sort the points by stations and strips
   map<Int_t, map<Int_t, vector<Int_t> > > points;
   for (Int_t iPoint = 0; iPoint < fQTelescopeSiPoints->GetEntriesFast(); iPoint++){
     ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)fQTelescopeSiPoints->At(iPoint);
-    points[point->N_Station()][point->X_Strip()].push_back(iPoint);
+    points[point->StationNb()][point->X_StripNb()].push_back(iPoint);
   }
 
   for (const auto &itStation : points){
@@ -125,29 +117,22 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt)
     }
   }
 }
-//----------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------
-void ERQTelescopeDigitizer::Reset()
-{
+//-------------------------------------------------------------------------------------------------
+void ERQTelescopeDigitizer::Reset() {
   if (fQTelescopeSiDigi) {
     fQTelescopeSiDigi->Delete();
   }
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-void ERQTelescopeDigitizer::Finish()
-{   
-
+//-------------------------------------------------------------------------------------------------
+void ERQTelescopeDigitizer::Finish(){   
 }
-// ----------------------------------------------------------------------------
-ERQTelescopeSiDigi* ERQTelescopeDigitizer::AddSiDigi(Float_t edep, Double_t time, Int_t stationNb, Int_t stripNb)
+//-------------------------------------------------------------------------------------------------
+ERQTelescopeSiDigi* ERQTelescopeDigitizer::AddSiDigi(Float_t edep, Double_t time, Int_t stationNb, 
+                                                                                  Int_t stripNb)
 {
   ERQTelescopeSiDigi *digi = new((*fQTelescopeSiDigi)[fQTelescopeSiDigi->GetEntriesFast()])
               ERQTelescopeSiDigi(fQTelescopeSiDigi->GetEntriesFast(), edep, time, stationNb, stripNb);
   return digi;
 }
-// ----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeDigitizer)

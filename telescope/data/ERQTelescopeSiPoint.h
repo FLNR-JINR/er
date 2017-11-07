@@ -1,12 +1,10 @@
-// -------------------------------------------------------------------------
-// -----                      ERQTelescopeSiPoint header file                -----
-// -----                  Created data  developerName                  -----
-// -------------------------------------------------------------------------
-
-
-/**  ERQTelescopeSiPoint.h
- **/
-
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERQTelescopeSiPoint_H
 #define ERQTelescopeSiPoint_H
@@ -44,7 +42,7 @@ class ERQTelescopeSiPoint : public FairMCPoint
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t N_Station ,Int_t X_Strip, Int_t Y_Strip);
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t StationNb ,Int_t X_StripNb, Int_t Y_StripNb);
 
 
 
@@ -85,9 +83,9 @@ class ERQTelescopeSiPoint : public FairMCPoint
   // Int_t Sector() const {return fSector;}
   // Int_t Sensor() const {return fSensor;}
 
-  Int_t          N_Station() {return fN_Station;}     // Si
-  Int_t          X_Strip()   {return fX_Strip;}
-  Int_t          Y_Strip()   {return fY_Strip;}
+  Int_t          StationNb() {return fStationNb;}     // Si
+  Int_t          X_StripNb()   {return fX_Strip;}
+  Int_t          Y_StripNb()   {return fY_Strip;}
 
 
   /** Check for distance between in and out **/
@@ -98,14 +96,14 @@ class ERQTelescopeSiPoint : public FairMCPoint
 
  protected:
 
-  Int_t fEventID;
-  Int_t fMot0TrackID;
-  Double_t fMass;
+  Int_t      fEventID;
+  Int_t      fMot0TrackID;
+  Double_t   fMass;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
-  Int_t          fN_Station;     // Si
-  Int_t          fX_Strip;
-  Int_t          fY_Strip;
+  Int_t      fStationNb;     // Si
+  Int_t      fX_Strip;
+  Int_t      fY_Strip;
   ClassDef(ERQTelescopeSiPoint,1)
 };
 #endif

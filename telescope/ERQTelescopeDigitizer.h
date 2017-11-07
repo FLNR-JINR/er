@@ -1,7 +1,10 @@
-// -------------------------------------------------------------------------
-// -----                        ERQTelescopeDigitizer header file          -----
-// -----                        Created   by                 -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERQTelescopeDigitizer_H
 #define ERQTelescopeDigitizer_H
@@ -50,11 +53,11 @@ protected:
   //Output arrays
   TClonesArray *fQTelescopeSiDigi;
   
-  Float_t fSiElossThreshold;
-  Float_t fSiElossDispersion;
-  Float_t fSiTimeDispersion;
+  Float_t       fSiElossThreshold;
+  Float_t       fSiElossDispersion;
+  Float_t       fSiTimeDispersion;
 
-  Float_t fDigiEloss;
+  Float_t       fDigiEloss;
 
   //ERBeamDetSetup* fBeamDetSetup;
 protected:
