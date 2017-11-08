@@ -66,13 +66,17 @@ Raw experimental data are stored at
 Файлы отличаются количеством света во вспышке. Сравнение может быть полезно при исследовании кросс-толков и для исследования 2-3-4 электронных импульсов на основе распределения Пуассона с разным средним. 
 
 Измерения без маски позволяют получить распределения амплитуд с некоторым средним числом фотоэлектронов по всем пикселям. Также можно оценить относительную эффективность (quantum eff x collection eff) QE(xCE) пикселей (предполагая засветку равномерной и анализируя полное число одноэлектронов). Распределение относительной QE(xCE)  по пикселям можно сравнить с результатом скана из **файла**
+
 ::
+
 	HA1365_HV00_Histo_160914_0804_00.root, 
 
 гистограмма Efficiency per Pixel of HA1365 at std. V scaled to HA0230
 
 **Файлы без маски:**
+
 ::
+
 	680pF_10okt/LED_*0cm_5V_100Hz_20ns_HV1000_thr29_nxtrim1_10oct_10minutes_0000.lmd
 
 Кроме того есть несколько измерений с аттеньюатором “220pF”. Единственная возможная польза от этих измерений – хорошо видная форма спектра одноэлектронов, по всем каналам. Впрочем, при “680pF” мы тоже хорошо видим форму, хотя и не везде:
@@ -86,7 +90,7 @@ Raw experimental data are stored at
 
 ::
 
-	analysis_with_nxtrim_HV_LED_680pF_10minutes_7okt.root. 
+	analysis_with_nxtrim_HV_LED_680pF_10minutes_7okt.root.
 
 Получено с помощью Go4.
 
@@ -96,7 +100,9 @@ Raw experimental data are stored at
 Эти измерения позволяют оценить фоновые спектры и скорости счета для дальнейшего анализа измерений с радиоактивными источниками, получить альтернативные распределения одноэлектронов, сравнить относительную скорость счета в каналах с распределением QE(+CE) и увидеть однородность волокон, как сцинтилляторов. Также можно отловить космические мюоны. 
 
 **Файлы:**
+
 ::
+
 	680pF_11okt_measure_with_opt_grease/HV1000_Sci_mounted_noSource_thr32_nxtrim1_11oct_30min_0000.lmd
 	680pF_11okt_measure_with_opt_grease/HV900_Sci_mounted_no_source_thr28_nxtrim1_11oct_30min_0000.lmd 
 	4.7nF_12okt_measure_with_opt_grease/HV1000_Sci_mounted_no_source_thr29_nxtrim1_11oct_120min_4.7nF_000*.lmd
@@ -107,7 +113,7 @@ Raw experimental data are stored at
 
 Пристрелочные измерения, которые выполнялись без оптической смазки не заслуживают внимания (по крайней мере, в первом приближении). Измерения с Am-241, судя по всему, характеризуются слишком малыми амплитудами. Их можно использовать  после настройки Монте Карло на Cs-137 и Y(Sr)-90 для дополнительной перекрестной проверки, не более того.
 
-Измерения с Y(Sr)-90 выполнялись с коллимированным источником. Коллиматор ~4  мм диаметр, 30 мм длиной, свинец. В файлах, где в названии  присутствует inFront – набраны при центральном положении источника. В названиях остальных файлов R1D1 и  R2D2 соответствуют следующим положениям на торце, взгляд вдоль полета частиц из источника.
+Измерения с Y(Sr)-90 выполнялись с коллимированным источником. Коллиматор ~4 мм диаметр, 30 мм длиной, свинец. В файлах, где в названии  присутствует inFront – набраны при центральном положении источника. В названиях остальных файлов R1D1 и  R2D2 соответствуют следующим положениям на торце, взгляд вдоль полета частиц из источника.
 
 .. figure:: _images/neurad_mask_WPT.png
        :scale: 100 %
@@ -117,7 +123,9 @@ Raw experimental data are stored at
        Рисунок 1. Наверно маска.
 
 **Файлы:**
+
 ::
+
 	4.7nF_13-14okt_measure_with_opt_grease/ HV950_Sci_grease_collimSr90_R*D*_thr29_nxtrim1_14oct_*0min_4.7nF_0000.lmd 
 
 Источник светил в центр четверки пикселей, при это м наблюдалась хорошая локализация сигналов и отчетливый спектр.  Как спектр, так и пространственное распределение энерговыделений должны хорошо сопоставляться с Монте Карло.
@@ -126,21 +134,21 @@ Raw experimental data are stored at
 
 	#. Равномерная засветка снаружи, файлы: 
 
-		::
+::
 
-			4.7nF_12okt_measure_with_opt_grease/ HV1000_Sci_mounted_Cs137_outside_thr29_nxtrim1_11oct_120min_4.7nF_000*.lmd
+	4.7nF_12okt_measure_with_opt_grease/ HV1000_Sci_mounted_Cs137_outside_thr29_nxtrim1_11oct_120min_4.7nF_000*.lmd
 
 	#. Засветка коллимированным источником спереди. Миллиметры в названии  показывают примерное расстояние от верхнего левого угла сборки до источника в плоскости торца.
 
-		::
+::
 
-			4.7nF_12okt_measure_with_opt_grease/HV1000_Sci_grease_Cs137_collim_inFront_15mm15mm_thr50_nxtrim1_11oct_120min_4.7nF_000*.lmd
+	4.7nF_12okt_measure_with_opt_grease/HV1000_Sci_grease_Cs137_collim_inFront_15mm15mm_thr50_nxtrim1_11oct_120min_4.7nF_000*.lmd
 
 	#. Засветка коллимированным источником сбоку. Расстояние в названиях от дальнего (от ФЭУ) конца. По высоте – всегда середина 27 мм. Файлы:
 		
-		::
+::
 
-			4.7nF_13-14okt_measure_with_opt_grease/ HV1000_Sci_grease_collimCs137_inLeft_*x*mm_thr29_nxtrim1_13oct_**min_4.7nF_0000.lmd 
+	4.7nF_13-14okt_measure_with_opt_grease/ HV1000_Sci_grease_collimCs137_inLeft_*x*mm_thr29_nxtrim1_13oct_**min_4.7nF_0000.lmd 
 
 Было замечено, что  наличие массивного железа перед ФЭУ приводит к росту скорости счета и искажению одноэлектронного спектра. Это могло проявиться в файлах, где коллимированный массивным свинцом источник Cs-137 размещался сбоку от сборки на разных расстояниях от ФЭУ: 
 
@@ -154,23 +162,17 @@ Raw experimental data are stored at
 Data processing
 """""""""""""""
 
-Software for data processing is divided into two parts. First of them is Qt application dealing with *.lmd raw files with ability to convert them into two ROOT files. One containing histograms and second with ROOT TTree. This tool can be downloaded from
+Software for data processing is divided into two parts. First of them is Qt application dealing with \*.lmd raw files with ability to convert them into two ROOT files. One containing histograms and second with ROOT TTree. This tool can be downloaded from
 
-	https://github.com/evovch/LMD_processor
-
-
-
-
-
+	` <https://github.com/evovch/LMD_processor>`_
 
 available at
 
-	http://er.jinr.ru:90/vratislav.chudoba/NeuRad_tests
+	` <http://er.jinr.ru:90/vratislav.chudoba/NeuRad_tests>`_
 
 For the moment, processing is 
 
 Something about methods used for data analysis. Pictures (single-electron spectra; unlinearity; callibration to 1e units, ...)
-
 
 Time resolution
 ~~~~~~~~~~~~~~~
@@ -180,7 +182,7 @@ Measurement of time time resolution. Or time capabilities of the detector.
 Description of used setup and electronics. Difference between Tektronix and DSR4.
 
 Experimental data
-"""""""""""""
+"""""""""""""""""
 
 Raw experimental data are stored at
 
@@ -188,17 +190,16 @@ Raw experimental data are stored at
 
 	exolina2.jinr.ru:/media/users_NAS/NeuRad/NeuRad_tests_data
 
-
 Used methods for data processing (CFD, threshold of the signal)
 
 Results
-"""""""""
+"""""""
 
 (summary form of the PMT signal, resolution of the front-edge, relative time between signals, ...)
 
 Some text.
 
 GADAST
-----------------
+------
 
 Tests are planned for the first semester of 2017.
