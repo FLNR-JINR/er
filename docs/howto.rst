@@ -19,7 +19,7 @@ How-to
 .. include:: howto/create_geo.rst
 
 Создать библиотеку классов для детектора
----------------------------------------
+----------------------------------------
 
 .. include:: howto/create_lib.rst
 
@@ -39,7 +39,7 @@ How-to
 .. include:: howto/create_det.rst
 
 Класс Point
-~~~~~~~~~~~~
+~~~~~~~~~~~
 
 .. include:: howto/create_point.rst
 
