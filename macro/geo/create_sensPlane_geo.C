@@ -1,0 +1,69 @@
+void create_sensPlane_geo()
+{
+  TString erPath = gSystem->Getenv("VMCWORKDIR");
+
+  // Output paths
+  TString outGeoFilenameRoot = erPath + "/geometry/sensPlane.geo.root";
+  TString outGeoFilenameGdml = erPath + "/geometry/sensPlane.gdml";
+
+  // Input paths
+  TString medFile = erPath + "/geometry/media.geo";
+
+  // Materials and media
+  FairGeoLoader* geoLoad = new FairGeoLoader("TGeo", "FairGeoLoader");
+  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
+  geoFace->setMediaFile(medFile);
+  geoFace->readMedia();
+  FairGeoMedia* geoMedia = geoFace->getMedia();
+  FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
+
+  // Geometry manager
+  TGeoManager* geoM = (TGeoManager*)gROOT->FindObject("FAIRGeom");
+
+  TString mediumName;
+
+  mediumName = "Air";
+  FairGeoMedium* mAir = geoMedia->getMedium(mediumName);
+  if (!mAir) Fatal("create_sensPlane_geo", "FairMedium %s not found", mediumName.Data());
+  geoBuild->createMedium(mAir);
+  TGeoMedium* pAir = geoM->GetMedium(mediumName);
+  if (!pAir) Fatal("create_sensPlane_geo", "Medium %s not found", mediumName.Data());
+  
+  // Shapes
+  TGeoBBox* sensPlaneShape = new TGeoBBox("sensPlaneShape", 5000./2., 5000./2., 1./2.);
+
+  // Volumes
+  TGeoVolume* sensPlaneVol = new TGeoVolume("sensPlaneVol", sensPlaneShape, pAir);
+
+  // Matrices
+  //TGeoRotation* rotNoRot = new TGeoRotation("rotNoRot", 0., 0., 0.);
+  //rotNoRot->RegisterYourself();
+
+  // This is the one but last level in the hierarchy
+  // This volume-assembly is the only volume to be inserted into TOP
+  TGeoVolumeAssembly* subdetectorVolAss = new TGeoVolumeAssembly("sensPlane");
+  subdetectorVolAss->AddNode(sensPlaneVol, 1);
+
+  // World ------------------------------------
+  TGeoVolumeAssembly* topVolAss = new TGeoVolumeAssembly("TOP");
+  topVolAss->AddNode(subdetectorVolAss, 1);
+
+  // Finalize
+  geoM->SetTopVolume(topVolAss);
+  geoM->CloseGeometry();
+  geoM->CheckOverlaps();
+  geoM->PrintOverlaps();
+  //geoM->CheckGeometry();
+  //geoM->CheckGeometryFull();
+  //geoM->Test();
+
+  // Export
+  //geoM->Export(outGeoFilenameGdml);
+  TFile* outGeoFileRoot = new TFile(outGeoFilenameRoot, "RECREATE");
+  geoM->GetTopVolume()->Write();
+  outGeoFileRoot->Close();
+
+  // Draw
+  TBrowser* bro = new TBrowser("bro", "bro");
+  geoM->GetTopVolume()->Draw("ogl");
+}
