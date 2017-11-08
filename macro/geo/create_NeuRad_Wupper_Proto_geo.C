@@ -83,7 +83,6 @@ void create_NeuRad_Wupper_Proto_geo()
   geoBuild->createMedium(vacuum);
   TGeoMedium* pMed0 = gGeoMan->GetMedium("vacuum");
   if ( ! pMed0 ) Fatal("Main", "Medium vacuum not found");
-  // --------------------------------------------------------------------------
   
   //------------------------- VOLUMES -----------------------------------------
   
@@ -168,8 +167,8 @@ Int_t i_submodule = 0;
     
       //Double_t submodule_in_module_X_trans = submodule_X*(submodules_in_module_X/2.-i_X_submodule-0.5);
       //Double_t submodule_in_module_Y_trans = submodule_Y*(submodules_in_module_Y/2.-i_Y_submodule-0.5);
-      Double_t submodule_in_module_X_trans = - module_X + housing_Thick + submodule_X/2 + submodule_X * i_X_submodule;
-      Double_t submodule_in_module_Y_trans = - module_Y + housing_Thick + submodule_Y/2 + submodule_Y * i_Y_submodule;
+      Double_t submodule_in_module_X_trans = - module_X/2. + housing_Thick + submodule_X/2. + submodule_X * i_X_submodule;
+      Double_t submodule_in_module_Y_trans = - module_Y/2. + housing_Thick + submodule_Y/2. + submodule_Y * i_Y_submodule;
       Double_t submodule_in_module_Z_trans = 0.;
       module->AddNode( submodule, i_submodule, new TGeoCombiTrans(submodule_in_module_X_trans, 
                                                             submodule_in_module_Y_trans,
