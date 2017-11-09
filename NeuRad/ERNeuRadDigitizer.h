@@ -110,7 +110,7 @@ protected:
 private:
   virtual void SetParContainers();
 
-  Double_t fpeFunc(Double_t *x, Double_t *par) {
+/*  Double_t fpeFunc(Double_t *x, Double_t *par) {
     Double_t fitval;
     if (x[0]<63) {
       fitval = 0;
@@ -127,7 +127,7 @@ private:
     return fitval;
   }
   TF1 *fpeA = new TF1("fpeA","fpeFunc",0,2000,7);
-
+*/
   ClassDef(ERNeuRadDigitizer,1)
 };
 
