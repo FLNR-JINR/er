@@ -126,7 +126,7 @@ private:
     }
     return fitval;
   }
-  TF1 *fpeA = new TF1("fpeA","fpeFunc(x)",0,2000,7);
+  TF1 *fpeA = new TF1("fpeA","fpeFunc",0,2000,7);
 
   ClassDef(ERNeuRadDigitizer,1)
 };
