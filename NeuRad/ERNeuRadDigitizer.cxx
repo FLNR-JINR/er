@@ -222,17 +222,16 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
       //Амплиту одноэлектронного сигнала
       Double_t PixelGain = fNeuRadSetup->PixelGain(peModule,pePixel);
       Double_t PixelSigma = fNeuRadSetup->PixelSigma(peModule,pePixel);
+      fpeA->SetParameters(85.8656,30.6158,447.112,447.111,52.,433.,141.);	
       //Double_t peAmplitude = TMath::Abs(gRandom->Gaus(PixelGain, PixelSigma));
-      Double_t peAmplitude = TMath::Abs(fNeuRadSetup->peAmp(85.8656,30.6158,447.112,447.111,52.,433.,141.)->GetRandom());
+      Double_t peAmplitude = TMath::Abs(fpeA->GetRandom());
       sumAmplitude+=peAmplitude;
       //Задержка динодной системы и джиттер
       Double_t peAnodeTime = peCathodeTime + (Double_t)gRandom->Gaus(fPixelDelay, fPixelJitter);
       ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, pePhotonCount, peAmplitude);
       peInPixels[peModule][pePixel].push_back(pe);
     }
-    
 }
-
 //----------------------------------------------------------------------------
 Int_t ERNeuRadDigitizer::Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& peModule, Int_t& pePixel){
   //Возвращает номер файбера в котором окажется фотоэлектрон после применения кростолков

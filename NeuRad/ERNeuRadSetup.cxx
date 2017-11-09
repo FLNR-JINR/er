@@ -159,22 +159,5 @@ Bool_t ERNeuRadSetup::UseCrosstalks(){
     return fDigiPar->UseCrosstalks();
 }
 
-TF1* ERNeuRadSetup::peAmp(Double_t x2,Double_t y2,Double_t x3,Double_t b,Double_t k,Double_t mean,Double_t sigma) {
-  Double_t* fitval;
-  if (x<63) {
-    fitval = 0;
-  }
-  if (x>=63 && x<par[0]) {
-    fitval = (x-63) * (par[1]) / (par[0]-63) + par[4]*exp( -0.5*(x-par[5])*(x-par[5])/(par[2]*par[6]));
-  }
-  if (x>=par[0] && x<par[2]) {
-    fitval = par[1]*(x-par[2])*(x+par[2]-2*par[3])/((par[0]-par[2])*(par[0]+par[2]-2*par[3])) + par[4]*exp(-0.5*(x-par[5])*(x-par[5])/(par[2]*par[6]));
-  }
-  if (x>=par[2]) {
-    fitval = par[4]*exp(-0.5*(x-par[5])*(x-par[5])/(par[2]*par[6]));
-  }
-    return fitval;
-}
-
 
 ClassImp(ERNeuRadSetup)

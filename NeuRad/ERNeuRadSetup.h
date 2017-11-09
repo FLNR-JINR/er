@@ -61,7 +61,6 @@ public:
     static Int_t RowNofModules();
     static Bool_t UseCrosstalks();
     static Int_t SetParContainers();
-    static TF1* peAmp(Double_t x2,Double_t y2,Double_t x3,Double_t b,Double_t k,Double_t mean,Double_t sigma);
     ClassDef(ERNeuRadSetup,1)
 
 };

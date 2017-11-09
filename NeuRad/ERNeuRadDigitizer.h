@@ -11,6 +11,7 @@
 #include "TStopwatch.h"
 
 #include "FairTask.h"
+#include "TF1.h"
 
 #include "ERNeuRadPoint.h"
 #include "ERNeuRadPhotoElectron.h"
@@ -54,6 +55,7 @@ public:
   /** Accessors **/ 
   Int_t PhotoElectronCount()  const;
   Int_t PixelSignalCount()   const;
+
 protected:
   //Digitization parameters
   ERNeuRadSetup* fNeuRadSetup;
@@ -70,6 +72,7 @@ protected:
   Float_t fSumAmplitudeF;
   Float_t fSumAmplitudeB;
   
+
   //constants
   static const Double_t cSciFiLightYield; // [photons/MeV]
   static const Double_t cSpeedOfLight; //[cm/ns]
@@ -106,7 +109,25 @@ protected:
   Int_t Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& peModule, Int_t& pePixel);
 private:
   virtual void SetParContainers();
-  
+
+  Double_t fpeFunc(Double_t *x, Double_t *par) {
+    Double_t fitval;
+    if (x[0]<63) {
+      fitval = 0;
+    }
+    if (x[0]>=63 && x[0]<par[0]) {
+      fitval = (x[0]-63) * (par[1]) / (par[0]-63) + par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
+    }
+    if (x[0]>=par[0]) {
+      fitval = par[1]*(x[0]-par[2])*(x[0]+par[2]-2*par[3])/((par[0]-par[2])*(par[0]+par[2]-2*par[3])) + par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
+    }
+    if (x[0]>=par[2]) {
+      fitval = par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
+    }
+    return fitval;
+  }
+  TF1 *fpeA = new TF1("fpeA","fpeFunc(x)",0,2000,7);
+
   ClassDef(ERNeuRadDigitizer,1)
 };
 
