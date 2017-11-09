@@ -6,6 +6,11 @@
 
 void create_collimator_geo()
 {
+  TGeoRotation *fZeroRotation = new TGeoRotation();
+  fZeroRotation->RotateX(0.);
+  fZeroRotation->RotateY(0.);
+  fZeroRotation->RotateZ(0.);
+
   TString erPath = gSystem->Getenv("VMCWORKDIR");
 
   // Output paths
@@ -79,7 +84,7 @@ void create_collimator_geo()
 
   // World ------------------------------------
   TGeoVolumeAssembly* topVolAss = new TGeoVolumeAssembly("TOP");
-  topVolAss->AddNode(subdetectorVolAss, 1);
+  topVolAss->AddNode(subdetectorVolAss, 1, new TGeoCombiTrans(.0,.0,-4.5 - 12.5 - 50., fZeroRotation));
 
   // Finalize
   geoM->SetTopVolume(topVolAss);
@@ -97,6 +102,6 @@ void create_collimator_geo()
   outGeoFileRoot->Close();
 
   // Draw
-  TBrowser* bro = new TBrowser("bro", "bro");
-  geoM->GetTopVolume()->Draw("ogl");
+  //TBrowser* bro = new TBrowser("bro", "bro");
+  //geoM->GetTopVolume()->Draw("ogl");
 }

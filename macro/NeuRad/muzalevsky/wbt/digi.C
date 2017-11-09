@@ -1,4 +1,4 @@
-void digi(Int_t nEvents = 100){
+void digi(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "digi.root";
@@ -21,7 +21,7 @@ void digi(Int_t nEvents = 100){
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
-  //digitizer->SetUseCrosstalks(kFALSE);
+  digitizer->SetUseCrosstalks(kFALSE);
   digitizer->SetPixelJitter(0.4/2.36);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
@@ -31,7 +31,7 @@ void digi(Int_t nEvents = 100){
   
   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
   TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
-  NeuRadDetDigiFile += "/parameters/NeuRad.digi.v3.par";
+  NeuRadDetDigiFile += "/parameters/NeuRad.digi.v4.par";
   parInput1->open(NeuRadDetDigiFile.Data(),"in");
 
   FairParRootFileIo*  parInput2 = new FairParRootFileIo();
