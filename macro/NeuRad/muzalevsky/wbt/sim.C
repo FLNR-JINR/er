@@ -1,4 +1,4 @@
-void sim(Int_t nEvents = 1000){
+void sim(Int_t nEvents = 100){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";

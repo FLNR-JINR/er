@@ -4,11 +4,11 @@ void eventDisplay()
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo*  parIo1 = new FairParRootFileIo();
-  parIo1->open("par.root");
+  parIo1->open("par2.root");
   rtdb->setFirstInput(parIo1);
   //rtdb->print();
   
-  fRun->SetInputFile("sim.root");
+  fRun->SetInputFile("sim2.root");
   fRun->SetOutputFile("EventDisplay.root");
   
   FairEventManager *fMan= new FairEventManager();
