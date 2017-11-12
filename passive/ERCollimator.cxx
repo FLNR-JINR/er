@@ -1,3 +1,11 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #include "ERCollimator.h"
 
 #include "TString.h"
@@ -5,7 +13,8 @@
 
 ERCollimator::ERCollimator()
 {
-	fPositionRotation = new TGeoCombiTrans("mCollimator", 0., 0., 0., new TGeoRotation("rotNoRot", 0., 0., 0.));
+	fPositionRotation = new TGeoCombiTrans("mCollimator", 0., 0., 0.,
+		                       new TGeoRotation("rotNoRot", 0., 0., 0.));
 }
 
 ERCollimator::~ERCollimator()
@@ -19,7 +28,7 @@ void ERCollimator::ConstructGeometry()
 		LOG(FATAL) << "Collimator geometry file name is not set." << FairLogger::endl;
 	} else if(fileName.EndsWith(".root")) {
 		LOG(INFO) << "Constructing collimator geometry from ROOT file " << fileName.Data() << FairLogger::endl;
-		ConstructRootGeometry();
+		ConstructRootGeometry(/*fPositionRotation*/);
 	} else if(fileName.EndsWith(".gdml")) {
 		LOG(INFO) << "Constructing collimator geometry from GDML file " << fileName.Data() << FairLogger::endl;
 		ConstructGDMLGeometry(fPositionRotation);

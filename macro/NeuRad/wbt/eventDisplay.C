@@ -1,22 +1,21 @@
 void eventDisplay()
 {
-  FairRunAna *fRun= new FairRunAna();
-  
+  FairRunAna* fRun= new FairRunAna();
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo*  parIo1 = new FairParRootFileIo();
+  FairParRootFileIo* parIo1 = new FairParRootFileIo();
   parIo1->open("par.root");
   rtdb->setFirstInput(parIo1);
   //rtdb->print();
-  
+
   fRun->SetInputFile("sim.root");
   fRun->SetOutputFile("EventDisplay.root");
-  
-  FairEventManager *fMan= new FairEventManager();
-  FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
-  FairMCPointDraw *LandPoints =   new FairMCPointDraw ("NeuRadPoint",kOrange,  kFullSquare);
-  
+
+  FairEventManager* fMan = new FairEventManager();
+  FairMCTracks* Track = new FairMCTracks ("Monte-Carlo Tracks");
+  FairMCPointDraw* NeuRadPoints = new FairMCPointDraw ("NeuRadPoint", kOrange, kFullSquare);
+
   fMan->AddTask(Track);
-  fMan->AddTask(LandPoints);
-  
+  fMan->AddTask(NeuRadPoints);
+
   fMan->Init();
 }
