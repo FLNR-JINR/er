@@ -1,4 +1,4 @@
-void run_sim(Int_t nEvents = 1)
+void run_sim(Int_t nEvents = 1000)
 {
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
@@ -35,11 +35,12 @@ void run_sim(Int_t nEvents = 1)
 
   // -----   Create detectors  ----------------------------------------------
   FairModule* cave = new ERCave("CAVE");
-  cave->SetGeometryFileName("cave_air.geo"); // cave air
+  cave->SetGeometryFileName("cave_air.geo"); // cave or cave_air
   run->AddModule(cave);
 
-  FairModule* sensPlane = new ERSensPlane("SENSPLANE");
+  ERSensPlane* sensPlane = new ERSensPlane("SENSPLANE");
   sensPlane->SetGeometryFileName("sensPlane.geo.root");
+  sensPlane->SetDetectorPosition(0., 0., 10.);
   run->AddModule(sensPlane);
 
   // -----   Create PrimaryGenerator   --------------------------------------
@@ -48,13 +49,11 @@ void run_sim(Int_t nEvents = 1)
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
 
-  Double32_t theta1 = 0.;  // polar angle distribution
-  Double32_t theta2 = 7.;
-
   boxGen->SetEkinRange(kin_energy, kin_energy);
-  boxGen->SetThetaRange(theta1, theta1);
-  boxGen->SetPhiRange(90, 90);
+  boxGen->SetThetaRange(0., 30.); // 0-90
+  boxGen->SetPhiRange(0., 360.); // 0-360
   boxGen->SetBoxXYZ(0., 0., 0., 0., 0.); // xmin, ymin, xmax, ymax, z
+  //boxGen->SetCosTheta();
 
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);
@@ -84,7 +83,6 @@ void run_sim(Int_t nEvents = 1)
   run->Run(nEvents);
 
   // -----   Finish   -------------------------------------------------------
-
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();

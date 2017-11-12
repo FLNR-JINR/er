@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#cd /opt/Fair/FairRoot_build/
+#make -j4 install
+#make install
+#cd /opt/Fair/expertroot_dev_build/
+#make -j4
+
+#cd /opt/Fair/expertroot/macro/SensPlane/
+
+rm -rf par.root sim.root eventDisplay.root out.txt err.txt
+root -l -b -q run_sim.C > out.txt 2> err.txt
+root -l eventDisplay.C

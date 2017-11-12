@@ -30,19 +30,28 @@ void create_sensPlane_geo()
   if (!pAir) Fatal("create_sensPlane_geo", "Medium %s not found", mediumName.Data());
   
   // Shapes
-  TGeoBBox* sensPlaneShape = new TGeoBBox("sensPlaneShape", 5000./2., 5000./2., 1./2.);
+  TGeoBBox* sensPlaneShape = new TGeoBBox("sensPlaneShape", 500./2., 500./2., 0.1/2.);
 
   // Volumes
   TGeoVolume* sensPlaneVol = new TGeoVolume("sensPlaneVol", sensPlaneShape, pAir);
 
   // Matrices
-  //TGeoRotation* rotNoRot = new TGeoRotation("rotNoRot", 0., 0., 0.);
-  //rotNoRot->RegisterYourself();
+  TGeoRotation* rotNoRot = new TGeoRotation("rotNoRot", 0., 0., 0.);
+  rotNoRot->RegisterYourself();
 
   // This is the one but last level in the hierarchy
   // This volume-assembly is the only volume to be inserted into TOP
   TGeoVolumeAssembly* subdetectorVolAss = new TGeoVolumeAssembly("sensPlane");
-  subdetectorVolAss->AddNode(sensPlaneVol, 1);
+  subdetectorVolAss->AddNode(sensPlaneVol, 1,
+    new TGeoCombiTrans("mSt1InSubdet", 0., 0., 0., rotNoRot));
+/*
+  subdetectorVolAss->AddNode(sensPlaneVol, 2,
+    new TGeoCombiTrans("mSt2InSubdet", 0., 0., 10., rotNoRot));
+  subdetectorVolAss->AddNode(sensPlaneVol, 3,
+    new TGeoCombiTrans("mSt3InSubdet", 0., 0., 20., rotNoRot));
+  subdetectorVolAss->AddNode(sensPlaneVol, 4,
+    new TGeoCombiTrans("mSt4InSubdet", 0., 0., 30., rotNoRot));
+*/
 
   // World ------------------------------------
   TGeoVolumeAssembly* topVolAss = new TGeoVolumeAssembly("TOP");
