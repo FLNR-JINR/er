@@ -1,7 +1,5 @@
 #include "ERNDDigitizer.h"
 
-#include <vector>
-
 #include "TVector3.h"
 #include "TGeoMatrix.h"
 #include "TMath.h"
@@ -10,8 +8,11 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include<iostream>
-using namespace std;
+#include "FairLogger.h"
+
+#include <limits>
+#include <vector>
+#include <map>
 
 #include "ERDetectorList.h"
 #include "ERNDPoint.h"
@@ -92,40 +93,51 @@ InitStatus ERNDDigitizer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERNDDigitizer::Exec(Option_t* opt)
 {
-  std::cout << std::endl;
-  std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
-  std::cout << std::endl;
-  std::cout << "ERNDDigitizer: "<< std::endl;
+  
+  LOG(DEBUG) << "ERNDDigitizer event: " << fEvent++ << FairLogger::endl;
   Reset();
 
+  //Sort points by crystalls
+  std::map<Int_t, std::vector<Int_t>> pointsByCrystall;
   for (Int_t iPoint = 0; iPoint < fNDPoints->GetEntriesFast(); iPoint++){
     ERNDPoint* point = (ERNDPoint*)fNDPoints->At(iPoint);
-    TVector3 pointPos;
-    point->Position(pointPos);
-    TVector3 dpos = TVector3(0.01, 0.01, 0.01); //ошибка пока фиксирована
-    TVector3 pos;
-    fSetup->PMTPos(pointPos,pos);
-    Float_t LYDispersion = (fLYDispersionA*fLYDispersionA)*point->LightYield()+(fLYDispersionB*fLYDispersionB)*(point->LightYield()*point->LightYield());
-    Float_t lightYield = gRandom->Gaus(point->LightYield(), LYDispersion);
-    Float_t time = gRandom->Gaus(point->GetTime(), TMath::Sqrt(fTimeDispersionPar/point->LightYield()));
-    Float_t neutronProb;
-    Float_t quench = point->LightYield()/point->GetEnergyLoss();
-    if ((point->LightYield() > fLYThreshold) && (quench < fQuenchThreshold)){
-      neutronProb = 1.;
-    }
-    if ((point->LightYield() < fLYThreshold) && (quench < fQuenchThreshold)){
-      neutronProb = fProbabilityB+(1-fProbabilityB)*(point->LightYield()/fLYThreshold);
-    }
-    if ((point->LightYield() > fLYThreshold) && (quench > fQuenchThreshold)){
-      neutronProb = 0.;
-    }
-    if ((point->LightYield() < fLYThreshold) && (quench > fQuenchThreshold)){
-      neutronProb = fProbabilityC*(1-point->LightYield()/fLYThreshold);
-    }
-    AddDigi(kND, pos, dpos,iPoint,lightYield, time, neutronProb);
+    pointsByCrystall[point->StilbenNr()].push_back(iPoint);
   }
 
-  std::cout << "Digis count: " << fNDDigis->GetEntriesFast() << std::endl;
+  //loop over crystall with points
+  for (const auto &itCrystall : pointsByCrystall){
+    Float_t edep = 0;   // sum edep in crystall
+    Float_t time = std::numeric_limits<float>::max();   // first time in crystall
+    Float_t ly = 0.;    // sum ligth yield in crystall
+
+    //@TODO it must be in ERNDHitFinder and by digi
+    //calc digi position by first point
+    TVector3 pos;       // position of crystall in global
+    ERNDPoint* firstPoint = (ERNDPoint*)fNDPoints->At((*(itCrystall.second.begin())));
+    TVector3 pointPos;
+    firstPoint->Position(pointPos);
+    fSetup->PMTPos(pointPos,pos);
+
+    //loop over points in crysrall itCrystall.first()
+    for (const auto iPoint : itCrystall.second){
+      ERNDPoint* point = (ERNDPoint*)fNDPoints->At(iPoint);
+      edep += point->GetEnergyLoss();
+      ly += (fLYDispersionA*fLYDispersionA)*point->LightYield()+(fLYDispersionB*fLYDispersionB)*(point->LightYield()*point->LightYield());
+      if (point->GetTime() < time){
+        time = point->GetTime();
+      }
+    }
+
+    //ly = gRandom->Gaus(ly, fLYDispersion);
+    time = gRandom->Gaus(time, TMath::Sqrt(fTimeDispersionPar/ly));
+
+    Float_t neutronProb = NeutronProbability(edep,ly);
+    
+    TVector3 dpos = TVector3(0.01, 0.01, 0.01); //ошибка пока фиксирована
+    AddDigi(kND, pos, dpos,itCrystall.first,ly, time, neutronProb);
+  }
+
+  LOG(DEBUG) << "Digis count: " << fNDDigis->GetEntriesFast() << FairLogger::endl;
 }
 //----------------------------------------------------------------------------
 
@@ -154,5 +166,22 @@ ERNDDigi* ERNDDigitizer::AddDigi(Int_t detID, TVector3& pos, TVector3& dpos,
   return Digi;
 }
 // ----------------------------------------------------------------------------
+Float_t ERNDDigitizer::NeutronProbability(Float_t edep, Float_t ly){
+  Float_t neutronProb;
+  Float_t quench = ly/edep;
+  if ((ly > fLYThreshold) && (quench < fQuenchThreshold)){
+    neutronProb = 1.;
+  }
+  if ((ly < fLYThreshold) && (quench < fQuenchThreshold)){
+    neutronProb = fProbabilityB+(1-fProbabilityB)*(ly/fLYThreshold);
+  }
+  if ((ly > fLYThreshold) && (quench > fQuenchThreshold)){
+    neutronProb = 0.;
+  }
+  if ((ly < fLYThreshold) && (quench > fQuenchThreshold)){
+    neutronProb = fProbabilityC*(1-ly/fLYThreshold);
+  }
+  return neutronProb;
+}
 //-----------------------------------------------------------------------------
 ClassImp(ERNDDigitizer)
