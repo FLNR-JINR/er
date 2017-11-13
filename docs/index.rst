@@ -26,7 +26,7 @@
    decays
    neurad
    gadast
-   boxgenerator
+   generators
    musi
    expert
    nd
