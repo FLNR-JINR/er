@@ -4,20 +4,18 @@
 // -------------------------------------------------------------------------
 #include "ERND.h"
 
-#include <iostream>
-using namespace std;
-
-#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
 
+#include "FairRootManager.h"
+#include "FairLogger.h"
 
 // -----   Default constructor   -------------------------------------------
 ERND::ERND() : 
   FairDetector("ERND", kTRUE),
-  fNDPoints(NULL)
+   fNDPoints(NULL)
 {
   LOG(INFO) << "  ERND::ERND()" << FairLogger::endl;
   ResetParameters();
@@ -32,7 +30,7 @@ ERND::ERND() :
 // -----   Standard constructor   ------------------------------------------
 ERND::ERND(const char* name, Bool_t active, Int_t verbose) 
   : FairDetector(name, active,verbose),
-  fNDPoints(NULL)
+   fNDPoints(NULL)
   {
   ResetParameters();
   fNDPoints = new TClonesArray("ERNDPoint");
@@ -55,7 +53,6 @@ void ERND::Initialize()
 
 
 Bool_t ERND::ProcessHits(FairVolume* vol) {
-  cout << "ProcessHits" << endl;
   // Set constants for Birk's Law implentation
   static const Double_t dP = 1.032 ;
   static const Double_t BirkC1 =  0.013/dP;
@@ -133,9 +130,8 @@ void ERND::BeginEvent() {
 
 
 void ERND::EndOfEvent() {
-  if (fVerboseLevel > 1) {
-    Print();
-  }
+  LOG(DEBUG) << "ND Points Count: " << fNDPoints->GetEntriesFast() << FairLogger::endl;
+  Print();
   Reset();
 }
 
@@ -169,7 +165,6 @@ void ERND::Print(Option_t *option) const
 
 // -----   Public method Reset   ----------------------------------------------
 void ERND::Reset() {
-  LOG(INFO) << "  ERND::Reset()" << FairLogger::endl;
   fNDPoints->Clear();
   ResetParameters();
 }
@@ -177,10 +172,10 @@ void ERND::Reset() {
 
 // -----   Public method CopyClones   -----------------------------------------
 void ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
-  LOG(INFO) << "   ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)" 
+  LOG(DEBUG) << "   ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)" 
             << FairLogger::endl;
   Int_t nEntries = cl1->GetEntriesFast();
-  LOG(INFO) << "decector: " << nEntries << " entries to add" << FairLogger::endl;
+  LOG(DEBUG) << "decector: " << nEntries << " entries to add" << FairLogger::endl;
   TClonesArray& clref = *cl2;
   ERNDPoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
@@ -189,7 +184,7 @@ void ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
    oldpoint->SetTrackID(index);
    new (clref[cl2->GetEntriesFast()]) ERNDPoint(*oldpoint);
   }
-  LOG(INFO) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
+  LOG(DEBUG) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 }
 // ----------------------------------------------------------------------------
 
@@ -213,10 +208,10 @@ ERNDPoint* ERND::AddPoint(Int_t eventID, Int_t trackID,
 void ERND::ConstructGeometry() {
   TString fileName = GetGeometryFileName();
   if(fileName.EndsWith(".root")) {
-    cout << "Constructing ERND geometry from ROOT file " << fileName.Data() << FairLogger::endl;
+    LOG(DEBUG) << "Constructing ERND geometry from ROOT file " << fileName.Data() << FairLogger::endl;
     ConstructRootGeometry();
   } else {
-    cerr << "Geometry file name is not set" << FairLogger::endl;
+    LOG(DEBUG) << "Geometry file name is not set" << FairLogger::endl;
   }
   
 }
@@ -225,7 +220,6 @@ void ERND::ConstructGeometry() {
 // ----------------------------------------------------------------------------
 Bool_t ERND::CheckIfSensitive(std::string name)
 {
-  cout << name << endl;
   TString volName = name;
   if(volName.Contains("crystal")) {
     return kTRUE;
@@ -237,7 +231,6 @@ Bool_t ERND::CheckIfSensitive(std::string name)
 
 // ----------------------------------------------------------------------------
 void ERND::ResetParameters() {
-  LOG(INFO) << "   ERND::ResetParameters() " << FairLogger::endl;
 };
 // ----------------------------------------------------------------------------
 ClassImp(ERND)

@@ -6,7 +6,7 @@
 #include "TRandom3.h"
 
 #include "FairRootManager.h"
-#include "FairRunAna.h"
+#include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
@@ -66,7 +66,7 @@ ERNDDigitizer::~ERNDDigitizer()
 void ERNDDigitizer::SetParContainers()
 {
   // Get run and runtime database
-  FairRunAna* run = FairRunAna::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
@@ -100,7 +100,7 @@ InitStatus ERNDDigitizer::Init()
 void ERNDDigitizer::Exec(Option_t* opt)
 {
   
-  LOG(DEBUG) << "ERNDDigitizer event: " << fEvent++ << FairLogger::endl;
+  LOG(DEBUG2) << "ERNDDigitizer event: " << fEvent++ << FairLogger::endl;
   Reset();
 
   //Sort points by crystalls
@@ -148,7 +148,6 @@ void ERNDDigitizer::Exec(Option_t* opt)
     TVector3 dpos = TVector3(0.01, 0.01, 0.01); //ошибка пока фиксирована
     AddDigi(kND, pos, dpos,itCrystall.first,ly, time, neutronProb);
   }
-
   LOG(DEBUG) << "Digis count: " << fNDDigis->GetEntriesFast() << FairLogger::endl;
 }
 //----------------------------------------------------------------------------
@@ -165,7 +164,6 @@ void ERNDDigitizer::Reset()
 // ----------------------------------------------------------------------------
 void ERNDDigitizer::Finish()
 {   
-
 }
 // ----------------------------------------------------------------------------
 

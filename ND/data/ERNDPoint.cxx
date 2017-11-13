@@ -3,8 +3,9 @@
 // -------------------------------------------------------------------------
 
 #include "ERNDPoint.h"
-#include <iostream>
-using namespace std;
+
+#include "FairLogger.h"
+
 // -----   Default constructor   -------------------------------------------
 ERNDPoint::ERNDPoint()
   : FairMCPoint(),
@@ -58,11 +59,11 @@ ERNDPoint::~ERNDPoint()
 // -----   Public method Print   -------------------------------------------
 void ERNDPoint::Print(const Option_t* opt /* = 0*/) const
 {
-  cout << "-I- ERNDPoint: track " << fTrackID << " mother track = " << fMot0TrackID << endl;
-  cout << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << endl;
-  cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << endl;
-  cout << "    Time " << fTime << " ns,  Length " << fLength << " cm" << endl;
-  cout << "    Energy loss " << fELoss << " keV "<< endl;
+  LOG(DEBUG2) << "    ERNDPoint: track " << fTrackID << " mother track = " << fMot0TrackID << FairLogger::endl;
+  LOG(DEBUG2) << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << FairLogger::end;
+  LOG(DEBUG2) << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << FairLogger::end;
+  LOG(DEBUG2) << "    Time " << fTime << " ns,  Length " << fLength << " cm" << FairLogger::end;
+  LOG(DEBUG2) << "    Energy loss " << fELoss << " keV "<< FairLogger::end;
 }
 // -------------------------------------------------------------------------
 
