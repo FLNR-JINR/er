@@ -40,17 +40,15 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  void SetLYDispersionA(Float_t sigma) {fLYDispersionA = sigma;} 
-  void SetLYDispersionB(Float_t sigma) {fLYDispersionB = sigma;} 
-  void SetTimeDispersionPar(Float_t sigma) {fTimeDispersionPar = sigma;}
+  void SetLYError(Float_t a, Float_t b, Float_t c) {fLYErrorA = a;fLYErrorB = b;fLYErrorC = c;}
+  void SetEdepError(Float_t a, Float_t b, Float_t c) {fEdepErrorA = a;fEdepErrorB = b;fEdepErrorC = c;}
+  void SetTimeError(Float_t a) {fTimeErrorA = a;}
+  
   void SetQuenchThreshold(Float_t th) {fQuenchThreshold = th;}
   void SetLYThreshold(Float_t th) {fLYThreshold = th;}
   void SetProbabilityB(Float_t b) {fProbabilityB = b;}
   void SetProbabilityC(Float_t c) {fProbabilityC = c;}
   /** Accessors **/ 
-  Float_t LYDispersionA() const {return fLYDispersionA;}
-  Float_t LYDispersionB() const {return fLYDispersionB;}
-  Float_t TimeDispersionPar() const {return fTimeDispersionPar;}
   Float_t ElossThreshold() const {return fQuenchThreshold;}
   Float_t LYThreshold() const {return fLYThreshold;}
   Float_t ProbabilityB() const {return fProbabilityB;}
@@ -62,9 +60,9 @@ protected:
   TClonesArray *fNDDigis;
 
   static Int_t fEvent;
-  Float_t fLYDispersionA;
-  Float_t fLYDispersionB;
-  Float_t fTimeDispersionPar;
+  Float_t fEdepErrorA, fEdepErrorB, fEdepErrorC;
+  Float_t fLYErrorA, fLYErrorB, fLYErrorC;
+  Float_t fTimeErrorA;
   Float_t fQuenchThreshold;
   Float_t fLYThreshold;
   Float_t fProbabilityB;

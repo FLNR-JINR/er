@@ -23,13 +23,16 @@ ERNDDigitizer::ERNDDigitizer()
   : FairTask("ER ND Digi producing scheme")
 ,fNDPoints(NULL)
 ,fNDDigis(NULL)
-,fLYDispersionA(0)
-,fLYDispersionB(0)
-,fTimeDispersionPar(0),
-fQuenchThreshold(0),
-fLYThreshold(0),
-fProbabilityB(0),
-fProbabilityC(0)
+,fEdepErrorA(0)
+,fEdepErrorB(0)
+,fEdepErrorC(0)
+,fLYErrorA(0)
+,fLYErrorB(0)
+,fLYErrorC(0)
+,fQuenchThreshold(0)
+,fLYThreshold(0)
+,fProbabilityB(0)
+,fProbabilityC(0)
 {
 }
 // ----------------------------------------------------------------------------
@@ -39,13 +42,16 @@ ERNDDigitizer::ERNDDigitizer(Int_t verbose)
   : FairTask("ER ND Digi producing scheme ", verbose)
 ,fNDPoints(NULL)
 ,fNDDigis(NULL)
-,fLYDispersionA(0)
-,fLYDispersionB(0)
-,fTimeDispersionPar(0),
-fQuenchThreshold(0),
-fLYThreshold(0),
-fProbabilityB(0),
-fProbabilityC(0)
+,fEdepErrorA(0)
+,fEdepErrorB(0)
+,fEdepErrorC(0)
+,fLYErrorA(0)
+,fLYErrorB(0)
+,fLYErrorC(0)
+,fQuenchThreshold(0)
+,fLYThreshold(0)
+,fProbabilityB(0)
+,fProbabilityC(0)
 {
 }
 // ----------------------------------------------------------------------------
@@ -122,14 +128,20 @@ void ERNDDigitizer::Exec(Option_t* opt)
     for (const auto iPoint : itCrystall.second){
       ERNDPoint* point = (ERNDPoint*)fNDPoints->At(iPoint);
       edep += point->GetEnergyLoss();
-      ly += (fLYDispersionA*fLYDispersionA)*point->LightYield()+(fLYDispersionB*fLYDispersionB)*(point->LightYield()*point->LightYield());
+      ly += point->LightYield();
       if (point->GetTime() < time){
         time = point->GetTime();
       }
     }
 
-    //ly = gRandom->Gaus(ly, fLYDispersion);
-    time = gRandom->Gaus(time, TMath::Sqrt(fTimeDispersionPar/ly));
+    Float_t edepSigma = fEdepErrorA + fEdepErrorB*TMath::Sqrt(edep) + fEdepErrorC*edep;
+    edep = gRandom->Gaus(edep, edepSigma);
+
+    Float_t lySigma = fLYErrorA + fLYErrorB*TMath::Sqrt(ly) + fLYErrorC*ly;
+    ly = gRandom->Gaus(ly, lySigma);
+
+    Float_t timeSigma = TMath::Sqrt(fTimeErrorA/ly);
+    time = gRandom->Gaus(time, timeSigma);
 
     Float_t neutronProb = NeutronProbability(edep,ly);
     

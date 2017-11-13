@@ -17,15 +17,15 @@ void ND_digi(Int_t nEvents = 10000){
   // ------------------------------------------------------------------------
  
   // ------------------------ND hit producer---------------------------------
-  ERNDDigitizer* hitFinder = new ERNDDigitizer(1);
-  hitFinder->SetLYDispersionA(0.0344);
-  hitFinder->SetLYDispersionB(0.0106);
-  hitFinder->SetTimeDispersionPar(0.1);
-  hitFinder->SetQuenchThreshold(0.005);
-  hitFinder->SetLYThreshold(0.004);
-  hitFinder->SetProbabilityB(0.1);
-  hitFinder->SetProbabilityC(0.3);
-  fRun->AddTask(hitFinder);
+  ERNDDigitizer* digitizer = new ERNDDigitizer(1);
+  digitizer->SetEdepError(0.0,0.01,0.01);
+  digitizer->SetLYError(0.0,0.01,0.01);
+  digitizer->SetTimeError(0.1);
+  digitizer->SetQuenchThreshold(0.005);
+  digitizer->SetLYThreshold(0.004);
+  digitizer->SetProbabilityB(0.1);
+  digitizer->SetProbabilityC(0.3);
+  fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   
   // -----------Runtime DataBase info -------------------------------------
