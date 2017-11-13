@@ -11,7 +11,6 @@
 #include "TStopwatch.h"
 
 #include "FairTask.h"
-#include "TF1.h"
 
 #include "ERNeuRadPoint.h"
 #include "ERNeuRadPhotoElectron.h"
@@ -19,10 +18,12 @@
 #include "ERNeuRadSetup.h"
 
 class TObjectArray;
+class TF1;
 
-class ERNeuRadDigitizer : public FairTask {
-
+class ERNeuRadDigitizer : public FairTask
+{
 public:
+
   /** Default constructor **/
   ERNeuRadDigitizer();
 
@@ -57,6 +58,7 @@ public:
   Int_t PixelSignalCount()   const;
 
 protected:
+
   //Digitization parameters
   ERNeuRadSetup* fNeuRadSetup;
   //Input arrays
@@ -94,7 +96,9 @@ protected:
   TStopwatch fPixelSignalCreatingTimer;
   Double_t fPixelSignalCreatingTime;
   Bool_t fUseCrosstalks;
+
 protected:
+
   ERNeuRadPhotoElectron* AddPhotoElectron(Int_t i_point, Int_t side, Double_t lytime, Double_t cathode_time, Double_t anode_time, 
 									Int_t photon_count,Double_t amplitudes);
 
@@ -107,28 +111,18 @@ protected:
                                 std::vector<ERNeuRadPhotoElectron* >** pePerPixels, Int_t side);
 
   Int_t Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& peModule, Int_t& pePixel);
+
 private:
+
   virtual void SetParContainers();
 
-/*  Double_t fpeFunc(Double_t *x, Double_t *par) {
-    Double_t fitval;
-    if (x[0]<63) {
-      fitval = 0;
-    }
-    if (x[0]>=63 && x[0]<par[0]) {
-      fitval = (x[0]-63) * (par[1]) / (par[0]-63) + par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
-    }
-    if (x[0]>=par[0]) {
-      fitval = par[1]*(x[0]-par[2])*(x[0]+par[2]-2*par[3])/((par[0]-par[2])*(par[0]+par[2]-2*par[3])) + par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
-    }
-    if (x[0]>=par[2]) {
-      fitval = par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
-    }
-    return fitval;
-  }
-  TF1 *fpeA = new TF1("fpeA","fpeFunc",0,2000,7);
-*/
+  TF1* fPEA;
+
+public:
+
+  static Double_t PeFunc(Double_t *x, Double_t *par);
+
   ClassDef(ERNeuRadDigitizer,1)
 };
 
-#endif
+#endif // ERNEURADDIGITIZER_H

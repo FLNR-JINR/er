@@ -1,9 +1,11 @@
-void digi(Int_t nEvents = 100){
+void digi(Int_t nEvents = 1000)
+{
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "digi.root";
   TString parFile = "par.root";
   // ------------------------------------------------------------------------
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -14,15 +16,18 @@ void digi(Int_t nEvents = 100){
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
+
   //-------- Set MC event header --------------------------------------------
   EREventHeader* header = new EREventHeader();
   fRun->SetEventHeader(header);
   //------------------------------------------------------------------------
+
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
   digitizer->SetUseCrosstalks(kFALSE);
   digitizer->SetPixelJitter(0.4/2.36);
+
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   

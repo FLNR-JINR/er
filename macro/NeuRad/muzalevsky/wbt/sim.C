@@ -1,4 +1,4 @@
-void sim(Int_t nEvents = 100){
+void sim(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -37,9 +37,9 @@ void sim(Int_t nEvents = 100){
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
 
-  ERCollimator* collimator = new ERCollimator();
-  collimator->SetGeometryFileName("collimator.geo.root");
-  run->AddModule(collimator);
+  //ERCollimator* collimator = new ERCollimator();
+  //collimator->SetGeometryFileName("collimator.geo.root");
+  //run->AddModule(collimator);
 
   // ER NeuRad definition
   /* Select verbosity level
@@ -49,7 +49,7 @@ void sim(Int_t nEvents = 100){
   */
   Int_t verbose = 1;
   ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE,verbose);
-  neuRad->SetGeometryFileName("NeuRad.v4.geo.root");
+  neuRad->SetGeometryFileName("NeuRad.v3.geo.root");
   /* Select storing stepss
    * not store steps
    * SetStorePrimarySteps() - store only primary particle step
