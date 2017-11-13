@@ -1,4 +1,4 @@
-#include "ERNDHitFinder.h"
+#include "ERNDDigitizer.h"
 
 #include <vector>
 
@@ -16,12 +16,12 @@ using namespace std;
 #include "ERDetectorList.h"
 #include "ERNDPoint.h"
 
-Int_t ERNDHitFinder::fEvent = 0;
+Int_t ERNDDigitizer::fEvent = 0;
 // ----------------------------------------------------------------------------
-ERNDHitFinder::ERNDHitFinder()
-  : FairTask("ER ND hit producing scheme")
+ERNDDigitizer::ERNDDigitizer()
+  : FairTask("ER ND Digi producing scheme")
 ,fNDPoints(NULL)
-,fNDHits(NULL)
+,fNDDigis(NULL)
 ,fLYDispersionA(0)
 ,fLYDispersionB(0)
 ,fTimeDispersionPar(0),
@@ -34,10 +34,10 @@ fProbabilityC(0)
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERNDHitFinder::ERNDHitFinder(Int_t verbose)
-  : FairTask("ER ND hit producing scheme ", verbose)
+ERNDDigitizer::ERNDDigitizer(Int_t verbose)
+  : FairTask("ER ND Digi producing scheme ", verbose)
 ,fNDPoints(NULL)
-,fNDHits(NULL)
+,fNDDigis(NULL)
 ,fLYDispersionA(0)
 ,fLYDispersionB(0)
 ,fTimeDispersionPar(0),
@@ -50,13 +50,13 @@ fProbabilityC(0)
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERNDHitFinder::~ERNDHitFinder()
+ERNDDigitizer::~ERNDDigitizer()
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERNDHitFinder::SetParContainers()
+void ERNDDigitizer::SetParContainers()
 {
   // Get run and runtime database
   FairRunAna* run = FairRunAna::Instance();
@@ -68,7 +68,7 @@ void ERNDHitFinder::SetParContainers()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-InitStatus ERNDHitFinder::Init()
+InitStatus ERNDDigitizer::Init()
 {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
@@ -78,10 +78,10 @@ InitStatus ERNDHitFinder::Init()
   if (!fNDPoints)
     Fatal("Init", "Can`t find collection NDPoint!"); 
 
-  // Register output array fNDHits
-  fNDHits = new TClonesArray("ERNDHit",1000);
+  // Register output array fNDDigis
+  fNDDigis = new TClonesArray("ERNDDigi",1000);
 
-  ioman->Register("NDHit", "ND hits", fNDHits, kTRUE);
+  ioman->Register("NDDigi", "ND digi", fNDDigis, kTRUE);
 
   fSetup = ERNDSetup::Instance();
    
@@ -90,12 +90,12 @@ InitStatus ERNDHitFinder::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void ERNDHitFinder::Exec(Option_t* opt)
+void ERNDDigitizer::Exec(Option_t* opt)
 {
   std::cout << std::endl;
   std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
   std::cout << std::endl;
-  std::cout << "ERNDHitFinder: "<< std::endl;
+  std::cout << "ERNDDigitizer: "<< std::endl;
   Reset();
 
   for (Int_t iPoint = 0; iPoint < fNDPoints->GetEntriesFast(); iPoint++){
@@ -122,37 +122,37 @@ void ERNDHitFinder::Exec(Option_t* opt)
     if ((point->LightYield() < fLYThreshold) && (quench > fQuenchThreshold)){
       neutronProb = fProbabilityC*(1-point->LightYield()/fLYThreshold);
     }
-    AddHit(kND, pos, dpos,iPoint,lightYield, time, neutronProb);
+    AddDigi(kND, pos, dpos,iPoint,lightYield, time, neutronProb);
   }
 
-  std::cout << "Hits count: " << fNDHits->GetEntriesFast() << std::endl;
+  std::cout << "Digis count: " << fNDDigis->GetEntriesFast() << std::endl;
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void ERNDHitFinder::Reset()
+void ERNDDigitizer::Reset()
 {
-  if (fNDHits) {
-    fNDHits->Delete();
+  if (fNDDigis) {
+    fNDDigis->Delete();
   }
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-void ERNDHitFinder::Finish()
+void ERNDDigitizer::Finish()
 {   
 
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERNDHit* ERNDHitFinder::AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
+ERNDDigi* ERNDDigitizer::AddDigi(Int_t detID, TVector3& pos, TVector3& dpos,
                        Int_t point_index, Float_t eloss, Float_t time,Float_t neutronProb)
 {
-  ERNDHit *hit = new((*fNDHits)[fNDHits->GetEntriesFast()])
-              ERNDHit(fNDHits->GetEntriesFast(),detID, pos, dpos, point_index, eloss, time, neutronProb);
-  return hit;
+  ERNDDigi *Digi = new((*fNDDigis)[fNDDigis->GetEntriesFast()])
+              ERNDDigi(fNDDigis->GetEntriesFast(),detID, pos, dpos, point_index, eloss, time, neutronProb);
+  return Digi;
 }
 // ----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-ClassImp(ERNDHitFinder)
+ClassImp(ERNDDigitizer)

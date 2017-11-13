@@ -40,7 +40,7 @@ void ND_sim(Int_t nEvents = 1){
   */
   Int_t verbose = 1;
   ERND* nd= new ERND("ERND", kTRUE,verbose);
-  nd->SetGeometryFileName("ND.geo.root");
+  nd->SetGeometryFileName("ND1ch.geo.root");
   run->AddModule(nd);
   // ------------------------------------------------------------------------
 	
@@ -56,7 +56,7 @@ void ND_sim(Int_t nEvents = 1){
   boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(0, 180);
-  boxGen->SetBoxXYZ(0.,0,0.0,0.0,0.);
+  boxGen->SetBoxXYZ(0.,0,0.0,0.0,-10.);
 
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);

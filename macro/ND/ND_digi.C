@@ -1,7 +1,7 @@
-void ND_reco(Int_t nEvents = 10000){
+void ND_digi(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
-  TString outFile = "reco.root";
+  TString outFile = "digi.root";
   TString parFile = "par.root";
   // ------------------------------------------------------------------------
   
@@ -17,7 +17,7 @@ void ND_reco(Int_t nEvents = 10000){
   // ------------------------------------------------------------------------
  
   // ------------------------ND hit producer---------------------------------
-  ERNDHitFinder* hitFinder = new ERNDHitFinder(1);
+  ERNDDigitizer* hitFinder = new ERNDDigitizer(1);
   hitFinder->SetLYDispersionA(0.0344);
   hitFinder->SetLYDispersionB(0.0106);
   hitFinder->SetTimeDispersionPar(0.1);

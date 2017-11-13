@@ -54,7 +54,8 @@ void ERND::Initialize()
 }
 
 
-Bool_t ERND::ProcessHits(FairVolume* vol) { 
+Bool_t ERND::ProcessHits(FairVolume* vol) {
+  cout << "ProcessHits" << endl;
   // Set constants for Birk's Law implentation
   static const Double_t dP = 1.032 ;
   static const Double_t BirkC1 =  0.013/dP;
@@ -224,9 +225,9 @@ void ERND::ConstructGeometry() {
 // ----------------------------------------------------------------------------
 Bool_t ERND::CheckIfSensitive(std::string name)
 {
-  //cout << name << endl;
+  cout << name << endl;
   TString volName = name;
-  if(volName.Contains("Stilbene")) {
+  if(volName.Contains("crystal")) {
     return kTRUE;
   }
 

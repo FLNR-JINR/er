@@ -23,10 +23,10 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 ERND.cxx
-ERNDHitFinder.cxx
+ERNDDigitizer.cxx
 ERNDSetup.cxx
 data/ERNDPoint.cxx
-data/ERNDHit.cxx
+data/ERNDDigi.cxx
 )
 
 # fill list of header files from list of source files

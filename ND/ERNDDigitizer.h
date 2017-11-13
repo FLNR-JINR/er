@@ -1,31 +1,31 @@
 // -------------------------------------------------------------------------
-// -----                        ERNDHitFinder header file          -----
+// -----                        ERNDDigitizer header file          -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
-#ifndef ERNDHitFinder_H
-#define ERNDHitFinder_H
+#ifndef ERNDDigitizer_H
+#define ERNDDigitizer_H
 
 #include "TClonesArray.h"
 
 #include "FairTask.h"
 
-#include "ERNDHit.h"
+#include "ERNDDigi.h"
 #include "ERNDSetup.h"
 
-class ERNDHitFinder : public FairTask {
+class ERNDDigitizer : public FairTask {
 
 public:
   /** Default constructor **/
-  ERNDHitFinder();
+  ERNDDigitizer();
 
   /** Constructor 
   ** verbose: 1 - only standard log print, 2 - print digi information 
   **/
-  ERNDHitFinder(Int_t verbose);
+  ERNDDigitizer(Int_t verbose);
 
   /** Destructor **/
-  ~ERNDHitFinder();
+  ~ERNDDigitizer();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -59,7 +59,7 @@ protected:
   //Input arrays
   TClonesArray *fNDPoints;
   //Output arrays
-  TClonesArray *fNDHits;
+  TClonesArray *fNDDigis;
 
   static Int_t fEvent;
   Float_t fLYDispersionA;
@@ -72,12 +72,12 @@ protected:
 
   ERNDSetup* fSetup;
 protected:
-  ERNDHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, 
+  ERNDDigi* AddDigi(Int_t detID, TVector3& pos, TVector3& dpos, 
           Int_t point_index, Float_t lightYield, Float_t time, Float_t neutronProb);
 private:
   virtual void SetParContainers();
   
-  ClassDef(ERNDHitFinder,1)
+  ClassDef(ERNDDigitizer,1)
 };
 
 #endif
