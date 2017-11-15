@@ -1,33 +1,43 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERCollimator_H
 #define ERCollimator_H
 
 #include "FairModule.h"
 
-class ERCollimator : public FairModule {
+class TGeoCombiTrans;
 
-  public:
+class ERCollimator : public FairModule
+{
+public:
 
-    /** Default constructor **/
+  /** Default constructor **/
+  ERCollimator();
 
-    ERCollimator();
+  /** Standard constructor **/
+  ERCollimator(const char* name,
+               const char* title="Collimator",
+               Bool_t Active=kFALSE);
 
-    /** Constructor with file name
-     ** @param fileName  Name of geometry file
-     **
-     ** This constructor will force the target geometry to be
-     ** constructed from a geometry file (ROOT format only).
-     **/
+  /** Destructor **/
+  virtual ~ERCollimator();
 
-    ERCollimator(const char* fileName);
+  void SetModulePosition(Double_t x, Double_t y, Double_t z);
 
-    /** Destructor **/
-    virtual ~ERCollimator();
+  /** Build the geometry **/
+  virtual void ConstructGeometry();
 
-    /** Built the geometry **/
-    virtual void ConstructGeometry();
+private:
 
-    ClassDef(ERCollimator,1)
+  TGeoCombiTrans* fPositionRotation;
+
+  ClassDef(ERCollimator, 1);
 };
 
-#endif
+#endif // ERCollimator_H

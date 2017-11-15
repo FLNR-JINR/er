@@ -1,45 +1,37 @@
-#include <iostream>
-#include <stdlib.h>
-
-#include "TVirtualMC.h"
-
-#include "FairGeoLoader.h"
-#include "FairGeoInterface.h"
-#include "FairGeoRootBuilder.h"
-#include "FairRuntimeDb.h"
-#include "TObjArray.h"
-#include "FairRun.h"
-#include "FairRunSim.h"
-#include "FairGeoVolume.h"
-#include "FairGeoNode.h"
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #include "ERTarget.h"
-#include "ERMCEventHeader.h"
-#include "ERGeoPassivePar.h"
 
-using namespace std;
+#include "TClonesArray.h"
+#include "TGeoMatrix.h"
 
-// -----   Initialsisation of static variables   --------------------------
-Double_t ERTarget::fThickness = 2.; //cm
+// -----   Initialisation of static variables   --------------------------
+Double_t ERTarget::fThickness = 2.; // cm
 // ------------------------------------------------------------------------
 
-ERTarget::ERTarget(): ERDetector("ERNeuRad", kTRUE)
+ERTarget::ERTarget()
+  : ERDetector("ERNeuRad", kTRUE) //TODO rename?
 {
-  fTargetPoints = new TClonesArray("ERmuSiPoint");
+  fTargetPoints = new TClonesArray("ERmuSiPoint"); //TODO rename?
 }
 
-ERTarget::ERTarget(const char* name, Bool_t active, Int_t verbose):ERDetector(name, active)
+ERTarget::ERTarget(const char* name, Bool_t active, Int_t verbose)
+  : ERDetector(name, active)
 {
-  fTargetPoints = new TClonesArray("ERmuSiPoint");
+  fTargetPoints = new TClonesArray("ERmuSiPoint"); //TODO rename?
 }
 
-ERTarget::~ERTarget()
-{
-  
+ERTarget::~ERTarget() {
 }
 
-Bool_t ERTarget::ProcessHits(FairVolume* vol){
-  /*
+Bool_t ERTarget::ProcessHits(FairVolume* vol) {
+/*
   FairRunSim* run = FairRunSim::Instance();
 
   ERMCEventHeader* header = (ERMCEventHeader*)run->GetMCEventHeader();
@@ -60,16 +52,13 @@ Bool_t ERTarget::ProcessHits(FairVolume* vol){
   return kTRUE;
 }
 
-void ERTarget::BeginEvent(){
-
+void ERTarget::BeginEvent() {
 }
 
-void ERTarget::EndOfEvent(){
-
+void ERTarget::EndOfEvent() {
 }
 
-void ERTarget::Register(){
-
+void ERTarget::Register() {
 }
 
 TClonesArray* ERTarget::GetCollection(Int_t iColl) const {
@@ -79,37 +68,46 @@ TClonesArray* ERTarget::GetCollection(Int_t iColl) const {
     return NULL;
 }
 
-void ERTarget::Print(Option_t *option) const{
-
+void ERTarget::Print(Option_t *option) const {
 }
 
-void ERTarget::Reset(){
-
+void ERTarget::Reset() {
 }
 
-void ERTarget::CopyClones(TClonesArray* cl1, TClonesArray* cl2,
-        Int_t offset){  
+void ERTarget::CopyClones(TClonesArray* cl1,
+                          TClonesArray* cl2,
+                          Int_t offset) {
 }
 
-void ERTarget::ConstructGeometry()
-{
+// ------------------------------------------------------------------------------
+void ERTarget::SetModulePosition(Double_t x, Double_t y, Double_t z) {
+  fPositionRotation->SetDx(x);
+  fPositionRotation->SetDy(y);
+  fPositionRotation->SetDz(z);
+}
+// ------------------------------------------------------------------------------
+
+void ERTarget::ConstructGeometry() {
   TString fileName = GetGeometryFileName();
-  if(fileName.EndsWith(".root")) {
-    std::cout << "Constructing Target geometry from ROOT file " << fileName.Data() << std::endl;
-    ConstructRootGeometry();
+  if (fileName == "") {
+    LOG(FATAL) << "Target geometry file name is not set." << FairLogger::endl;
+  } else if(fileName.EndsWith(".root")) {
+    LOG(INFO) << "Constructing target geometry from ROOT file " << fileName.Data() << FairLogger::endl;
+    //TODO Uncomment when the corresponding method is implemented in FairRoot
+    ConstructRootGeometry(/*(TGeoMatrix*)(fPositionRotation)*/);
+  } else if(fileName.EndsWith(".gdml")) {
+    LOG(INFO) << "Constructing target geometry from GDML file " << fileName.Data() << FairLogger::endl;
+    ConstructGDMLGeometry(fPositionRotation);
   } else {
-    LOG(FATAL) << "Target geometry file name is not set" << std::endl;
-    exit(1);
+    LOG(FATAL) << "Target geometry file name is not correct." << FairLogger::endl;
   }
 }
 
-void ERTarget::Initialize(){
+void ERTarget::Initialize() {
   FairDetector::Initialize();
 }
 
-
-Bool_t ERTarget::CheckIfSensitive(std::string name)
-{
+Bool_t ERTarget::CheckIfSensitive(std::string name) {
   TString volName = name;
   if(volName.Contains("target_vol")) {
     return kTRUE;
@@ -118,4 +116,3 @@ Bool_t ERTarget::CheckIfSensitive(std::string name)
 }
 
 ClassImp(ERTarget)
-

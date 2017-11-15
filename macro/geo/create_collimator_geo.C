@@ -40,11 +40,14 @@ void create_collimator_geo()
   TGeoTube* tube1Shape = new TGeoTube("tube1Shape", 0., 0.6, 3./2.+1./2.);
   TGeoTube* tube2Shape = new TGeoTube("tube2Shape", 0., 0.2, 6./2.+1./2.+1./2.);
 
+  // Shift along vertical Y axis
+  Double_t shift_Y = 2.;
+
   // Operands matrices
   TGeoRotation* rotNoRot = new TGeoRotation("rotNoRot", 0., 0., 0.);
   rotNoRot->RegisterYourself();
-  TGeoCombiTrans* M1 = new TGeoCombiTrans("M1", 0., 0., -3.-1./2., rotNoRot);
-  TGeoCombiTrans* M2 = new TGeoCombiTrans("M2", 0., 0., 1.5+1./2., rotNoRot);
+  TGeoCombiTrans* M1 = new TGeoCombiTrans("M1", 0., shift_Y, -3.-1./2., rotNoRot);
+  TGeoCombiTrans* M2 = new TGeoCombiTrans("M2", 0., shift_Y, 1.5+1./2., rotNoRot);
   M1->RegisterYourself();
   M2->RegisterYourself();
 
@@ -56,7 +59,7 @@ void create_collimator_geo()
   Double_t shift_X = 0.15;
   Double_t shift_Z = 1.5+1.5;
   Double_t tube3len = TMath::Sqrt(3.*3.+0.3*0.3);
-  TGeoCombiTrans* M3 = new TGeoCombiTrans("M3", shift_X, 0., shift_Z, rotAlpha);
+  TGeoCombiTrans* M3 = new TGeoCombiTrans("M3", shift_X, shift_Y, shift_Z, rotAlpha);
   M3->RegisterYourself();
   TGeoTube* tube3Shape = new TGeoTube("tube3Shape", 0., 0.2, tube3len/2.+0.2); // +0.2 to be on the safe side
 
@@ -70,7 +73,12 @@ void create_collimator_geo()
   // This is the one but last level in the hierarchy
   // This volume-assembly is the only volume to be inserted into TOP
   TGeoVolumeAssembly* subdetectorVolAss = new TGeoVolumeAssembly("collimator");
-  subdetectorVolAss->AddNode(collimatorVol, 1);
+
+  //TODO note the position of the collimator
+  // The volume is shifted along Y such that the origin
+  // is in the hole (not in the middle of the box)
+  subdetectorVolAss->AddNode(collimatorVol, 1,
+    new TGeoCombiTrans("mSt1InSubdet", 0., -shift_Y, 2.5, rotNoRot));
 
   // World ------------------------------------
   TGeoVolumeAssembly* topVolAss = new TGeoVolumeAssembly("TOP");

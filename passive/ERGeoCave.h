@@ -1,28 +1,43 @@
-// -------------------------------------------------------------------------
-// -----                       ERGeoCave header file                   -----
-// -----           Created 11/12/15  by V.Schetinin        			   -----
-// -------------------------------------------------------------------------
-
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERGEOCAVE_H
 #define ERGEOCAVE_H
 
-#include "FairGeoSet.h"
-#include "TString.h"
-#include "FairGeoMedia.h"
 #include <fstream>
-class  ERGeoCave : public FairGeoSet {
-protected:
-  TString name;
+
+#include "TString.h"
+
+#include "FairGeoSet.h"
+
+class FairGeoMedia;
+
+class ERGeoCave : public FairGeoSet
+{
 public:
+
+  /** Default constructor **/
   ERGeoCave();
-  ~ERGeoCave() {}
-  const char* getModuleName(Int_t) {return name.Data();}  
-  Bool_t read(std::fstream&,FairGeoMedia*);
+
+  /** Destructor **/
+  ~ERGeoCave();
+
+  const char* getModuleName(Int_t) { return name.Data(); }
+  Bool_t read(std::fstream&, FairGeoMedia*);
   void addRefNodes();
   void write(std::fstream&);
   void print();
-  ClassDef(ERGeoCave,0) // Class for the geometry of CAVE
+
+protected:
+
+  TString name;
+
+  ClassDef(ERGeoCave, 0);
 };
 
-#endif  //ERGEOCAVE_H
+#endif // ERGEOCAVE_H

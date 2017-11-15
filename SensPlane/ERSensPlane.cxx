@@ -6,10 +6,6 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-// ------------------------------------------------------------------------------
-// -----           ERSensPlane detector source file                         -----
-// ------------------------------------------------------------------------------
-
 #include "ERSensPlane.h"
 
 #include "TClonesArray.h"
@@ -44,7 +40,7 @@ ERSensPlane::ERSensPlane(const char* name, Bool_t active)
 }
 // ------------------------------------------------------------------------------
 
-// ------------------------------------------------------------------------------
+// -----   Destructor   ---------------------------------------------------------
 ERSensPlane::~ERSensPlane()
 {
   if (fPoints) {
@@ -186,7 +182,8 @@ void ERSensPlane::ConstructGeometry()
     LOG(FATAL) << "ERSensPlane geometry file name is not set." << FairLogger::endl;
   } else if(fileName.EndsWith(".root")) {
     LOG(INFO) << "Constructing ERSensPlane geometry from ROOT file " << fileName.Data() << FairLogger::endl;
-    ConstructRootGeometry((TGeoMatrix*)(fPositionRotation));
+    //TODO Uncomment when the corresponding method is implemented in FairRoot
+    ConstructRootGeometry(/*(TGeoMatrix*)(fPositionRotation)*/);
   } else if(fileName.EndsWith(".gdml")) {
     LOG(INFO) << "Constructing ERSensPlane geometry from GDML file " << fileName.Data() << FairLogger::endl;
     ConstructGDMLGeometry(fPositionRotation);

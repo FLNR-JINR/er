@@ -29,8 +29,12 @@ void create_sensPlane_geo()
   TGeoMedium* pAir = geoM->GetMedium(mediumName);
   if (!pAir) Fatal("create_sensPlane_geo", "Medium %s not found", mediumName.Data());
   
+  // General dimensions
+  Double_t xyz_size = 500.; // Full size, not half
+  Double_t thickness = 0.1; // Full size, not half
+
   // Shapes
-  TGeoBBox* sensPlaneShape = new TGeoBBox("sensPlaneShape", 500./2., 500./2., 0.1/2.);
+  TGeoBBox* sensPlaneShape = new TGeoBBox("sensPlaneShape", xyz_size/2., xyz_size/2., thickness/2.);
 
   // Volumes
   TGeoVolume* sensPlaneVol = new TGeoVolume("sensPlaneVol", sensPlaneShape, pAir);
@@ -42,8 +46,10 @@ void create_sensPlane_geo()
   // This is the one but last level in the hierarchy
   // This volume-assembly is the only volume to be inserted into TOP
   TGeoVolumeAssembly* subdetectorVolAss = new TGeoVolumeAssembly("sensPlane");
+
+  //TODO note the position of the first (or only) station!
   subdetectorVolAss->AddNode(sensPlaneVol, 1,
-    new TGeoCombiTrans("mSt1InSubdet", 0., 0., 0., rotNoRot));
+    new TGeoCombiTrans("mSt1InSubdet", 0., 0., 10., rotNoRot));
 /*
   subdetectorVolAss->AddNode(sensPlaneVol, 2,
     new TGeoCombiTrans("mSt2InSubdet", 0., 0., 10., rotNoRot));
