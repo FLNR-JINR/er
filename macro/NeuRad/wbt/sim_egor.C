@@ -1,8 +1,8 @@
 void sim_egor(Int_t nEvents = 100000)
 {
   //---------------------Files-----------------------------------------------
-  TString outFile= "sim.root";
-  TString parFile= "par.root";
+  TString outFile = "sim.root";
+  TString parFile = "par.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -118,8 +118,8 @@ void sim_egor(Int_t nEvents = 100000)
   Double_t ctime = timer.CpuTime();
   cout << endl << endl;
   cout << "Macro finished succesfully." << endl;
-  cout << "Output file is sim.root" << endl;
-  cout << "Parameter file is par.root" << endl;
+  cout << "Output file is " << outFile.Data() << "." << endl;
+  cout << "Parameter file is " << parFile.Data() << "." << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime
-       << "s" << endl << endl;
+       << " s" << endl << endl;
 }

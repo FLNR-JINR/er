@@ -94,7 +94,7 @@ void ERNeuRad::Register() {
 //-------------------------------------------------------------------------------------------------
 Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   // Set constants for Birk's Law implentation
-  static const Double_t dP = 1.032 ;
+  static const Double_t dP = 1.032;
   static const Double_t BirkC1 = 0.013/dP;
   static const Double_t BirkC2 = 9.6e-6/(dP*dP);
 
@@ -113,7 +113,7 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
         step->Print();
   }
 
-  fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
+  fELoss += gMC->Edep(); // GeV // Return the energy lost in the current step
   fStepNb++;
 
   if (fStoreAllSteps) {
@@ -224,7 +224,7 @@ void ERNeuRad::StartNewPoint() {
   fTrackLength = gMC->TrackLength(); // length of the current track from its origin (in cm)
   fMot0TrackID = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
   fMass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
-  
+
   Int_t curVolId, corOffVolId;
 
   /*if(!(TString(gMC->CurrentVolOffName(1)).Contains("dead") &&
@@ -236,6 +236,7 @@ void ERNeuRad::StartNewPoint() {
   corOffVolId = gMC->CurrentVolOffID(2, fPixelNb);
   corOffVolId = gMC->CurrentVolOffID(3, fModuleNb);
 
+  //TODO check!!!
   // Пересчитываем номер пикселя если введены субмодули
   if (TString(gMC->CurrentVolOffName(3)).Contains("submodul")) {
     Int_t pixel_in_submodule_X = 4;
@@ -254,10 +255,11 @@ void ERNeuRad::StartNewPoint() {
 
   TGeoHMatrix matrix;
   gMC->GetTransformation(gMC->CurrentVolPath(), matrix);
-  Double_t globalPos[3],localPos[3];
+  Double_t globalPos[3];
+  Double_t localPos[3];
   fPosIn.Vect().GetXYZ(globalPos);
-  matrix.MasterToLocal(globalPos,localPos);
-  fPosInLocal.SetXYZ(localPos[0],localPos[1],localPos[2]);
+  matrix.MasterToLocal(globalPos, localPos);
+  fPosInLocal.SetXYZ(localPos[0], localPos[1], localPos[2]);
 }
 
 //-------------------------------------------------------------------------------------------------
