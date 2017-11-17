@@ -24,17 +24,19 @@
 ERSensPlane::ERSensPlane()
   : FairDetector("ERSensPlane", kTRUE)
 {
-  fPoints = new TClonesArray("ERSensPlanePoint", 1000);
+  fFrontPoints = new TClonesArray("ERSensPlanePoint", 1000);
+  fBackPoints = new TClonesArray("ERSensPlanePoint", 1000);
   fPositionRotation = new TGeoCombiTrans("ERSensPlanePosRot", 0., 0., 0.,
                       new TGeoRotation("ERSensPlaneRot", 0., 0., 0.));
 }
 // ------------------------------------------------------------------------------
 
 // -----   Standard constructor   -----------------------------------------------
-ERSensPlane::ERSensPlane(const char* name, Bool_t active) 
+ERSensPlane::ERSensPlane(const char* name, Bool_t active)
   : FairDetector(name, active)
 {
-  fPoints = new TClonesArray("ERSensPlanePoint", 1000);
+  fFrontPoints = new TClonesArray("ERSensPlanePoint", 1000);
+  fBackPoints = new TClonesArray("ERSensPlanePoint", 1000);
   fPositionRotation = new TGeoCombiTrans("ERSensPlanePosRot", 0., 0., 0.,
                       new TGeoRotation("ERSensPlaneRot", 0., 0., 0.));
 }
@@ -43,9 +45,13 @@ ERSensPlane::ERSensPlane(const char* name, Bool_t active)
 // -----   Destructor   ---------------------------------------------------------
 ERSensPlane::~ERSensPlane()
 {
-  if (fPoints) {
-    fPoints->Delete();
-    delete fPoints;
+  if (fFrontPoints) {
+    fFrontPoints->Delete();
+    delete fFrontPoints;
+  }
+  if (fBackPoints) {
+    fBackPoints->Delete();
+    delete fBackPoints;
   }
   if (fPositionRotation) {
     delete fPositionRotation;
@@ -95,30 +101,45 @@ Bool_t ERSensPlane::ProcessHits(FairVolume* vol)
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     mass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
+    //LOG(INFO) << "Entering x=" << posIn.X() << " y=" << posIn.Y() << " z=" << posIn.Z() << FairLogger::endl;
   }
 
   eLoss += gMC->Edep(); // GeV // Return the energy lost in the current step
 
   if (gMC->IsTrackExiting()    || // Return true if this is the last step of the track in the current volume 
       gMC->IsTrackStop()       || // Return true if the track energy has fallen below the thresho
-      gMC->IsTrackDisappeared()) 
-  { 
+      gMC->IsTrackDisappeared())
+  {
     gMC->TrackPosition(posOut);
     gMC->TrackMomentum(momOut);
-    //if (eLoss > 0.) // TODO tune
+    //LOG(INFO) << "Exiting x=" << posOut.X() << " y=" << posOut.Y() << " z=" << posOut.Z() << FairLogger::endl;
+
+    if (momOut.Pz() > 0.)
     {
-      AddPoint (eventID,
-                trackID,
-                mot0TrackID,
-                mass,
-                TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
-                TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
-                TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
-                TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                time,
-                length,
-                eLoss);
-    }
+      AddFrontPoint (eventID,
+                     trackID,
+                     mot0TrackID,
+                     mass,
+                     TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
+                     TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
+                     TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
+                     TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
+                     time,
+                     length,
+                     eLoss);
+    } else{
+      AddBackPoint (eventID,
+                    trackID,
+                    mot0TrackID,
+                    mass,
+                    TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
+                    TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
+                    TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
+                    TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
+                    time,
+                    length,
+                    eLoss);
+    } 
   }
 
   return kTRUE;
@@ -141,14 +162,17 @@ void ERSensPlane::EndOfEvent() {
 void ERSensPlane::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman) Fatal("Init", "IO manager is not set");
-  ioman->Register("ERSensPlanePoint", "ERSensPlane", fPoints, kTRUE);
+  ioman->Register("ERSensPlaneFrontPoint", "ERSensPlane", fFrontPoints, kTRUE);
+  ioman->Register("ERSensPlaneBackPoint", "ERSensPlane", fBackPoints, kTRUE);
 }
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 TClonesArray* ERSensPlane::GetCollection(Int_t iColl) const {
   if (iColl == 0) {
-    return fPoints;
+    return fFrontPoints;
+  } else if (iColl == 1) {
+    return fBackPoints;
   } else {
     return NULL;
   }
@@ -163,7 +187,8 @@ void ERSensPlane::Print(Option_t *option) const {
 // -----   Public method Reset   ------------------------------------------------
 void ERSensPlane::Reset() {
 //  LOG(INFO) << "ERSensPlane::Reset()" << FairLogger::endl;
-  fPoints->Clear();
+  fFrontPoints->Clear();
+  fBackPoints->Clear();
 }
 // ------------------------------------------------------------------------------
 
@@ -201,33 +226,63 @@ Bool_t ERSensPlane::CheckIfSensitive(std::string name)
 }
 // ------------------------------------------------------------------------------
 
-// -----   Private method AddPoint   --------------------------------------------
-ERSensPlanePoint* ERSensPlane::AddPoint(Int_t eventID,
-                                    Int_t trackID,
-                                    Int_t mot0trackID,
-                                    Double_t mass,
-                                    TVector3 posIn,
-                                    TVector3 posOut,
-                                    TVector3 momIn,
-                                    TVector3 momOut,
-                                    Double_t time,
-                                    Double_t length,
-                                    Double_t eLoss)
+// -----   Private method AddFrontPoint   ---------------------------------------
+ERSensPlanePoint* ERSensPlane::AddFrontPoint(Int_t eventID,
+                                             Int_t trackID,
+                                             Int_t mot0trackID,
+                                             Double_t mass,
+                                             TVector3 posIn,
+                                             TVector3 posOut,
+                                             TVector3 momIn,
+                                             TVector3 momOut,
+                                             Double_t time,
+                                             Double_t length,
+                                             Double_t eLoss)
 {
-  //LOG(INFO) << "ERSensPlane::AddPoint eventID=" << eventID << FairLogger::endl;
-  TClonesArray& clref = *fPoints;
+  //LOG(INFO) << "ERSensPlane::AddFrontPoint eventID=" << eventID << FairLogger::endl;
+  TClonesArray& clref = *fFrontPoints;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) ERSensPlanePoint(eventID,
-                                          trackID,
-                                          mot0trackID,
-                                          mass,
-                                          posIn,
-                                          posOut,
-                                          momIn,
-                                          momOut,
-                                          time,
-                                          length,
-                                          eLoss);
+                                           trackID,
+                                           mot0trackID,
+                                           mass,
+                                           posIn,
+                                           posOut,
+                                           momIn,
+                                           momOut,
+                                           time,
+                                           length,
+                                           eLoss);
+}
+// ------------------------------------------------------------------------------
+
+// -----   Private method AddFrontPoint   ---------------------------------------
+ERSensPlanePoint* ERSensPlane::AddBackPoint(Int_t eventID,
+                                            Int_t trackID,
+                                            Int_t mot0trackID,
+                                            Double_t mass,
+                                            TVector3 posIn,
+                                            TVector3 posOut,
+                                            TVector3 momIn,
+                                            TVector3 momOut,
+                                            Double_t time,
+                                            Double_t length,
+                                            Double_t eLoss)
+{
+  //LOG(INFO) << "ERSensPlane::AddFrontPoint eventID=" << eventID << FairLogger::endl;
+  TClonesArray& clref = *fBackPoints;
+  Int_t size = clref.GetEntriesFast();
+  return new(clref[size]) ERSensPlanePoint(eventID,
+                                           trackID,
+                                           mot0trackID,
+                                           mass,
+                                           posIn,
+                                           posOut,
+                                           momIn,
+                                           momOut,
+                                           time,
+                                           length,
+                                           eLoss);
 }
 // ------------------------------------------------------------------------------
 

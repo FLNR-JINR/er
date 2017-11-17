@@ -159,7 +159,8 @@ void create_NeuRad_Wupper_Proto_geo()
 
   // World ------------------------------------
   TGeoVolumeAssembly* topVolAss = new TGeoVolumeAssembly("TOP");
-  topVolAss->AddNode(subdetectorVolAss, 1);
+  topVolAss->AddNode(subdetectorVolAss, 1,
+                     new TGeoCombiTrans("NeuRadProtoInTopVol", 1.7, -1.7, fiberZsize/2.+cover_lenZ+7.+0.1, rotNoRot));
 
   // Finalize
   geoM->SetTopVolume(topVolAss);
@@ -177,6 +178,6 @@ void create_NeuRad_Wupper_Proto_geo()
   outGeoFileRoot->Close();
 
   // Draw
-  TBrowser* bro = new TBrowser("bro", "bro");
-  geoM->GetTopVolume()->Draw("ogl");
+  //TBrowser* bro = new TBrowser("bro", "bro");
+  //geoM->GetTopVolume()->Draw("ogl");
 }

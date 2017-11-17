@@ -22,7 +22,7 @@ void create_sensPlane_geo()
 
   TString mediumName;
 
-  mediumName = "Air";
+  mediumName = "vacuum";
   FairGeoMedium* mAir = geoMedia->getMedium(mediumName);
   if (!mAir) Fatal("create_sensPlane_geo", "FairMedium %s not found", mediumName.Data());
   geoBuild->createMedium(mAir);
@@ -30,8 +30,8 @@ void create_sensPlane_geo()
   if (!pAir) Fatal("create_sensPlane_geo", "Medium %s not found", mediumName.Data());
   
   // General dimensions
-  Double_t xyz_size = 500.; // Full size, not half
-  Double_t thickness = 0.1; // Full size, not half
+  Double_t xyz_size = 50.; // Full size, not half
+  Double_t thickness = 0.01; // Full size, not half
 
   // Shapes
   TGeoBBox* sensPlaneShape = new TGeoBBox("sensPlaneShape", xyz_size/2., xyz_size/2., thickness/2.);
@@ -49,14 +49,15 @@ void create_sensPlane_geo()
 
   //TODO note the position of the first (or only) station!
   subdetectorVolAss->AddNode(sensPlaneVol, 1,
-    new TGeoCombiTrans("mSt1InSubdet", 0., 0., 10., rotNoRot));
-/*
+    new TGeoCombiTrans("mSt1InSubdet", 0., 0., 7.05, rotNoRot));
+/*  
   subdetectorVolAss->AddNode(sensPlaneVol, 2,
-    new TGeoCombiTrans("mSt2InSubdet", 0., 0., 10., rotNoRot));
-  subdetectorVolAss->AddNode(sensPlaneVol, 3,
-    new TGeoCombiTrans("mSt3InSubdet", 0., 0., 20., rotNoRot));
+    new TGeoCombiTrans("mSt2InSubdet", 0., 0., 107.05, rotNoRot));
+*/
+/*  subdetectorVolAss->AddNode(sensPlaneVol, 3,
+    new TGeoCombiTrans("mSt3InSubdet", 0., 0., 30., rotNoRot));
   subdetectorVolAss->AddNode(sensPlaneVol, 4,
-    new TGeoCombiTrans("mSt4InSubdet", 0., 0., 30., rotNoRot));
+    new TGeoCombiTrans("mSt4InSubdet", 0., 0., 40., rotNoRot));
 */
 
   // World ------------------------------------
@@ -79,6 +80,6 @@ void create_sensPlane_geo()
   outGeoFileRoot->Close();
 
   // Draw
-  TBrowser* bro = new TBrowser("bro", "bro");
-  geoM->GetTopVolume()->Draw("ogl");
+  //TBrowser* bro = new TBrowser("bro", "bro");
+  //geoM->GetTopVolume()->Draw("ogl");
 }

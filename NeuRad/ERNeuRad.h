@@ -1,29 +1,23 @@
 /********************************************************************************
  *              Copyright (C) Joint Institute for Nuclear Research              *
  *                                                                              *
- *              This software is distributed under the terms of the             * 
- *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
 #ifndef ERNeuRad_H
 #define ERNeuRad_H
 
-#include "TClonesArray.h"
+#include "ERDetector.h" // mother class
+
 #include "TLorentzVector.h"
 #include "TArrayI.h"
 
-#include "FairVolume.h"
-
-#include "ERDetector.h"
-#include "ERMCTrack.h" //for ExpertTrackingStatus
+#include "ERMCTrack.h" // for ExpertTrackingStatus
 
 class TClonesArray;
-class TLorentzVector;
-class TArrayI;
-
 class FairVolume;
-
 class ERNeuRadStep;
 class ERNeuRadPoint;
 
@@ -48,7 +42,7 @@ public:
      ** @param name    ERNeuRad detector name
      ** @param active  sensitivity flag
      ** @param verbose Verbosity level. 1 - only standart logs,
-     **                                 2 - Print points after each event, 
+     **                                 2 - Print points after each event,
      **                                 3 - GEANT Step information.
     **/
     ERNeuRad(const char* name, Bool_t active, Int_t verbose);
@@ -61,12 +55,12 @@ public:
     /** @brief Method for switch on storing of first geant steps in sensetive volume. It is necessary
      ** to determine the coordinate of the input to the sensitive volume
     **/
-    void SetStorePrimarySteps() {fStorePrimarySteps = kTRUE;}
+    void SetStorePrimarySteps() { fStorePrimarySteps = kTRUE; }
 
-    /** @brief Method for switch on storing of all geant steps in sensetive volume. It is necessary 
+    /** @brief Method for switch on storing of all geant steps in sensetive volume. It is necessary
      ** to determine geant4 processes in sensetive volume
     **/
-    void SetStoreAllSteps() {fStoreAllSteps = kTRUE;}
+    void SetStoreAllSteps() { fStoreAllSteps = kTRUE; }
 
     /*Accessors*/
 
@@ -92,10 +86,10 @@ public:
     **/
     virtual void Register();
 
-    /** @brief Virtual method 
-     ** Defines the action to be taken when a step is inside the active volume. Creates a 
-     ** ERNeuRadPoint and adds it to the collection.
-     ** @param vol  Pointer to the active volume
+    /** @brief Virtual method
+     ** Defines the action to be taken when a step is inside the active volume.
+     ** Creates an ERNeuRadPoint and adds it to the collection.
+     ** @param vol Pointer to the active volume
      ** Virtual from FairDetector.
     **/
     virtual Bool_t ProcessHits(FairVolume* vol = 0);
@@ -147,10 +141,10 @@ private:
     /** @brief Adds a NeuRadStep to the PrimaryStep Collection **/
     ERNeuRadStep* AddFirstStep();
 
-    /** @brief Adds a NeuRadStep to the Steps Collection **/      
+    /** @brief Adds a NeuRadStep to the Steps Collection **/
     ERNeuRadStep* AddStep();
 
-    /** @brief return current point length **/    
+    /** @brief return current point length **/
     Double_t CurPointLen(TLorentzVector& posIn);
 
 private:
@@ -161,7 +155,7 @@ private:
 
     Bool_t fStorePrimarySteps;        ///< Flag to storing firs step in sensetive volume
     Bool_t fStoreAllSteps;            ///< Flag to storing all steps in sensetive volume
-    Int_t   fVerbose;                 ///< Verbosity level                
+    Int_t  fVerbose;                  ///< Verbosity level
 
     Float_t fFullEnergy;              ///< Sum Edep in event in sensetive volume
     Float_t fFullLY;                  ///< Sum Light Yield in event in sensetive volume
@@ -188,10 +182,10 @@ private:
     Int_t          fPixelNb;          ///< number of pixel in module
     Int_t          fModuleNb;         ///< number of module in NeuRad
     Int_t          fStepNb;           ///< current step numb in this active volumes
-    ExpertTrackingStatus fTrackStatus; ///< curren track stutus (transport, stop, disappeared, ...) 
+    ExpertTrackingStatus fTrackStatus; ///< curren track stutus (transport, stop, disappeared, ...)
     TArrayI        fProcessesID;      ///< VMC prcess IDs in step
 
-    ClassDef(ERNeuRad,1)
+    ClassDef(ERNeuRad, 1);
 };
 
 #endif // ERNeuRad_H

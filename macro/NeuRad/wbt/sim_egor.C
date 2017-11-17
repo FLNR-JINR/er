@@ -35,7 +35,7 @@ void sim_egor(Int_t nEvents = 100000)
 
   // -----   Create detectors  ----------------------------------------------
   FairModule* cave = new ERCave("CAVE");
-  cave->SetGeometryFileName("cave_air.geo"); // cave air
+  cave->SetGeometryFileName("cave.geo"); // cave air
   run->AddModule(cave);
 
   ERCollimator* coll = new ERCollimator("COLLIMATOR");
@@ -51,19 +51,19 @@ void sim_egor(Int_t nEvents = 100000)
   // ER NeuRad definition
   /* Select verbosity level
    * 1 - only standard logs
-   * 2 - Print points after each event
-   * 3 - - GEANT Step information
+   * 2 - print points after each event
+   * 3 - GEANT step information
   */
-//  Int_t verbose = 1;
-//  ERNeuRad* neuRad= new ERNeuRad("ERNeuRad", kTRUE, verbose);
-//  neuRad->SetGeometryFileName("NeuRad_Wupper_Proto.geo.root");
+  Int_t verbose = 1;
+  ERNeuRad* neuRad = new ERNeuRad("ERNeuRad", kTRUE, verbose);
+  neuRad->SetGeometryFileName("NeuRad_Wupper_Proto.geo.root");
   /* Select storing stepss
    * not store steps
    * SetStorePrimarySteps() - store only primary particle step
    * SetStoreAllSteps() - store all steps. WARNING - very slow
   */
- // neuRad->SetStorePrimarySteps();
- // run->AddModule(neuRad);
+  neuRad->SetStorePrimarySteps();
+  run->AddModule(neuRad);
   // ------------------------------------------------------------------------
 
   // -----   Create PrimaryGenerator   --------------------------------------
@@ -107,8 +107,12 @@ void sim_egor(Int_t nEvents = 100000)
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);
 
-  // -----   Finish   -------------------------------------------------------
+  // -----   Export geometry ------------------------------------------------
+  //TString erPath = gSystem->Getenv("VMCWORKDIR");
+  //gGeoManager->Export(erPath + "/geometry/NeuRad_proto_setup.gdml");
+  // ------------------------------------------------------------------------
 
+  // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();

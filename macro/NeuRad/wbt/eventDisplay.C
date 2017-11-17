@@ -11,11 +11,16 @@ void eventDisplay(TString filename="sim.root")
   fRun->SetOutputFile("eventDisplay.root");
 
   FairEventManager* fMan= new FairEventManager();
+
   FairMCTracks* Track = new FairMCTracks ("Monte-Carlo Tracks");
-  FairMCPointDraw* SensPlanePoints = new FairMCPointDraw ("ERSensPlanePoint", kOrange, kFullSquare);
+  FairMCPointDraw* SensPlaneFrontPoints = new FairMCPointDraw ("ERSensPlaneFrontPoint", kOrange, kFullSquare);
+  FairMCPointDraw* SensPlaneBackPoints = new FairMCPointDraw ("ERSensPlaneBackPoint", kRed, kFullSquare);
+  FairMCPointDraw* NeuRadPoints = new FairMCPointDraw ("NeuRadPoint", kMagenta, kCircle);
 
   fMan->AddTask(Track);
-  fMan->AddTask(SensPlanePoints);
+  fMan->AddTask(SensPlaneFrontPoints);
+  fMan->AddTask(SensPlaneBackPoints);
+  fMan->AddTask(NeuRadPoints);
 
   fMan->Init();
 }
