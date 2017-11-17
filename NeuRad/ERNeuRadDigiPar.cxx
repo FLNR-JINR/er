@@ -48,7 +48,7 @@ void ERNeuRadDigiPar::clear()
 void ERNeuRadDigiPar::print()
 {
   fRowNofFibers = (Int_t)TMath::Sqrt(fNofPixels);
-  
+
   std::cout << "*****************************************" << std::endl;
   std::cout << "          ERNeuRadDigiPar                " << std::endl;
   std::cout << "*****************************************" << std::endl;
@@ -62,7 +62,7 @@ void ERNeuRadDigiPar::print()
      std::cout << std::endl;
   }
   std::cout << "*****************************************" << std::endl;
-  
+
   std::cout << "   ERNeuRadPixelGain: " <<  std::endl;
   for (Int_t iFiber = 0; iFiber < fRowNofFibers; iFiber++){
     std::cout << "     ";
@@ -71,7 +71,7 @@ void ERNeuRadDigiPar::print()
      std::cout << std::endl;
   }
   std::cout << "*****************************************" << std::endl;
-  
+
   std::cout << "   ERNeuRadPixelSigma: " <<  std::endl;
   for (Int_t iFiber = 0; iFiber < fRowNofFibers; iFiber++){
     std::cout << "     ";
@@ -85,7 +85,7 @@ void ERNeuRadDigiPar::print()
 
 //------------------------------------------------------
 void ERNeuRadDigiPar::putParams(FairParamList* l)
-{ 
+{
 }
 
 //------------------------------------------------------
@@ -109,12 +109,12 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
   if ( ! l->fill("ERNeuRadPixelQuantumEfficiency", fPixelQuantumEfficiency) ) { return kFALSE; }
   if ( ! l->fill("ERNeuRadPixelGain", fPixelGain) ) { return kFALSE; }
   if ( ! l->fill("ERNeuRadPixelSigma", fPixelSigma) ) { return kFALSE; }
-  if ( ! l->fill("ERNeuRadPixelCrosstalks", fPixelCrosstalks) ) { 
+  if ( ! l->fill("ERNeuRadPixelCrosstalks", fPixelCrosstalks) ) {
     std::cerr << "ERNeuRadDigiPar: can`t find ERNeuRadPixelCrosstalks" << std::endl;
   } else {
     fUseCrosstalks = kTRUE;
   }
-  if ( ! l->fill("ERNeuRadFiberCrosstalks", fFiberCrosstalks) ) { 
+  if ( ! l->fill("ERNeuRadFiberCrosstalks", fFiberCrosstalks) ) {
     std::cerr << "ERNeuRadDigiPar: can`t find ERNeuRadFiberCrosstalks" << std::endl;
   } else {
     fUseCrosstalks = kTRUE;
@@ -131,14 +131,14 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 
 //------------------------------------------------------
 Bool_t ERNeuRadDigiPar::init(FairParIo* input){
-	std::cout << input->getFilename() << std::endl;
+  std::cout << input->getFilename() << std::endl;
   if ( TString(input->getFilename()).Contains(".digi")){
     FairGenericParAsciiFileIo* p=new FairGenericParAsciiFileIo(((FairParAsciiFileIo*)input)->getFile());
-	  return p->init(this);
+    return p->init(this);
   }
-  if ( TString(input->getFilename()).Contains(".root")){ 
+  if ( TString(input->getFilename()).Contains(".root")){
     FairGenericParRootFileIo* p=new FairGenericParRootFileIo(((FairParRootFileIo*)input)->getParRootFile());
-	  return p->init(this);
+    return p->init(this);
   }
   return kFALSE;
 }
@@ -147,7 +147,7 @@ Bool_t ERNeuRadDigiPar::init(FairParIo* input){
 void ERNeuRadDigiPar::Crosstalks(Int_t iPixel, TArrayF& crosstalks) const {
   //Возвращает матрицу три на три. Каждый элемент матрицы - кростолк к соответствующему соседу.
   //Центральая ячейка - вероятность фотонов, которые останутся в волокне.
-  //Вне зависимости от того, что написано в файле параметров потом пересчитывается, чтобы суммарная вероятнсть была равна 1  
+  //Вне зависимости от того, что написано в файле параметров потом пересчитывается, чтобы суммарная вероятнсть была равна 1
   crosstalks.Set(9);
   Int_t shift  = iPixel*9;
   for (Int_t i = 0; i < 9; i++){

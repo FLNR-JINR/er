@@ -1,10 +1,16 @@
-#include "ERNeuRadGeoPar.h"
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
-#include "FairParamList.h"
+#include "ERNeuRadGeoPar.h"
 
 #include "TObjArray.h"
 
-#include <iostream>
+#include "FairParamList.h"
 
 ERNeuRadGeoPar ::ERNeuRadGeoPar(const char* name,
     const char* title,

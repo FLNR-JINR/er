@@ -1,3 +1,11 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 // -------------------------------------------------------------------------
 // -----                  ERNeuRadMatcher header file                  -----
 // -----                  Created 03/16  by V.Schetinin                -----
@@ -6,10 +14,10 @@
 #ifndef ERNeuRadMatcher_H
 #define ERNeuRadMatcher_H
 
-#include "TClonesArray.h"
-#include "TH1F.h"
+#include "FairTask.h" // mother class
 
-#include "FairTask.h"
+class TH1F;
+class TClonesArray;
 
 class ERNeuRadMatcher : public FairTask {
 
@@ -17,6 +25,7 @@ public:
   /** Default constructor **/
   ERNeuRadMatcher();
 
+  /** Standard constructor **/
   ERNeuRadMatcher(Int_t verbose);
 
   /** Destructor **/
@@ -37,15 +46,16 @@ public:
   /** Modifiers **/
 
   /** Accessors **/
+
 protected:
 
-  //Input arrays
-  TClonesArray *fNeuRadHits;
+  // Input arrays
+  TClonesArray* fNeuRadHits;
   TClonesArray* fNeuRadFirstSteps;
 
-  //Output arrays
+  // Output arrays
 
-  //Output histos
+  // Output histos
   TH1F* fHdxy;
   TH1F* fHdxyLess6;
   TH1F* fHdxyOF;
@@ -57,7 +67,7 @@ private:
 
   virtual void SetParContainers();
   
-  ClassDef(ERNeuRadMatcher,1)
+  ClassDef(ERNeuRadMatcher, 1);
 };
 
 #endif // ERNeuRadMatcher_H

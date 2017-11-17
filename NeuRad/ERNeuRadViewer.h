@@ -1,3 +1,11 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 // -------------------------------------------------------------------------
 // -----                  ERNeuRadViewer header file                   -----
 // -----                  Created 03/16  by V.Schetinin                -----
@@ -6,10 +14,10 @@
 #ifndef ERNeuRadViewer_H
 #define ERNeuRadViewer_H
 
-#include "TClonesArray.h"
-#include "TFile.h"
+#include "FairTask.h" // mother class
 
-#include "FairTask.h"
+class TFile;
+class TClonesArray;
 
 class ERNeuRadViewer : public FairTask {
 
@@ -41,17 +49,17 @@ public:
 
 protected:
 
-  //Input arrays
-  TClonesArray *fNeuRadPixelSignals;
+  // Input arrays
+  TClonesArray* fNeuRadPixelSignals;
   
-  //Outputs
+  // Outputs
   TFile* fFile;
 
 private:
 
   virtual void SetParContainers();
   
-  ClassDef(ERNeuRadViewer,1)
+  ClassDef(ERNeuRadViewer, 1);
 };
 
 #endif // ERNeuRadViewer_H

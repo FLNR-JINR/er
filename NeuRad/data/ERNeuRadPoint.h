@@ -1,18 +1,17 @@
 /********************************************************************************
  *              Copyright (C) Joint Institute for Nuclear Research              *
  *                                                                              *
- *              This software is distributed under the terms of the             * 
- *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
 #ifndef ERNeuRadPoint_H
 #define ERNeuRadPoint_H
 
-#include "TObject.h"
-#include "TVector3.h"
+#include "FairMCPoint.h" // mother class
 
-#include "FairMCPoint.h"
+#include "TVector3.h"
 
 /** @class ERNeuRadPoint
  ** @brief The data class for storing pieces of charged tracks in sensitive volumes in NeuRad
@@ -21,35 +20,45 @@
 **/
 class ERNeuRadPoint : public FairMCPoint
 {
-
 public:
 
   /** Default constructor **/
   ERNeuRadPoint();
 
   /** Constructor with arguments
-   *@param EventID  Index of Event
-   *@param trackID  Index of MCTrack
+   *@param EventID Index of Event
+   *@param trackID Index of MCTrack
    *@param mot0trackID Index of Mother MCTrack
-   *@param fiberInModuleNb number of fiber in module
-   *@param posIn    Ccoordinates at entrance of point [cm]
-   *@param posOut   Coordinates at exit of point [cm]
-   *@param momIn    Momentum of track at entrance [GeV]
-   *@param momOut   Momentum of track at exit [GeV]
-   *@param tof      Time since event start [ns]
-   *@param length   Track length since creation [cm]
-   *@param eLoss    Energy deposit [KeV]
-   *@param lightYield    Energy deposit [MeV]
+   *@param fiberInModuleNb Number of fiber in module
+   *@param posIn Coordinates at entrance of point [cm]
+   *@param posOut Coordinates at exit of point [cm]
+   *@param momIn Momentum of track at entrance [GeV]
+   *@param momOut Momentum of track at exit [GeV]
+   *@param tof Time since event start [ns]
+   *@param length Track length since creation [cm]
+   *@param eLoss Energy deposit [KeV]
+   *@param lightYield Energy deposit [MeV]
    **/
-  ERNeuRadPoint(Int_t eventID, Int_t trackID,
-		  Int_t mot0trackID,
-      Int_t fiberNb, Int_t pixelNb, Int_t moduleNb, 
-		  Double_t mass,
-		  TVector3 posIn, TVector3 posInLoc,
-		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t timeIn, Double_t timeOut,Double_t trackLength, Double_t eLoss,
-      Double_t lightYield, Int_t pid, Double_t charge) ;
-      
+  ERNeuRadPoint(Int_t eventID,
+                Int_t trackID,
+                Int_t mot0trackID,
+                Int_t fiberNb,
+                Int_t pixelNb,
+                Int_t moduleNb,
+                Double_t mass,
+                TVector3 posIn,
+                TVector3 posInLoc,
+                TVector3 posOut,
+                TVector3 momIn,
+                TVector3 momOut,
+                Double_t timeIn,
+                Double_t timeOut,
+                Double_t trackLength,
+                Double_t eLoss,
+                Double_t lightYield,
+                Int_t pid,
+                Double_t charge);
+
   /** Copy constructor **/
   ERNeuRadPoint(const ERNeuRadPoint&);
 
@@ -78,10 +87,10 @@ public:
   Double_t GetPzOut() const { return fPz_out; }
   Double_t GetPIn()   const;
   Double_t GetPOut()  const;
-  Double_t GetMass() const { return fMass; }
+  Double_t GetMass()  const { return fMass; }
   Double_t GetLightYield() const {return fLightYield;}
-  Int_t GetModuleNb(){return fModuleNb;}
-  Int_t GetPixelNb(){return fPixelNb;}
+  Int_t GetModuleNb() {return fModuleNb;}
+  Int_t GetPixelNb() {return fPixelNb;}
   Int_t GetFiberNb() const {return fFiberNb;}
   Int_t GetPID() const {return fPID;}
   Double_t GetCharge() const {return fCharge;}
@@ -107,16 +116,16 @@ public:
   /** Output to screen **/
   virtual void Print(const Option_t* opt = 0) const;
 
-  /** Modifies  **/
+  /** Modifies **/
   void SetLightYield(Double_t ly) {fLightYield = ly;}
   void SetTimeIn(Double_t t) {fTimeIn = t;}
   void SetXIn(Double_t xin) {fX = xin;}
-  void SetXOut(Double_t xout) {fX_out = xout;}
   void SetYIn(Double_t yin) {fY = yin;}
-  void SetYOut(Double_t yout) {fY_out = yout;}  
   void SetZIn(Double_t zin) {fZ = zin;}
+  void SetXOut(Double_t xout) {fX_out = xout;}
+  void SetYOut(Double_t yout) {fY_out = yout;}
   void SetZOut(Double_t zout) {fZ_out = zout;}
-  
+
 protected:
 
   Int_t fEventID;
@@ -125,16 +134,17 @@ protected:
   Int_t fPixelNb;
   Int_t fModuleNb;
   Double_t fMass;
-  Double32_t fXlocal,  fYlocal,  fZlocal;
+  Double32_t fXlocal, fYlocal, fZlocal;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
-  Double_t fTimeIn, fTimeOut;
+  Double_t fTimeIn;
+  Double_t fTimeOut;
   Double_t fLightYield;
   Int_t fPID;
   Double_t fCharge;
   Double_t fTrackLength;
 
-  ClassDef(ERNeuRadPoint,1)
+  ClassDef(ERNeuRadPoint, 1);
 };
 
 #endif // ERNeuRadPoint_H

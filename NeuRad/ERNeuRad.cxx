@@ -124,19 +124,20 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   Double_t curLightYield = 0.;
   // Apply Birk's law ( Adapted from G3BIRK/Geant3)
   // Correction for all charge states
-  if (gMC->TrackCharge()!=0) { // Return the charge of the track currently transported
-    Double_t BirkC1Mod = 0;
+  if (gMC->TrackCharge() != 0) { // Return the charge of the track currently transported
+    Double_t BirkC1Mod = 0.;
     // Apply correction for higher charge states
-    if (TMath::Abs(gMC->TrackCharge())>=2)
-      BirkC1Mod=BirkC1*7.2/12.6;
-    else
-      BirkC1Mod=BirkC1;
+    if (TMath::Abs(gMC->TrackCharge()) >= 2) {
+      BirkC1Mod = BirkC1 * 7.2 / 12.6;
+    } else {
+      BirkC1Mod = BirkC1;
+    }
 
-    if (gMC->TrackStep()>0){
-      Double_t dedxcm=gMC->Edep()*1000./gMC->TrackStep(); //[MeV/cm]
-      curLightYield=gMC->Edep()*1000./(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
+    if (gMC->TrackStep() > 0) {
+      Double_t dedxcm = gMC->Edep()*1000./gMC->TrackStep(); //[MeV/cm]
+      curLightYield = gMC->Edep()*1000./(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
       curLightYield /= 1000.; //[GeV]
-      fLightYield+=curLightYield;
+      fLightYield += curLightYield;
     }
   }
 
@@ -223,6 +224,7 @@ void ERNeuRad::StartNewPoint() {
   fTrackLength = gMC->TrackLength(); // length of the current track from its origin (in cm)
   fMot0TrackID = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
   fMass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
+  
   Int_t curVolId, corOffVolId;
 
   /*if(!(TString(gMC->CurrentVolOffName(1)).Contains("dead") &&

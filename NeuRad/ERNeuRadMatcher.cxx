@@ -1,11 +1,15 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #include "ERNeuRadMatcher.h"
 
-#include <iostream>
-#include <vector>
-#include <map>
-
-#include "TVector3.h"
-#include "TGeoMatrix.h"
+#include "TH1F.h"
+#include "TClonesArray.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -16,30 +20,30 @@
 
 // ----------------------------------------------------------------------------
 ERNeuRadMatcher::ERNeuRadMatcher()
-  : fNeuRadHits(NULL),
+  : FairTask("ER muSi hit producing scheme"), //TODO muSi ???
+    fNeuRadHits(NULL),
     fNeuRadFirstSteps(NULL),
     fHdxy(NULL),
     fHdxyLess6(NULL),
     fHdxyOF(NULL),
     fHdxyLess6OF(NULL),
     fHdxyTF(NULL),
-    fHdxyLess6TF(NULL),
-    FairTask("ER muSi hit producing scheme") //TODO muSi ???
+    fHdxyLess6TF(NULL)
 {
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 ERNeuRadMatcher::ERNeuRadMatcher(Int_t verbose)
-  : fNeuRadHits(NULL),
+  : FairTask("ER muSi hit producing scheme ", verbose), //TODO muSi ???
+    fNeuRadHits(NULL),
     fNeuRadFirstSteps(NULL),
     fHdxy(NULL),
     fHdxyLess6(NULL),
     fHdxyOF(NULL),
     fHdxyLess6OF(NULL),
     fHdxyTF(NULL),
-    fHdxyLess6TF(NULL),
-    FairTask("ER muSi hit producing scheme ", verbose) //TODO muSi ???
+    fHdxyLess6TF(NULL)
 {
 }
 // ----------------------------------------------------------------------------
@@ -47,6 +51,7 @@ ERNeuRadMatcher::ERNeuRadMatcher(Int_t verbose)
 // ----------------------------------------------------------------------------
 ERNeuRadMatcher::~ERNeuRadMatcher()
 {
+  //TODO cleanup?
 }
 //----------------------------------------------------------------------------
 
@@ -71,25 +76,26 @@ InitStatus ERNeuRadMatcher::Init()
   
   fNeuRadHits = (TClonesArray*) ioman->GetObject("NeuRadHit");
   fNeuRadFirstSteps = (TClonesArray*) ioman->GetObject("NeuRadFirstStep");
-  //todo check
 
-  fHdxy = new TH1F("fHdxy", "XY distance",4000,0.,4.);
-  fHdxy->GetXaxis()->SetTitle("XY disance [cm]");
+  //TODO perform checks
 
-  fHdxyLess6 = new TH1F("fHdxyLess6", "XY distance less 6mm",100.,0.,1.);
-  fHdxyLess6->GetXaxis()->SetTitle("XY disance [cm]");
+  fHdxy = new TH1F("fHdxy", "XY distance", 4000, 0., 4.);
+  fHdxy->GetXaxis()->SetTitle("XY distance [cm]");
 
-  fHdxyOF = new TH1F("fHdxyOF", "XY distance, One fiber mode",4000,0.,4.);
-  fHdxyOF->GetXaxis()->SetTitle("XY disance [cm]");
+  fHdxyLess6 = new TH1F("fHdxyLess6", "XY distance less 6mm", 100, 0., 1.);
+  fHdxyLess6->GetXaxis()->SetTitle("XY distance [cm]");
 
-  fHdxyLess6OF = new TH1F("fHdxyLess6OF", "XY distance less 6mm, One fibre mode",100.,0.,1.);
-  fHdxyLess6OF->GetXaxis()->SetTitle("XY disance [cm]");
+  fHdxyOF = new TH1F("fHdxyOF", "XY distance, One fiber mode", 4000, 0., 4.);
+  fHdxyOF->GetXaxis()->SetTitle("XY distance [cm]");
 
-  fHdxyTF = new TH1F("fHdxyTF", "XY distance, Two fiber mode",4000,0.,4.);
-  fHdxyTF->GetXaxis()->SetTitle("XY disance [cm]");
+  fHdxyLess6OF = new TH1F("fHdxyLess6OF", "XY distance less 6mm, One fibre mode", 100, 0., 1.);
+  fHdxyLess6OF->GetXaxis()->SetTitle("XY distance [cm]");
 
-  fHdxyLess6TF = new TH1F("fHdxyLess6TF", "XY distance less 6mm, Two fibre mode",100.,0.,1.);
-  fHdxyLess6TF->GetXaxis()->SetTitle("XY disance [cm]");
+  fHdxyTF = new TH1F("fHdxyTF", "XY distance, Two fiber mode", 4000, 0., 4.);
+  fHdxyTF->GetXaxis()->SetTitle("XY distance [cm]");
+
+  fHdxyLess6TF = new TH1F("fHdxyLess6TF", "XY distance less 6mm, Two fibre mode", 100, 0., 1.);
+  fHdxyLess6TF->GetXaxis()->SetTitle("XY distance [cm]");
   
   return kSUCCESS;
 }
@@ -144,7 +150,7 @@ void ERNeuRadMatcher::Exec(Option_t* opt)
       }
     }
     Double_t dist = TMath::Sqrt((firstHit->GetX()-step->GetX())*(firstHit->GetX()-step->GetX()) + 
-                                  (firstHit->GetY()-step->GetY())*(firstHit->GetY()-step->GetY()));
+                                (firstHit->GetY()-step->GetY())*(firstHit->GetY()-step->GetY()));
     fHdxy->Fill(dist);
     if(dist < 0.6)
       fHdxyLess6->Fill(dist);
