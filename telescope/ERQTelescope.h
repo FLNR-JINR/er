@@ -12,6 +12,8 @@
 #include "ERDetector.h"
 #include "ERQTelescopeSiPoint.h"
 #include "ERQTelescopeCsIPoint.h"
+#include "ERQTelescopeSetup.h"
+
 
 #include "TLorentzVector.h"
 
@@ -103,6 +105,12 @@ public:
    **/
   virtual void Initialize();
 
+  /** @brief Builds geometry and writes it to temporary file
+   ** trough parameters from ERBeamDetSetup class object.
+   ** Virtual from FairDetector.
+  **/
+  virtual void ConstructGeometry();
+
   /** Virtaul method CheckIfSensitive
 	**Check whether a volume is sensitive.
   ** @param(name)  Volume name
@@ -117,24 +125,26 @@ public:
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
 
 private:
-  TClonesArray*  fSiPoint;         //!  The point collection
-  TClonesArray*  fCsIPoint;        //!  The point collection
-  Int_t fVersion;                    //! geometry version
+  ERQTelescopeSetup *fQTelescopeSetup;
 
-  Int_t          fEventID;           //!  event index
-  Int_t          fTrackID;           //!  track index
-  Int_t          fMot0TrackID;       //!  0th mother track index
-  Double_t       fMass;              //!  mass
-  TLorentzVector fPosIn, fPosOut;    //!  position
-  TLorentzVector fMomIn, fMomOut;    //!  momentum
-  Double32_t     fTime;              //!  time
-  Double32_t     fLength;            //!  length
-  Double32_t     fEloss;             //!  energy loss
-  Int_t          fN_Station;     // Si
-  Int_t          fX_Strip;
-  Int_t          fY_Strip;
-  Int_t          fN_Block;   // CsI (0-3)
-  Int_t          fN_Wall;
+  TClonesArray      *fSiPoint;          //!  The point collection
+  TClonesArray      *fCsIPoint;         //!  The point collection
+  Int_t             fVersion;           //! geometry version
+
+  Int_t             fEventID;           //!  event index
+  Int_t             fTrackID;           //!  track index
+  Int_t             fMot0TrackID;       //!  0th mother track index
+  Double_t          fMass;              //!  mass
+  TLorentzVector    fPosIn, fPosOut;    //!  position
+  TLorentzVector    fMomIn, fMomOut;    //!  momentum
+  Double32_t        fTime;              //!  time
+  Double32_t        fLength;            //!  length
+  Double32_t        fEloss;             //!  energy loss
+  Int_t             fN_Station;         // Si
+  Int_t             fX_Strip;
+  Int_t             fY_Strip;
+  Int_t             fN_Block;           // CsI (0-3)
+  Int_t             fN_Wall;
 
 
 private:

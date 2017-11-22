@@ -27,6 +27,7 @@ ERQTelescope::ERQTelescope() :
   fCsIPoint = new TClonesArray("ERQTelescopeCsIPoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
+  fQTelescopeSetup = ERQTelescopeSetup::Instance();
   fVerboseLevel = 1;
   fVersion = 1;
 }
@@ -41,6 +42,7 @@ ERQTelescope::ERQTelescope(const char* name, Bool_t active, Int_t verbose)
   fCsIPoint = new TClonesArray("ERQTelescopeCsIPoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
+  fQTelescopeSetup = ERQTelescopeSetup::Instance();
   fVersion = 1;
   fVerboseLevel = verbose;
 }
@@ -81,8 +83,13 @@ ERQTelescopeCsIPoint* ERQTelescope::Add_CsIPoint() {
     TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
     TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
     fTime, fLength, fEloss, fN_Wall, fN_Block);
-
-  }
+}
+//-------------------------------------------------------------------------------------------------
+void ERQTelescope::ConstructGeometry() {
+  fQTelescopeSetup->ConstructGeometry();
+  SetGeometryFileName("QTelescope.temp.root");
+  ConstructRootGeometry();
+}
 //-------------------------------------------------------------------------------------------------
 Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume

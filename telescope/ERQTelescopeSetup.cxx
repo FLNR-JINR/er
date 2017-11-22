@@ -453,7 +453,7 @@ void ERQTelescopeSetup::ConstructGeometry() {
   gGeoMan = gGeoManager;
   // --------------------------------------------------------------------------
   // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/qtelescope.temp.root";
+  TString geoFileName = geoPath + "/geometry/QTelescope.temp.root";
   // --------------------------------------------------------------------------
   // -----------------   Get and create the required media    -----------------
   FairGeoMedia*   geoMedia = geoFace->getMedia();
