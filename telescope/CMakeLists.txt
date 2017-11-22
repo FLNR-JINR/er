@@ -26,7 +26,7 @@ set(SRCS
 
 #simulation
 ERRTelescope.cxx
-ERRTelescopeDigitizer.cxx
+#ERRTelescopeDigitizer.cxx
 ERRTelescopeHitFinder.cxx
 ERRTelescopeSetup.cxx
 
@@ -38,6 +38,7 @@ data/ERRTelescopeHit.cxx
 
 ERQTelescope.cxx
 ERQTelescopeDigitizer.cxx
+ERQTelescopeSetup.cxx
 
 data/ERQTelescopeSiPoint.cxx
 data/ERQTelescopeSiDigi.cxx
@@ -65,7 +66,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERTelescopeLinkDef.h)
 Set(LIBRARY_NAME telescope)
-Set(DEPENDENCIES ERBase ERData Base Core)
+Set(DEPENDENCIES ERBase ERData Base Core Geom XMLParser)
 
 GENERATE_LIBRARY()
 

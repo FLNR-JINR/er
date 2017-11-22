@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<QTelescopeParts>
+	<SiTypes>
+		<doubleSiTypes>
+			<doubleSi id="DoubleSi1">
+				<doubleSiSize doubleSiX="100" doubleSiY="100" doubleSiZ="0.01"/>
+				<doubleSiSensAreaSize doubleSiSensX="100" doubleSiSensY="100" doubleSiSensZ="0.01"/>
+				<stripCountX>16</stripCountX>
+				<stripCountY>16</stripCountY>
+				<doubleSiMedia>silicon</doubleSiMedia>
+			</doubleSi>
+			<doubleSi id="DoubleSi2">
+				<doubleSiSize doubleSiX="100" doubleSiY="100" doubleSiZ="0.01"/>
+				<doubleSiSensAreaSize doubleSiSensX="100" doubleSiSensY="100" doubleSiSensZ="0.01"/>
+				<stripCountX>16</stripCountX>
+				<stripCountY>16</stripCountY>
+				<doubleSiMedia>silicon</doubleSiMedia>
+			</doubleSi>
+		</doubleSiTypes>
+		<singleSiTypes>
+			<singleSi id="SingleSi1">
+				<singleSiSize singleSiX="100" singleSiY="100" singleSiZ="0.01"/>
+				<singleSiSensAreaSize singleSiSensX="100" singleSiSensY="100" singleSiSensZ="0.01"/>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>	
+			<singleSi id="SingleSi2">
+				<singleSiSize singleSiX="100" singleSiY="100" singleSiZ="0.01"/>
+				<singleSiSensAreaSize singleSiSensX="100" singleSiSensY="100" singleSiSensZ="0.01"/>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>	
+		</singleSiTypes>
+	</SiTypes>
+	<CsITypes>
+		<CsI id="CsI1">
+			<CsISize CsIX="100" CsIY="100" CsIZ="0.01"/>
+			<cubesCountX>4</cubesCountX>			
+			<cubesCountY>4</cubesCountY>
+			<CsIMedia>CsI</CsIMedia>
+		</CsI>	
+		<CsI id="CsI2">
+			<CsISize CsIX="100" CsIY="100" CsIZ="0.01"/>
+			<cubesCountX>4</cubesCountX>			
+			<cubesCountY>4</cubesCountY>			
+			<CsIMedia>CsI</CsIMedia>
+		</CsI>
+	</CsITypes>
+</QTelescopeParts>
