@@ -35,8 +35,8 @@
 	<CsITypes>
 		<CsI id="CsI1">
 			<CsISize CsIX="100" CsIY="100" CsIZ="0.01"/>
-			<cubesCountX>4</cubesCountX>			
-			<cubesCountY>4</cubesCountY>
+			<cubesCountX>2</cubesCountX>			
+			<cubesCountY>2</cubesCountY>
 			<CsIMedia>CsI</CsIMedia>
 		</CsI>	
 		<CsI id="CsI2">

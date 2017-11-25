@@ -74,25 +74,16 @@ ERQTelescopeSetup::ERQTelescopeSetup() {
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAroundZ) {
   if (type.BeginsWith("Double")) {
-    TString firstBranchInd = "_X"; 
-    TString secondSiBranchInd = "_Y";
-    if (orientAroundZ == "Y") {  // if first plane  
-      firstBranchInd = "_Y";
-      secondSiBranchInd = "_X";
-    } 
+    TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
     fDoubleSiCount++;  
-    fSensVolumes.push_back(type + firstBranchInd + TString::Itoa(fDoubleSiCount, 10));
-    fSensVolumes.push_back(type + secondSiBranchInd + TString::Itoa(fDoubleSiCount, 10));
+    fSensVolumes.push_back(type + volumeNameInd + TString::Itoa(fDoubleSiCount, 10));
     fDoubleSiOrientAroundZ.push_back(orientAroundZ);
     fDoubleSiPosZ.push_back(position);
     fDoubleSiType.push_back(type);
   } else {
     fSingleSiCount++;
-    if (orientAroundZ == "X") {
-      fSensVolumes.push_back(type + "_X" + TString::Itoa(fSingleSiCount, 10));
-    } else {
-      fSensVolumes.push_back(type + "_Y" + TString::Itoa(fSingleSiCount, 10));
-    }
+    TString volumeNameInd = (orientAroundZ == "X") ? "_X" : "_Y";  
+    fSensVolumes.push_back(type + volumeNameInd + TString::Itoa(fSingleSiCount, 10));
     fSingleSiOrientAroundZ.push_back(orientAroundZ);
     fSingleSiPosZ.push_back(position);
     fSingleSiType.push_back(type);
@@ -444,7 +435,9 @@ void ERQTelescopeSetup::ConstructGeometry() {
 
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------
+  cout << "Geo loader not initialized" << endl;
   FairGeoLoader* geoLoad = FairGeoLoader::Instance();//
+  cout << "Geo loader initialized" << endl;
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
   TString geoPath = gSystem->Getenv("VMCWORKDIR");
   TString medFile = geoPath + "/geometry/media.geo";
@@ -458,7 +451,6 @@ void ERQTelescopeSetup::ConstructGeometry() {
   // -----------------   Get and create the required media    -----------------
   FairGeoMedia*   geoMedia = geoFace->getMedia();
   FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
-
   // ----- Create media for Single Si------------------------------------------
   vector<FairGeoMedium*> mSingleSi;
   vector<TGeoMedium*> pMedSingleSi; 
@@ -469,6 +461,7 @@ void ERQTelescopeSetup::ConstructGeometry() {
     pMedSingleSi.push_back(gGeoMan->GetMedium(fSingleSiMedia[i]));
     if ( ! pMedSingleSi[i] ) Fatal("Main", "Medium Plastic not found");
   }
+  cout << "Created single Si media" << endl;
   // ----- Create media for Double Si -----------------------------------------
   vector<FairGeoMedium*> mDoubleSi;
   vector<TGeoMedium*> pMedDoubleSi; 
@@ -479,6 +472,7 @@ void ERQTelescopeSetup::ConstructGeometry() {
     pMedDoubleSi.push_back(gGeoMan->GetMedium(fDoubleSiMedia[i]));
     if ( ! pMedDoubleSi[i] ) Fatal("Main", "Medium Plastic not found");
   }
+  cout << "Created double Si media" << endl;
   // ------ Create media for CsI ----------------------------------------------
   vector<FairGeoMedium*> mCsI;
   vector<TGeoMedium*> pMedCsI; 
@@ -489,6 +483,7 @@ void ERQTelescopeSetup::ConstructGeometry() {
     pMedCsI.push_back(gGeoMan->GetMedium(fCsIMedia[i]));
     if ( ! pMedCsI[i] ) Fatal("Main", "Medium Plastic not found");
   }
+  cout << "Created single Si media" << endl;
   // ------ Create vacuum media -----------------------------------------------
   FairGeoMedium* vacuum = geoMedia->getMedium("vacuum");
   if ( ! vacuum ) Fatal("Main", "FairMedium vacuum not found");
@@ -522,6 +517,7 @@ void ERQTelescopeSetup::ConstructGeometry() {
                                                           singleSiStripY / 2., 
                                                           singleSiStripZ / 2.));
   }
+  cout << "Created single Si elements" << endl;
   // ----------------- DoubleSi -----------------------------------------------
   vector<TGeoVolume*> doubleSi;
   vector<TGeoVolume*> doubleSiStrip;
@@ -548,43 +544,44 @@ void ERQTelescopeSetup::ConstructGeometry() {
                                                               doubleSiBoxY / 2, 
                                                               doubleSiBoxZ / 2));
   }
+  cout << "Created double Si elements" << endl;
   // ---------------- CsI -----------------------------------------------------
   vector<TGeoVolume*> stationCsI;
   vector<TGeoVolume*> boxCsI;
   for (Int_t i = 0; i < fCsICount; i++) {
-    stationCsI.push_back(gGeoManager->MakeBox("stationCsI", pMedCsI[i], fCsIX[i] / 2, 
+    stationCsI.push_back(new TGeoVolumeAssembly("CsI_" + TString::Itoa(i+1, 10)));/*(gGeoManager->MakeBox("stationCsI", pMedCsI[i], fCsIX[i] / 2, 
                                                                         fCsIY[i] / 2, 
-                                                                        fCsIZ[i] / 2));
-    Double_t doubleSiBoxX = fCsIX[i] / fCsICubesCountX[i];  
-    Double_t doubleSiBoxY = fCsIY[i] / fCsICubesCountY[i]; 
-    Double_t doubleSiBoxZ = fCsIZ[i]; 
-    boxCsI.push_back(gGeoManager->MakeBox("boxCsI", pMedCsI[i], doubleSiBoxX / 2, 
-                                                                doubleSiBoxY / 2, 
-                                                                doubleSiBoxZ / 2));
+                                                                        fCsIZ[i] / 2));*/
+    Double_t CsIBoxX = fCsIX[i] / fCsICubesCountX[i];  
+    Double_t CsIBoxY = fCsIY[i] / fCsICubesCountY[i]; 
+    Double_t CsIBoxZ = fCsIZ[i]; 
+    boxCsI.push_back(gGeoManager->MakeBox("boxCsI", pMedCsI[i], CsIBoxX / 2, 
+                                                                CsIBoxY / 2, 
+                                                                CsIBoxZ / 2));
   }
+  cout << "Created CsI elements" << endl;
   //------------------ STRUCTURE  ---------------------------------------------
   //----------------------- Double Si structure -------------------------------
   for (Int_t i = 0; i < fDoubleSiCount; i++) {
     //------------------ Add fibers to station  along x -----------------------
-    Double_t doubleSiBoxX = fCsIX[i] / fCsICubesCountX[i];  
     Double_t doubleSiStripX = fDoubleSiSensX[i] / fDoubleSiStripCountX[i];
-    Double_t doubleSiStripY = fDoubleSiSensY[i];
-    for (Int_t iDoubleSiBox = 0; iDoubleSiBox < fDoubleSiStripCountX[i] ; ++iDoubleSiBox ) {
-      Double_t translateX = (doubleSiStripX / 2) 
-                          - doubleSiBoxX - doubleSiBoxX * 2. * iDoubleSiBox ;
-      doubleSiStrip[i]->AddNode(boxCsI[i], iDoubleSiBox, new TGeoCombiTrans(translateX,
-                                                                            0,
+    Double_t doubleSiBoxY   = fDoubleSiSensY[i] / fDoubleSiStripCountY[i];  
+    for (Int_t iDoubleSiBox = 0; iDoubleSiBox < fDoubleSiStripCountY[i] ; ++iDoubleSiBox ) {
+      Double_t translateY = (fDoubleSiSensY[i] / 2) 
+                          - doubleSiBoxY / 2 - doubleSiBoxY * iDoubleSiBox ;
+      doubleSiStrip[i]->AddNode(doubleSiBox[i], iDoubleSiBox, new TGeoCombiTrans(0,
+                                                                            translateY,
                                                                             0,
                                                                             fZeroRotation));
     }
 
-    for (Int_t iStripY = 0; iStripY < fDoubleSiStripCountY[i]; iStripY++) {
-      Double_t translateY = fDoubleSiSensY[i] / 2 
-                          - doubleSiStripY *(iStripY)-(doubleSiStripY / 2);
-      doubleSi[i]->AddNode(doubleSiStrip[i], iStripY, new TGeoCombiTrans(0,
-                                                                      translateY,
-                                                                      0,
-                                                                      fZeroRotation));
+    for (Int_t iStripX = 0; iStripX < fDoubleSiStripCountX[i]; iStripX++) {
+      Double_t translateX = fDoubleSiSensX[i] / 2 
+                          - doubleSiStripX *(iStripX)-(doubleSiStripX / 2);
+      doubleSi[i]->AddNode(doubleSiStrip[i], iStripX, new TGeoCombiTrans(translateX,
+                                                                         0,
+                                                                         0,
+                                                                         fZeroRotation));
     }
     TGeoRotation *rotation = new TGeoRotation();
     if (fDoubleSiOrientAroundZ[i] == "Y") {
@@ -595,12 +592,13 @@ void ERQTelescopeSetup::ConstructGeometry() {
                                                            fDoubleSiPosZ[i], 
                                                            rotation));
   }
+  cout << "Created double Si structure" << endl;
   //----------------------- Single Si structure -------------------------------
   for (Int_t i = 0; i < fSingleSiCount; i++) {
     //------------------ Add fibers to station  along x -----------------------
     Double_t singleSiStripX = fSingleSiSensX[i] / fSingleSiStripCount[i]; 
     for (Int_t iStrip = 0; iStrip < fSingleSiStripCount[i]; iStrip++) {
-      Double_t translateX = (-1)*singleSiStripX*(fSingleSiStripCount[i]/2) 
+      Double_t translateX = (-1) * fSingleSiSensX[i] / 2
                           + singleSiStripX/2. + iStrip*singleSiStripX;
       singleSi[i]->AddNode(singleSiStrip[i], iStrip, new TGeoCombiTrans(translateX,
                                                                      0.,
@@ -616,21 +614,25 @@ void ERQTelescopeSetup::ConstructGeometry() {
                                                            fSingleSiPosZ[i], 
                                                            rotation));
   }
+  cout << "Created single Si structure" << endl;
   //----------------------- CsI structure -------------------------------------
   for (Int_t i = 0; i < fCsICount; i++) {
     Int_t iBox = 0;
-    Double_t doubleSiBoxX = fCsIX[i] / fCsICubesCountX[i];  
-    Double_t doubleSiBoxY = fCsIY[i] / fCsICubesCountY[i]; 
-    for (Int_t iCsIX = 0; iCsIX < fCsICubesCountX[i]; iCsIX) {
-      for (Int_t iCsIY = 0; iCsIY < fCsICubesCountY[i]; iCsIY) {
-        Double_t translateX = (-1)*doubleSiBoxX*(fCsICubesCountX[i]/2) 
-                            + doubleSiBoxX/2. + iCsIX*doubleSiBoxX;
+    Double_t CsIBoxX = fCsIX[i] / fCsICubesCountX[i];  
+    Double_t CsIBoxY = fCsIY[i] / fCsICubesCountY[i]; 
+    cout << "Creation CsI structure 1st cycle" << endl;
+    for (Int_t iCsIX = 0; iCsIX < fCsICubesCountX[i]; iCsIX++) {
+      cout << "Creation CsI structure 2nd cycle" << endl;
+      Double_t translateX = (-1) * fCsIX[i] / 2
+                          + CsIBoxX / 2. + iCsIX * CsIBoxX;
+      for (Int_t iCsIY = 0; iCsIY < fCsICubesCountY[i]; iCsIY++) {
+        cout << "Creation CsI structure 3d cycle" << endl;
         Double_t translateY = fCsIY[i] / 2 
-                            - doubleSiBoxY *(iCsIY)-(doubleSiBoxY / 2);
-        stationCsI[i]->AddNode(boxCsI[i], iBox, new TGeoCombiTrans(translateX,
-                                                                   translateY,
-                                                                   0., 
-                                                                   fZeroRotation));
+                            - CsIBoxY * iCsIY - (CsIBoxY / 2);
+        stationCsI[i]->AddNode(boxCsI[i], iBox+1, new TGeoCombiTrans(translateX,
+                                                                     translateY,
+                                                                     0., 
+                                                                     fZeroRotation));
         iBox++;
       }
     }
@@ -639,13 +641,14 @@ void ERQTelescopeSetup::ConstructGeometry() {
                                                              fCsIPosZ[i], 
                                                              fZeroRotation));
   }
+  cout << "Created CsI structure" << endl;
 
   top->AddNode(qtelescope, 1, new TGeoCombiTrans(global_X ,global_Y, global_Z, fGlobalRotation));
    // ---------------   Finish   -----------------------------------------------
-  //gGeoMan->CloseGeometry();
-  //gGeoMan->CheckOverlaps(0.001);
-  //gGeoMan->PrintOverlaps();
-  //gGeoMan->Test();
+  gGeoMan->CloseGeometry();
+  gGeoMan->CheckOverlaps(0.001);
+  gGeoMan->PrintOverlaps();
+  gGeoMan->Test();
 
   //gGeoManager = gGeoMan;
 

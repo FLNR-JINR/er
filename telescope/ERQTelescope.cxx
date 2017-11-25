@@ -14,6 +14,9 @@
 #include "TString.h"
 
 #include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRunSim.h"
+#include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
 //-------------------------------------------------------------------------------------------------
