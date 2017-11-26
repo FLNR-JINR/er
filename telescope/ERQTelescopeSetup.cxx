@@ -28,7 +28,7 @@ using namespace std;
 
 ERQTelescopeSetup* ERQTelescopeSetup::fInstance = NULL;
 TString  ERQTelescopeSetup::fParamsXmlFileName = "qtelescope_params.xml";
-vector<TString>    ERQTelescopeSetup::fSensVolumes;
+vector<TString>    ERQTelescopeSetup::fDetectorStations;
 // ----- SingleSi parameters --------------------------------------------------
 Int_t            ERQTelescopeSetup::fDoubleSiCount = 0;
 vector<TString>  ERQTelescopeSetup::fDoubleSiType;
@@ -76,14 +76,14 @@ void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAro
   if (type.BeginsWith("Double")) {
     TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
     fDoubleSiCount++;  
-    fSensVolumes.push_back(type + volumeNameInd + TString::Itoa(fDoubleSiCount, 10));
+    fDetectorStations.push_back(type + volumeNameInd + TString::Itoa(fDoubleSiCount, 10));
     fDoubleSiOrientAroundZ.push_back(orientAroundZ);
     fDoubleSiPosZ.push_back(position);
     fDoubleSiType.push_back(type);
   } else {
     fSingleSiCount++;
     TString volumeNameInd = (orientAroundZ == "X") ? "_X" : "_Y";  
-    fSensVolumes.push_back(type + volumeNameInd + TString::Itoa(fSingleSiCount, 10));
+    fDetectorStations.push_back(type + volumeNameInd + TString::Itoa(fSingleSiCount, 10));
     fSingleSiOrientAroundZ.push_back(orientAroundZ);
     fSingleSiPosZ.push_back(position);
     fSingleSiType.push_back(type);
@@ -91,7 +91,7 @@ void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAro
 }
 void ERQTelescopeSetup::AddCsI(TString type, Double_t position) {
   fCsICount++;
-  fSensVolumes.push_back(type + TString::Itoa(fCsICount, 10));
+  fDetectorStations.push_back(type + TString::Itoa(fCsICount, 10));
   fCsIPosZ.push_back(position);
   fCsIType.push_back(type);
 }
@@ -112,12 +112,16 @@ Int_t ERQTelescopeSetup::SetParContainers(){
   if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
 
 }
+
+vector<TString>* ERQTelescopeSetup::GetDetectorStations() {
+  return &fDetectorStations;
+}
+
 void ERQTelescopeSetup::GetCsIParameters(TXMLNode *node) {
   node = node->GetNextNode();
   for (Int_t i = 0; i < fCsICount; i++) {
     TXMLNode* curNode = node;
     for (; curNode; curNode = curNode->GetNextNode()) {
-      cout << "Pasrsing CsI " << curNode->GetNodeName() << endl;
       TList *attrList;
       TXMLAttr *attr = 0;
       if (curNode->HasAttributes()){
@@ -132,9 +136,7 @@ void ERQTelescopeSetup::GetCsIParameters(TXMLNode *node) {
       else {
         continue;
       }
-      cout << "CsI type " << fCsIType[i] << " " << attr->GetValue() << endl;
       if (!strcasecmp(fCsIType[i], attr->GetValue())) {
-        cout << "CsI value " << attr->GetValue() << endl;
         TXMLNode* curNode2 = curNode->GetChildren();
         for (; curNode2; curNode2 = curNode2->GetNextNode()) {
           if (!strcasecmp(curNode2->GetNodeName(), "CsISize")) {
@@ -173,7 +175,6 @@ void ERQTelescopeSetup::GetSingleSiParameters(TXMLNode *node) {
   for(Int_t i = 0; i < fSingleSiCount; i++) {
     TXMLNode* curNode = node;
     for(; curNode; curNode = curNode->GetNextNode()) {
-      //cout << "Pasrsing ToF " << node->GetNodeName() << endl;
       TList *attrList;
       TXMLAttr *attr = 0;
       if (curNode->HasAttributes()){
@@ -188,7 +189,6 @@ void ERQTelescopeSetup::GetSingleSiParameters(TXMLNode *node) {
       else {
         continue;
       }
-      cout << "Pasrsing MWPC " << node->GetNodeName() << endl;
       if(!strcasecmp(fSingleSiType[i], attr->GetValue())) {
         TXMLNode* curNode2 = curNode->GetChildren();
         for(; curNode2; curNode2 = curNode2->GetNextNode()) {
@@ -241,7 +241,6 @@ void ERQTelescopeSetup::GetDoubleSiParameters(TXMLNode *node) {
   for(Int_t i = 0; i < fDoubleSiCount; i++) {
     TXMLNode* curNode = node;
     for(; curNode; curNode = curNode->GetNextNode()) {
-      //cout << "Pasrsing ToF " << node->GetNodeName() << endl;
       TList *attrList;
       TXMLAttr *attr = 0;
       if (curNode->HasAttributes()){
@@ -256,7 +255,6 @@ void ERQTelescopeSetup::GetDoubleSiParameters(TXMLNode *node) {
       else {
         continue;
       }
-      //cout << "Pasrsing MWPC " << node->GetNodeName() << endl;
       if(!strcasecmp(fDoubleSiType[i], attr->GetValue())) {
         TXMLNode* curNode2 = curNode->GetChildren();
         for(; curNode2; curNode2 = curNode2->GetNextNode()) {
@@ -313,7 +311,7 @@ void ERQTelescopeSetup::PrintDetectorParameters(void) {
   cout << "------------------------------------------------" << endl;
   cout << "CsI parameters:" << endl;
   for(Int_t i = 0; i < fCsICount; i++) {
-    cout << "SingleSi_"+TString::Itoa(i+1, 10) << " is " 
+    cout << "CsI_"+TString::Itoa(i+1, 10) << " is " 
          << fCsIType[i] << " with parameters:" << endl
          << "\tpositionZ = " << fCsIPosZ[i] << endl
          << "\tCsISizeX = " << fCsIX[i]
@@ -382,11 +380,9 @@ void ERQTelescopeSetup::ParseXmlParameters() {
   TXMLNode *SiTypeNodes;
   for ( ; detPartNode; detPartNode = detPartNode->GetNextNode()) { // detector's part
     if (!strcasecmp(detPartNode->GetNodeName(), "CsITypes")) {
-      cout << "Cmp CsI " << detPartNode->GetNodeName() << endl;
       GetCsIParameters(detPartNode->GetChildren());
     }
     if (!strcasecmp(detPartNode->GetNodeName(), "SiTypes")) {
-     // cout << "Cmp Si " << detPartNode->GetNodeName() << endl;
       SiTypeNodes = detPartNode->GetChildren();
       for ( ; SiTypeNodes; SiTypeNodes = SiTypeNodes->GetNextNode()) {
         if (!strcasecmp(SiTypeNodes->GetNodeName(), "singleSiTypes")) {
@@ -435,9 +431,7 @@ void ERQTelescopeSetup::ConstructGeometry() {
 
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------
-  cout << "Geo loader not initialized" << endl;
   FairGeoLoader* geoLoad = FairGeoLoader::Instance();//
-  cout << "Geo loader initialized" << endl;
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
   TString geoPath = gSystem->Getenv("VMCWORKDIR");
   TString medFile = geoPath + "/geometry/media.geo";
@@ -454,23 +448,23 @@ void ERQTelescopeSetup::ConstructGeometry() {
   // ----- Create media for Single Si------------------------------------------
   vector<FairGeoMedium*> mSingleSi;
   vector<TGeoMedium*> pMedSingleSi; 
-  for (Int_t i = 0; i < fCsICount; i++) { 
+  for (Int_t i = 0; i < fSingleSiCount; i++) { 
     mSingleSi.push_back(geoMedia->getMedium(fSingleSiMedia[i]));
-    if ( ! mSingleSi[i] ) Fatal("Main", "FairMedium Plastic not found");
+    if ( ! mSingleSi[i] ) Fatal("Main", "FairMedium for SingleSi not found");
     geoBuild->createMedium(mSingleSi[i]);
     pMedSingleSi.push_back(gGeoMan->GetMedium(fSingleSiMedia[i]));
-    if ( ! pMedSingleSi[i] ) Fatal("Main", "Medium Plastic not found");
+    if ( ! pMedSingleSi[i] ) Fatal("Main", "Medium for SingleSi not found");
   }
   cout << "Created single Si media" << endl;
   // ----- Create media for Double Si -----------------------------------------
   vector<FairGeoMedium*> mDoubleSi;
   vector<TGeoMedium*> pMedDoubleSi; 
-  for (Int_t i = 0; i < fCsICount; i++) { 
+  for (Int_t i = 0; i < fDoubleSiCount; i++) { 
     mDoubleSi.push_back(geoMedia->getMedium(fDoubleSiMedia[i]));
-    if ( ! mDoubleSi[i] ) Fatal("Main", "FairMedium Plastic not found");
+    if ( ! mDoubleSi[i] ) Fatal("Main", "Medium for DoubleSi not found");
     geoBuild->createMedium(mDoubleSi[i]);
     pMedDoubleSi.push_back(gGeoMan->GetMedium(fDoubleSiMedia[i]));
-    if ( ! pMedDoubleSi[i] ) Fatal("Main", "Medium Plastic not found");
+    if ( ! pMedDoubleSi[i] ) Fatal("Main", "Medium for DoubleSi not found");
   }
   cout << "Created double Si media" << endl;
   // ------ Create media for CsI ----------------------------------------------
@@ -478,12 +472,12 @@ void ERQTelescopeSetup::ConstructGeometry() {
   vector<TGeoMedium*> pMedCsI; 
   for (Int_t i = 0; i < fCsICount; i++) { 
     mCsI.push_back(geoMedia->getMedium(fCsIMedia[i]));
-    if ( ! mCsI[i] ) Fatal("Main", "FairMedium Plastic not found");
+    if ( ! mCsI[i] ) Fatal("Main", "FairMedium for CsI not found");
     geoBuild->createMedium(mCsI[i]);
     pMedCsI.push_back(gGeoMan->GetMedium(fCsIMedia[i]));
-    if ( ! pMedCsI[i] ) Fatal("Main", "Medium Plastic not found");
+    if ( ! pMedCsI[i] ) Fatal("Main", "Medium for CsI not found");
   }
-  cout << "Created single Si media" << endl;
+  cout << "Created CsI media" << endl;
   // ------ Create vacuum media -----------------------------------------------
   FairGeoMedium* vacuum = geoMedia->getMedium("vacuum");
   if ( ! vacuum ) Fatal("Main", "FairMedium vacuum not found");
@@ -512,12 +506,12 @@ void ERQTelescopeSetup::ConstructGeometry() {
     Double_t singleSiStripX = fSingleSiSensX[i] / fSingleSiStripCount[i]; 
     Double_t singleSiStripY = fSingleSiSensY[i];   
     Double_t singleSiStripZ = fSingleSiSensZ[i];   
-    singleSiStrip.push_back(gGeoManager->MakeBox("strip", pMedSingleSi[i], 
+    singleSiStrip.push_back(gGeoManager->MakeBox("SensitiveSingleSiStrip"+fSingleSiOrientAroundZ[i], 
+                                                          pMedSingleSi[i], 
                                                           singleSiStripX / 2., 
                                                           singleSiStripY / 2., 
                                                           singleSiStripZ / 2.));
   }
-  cout << "Created single Si elements" << endl;
   // ----------------- DoubleSi -----------------------------------------------
   vector<TGeoVolume*> doubleSi;
   vector<TGeoVolume*> doubleSiStrip;
@@ -539,12 +533,12 @@ void ERQTelescopeSetup::ConstructGeometry() {
     Double_t doubleSiBoxX = doubleSiStripX;  
     Double_t doubleSiBoxY = doubleSiStripY / fDoubleSiStripCountY[i]; 
     Double_t doubleSiBoxZ = doubleSiStripZ; 
-    doubleSiBox.push_back(gGeoManager->MakeBox("doubleSiBox", pMedDoubleSi[i], 
+    doubleSiBox.push_back(gGeoManager->MakeBox("SensitiveDoubleSiBox"+fDoubleSiOrientAroundZ[i], 
+                                                              pMedDoubleSi[i], 
                                                               doubleSiBoxX / 2, 
                                                               doubleSiBoxY / 2, 
                                                               doubleSiBoxZ / 2));
   }
-  cout << "Created double Si elements" << endl;
   // ---------------- CsI -----------------------------------------------------
   vector<TGeoVolume*> stationCsI;
   vector<TGeoVolume*> boxCsI;
@@ -555,11 +549,10 @@ void ERQTelescopeSetup::ConstructGeometry() {
     Double_t CsIBoxX = fCsIX[i] / fCsICubesCountX[i];  
     Double_t CsIBoxY = fCsIY[i] / fCsICubesCountY[i]; 
     Double_t CsIBoxZ = fCsIZ[i]; 
-    boxCsI.push_back(gGeoManager->MakeBox("boxCsI", pMedCsI[i], CsIBoxX / 2, 
-                                                                CsIBoxY / 2, 
-                                                                CsIBoxZ / 2));
+    boxCsI.push_back(gGeoManager->MakeBox("SensitiveCsIBox", pMedCsI[i], CsIBoxX / 2, 
+                                                                         CsIBoxY / 2, 
+                                                                         CsIBoxZ / 2));
   }
-  cout << "Created CsI elements" << endl;
   //------------------ STRUCTURE  ---------------------------------------------
   //----------------------- Double Si structure -------------------------------
   for (Int_t i = 0; i < fDoubleSiCount; i++) {
@@ -592,7 +585,6 @@ void ERQTelescopeSetup::ConstructGeometry() {
                                                            fDoubleSiPosZ[i], 
                                                            rotation));
   }
-  cout << "Created double Si structure" << endl;
   //----------------------- Single Si structure -------------------------------
   for (Int_t i = 0; i < fSingleSiCount; i++) {
     //------------------ Add fibers to station  along x -----------------------
@@ -614,19 +606,15 @@ void ERQTelescopeSetup::ConstructGeometry() {
                                                            fSingleSiPosZ[i], 
                                                            rotation));
   }
-  cout << "Created single Si structure" << endl;
   //----------------------- CsI structure -------------------------------------
   for (Int_t i = 0; i < fCsICount; i++) {
     Int_t iBox = 0;
     Double_t CsIBoxX = fCsIX[i] / fCsICubesCountX[i];  
     Double_t CsIBoxY = fCsIY[i] / fCsICubesCountY[i]; 
-    cout << "Creation CsI structure 1st cycle" << endl;
     for (Int_t iCsIX = 0; iCsIX < fCsICubesCountX[i]; iCsIX++) {
-      cout << "Creation CsI structure 2nd cycle" << endl;
       Double_t translateX = (-1) * fCsIX[i] / 2
                           + CsIBoxX / 2. + iCsIX * CsIBoxX;
       for (Int_t iCsIY = 0; iCsIY < fCsICubesCountY[i]; iCsIY++) {
-        cout << "Creation CsI structure 3d cycle" << endl;
         Double_t translateY = fCsIY[i] / 2 
                             - CsIBoxY * iCsIY - (CsIBoxY / 2);
         stationCsI[i]->AddNode(boxCsI[i], iBox+1, new TGeoCombiTrans(translateX,
@@ -641,14 +629,12 @@ void ERQTelescopeSetup::ConstructGeometry() {
                                                              fCsIPosZ[i], 
                                                              fZeroRotation));
   }
-  cout << "Created CsI structure" << endl;
-
   top->AddNode(qtelescope, 1, new TGeoCombiTrans(global_X ,global_Y, global_Z, fGlobalRotation));
    // ---------------   Finish   -----------------------------------------------
-  gGeoMan->CloseGeometry();
-  gGeoMan->CheckOverlaps(0.001);
-  gGeoMan->PrintOverlaps();
-  gGeoMan->Test();
+  //gGeoMan->CloseGeometry();
+  //gGeoMan->CheckOverlaps(0.001);
+  //gGeoMan->PrintOverlaps();
+  //gGeoMan->Test();
 
   //gGeoManager = gGeoMan;
 

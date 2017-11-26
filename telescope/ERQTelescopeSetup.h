@@ -24,6 +24,7 @@ public:
   static ERQTelescopeSetup* Instance();
 
   /* Accessors */
+  static vector<TString>* GetDetectorStations();
   static void PrintDetectorParameters(void);
   static void PrintDetectorParametersToFile(TString fileName);
 
@@ -44,7 +45,7 @@ private:
   // ----- Sensetive volumes parameters parameters ----------------------------
   static ERQTelescopeSetup* fInstance;
   static TString          fParamsXmlFileName;
-  static vector<TString>  fSensVolumes;
+  static vector<TString>  fDetectorStations;
 
   // ----- SingleSi parameters --------------------------------------------------
   static Int_t            fDoubleSiCount;

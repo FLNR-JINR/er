@@ -4,14 +4,14 @@
 		<doubleSiTypes>
 			<doubleSi id="DoubleSi1">
 				<doubleSiSize doubleSiX="100" doubleSiY="100" doubleSiZ="0.01"/>
-				<doubleSiSensAreaSize doubleSiSensX="100" doubleSiSensY="100" doubleSiSensZ="0.01"/>
+				<doubleSiSensAreaSize doubleSiSensX="100" doubleSiSensY="100" doubleSiSensZ="1"/>
 				<stripCountX>16</stripCountX>
 				<stripCountY>16</stripCountY>
 				<doubleSiMedia>silicon</doubleSiMedia>
 			</doubleSi>
 			<doubleSi id="DoubleSi2">
 				<doubleSiSize doubleSiX="100" doubleSiY="100" doubleSiZ="0.01"/>
-				<doubleSiSensAreaSize doubleSiSensX="100" doubleSiSensY="100" doubleSiSensZ="0.01"/>
+				<doubleSiSensAreaSize doubleSiSensX="100" doubleSiSensY="100" doubleSiSensZ="1"/>
 				<stripCountX>16</stripCountX>
 				<stripCountY>16</stripCountY>
 				<doubleSiMedia>silicon</doubleSiMedia>
@@ -20,13 +20,13 @@
 		<singleSiTypes>
 			<singleSi id="SingleSi1">
 				<singleSiSize singleSiX="100" singleSiY="100" singleSiZ="0.01"/>
-				<singleSiSensAreaSize singleSiSensX="100" singleSiSensY="100" singleSiSensZ="0.01"/>
+				<singleSiSensAreaSize singleSiSensX="100" singleSiSensY="100" singleSiSensZ="1"/>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>	
 			<singleSi id="SingleSi2">
 				<singleSiSize singleSiX="100" singleSiY="100" singleSiZ="0.01"/>
-				<singleSiSensAreaSize singleSiSensX="100" singleSiSensY="100" singleSiSensZ="0.01"/>
+				<singleSiSensAreaSize singleSiSensX="100" singleSiSensY="100" singleSiSensZ="1"/>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>	
@@ -34,13 +34,13 @@
 	</SiTypes>
 	<CsITypes>
 		<CsI id="CsI1">
-			<CsISize CsIX="100" CsIY="100" CsIZ="0.01"/>
+			<CsISize CsIX="100" CsIY="100" CsIZ="1"/>
 			<cubesCountX>2</cubesCountX>			
 			<cubesCountY>2</cubesCountY>
 			<CsIMedia>CsI</CsIMedia>
 		</CsI>	
 		<CsI id="CsI2">
-			<CsISize CsIX="100" CsIY="100" CsIZ="0.01"/>
+			<CsISize CsIX="100" CsIY="100" CsIZ="1"/>
 			<cubesCountX>4</cubesCountX>			
 			<cubesCountY>4</cubesCountY>			
 			<CsIMedia>CsI</CsIMedia>

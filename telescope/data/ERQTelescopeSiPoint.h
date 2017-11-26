@@ -42,7 +42,7 @@ class ERQTelescopeSiPoint : public FairMCPoint
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t StationNb ,Int_t X_StripNb, Int_t Y_StripNb);
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t StationNb ,Int_t X_StripNb);
 
 
 
@@ -84,8 +84,7 @@ class ERQTelescopeSiPoint : public FairMCPoint
   // Int_t Sensor() const {return fSensor;}
 
   Int_t          StationNb() {return fStationNb;}     // Si
-  Int_t          X_StripNb()   {return fX_Strip;}
-  Int_t          Y_StripNb()   {return fY_Strip;}
+  Int_t          StripNb()   {return fStrip;}
 
 
   /** Check for distance between in and out **/
@@ -102,8 +101,7 @@ class ERQTelescopeSiPoint : public FairMCPoint
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
   Int_t      fStationNb;     // Si
-  Int_t      fX_Strip;
-  Int_t      fY_Strip;
+  Int_t      fStrip;
   ClassDef(ERQTelescopeSiPoint,1)
 };
 #endif

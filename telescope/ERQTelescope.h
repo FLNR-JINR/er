@@ -125,26 +125,27 @@ public:
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
 
 private:
-  ERQTelescopeSetup *fQTelescopeSetup;
+  ERQTelescopeSetup         *fQTelescopeSetup;
+  vector<TClonesArray*>     fDoubleSiXPoints;          //!  The point collection
+  vector<TClonesArray*>     fDoubleSiYPoints;          //!  The point collection
+  vector<TClonesArray*>     fSingleSiPoints;          //!  The point collection
+  vector<TClonesArray*>     fCsIPoints;          //!  The point collection
 
-  TClonesArray      *fSiPoint;          //!  The point collection
-  TClonesArray      *fCsIPoint;         //!  The point collection
-  Int_t             fVersion;           //! geometry version
+  Int_t                     fVersion;           //! geometry version
 
-  Int_t             fEventID;           //!  event index
-  Int_t             fTrackID;           //!  track index
-  Int_t             fMot0TrackID;       //!  0th mother track index
-  Double_t          fMass;              //!  mass
-  TLorentzVector    fPosIn, fPosOut;    //!  position
-  TLorentzVector    fMomIn, fMomOut;    //!  momentum
-  Double32_t        fTime;              //!  time
-  Double32_t        fLength;            //!  length
-  Double32_t        fEloss;             //!  energy loss
-  Int_t             fN_Station;         // Si
-  Int_t             fX_Strip;
-  Int_t             fY_Strip;
-  Int_t             fN_Block;           // CsI (0-3)
-  Int_t             fN_Wall;
+  Int_t                     fEventID;           //!  event index
+  Int_t                     fTrackID;           //!  track index
+  Int_t                     fMot0TrackID;       //!  0th mother track index
+  Double_t                  fMass;              //!  mass
+  TLorentzVector            fPosIn, fPosOut;    //!  position
+  TLorentzVector            fMomIn, fMomOut;    //!  momentum
+  Double32_t                fTime;              //!  time
+  Double32_t                fLength;            //!  length
+  Double32_t                fEloss;             //!  energy loss
+  Int_t                     fSiStationNb;         // Si
+  Int_t                     fSiStripNb;
+  Int_t                     fCsIBoxNb;           // CsI (0-3)
+  Int_t                     fCsIStationNb;
 
 
 private:
@@ -152,9 +153,8 @@ private:
    **
    ** Adds a NeuRadPoint to the Point Collection
    **/
-
-  ERQTelescopeSiPoint* Add_SiPoint();
-  ERQTelescopeCsIPoint* Add_CsIPoint();
+  ERQTelescopeSiPoint* AddSiPoint(TClonesArray& clref);
+  ERQTelescopeCsIPoint* AddCsIPoint(TClonesArray& clref);
 
   /** Private method ResetParameters
    **

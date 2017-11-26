@@ -21,13 +21,9 @@
 
 //-------------------------------------------------------------------------------------------------
 ERQTelescope::ERQTelescope() :
-  ERDetector("ERQTelescope", kTRUE),
-  fSiPoint(NULL),
-  fCsIPoint(NULL)
+  ERDetector("ERQTelescope", kTRUE)
 {
   ResetParameters();
-  fSiPoint =  new TClonesArray("ERQTelescopeSiPoint");
-  fCsIPoint = new TClonesArray("ERQTelescopeCsIPoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fQTelescopeSetup = ERQTelescopeSetup::Instance();
@@ -36,13 +32,9 @@ ERQTelescope::ERQTelescope() :
 }
 //-------------------------------------------------------------------------------------------------
 ERQTelescope::ERQTelescope(const char* name, Bool_t active, Int_t verbose)
-  : ERDetector(name, active,1),
-  fSiPoint(NULL),
-  fCsIPoint(NULL)
+  : ERDetector(name, active,1)
 {
   ResetParameters();
-  fSiPoint =  new TClonesArray("ERQTelescopeSiPoint");
-  fCsIPoint = new TClonesArray("ERQTelescopeCsIPoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fQTelescopeSetup = ERQTelescopeSetup::Instance();
@@ -51,7 +43,7 @@ ERQTelescope::ERQTelescope(const char* name, Bool_t active, Int_t verbose)
 }
 //-------------------------------------------------------------------------------------------------
 ERQTelescope::~ERQTelescope() {
-  if (fSiPoint) {
+/*  if (fSiPoint) {
     fSiPoint->Delete();
     delete fSiPoint;
   }
@@ -59,33 +51,31 @@ ERQTelescope::~ERQTelescope() {
     fCsIPoint->Delete();
     delete fCsIPoint;
   }
+  */
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::Initialize() {
   FairDetector::Initialize();
 }
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeSiPoint* ERQTelescope::Add_SiPoint() {
-  TClonesArray& clref = *fSiPoint;
+ERQTelescopeSiPoint* ERQTelescope::AddSiPoint(TClonesArray& clref) {
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) ERQTelescopeSiPoint(fEventID, fTrackID, fMot0TrackID, fMass,
     TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
     TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
     TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
     TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-    fTime, fLength, fEloss, fN_Station, fX_Strip, fY_Strip);
-
+    fTime, fLength, fEloss, fSiStationNb, fSiStripNb);
 }
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeCsIPoint* ERQTelescope::Add_CsIPoint() {
-  TClonesArray& clref = *fCsIPoint;
+ERQTelescopeCsIPoint* ERQTelescope::AddCsIPoint(TClonesArray& clref) {
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) ERQTelescopeCsIPoint(fEventID, fTrackID, fMot0TrackID, fMass,
     TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
     TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
     TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
     TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-    fTime, fLength, fEloss, fN_Wall, fN_Block);
+    fTime, fLength, fEloss, fCsIStationNb, fCsIBoxNb);
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::ConstructGeometry() {
@@ -119,16 +109,32 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
     gMC->TrackMomentum(fMomOut);
     TString volName = gMC->CurrentVolName();
 	  if (fEloss > 0.){
-      if (volName.Contains("Si")) {
-        gMC->CurrentVolOffID(0, fX_Strip);
-        gMC->CurrentVolOffID(1, fY_Strip);
-        gMC->CurrentVolOffID(2, fN_Station);
-        Add_SiPoint();
+      if (volName.Contains("DoubleSi")) {
+        Int_t xStripNb;
+        Int_t yStripNb;
+        gMC->CurrentVolOffID(0, xStripNb);
+        gMC->CurrentVolOffID(1, yStripNb);
+        gMC->CurrentVolOffID(2, fSiStationNb);
+        if (volName.EndsWith("X")) {
+          // swap X and Y strip numbers
+          xStripNb = xStripNb ^ yStripNb;
+          yStripNb = xStripNb ^ yStripNb;
+          xStripNb = xStripNb ^ yStripNb;
+        }
+        fSiStripNb = xStripNb;
+        AddSiPoint(*(fDoubleSiXPoints[fSiStationNb]));
+        fSiStripNb = yStripNb;
+        AddSiPoint(*(fDoubleSiYPoints[fSiStationNb]));
+      }
+      if (volName.Contains("SingleSi")) {
+        gMC->CurrentVolOffID(0, fSiStripNb) ;
+        gMC->CurrentVolOffID(1, fSiStationNb);
+        AddSiPoint(*(fSingleSiPoints[fSiStationNb]));
       }
       if (volName.Contains("CsI")) {
-        gMC->CurrentVolID(fN_Block);
-        gMC->CurrentVolOffID(1, fN_Wall);
-        Add_CsIPoint();
+        gMC->CurrentVolID(fCsIBoxNb);
+        gMC->CurrentVolOffID(1, fCsIStationNb);
+        AddCsIPoint(*(fCsIPoints[fCsIStationNb]));
       }
     }
   }
@@ -149,20 +155,43 @@ void ERQTelescope::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
 	  Fatal("Init", "IO manager is not set");
-  ioman->Register("ERQTelescopeSiPoint","QTelescope", fSiPoint, kTRUE);
-  ioman->Register("ERQTelescopeCsIPoint","QTelescope", fCsIPoint, kTRUE);
+  vector<TString>* sensVolumes = fQTelescopeSetup->GetDetectorStations();
+  for (Int_t i = 0; i < sensVolumes->size(); i++) {
+    if (sensVolumes->at(i).BeginsWith("DoubleSi")) {
+      fDoubleSiXPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
+      fDoubleSiYPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
+      //TString::Itoa(fDoubleSiXPoints.size(), 10)
+      ioman->Register(sensVolumes->at(i) + "_X",
+                      "QTelescope", fDoubleSiXPoints.back(), kTRUE);
+      ioman->Register(sensVolumes->at(i) + "_Y",
+                      "QTelescope", fDoubleSiYPoints.back(), kTRUE);
+    }
+    if (sensVolumes->at(i).BeginsWith("SingleSi")) {
+      fSingleSiPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
+      TString singleSiInd = (sensVolumes->at(i).Contains("X")) ? "_X" : "_Y";
+      ioman->Register(sensVolumes->at(i),
+                      "QTelescope", fSingleSiPoints.back(), kTRUE);
+    }
+    if (sensVolumes->at(i).BeginsWith("CsI")) {
+      fCsIPoints.push_back(new TClonesArray("ERQTelescopeCsIPoint"));
+      ioman->Register(sensVolumes->at(i),
+                      "QTelescope", fCsIPoints.back(), kTRUE);
+
+    }
+  }
 }
 //-------------------------------------------------------------------------------------------------
 TClonesArray* ERQTelescope::GetCollection(Int_t iColl) const {
-  if (iColl == 0)
+ /* if (iColl == 0)
     return fSiPoint;
   if (iColl == 0)
     return fCsIPoint;
+*/
   return NULL;
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::Print(Option_t *option) const {
-  if(fSiPoint->GetEntriesFast() > 0) {
+/*  if(fSiPoint->GetEntriesFast() > 0) {
     LOG(DEBUG) << "======== Si Points ==================" << FairLogger::endl;
     for (Int_t iPoint = 0; iPoint < fSiPoint->GetEntriesFast(); iPoint++){
       ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)fSiPoint->At(iPoint);
@@ -176,17 +205,28 @@ void ERQTelescope::Print(Option_t *option) const {
       point->Print();
     }
   }
+*/
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::Reset() {
   LOG(INFO) << "  ERQTelescope::Reset()" << FairLogger::endl;
-  fSiPoint->Clear();
-  fCsIPoint->Clear();
+  for(auto &itDobleSiXPoints : fDoubleSiXPoints) {
+    itDobleSiXPoints->Clear();
+  }
+  for(auto &itDobleSiYPoints : fDoubleSiYPoints) {
+    itDobleSiYPoints->Clear();
+  }
+  for(auto &itSingleSiPoints : fSingleSiPoints) {
+    itSingleSiPoints->Clear();
+  }
+  for(auto &itCsIPoints : fCsIPoints) {
+    itCsIPoints->Clear();
+  }
   ResetParameters();
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
-  LOG(INFO) << "   ERQTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)"
+/*  LOG(INFO) << "   ERQTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)"
             << FairLogger::endl;
   Int_t nEntries = cl1->GetEntriesFast();
   LOG(INFO) << "QTelescope: " << nEntries << " entries to add" << FairLogger::endl;
@@ -199,11 +239,12 @@ void ERQTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset
    new (clref[cl2->GetEntriesFast()]) ERQTelescopeSiPoint(*oldpoint);
   }
   LOG(INFO) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
+*/
 }
 //-------------------------------------------------------------------------------------------------
 Bool_t ERQTelescope::CheckIfSensitive(std::string name) {
   TString volName = name;
-  if(volName.Contains("box")) {
+  if(volName.BeginsWith("Sensitive")) {
     return kTRUE;
   }
   return kFALSE;
