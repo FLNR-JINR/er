@@ -43,6 +43,7 @@ ERQTelescopeSetup.cxx
 data/ERQTelescopeSiPoint.cxx
 data/ERQTelescopeSiDigi.cxx
 data/ERQTelescopeCsIPoint.cxx
+data/ERQTelescopeCsIDigi.cxx
 
 #AculRaw
 data/AculRaw.cxx
