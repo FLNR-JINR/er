@@ -42,24 +42,24 @@ void sim(Int_t nEvents = 1000){
 
   Int_t verbose = 0;
 
-  ERDetector* detector= new ERDetector("TestDetector", kTRUE,verbose);
+  ERDetector* detector= new ERDetector("TestDetector1", kTRUE,verbose);
   detector->SetGeometryFileName("N15.base.geo.root");
   detector->AddSensetive("gas");
   detector->AddSensetive("plastic");
   run->AddModule(detector);
-
-  ERDetector* detector1= new ERDetector("TestDetector1", kTRUE,verbose);
+  
+  ERDetector* detector1= new ERDetector("TestDetector2", kTRUE,verbose);
   detector1->SetGeometryFileName("N15.base.geo_2.root");
   detector1->AddSensetive("gas1");
   detector1->AddSensetive("plastic1");
   run->AddModule(detector1);
-
-  ERDetector* detector2= new ERDetector("TestDetector2", kTRUE,verbose);
+  
+  ERDetector* detector2= new ERDetector("TestDetector3", kTRUE,verbose);
   detector2->SetGeometryFileName("N15.base.geo_4.root");
   detector2->AddSensetive("gas2");
   detector2->AddSensetive("plastic2");
   run->AddModule(detector2);
-
+  
   //------    ER Decayer   -------------------------------------------------
   ERDecayer* decayer = new ERDecayer();
   ERTextDecay* decay = new ERTextDecay("15Nto15N11B");

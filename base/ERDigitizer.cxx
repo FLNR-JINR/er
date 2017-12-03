@@ -59,14 +59,13 @@ InitStatus ERDigitizer::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
 
-  TList* allBranchNames = ioman->GetBranchNameList();
+  TList* allBranchNames = (TList*)ioman->GetInChain()->GetListOfBranches();
   TIter nextBranch(allBranchNames);
   TObjString* bName;
   vector<TString> pointBranches;
   while (bName = (TObjString*)nextBranch()){
     if (bName->GetString().Contains(fName) && bName->GetString().Contains("Point")){
       pointBranches.push_back(bName->GetString());
-      LOG(INFO) << bName->GetString() << endl;
     }
   }
 
@@ -74,7 +73,7 @@ InitStatus ERDigitizer::Init()
     TString pBranch = pointBranches[iBranch];
     fSenVolPoints[pBranch] = (TClonesArray*) ioman->GetObject(pBranch);
     fSenVolDigis[pBranch] = new TClonesArray("ERDigi");
-    ioman->Register(pBranch+"Digi", fName, fSenVolDigis[pBranch], kTRUE);
+    ioman->Register(pBranch(0,pBranch.Length()-5)+"Digi", fName, fSenVolDigis[pBranch], kTRUE);
   }
   return kSUCCESS;
 }
