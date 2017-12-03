@@ -20,15 +20,16 @@ private:
 	TRandom3 *fRnd;
 
 	TParticlePDG*   fInputIonPDG;
-	TParticlePDG*   fOutputIonPDG;
+	//TParticlePDG*   fOutputIonPDG;
   std::vector<TParticlePDG*> fOutputParticlesPDG;
+  std::vector<TNamed*> fOutputs;
 
   Double_t fDecayPosZ;
   TLorentzVector fDecayPos;
   Bool_t fDecayFinish;
 
   FairIon* fInputIon;
-  FairIon* fOutputIon;
+  std::vector<FairIon*> fOutputIons;
   TLorentzVector fInputIonV;
   
   TString fFileName;
@@ -48,6 +49,8 @@ private:
   Float_t fExponentialTau;
 
   TString fVolumeName;
+
+  Double_t fStep;
 public:
 	ERTextDecay(TString name);
 	~ERTextDecay();
@@ -60,12 +63,13 @@ public:
 
 	void SetDecayPosZ(Double_t pos) {fDecayPosZ = pos;}
 	void SetInputIon(Int_t A, Int_t Z, Int_t Q);
-	void SetOutputIon(Int_t A, Int_t Z, Int_t Q);
+	void AddOutputIon(Int_t A, Int_t Z, Int_t Q);
 	void AddOutputParticle(Int_t pdg);
   void SetFileName(TString name){fFileName = name;}
   void SetUniformPos(Double_t a, Double_t b);
   void SetExponentialPos(Double_t start, Double_t tau);
   void SetDecayVolume(TString name){fVolumeName = name;}
+  void SetStep(Double_t step){fStep = step;}
 	ClassDef(ERTextDecay,1)
 };
 

@@ -10,6 +10,7 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "FairLogger.h"
 
 #include "ERPoint.h"
 
@@ -65,6 +66,7 @@ InitStatus ERDigitizer::Init()
   while (bName = (TObjString*)nextBranch()){
     if (bName->GetString().Contains(fName) && bName->GetString().Contains("Point")){
       pointBranches.push_back(bName->GetString());
+      LOG(INFO) << bName->GetString() << endl;
     }
   }
 
@@ -105,6 +107,8 @@ void ERDigitizer::Exec(Option_t* opt){
           fTime = point->GetTime();
         }
       }
+
+
       TString volName = itSenVol.first(fName.Length(),itSenVol.first.Length()-fName.Length()-5);
       
       if (fSenVolErrors.find(volName) == fSenVolErrors.end()){
