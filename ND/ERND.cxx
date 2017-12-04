@@ -54,9 +54,15 @@ void ERND::Initialize()
 
 Bool_t ERND::ProcessHits(FairVolume* vol) {
   // Set constants for Birk's Law implentation
+  /*
   static const Double_t dP = 1.032 ;
   static const Double_t BirkC1 =  0.013/dP;
   static const Double_t BirkC2 =  9.6e-6/(dP * dP);
+  */
+  //Birks constants from Craun, R. L.; Smith, D. L. NIM 80,2, p. 239, 1970
+  static const Double_t dP = 0.97;
+  static const Double_t BirkC1 =  0.00856/dP;
+  static const Double_t BirkC2 =  4.99e-6/(dP * dP);
 
   static Int_t          eventID;           //!  event index
   static Int_t          trackID;           //!  track index
