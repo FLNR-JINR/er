@@ -134,10 +134,10 @@ void ERNDDigitizer::Exec(Option_t* opt)
       }
     }
 
-    Float_t edepSigma = fEdepErrorA + fEdepErrorB*TMath::Sqrt(edep) + fEdepErrorC*edep;
+    Float_t edepSigma = pow(fEdepErrorA,2) + pow(fEdepErrorB*TMath::Sqrt(edep/1000.),2) + pow(fEdepErrorC*edep/1000.,2);
     edep = gRandom->Gaus(edep, edepSigma);
 
-    Float_t lySigma = fLYErrorA + fLYErrorB*TMath::Sqrt(ly) + fLYErrorC*ly;
+    Float_t lySigma = pow(fLYErrorA,2) + pow(fLYErrorB*TMath::Sqrt(ly/1000.),2) + pow(fLYErrorC*ly/1000.,2);
     ly = gRandom->Gaus(ly, lySigma);
 
     Float_t timeSigma = TMath::Sqrt(fTimeErrorA/ly);
