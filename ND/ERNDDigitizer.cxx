@@ -137,6 +137,12 @@ void ERNDDigitizer::Exec(Option_t* opt)
     Float_t edepSigma = sqrt(pow(fEdepErrorA,2) + pow(fEdepErrorB*TMath::Sqrt(edep/1000.),2) + pow(fEdepErrorC*edep,2));
     edep = gRandom->Gaus(edep, edepSigma);
 
+    /*
+    fEdepErrorB and fLYErrorB are expressed in per cent divided by square root of edep or LY,
+    expressed in MeVlike it is usually done in detector description. e.g. for Edep=0.001 (i.e. 1 Mev)
+    sigma is equal0.04*0.001Gev = 0.04 MeV
+    */
+
     Float_t lySigma = sqrt(pow(fLYErrorA,2) + pow(fLYErrorB*TMath::Sqrt(ly/1000.),2) + pow(fLYErrorC*ly,2));
     ly = gRandom->Gaus(ly, lySigma);
 
