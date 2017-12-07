@@ -34,6 +34,7 @@ void be6_sim(Int_t nEvents = 1){
   FairModule* target = new ERTarget("Target", kTRUE,1);
   target->SetGeometryFileName("target.3h.geo.root");
   run->AddModule(target);
+
   //------    ER Decayer   -------------------------------------------------
   ERDecayer* decayer = new ERDecayer();
   ERTextDecay* decay = new ERTextDecay("6Beto4He2p");
@@ -41,7 +42,7 @@ void be6_sim(Int_t nEvents = 1){
   decay->SetOutputIon(2,4,2);
   decay->AddOutputParticle(2212);
   decay->AddOutputParticle(2212);
-  decay->SetUniformPos(0.5,0.7);
+  decay->SetUniformPos(-0.1,0.1);
   decay->SetFileName("generators/6be_chex_noal_0_v2.dat");
   decay->SetDecayVolume("target3H");
   decayer->AddDecay(decay);
@@ -52,7 +53,7 @@ void be6_sim(Int_t nEvents = 1){
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
   ERIonGenerator* ionGenerator = new ERIonGenerator("6Be",4,6,4,1);
-  Double32_t kin_energy = 0.025*9; //GeV
+  Double32_t kin_energy = 0.0325*6; //GeV
   Double_t mass = ionGenerator->Ion()->GetMass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   ionGenerator->SetPRange(momentum, momentum);
