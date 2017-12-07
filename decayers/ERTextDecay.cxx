@@ -37,9 +37,9 @@ ERTextDecay::~ERTextDecay(){
 Bool_t ERTextDecay::Init(){
 
   if (fInputIon) {
-    fInputIonPDG = TDatabasePDG::Instance()->GetParticle(fInputIonName);
+    fInputIonPDG = TDatabasePDG::Instance()->GetParticle(fInputIon->GetName());
     if ( ! fInputIonPDG ) {
-        std::cerr  << "ERTextDecay: Ion " << fInputIonName << " not found in database!"<< endl;
+        std::cerr  << "ERTextDecay: Ion " << fInputIon->GetName() << " not found in database!"<< endl;
         return kFALSE;
     }
   }
@@ -49,9 +49,9 @@ Bool_t ERTextDecay::Init(){
   }
 
   if (fOutputIon){
-    fOutputIonPDG = TDatabasePDG::Instance()->GetParticle(fOutputIonName);
+    fOutputIonPDG = TDatabasePDG::Instance()->GetParticle(fOutputIon->GetName());
     if ( ! fOutputIonPDG ) {
-        std::cerr  << "ERTextDecay: Ion "<< fOutputIonName <<" not found in database!" << endl;
+        std::cerr  << "ERTextDecay: Ion "<< fOutputIon->GetName() <<" not found in database!" << endl;
         return kFALSE;
     }
   }

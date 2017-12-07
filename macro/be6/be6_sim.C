@@ -1,5 +1,5 @@
-void he8_sim(Int_t nEvents = 10){
-  //---------------------Files-----------------------------------------------
+void be6_sim(Int_t nEvents = 1){
+	//---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
   // ------------------------------------------------------------------------
@@ -35,28 +35,15 @@ void he8_sim(Int_t nEvents = 10){
   target->SetGeometryFileName("target.3h.geo.root");
   run->AddModule(target);
 
-  ERBeamDet* beamDet= new ERBeamDet("ERBeamDet", kTRUE,1);
-  beamDet->SetGeometryFileName("beamdet.v1.geo.root");
-  run->AddModule(beamDet);
-
-  ERQTelescope* QTelescope= new ERQTelescope("ERQTelescope", kTRUE,1);
-  QTelescope->SetGeometryFileName("QTelescope.v2.geo.root");
-  run->AddModule(QTelescope);
-
-  ERRTelescope* RTelescope= new ERRTelescope("ERRTelescope", kTRUE,1);
-  RTelescope->SetGeometryFileName("RTelescope.v2.geo.root"); 
-  run->AddModule(RTelescope);
-
-  // ------------------------------------------------------------------------
   //------    ER Decayer   -------------------------------------------------
   ERDecayer* decayer = new ERDecayer();
-  ERTextDecay* decay = new ERTextDecay("10Heto8He2n");
-  decay->SetInputIon(2,10,2);
-  decay->SetOutputIon(2,8,2);
-  decay->AddOutputParticle(2112);
-  decay->AddOutputParticle(2112);
-  decay->SetUniformPos(0.5,0.7);
-  decay->SetFileName("generators/generator_10He_decay.dat");
+  ERTextDecay* decay = new ERTextDecay("6Beto4He2p");
+  decay->SetInputIon(4,6,4);
+  decay->SetOutputIon(2,4,2);
+  decay->AddOutputParticle(2212);
+  decay->AddOutputParticle(2212);
+  decay->SetUniformPos(-0.1,0.1);
+  decay->SetFileName("generators/6be_chex_noal_0_v2.dat");
   decay->SetDecayVolume("target3H");
   decayer->AddDecay(decay);
   run->SetDecayer(decayer);
@@ -65,8 +52,8 @@ void he8_sim(Int_t nEvents = 10){
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
-  ERIonGenerator* ionGenerator = new ERIonGenerator("10He",2,10,2,1);
-  Double32_t kin_energy = 0.025*9; //GeV
+  ERIonGenerator* ionGenerator = new ERIonGenerator("6Be",4,6,4,1);
+  Double32_t kin_energy = 0.0325*6; //GeV
   Double_t mass = ionGenerator->Ion()->GetMass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   ionGenerator->SetPRange(momentum, momentum);
