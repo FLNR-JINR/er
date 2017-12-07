@@ -37,12 +37,12 @@ void sim_egor(Int_t nEvents = 100000)
   FairModule* cave = new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo"); // cave air
   run->AddModule(cave);
-
+/*
   ERCollimator* coll = new ERCollimator("COLLIMATOR");
   coll->SetGeometryFileName("collimator.geo.root");
 //  coll->SetModulePosition(0., 0., 2.5);
   run->AddModule(coll);
-
+*/
   ERSensPlane* sensPlane = new ERSensPlane("SENSPLANE");
   sensPlane->SetGeometryFileName("sensPlane.geo.root");
 //  sensPlane->SetDetectorPosition(0., 0., 10.);

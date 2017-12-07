@@ -213,14 +213,18 @@ Bool_t ERNeuRad::CheckIfSensitive(std::string name) {
 
 //-------------------------------------------------------------------------------------------------
 void ERNeuRad::StartNewPoint() {
+
   fELoss = 0.;
   fLightYield = 0.;
   fStepNb = 0;
   fEventID = gMC->CurrentEvent();
+
+  // Get in position, in momentum and in time from the MC engine
   gMC->TrackPosition(fPosIn);
   gMC->TrackMomentum(fMomIn);
-  fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
   fTimeIn = gMC->TrackTime() * 1.0e09; // current time of flight of the track being transported
+
+  fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
   fTrackLength = gMC->TrackLength(); // length of the current track from its origin (in cm)
   fMot0TrackID = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
   fMass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
@@ -238,18 +242,22 @@ void ERNeuRad::StartNewPoint() {
 
   //TODO check!!!
   // Пересчитываем номер пикселя если введены субмодули
-  if (TString(gMC->CurrentVolOffName(3)).Contains("submodul")) {
+  if (TString(gMC->CurrentVolOffName(3)).Contains("submodul"))
+  {
     Int_t pixel_in_submodule_X = 4;
     Int_t pixel_in_submodule_Y = 4;
     Int_t submodule_in_module_X = 2;
     Int_t submodule_in_module_Y = 2;
-    Int_t pixel_row = fPixelNb/pixel_in_submodule_X;
-    Int_t pixel_col = fPixelNb%pixel_in_submodule_X;
-    Int_t subm_row = fModuleNb/submodule_in_module_X;
-    Int_t subm_col = fModuleNb%submodule_in_module_X;
-    fPixelNb = subm_row*submodule_in_module_X*pixel_in_submodule_X*pixel_in_submodule_Y
-                +pixel_row*submodule_in_module_X*pixel_in_submodule_X
-                +subm_col*pixel_in_submodule_X+pixel_col;
+    
+    Int_t pixel_row = fPixelNb / pixel_in_submodule_X;
+    Int_t pixel_col = fPixelNb % pixel_in_submodule_X;
+    Int_t subm_row = fModuleNb / submodule_in_module_X;
+    Int_t subm_col = fModuleNb % submodule_in_module_X;
+
+    fPixelNb = subm_row * submodule_in_module_X * pixel_in_submodule_X * pixel_in_submodule_Y
+                + pixel_row * submodule_in_module_X * pixel_in_submodule_X
+                + subm_col * pixel_in_submodule_X + pixel_col;
+
     corOffVolId = gMC->CurrentVolOffID(4, fModuleNb);
   }
 
@@ -264,6 +272,8 @@ void ERNeuRad::StartNewPoint() {
 
 //-------------------------------------------------------------------------------------------------
 void ERNeuRad::FinishNewPoint() {
+
+  // Get out position, out momentum and out time from the MC engine
   gMC->TrackPosition(fPosOut);
   gMC->TrackMomentum(fMomOut);
   fTimeOut = gMC->TrackTime() * 1.0e09; // convert from seconds to nanoseconds
