@@ -15,7 +15,8 @@
 // -----   Default constructor   -------------------------------------------
 ERND::ERND() : 
   FairDetector("ERND", kTRUE),
-   fNDPoints(NULL)
+   fNDPoints(NULL),
+   fStep(0.1)
 {
   LOG(INFO) << "  ERND::ERND()" << FairLogger::endl;
   ResetParameters();
@@ -74,7 +75,9 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
   static Double32_t     length;            //!  length
   static Double32_t     eLoss;             //!  energy loss
   static Int_t          stilbenNr;
-  static Double_t       lightYield; 
+  static Double_t       lightYield;
+
+  gMC->SetMaxStep(fStep);
 
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     eLoss  = 0.;
