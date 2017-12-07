@@ -41,6 +41,7 @@ void ND_sim(Int_t nEvents = 1){
   Int_t verbose = 1;
   ERND* nd= new ERND("ERND", kTRUE,verbose);
   nd->SetGeometryFileName("ND2ch.geo.root");
+  nd->SetMaxStep(0.1);
   run->AddModule(nd);
   // ------------------------------------------------------------------------
 	
@@ -49,7 +50,7 @@ void ND_sim(Int_t nEvents = 1){
   
   //first generator
   Int_t pdgId = 22; // gamma  beam
-  Double32_t kin_energy = 1.117e-6; //GeV
+  Double32_t kin_energy = 1.117e-3; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   
@@ -62,7 +63,7 @@ void ND_sim(Int_t nEvents = 1){
   primGen->AddGenerator(boxGen1);
 
   //second generator
-  kin_energy = 1.33e-6; //GeV
+  kin_energy = 1.33e-3; //GeV
   mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   

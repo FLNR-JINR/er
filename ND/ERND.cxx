@@ -90,7 +90,7 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     pdg = gMC->TrackPid(); // GeV/c2
-    gMC->CurrentVolOffID(1, stilbenNr); 
+    gMC->CurrentVolOffID(3,stilbenNr); 
   }
   
   eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
