@@ -56,6 +56,7 @@ void ND_sim(Int_t nEvents = 1){
   
   FairBoxGenerator* boxGen1 = new FairBoxGenerator(pdgId, 1);
   boxGen1->SetThetaRange(60., 90.);
+  boxGen1->SetCosTheta();
   boxGen1->SetPRange(momentum, momentum);
   boxGen1->SetPhiRange(-5, 5.);
   boxGen1->SetXYZ(0.,0.,0.);
@@ -69,6 +70,7 @@ void ND_sim(Int_t nEvents = 1){
   
   FairBoxGenerator* boxGen2 = new FairBoxGenerator(pdgId, 1);
   boxGen2->SetThetaRange(60., 90.);
+  boxGen2->SetCosTheta();
   boxGen2->SetPRange(momentum, momentum);
   boxGen2->SetPhiRange(175., 185.);
   boxGen2->SetXYZ(0.,0.,0.);
