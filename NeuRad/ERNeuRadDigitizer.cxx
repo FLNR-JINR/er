@@ -124,6 +124,7 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   fSumAmplitudeF = 0;
   fSumAmplitudeB = 0;
 
+  //TODO is this the correct way to get the current event number?
   Int_t iEvent = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
   LOG(INFO) << "ERNeuRadDigitizer::Exec: " << "Event " << iEvent << FairLogger::endl;
 

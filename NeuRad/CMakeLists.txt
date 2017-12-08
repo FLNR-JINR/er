@@ -34,6 +34,7 @@ set(SRCS
 	ERNeuRadHitFinderWBT.cxx
 	ERNeuRadMatcher.cxx
 	ERNeuRadViewer.cxx
+	ERNeuRadWBTanalyser.cxx
 	data/ERNeuRadPoint.cxx
 	data/ERNeuRadPhotoElectron.cxx
 	data/ERNeuRadPixelSignal.cxx

@@ -1,4 +1,4 @@
-void digi_egor(Int_t nEvents = 10)
+void digi_egor(Int_t nEvents = 1000)
 {
   //---------------------Files-----------------------------------------------
   TString workDir = "results/";
@@ -48,7 +48,7 @@ void digi_egor(Int_t nEvents = 10)
   rtdb->setSecondInput(parInput2);
 
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
   run->Init();
   run->Run(0, nEvents);
   // ------------------------------------------------------------------------
