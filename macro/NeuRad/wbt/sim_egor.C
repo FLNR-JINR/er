@@ -1,8 +1,9 @@
-void sim_egor(Int_t nEvents = 100000)
+void sim_egor(Int_t nEvents = 1000)
 {
   //---------------------Files-----------------------------------------------
-  TString outFile = "sim.root";
-  TString parFile = "par.root";
+  TString workDir = "results/";
+  TString outFile = workDir + "sim.root";
+  TString parFile = workDir + "par.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -91,6 +92,7 @@ void sim_egor(Int_t nEvents = 100000)
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
 
   // -----   Initialize simulation run   ------------------------------------
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
   run->Init();
   Int_t nSteps = -15000; //TODO Why negative?
   //gMC->SetMaxNStep(nSteps);

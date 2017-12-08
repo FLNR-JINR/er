@@ -43,9 +43,13 @@ public:
                Int_t stepNr,
                Int_t trackID,
                Int_t mot0trackID,
-               Int_t fiberNb,
-               Int_t pixelNb,
-               Int_t moduleNb,
+
+               //Int_t fiberNb,
+               //Int_t pixelNb,
+               //Int_t moduleNb,
+               UInt_t fPmtId,
+               UInt_t fChId,
+
                TVector3 pos,
                TVector3 mom,
                Double_t tof,
@@ -66,12 +70,17 @@ public:
   ERNeuRadStep& operator=(const ERNeuRadStep&) { return *this; }
 
   /** Accessors **/
-  Int_t GetFiberNb() const {return fFiberNb;}
-  Int_t GetPixelNb() const {return fPixelNb;}
-  Int_t GetModuleNb() const {return fModuleNb;}
-  Double_t GetX() const {return fX;}
-  Double_t GetY() const {return fY;}
-  Double_t GetZ() const {return fZ;}
+
+  //Int_t GetFiberNb() const { return fFiberNb; }
+  //Int_t GetPixelNb() const { return fPixelNb; }
+  //Int_t GetModuleNb() const { return fModuleNb; }
+  UInt_t GetPmtId() const { return fPmtId; }
+  UInt_t GetChId() const { return fChId; }
+
+  Double_t GetX() const { return fX; }
+  Double_t GetY() const { return fY; }
+  Double_t GetZ() const { return fZ; }
+
   void Print();
 
   static ExpertTrackingStatus GetTrackStatus();
@@ -82,9 +91,13 @@ protected:
   Int_t fStepNr;
   Int_t fTrackID;
   Int_t fMot0TrackID;
-  Int_t fFiberNb;
-  Int_t fPixelNb;
-  Int_t fModuleNb;
+
+  //Int_t fFiberNb;
+  //Int_t fPixelNb;
+  //Int_t fModuleNb;
+  UInt_t fPmtId;
+  UInt_t fChId;
+
   Double32_t fX,  fY,  fZ;
   Double32_t fPx, fPy, fPz;
   Double32_t fTOF;

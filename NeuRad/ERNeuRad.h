@@ -147,6 +147,11 @@ private:
     /** @brief return current point length **/
     Double_t CurPointLen(TLorentzVector& posIn);
 
+    /** @brief parse geometry path and compute pmt ID and channel ID **/
+    /** This method fills fPmtId and fChId data members
+    **/
+    void ObtainChIdfromGMC();
+
 private:
 
     TClonesArray*  fNeuRadPoints;     ///< The point collection
@@ -178,9 +183,13 @@ private:
     Double32_t     fTrackLength;      ///< track length from his origin
     Double32_t     fELoss;            ///< energy loss
     Double_t       fLightYield;       ///< light yield
-    Int_t          fFiberNb;          ///< number of fiber in pixel
-    Int_t          fPixelNb;          ///< number of pixel in module
-    Int_t          fModuleNb;         ///< number of module in NeuRad
+
+    //Int_t          fFiberNb;          ///< number of fiber in pixel
+    //Int_t          fPixelNb;          ///< number of pixel in module
+    //Int_t          fModuleNb;         ///< number of module in NeuRad
+    UInt_t          fPmtId;           ///< current pmt ID
+    UInt_t          fChId;            ///< current channel ID
+
     Int_t          fStepNb;           ///< current step numb in this active volumes
     ExpertTrackingStatus fTrackStatus; ///< curren track stutus (transport, stop, disappeared, ...)
     TArrayI        fProcessesID;      ///< VMC prcess IDs in step

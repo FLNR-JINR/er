@@ -27,14 +27,15 @@
 #include "ERNeuRadPixelSignal.h"
 #include "ERNeuRadSetup.h"
 
+//TODO write description for each of these numbers! Woule be very useful.
 const Double_t ERNeuRadDigitizer::cSciFiLightYield= 2000.; // [photons/MeV]
 const Double_t ERNeuRadDigitizer::cSpeedOfLight = 0.299792458e2; // [cm/ns]
 const Double_t ERNeuRadDigitizer::cMaterialSpeedOfLight = ERNeuRadDigitizer::cSpeedOfLight/1.58; // [cm/ns]
+// доля света захватываемая файбером в полное внутреннее отражение в каждую сторону
 const Double_t ERNeuRadDigitizer::cLightFractionInTotalIntReflection = 0.04;
-//доля света захватываемая файбером в полное внутренне отражение в каждую сторону.
-const Double_t ERNeuRadDigitizer::cPixelDelay=6.;//[ns] (H8500)
-const Double_t ERNeuRadDigitizer::cPixelJitter = 0.4/2.36; //[ns] (H8500)
-const Double_t ERNeuRadDigitizer::cScincilationTau = 3.2; //[ns]
+const Double_t ERNeuRadDigitizer::cPixelDelay=6.; //[ns] (H8500)
+const Double_t ERNeuRadDigitizer::cPixelJitter = 0.4/2.36; // [ns] (H8500)
+const Double_t ERNeuRadDigitizer::cScincilationTau = 3.2; // [ns]
 
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer()
@@ -204,8 +205,11 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint,
 
     // Получение информации о поинте
     Double_t fiberLength = fNeuRadSetup->FiberLength();
-    Int_t    pointModule = point->GetModuleNb();
-    Int_t    pointPixel  = point->GetPixelNb();
+
+    //TODO !!!!!
+    Int_t    pointModule = point->GetPmtId();
+    Int_t    pointPixel  = point->GetChId();
+
     Double_t pointELoss  = point->GetEnergyLoss(); // [GeV]
     Double_t pointLYield = point->GetLightYield(); // [GeV]
     Double_t pointZ      = point->GetZInLocal();
@@ -214,10 +218,12 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint,
     Double_t pointZInFiber = pointZ + fiberLength/2.;
 
     LOG(DEBUG) << "+++++++++++" << FairLogger::endl;
+    //TODO !!!!!
     LOG(DEBUG) << "pointModule = " << pointModule << FairLogger::endl;
     LOG(DEBUG) << "pointPixel = " << pointPixel << FairLogger::endl;
 
     // Значение квантовой эффективности для конкретного пикселе
+    //TODO !!!!!
     Double_t PixelQuantumEfficiency = fNeuRadSetup->PixelQuantumEfficiency(pointModule, pointPixel);
 
     LOG(DEBUG) << "+++++++++++" << FairLogger::endl;
@@ -257,13 +263,16 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint,
       // Скорость света в материале
       Double_t peCathodeTime = peLYTime + flightLength/cMaterialSpeedOfLight;
       // Учёт кросстолков
-      Int_t pePixel = pointPixel, peModule = pointModule;
+      //TODO !!!!!
+      Int_t pePixel = pointPixel;
+      Int_t peModule = pointModule;
       if (fUseCrosstalks) {
-        Crosstalks(pointModule,pointPixel, peModule, pePixel);
+        //TODO !!!!!
+        Crosstalks(pointModule, pointPixel, peModule, pePixel);
       }
       // Амплитуда одноэлектронного сигнала
-      Double_t PixelGain = fNeuRadSetup->PixelGain(peModule,pePixel);
-      Double_t PixelSigma = fNeuRadSetup->PixelSigma(peModule,pePixel);
+      Double_t PixelGain = fNeuRadSetup->PixelGain(peModule, pePixel);
+      Double_t PixelSigma = fNeuRadSetup->PixelSigma(peModule, pePixel);
       Double_t peAmplitude = TMath::Abs(gRandom->Gaus(PixelGain, PixelSigma));
       sumAmplitude += peAmplitude;
       // Задержка динодной системы и джиттер
@@ -288,6 +297,7 @@ Int_t ERNeuRadDigitizer::Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& 
   Float_t curProb = 0;
   Int_t csI = -1;
   Int_t csJ = -1;
+
   // Разбиваем отрезок от 0 до 1 на отрезки соответствующие вероятностям кросс-толков.
   // В какой именно промежуток вероятности попадёт prob, в тот файбер и перетечет фотоэлектрон.
   // Последний отрезок соответствует тому что фотоэлектрон останется в своём волокне.
@@ -309,18 +319,18 @@ Int_t ERNeuRadDigitizer::Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& 
   }
 
   // Переход между строками волокон в модуле
-  if (csI == 0){
+  if (csI == 0) {
     pePixel -= fNeuRadSetup->RowNofPixels();
   }
-  if (csI == 2){
+  if (csI == 2) {
     pePixel +=fNeuRadSetup->RowNofPixels();
   }
 
   // Переход между столбцами волокон в модуле
-  if (csJ == 0){
+  if (csJ == 0) {
     pePixel -= 1;
   }
-  if (csJ == 2){
+  if (csJ == 2) {
     pePixel += 1;
   }
 }

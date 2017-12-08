@@ -1,9 +1,10 @@
 void digi_egor(Int_t nEvents = 10)
 {
   //---------------------Files-----------------------------------------------
-  TString inFile  = "sim.root";
-  TString parFile = "par.root";
-  TString outFile = "digi.root";
+  TString workDir = "results/";
+  TString inFile  = workDir + "sim.root";
+  TString parFile = workDir + "par.root";
+  TString outFile = workDir + "digi.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -47,7 +48,7 @@ void digi_egor(Int_t nEvents = 10)
   rtdb->setSecondInput(parInput2);
 
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   run->Init();
   run->Run(0, nEvents);
   // ------------------------------------------------------------------------

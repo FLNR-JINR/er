@@ -1,4 +1,3 @@
-
 /********************************************************************************
  *              Copyright (C) Joint Institute for Nuclear Research              *
  *                                                                              *
@@ -6,10 +5,6 @@
  *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
-
-// -------------------------------------------------------------------------
-// -----                      ERNeuRadStep source file                 -----
-// -------------------------------------------------------------------------
 
 #include "ERNeuRadStep.h"
 
@@ -31,9 +26,13 @@ ERNeuRadStep::ERNeuRadStep(Int_t eventID,
                            Int_t stepNr,
                            Int_t trackID,
                            Int_t mot0trackID,
-                           Int_t fiberNb,
-                           Int_t pixelNb,
-                           Int_t moduleNb,
+
+                           //Int_t fiberNb,
+                           //Int_t pixelNb,
+                           //Int_t moduleNb,
+                           UInt_t pmtId,
+                           UInt_t chId,
+
                            TVector3 pos,
                            TVector3 mom,
                            Double_t tof,
@@ -48,9 +47,13 @@ ERNeuRadStep::ERNeuRadStep(Int_t eventID,
     fStepNr(stepNr),
     fTrackID(trackID),
     fMot0TrackID(mot0trackID),
-    fFiberNb(fiberNb),
-    fPixelNb(pixelNb),
-    fModuleNb(moduleNb),
+
+    //fFiberNb(fiberNb),
+    //fPixelNb(pixelNb),
+    //fModuleNb(moduleNb),
+    fPmtId(pmtId),
+    fChId(chId),
+
     fX(pos.X()),
     fY(pos.Y()),
     fZ(pos.Z()),
@@ -75,9 +78,13 @@ ERNeuRadStep::ERNeuRadStep(const ERNeuRadStep& right)
     fStepNr(right.fStepNr),
     fTrackID(right.fTrackID),
     fMot0TrackID(right.fMot0TrackID),
-    fFiberNb(right.fFiberNb),
-    fPixelNb(right.fPixelNb),
-    fModuleNb(right.fModuleNb),
+
+    //fFiberNb(right.fFiberNb),
+    //fPixelNb(right.fPixelNb),
+    //fModuleNb(right.fModuleNb),
+    fPmtId(right.fPmtId),
+    fChId(right.fChId),
+
     fX(right.fX),
     fY(right.fY),
     fZ(right.fZ),

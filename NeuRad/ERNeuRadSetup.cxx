@@ -55,7 +55,7 @@ ERNeuRadSetup::ERNeuRadSetup() {
 
     // Get Z position of NeuRad
     fZ = neuRad->GetMatrix()->GetTranslation()[2];
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad Z position:" << fZ << FairLogger::endl;
+    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad Z position:" << fZ << " cm" << FairLogger::endl;
 
     // --------------------------------------------------------------------------------------------------------------
 
@@ -76,7 +76,7 @@ ERNeuRadSetup::ERNeuRadSetup() {
         LOG(FATAL) << "ERNeuRadSetup::ERNeuRadSetup: " << "wrong module node name! Aborting." << FairLogger::endl;
       } else {
         // Count the number of modules
-      // TODO unchecked code
+        //TODO unchecked code
         for (UInt_t iDaughterNode=0; iDaughterNode<neuRad->GetDaughter(0)->GetNdaughters(); iDaughterNode++) {
           moduleNodeName = neuRad->GetDaughter(0)->GetDaughter(iDaughterNode)->GetName();
           if (moduleNodeName.Contains("module", TString::kIgnoreCase)) iModulesCounter++;
@@ -95,7 +95,7 @@ ERNeuRadSetup::ERNeuRadSetup() {
     // Get module length along Z
     TGeoBBox* module_box = (TGeoBBox*)module->GetVolume()->GetShape();
     fLength = module_box->GetDZ()*2;
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "module length (Z):" << fLength << FairLogger::endl;
+    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "module length (Z): " << fLength << " cm" << FairLogger::endl;
 
     // --------------------------------------------------------------------------------------------------------------
 
@@ -122,6 +122,7 @@ ERNeuRadSetup::ERNeuRadSetup() {
         LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "Found " << iSubmodulesCounter << " submodules in a module" << FairLogger::endl;
       } else {
         //TODO something is wrong, but not completely wrong...
+        LOG(DEBUG) << "ERNeuRadSetup::ERNeuRadSetup: " << "something is wrong, but not completely wrong..." << FairLogger::endl;
       }
 
       pixel = module->GetDaughter(0)->GetDaughter(0);
@@ -140,7 +141,7 @@ ERNeuRadSetup::ERNeuRadSetup() {
       }
     } else {
       // Count the number of modules
-      // TODO unchecked code
+      //TODO unchecked code
       for (UInt_t iDaughterNode=0; iDaughterNode<module->GetNdaughters(); iDaughterNode++) {
         pixelNodeName = module->GetDaughter(iDaughterNode)->GetName();
         if (pixelNodeName.Contains("pixel", TString::kIgnoreCase)) iPixelsCounter++;
@@ -153,7 +154,7 @@ ERNeuRadSetup::ERNeuRadSetup() {
     // --------------------------------------------------------------------------------------------------------------
 
     // Search for a fiber as the first child of a pixel
-    TGeoNode* fiber = pixel->GetDaughter(0); // fiber with clading and dead zone - TODO?
+    TGeoNode* fiber = pixel->GetDaughter(0); // fiber with cladding and dead zone - TODO? somewhat wrong comment?
     TString fiberNodeName = fiber->GetName();
     LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "fiber node name=" << fiberNodeName << FairLogger::endl;
 
@@ -176,6 +177,8 @@ ERNeuRadSetup::ERNeuRadSetup() {
         LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "Found " << iCladdingsCounter << " claddings in a pixel." << FairLogger::endl;
       } else {
         //TODO something is wrong, but not completely wrong...
+        LOG(DEBUG) << "ERNeuRadSetup::ERNeuRadSetup: " << "something is wrong, but not completely wrong..." << FairLogger::endl;
+
       }
 
       fiber = pixel->GetDaughter(0)->GetDaughter(0);
@@ -196,7 +199,7 @@ ERNeuRadSetup::ERNeuRadSetup() {
       }
     } else {
       // Count the number of fibers
-      // TODO unchecked code
+      //TODO unchecked code
       for (UInt_t iDaughterNode=0; iDaughterNode<pixel->GetNdaughters(); iDaughterNode++) {
         fiberNodeName = pixel->GetDaughter(iDaughterNode)->GetName();
         if (fiberNodeName.Contains("fiber", TString::kIgnoreCase)) iFibersCounter++;
@@ -209,7 +212,7 @@ ERNeuRadSetup::ERNeuRadSetup() {
     // Get fiber width along X
     TGeoBBox* fiber_box = (TGeoBBox*)fiber->GetVolume()->GetShape();
     fFiberWidth = fiber_box->GetDX()*2;
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "fiber width (X):" << fFiberWidth << FairLogger::endl;
+    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "fiber width (X): " << fFiberWidth << FairLogger::endl;
     
     // --------------------------------------------------------------------------------------------------------------
 
@@ -244,9 +247,9 @@ ERNeuRadSetup::ERNeuRadSetup() {
       fRowNofFibers = Int_t(TMath::Sqrt(pixel->GetNdaughters()));
     }
 */
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad modules in row count:" << fRowNofModules << FairLogger::endl;
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad pixels in row count:" << fRowNofPixels << FairLogger::endl;
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad fibers in row count:" << fRowNofFibers << FairLogger::endl;
+    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad modules in row count: " << fRowNofModules << FairLogger::endl;
+    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad pixels in row count: " << fRowNofPixels << FairLogger::endl;
+    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad fibers in row count: " << fRowNofFibers << FairLogger::endl;
 
     LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "initialized! "<< FairLogger::endl;
 }

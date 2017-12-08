@@ -102,10 +102,10 @@ void create_NeuRad_Wupper_Proto_geo()
   TString matrixName;
 
   // 2*2 claddings in pixel
-  for (UInt_t iX=0; iX<2; iX++) {
-    for (UInt_t iY=0; iY<2; iY++) {
-      matrixName.Form("mCladdingInPixel_%d", iX*2+iY);
-      pixelVol->AddNode(claddingVol, iX*2+iY+1, new TGeoCombiTrans(matrixName,
+  for (UInt_t iY=0; iY<2; iY++) {
+    for (UInt_t iX=0; iX<2; iX++) {
+      matrixName.Form("mCladdingInPixel_%d", iX+iY*2);
+      pixelVol->AddNode(claddingVol, iX+iY*2+1, new TGeoCombiTrans(matrixName,
           -fiberXsize/2.+fiberXsize*iX, -fiberYsize/2.+fiberYsize*iY, 0., rotNoRot));
     }
   }
@@ -114,10 +114,10 @@ void create_NeuRad_Wupper_Proto_geo()
   Double_t pixelXsize = 2.*fiberXsize;
   Double_t pixelYsize = 2.*fiberYsize;
 
-  for (UInt_t iX=0; iX<4; iX++) {
-    for (UInt_t iY=0; iY<4; iY++) {
-      matrixName.Form("mPixelInSubmodule_%d", iX*4+iY);
-      submoduleVol->AddNode(pixelVol, iX*4+iY+1, new TGeoCombiTrans(matrixName,
+  for (UInt_t iY=0; iY<4; iY++) {
+    for (UInt_t iX=0; iX<4; iX++) {
+      matrixName.Form("mPixelInSubmodule_%d", iX+iY*4);
+      submoduleVol->AddNode(pixelVol, iX+iY*4+1, new TGeoCombiTrans(matrixName,
           -3.*pixelXsize/2.+pixelXsize*iX, -3.*pixelYsize/2.+pixelYsize*iY, 0., rotNoRot));
     }
   }
@@ -126,10 +126,10 @@ void create_NeuRad_Wupper_Proto_geo()
   Double_t submoduleXsize = 8.*fiberXsize + 2.*subm_wrap_thickness;
   Double_t submoduleYsize = 8.*fiberYsize + 2.*subm_wrap_thickness;
 
-  for (UInt_t iX=0; iX<2; iX++) {
-    for (UInt_t iY=0; iY<2; iY++) {
-      matrixName.Form("mSubmoduleInModule_%d", iX*2+iY);
-      moduleVol->AddNode(submoduleVol, iX*2+iY+1, new TGeoCombiTrans(matrixName,
+  for (UInt_t iY=0; iY<2; iY++) {
+    for (UInt_t iX=0; iX<2; iX++) {
+      matrixName.Form("mSubmoduleInModule_%d", iX+iY*2);
+      moduleVol->AddNode(submoduleVol, iX+iY*2+1, new TGeoCombiTrans(matrixName,
           -submoduleXsize/2.+submoduleXsize*iX, -submoduleYsize/2.+submoduleYsize*iY, 0., rotNoRot));
     }
   }

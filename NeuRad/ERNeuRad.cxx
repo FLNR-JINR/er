@@ -229,19 +229,24 @@ void ERNeuRad::StartNewPoint() {
   fMot0TrackID = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
   fMass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
 
-  Int_t curVolId, corOffVolId;
+  ObtainChIdfromGMC();
+
+  //Int_t curVolId;
+  //Int_t corOffVolId;
 
   /*if(!(TString(gMC->CurrentVolOffName(1)).Contains("dead") &&
        TString(gMC->CurrentVolOffName(2)).Contains("pixel"))) {
     LOG(FATAL) << "Old version of geometry structure is used" << FairLogger::endl;
   }*/
 
-  curVolId = gMC->CurrentVolOffID(1, fFiberNb);
-  corOffVolId = gMC->CurrentVolOffID(2, fPixelNb);
-  corOffVolId = gMC->CurrentVolOffID(3, fModuleNb);
+  //TODO Bullshit!!!!!
+  //curVolId = gMC->CurrentVolOffID(1, fFiberNb);
+  //corOffVolId = gMC->CurrentVolOffID(2, fPixelNb);
+  //corOffVolId = gMC->CurrentVolOffID(3, fModuleNb);
 
   //TODO check!!!
   // Пересчитываем номер пикселя если введены субмодули
+/*
   if (TString(gMC->CurrentVolOffName(3)).Contains("submodul"))
   {
     Int_t pixel_in_submodule_X = 4;
@@ -260,14 +265,91 @@ void ERNeuRad::StartNewPoint() {
 
     corOffVolId = gMC->CurrentVolOffID(4, fModuleNb);
   }
-
-  TGeoHMatrix matrix;
-  gMC->GetTransformation(gMC->CurrentVolPath(), matrix);
+*/
+  
   Double_t globalPos[3];
   Double_t localPos[3];
+  TGeoHMatrix matrix;
+  gMC->GetTransformation(gMC->CurrentVolPath(), matrix);
   fPosIn.Vect().GetXYZ(globalPos);
   matrix.MasterToLocal(globalPos, localPos);
   fPosInLocal.SetXYZ(localPos[0], localPos[1], localPos[2]);
+}
+
+void ERNeuRad::ObtainChIdfromGMC() {
+
+  // Get full path to the current node
+  TString curGeoPath;
+  curGeoPath = gMC->CurrentVolPath();
+  //LOG(DEBUG) << curGeoPath << FairLogger::endl;
+
+  // Parse it into /-separated tokens
+  TObjArray* tokens = curGeoPath.Tokenize("/");
+  //tokens->Print();
+
+  Int_t fiberID = -1;
+  Int_t claddingID = -1;
+  Int_t pixelID = -1;
+  Int_t submoduleID = -1;
+  Int_t moduleID = -1;
+
+  // You may want to implement some checks of the geometry structure here
+
+  // Loop over tokens and extract indices
+  TIterator* tokensIter = tokens->MakeIterator(kIterBackward);
+
+  while (TObjString* curNodeNameObj = (TObjString*)tokensIter->Next()) {
+    TString curNodeName = curNodeNameObj->GetString();
+    Ssiz_t underscorePos = curNodeName.Last('_');
+    TSubString indexStr = curNodeName(underscorePos+1, 10);
+    Int_t index = atoi(indexStr.Data()) - 1; //!!!!!!!!!!!!!!!!!!!
+
+    if (curNodeName.Contains("fiber", TString::kIgnoreCase)) {
+      fiberID = index;
+    } else if (curNodeName.Contains("cladding", TString::kIgnoreCase)) {
+      claddingID = index;
+    } else if (curNodeName.Contains("pixel", TString::kIgnoreCase)) {
+      pixelID = index;
+    } else if (curNodeName.Contains("submodul", TString::kIgnoreCase)) {
+      submoduleID = index;
+    } else if (curNodeName.Contains("module", TString::kIgnoreCase)) {
+      moduleID = index;
+    } else {
+      //
+    }
+  }
+
+  //TODO ??? Ask ERNeuRadSetup object to obtain total number of pixels/fibers/submodules/etc...
+  Int_t nSubmodulesInModuleX = 2; // Only in one direction!
+  Int_t nPixelsInSubmoduleX = 4; // Only in one direction!
+  //Int_t nFibersInPixelX = 2; // Only in one direction!
+
+  Int_t xSubmodule = submoduleID % nSubmodulesInModuleX;
+  Int_t ySubmodule = submoduleID / nSubmodulesInModuleX;
+  Int_t xPixel = pixelID % nPixelsInSubmoduleX;
+  Int_t yPixel = pixelID / nPixelsInSubmoduleX;
+  //LOG(DEBUG) << "xSubmodule=" << xSubmodule << "\tySubmodule=" << ySubmodule
+  //     << "\txPixel=" << xPixel << "\tyPixel=" << yPixel
+  //     << FairLogger::endl;
+
+  Int_t index1 = xPixel + yPixel * nPixelsInSubmoduleX * nSubmodulesInModuleX;
+  Int_t index2 = index1 + xSubmodule * nPixelsInSubmoduleX 
+                        + ySubmodule * nPixelsInSubmoduleX * (nPixelsInSubmoduleX * nSubmodulesInModuleX);
+
+  /*LOG(DEBUG) << "Indices: " << "fiber =" << fiberID << "\t"
+                            << "cladd =" << claddingID << "\t"
+                            << "pixel =" << pixelID << "\t"
+                            << "submod=" << submoduleID << "\t"
+                            << "module=" << moduleID << "\t"
+                            << "index1 =" << index1 << "\t"
+                            << "index2 =" << index2
+                            << FairLogger::endl;*/
+
+
+  // Compute resulting PMT ID and channel ID
+
+  fPmtId = moduleID;
+  fChId = index2;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -292,17 +374,21 @@ ERNeuRadPoint* ERNeuRad::AddPoint() {
   return new(clref[size]) ERNeuRadPoint(fEventID,
                                         fTrackID,
                                         fMot0TrackID,
-                                        fFiberNb,
-                                        fPixelNb,
-                                        fModuleNb,
+
+                                        //fFiberNb,
+                                        //fPixelNb,
+                                        //fModuleNb,
+                                        fPmtId,
+                                        fChId,
+
                                         fMass,
                                         fPosIn.Vect(),
                                         fPosInLocal,
                                         fPosOut.Vect(),
                                         fMomIn.Vect(),
                                         fMomOut.Vect(),
-                                        fTimeIn,  //TODO convert from seconds to nanoseconds?!
-                                        fTimeOut,  //TODO convert from seconds to nanoseconds?!
+                                        fTimeIn,  //TODO convert from seconds to nanoseconds?! Already converted here?
+                                        fTimeOut,  //TODO convert from seconds to nanoseconds?! Already converted here?
                                         fTrackLength,
                                         fELoss,
                                         fLightYield,
@@ -322,9 +408,13 @@ ERNeuRadStep* ERNeuRad::AddFirstStep() {
                   fStepNb,
                   fTrackID,
                   fMot0TrackID,
-                  fFiberNb,
-                  fPixelNb,
-                  fModuleNb,
+
+                  //fFiberNb,
+                  //fPixelNb,
+                  //fModuleNb,
+                  fPmtId,
+                  fChId,
+
                   fCurPosIn.Vect(),
                   fCurMomIn.Vect(),
                   gMC->TrackTime() * 1.0e09, // convert from seconds to nanoseconds
@@ -349,9 +439,13 @@ ERNeuRadStep* ERNeuRad::AddStep() {
                   fStepNb,
                   fTrackID,
                   fMot0TrackID,
-                  fFiberNb,
-                  fPixelNb,
-                  fModuleNb,
+
+                  //fFiberNb,
+                  //fPixelNb,
+                  //fModuleNb,
+                  fPmtId,
+                  fChId,
+
                   fCurPosIn.Vect(),
                   fCurMomIn.Vect(),
                   gMC->TrackTime() * 1.0e09, // convert from seconds to nanoseconds

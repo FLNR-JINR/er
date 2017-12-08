@@ -42,9 +42,13 @@ public:
   ERNeuRadPoint(Int_t eventID,
                 Int_t trackID,
                 Int_t mot0trackID,
-                Int_t fiberNb,
-                Int_t pixelNb,
-                Int_t moduleNb,
+
+                //Int_t fiberNb,
+                //Int_t pixelNb,
+                //Int_t moduleNb,
+                UInt_t pmtId,
+                UInt_t chId,
+
                 Double_t mass,
                 TVector3 posIn,
                 TVector3 posInLoc,
@@ -89,9 +93,13 @@ public:
   Double_t GetPOut()  const;
   Double_t GetMass()  const { return fMass; }
   Double_t GetLightYield() const {return fLightYield;}
-  Int_t GetModuleNb() {return fModuleNb;}
-  Int_t GetPixelNb() {return fPixelNb;}
-  Int_t GetFiberNb() const {return fFiberNb;}
+
+  //Int_t GetModuleNb() {return fModuleNb;}
+  //Int_t GetPixelNb() {return fPixelNb;}
+  //Int_t GetFiberNb() const {return fFiberNb;}
+  UInt_t GetPmtId() const { return fPmtId; }
+  UInt_t GetChId() const { return fChId; }
+
   Int_t GetPID() const {return fPID;}
   Double_t GetCharge() const {return fCharge;}
   Double_t GetTime() const {return fTimeIn;}
@@ -130,9 +138,13 @@ protected:
 
   Int_t fEventID;
   Int_t fMot0TrackID;
-  Int_t fFiberNb;
-  Int_t fPixelNb;
-  Int_t fModuleNb;
+
+  //Int_t fFiberNb;
+  //Int_t fPixelNb;
+  //Int_t fModuleNb;
+  UInt_t fPmtId;
+  UInt_t fChId;
+
   Double_t fMass;
   Double32_t fXlocal, fYlocal, fZlocal;
   Double32_t fX_out,  fY_out,  fZ_out;
