@@ -37,15 +37,15 @@ public:
     void clear(void);
     void putParams(FairParamList*);
     Bool_t getParams(FairParamList*);
-    TObjArray* GetGeoSensitiveNodes() {return fGeoSensNodes;}
-    TObjArray* GetGeoPassiveNodes()   {return fGeoPassNodes;}
+    TObjArray* GetGeoSensitiveNodes() { return fGeoSensNodes; }
+    TObjArray* GetGeoPassiveNodes()   { return fGeoPassNodes; }
 
 private:
 
     ERNeuRadGeoPar(const ERNeuRadGeoPar&);
     ERNeuRadGeoPar& operator=(const ERNeuRadGeoPar&);
 
-    ClassDef(ERNeuRadGeoPar,1)
+    ClassDef(ERNeuRadGeoPar, 1);
 };
 
 #endif // ERNeuRadGeoPar_H

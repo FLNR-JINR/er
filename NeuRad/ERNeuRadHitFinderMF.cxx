@@ -1,4 +1,12 @@
-#include "ERNeuRadHitFinderMF.h"
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
+ #include "ERNeuRadHitFinderMF.h"
 
 #include <iostream>
 #include <vector>
@@ -96,9 +104,10 @@ void ERNeuRadHitFinderMF::Exec(Option_t* opt)
 
   Int_t hitNumber=0;
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
+
   //Суммируем сигналы по модулям
-  Float_t* SumModuleSignals = new Float_t[setup->NofModules()];
-  for (Int_t iModule=0; iModule < setup->NofModules(); iModule++)
+  Float_t* SumModuleSignals = new Float_t[setup->GetNofModules()];
+  for (Int_t iModule=0; iModule < setup->GetNofModules(); iModule++)
     SumModuleSignals[iModule] =0.;
   for (Int_t iDigi=0; iDigi <  fNeuRadDigis->GetEntriesFast(); iDigi++){
     ERNeuRadDigi* digi = (ERNeuRadDigi*)fNeuRadDigis->At(iDigi);
@@ -106,7 +115,7 @@ void ERNeuRadHitFinderMF::Exec(Option_t* opt)
   }
   
   Int_t nofModules = 0;
-  for (Int_t iModule=0; iModule < setup->NofModules(); iModule++){
+  for (Int_t iModule=0; iModule < setup->GetNofModules(); iModule++){
     if (SumModuleSignals[iModule] > fModuleThreshold*fOnePEInteg)
       nofModules++;
   }
@@ -115,11 +124,11 @@ void ERNeuRadHitFinderMF::Exec(Option_t* opt)
     for (Int_t iDigi=0; iDigi <  fNeuRadDigis->GetEntriesFast(); iDigi++){
       ERNeuRadDigi* digi = (ERNeuRadDigi*)fNeuRadDigis->At(iDigi);
       if (digi->Side()==0 && digi->QDC() > fPixelThreshold*fOnePEInteg && SumModuleSignals[digi->ModuleIndex()] > fModuleThreshold*fOnePEInteg){
-         TVector3 pos(setup->FiberX(digi->ModuleIndex(), digi->FiberIndex()),
-                   setup->FiberY(digi->ModuleIndex(), digi->FiberIndex()),
-                   setup->Z()-setup->FiberLength());
+         TVector3 pos(setup->GetFiberX(digi->ModuleIndex(), digi->FiberIndex()),
+                   setup->GetFiberY(digi->ModuleIndex(), digi->FiberIndex()),
+                   setup->GetZ()-setup->GetFiberLength());
           TVector3 dpos(0,0,0);
-          AddHit(kNEURAD,pos, dpos,digi->ModuleIndex(),digi->FiberIndex(),digi->FrontTDC());
+          AddHit(kNEURAD, pos, dpos, digi->ModuleIndex(), digi->FiberIndex(), digi->FrontTDC());
       }
     }
   //}

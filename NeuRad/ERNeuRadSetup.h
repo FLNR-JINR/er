@@ -6,11 +6,6 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-// -------------------------------------------------------------------------
-// -----                        ERNeuRadSetup header file              -----
-// -----                        V.Schetinin (sch_vitaliy@mail.ru)      -----
-// -------------------------------------------------------------------------
-
 #ifndef ERNEURADSETUP_H
 #define ERNEURADSETUP_H
 
@@ -19,59 +14,91 @@
 #include "Rtypes.h"
 #include "TArrayF.h"
 
-class ERNeuRadDigiPar;
+#include "ERNeuRadDigiPar.h" // used by inline methods
 
 struct ERNeuRadModule {
     Float_t fX;
     Float_t fY;
-    ERNeuRadModule(Float_t x, Float_t y) {fX = x; fY = y;}
+    ERNeuRadModule(Float_t x, Float_t y) { fX = x; fY = y; }
 };
 
 struct ERNeuRadFiber {
     Float_t fX;
     Float_t fY;
-    ERNeuRadFiber(Float_t x, Float_t y) {fX = x; fY = y;}
+    ERNeuRadFiber(Float_t x, Float_t y) { fX = x; fY = y; }
 };
 
 class ERNeuRadSetup {
+
 public:
 
-  static ERNeuRadSetup* Instance();
-  static Int_t   NofFibers();
-  static Int_t   NofPixels();
-  static Int_t   NofModules();
-  static Float_t FiberLength();
-  static Float_t FiberWidth();
-  static Float_t ModuleX(Int_t iModule);
-  static Float_t ModuleY(Int_t iModule);
-  static Float_t FiberX(Int_t iModule, Int_t iFiber);
-  static Float_t FiberY(Int_t iModule, Int_t iFiber);
-  static Float_t PixelQuantumEfficiency(Int_t iModule, Int_t iFiber);
-  static Float_t PixelGain(Int_t iModule, Int_t iFiber);
-  static Float_t PixelSigma(Int_t iModule, Int_t iFiber);
-  static Float_t Z() {return fZ;}
-  static void Print();
-  static void Crosstalks(Int_t iFiber, TArrayF& crosstalks);
-  static Int_t RowNofFibers();
-  static Int_t RowNofPixels();
-  static Int_t RowNofModules();
-  static Bool_t UseCrosstalks();
-  static Int_t SetParContainers();
+  // No constructor in public section. This is a singleton class!
+
+  // Only this method has to be static.
+  // For others it makes no sense.
+  // An object of this class is anyway the only object of this class.
+  static ERNeuRadSetup* Instance(void); // (public!) Singleton management
 
 private:
+  ERNeuRadSetup();  // (private!) Singleton management
+  static ERNeuRadSetup* fInstance; // (private!)  Singleton management
 
-  ERNeuRadSetup();
+public:
 
-  static ERNeuRadSetup* fInstance;
-  static ERNeuRadDigiPar* fDigiPar;
-  static std::vector<ERNeuRadModule*> fModules;
-  static std::vector<std::vector<ERNeuRadFiber*> > fFibers;
-  static Float_t fZ;
-  static Float_t fLength;
-  static Float_t fFiberWidth;
-  static Int_t fRowNofFibers;
-  static Int_t fRowNofModules;
-  static Int_t fRowNofPixels;
+  Float_t GetModuleX(Int_t iPmtId) const;
+  Float_t GetModuleY(Int_t iPmtId) const;
+  Float_t GetFiberX(Int_t iPmtId, Int_t iChId) const;
+  Float_t GetFiberY(Int_t iPmtId, Int_t iChId) const;
+
+  void Print(void) const;
+
+  Int_t SetParContainers(void);
+
+  /** These methods acquire the ERNeuRadDigiPar class object and return the value from there **/
+  Bool_t UseCrosstalks(void) const;
+  Float_t GetPixelQuantumEfficiency(Int_t iPmtId, Int_t iChId) const;
+  Float_t GetPixelGain(Int_t iPmtId, Int_t iChId) const;
+  Float_t GetPixelSigma(Int_t iPmtId, Int_t iChId) const;
+  void Crosstalks(Int_t iFiber, TArrayF& crosstalks) const;
+
+  /** Accessors **/
+  Float_t GetZ(void) const { return fZ; }
+  Float_t GetFiberLength(void) const { return fLength; }
+  Float_t GetFiberWidth(void)const { return fFiberWidth; }
+
+  Int_t GetRowNofFibers(void) const { return fRowNofFibers; }
+  Int_t GetRowNofPixels(void) const { return fRowNofPixels; }
+  Int_t GetRowNofModules(void) const { return fRowNofModules; }
+
+  /*Int_t GetNofFibers(void) const { return fRowNofFibers * fRowNofFibers; }*/
+  Int_t GetNofPixelsPerPMT(void) const { return fRowNofPixels * fRowNofPixels; }
+
+  //TODO take care!
+  //TODO Probably this is not always true!
+  Int_t GetNofModules(void) const {return fRowNofModules * fRowNofModules; }
+
+private: // methods
+
+  void AnalyseGeoManager(void);
+
+private: // data members
+
+  std::vector<ERNeuRadModule*> fModules;
+  std::vector<std::vector<ERNeuRadFiber*> > fFibers;
+
+  ERNeuRadDigiPar* fDigiPar;
+
+  /** Z position of NeuRad. **/
+  Float_t fZ;
+  /** Z length of the module. In principle it should be the same as fibers' Z length. **/ //TODO check
+  Float_t fLength;
+  /** Width of the fiber along X direction. In principle should be the same as along Y direction. **/ //TODO check
+  Float_t fFiberWidth;
+
+
+  Int_t fRowNofFibers;
+  Int_t fRowNofPixels;
+  Int_t fRowNofModules;
 
   ClassDef(ERNeuRadSetup, 1);
 };

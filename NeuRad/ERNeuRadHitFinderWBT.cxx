@@ -67,8 +67,9 @@ InitStatus ERNeuRadHitFinderWBT::Init()
 
   ioman->Register("NeuRadHit", "NeuRad hits", fNeuRadHits, kTRUE);
 
-  ERNeuRadSetup* NeuRadSetup = ERNeuRadSetup::Instance();
-  NeuRadSetup->Print();
+  // Get singleton ERNeuRadSetup object
+  ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
+  setup->Print();
   
   return kSUCCESS;
 }
@@ -84,6 +85,8 @@ void ERNeuRadHitFinderWBT::Exec(Option_t* opt)
   Reset();
   Float_t fOnePEInteg = 4.8;
   Int_t hitNumber=0;
+
+  // Get singleton ERNeuRadSetup object
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
 
   for (Int_t iSignal=0; iSignal <  fNeuRadPMTSignals->GetEntriesFast(); iSignal++){
@@ -91,9 +94,9 @@ void ERNeuRadHitFinderWBT::Exec(Option_t* opt)
     if (signal->Side() == 0){
       //Float_t qInteg = signal->GetInteg(signal->GetStartTime(), signal->GetFinishTime());
       Float_t qInteg = signal->AmplitudesSum();
-      TVector3 pos(setup->FiberX(signal->ModuleNb(), signal->PixelNb()),
-                   setup->FiberY(signal->ModuleNb(), signal->PixelNb()),
-                   setup->Z()-setup->FiberLength());
+      TVector3 pos(setup->GetFiberX(signal->ModuleNb(), signal->PixelNb()),
+                   setup->GetFiberY(signal->ModuleNb(), signal->PixelNb()),
+                   setup->GetZ()-setup->GetFiberLength());
       TVector3 dpos(0,0,0);
       AddHit(kNEURAD,pos, dpos,signal->ModuleNb(),signal->PixelNb(), -1, qInteg);
     }

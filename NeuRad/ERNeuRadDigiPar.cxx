@@ -24,18 +24,18 @@
 
 // -----   Standard constructor   -------------------------------------------------------
 ERNeuRadDigiPar::ERNeuRadDigiPar(const char* name,
-    const char* title,
-    const char* context)
+                                 const char* title,
+                                 const char* context)
   : FairParGenericSet(name, title, context),
-    fNofPixels(-1),
-    fNofModules(-1),
+    fRowNofPixelsPerPMT(-1),
+    fNofPixelsPerPMT(-1),
+    fNofPMTs(-1),
     fUseCrosstalks(kFALSE),
-    fRowNofFibers(-1),
     fPixelQuantumEfficiency(NULL),
     fPixelGain(NULL),
     fPixelSigma(NULL),
-    fPixelCrosstalks(NULL),
-    fFiberCrosstalks(NULL)
+    fPixelCrosstalks(NULL) 
+    //fFiberCrosstalks(NULL) //FIXME Keep it commented for time being
 {
   LOG(INFO) << "ERNeuRadDigiPar constructor" << FairLogger::endl;
 }
@@ -50,42 +50,47 @@ ERNeuRadDigiPar::~ERNeuRadDigiPar()
 void ERNeuRadDigiPar::clear()
 {
   status = kFALSE;
-  resetInputVersions();
+  resetInputVersions(); // What is this?
 }
 
 // -----   Public method print ----------------------------------------------------------
-void ERNeuRadDigiPar::print()
+void ERNeuRadDigiPar::print() 
 {
-  fRowNofFibers = (Int_t)TMath::Sqrt(fNofPixels);
+  //TODO Why should we compute it here?
+  // This data member should be filled together with the
+  // fNofPixelsPerPMT during initialization/import/whatever
+  //fRowNofPixelsPerPMT = (Int_t)TMath::Sqrt(fNofPixelsPerPMT);
 
   LOG(INFO) << "*****************************************" << FairLogger::endl;
   LOG(INFO) << "          ERNeuRadDigiPar                " << FairLogger::endl;
   LOG(INFO) << "*****************************************" << FairLogger::endl;
-  LOG(INFO) << "   ERNeuRadNofModules: " << fNofModules << FairLogger::endl;
-  LOG(INFO) << "   ERNeuRadNofPixels: " << fNofPixels << FairLogger::endl;
-  LOG(INFO) << "   ERNeuRadPixelQuantumEfficiency: " << FairLogger::endl;
-  for (Int_t iFiber = 0; iFiber < fRowNofFibers; iFiber++) {
+  LOG(INFO) << "   ERNeuRad RowNofPixelsPerPMT: " << fRowNofPixelsPerPMT << FairLogger::endl;
+  LOG(INFO) << "   ERNeuRad NofPixelsPerPMT: " << fNofPixelsPerPMT << FairLogger::endl;
+  LOG(INFO) << "   ERNeuRad NofPMTs: " << fNofPMTs << FairLogger::endl;
+  LOG(INFO) << "   ERNeuRad PixelQuantumEfficiency: " << FairLogger::endl;
+
+  for (Int_t iPixel = 0; iPixel < fRowNofPixelsPerPMT; iPixel++) {
     LOG(INFO) << "     ";
-    for (Int_t jFiber = 0; jFiber < fRowNofFibers; jFiber++)
-      LOG(INFO) <<(*fPixelQuantumEfficiency)[iFiber*fRowNofFibers + jFiber] << "\t";
+    for (Int_t jPixel = 0; jPixel < fRowNofPixelsPerPMT; jPixel++)
+      LOG(INFO) << (*fPixelQuantumEfficiency)[iPixel*fRowNofPixelsPerPMT + jPixel] << "\t";
      LOG(INFO) << FairLogger::endl;
   }
   LOG(INFO) << "*****************************************" << FairLogger::endl;
 
   LOG(INFO) << "   ERNeuRadPixelGain: " << FairLogger::endl;
-  for (Int_t iFiber = 0; iFiber < fRowNofFibers; iFiber++) {
+  for (Int_t iPixel = 0; iPixel < fRowNofPixelsPerPMT; iPixel++) {
     LOG(INFO) << "     ";
-    for (Int_t jFiber = 0; jFiber < fRowNofFibers; jFiber++)
-      LOG(INFO) <<(*fPixelGain)[iFiber*fRowNofFibers + jFiber] << "\t";
+    for (Int_t jPixel = 0; jPixel < fRowNofPixelsPerPMT; jPixel++)
+      LOG(INFO) << (*fPixelGain)[iPixel*fRowNofPixelsPerPMT + jPixel] << "\t";
      LOG(INFO) << FairLogger::endl;
   }
   LOG(INFO) << "*****************************************" << FairLogger::endl;
 
   LOG(INFO) << "   ERNeuRadPixelSigma: " << FairLogger::endl;
-  for (Int_t iFiber = 0; iFiber < fRowNofFibers; iFiber++) {
+  for (Int_t iPixel = 0; iPixel < fRowNofPixelsPerPMT; iPixel++) {
     LOG(INFO) << "     ";
-    for (Int_t jFiber = 0; jFiber < fRowNofFibers; jFiber++)
-      LOG(INFO) <<(*fPixelSigma)[iFiber*fRowNofFibers + jFiber] << "\t";
+    for (Int_t jPixel = 0; jPixel < fRowNofPixelsPerPMT; jPixel++)
+      LOG(INFO) << (*fPixelSigma)[iPixel*fRowNofPixelsPerPMT + jPixel] << "\t";
      LOG(INFO) << FairLogger::endl;
   }
 
@@ -98,55 +103,76 @@ void ERNeuRadDigiPar::putParams(FairParamList* l)
 }
 
 //---------------------------------------------------------------------------------------
+//TODO this method has to be thoroughly checked
 Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 {
-  LOG(INFO) << "ERNeuRadDigiPar Filling ..." << FairLogger::endl;
+  LOG(INFO) << "ERNeuRadDigiPar filling ..." << FairLogger::endl;
 
+  // Here we acquire different setup parameters from the corresponding
+  // singleton class
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
-  fNofPixels = setup->RowNofPixels()*setup->RowNofPixels();
-  fNofModules = setup->RowNofModules()*setup->RowNofModules();
 
-  LOG(INFO) << "fNofPixels " << fNofPixels << FairLogger::endl;
+  fRowNofPixelsPerPMT = setup->GetRowNofPixels();
+  fNofPixelsPerPMT = fRowNofPixelsPerPMT * fRowNofPixelsPerPMT;
+  fNofPMTs = setup->GetRowNofModules() * setup->GetRowNofModules(); //TODO wat?
 
-  fPixelQuantumEfficiency = new TArrayF(fNofPixels);
-  fPixelGain = new TArrayF(fNofPixels);
-  fPixelSigma = new TArrayF(fNofPixels);
-  fPixelCrosstalks = new TArrayF(fNofPixels*9);
-  fFiberCrosstalks = new TArrayF(fNofPixels*9);
+  //FIXME this probably will not work for multiple PMTs
 
-  if (!l) { return kFALSE; }
+  LOG(INFO) << "fNofPixelsPerPMT " << fNofPixelsPerPMT << FairLogger::endl;
+
+  fPixelQuantumEfficiency = new TArrayF(fNofPixelsPerPMT);
+  fPixelGain = new TArrayF(fNofPixelsPerPMT);
+  fPixelSigma = new TArrayF(fNofPixelsPerPMT);
+  fPixelCrosstalks = new TArrayF(fNofPixelsPerPMT*9);
+  //fFiberCrosstalks = new TArrayF(fNofPixelsPerPMT*9); //FIXME Keep it commented for time being
+
+  if ( ! l ) { return kFALSE; }
   if ( ! l->fill("ERNeuRadPixelQuantumEfficiency", fPixelQuantumEfficiency) ) { return kFALSE; }
   if ( ! l->fill("ERNeuRadPixelGain", fPixelGain) ) { return kFALSE; }
   if ( ! l->fill("ERNeuRadPixelSigma", fPixelSigma) ) { return kFALSE; }
+
   if ( ! l->fill("ERNeuRadPixelCrosstalks", fPixelCrosstalks) ) {
     LOG(WARNING) << "ERNeuRadDigiPar: can`t find ERNeuRadPixelCrosstalks" << FairLogger::endl;
-  } else {
-    fUseCrosstalks = kTRUE;
-  }
-  if ( ! l->fill("ERNeuRadFiberCrosstalks", fFiberCrosstalks) ) {
-    LOG(WARNING) << "ERNeuRadDigiPar: can`t find ERNeuRadFiberCrosstalks" << FairLogger::endl;
+    LOG(WARNING) << "Crosstalks will not be taken into account." << FairLogger::endl;
+    fUseCrosstalks = kFALSE; // Just to be on the safe side
   } else {
     fUseCrosstalks = kTRUE;
   }
 
-  fPixelQuantumEfficiency->Set(fNofPixels);
-  fPixelGain->Set(fNofPixels);
-  fPixelSigma->Set(fNofPixels);
-  fPixelCrosstalks->Set(fNofPixels*9);
-  fFiberCrosstalks->Set(fNofPixels*9);
-  LOG(INFO) << "fPixelQuantumEfficiency " << fPixelQuantumEfficiency->GetSize() << FairLogger::endl;
+  //FIXME Keep it commented for time being
+  /*
+  if ( ! l->fill("ERNeuRadFiberCrosstalks", fFiberCrosstalks) ) {
+    LOG(WARNING) << "ERNeuRadDigiPar: can`t find ERNeuRadFiberCrosstalks" << FairLogger::endl;
+    LOG(WARNING) << "Crosstalks will not be taken into account." << FairLogger::endl;
+    fUseCrosstalks = kFALSE; // Just to be on the safe side
+  } else {
+    fUseCrosstalks = kTRUE;
+  }
+  */
+
+  // Set the sizes of the arrays
+  //TODO why the size is set only AFTER filling the arrays with the data?
+  fPixelQuantumEfficiency->Set(fNofPixelsPerPMT);
+  fPixelGain->Set(fNofPixelsPerPMT);
+  fPixelSigma->Set(fNofPixelsPerPMT);
+  fPixelCrosstalks->Set(fNofPixelsPerPMT*9);
+  // fFiberCrosstalks->Set(fNofPixelsPerPMT*9);  //FIXME Keep it commented for time being
+
+  // This is probably needed only for debugging reasons?
+  //LOG(INFO) << "fPixelQuantumEfficiency size: " << fPixelQuantumEfficiency->GetSize() << FairLogger::endl;
+
   return kTRUE;
 }
 
 //---------------------------------------------------------------------------------------
 Bool_t ERNeuRadDigiPar::init(FairParIo* input) {
-  LOG(INFO) << input->getFilename() << FairLogger::endl;
-  if ( TString(input->getFilename()).Contains(".digi")) {
-    FairGenericParAsciiFileIo* p = new FairGenericParAsciiFileIo(((FairParAsciiFileIo*)input)->getFile());
+  LOG(INFO) << "ERNeuRadDigiPar::init from " << input->getFilename() << FairLogger::endl;
+  if (TString(input->getFilename()).EndsWith(".digi")) {
+    FairGenericParAsciiFileIo* p = new FairGenericParAsciiFileIo(((FairParAsciiFileIo*)input)->getFile()); //TODO is this correct?
     return p->init(this);
   }
-  if ( TString(input->getFilename()).Contains(".root")) {
-    FairGenericParRootFileIo* p = new FairGenericParRootFileIo(((FairParRootFileIo*)input)->getParRootFile());
+  if (TString(input->getFilename()).EndsWith(".root")) {
+    FairGenericParRootFileIo* p = new FairGenericParRootFileIo(((FairParRootFileIo*)input)->getParRootFile()); //TODO is this correct? Why are they different?
     return p->init(this);
   }
   return kFALSE;
@@ -157,11 +183,11 @@ void ERNeuRadDigiPar::Crosstalks(Int_t iPixel, TArrayF& crosstalks) const {
   // Возвращает матрицу три на три. Каждый элемент матрицы - кросс-толк к соответствующему соседу.
   // Центральная ячейка - вероятность фотонов, которые останутся в волокне.
   // Вне зависимости от того, что написано в файле параметров,
-  // потом пересчитывается, чтобы суммарная вероятнсть была равна 1.
+  // потом пересчитывается, чтобы суммарная вероятность была равна 1.
   crosstalks.Set(9);
   Int_t shift = iPixel*9;
-  for (Int_t i = 0; i < 9; i++) {
-    crosstalks[i] = (*fPixelCrosstalks)[shift + i]+(*fFiberCrosstalks)[shift + i];
+  for (Int_t i=0; i<9; i++) {
+    crosstalks[i] = (*fPixelCrosstalks)[shift + i]; // + (*fFiberCrosstalks)[shift + i]; //FIXME Keep it commented for time being
   }
 }
 

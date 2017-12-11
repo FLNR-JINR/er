@@ -1,4 +1,12 @@
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
+ // -------------------------------------------------------------------------
 // -----                  ERNeuRadHitFinderWBT header file             -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
@@ -6,9 +14,9 @@
 #ifndef ERNeuRadHitFinderWBT_H
 #define ERNeuRadHitFinderWBT_H
 
-#include "TClonesArray.h"
+#include "FairTask.h" // mother class
 
-#include "FairTask.h"
+#include "TClonesArray.h"
 
 #include "ERNeuRadDigiPar.h"
 #include "ERNeuRadHitWBT.h"

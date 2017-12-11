@@ -1,12 +1,14 @@
-// -------------------------------------------------------------------------
-// -----                     ERNeuRadPixelSignal source file           -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #include "ERNeuRadPixelSignal.h"
 
 #include "TMath.h"
-
-#include <iostream>
 
 const Double_t ERNeuRadPixelSignal::cdT = 0.1; // ns
 
@@ -99,11 +101,11 @@ Double_t ERNeuRadPixelSignal::OnePEFunction(Double_t time, Double_t amplitude)
     return 8.*amplitude*time*time*TMath::Exp(-time/0.45);
 }
 
-// Вычисляем время сигнала одноэлектрона в количестве cdT.
+// Вычисляем время сигнала одноэлектрона в количестве cdT
 Int_t ERNeuRadPixelSignal::OnePETime(Double_t amplitude)
 {
     Int_t counts = 0;
-    // Насчитываем отрезк времени пока сигнал имеет существенное для нас значение.
+    // Насчитываем отрезк времени пока сигнал имеет существенное для нас значение
     Bool_t find = kFALSE;
     Double_t threshold = 0.001;
     while(1) {

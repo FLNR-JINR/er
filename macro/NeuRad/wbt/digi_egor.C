@@ -47,6 +47,9 @@ void digi_egor(Int_t nEvents = 1000)
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parInput2);
 
+  //-------Set LOG verbosity  -----------------------------------------------
+  FairLogger::GetLogger()->SetLogVerbosityLevel("HIGH");
+
   // -----   Intialise and run   --------------------------------------------
   FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
   run->Init();

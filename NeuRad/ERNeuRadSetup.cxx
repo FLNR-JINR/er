@@ -16,24 +16,35 @@
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
-#include "ERNeuRadDigiPar.h"
-
+// Singleton management
 ERNeuRadSetup* ERNeuRadSetup::fInstance = NULL;
-ERNeuRadDigiPar* ERNeuRadSetup::fDigiPar; //TODO initialize!!!
-Float_t ERNeuRadSetup::fZ; //TODO initialize!!!
-Float_t ERNeuRadSetup::fLength; //TODO initialize!!!
-Float_t ERNeuRadSetup::fFiberWidth; //TODO initialize!!!
-Int_t ERNeuRadSetup::fRowNofFibers; //TODO initialize!!!
-Int_t ERNeuRadSetup::fRowNofModules; //TODO initialize!!!
-Int_t ERNeuRadSetup::fRowNofPixels; //TODO initialize!!!
 
-std::vector<ERNeuRadModule*> ERNeuRadSetup::fModules;
-std::vector<std::vector<ERNeuRadFiber*> > ERNeuRadSetup::fFibers;
+ERNeuRadSetup::ERNeuRadSetup() :
+  fDigiPar(NULL),
+  fZ(0.),
+  fLength(0.),
+  fFiberWidth(0.),
+  fRowNofFibers(-1),
+  fRowNofModules(-1),
+  fRowNofPixels(-1)
+{
+  this->AnalyseGeoManager();
+  LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "constructed! "<< FairLogger::endl;
+}
 
-ERNeuRadSetup::ERNeuRadSetup() {
+// Singleton management
+ERNeuRadSetup* ERNeuRadSetup::Instance(void) {
+  if (fInstance == NULL) {
+    fInstance = new ERNeuRadSetup();
+  }
+  return fInstance;
+}
+
+void ERNeuRadSetup::AnalyseGeoManager(void) {
+
     // --- Catch absence of TGeoManager
     if (!gGeoManager) {
-      LOG(FATAL) << "ERNeuRadSetup: cannot initialise without TGeoManager!" << FairLogger::endl;
+      LOG(FATAL) << "ERNeuRadSetup::AnalyseGeoManager: cannot initialize without gGeoManager!" << FairLogger::endl;
     }
 
     // Get the pointer to the cave node as the top node of the geometry manager
@@ -48,32 +59,32 @@ ERNeuRadSetup::ERNeuRadSetup() {
         TString name = cave->GetDaughter(iNode)->GetName();
         if ( name.Contains("NeuRad", TString::kIgnoreCase) ) {
             neuRad = cave->GetDaughter(iNode);
-            LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad node found. name=" << name << FairLogger::endl;
+            LOG(INFO) << "NeuRad node found. name=" << name << FairLogger::endl;
             break;
         }
     }
 
     // Get Z position of NeuRad
     fZ = neuRad->GetMatrix()->GetTranslation()[2];
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad Z position:" << fZ << " cm" << FairLogger::endl;
+    LOG(INFO) << "NeuRad Z position:" << fZ << " cm" << FairLogger::endl;
 
     // --------------------------------------------------------------------------------------------------------------
 
     // Search for a module node as the first child of NeuRad node
     TGeoNode* module = neuRad->GetDaughter(0);
     TString moduleNodeName = module->GetName();
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "module node name=" << moduleNodeName << FairLogger::endl;
+    LOG(INFO) << "module node name=" << moduleNodeName << FairLogger::endl;
 
     UInt_t iModulesCounter = 0;
 
     // If not found - search one level deeper
     if (! moduleNodeName.Contains("module", TString::kIgnoreCase)) {
-      LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "wrong module node name! Trying again." << FairLogger::endl;
+      LOG(INFO) << "wrong module node name! Trying again." << FairLogger::endl;
       module = neuRad->GetDaughter(0)->GetDaughter(0);
       moduleNodeName = module->GetName();
-      LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "module node name=" << moduleNodeName << FairLogger::endl;
+      LOG(INFO) << "module node name=" << moduleNodeName << FairLogger::endl;
       if (! moduleNodeName.Contains("module", TString::kIgnoreCase)) {
-        LOG(FATAL) << "ERNeuRadSetup::ERNeuRadSetup: " << "wrong module node name! Aborting." << FairLogger::endl;
+        LOG(FATAL) << "wrong module node name! Aborting." << FairLogger::endl;
       } else {
         // Count the number of modules
         //TODO unchecked code
@@ -90,46 +101,46 @@ ERNeuRadSetup::ERNeuRadSetup() {
       }
     }
 
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "Found " << iModulesCounter << " modules" << FairLogger::endl;
+    LOG(INFO) << "Found " << iModulesCounter << " modules" << FairLogger::endl;
 
     // Get module length along Z
     TGeoBBox* module_box = (TGeoBBox*)module->GetVolume()->GetShape();
     fLength = module_box->GetDZ()*2;
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "module length (Z): " << fLength << " cm" << FairLogger::endl;
+    LOG(INFO) << "module length (Z): " << fLength << " cm" << FairLogger::endl;
 
     // --------------------------------------------------------------------------------------------------------------
 
     // Search for a pixel node as the first child of a module node
     TGeoNode* pixel = module->GetDaughter(0);
     TString pixelNodeName = pixel->GetName();
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "pixel node name=" << pixelNodeName << FairLogger::endl;
+    LOG(INFO) << "pixel node name=" << pixelNodeName << FairLogger::endl;
 
     UInt_t iSubmodulesCounter = 0;
     UInt_t iPixelsCounter = 0;
 
     // If not found - search one level deeper
     if (! pixelNodeName.Contains("pixel", TString::kIgnoreCase)) {
-      LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "wrong pixel node name! Trying again." << FairLogger::endl;
-      LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "probably there are submodules - check!" << FairLogger::endl;
+      LOG(INFO) << "wrong pixel node name! Trying again." << FairLogger::endl;
+      LOG(INFO) << "probably there are submodules - check!" << FairLogger::endl;
       if (pixelNodeName.Contains("submodul", TString::kIgnoreCase)) {
-        LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "indeed, submodule found. Count how many of them are in the module." << FairLogger::endl;
+        LOG(INFO) << "indeed, submodule found. Count how many of them are in the module." << FairLogger::endl;
         TString submoduleNodeName;
         // Count the number of submodules
         for (UInt_t iDaughterNode=0; iDaughterNode<module->GetNdaughters(); iDaughterNode++) {
           submoduleNodeName = module->GetDaughter(iDaughterNode)->GetName();
           if (submoduleNodeName.Contains("submodul", TString::kIgnoreCase)) iSubmodulesCounter++;
         }
-        LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "Found " << iSubmodulesCounter << " submodules in a module" << FairLogger::endl;
+        LOG(INFO) << "Found " << iSubmodulesCounter << " submodules in a module" << FairLogger::endl;
       } else {
         //TODO something is wrong, but not completely wrong...
-        LOG(DEBUG) << "ERNeuRadSetup::ERNeuRadSetup: " << "something is wrong, but not completely wrong..." << FairLogger::endl;
+        LOG(DEBUG) << "something is wrong, but not completely wrong..." << FairLogger::endl;
       }
 
       pixel = module->GetDaughter(0)->GetDaughter(0);
       pixelNodeName = pixel->GetName();
-      LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "pixel node name=" << pixelNodeName << FairLogger::endl;
+      LOG(INFO) << "pixel node name=" << pixelNodeName << FairLogger::endl;
       if (! pixelNodeName.Contains("pixel", TString::kIgnoreCase)) {
-        LOG(FATAL) << "ERNeuRadSetup::ERNeuRadSetup: " << "wrong pixel node name! Aborting." << FairLogger::endl;
+        LOG(FATAL) << "wrong pixel node name! Aborting." << FairLogger::endl;
       } else {
         // Count the number of pixels in one submodule
         for (UInt_t iDaughterNode=0; iDaughterNode<module->GetDaughter(0)->GetNdaughters(); iDaughterNode++) {
@@ -148,7 +159,7 @@ ERNeuRadSetup::ERNeuRadSetup() {
       }
     }
 
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: "
+    LOG(INFO) << "ERNeuRadSetup::AnalyseGeoManager: "
               << "Found " << iPixelsCounter << " pixels in " << iSubmodulesCounter << " submodules." << FairLogger::endl;
 
     // --------------------------------------------------------------------------------------------------------------
@@ -156,36 +167,36 @@ ERNeuRadSetup::ERNeuRadSetup() {
     // Search for a fiber as the first child of a pixel
     TGeoNode* fiber = pixel->GetDaughter(0); // fiber with cladding and dead zone - TODO? somewhat wrong comment?
     TString fiberNodeName = fiber->GetName();
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "fiber node name=" << fiberNodeName << FairLogger::endl;
+    LOG(INFO) << "fiber node name=" << fiberNodeName << FairLogger::endl;
 
     UInt_t iCladdingsCounter = 0;
     UInt_t iFibersCounter = 0;
 
     // If not found - search one level deeper
     if (! fiberNodeName.Contains("fiber", TString::kIgnoreCase)) {
-      LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "wrong fiber node name! Trying again." << FairLogger::endl;
-      LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "probably there are claddings - check!" << FairLogger::endl;
+      LOG(INFO) << "wrong fiber node name! Trying again." << FairLogger::endl;
+      LOG(INFO) << "probably there are claddings - check!" << FairLogger::endl;
 
       if (fiberNodeName.Contains("cladding", TString::kIgnoreCase)) {
-        LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "indeed, cladding found. Count how many of them are in the pixel." << FairLogger::endl;
+        LOG(INFO) << "indeed, cladding found. Count how many of them are in the pixel." << FairLogger::endl;
         TString claddingNodeName;
         // Count the number of claddings
         for (UInt_t iDaughterNode=0; iDaughterNode<pixel->GetNdaughters(); iDaughterNode++) {
           claddingNodeName = pixel->GetDaughter(iDaughterNode)->GetName();
           if (claddingNodeName.Contains("cladding", TString::kIgnoreCase)) iCladdingsCounter++;
         }
-        LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "Found " << iCladdingsCounter << " claddings in a pixel." << FairLogger::endl;
+        LOG(INFO) << "Found " << iCladdingsCounter << " claddings in a pixel." << FairLogger::endl;
       } else {
         //TODO something is wrong, but not completely wrong...
-        LOG(DEBUG) << "ERNeuRadSetup::ERNeuRadSetup: " << "something is wrong, but not completely wrong..." << FairLogger::endl;
+        LOG(DEBUG) << "something is wrong, but not completely wrong..." << FairLogger::endl;
 
       }
 
       fiber = pixel->GetDaughter(0)->GetDaughter(0);
       fiberNodeName = fiber->GetName();
-      LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "fiber node name=" << fiberNodeName << FairLogger::endl;
+      LOG(INFO) << "fiber node name=" << fiberNodeName << FairLogger::endl;
       if (! fiberNodeName.Contains("fiber", TString::kIgnoreCase)) {
-        LOG(FATAL) << "ERNeuRadSetup::ERNeuRadSetup: " << "wrong fiber node name! Aborting." << FairLogger::endl;
+        LOG(FATAL) << "wrong fiber node name! Aborting." << FairLogger::endl;
       } else {
         // Count the number of fibers in one cladding
         for (UInt_t iDaughterNode=0; iDaughterNode<pixel->GetDaughter(0)->GetNdaughters(); iDaughterNode++) {
@@ -206,13 +217,13 @@ ERNeuRadSetup::ERNeuRadSetup() {
       }
     }
 
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "Found " << iFibersCounter
+    LOG(INFO) << "Found " << iFibersCounter
               << " fibers in " << iPixelsCounter << " pixels." << FairLogger::endl;
 
     // Get fiber width along X
     TGeoBBox* fiber_box = (TGeoBBox*)fiber->GetVolume()->GetShape();
     fFiberWidth = fiber_box->GetDX()*2;
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "fiber width (X): " << fFiberWidth << FairLogger::endl;
+    LOG(INFO) << "fiber width (X): " << fFiberWidth << FairLogger::endl;
     
     // --------------------------------------------------------------------------------------------------------------
 
@@ -220,9 +231,9 @@ ERNeuRadSetup::ERNeuRadSetup() {
     fRowNofPixels = Int_t(TMath::Sqrt(iPixelsCounter));
     fRowNofFibers = Int_t(TMath::Sqrt(iFibersCounter));
 /*
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad modules in row count:" << fRowNofModules << FairLogger::endl;
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad pixels in row count:" << fRowNofPixels << FairLogger::endl;
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad fibers in row count:" << fRowNofFibers << FairLogger::endl;
+    LOG(INFO) << "NeuRad modules in row count:" << fRowNofModules << FairLogger::endl;
+    LOG(INFO) << "NeuRad pixels in row count:" << fRowNofPixels << FairLogger::endl;
+    LOG(INFO) << "NeuRad fibers in row count:" << fRowNofFibers << FairLogger::endl;
 
     // Обработка субмодулей в новой геометрии
     Int_t iSubm = -1; // Любой subm
@@ -235,7 +246,7 @@ ERNeuRadSetup::ERNeuRadSetup() {
     }
     Int_t nPixel_in_subm = 0;
     if (iSubm > -1) {
-      LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "Submodules in geometry!" << FairLogger::endl;
+      LOG(INFO) << "Submodules in geometry!" << FairLogger::endl;
       TGeoNode* subm = module->GetDaughter(iSubm);
       for (Int_t iNode = 0; iNode < subm->GetNdaughters(); iNode++) {
         if (TString(subm->GetDaughter(iNode)->GetName()).Contains("pixel")) {
@@ -247,23 +258,14 @@ ERNeuRadSetup::ERNeuRadSetup() {
       fRowNofFibers = Int_t(TMath::Sqrt(pixel->GetNdaughters()));
     }
 */
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad modules in row count: " << fRowNofModules << FairLogger::endl;
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad pixels in row count: " << fRowNofPixels << FairLogger::endl;
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "NeuRad fibers in row count: " << fRowNofFibers << FairLogger::endl;
+    LOG(INFO) << "NeuRad modules in row count: " << fRowNofModules << FairLogger::endl;
+    LOG(INFO) << "NeuRad pixels in row count: " << fRowNofPixels << FairLogger::endl;
+    LOG(INFO) << "NeuRad fibers in row count: " << fRowNofFibers << FairLogger::endl;
 
-    LOG(INFO) << "ERNeuRadSetup::ERNeuRadSetup: " << "initialized! "<< FairLogger::endl;
-}
-
-ERNeuRadSetup* ERNeuRadSetup::Instance() {
-  if (fInstance == NULL) {
-    return new ERNeuRadSetup();
-  } else {
-    return fInstance;
-  }
 }
 
 //TODO what does the return value mean?
-Int_t ERNeuRadSetup::SetParContainers() {
+Int_t ERNeuRadSetup::SetParContainers(void) {
   // Get run and runtime database
   FairRunAna* run = FairRunAna::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
@@ -279,76 +281,63 @@ Int_t ERNeuRadSetup::SetParContainers() {
   return 1;
 }
 
-Int_t ERNeuRadSetup::NofFibers() {
-  return fRowNofFibers*fRowNofFibers;
+Float_t ERNeuRadSetup::GetModuleX(Int_t iPmtId) const {
+  return fModules[iPmtId]->fX;
 }
 
-Int_t ERNeuRadSetup::NofPixels(){
-  return fRowNofPixels*fRowNofPixels;
+Float_t ERNeuRadSetup::GetModuleY(Int_t iPmtId) const {
+  return fModules[iPmtId]->fY;
 }
 
-Int_t ERNeuRadSetup::NofModules() {
-  return fRowNofModules*fRowNofModules;
+Float_t ERNeuRadSetup::GetFiberX(Int_t iPmtId, Int_t iChId) const {
+  return fFibers[iPmtId][iChId]->fX;
 }
 
-Float_t ERNeuRadSetup::FiberLength() {
-  return fLength;
+Float_t ERNeuRadSetup::GetFiberY(Int_t iPmtId, Int_t iChId) const {
+  return fFibers[iPmtId][iChId]->fY;
 }
 
-Float_t ERNeuRadSetup::FiberWidth() {
-  return fFiberWidth;
+void ERNeuRadSetup::Print(void) const {
+  fDigiPar->print(); //TODO really?! Maybe print something about the setup itself?
 }
 
-Float_t ERNeuRadSetup::ModuleX(Int_t iModule) {
-  return fModules[iModule]->fX;
+// ----------------------------------------------------------------------------
+
+Bool_t ERNeuRadSetup::UseCrosstalks(void) const {
+  if (!fDigiPar) {
+    LOG(FATAL) << "ERNeuRadSetup::UseCrosstalks: fDigiPar is NULL. Aborting." << FairLogger::endl;
+  }
+  return fDigiPar->UseCrosstalks();
 }
 
-Float_t ERNeuRadSetup::ModuleY(Int_t iModule) {
-  return fModules[iModule]->fY;
+Float_t ERNeuRadSetup::GetPixelQuantumEfficiency(Int_t iPmtId, Int_t iChId) const {
+  if (!fDigiPar) {
+    LOG(FATAL) << "ERNeuRadSetup::GetPixelQuantumEfficiency: fDigiPar is NULL. Aborting." << FairLogger::endl;
+  }
+  return fDigiPar->GetPixelQuantumEfficiency(iPmtId, iChId);
 }
 
-Float_t ERNeuRadSetup::FiberX(Int_t iModule, Int_t iFiber) {
-  return fFibers[iModule][iFiber]->fX;
+Float_t ERNeuRadSetup::GetPixelGain(Int_t iPmtId, Int_t iChId) const  {
+  if (!fDigiPar) {
+    LOG(FATAL) << "ERNeuRadSetup::GetPixelGain: fDigiPar is NULL. Aborting." << FairLogger::endl;
+  }
+  return fDigiPar->GetPixelGain(iPmtId, iChId);
 }
 
-Float_t ERNeuRadSetup::FiberY(Int_t iModule, Int_t iFiber) {
-  return fFibers[iModule][iFiber]->fY;
+Float_t ERNeuRadSetup::GetPixelSigma(Int_t iPmtId, Int_t iChId) const  {
+  if (!fDigiPar) {
+    LOG(FATAL) << "ERNeuRadSetup::GetPixelSigma: fDigiPar is NULL. Aborting." << FairLogger::endl;
+  }
+  return fDigiPar->GetPixelSigma(iPmtId, iChId);
 }
 
-Float_t ERNeuRadSetup::PixelQuantumEfficiency(Int_t iModule, Int_t iFiber) {
-  return fDigiPar->PixelQuantumEfficiency(iFiber);
-}
-
-Float_t ERNeuRadSetup::PixelGain(Int_t iModule, Int_t iFiber) {
-  return fDigiPar->PixelGain(iFiber);
-}
-
-Float_t ERNeuRadSetup::PixelSigma(Int_t iModule, Int_t iFiber) {
-  return fDigiPar->PixelSigma(iFiber);
-}
-
-void ERNeuRadSetup::Print() {
-  fDigiPar->print();
-}
-
-void ERNeuRadSetup::Crosstalks(Int_t iFiber, TArrayF& crosstalks) {
+void ERNeuRadSetup::Crosstalks(Int_t iFiber, TArrayF& crosstalks) const {
+  if (!fDigiPar) {
+    LOG(FATAL) << "ERNeuRadSetup::Crosstalks: fDigiPar is NULL. Aborting." << FairLogger::endl;
+  }
   return fDigiPar->Crosstalks(iFiber, crosstalks);
 }
 
-Int_t ERNeuRadSetup::RowNofFibers() {
-  return fRowNofFibers;
-}
-
-Int_t ERNeuRadSetup::RowNofPixels() {
-  return fRowNofPixels;
-}
-
-Int_t ERNeuRadSetup::RowNofModules() {
-  return fRowNofModules;
-}
-
-Bool_t ERNeuRadSetup::UseCrosstalks() {
-  return fDigiPar->UseCrosstalks();
-}
+// ----------------------------------------------------------------------------
 
 ClassImp(ERNeuRadSetup)

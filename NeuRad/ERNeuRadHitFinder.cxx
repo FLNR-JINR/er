@@ -1,4 +1,12 @@
-#include "ERNeuRadHitFinder.h"
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
+ #include "ERNeuRadHitFinder.h"
 
 #include <iostream>
 #include <vector>
@@ -117,9 +125,9 @@ void ERNeuRadHitFinder::Exec(Option_t* opt)
     }
   }
   if (hitNumber == 1){
-    TVector3 pos(setup->FiberX(targetHitSignal->ModuleNb(), targetHitSignal->PixelNb()),
-                 setup->FiberY(targetHitSignal->ModuleNb(), targetHitSignal->PixelNb()),
-                 setup->Z()-setup->FiberLength());
+    TVector3 pos(setup->GetFiberX(targetHitSignal->ModuleNb(), targetHitSignal->PixelNb()),
+                 setup->GetFiberY(targetHitSignal->ModuleNb(), targetHitSignal->PixelNb()),
+                 setup->GetZ()-setup->GetFiberLength());
     TVector3 dpos(0,0,0);
     AddHit(kNEURAD,pos, dpos,targetHitSignal->ModuleNb(),targetHitSignal->PixelNb(),targetHitSignal->FullInteg());
   }

@@ -89,7 +89,7 @@ void sim_egor(Int_t nEvents = 1000)
   run->SetStoreTraj(kTRUE);
 
   //-------Set LOG verbosity  -----------------------------------------------
-  FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
+  FairLogger::GetLogger()->SetLogVerbosityLevel("HIGH");
 
   // -----   Initialize simulation run   ------------------------------------
   FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");

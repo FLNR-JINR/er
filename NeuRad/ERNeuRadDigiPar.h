@@ -34,7 +34,7 @@ public:
   virtual ~ERNeuRadDigiPar();
 
   /** Initialization from input device **/
-  virtual Bool_t init(FairParIo* input);
+  virtual Bool_t init(FairParIo* input); // Yes, it starts NOT with the capital i... :-(
 
   /** Output to file **/
   //virtual Int_t write(FairParIo* output);
@@ -49,30 +49,45 @@ public:
 
   /** Modifiers**/
 
-  /** Accessories  **/
-  Int_t   NofFibers()     const {return fNofPixels;}
-  Int_t   NofModules()    const {return fNofModules;}
+  /** Accessors  **/
+  Int_t GetRowNofPixelsPerPMT() const { return fRowNofPixelsPerPMT; }
+  Int_t GetNofPixelsPerPMT() const { return fNofPixelsPerPMT; }
+  Int_t GetNofPMTs() const { return fNofPMTs; }
+
+  Bool_t UseCrosstalks()  const { return fUseCrosstalks; }
+
   //TODO äîáàâèòü îáðàáîòêó âûõîäà ççà ãðàíèöó
-  Double_t PixelQuantumEfficiency (Int_t iFiber) const {return (*fPixelQuantumEfficiency)[iFiber];}
-  Double_t PixelGain (Int_t iFiber) const {return (*fPixelGain)[iFiber];}
-  Double_t PixelSigma (Int_t iFiber) const {return (*fPixelSigma)[iFiber];}
-  Bool_t UseCrosstalks() const {return fUseCrosstalks;}
-  void Crosstalks(Int_t iFiber, TArrayF& crosstalks) const;
-  Int_t RowNofFibers() const {return fRowNofFibers;}
+  //TODO TArrayF is an array of FLOATs, so return float
+  //FIXME In case you want to work with several PMTs with different characteristics:
+  //FIXME compute array index correctly taking total number of modules (PMTs) into account!
+  Float_t GetPixelQuantumEfficiency (Int_t iPmtId, Int_t iChId) const { return (*fPixelQuantumEfficiency)[iChId]; }
+  Float_t GetPixelGain (Int_t iPmtId, Int_t iChId) const { return (*fPixelGain)[iChId]; }
+  Float_t GetPixelSigma (Int_t iPmtId, Int_t iChId) const { return (*fPixelSigma)[iChId]; }
+
+  void Crosstalks(Int_t iChId, TArrayF& crosstalks) const;
 
 private:
+  
+  /** Data members **/
+
+  Int_t fRowNofPixelsPerPMT;
+  Int_t fNofPixelsPerPMT;
+  Int_t fNofPMTs;
+
+  Bool_t fUseCrosstalks;
 
   TArrayF* fPixelQuantumEfficiency;
   TArrayF* fPixelGain;
   TArrayF* fPixelSigma;
   TArrayF* fPixelCrosstalks;
-  TArrayF* fFiberCrosstalks;
-  Int_t fNofPixels;
-  Int_t fNofModules;
-  Bool_t fUseCrosstalks;
-  Int_t fRowNofFibers;
+  //TArrayF* fFiberCrosstalks; //FIXME Keep it commented for time being
 
+  /** Common stuff **/
+
+  /** Copy constructor **/
   ERNeuRadDigiPar(const ERNeuRadDigiPar&);
+
+  /** Copy operator **/
   ERNeuRadDigiPar& operator=(const ERNeuRadDigiPar&);
 
   ClassDef(ERNeuRadDigiPar, 1);

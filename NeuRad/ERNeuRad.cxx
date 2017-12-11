@@ -24,6 +24,7 @@
 #include "ERMCEventHeader.h"
 #include "ERNeuRadPoint.h"
 #include "ERNeuRadStep.h"
+#include "ERNeuRadSetup.h"
 
 //-------------------------------------------------------------------------------------------------
 ERNeuRad::ERNeuRad()
@@ -134,9 +135,9 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
     }
 
     if (gMC->TrackStep() > 0) {
-      Double_t dedxcm = gMC->Edep()*1000./gMC->TrackStep(); //[MeV/cm]
-      curLightYield = gMC->Edep()*1000./(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
-      curLightYield /= 1000.; //[GeV]
+      Double_t dedxcm = gMC->Edep() * 1000. / gMC->TrackStep(); // [MeV/cm]
+      curLightYield = gMC->Edep() * 1000. / (1. + BirkC1Mod*dedxcm + BirkC2*dedxcm*dedxcm); //[MeV]
+      curLightYield /= 1000.; // [GeV]
       fLightYield += curLightYield;
     }
   }
@@ -319,7 +320,10 @@ void ERNeuRad::ObtainChIdfromGMC() {
     }
   }
 
+
   //TODO ??? Ask ERNeuRadSetup object to obtain total number of pixels/fibers/submodules/etc...
+  ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
+  // The problem is that currently setup does not know anythng about submodules...
   Int_t nSubmodulesInModuleX = 2; // Only in one direction!
   Int_t nPixelsInSubmoduleX = 4; // Only in one direction!
   //Int_t nFibersInPixelX = 2; // Only in one direction!

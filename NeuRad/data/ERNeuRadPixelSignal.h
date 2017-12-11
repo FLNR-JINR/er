@@ -1,3 +1,11 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 // -------------------------------------------------------------------------
 // -----                  ERNeuRadPixelSignal header file              -----
 // -----                  Created 02/03/15  by v. Schetinin            -----
@@ -24,14 +32,15 @@ protected:
     Int_t fPixelNb;
     Int_t fModuleNb;
     Int_t fSide;
+
     //Массив амплитуд фотоэлектронов сигнала
-    TArrayF fPEAmplitudes;     
+    TArrayF fPEAmplitudes;
     //Суммарная амплитуда фотоэлектронов сигнала
     Double_t fPEAmplitudesSum;
-    //Массив времен прихоа на анод фотоэлектронов сигнала
+    //Массив времен прихода на анод фотоэлектронов сигнала
     TArrayF fPEAnodeTimes;
     //Массив длин одноэлектронных сигналов
-    TArrayI fPETimes;     //!
+    TArrayI fPETimes; //!
     //Количество фотоэлектронов в сигнале
     Int_t fPECount;
 
@@ -41,9 +50,9 @@ protected:
     Double_t fFinishTime;
 
     //Используется для работы с общем сигналом. Так как была необходима адресная арифметика
-    Float_t* fResFunction;    //!
+    Float_t* fResFunction; //!
     //Хранит результирующий сигнал, как значения функции в узлах
-    TArrayF fResFunctionRoot; 
+    TArrayF fResFunctionRoot;
 
     Double_t OnePEFunction(Double_t time, Double_t amplitude);
     Int_t OnePETime(Double_t amplitude);
@@ -68,7 +77,7 @@ public:
 
     virtual void Generate();
 
-    virtual bool Exist(){return fCurFPoint > 0;}
+    virtual bool Exist() const {return fCurFPoint > 0;}
 
     TArrayF* ResultSignal() {return &fResFunctionRoot;}
 
@@ -81,7 +90,7 @@ public:
     virtual Double_t FullInteg() {return Integ(fStartTime,fFinishTime);}
     virtual Double_t Mean(const Double_t time) {return -1.;}
 
-    virtual Double_t StartTime() const {return fStartTime;} 
+    virtual Double_t StartTime() const {return fStartTime;}
     virtual Double_t FinishTime() const {return fFinishTime;}
 
     virtual Float_t ThresholdTime(Float_t peThreshold);
@@ -90,7 +99,7 @@ public:
 
     virtual Int_t PECount() const {return fPECount;}
 
-    Double_t  dT() const {return cdT;}
+    Double_t dT() const {return cdT;}
 
     Int_t ModuleNb() const {return fModuleNb;}
     Int_t PixelNb() const {return fPixelNb;}
@@ -101,7 +110,7 @@ public:
     //Гранулирование сигнала по времени
     static const Double_t cdT; // ns
 
-    ClassDef(ERNeuRadPixelSignal,1)
+    ClassDef(ERNeuRadPixelSignal, 1);
 };
 
 #endif // ERNeuRadPixelSignal_H

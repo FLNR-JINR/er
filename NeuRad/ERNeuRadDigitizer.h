@@ -95,10 +95,13 @@ protected:
   Double_t fExcessNoiseFactor;
   Double_t fScincilationTau; // [ns]
 
+  // Timers for debugging
   TStopwatch fPhotoElectronsCreatingTimer;
   Double_t fPhotoElectronsCreatingTime;
   TStopwatch fPixelSignalCreatingTimer;
   Double_t fPixelSignalCreatingTime;
+
+  // 
   Bool_t fUseCrosstalks;
 
 protected:
