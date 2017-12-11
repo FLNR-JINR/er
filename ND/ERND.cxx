@@ -16,7 +16,7 @@
 ERND::ERND() : 
   FairDetector("ERND", kTRUE),
    fNDPoints(NULL),
-   fStep(0.1)
+   fStep(1)
 {
   LOG(INFO) << "  ERND::ERND()" << FairLogger::endl;
   ResetParameters();
@@ -77,7 +77,7 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
   static Int_t          stilbenNr;
   static Double_t       lightYield;
 
-  gMC->SetMaxStep(fStep);
+  //gMC->SetMaxStep(fStep);
 
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     eLoss  = 0.;
@@ -86,7 +86,7 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
     gMC->TrackPosition(posIn);
     gMC->TrackMomentum(momIn);
     trackID  = gMC->GetStack()->GetCurrentTrackNumber();
-    time   = gMC->TrackPid();// gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
+    time   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     pdg = gMC->TrackPid(); // GeV/c2

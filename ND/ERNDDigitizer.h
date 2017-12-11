@@ -71,7 +71,7 @@ protected:
   ERNDSetup* fSetup;
 protected:
   ERNDDigi* AddDigi(Int_t detID, TVector3& pos, TVector3& dpos, 
-          Int_t point_index, Float_t lightYield, Float_t time, Float_t neutronProb);
+          Int_t point_index, Float_t edep, Float_t lightYield, Float_t time, Float_t neutronProb);
   Float_t NeutronProbability(Float_t edep, Float_t ly);
 private:
   virtual void SetParContainers();

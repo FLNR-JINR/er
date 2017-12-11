@@ -152,7 +152,7 @@ void ERNDDigitizer::Exec(Option_t* opt)
     Float_t neutronProb = NeutronProbability(edep,ly);
     
     TVector3 dpos = TVector3(0.01, 0.01, 0.01); //ошибка пока фиксирована
-    AddDigi(kND, pos, dpos,itCrystall.first,ly, time, neutronProb);
+    AddDigi(kND, pos, dpos,itCrystall.first,edep, ly, time, neutronProb);
   }
   LOG(DEBUG) << "Digis count: " << fNDDigis->GetEntriesFast() << FairLogger::endl;
 }
@@ -175,10 +175,10 @@ void ERNDDigitizer::Finish()
 
 // ----------------------------------------------------------------------------
 ERNDDigi* ERNDDigitizer::AddDigi(Int_t detID, TVector3& pos, TVector3& dpos,
-                       Int_t point_index, Float_t eloss, Float_t time,Float_t neutronProb)
+                       Int_t point_index, Float_t edep, Float_t ly, Float_t time,Float_t neutronProb)
 {
   ERNDDigi *Digi = new((*fNDDigis)[fNDDigis->GetEntriesFast()])
-              ERNDDigi(fNDDigis->GetEntriesFast(),detID, pos, dpos, point_index, eloss, time, neutronProb);
+              ERNDDigi(fNDDigis->GetEntriesFast(),detID, pos, dpos, point_index, edep, ly, time, neutronProb);
   return Digi;
 }
 // ----------------------------------------------------------------------------

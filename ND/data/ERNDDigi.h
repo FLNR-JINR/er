@@ -12,12 +12,13 @@ class ERNDDigi : public FairHit{
 private:
 	Int_t fID;
 	Float_t fLightYield;
+	Float_t fEdep;
 	Float_t fTime;
 	Float_t fNeutronProb;
 public:
 	ERNDDigi(){}
 	ERNDDigi(Int_t id, Int_t detID, TVector3& pos, TVector3& dpos, 
-				Int_t stilbenNr, Float_t lightYield, Float_t time, Float_t neutronProb);
+				Int_t stilbenNr, Float_t edep, Float_t lightYield, Float_t time, Float_t neutronProb);
 
 	Int_t ID() const {return fID;}
 

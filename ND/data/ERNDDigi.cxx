@@ -6,10 +6,11 @@
 #include "ERNDDigi.h"
 
 ERNDDigi::ERNDDigi(Int_t id, Int_t detID, TVector3& pos, TVector3& dpos, Int_t stilbenNr, 
-					Float_t lightYoeld, Float_t time,Float_t neutronProb):
+					Float_t edep, Float_t lightYoeld, Float_t time,Float_t neutronProb):
 	FairHit(detID, pos, dpos, stilbenNr),
 	fID(id), fTime(time), fLightYield(lightYoeld),
-	fNeutronProb(neutronProb)
+	fNeutronProb(neutronProb),
+	fEdep(edep)
 {
 
 }
