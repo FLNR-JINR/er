@@ -16,11 +16,14 @@
 
 #include "ERNeuRadDigiPar.h" // used by inline methods
 
+/*
+//TODO not used by now
 struct ERNeuRadModule {
     Float_t fX;
     Float_t fY;
     ERNeuRadModule(Float_t x, Float_t y) { fX = x; fY = y; }
 };
+*/
 
 struct ERNeuRadFiber {
     Float_t fX;
@@ -44,14 +47,17 @@ private:
   static ERNeuRadSetup* fInstance; // (private!)  Singleton management
 
 public:
-
+/*
+  //TODO not used by now
   Float_t GetModuleX(Int_t iPmtId) const;
   Float_t GetModuleY(Int_t iPmtId) const;
+*/
   Float_t GetFiberX(Int_t iPmtId, Int_t iChId) const;
   Float_t GetFiberY(Int_t iPmtId, Int_t iChId) const;
 
   void Print(void) const;
 
+  /** TODO what is this? **/
   Int_t SetParContainers(void);
 
   /** These methods acquire the ERNeuRadDigiPar class object and return the value from there **/
@@ -59,7 +65,7 @@ public:
   Float_t GetPixelQuantumEfficiency(Int_t iPmtId, Int_t iChId) const;
   Float_t GetPixelGain(Int_t iPmtId, Int_t iChId) const;
   Float_t GetPixelSigma(Int_t iPmtId, Int_t iChId) const;
-  void Crosstalks(Int_t iFiber, TArrayF& crosstalks) const;
+  void Crosstalks(Int_t iCheckWhatItIs, TArrayF& crosstalks) const;
 
   /** Accessors **/
   Float_t GetZ(void) const { return fZ; }
@@ -82,8 +88,10 @@ private: // methods
   void AnalyseGeoManager(void);
 
 private: // data members
-
+/*
+  //TODO not used by now
   std::vector<ERNeuRadModule*> fModules;
+*/
   std::vector<std::vector<ERNeuRadFiber*> > fFibers;
 
   ERNeuRadDigiPar* fDigiPar;

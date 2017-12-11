@@ -275,20 +275,27 @@ Int_t ERNeuRadSetup::SetParContainers(void) {
 
   fDigiPar = (ERNeuRadDigiPar*) (rtdb->getContainer("ERNeuRadDigiPar"));
   if (fDigiPar) {
-    LOG(INFO) << "ERNeuRadSetup::SetParContainers: " << "ERNeuRadDigiPar initialized! "<< FairLogger::endl;
+    //TODO this does not seem to work as expected
+    LOG(INFO) << "ERNeuRadSetup::SetParContainers: " << "ERNeuRadDigiPar initialized! " << FairLogger::endl;
     return 0;
   }
   return 1;
 }
 
+/*
+//TODO not used by now
 Float_t ERNeuRadSetup::GetModuleX(Int_t iPmtId) const {
   return fModules[iPmtId]->fX;
 }
 
+//TODO not used by now
 Float_t ERNeuRadSetup::GetModuleY(Int_t iPmtId) const {
   return fModules[iPmtId]->fY;
 }
+*/
 
+//TODO used only by HitFinder?
+//TODO Is it fiber of pixel?
 Float_t ERNeuRadSetup::GetFiberX(Int_t iPmtId, Int_t iChId) const {
   return fFibers[iPmtId][iChId]->fX;
 }
@@ -331,11 +338,11 @@ Float_t ERNeuRadSetup::GetPixelSigma(Int_t iPmtId, Int_t iChId) const  {
   return fDigiPar->GetPixelSigma(iPmtId, iChId);
 }
 
-void ERNeuRadSetup::Crosstalks(Int_t iFiber, TArrayF& crosstalks) const {
+void ERNeuRadSetup::Crosstalks(Int_t iCheckWhatItIs, TArrayF& crosstalks) const {
   if (!fDigiPar) {
     LOG(FATAL) << "ERNeuRadSetup::Crosstalks: fDigiPar is NULL. Aborting." << FairLogger::endl;
   }
-  return fDigiPar->Crosstalks(iFiber, crosstalks);
+  return fDigiPar->Crosstalks(iCheckWhatItIs, crosstalks);
 }
 
 // ----------------------------------------------------------------------------

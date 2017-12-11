@@ -167,11 +167,11 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
 //---------------------------------------------------------------------------------------
 Bool_t ERNeuRadDigiPar::init(FairParIo* input) {
   LOG(INFO) << "ERNeuRadDigiPar::init from " << input->getFilename() << FairLogger::endl;
-  if (TString(input->getFilename()).EndsWith(".digi")) {
+  if (TString(input->getFilename()).Contains(".digi")) { //TODO implement more clever filename checks!!!
     FairGenericParAsciiFileIo* p = new FairGenericParAsciiFileIo(((FairParAsciiFileIo*)input)->getFile()); //TODO is this correct?
     return p->init(this);
   }
-  if (TString(input->getFilename()).EndsWith(".root")) {
+  if (TString(input->getFilename()).Contains(".root")) { //TODO implement more clever filename checks!!! (here use EndsWith()?)
     FairGenericParRootFileIo* p = new FairGenericParRootFileIo(((FairParRootFileIo*)input)->getParRootFile()); //TODO is this correct? Why are they different?
     return p->init(this);
   }

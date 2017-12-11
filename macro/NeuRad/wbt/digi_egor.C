@@ -26,7 +26,7 @@ void digi_egor(Int_t nEvents = 1000)
   // -----   NeuRad digitized   ---------------------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
-  //digitizer->SetUseCrosstalks(kFALSE);
+  digitizer->SetUseCrosstalks(kFALSE);
   digitizer->SetPixelJitter(0.4/2.36);
   run->AddTask(digitizer);
   // ------------------------------------------------------------------------
