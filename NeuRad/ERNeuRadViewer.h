@@ -57,7 +57,7 @@ protected:
 
 private:
 
-  virtual void SetParContainers();
+  //virtual void SetParContainers();
   
   ClassDef(ERNeuRadViewer, 1);
 };

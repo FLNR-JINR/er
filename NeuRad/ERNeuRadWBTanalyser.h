@@ -9,9 +9,13 @@
 #ifndef ERNEURADWBTANALYSER_H
 #define ERNEURADWBTANALYSER_H
 
+#include "TString.h"
+
 #include "FairTask.h"
 
 class TClonesArray;
+class TH1D;
+class TH2D;
 
 class ERNeuRadWBTanalyser : public FairTask
 {
@@ -21,6 +25,11 @@ public:
 
   /** Destructor **/
   ~ERNeuRadWBTanalyser();
+
+  /** Export histograms into a ROOT file **/
+  void ExportROOT(TString filename);
+
+  void ExportPictures(void);
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -37,8 +46,18 @@ public:
 private:
 
   /** Input arrays from digitization **/
-  TClonesArray *fNeuRadPhotoElectron;
-  TClonesArray *fNeuRadPixelSignal;
+  TClonesArray* fNeuRadPhotoElectron;
+  TClonesArray* fNeuRadPixelSignal;
+
+private:
+
+  void InitHistograms(void);
+
+  /** Analysis histograms **/
+  TH1D* fHistoChannelsF;
+  TH1D* fHistoAmpsF;
+  TH1D* fHistoChannelsB;
+  TH1D* fHistoAmpsB;
 
   ClassDef(ERNeuRadWBTanalyser, 1);
 };

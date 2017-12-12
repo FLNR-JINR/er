@@ -92,7 +92,7 @@ void sim_egor(Int_t nEvents = 1000)
   FairLogger::GetLogger()->SetLogVerbosityLevel("HIGH");
 
   // -----   Initialize simulation run   ------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG2");
   run->Init();
   Int_t nSteps = -15000; //TODO Why negative?
   //gMC->SetMaxNStep(nSteps);

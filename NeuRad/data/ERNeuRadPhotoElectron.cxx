@@ -52,9 +52,14 @@ ERNeuRadPhotoElectron::~ERNeuRadPhotoElectron()
 
 // ----------------------------------------------------------------------------
 void ERNeuRadPhotoElectron::Print() const {
-	LOG(INFO) << "PE: " << fIndex << FairLogger::endl;
-	LOG(INFO) << "Side: " << fSide << " Cathode Time: " << fCathodeTime << " AnodeTime: " << fAnodeTime << FairLogger::endl;
-	LOG(INFO) << "Photon count: " << fPhotonCount << " Amplitude: " << fAmplitude << " LYTime:" << fLYTime << FairLogger::endl;
+  LOG(INFO) << "PE: " << fIndex << "\t"
+            << "Side: " << fSide << "\t"
+            << "Cathode Time: " << fCathodeTime << "\t"
+            << "AnodeTime: " << fAnodeTime << "\t"
+            << "Photon count: " << fPhotonCount << "\t" << "\t"
+            << "Amplitude: " << fAmplitude << "\t"
+            << "LYTime:" << fLYTime
+            << FairLogger::endl;
 }
 // ----------------------------------------------------------------------------
 

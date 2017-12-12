@@ -1,14 +1,14 @@
-void eventDisplay(TString filename="sim.root")
+void eventDisplay(TString filename="results/sim.root")
 {
   FairRunAna* fRun = new FairRunAna();
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parIo1 = new FairParRootFileIo();
-  parIo1->open("par.root");
+  parIo1->open("results/par.root");
   rtdb->setFirstInput(parIo1);
   //rtdb->print();
 
   fRun->SetInputFile(filename);
-  fRun->SetOutputFile("eventDisplay.root");
+  fRun->SetOutputFile("results/eventDisplay.root");
 
   FairEventManager* fMan= new FairEventManager();
 

@@ -1,3 +1,11 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 // -------------------------------------------------------------------------
 // -----                  ERRawToAnalyzeConverter header file          -----
 // -----                  Created 03/16  by V.Schetinin                -----
@@ -6,12 +14,12 @@
 #ifndef ERSimtoRaw_H
 #define ERSimtoRaw_H
 
-#include "FairTask.h"
+#include "FairTask.h" // mother task
 
-#include "ERNeuRadPixelSignal.h"
-#include "RawEvent.h"
-#include "AEvent.h"
 #include "TArrayF.h"
+
+class RawEvent;
+class TClonesArray;
 
 class ERSimtoRaw : public FairTask {
 
@@ -19,9 +27,7 @@ public:
   /** Default constructor **/
   ERSimtoRaw();
 
-  /** Constructor 
-  ** verbose: 1 - only standard log print, 2 - print digi information 
-  **/
+  /** Constructor **/
   ERSimtoRaw(Int_t NEvents);
 
   /** Destructor **/
@@ -34,12 +40,13 @@ public:
   virtual void Exec(Option_t* opt);
 
 protected:
+
   //Input objects
   TClonesArray *fPixelSignals;
 
-  //Output arrays
+  //Output arrays 
+  //FIXME output data has to be TClonesArray!
   RawEvent** fRawEvents;
-
 
   Int_t fNChanels;
   Int_t fNPoints;
@@ -50,12 +57,7 @@ protected:
   //Хранит результирующий сигнал, как значения функции в узлах
   TArrayF fResFunctionRoot; 
 
-
-  // TODO why would you comment this?
-/*private:
-  virtual void SetParContainers();
-  
-  ClassDef(ERRawToAnalyzeConverter,1)*/
+  ClassDef(ERSimtoRaw, 1);
 };
 
 #endif // ERSimtoRaw_H

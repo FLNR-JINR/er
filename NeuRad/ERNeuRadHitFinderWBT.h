@@ -16,13 +16,13 @@
 
 #include "FairTask.h" // mother class
 
-#include "TClonesArray.h"
-
 #include "ERNeuRadDigiPar.h"
 #include "ERNeuRadHitWBT.h"
 
-class ERNeuRadHitFinderWBT : public FairTask {
+class TClonesArray;
 
+class ERNeuRadHitFinderWBT : public FairTask
+{
 public:
 
   /** Default constructor **/
@@ -50,11 +50,11 @@ public:
 
 protected:
 
-  //Input arrays
-  TClonesArray *fNeuRadPMTSignals;
+  /** Input arrays **/
+  TClonesArray* fNeuRadPMTSignals;
 
-  //Output arrays
-  TClonesArray *fNeuRadHits;
+  /** Output arrays **/
+  TClonesArray* fNeuRadHits;
 
   ERNeuRadDigiPar* fDigiPar;
 
@@ -69,7 +69,7 @@ private:
 
   virtual void SetParContainers();
   
-  ClassDef(ERNeuRadHitFinderWBT,1)
+  ClassDef(ERNeuRadHitFinderWBT, 1);
 };
 
 #endif // ERNeuRadHitFinderWBT_H

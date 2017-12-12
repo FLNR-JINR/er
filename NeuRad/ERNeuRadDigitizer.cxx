@@ -15,6 +15,7 @@
 #include "TVector3.h"
 #include "TMath.h"
 #include "TRandom3.h"
+#include "TF1.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -62,12 +63,14 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
   fNeuRadPoints(NULL),
   fNeuRadPhotoElectron(NULL),
   fNeuRadPixelSignal(NULL),
-  fSumAmplitudeF(0),
-  fSumAmplitudeB(0),
-  fPECountF(0),
+  /*fPECountF(0),
   fPECountB(0),
+  fSumAmplitudeF(0),
+  fSumAmplitudeB(0),*/
   fUseCrosstalks(kTRUE)
 {
+  fSPEfunc = new TF1("fSPEfunc", "ERNeuRadDigitizer::SPEfunc", 0., 2000., 7);
+  fSPEfunc->SetParameters(85.8656, 30.6158, 447.112, 447.111, 52., 433., 141.);
 }
 // ----------------------------------------------------------------------------
 
@@ -83,18 +86,24 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   fNeuRadPoints(NULL),
   fNeuRadPhotoElectron(NULL),
   fNeuRadPixelSignal(NULL),
-  fSumAmplitudeF(0),
-  fSumAmplitudeB(0),
-  fPECountF(0),
+  /*fPECountF(0),
   fPECountB(0),
+  fSumAmplitudeF(0),
+  fSumAmplitudeB(0),*/
   fUseCrosstalks(kTRUE)
 {
+  fSPEfunc = new TF1("fSPEfunc", "ERNeuRadDigitizer::SPEfunc", 0., 2000., 7);
+  fSPEfunc->SetParameters(85.8656, 30.6158, 447.112, 447.111, 52., 433., 141.);
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::~ERNeuRadDigitizer()
 {
+  //if (fSPEfunc) {
+    //delete fSPEfunc;
+    //fSPEfunc = NULL;
+  //}
 }
 // ----------------------------------------------------------------------------
 
@@ -132,14 +141,12 @@ InitStatus ERNeuRadDigitizer::Init()
 // -----   Public method Exec   -----------------------------------------------
 void ERNeuRadDigitizer::Exec(Option_t* opt)
 {
-  fPECountF = 0;
-  fPECountB = 0;
-  fSumAmplitudeF = 0;
-  fSumAmplitudeB = 0;
+  LOG(DEBUG) << "----------------------------------------------------------------------" << FairLogger::endl;
 
-  //TODO is this the correct way to get the current event number?
-  Int_t iEvent = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
-  LOG(INFO) << "ERNeuRadDigitizer::Exec: " << "Event " << iEvent << FairLogger::endl;
+  Int_t fPECountF = 0;
+  Int_t fPECountB = 0;
+  Float_t fSumAmplitudeF = 0;
+  Float_t fSumAmplitudeB = 0;
 
   // Reset entries in output arrays
   Reset();
@@ -148,25 +155,27 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   // Let's just do it once at the beginning!
   Int_t nofPixels = fNeuRadSetup->GetNofPixelsPerPMT(); //TODO check!
   Int_t nofPMTs = fNeuRadSetup->GetNofModules();
-  LOG(DEBUG2) << "ERNeuRadDigitizer::Exec: "  << "nofPixels = " << nofPixels << FairLogger::endl;
-  LOG(DEBUG2) << "ERNeuRadDigitizer::Exec: "  << "nofPMTs = " << nofPMTs << FairLogger::endl;
+  LOG(DEBUG2) << "SETUP: nofPixels=" << nofPixels << "\t" << "nofPMTs=" << nofPMTs << FairLogger::endl;
 
   // Выделяем память под хранение фотоэлектронов по файберам
   // Memory allocation
   //
   //
-  //FIXME This shuold not be done for each event!
+  //FIXME This should not be done for each event!
   // Allocate once at the beginning and use it!
-  std::vector<ERNeuRadPhotoElectron* >** peInPixelsF = new std::vector<ERNeuRadPhotoElectron*>* [nofPMTs]; // front
-  std::vector<ERNeuRadPhotoElectron* >** peInPixelsB = new std::vector<ERNeuRadPhotoElectron*>* [nofPMTs]; // back
+  std::vector<ERNeuRadPhotoElectron* >** peInPixelsF = new std::vector<ERNeuRadPhotoElectron*>* [nofPMTs]; // front (smaller Z)
+  std::vector<ERNeuRadPhotoElectron* >** peInPixelsB = new std::vector<ERNeuRadPhotoElectron*>* [nofPMTs]; // back (bigger Z)
   for (Int_t i = 0; i<nofPMTs; i++) {
-    peInPixelsF[i] = new std::vector<ERNeuRadPhotoElectron*> [nofPixels]; // front
-    peInPixelsB[i] = new std::vector<ERNeuRadPhotoElectron*> [nofPixels]; // back
+    peInPixelsF[i] = new std::vector<ERNeuRadPhotoElectron*> [nofPixels]; // front (smaller Z)
+    peInPixelsB[i] = new std::vector<ERNeuRadPhotoElectron*> [nofPixels]; // back (bigger Z)
   }
+
+  //TODO is this the correct way to get the current event number?
+  Int_t iEvent = FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
 
   // Number of points in NeuRad in the current event
   Int_t points_count = fNeuRadPoints->GetEntries();
-  LOG(DEBUG) << "ERNeuRadDigitizer::Exec: " << "points_count = " << points_count << FairLogger::endl;
+  LOG(INFO) << "Event " << iEvent << "\t" << "points_count=" << points_count << FairLogger::endl;
 
   // Timer for debugging
   fPhotoElectronsCreatingTimer.Start();
@@ -177,15 +186,13 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
     // Current point
     ERNeuRadPoint *point = (ERNeuRadPoint*) fNeuRadPoints->At(iPoint);
     // Generate photoelectrons on the front and the back sides of the detector for the current point
-    PhotoElectronsCreating(iPoint, point, peInPixelsF, 0, fPECountF, fSumAmplitudeF); // front
-    PhotoElectronsCreating(iPoint, point, peInPixelsB, 1, fPECountB, fSumAmplitudeB); // back
+    PhotoElectronsCreating(iPoint, point, peInPixelsF, 0, fPECountF, fSumAmplitudeF); // front (smaller Z)
+    PhotoElectronsCreating(iPoint, point, peInPixelsB, 1, fPECountB, fSumAmplitudeB); // back (bigger Z)
   }
 
   // Timer for debugging
   fPhotoElectronsCreatingTimer.Stop();
   fPhotoElectronsCreatingTime += fPhotoElectronsCreatingTimer.RealTime();
-
-  LOG(DEBUG) << "-------------------------------------------------------------" << FairLogger::endl;
 
   // Timer for debugging
   fPixelSignalCreatingTimer.Start();
@@ -195,16 +202,14 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   //TODO ну так себе коммент
   for (UInt_t iPMT=0; iPMT<nofPMTs; iPMT++) {
     for (UInt_t iPixel=0; iPixel<nofPixels; iPixel++) {
-      PixelSignalsCreating(iPMT, iPixel, peInPixelsF, 0); // front
-      PixelSignalsCreating(iPMT, iPixel, peInPixelsB, 1); // back
+      PixelSignalsCreating(iPMT, iPixel, peInPixelsF, 0); // front (smaller Z)
+      PixelSignalsCreating(iPMT, iPixel, peInPixelsB, 1); // back (bigger Z)
     }
   }
 
   // Timer for debugging
   fPixelSignalCreatingTimer.Stop();
   fPixelSignalCreatingTime += fPixelSignalCreatingTimer.RealTime();
-
-  LOG(DEBUG) << "-------------------------------------------------------------" << FairLogger::endl;
 
   // Free dynamically allocated memory
   for (UInt_t i=0; i<nofPMTs; i++) {
@@ -221,6 +226,9 @@ void ERNeuRadDigitizer::Exec(Option_t* opt)
   header->SetNeuRadPECountB(fPECountB);
   header->SetNeuRadSumAmplitudeF(fSumAmplitudeF);
   header->SetNeuRadSumAmplitudeB(fSumAmplitudeB);
+
+  LOG(DEBUG) << "----------------------------------------------------------------------" << FairLogger::endl;
+
 }
 //-----------------------------------------------------------------------------
 
@@ -229,100 +237,103 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint,
                                                ERNeuRadPoint *point,
                                                std::vector< ERNeuRadPhotoElectron* >** peInPixels,
                                                Int_t side,
-                                               Int_t& sumPECount,
+                                               Int_t& sumNphotoElectrons,
                                                Float_t& sumAmplitude)
 {
-    LOG(DEBUG2) << "ERNeuRadDigitizer::PhotoElectronsCreating" << FairLogger::endl;
-
-    // Генерация фотоэлектронов для поинта iPoint
-
-    // Получение информации о поинте
-    Double_t fiberLength = fNeuRadSetup->GetFiberLength();
+    LOG(DEBUG2) << "iPoint=" << iPoint << FairLogger::endl;
 
     //TODO !!!!!
-    Int_t    pointPMT = point->GetPmtId();
-    Int_t    pointCh  = point->GetChId();
-
-    Double_t pointELoss  = point->GetEnergyLoss(); // [GeV]
-    Double_t pointLYield = point->GetLightYield(); // [GeV]
-    Double_t pointZ      = point->GetZInLocal();
-    Double_t pointTime   = point->GetTimeIn();
-    //Double_t pointZInFiber = pointZ + fiberLength/2. - fNeuRadSetup->GetZ();
-    Double_t pointZInFiber = pointZ + fiberLength/2.;
-
-    //TODO !!!!!
+    Int_t pointPMT = point->GetPmtId();
+    Int_t pointCh  = point->GetChId();
     LOG(DEBUG) << "PMT ID of the current point: " << pointPMT << FairLogger::endl;
     LOG(DEBUG) << "channel ID of the current point: " << pointCh << FairLogger::endl;
+
+    // Get fiber length along Z axis from the setup singleton class object
+    Double_t fiberLength = fNeuRadSetup->GetFiberLength();
+    // Get IN and OUT Z coordinates of the point from the simulation
+    // Compute average Z coordinate and use it a the point coordinate
+    Double_t pointZInLocal = point->GetZInLocal();
+    Double_t pointZOutLocal =point->GetZOutLocal();
+    Double_t pointZMidLocal = (pointZInLocal + pointZOutLocal) / 2.;
+    // Compute the length of the path for the photons born for this point
+    Double_t flightLength = 0.;
+    if (side == 0) { // to the front (smaller Z) PMT
+      flightLength = fiberLength/2. + pointZMidLocal;
+    } else { // to the back (bigger Z) PMT
+      flightLength = fiberLength/2. - pointZMidLocal;
+    }
+
+    LOG(DEBUG) << "side=" << side << "\t"
+               << "pointZInLocal=" << pointZInLocal << "\t"
+               << "pointZOutLocal=" << pointZOutLocal << "\t"
+               << "pointZMidLocal=" << pointZMidLocal << "\t"
+               << "flightLength=" << flightLength
+               << FairLogger::endl;
+
+    // Get some other information about the current point from simulation results
+    Double_t pointELoss  = point->GetEnergyLoss(); // [GeV] //TODO not used!
+    Double_t pointLYield = point->GetLightYield(); // [GeV]
+    Double_t pointTime   = point->GetTimeIn();
 
     // Значение квантовой эффективности для конкретного пикселя
     //TODO !!!!!
     Double_t PixelQuantumEfficiency = fNeuRadSetup->GetPixelQuantumEfficiency(pointPMT, pointCh);
 
-    LOG(DEBUG) << "+++++++++++" << FairLogger::endl;
-
     // Две причины затухания света
     Double_t k1 = 0.5 - cLightFractionInTotalIntReflection;
     Double_t k2 = cLightFractionInTotalIntReflection;
 
-    // 
-    Double_t flightLength = 0.;
-    if (side == 0)
-      flightLength = pointZInFiber;
-    else
-      flightLength = fiberLength - pointZInFiber;
-
     // Number of photons born from this MC-point
-    Double_t photonCount = pointLYield * 1000. * cSciFiLightYield;
-    LOG(DEBUG2) << "photonCount = " << photonCount << FairLogger::endl;
+    Double_t nPhotosBorn = pointLYield * 1000. * cSciFiLightYield;
+    LOG(DEBUG2) << "nPhotosBorn=" << nPhotosBorn << FairLogger::endl;
 
     // Number of photons reaching the photocathode
     // This takes into account two attenuation reasons
     // Absorption in the fiber and solid angle near the end
-    //TODO rename (not pePhotonCount)
-    Double_t pePhotonCount = photonCount * (k1*exp(-flightLength/0.5) + k2*exp(-flightLength/200.));
-    LOG(DEBUG2) << "pePhotonCount = " << pePhotonCount << FairLogger::endl;
+    Double_t nPhotonsAtCathode = nPhotosBorn * (k1*exp(-flightLength/0.5) + k2*exp(-flightLength/200.));
+    LOG(DEBUG2) << "nPhotonsAtCathode=" << nPhotonsAtCathode << FairLogger::endl;
 
     // Number of photoelectrons (born in the photocathode)
     // Quantuum efficiency accounted here
-    Int_t peCount = gRandom->Poisson(pePhotonCount * PixelQuantumEfficiency);
-    LOG(DEBUG2) << "peCount = " << peCount << FairLogger::endl;
+    Int_t nPhotoElectrons = gRandom->Poisson(nPhotonsAtCathode * PixelQuantumEfficiency);
+    sumNphotoElectrons += nPhotoElectrons;
 
-    sumPECount += peCount;
-
-    //LOG(DEBUG) << "+++++++++++" << FairLogger::endl;
+    LOG(DEBUG2) << "nPhotoElectrons=" << nPhotoElectrons << "\tsumNphotoElectrons=" << sumNphotoElectrons << FairLogger::endl;
 
     // For each photoelectron
-    for(Int_t iPE=0; iPE<peCount; iPE++)
+    for(Int_t iPE=0; iPE<nPhotoElectrons; iPE++)
     {
       // Экпоненциальный закон высвечивания. Обратное распределение.
       // Рождение.
-      Double_t peLYTime = pointTime + (-1.)*fScincilationTau*TMath::Log(1-gRandom->Uniform());
-      // Скорость света в материале
-      // Попадание в фотокатод
+      Double_t peLYTime = pointTime + (-1.) * fScincilationTau * TMath::Log(1-gRandom->Uniform());
+
+      // Cathode time is computed from the length of the photon path
+      // in the scintillator and its speed there
       Double_t peCathodeTime = peLYTime + flightLength/cMaterialSpeedOfLight;
 
       // Учёт кросстолков
-      //TODO !!!!!
+      //TODO !!!!! FIXME
       Int_t pePixel = pointCh;
       Int_t peModule = pointPMT;
-      
       if (fUseCrosstalks) {
         //TODO !!!!! ???????
         this->Crosstalks(pointPMT, pointCh, peModule, pePixel);
       }
 
-      // Амплитуда одноэлектронного сигнала
-      //TODO заменить на новую форму одноэлектронного спектра
-      Double_t PixelGain = fNeuRadSetup->GetPixelGain(peModule, pePixel);
-      Double_t PixelSigma = fNeuRadSetup->GetPixelSigma(peModule, pePixel);
-      Double_t peAmplitude = TMath::Abs(gRandom->Gaus(PixelGain, PixelSigma));
+      // The amplitude of the signal produced by the PMT
+      // is generated using the analytical approximation
+      // of the laboratory measurements
+      Double_t peAmplitude = fSPEfunc->GetRandom();
 
-      //TODO
-
+      //
       sumAmplitude += peAmplitude;
-      // Задержка динодной системы и джиттер
-      Double_t peAnodeTime = peCathodeTime + (Double_t)gRandom->Gaus(fPixelDelay, fPixelJitter);
-      ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, pePhotonCount, peAmplitude);
+
+      // Dynode system transit time and transit time jitter
+      Double_t dynodeSystemDelay = (Double_t)gRandom->Gaus(fPixelDelay, fPixelJitter);
+      // Anode time is cathode time + dynode system transit time
+      Double_t peAnodeTime = peCathodeTime + dynodeSystemDelay;
+      // Generate the photoelectron
+      ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, nPhotonsAtCathode, peAmplitude);
       peInPixels[peModule][pePixel].push_back(pe);
     }
 }
@@ -383,6 +394,25 @@ Int_t ERNeuRadDigitizer::Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& 
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
+Double_t ERNeuRadDigitizer::SPEfunc(Double_t *x, Double_t *par) {
+  Double_t fitval;
+  if (x[0]<63) {
+    fitval = 0;
+  }
+  if (x[0]>=63 && x[0]<par[0]) {
+    fitval = (x[0]-63) * (par[1]) / (par[0]-63) + par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
+  }
+  if (x[0]>=par[0]) {
+    fitval = par[1]*(x[0]-par[2])*(x[0]+par[2]-2*par[3])/((par[0]-par[2])*(par[0]+par[2]-2*par[3])) + par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
+  }
+  if (x[0]>=par[2]) {
+    fitval = par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
+  }
+  return fitval;
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
 void ERNeuRadDigitizer::Reset() {
   if (fNeuRadPhotoElectron) {
     fNeuRadPhotoElectron->Delete(); //TODO точно?
@@ -394,17 +424,20 @@ void ERNeuRadDigitizer::Reset() {
 // ----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-void ERNeuRadDigitizer::PixelSignalsCreating(Int_t iModule,
-                                             Int_t iPixel,
+void ERNeuRadDigitizer::PixelSignalsCreating(Int_t iPMT,
+                                             Int_t iChannel,
                                              std::vector<ERNeuRadPhotoElectron* >** peInPixels,
                                              Int_t side)
 {
-  LOG(DEBUG2) << "ERNeuRadDigitizer::PixelSignalsCreating" << FairLogger::endl;
-
-  if (peInPixels[iModule][iPixel].size() > 0) {
-    ERNeuRadPixelSignal* PixelSignal = AddPixelSignal(iModule, iPixel, peInPixels[iModule][iPixel].size(), side);
-    for (Int_t iPE=0; iPE<peInPixels[iModule][iPixel].size(); iPE++) {
-      ERNeuRadPhotoElectron* pe = peInPixels[iModule][iPixel][iPE];
+  if (peInPixels[iPMT][iChannel].size() > 0) {
+    LOG(DEBUG2) << "side=" << side << "\t"
+                << "iPMT=" << iPMT << "\t"
+                << "iChannel=" << iChannel << "\t"
+                << "peCount=" << peInPixels[iPMT][iChannel].size()
+                << FairLogger::endl;
+    ERNeuRadPixelSignal* PixelSignal = AddPixelSignal(iPMT, iChannel, peInPixels[iPMT][iChannel].size(), side);
+    for (Int_t iPE=0; iPE<peInPixels[iPMT][iChannel].size(); iPE++) {
+      ERNeuRadPhotoElectron* pe = peInPixels[iPMT][iChannel][iPE];
       PixelSignal->AddPhotoElectron(pe);
     }
     PixelSignal->Generate();
@@ -422,29 +455,33 @@ void ERNeuRadDigitizer::Finish() {
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERNeuRadPixelSignal* ERNeuRadDigitizer::AddPixelSignal(Int_t iModule,
-                                                       Int_t iPixel,
-                                                       Int_t fpoints_count,
+ERNeuRadPixelSignal* ERNeuRadDigitizer::AddPixelSignal(Int_t iPMT,
+                                                       Int_t iChannel,
+                                                       Int_t numberOfPoints,
                                                        Int_t side)
 {
   LOG(DEBUG2) << "ERNeuRadDigitizer::AddPixelSignal" << FairLogger::endl;
   ERNeuRadPixelSignal *PixelSignal = new((*fNeuRadPixelSignal)[PixelSignalCount()])
-                ERNeuRadPixelSignal(iModule, iPixel, fpoints_count, side);
+                ERNeuRadPixelSignal(iPMT, iChannel, numberOfPoints, side);
   return PixelSignal;
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 ERNeuRadPhotoElectron* ERNeuRadDigitizer::AddPhotoElectron(Int_t iPoint,
-  Int_t side,
-  Double_t lytime,
-  Double_t cathode_time,
-  Double_t anode_time,
-  Int_t photonCount,
-  Double_t amplitude)
+                                                           Int_t side,
+                                                           Double_t lytime,
+                                                           Double_t cathode_time,
+                                                           Double_t anode_time,
+                                                           Int_t photonCount,
+                                                           Double_t amplitude)
 {
-  //TODO maybe execute PhotoElectronCount once and use returned velue twice?
-  LOG(DEBUG2) << "ERNeuRadDigitizer::AddPhotoElectron" << FairLogger::endl;
+  //TODO maybe execute PhotoElectronCount once and use returned value twice?
+  LOG(DEBUG2) << "side=" << side << "\t"
+              << "iPoint=" << iPoint << "\t"
+              << "photonCount=" << photonCount << "\t"
+              << "amplitude=" << amplitude
+              << FairLogger::endl;
   ERNeuRadPhotoElectron *fp = new ((*fNeuRadPhotoElectron)[PhotoElectronCount()])
     ERNeuRadPhotoElectron(PhotoElectronCount(), side, lytime, cathode_time, anode_time, photonCount, amplitude);
   fp->AddLink(FairLink("NeuRadPoint", iPoint));

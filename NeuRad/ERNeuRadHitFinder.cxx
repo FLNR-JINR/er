@@ -6,20 +6,18 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
- #include "ERNeuRadHitFinder.h"
-
-#include <iostream>
-#include <vector>
-#include <map>
+#include "ERNeuRadHitFinder.h"
 
 #include "TVector3.h"
-#include "TGeoMatrix.h"
+//#include "TGeoMatrix.h"
+
+#include "FairLogger.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 
-#include "ERDetectorList.h"
+#include "ERDetectorList.h" // required for kNEURAD
 #include "ERNeuRadPixelSignal.h"
 #include "ERNeuRadSetup.h"
 
@@ -85,37 +83,46 @@ InitStatus ERNeuRadHitFinder::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERNeuRadHitFinder::Exec(Option_t* opt)
 {
-  std::cout << std::endl;
-  std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
-  std::cout << std::endl;
-  std::cout << "ERNeuRadHitFinder: "<< std::endl;
+  LOG(INFO) << FairLogger::endl;
+  LOG(INFO) << "####### EVENT " << fEvent++ << " #####" << FairLogger::endl;
+  LOG(INFO) << FairLogger::endl;
+  LOG(INFO) << "ERNeuRadHitFinder: "<< FairLogger::endl;
+
   Reset();
-  Float_t fOnePEInteg = 4.8;
-  Int_t hitNumber=0;
+
+  Float_t fOnePEInteg = 4.8; //TODO magic number?
+  Int_t hitNumber = 0;
   ERNeuRadPixelSignal* targetHitSignal = NULL;
+
+  // Get the pointer to the singleton setup class object
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
 
   for (Int_t iSignal=0; iSignal <  fNeuRadPMTSignals->GetEntriesFast(); iSignal++){
     ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fNeuRadPMTSignals->At(iSignal);
-    std::cerr << "0" << std::endl;
-    if (signal->Side()==0){
+    LOG(DEBUG) << "0" << FairLogger::endl;
+    if (signal->GetSide() == 0) {
       //Ищем пару с другой стороны
-      std::cerr << "1" << std::endl;
-      Bool_t founded=kFALSE;
+      LOG(DEBUG) << "1" << FairLogger::endl;
+      Bool_t flagFound = kFALSE;
       Int_t jBackSignal = -1;
       for (Int_t jSignal=0; jSignal<fNeuRadPMTSignals->GetEntriesFast(); jSignal++){
         ERNeuRadPixelSignal* signalBack = (ERNeuRadPixelSignal*)fNeuRadPMTSignals->At(jSignal);
-        if (signalBack->Side() == 1 && signalBack->ModuleNb()==signal->ModuleNb() && signalBack->PixelNb()==signal->PixelNb()){
-          founded=kTRUE;
+        if (signalBack->GetSide() == 1 &&
+            signalBack->GetModuleNb() == signal->GetModuleNb() &&
+            signalBack->GetPixelNb() == signal->GetPixelNb())
+        {
+          flagFound = kTRUE;
           jBackSignal = jSignal;
           break;
         }
       }
 
-      if (founded){
+      if (flagFound) {
         ERNeuRadPixelSignal* signalBack = (ERNeuRadPixelSignal*)fNeuRadPMTSignals->At(jBackSignal);
-        std::cerr << signal->FullInteg() << " " << fPixelThreshold*signal->OnePEIntegral()<< " " <<signalBack->FullInteg()<< std::endl;
-        if (signal->FullInteg() > fPixelThreshold*signal->OnePEIntegral() && signalBack->FullInteg() > fPixelThreshold*signal->OnePEIntegral()){
+        std::cerr << signal->FullInteg() << " " << fPixelThreshold*signal->OnePEIntegral()<< " " <<signalBack->FullInteg()<< FairLogger::endl;
+        if (signal->FullInteg() > fPixelThreshold*signal->OnePEIntegral() &&
+            signalBack->FullInteg() > fPixelThreshold*signal->OnePEIntegral())
+        {
           targetHitSignal = signal;
           hitNumber++;
         }
@@ -124,14 +131,14 @@ void ERNeuRadHitFinder::Exec(Option_t* opt)
         break;
     }
   }
-  if (hitNumber == 1){
-    TVector3 pos(setup->GetFiberX(targetHitSignal->ModuleNb(), targetHitSignal->PixelNb()),
-                 setup->GetFiberY(targetHitSignal->ModuleNb(), targetHitSignal->PixelNb()),
+  if (hitNumber == 1) {
+    TVector3 pos(setup->GetFiberX(targetHitSignal->GetModuleNb(), targetHitSignal->GetPixelNb()),
+                 setup->GetFiberY(targetHitSignal->GetModuleNb(), targetHitSignal->GetPixelNb()),
                  setup->GetZ()-setup->GetFiberLength());
     TVector3 dpos(0,0,0);
-    AddHit(kNEURAD,pos, dpos,targetHitSignal->ModuleNb(),targetHitSignal->PixelNb(),targetHitSignal->FullInteg());
+    AddHit(kNEURAD, pos, dpos, targetHitSignal->GetModuleNb(), targetHitSignal->GetPixelNb(), targetHitSignal->FullInteg());
   }
-  std::cout << "Hits count: " << fNeuRadHits->GetEntriesFast() << std::endl;
+  std::cout << "Hits count: " << fNeuRadHits->GetEntriesFast() << FairLogger::endl;
 }
 //----------------------------------------------------------------------------
 

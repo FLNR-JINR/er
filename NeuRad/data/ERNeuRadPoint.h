@@ -50,9 +50,13 @@ public:
                 UInt_t chId,
 
                 Double_t mass,
+                
+                // IN, INloc, OUT, OUTloc
                 TVector3 posIn,
                 TVector3 posInLoc,
                 TVector3 posOut,
+                TVector3 posOutLoc,
+
                 TVector3 momIn,
                 TVector3 momOut,
                 Double_t timeIn,
@@ -74,15 +78,21 @@ public:
   /** Accessors **/
   Int_t GetEventID() const { return fEventID; }
   Int_t GetMot0TrackID()   const { return fMot0TrackID; }
+
+  // IN, INloc, OUT, OUTloc
   Double_t GetXIn()   const { return fX; }
   Double_t GetYIn()   const { return fY; }
   Double_t GetZIn()   const { return fZ; }
-  Double_t GetXInLocal()   const { return fXlocal; }
-  Double_t GetYInLocal()   const { return fYlocal; }
-  Double_t GetZInLocal()   const { return fZlocal; }
+  Double_t GetXInLocal()   const { return fXInLocal; }
+  Double_t GetYInLocal()   const { return fYInLocal; }
+  Double_t GetZInLocal()   const { return fZInLocal; }
   Double_t GetXOut()  const { return fX_out; }
   Double_t GetYOut()  const { return fY_out; }
   Double_t GetZOut()  const { return fZ_out; }
+  Double_t GetXOutLocal()   const { return fXOutLocal; }
+  Double_t GetYOutLocal()   const { return fYOutLocal; }
+  Double_t GetZOutLocal()   const { return fZOutLocal; }
+
   Double_t GetPxIn()  const { return fPx; }
   Double_t GetPyIn()  const { return fPy; }
   Double_t GetPzIn()  const { return fPz; }
@@ -100,12 +110,12 @@ public:
   UInt_t GetPmtId() const { return fPmtId; }
   UInt_t GetChId() const { return fChId; }
 
-  Int_t GetPID() const {return fPID;}
-  Double_t GetCharge() const {return fCharge;}
-  Double_t GetTime() const {return fTimeIn;}
-  Double_t GetTimeIn() const {return fTimeIn;}
-  Double_t GetTimeOut() const {return fTimeOut;}
-  Double_t GetLength() const;
+  Int_t GetPID() const { return fPID; }
+  Double_t GetCharge()  const { return fCharge; }
+  Double_t GetTime()    const { return fTimeIn; }
+  Double_t GetTimeIn()  const { return fTimeIn; }
+  Double_t GetTimeOut() const { return fTimeOut; }
+  Double_t GetLength()  const;
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
@@ -125,14 +135,14 @@ public:
   virtual void Print(const Option_t* opt = 0) const;
 
   /** Modifies **/
-  void SetLightYield(Double_t ly) {fLightYield = ly;}
-  void SetTimeIn(Double_t t) {fTimeIn = t;}
-  void SetXIn(Double_t xin) {fX = xin;}
-  void SetYIn(Double_t yin) {fY = yin;}
-  void SetZIn(Double_t zin) {fZ = zin;}
-  void SetXOut(Double_t xout) {fX_out = xout;}
-  void SetYOut(Double_t yout) {fY_out = yout;}
-  void SetZOut(Double_t zout) {fZ_out = zout;}
+  /*void SetLightYield(Double_t ly) { fLightYield = ly; }
+  void SetTimeIn(Double_t t)  { fTimeIn = t; }
+  void SetXIn(Double_t xin)   { fX = xin; }
+  void SetYIn(Double_t yin)   { fY = yin; }
+  void SetZIn(Double_t zin)   { fZ = zin; }
+  void SetXOut(Double_t xout) { fX_out = xout; }
+  void SetYOut(Double_t yout) { fY_out = yout; }
+  void SetZOut(Double_t zout) { fZ_out = zout; }*/
 
 protected:
 
@@ -146,8 +156,13 @@ protected:
   UInt_t fChId;
 
   Double_t fMass;
-  Double32_t fXlocal, fYlocal, fZlocal;
-  Double32_t fX_out,  fY_out,  fZ_out;
+
+  // IN, INloc, OUT, OUTloc
+  //// fX, fY, and fZ are defined in the mother class
+  Double32_t fXInLocal, fYInLocal, fZInLocal;
+  Double32_t fX_out, fY_out, fZ_out;
+  Double32_t fXOutLocal, fYOutLocal, fZOutLocal;
+
   Double32_t fPx_out, fPy_out, fPz_out;
   Double_t fTimeIn;
   Double_t fTimeOut;

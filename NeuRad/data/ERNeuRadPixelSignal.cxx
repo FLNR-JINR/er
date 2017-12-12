@@ -10,6 +10,11 @@
 
 #include "TMath.h"
 
+#include "FairLogger.h"
+
+#include "ERNeuRadPhotoElectron.h"
+
+//TODO comment!
 const Double_t ERNeuRadPixelSignal::cdT = 0.1; // ns
 
 ERNeuRadPixelSignal::ERNeuRadPixelSignal():
@@ -23,23 +28,33 @@ ERNeuRadPixelSignal::ERNeuRadPixelSignal():
 {
 }
 
-ERNeuRadPixelSignal::ERNeuRadPixelSignal(Int_t iModule, Int_t iPixel, Int_t pe_count, Int_t side):
-    fModuleNb(iModule),
-    fPixelNb(iPixel),
-    fPECount(pe_count),
+ERNeuRadPixelSignal::ERNeuRadPixelSignal(Int_t iPMT, Int_t iChannel, Int_t peCount, Int_t side):
+    fModuleNb(iPMT),
+    fPixelNb(iChannel),
+    fPECount(peCount),
     fCurFPoint(0),
     fStartTime(99999999.),
     fFinishTime(-1.),
     fSide(side),
     fPEAmplitudesSum(0)
 {
-    fPEAmplitudes.Set(pe_count);
-    fPEAnodeTimes.Set(pe_count);
-    fPETimes.Set(pe_count);
+    fPEAmplitudes.Set(peCount);
+    fPEAnodeTimes.Set(peCount);
+    fPETimes.Set(peCount);
 }
 
 ERNeuRadPixelSignal::~ERNeuRadPixelSignal()
 {
+}
+
+void ERNeuRadPixelSignal::Print() const
+{
+  LOG(INFO) << "Pixel Signal Module: " << fModuleNb << "\t"
+            << "Pixel: " << fPixelNb << "\t"
+            << "Side: " << fSide << "\t"
+            << "fPECount: " << fPECount << "\t"
+            << "fPEAmplitudesSum: " << fPEAmplitudesSum
+            << FairLogger::endl;
 }
 
 void ERNeuRadPixelSignal::AddPhotoElectron(ERNeuRadPhotoElectron* pe)
@@ -200,7 +215,7 @@ Float_t ERNeuRadPixelSignal::ThresholdTime(Float_t peThreshold)
 Double_t ERNeuRadPixelSignal::OnePEIntegral()
 {
     Double_t res = 0.;
-    for (Int_t i=0; i<39; i++) {
+    for (Int_t i=0; i<39; i++) { //TODO 39 - magic number?
         res += 0.5*(OnePEFunction(i*cdT,8.) + OnePEFunction((i+1)*cdT,8.))*cdT;
     }
     return res;

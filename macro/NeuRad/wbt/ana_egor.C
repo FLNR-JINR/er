@@ -1,4 +1,4 @@
-void analyse_egor(Int_t nEvents = 1000)
+void ana_egor(Int_t nEvents = 1000)
 {
   //---------------------Files-----------------------------------------------
   TString workDir = "results/";
@@ -21,7 +21,7 @@ void analyse_egor(Int_t nEvents = 1000)
   //fRun->AddFriend(recoFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
- 
+
   // ------------------------------------------------------------------------
   ERNeuRadWBTanalyser* analyser = new ERNeuRadWBTanalyser();
   fRun->AddTask(analyser);
@@ -29,12 +29,16 @@ void analyse_egor(Int_t nEvents = 1000)
 
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  
+
   FairParRootFileIo* parIo1 = new FairParRootFileIo();
   parIo1->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parIo1);
-  
+
+  //-------Set LOG verbosity  -----------------------------------------------
+  FairLogger::GetLogger()->SetLogVerbosityLevel("HIGH");
+
   // -----   Intialise and run   --------------------------------------------
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
@@ -51,5 +55,4 @@ void analyse_egor(Int_t nEvents = 1000)
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-
 }

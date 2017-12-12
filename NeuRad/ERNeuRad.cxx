@@ -94,24 +94,30 @@ void ERNeuRad::Register() {
 
 //-------------------------------------------------------------------------------------------------
 Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
+
+  if (gMC->IsTrackEntering()) {
+    LOG(DEBUG2) << "Entering path=" << gMC->CurrentVolPath() << FairLogger::endl;
+  } else {
+    LOG(DEBUG2) << "Exiting  path=" << gMC->CurrentVolPath() << FairLogger::endl;
+  }
+
   // Set constants for Birk's Law implentation
   static const Double_t dP = 1.032;
   static const Double_t BirkC1 = 0.013/dP;
   static const Double_t BirkC2 = 9.6e-6/(dP*dP);
 
-  /** Track information to be stored until the track leaves the
-      active volume. **/
+  /** Track information to be stored until the track leaves the active volume. **/
 
   if (gMC->IsTrackEntering()) { // Return true if this is the first step of the track in the current volume
     StartNewPoint();
-    if (fNeuRadFirstStep->GetEntriesFast() == 0)
+    if (fNeuRadFirstStep->GetEntriesFast() == 0) {
       AddFirstStep();
+    }
   }
 
   if (fStorePrimarySteps && fMot0TrackID == -1 && fNeuRadSteps->GetEntriesFast() == 0) {
     ERNeuRadStep* step = AddStep();
-      if (fVerbose > 2)
-        step->Print();
+    if (fVerbose > 2) step->Print();
   }
 
   fELoss += gMC->Edep(); // GeV // Return the energy lost in the current step
@@ -136,20 +142,21 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
 
     if (gMC->TrackStep() > 0) {
       Double_t dedxcm = gMC->Edep() * 1000. / gMC->TrackStep(); // [MeV/cm]
-      curLightYield = gMC->Edep() * 1000. / (1. + BirkC1Mod*dedxcm + BirkC2*dedxcm*dedxcm); //[MeV]
+      curLightYield = gMC->Edep() * 1000. / (1. + BirkC1Mod*dedxcm + BirkC2*dedxcm*dedxcm); // [MeV]
       curLightYield /= 1000.; // [GeV]
       fLightYield += curLightYield;
     }
   }
 
-  if (gMC->IsTrackExiting() || //true if this is the last step of the track in the current volume
-      gMC->IsTrackStop()    || //true if the track energy has fallen below the threshold
+  if (gMC->IsTrackExiting() || // true if this is the last step of the track in the current volume
+      gMC->IsTrackStop()    || // true if the track energy has fallen below the threshold
       gMC->IsTrackDisappeared()) {
     FinishNewPoint();
   }
 
   // Set the limit on the length of a point
   if (CurPointLen(fPosIn) > 4.) {
+    LOG(DEBUG) << "Cutting the point due to the length limit. " << FairLogger::endl;
     FinishNewPoint();
     StartNewPoint();
   }
@@ -220,7 +227,7 @@ void ERNeuRad::StartNewPoint() {
   fStepNb = 0;
   fEventID = gMC->CurrentEvent();
 
-  // Get in position, in momentum and in time from the MC engine
+  // Get IN position, IN momentum and IN time from the MC engine
   gMC->TrackPosition(fPosIn);
   gMC->TrackMomentum(fMomIn);
   fTimeIn = gMC->TrackTime() * 1.0e09; // current time (!?!? of flight !?!?) of the track being transported
@@ -230,51 +237,28 @@ void ERNeuRad::StartNewPoint() {
   fMot0TrackID = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
   fMass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
 
-  ObtainChIdfromGMC();
-
-  //Int_t curVolId;
-  //Int_t corOffVolId;
-
-  /*if(!(TString(gMC->CurrentVolOffName(1)).Contains("dead") &&
-       TString(gMC->CurrentVolOffName(2)).Contains("pixel"))) {
-    LOG(FATAL) << "Old version of geometry structure is used" << FairLogger::endl;
-  }*/
-
-  //TODO Bullshit!!!!!
-  //curVolId = gMC->CurrentVolOffID(1, fFiberNb);
-  //corOffVolId = gMC->CurrentVolOffID(2, fPixelNb);
-  //corOffVolId = gMC->CurrentVolOffID(3, fModuleNb);
-
-  //TODO check!!!
-  // Пересчитываем номер пикселя если введены субмодули
-/*
-  if (TString(gMC->CurrentVolOffName(3)).Contains("submodul"))
-  {
-    Int_t pixel_in_submodule_X = 4;
-    Int_t pixel_in_submodule_Y = 4;
-    Int_t submodule_in_module_X = 2;
-    Int_t submodule_in_module_Y = 2;
-    
-    Int_t pixel_row = fPixelNb / pixel_in_submodule_X;
-    Int_t pixel_col = fPixelNb % pixel_in_submodule_X;
-    Int_t subm_row = fModuleNb / submodule_in_module_X;
-    Int_t subm_col = fModuleNb % submodule_in_module_X;
-
-    fPixelNb = subm_row * submodule_in_module_X * pixel_in_submodule_X * pixel_in_submodule_Y
-                + pixel_row * submodule_in_module_X * pixel_in_submodule_X
-                + subm_col * pixel_in_submodule_X + pixel_col;
-
-    corOffVolId = gMC->CurrentVolOffID(4, fModuleNb);
-  }
-*/
+  this->ObtainChIdfromGMC();
   
   Double_t globalPos[3];
   Double_t localPos[3];
   TGeoHMatrix matrix;
   gMC->GetTransformation(gMC->CurrentVolPath(), matrix);
+
+  // Compute IN position in the the local axis system
   fPosIn.Vect().GetXYZ(globalPos);
   matrix.MasterToLocal(globalPos, localPos);
   fPosInLocal.SetXYZ(localPos[0], localPos[1], localPos[2]);
+
+  LOG(DEBUG) << "Point IN     : x=" << globalPos[0] << "\ty=" << globalPos[1] << "\tz=" << globalPos[2] << FairLogger::endl;
+  LOG(DEBUG) << "Point IN  loc: x=" << localPos[0]  << "\ty=" << localPos[1]  << "\tz=" << localPos[2]  << FairLogger::endl;
+
+  // Compute OUT position in the the local axis system
+  fPosOut.Vect().GetXYZ(globalPos);
+  matrix.MasterToLocal(globalPos, localPos);
+  fPosOutLocal.SetXYZ(localPos[0], localPos[1], localPos[2]);
+
+  LOG(DEBUG) << "Point OUT    : x=" << globalPos[0] << "\ty=" << globalPos[1] << "\tz=" << globalPos[2] << FairLogger::endl;
+  LOG(DEBUG) << "Point OUT loc: x=" << localPos[0]  << "\ty=" << localPos[1]  << "\tz=" << localPos[2]  << FairLogger::endl;
 }
 
 void ERNeuRad::ObtainChIdfromGMC() {
@@ -320,7 +304,6 @@ void ERNeuRad::ObtainChIdfromGMC() {
     }
   }
 
-
   //TODO ??? Ask ERNeuRadSetup object to obtain total number of pixels/fibers/submodules/etc...
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
   // The problem is that currently setup does not know anythng about submodules...
@@ -348,7 +331,6 @@ void ERNeuRad::ObtainChIdfromGMC() {
                             << "index1 =" << index1 << "\t"
                             << "index2 =" << index2
                             << FairLogger::endl;*/
-
 
   // Compute resulting PMT ID and channel ID
 
@@ -386,9 +368,12 @@ ERNeuRadPoint* ERNeuRad::AddPoint() {
                                         fChId,
 
                                         fMass,
+
                                         fPosIn.Vect(),
                                         fPosInLocal,
                                         fPosOut.Vect(),
+                                        fPosOutLocal,
+
                                         fMomIn.Vect(),
                                         fMomOut.Vect(),
                                         fTimeIn,  //TODO convert from seconds to nanoseconds?! Already converted here?
@@ -464,11 +449,13 @@ ERNeuRadStep* ERNeuRad::AddStep() {
 
 //-------------------------------------------------------------------------------------------------
 Double_t ERNeuRad::CurPointLen(TLorentzVector& posIn) {
+  // Get current track position and 
   TLorentzVector posOut;
   gMC->TrackPosition(posOut);
-  return TMath::Sqrt((posIn.X() - posOut.X())*(posIn.X() - posOut.X()) +
-                    (posIn.Y() - posOut.Y())*(posIn.Y() - posOut.Y()) +
-                    (posIn.Z() - posOut.Z())*(posIn.Z() - posOut.Z()));
+  // compute the distance to the track starting point
+  return TMath::Sqrt((posIn.X() - posOut.X()) * (posIn.X() - posOut.X()) +
+                     (posIn.Y() - posOut.Y()) * (posIn.Y() - posOut.Y()) +
+                     (posIn.Z() - posOut.Z()) * (posIn.Z() - posOut.Z()));
 }
 
 //-------------------------------------------------------------------------------------------------

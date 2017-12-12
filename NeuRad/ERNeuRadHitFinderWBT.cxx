@@ -1,12 +1,10 @@
 #include "ERNeuRadHitFinderWBT.h"
 
-#include <iostream>
-#include <vector>
-#include <map>
-
 #include "TVector3.h"
 #include "TGeoMatrix.h"
+#include "TClonesArray.h"
 
+#include "FairLogger.h"
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
@@ -78,10 +76,10 @@ InitStatus ERNeuRadHitFinderWBT::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERNeuRadHitFinderWBT::Exec(Option_t* opt)
 {
-  std::cout << std::endl;
-  std::cout << "####### EVENT " << fEvent++ << " #####" << std::endl;
-  std::cout << std::endl;
-  std::cout << "ERNeuRadHitFinderWBT: "<< std::endl;
+  LOG(INFO) << FairLogger::endl;
+  LOG(INFO) << "####### EVENT " << fEvent++ << " #####" << FairLogger::endl;
+  LOG(INFO) << FairLogger::endl;
+  LOG(INFO) << "ERNeuRadHitFinderWBT: "<< FairLogger::endl;
   Reset();
   Float_t fOnePEInteg = 4.8;
   Int_t hitNumber=0;
@@ -89,19 +87,19 @@ void ERNeuRadHitFinderWBT::Exec(Option_t* opt)
   // Get singleton ERNeuRadSetup object
   ERNeuRadSetup* setup = ERNeuRadSetup::Instance();
 
-  for (Int_t iSignal=0; iSignal <  fNeuRadPMTSignals->GetEntriesFast(); iSignal++){
+  for (Int_t iSignal=0; iSignal < fNeuRadPMTSignals->GetEntriesFast(); iSignal++) {
     ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fNeuRadPMTSignals->At(iSignal);
-    if (signal->Side() == 0){
+    if (signal->GetSide() == 0) {
       //Float_t qInteg = signal->GetInteg(signal->GetStartTime(), signal->GetFinishTime());
-      Float_t qInteg = signal->AmplitudesSum();
-      TVector3 pos(setup->GetFiberX(signal->ModuleNb(), signal->PixelNb()),
-                   setup->GetFiberY(signal->ModuleNb(), signal->PixelNb()),
+      Float_t qInteg = signal->GetAmplitudesSum();
+      TVector3 pos(setup->GetFiberX(signal->GetModuleNb(), signal->GetPixelNb()),
+                   setup->GetFiberY(signal->GetModuleNb(), signal->GetPixelNb()),
                    setup->GetZ()-setup->GetFiberLength());
-      TVector3 dpos(0,0,0);
-      AddHit(kNEURAD,pos, dpos,signal->ModuleNb(),signal->PixelNb(), -1, qInteg);
+      TVector3 dpos(0, 0, 0);
+      AddHit(kNEURAD, pos, dpos, signal->GetModuleNb(), signal->GetPixelNb(), -1, qInteg);
     }
   }
-  std::cout << "Hits count: " << fNeuRadHits->GetEntriesFast() << std::endl;
+  LOG(INFO) << "Hits count: " << fNeuRadHits->GetEntriesFast() << FairLogger::endl;
 }
 //----------------------------------------------------------------------------
 

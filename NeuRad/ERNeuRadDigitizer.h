@@ -20,6 +20,8 @@
 
 #include "TStopwatch.h"
 
+class TF1;
+
 class ERNeuRadPoint;
 class ERNeuRadPhotoElectron;
 class ERNeuRadPixelSignal;
@@ -63,7 +65,7 @@ public:
 
 protected:
 
-  // Digitization parameters
+  // Digitization parameters (not really)
   ERNeuRadSetup* fNeuRadSetup;
 
   // Input arrays
@@ -73,11 +75,11 @@ protected:
   TClonesArray *fNeuRadPhotoElectron;
   TClonesArray *fNeuRadPixelSignal;
 
-  // Event header variable
-  Int_t fPECountF;
+  // Event header variables
+  /*Int_t fPECountF;
   Int_t fPECountB;
   Float_t fSumAmplitudeF;
-  Float_t fSumAmplitudeB;
+  Float_t fSumAmplitudeB;*/
 
   // constants
   static const Double_t cSciFiLightYield; // [photons/MeV]
@@ -107,30 +109,41 @@ protected:
 protected:
 
   ERNeuRadPhotoElectron* AddPhotoElectron(Int_t i_point,
-                                          Int_t side, // 0 - front, 1 - back
+                                          Int_t side, // 0 - front (smaller Z), 1 - back (bigger Z)
                                           Double_t lytime,
                                           Double_t cathode_time,
                                           Double_t anode_time,
                                           Int_t photon_count,
                                           Double_t amplitudes);
 
-  virtual ERNeuRadPixelSignal* AddPixelSignal(Int_t iModule,
-                                              Int_t iPixel,
-                                              Int_t fpoints_count,
-                                              Int_t side); // 0 - front, 1 - back
+  virtual ERNeuRadPixelSignal* AddPixelSignal(Int_t iPMT,
+                                              Int_t iChannel,
+                                              Int_t numberOfPoints,
+                                              Int_t side); // 0 - front (smaller Z), 1 - back (bigger Z)
 
   virtual void PhotoElectronsCreating(Int_t i_point,
                                       ERNeuRadPoint *point,
                                       std::vector<ERNeuRadPhotoElectron* >** pePerPixels,
-                                      Int_t side, // 0 - front, 1 - back
-                                      Int_t& sumPECount,
+                                      Int_t side, // 0 - front (smaller Z), 1 - back (bigger Z)
+                                      Int_t& sumNphotoElectrons,
                                       Float_t& sumAmplitude);
 
-  virtual void PixelSignalsCreating(Int_t iModule, Int_t iPixel,
+  virtual void PixelSignalsCreating(Int_t iPMT, 
+                                    Int_t iChannel,
                                     std::vector<ERNeuRadPhotoElectron* >** pePerPixels,
-                                    Int_t side); // 0 - front, 1 - back
+                                    Int_t side); // 0 - front (smaller Z), 1 - back (bigger Z)
 
   Int_t Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& peModule, Int_t& pePixel);
+
+public:
+  /** Single photoeclectron spectrum.
+      This analytical function has been obtained by approximating
+      the lab measurements of the MAPMT. **/
+  static Double_t SPEfunc(Double_t *x, Double_t *par);
+
+private:
+  /** Single photoeclectron spectrum. ROOT-function object. **/
+  TF1* fSPEfunc;
 
 private:
 
