@@ -51,7 +51,7 @@ void digi_egor(Int_t nEvents = 1000)
   FairLogger::GetLogger()->SetLogVerbosityLevel("HIGH");
 
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG2");
   run->Init();
   run->Run(0, nEvents);
   // ------------------------------------------------------------------------

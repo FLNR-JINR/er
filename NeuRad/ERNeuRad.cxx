@@ -223,7 +223,7 @@ void ERNeuRad::StartNewPoint() {
   // Get in position, in momentum and in time from the MC engine
   gMC->TrackPosition(fPosIn);
   gMC->TrackMomentum(fMomIn);
-  fTimeIn = gMC->TrackTime() * 1.0e09; // current time of flight of the track being transported
+  fTimeIn = gMC->TrackTime() * 1.0e09; // current time (!?!? of flight !?!?) of the track being transported
 
   fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
   fTrackLength = gMC->TrackLength(); // length of the current track from its origin (in cm)

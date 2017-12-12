@@ -106,18 +106,29 @@ protected:
 
 protected:
 
-  ERNeuRadPhotoElectron* AddPhotoElectron(Int_t i_point, Int_t side,
-                                          Double_t lytime, Double_t cathode_time, Double_t anode_time,
-                                          Int_t photon_count,Double_t amplitudes);
+  ERNeuRadPhotoElectron* AddPhotoElectron(Int_t i_point,
+                                          Int_t side, // 0 - front, 1 - back
+                                          Double_t lytime,
+                                          Double_t cathode_time,
+                                          Double_t anode_time,
+                                          Int_t photon_count,
+                                          Double_t amplitudes);
 
-  virtual ERNeuRadPixelSignal* AddPixelSignal(Int_t iModule, Int_t iPixel, Int_t fpoints_count, Int_t side);
+  virtual ERNeuRadPixelSignal* AddPixelSignal(Int_t iModule,
+                                              Int_t iPixel,
+                                              Int_t fpoints_count,
+                                              Int_t side); // 0 - front, 1 - back
 
-  virtual void PhotoElectronsCreating(Int_t i_point, ERNeuRadPoint *point,
+  virtual void PhotoElectronsCreating(Int_t i_point,
+                                      ERNeuRadPoint *point,
                                       std::vector<ERNeuRadPhotoElectron* >** pePerPixels,
-                                      Int_t side, Int_t& sumPECount, Float_t& sumAmplitude);
+                                      Int_t side, // 0 - front, 1 - back
+                                      Int_t& sumPECount,
+                                      Float_t& sumAmplitude);
 
   virtual void PixelSignalsCreating(Int_t iModule, Int_t iPixel,
-                                    std::vector<ERNeuRadPhotoElectron* >** pePerPixels, Int_t side);
+                                    std::vector<ERNeuRadPhotoElectron* >** pePerPixels,
+                                    Int_t side); // 0 - front, 1 - back
 
   Int_t Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& peModule, Int_t& pePixel);
 
