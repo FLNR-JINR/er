@@ -51,6 +51,8 @@ private:
   TString fVolumeName;
 
   Double_t fStep;
+
+  Double_t fTargetMass;
 public:
 	ERTextDecay(TString name);
 	~ERTextDecay();
@@ -70,6 +72,7 @@ public:
   void SetExponentialPos(Double_t start, Double_t tau);
   void SetDecayVolume(TString name){fVolumeName = name;}
   void SetStep(Double_t step){fStep = step;}
+  void SetTargetReactionMass(Double_t targetMass){fTargetMass = targetMass;}
 	ClassDef(ERTextDecay,1)
 };
 

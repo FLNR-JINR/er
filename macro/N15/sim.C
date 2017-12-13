@@ -70,6 +70,7 @@ void sim(Int_t nEvents = 1000){
   decay->SetStep(0.00001); //0.1 micron
   decay->SetFileName("CMom_B11_N15.txt");
   decay->SetDecayVolume("targetB11");
+  decay->SetTargetReactionMass(16*0.94);
   decayer->AddDecay(decay);
   run->SetDecayer(decayer);
   //-------------------------------------------------------------------------

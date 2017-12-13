@@ -27,7 +27,8 @@ ERTextDecay::ERTextDecay(TString name):
   fFileName(""),
   fNOutputs(0),
   fVolumeName(""),
-  fStep(0.001)
+  fStep(0.001),
+  fTargetMass(-1)
 {
 }
 
@@ -124,7 +125,13 @@ Bool_t ERTextDecay::Stepping() {
     if (fDecayPos.Z() > fDecayPosZ){
 
       gMC->TrackMomentum(fInputIonV);
-
+      if (fTargetMass){
+        TLorentzVector target(0,0,0,fTargetMass);
+        fInputIonV += target;
+      }
+      LOG(INFO) << "ERTextDecay: Decay with beta =  " << fInputIonV.Beta() << "; Gamma = " << fInputIonV.Gamma() <<endl;
+      LOG(INFO) << "ERTextDecay: Primary ion with mom = (" << fInputIonV.Px() << "," << fInputIonV.Py()
+                 << "," << fInputIonV.Pz() << ")" << endl;
       for (Int_t iOut = 0; iOut < fOutputs.size(); iOut++){
         
         TParticlePDG* particle = (TParticlePDG*)fOutputs[iOut];
@@ -136,8 +143,8 @@ Bool_t ERTextDecay::Stepping() {
         
         Int_t newTrackNb;
         gMC->GetStack()->PushTrack(1,gMC->GetStack()->GetCurrentTrackNumber(), particle->PdgCode(),
-                           fInputIonV.Px(),fInputIonV.Py(),fInputIonV.Pz(),
-                           fInputIonV.E(), fDecayPos.X(), fDecayPos.Y(), fDecayPos.Z(),
+                           particleV.Px(),particleV.Py(),particleV.Pz(),
+                           particleV.E(), fDecayPos.X(), fDecayPos.Y(), fDecayPos.Z(),
                            gMC->TrackTime(), 0., 0., 0.,
                            kPDecay, newTrackNb, particle->Mass(), 0);
 
