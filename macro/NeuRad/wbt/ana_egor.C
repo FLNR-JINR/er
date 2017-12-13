@@ -38,7 +38,7 @@ void ana_egor(Int_t nEvents = 1000)
   FairLogger::GetLogger()->SetLogVerbosityLevel("HIGH");
 
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO"); // DEBUG, DEBUG2, DEBUG3
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------

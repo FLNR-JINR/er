@@ -1,0 +1,44 @@
+#!/bin/bash
+
+WORKDIR=`pwd`
+NEVENTS=100000
+
+# Compile FairRoot
+#cd /opt/Fair/FairRoot_build/
+#make -j4 install
+
+# Compilde ExpertRoot
+cd /opt/Fair/expertroot_dev_build/
+make -j4
+
+# Return to the current direcory
+cd ${WORKDIR}
+
+# Remove all previous results
+rm -rf results/*
+mkdir results/pictures
+
+# Generate geometry
+#root -l -b -q ../../geo/create_collimator_geo.C
+#root -l -b -q ../../geo/create_NeuRad_Wupper_Proto_geo.C
+#root -l -b -q ../../geo/create_sensPlane_geo.C
+
+echo "==============================SIMULATION=============================="
+root -l -b -q "sim_egor.C($NEVENTS)"  > results/out_sim.txt  2> results/err_sim.txt
+echo "==============================DIGITIZATION============================"
+root -l -b -q "digi_egor.C($NEVENTS)" > results/out_digi.txt 2> results/err_digi.txt
+echo "==============================ANALYSIS================================"
+root -l -b -q "ana_egor.C($NEVENTS)"  > results/out_ana.txt  2> results/err_ana.txt
+
+root -l -b -q "analyse_sim.C"
+root -l -b -q "analyse_digi.C"
+
+#root -l drawRes.C
+
+#cd results
+#grep -v GetObject out_digi.txt > out2_digi.txt
+#cd $WORKDIR
+
+#cd results
+#grep -v 'NeuRadPhotoElectron.Count=0	NeuRadPixelSignal.Count=0' out_ana.txt > out2_ana.txt
+#cd $WORKDIR

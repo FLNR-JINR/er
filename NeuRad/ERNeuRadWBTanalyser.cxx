@@ -44,6 +44,9 @@ ERNeuRadWBTanalyser::~ERNeuRadWBTanalyser()
   if (fHeatMapB)       { delete fHeatMapB;       fHeatMapB = NULL; }
   //if (fHistoThrScanF)  { delete fHistoThrScanF;  fHistoThrScanF = NULL; }
   if (fHistoThrScanB)  { delete fHistoThrScanB;  fHistoThrScanB = NULL; }
+
+  //if (fHistoThrScanCounterF) { delete fHistoThrScanCounterF; fHistoThrScanCounterF = NULL; }
+  if (fHistoThrScanCounterB) { delete fHistoThrScanCounterB; fHistoThrScanCounterB = NULL; }
 }
 
 // ----------------------------------------------------------------------------
@@ -83,6 +86,11 @@ void ERNeuRadWBTanalyser::InitHistograms(void)
                              fNthresholdSteps, 0., (Double_t)fNthresholdSteps,
                              300, 0., 30000.);
 
+  //fHistoThrScanCounterF = ...
+  fHistoThrScanCounterB = new TH2D("fHistoThrScanCounterB", "fHistoThrScanCounterB",
+                                    fNthresholdSteps, 0., (Double_t)fNthresholdSteps,
+                                    64, 0., 64.);
+
 }
 
 void ERNeuRadWBTanalyser::ExportROOT(TString filename)
@@ -102,6 +110,9 @@ void ERNeuRadWBTanalyser::ExportROOT(TString filename)
 
   //fHistoThrScanF->Write();
   fHistoThrScanB->Write();
+
+  //fHistoThrScanCounterF->Write();
+  fHistoThrScanCounterB->Write();
 
   outputFile->Close();
 }
@@ -153,6 +164,14 @@ void ERNeuRadWBTanalyser::ExportPictures(void)
   canv->SetTitle("fHistoThrScanB");
   fHistoThrScanB->Draw("COL");
   canv->SaveAs("results/pictures/fHistoThrScanB.png");
+
+  //canv->SetTitle("fHistoThrScanCounterF");
+  //fHistoThrScanCounterF->Draw("COL");
+  //canv->SaveAs("results/pictures/fHistoThrScanCounterF.png");
+
+  canv->SetTitle("fHistoThrScanCounterB");
+  fHistoThrScanCounterB->Draw("COL");
+  canv->SaveAs("results/pictures/fHistoThrScanCounterB.png");
 
   delete canv;
 }
@@ -237,6 +256,8 @@ void ERNeuRadWBTanalyser::Exec(Option_t* opt)
 
     sumF = 0.;
     sumB = 0.;
+    counterF = 0;
+    counterB = 0;
 
     // iPS - i pixel signal
     for (Int_t iPS=0; iPS<fNeuRadPixelSignal->GetEntries(); iPS++) {
@@ -259,6 +280,7 @@ void ERNeuRadWBTanalyser::Exec(Option_t* opt)
         if (curPixelSignal->GetAmplitudesSum() > curThr) {
           //LOG(INFO) << "This signal is above threshold!" << FairLogger::endl;
           sumB += curPixelSignal->GetAmplitudesSum();
+          counterB++;
         }
       }
     }
@@ -266,6 +288,9 @@ void ERNeuRadWBTanalyser::Exec(Option_t* opt)
     if (sumB > 0.) {
       fHistoThrScanB->Fill((Double_t)iThr+0.5, sumB);
     }
+
+    //fHistoThrScanCounterF->Fill((Double_t)iThr+0.5, counterF);
+    fHistoThrScanCounterB->Fill((Double_t)iThr+0.5, counterB);
 
   }
 }

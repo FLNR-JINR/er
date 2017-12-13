@@ -334,7 +334,7 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint,
       // The amplitude of the signal produced by the PMT
       // is generated using the analytical approximation
       // of the laboratory measurements
-      Double_t peAmplitude = fSPEfunc->GetRandom();
+      Double_t peAmplitude = fSPEfunc->GetRandom(); // divide by 386.6
 
       //
       sumAmplitude += peAmplitude;

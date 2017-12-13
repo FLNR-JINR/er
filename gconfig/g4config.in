@@ -17,7 +17,7 @@
 
 /mcPhysics/rangeCuts 1 mm
 /mcPhysics/rangeCutForGamma  1. mm
-/mcPhysics/rangeCutForElectron 1. mm
+/mcPhysics/rangeCutForElectron 0.1 mm
 
 #/cuts/setLowEdge 100 eV
 #/cuts/setHighEdge 100 GeV
@@ -40,8 +40,5 @@
 # Limit max number of Cerenkov photons per step
 # (Needed as Cerenkov process does not limit step itself)
 #
-
-#/mcPhysics/rangeCutForElectron 0.1 mm
-
 
 #/run/particle/dumpCutValues

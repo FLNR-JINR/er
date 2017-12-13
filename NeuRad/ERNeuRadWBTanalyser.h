@@ -71,6 +71,9 @@ private:
   TH2D* fHistoThrScanF;
   TH2D* fHistoThrScanB;
 
+  TH2D* fHistoThrScanCounterF;
+  TH2D* fHistoThrScanCounterB;
+
   ClassDef(ERNeuRadWBTanalyser, 1);
 };
 

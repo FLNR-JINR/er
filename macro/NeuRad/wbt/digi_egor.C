@@ -38,7 +38,7 @@ void digi_egor(Int_t nEvents = 1000)
 
   TString erPath = gSystem->Getenv("VMCWORKDIR");
 
-  TString NeuRadDetDigiFile = erPath + "/parameters/NeuRad_wbt.digi.par";
+  TString NeuRadDetDigiFile = erPath + "/parameters/NeuRad_wbt_2.digi.par";
   parInput1->open(NeuRadDetDigiFile.Data(), "in");
 
   FairParRootFileIo* parInput2 = new FairParRootFileIo();
@@ -51,7 +51,7 @@ void digi_egor(Int_t nEvents = 1000)
   FairLogger::GetLogger()->SetLogVerbosityLevel("HIGH");
 
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO"); // DEBUG, DEBUG2, DEBUG3
   run->Init();
   run->Run(0, nEvents);
   // ------------------------------------------------------------------------
