@@ -252,8 +252,8 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint,
     Double_t fiberLength = fNeuRadSetup->GetFiberLength();
     // Get IN and OUT Z coordinates of the point from the simulation
     // Compute average Z coordinate and use it a the point coordinate
-    Double_t pointZInLocal = point->GetZInLocal();
-    Double_t pointZOutLocal =point->GetZOutLocal();
+    Double_t pointZInLocal =  point->GetZInLocal();
+    Double_t pointZOutLocal = point->GetZOutLocal();
     Double_t pointZMidLocal = (pointZInLocal + pointZOutLocal) / 2.;
     // Compute the length of the path for the photons born for this point
     Double_t flightLength = 0.;
@@ -312,12 +312,23 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint,
       Double_t peCathodeTime = peLYTime + flightLength/cMaterialSpeedOfLight;
 
       // Учёт кросстолков
-      //TODO !!!!! FIXME
-      Int_t pePixel = pointCh;
-      Int_t peModule = pointPMT;
+      // На вход подаётся идентификатор канала, в котором был поинт (ФЭУ+канал)
+      // метод возвращает через 3-й и 4-й аргументы идентификатор канала, в котором
+      // собственно развилась электронная лавина и сформировался сигнал
+      Int_t pePMT = pointPMT;
+      Int_t peCh = pointCh;
       if (fUseCrosstalks) {
-        //TODO !!!!! ???????
-        this->Crosstalks(pointPMT, pointCh, peModule, pePixel);
+        LOG(DEBUG) << "pointPMT=" << pointPMT << "\tpointCh=" << pointCh << FairLogger::endl;
+        this->Crosstalks(pointPMT, pointCh, pePMT, peCh);
+      }
+
+      LOG(DEBUG2) << "pePMT=" << pePMT << "\t"
+                  << "peCh=" << peCh
+                  << FairLogger::endl;
+
+      if (pePMT != pointPMT || peCh != pointCh) {
+        // This means that crosstalk changed the channel of the current photoelectron
+        LOG(INFO) << "Crosstalk worked." << FairLogger::endl;
       }
 
       // The amplitude of the signal produced by the PMT
@@ -333,35 +344,44 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint,
       // Anode time is cathode time + dynode system transit time
       Double_t peAnodeTime = peCathodeTime + dynodeSystemDelay;
       // Generate the photoelectron
-      ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, nPhotonsAtCathode, peAmplitude);
-      peInPixels[peModule][pePixel].push_back(pe);
+      ERNeuRadPhotoElectron* pe = this->AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, nPhotonsAtCathode, peAmplitude);
+      peInPixels[pePMT][peCh].push_back(pe);
     }
 }
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-Int_t ERNeuRadDigitizer::Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& peModule, Int_t& pePixel) {
+Int_t ERNeuRadDigitizer::Crosstalks(Int_t pointPmtId, Int_t pointChId, Int_t& pePmtId, Int_t& peChId) {
   // Возвращает номер файбера в котором окажется фотоэлектрон после применения кростолков
   // Пока для простоты ввода данных масштабирует, значение кростолков для одного модуля на все остальные
+  // Иными словами, идентификатор модуля (т.е. ФЭУ) игнорируется и учитывается только номер пикселя = номер канала
+  // Но происходит это не тут, а глубже - в digipar
 
-  LOG(DEBUG) << "ERNeuRadDigitizer::Crosstalks" << FairLogger::endl;
+  LOG(DEBUG3) << "pointPmtId=" << pointPmtId << "\t"
+             << "pointChId=" << pointChId
+             << FairLogger::endl;
 
-  pePixel = pointPixel;
-  peModule = pointModule;
+  pePmtId = pointPmtId;
+  peChId = pointChId;
   TArrayF crosstalks;
-  fNeuRadSetup->Crosstalks(pePixel, crosstalks);
+
+  fNeuRadSetup->Crosstalks(pePmtId, peChId, crosstalks);
+
+  LOG(DEBUG3) << crosstalks[0] << "\t" << crosstalks[1] << "\t" << crosstalks[2] << FairLogger::endl;
+  LOG(DEBUG3) << crosstalks[3] << "\t" << crosstalks[4] << "\t" << crosstalks[5] << FairLogger::endl;
+  LOG(DEBUG3) << crosstalks[6] << "\t" << crosstalks[7] << "\t" << crosstalks[8] << FairLogger::endl;
+
   Float_t prob = gRandom->Uniform();
-  Float_t curProb = 0;
+  Float_t curProb = 0.;
   Int_t csI = -1;
   Int_t csJ = -1;
 
   // Разбиваем отрезок от 0 до 1 на отрезки соответствующие вероятностям кросс-толков.
   // В какой именно промежуток вероятности попадёт prob, в тот файбер и перетечет фотоэлектрон.
   // Последний отрезок соответствует тому что фотоэлектрон останется в своём волокне.
-  for (Int_t i = 0; i < 3; i++){
-    for (Int_t j = 0; j < 3; j++){
-      if (crosstalks[i*3+j] == 0 || (i==1 && j==1))
-        continue;
+  for (Int_t i = 0; i < 3; i++) {
+    for (Int_t j = 0; j < 3; j++) {
+      if (crosstalks[i*3+j] == 0 || (i==1 && j==1)) continue;
 
       curProb += crosstalks[i*3+j];
 
@@ -371,24 +391,25 @@ Int_t ERNeuRadDigitizer::Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& 
         break;
       }
     }
-    if (csI != -1)
-      break;
+    if (csI != -1) break;
   }
+
+  LOG(DEBUG3) << "csI=" << csI << "\t" << "csJ=" << csJ << FairLogger::endl;
 
   // Переход между строками волокон в модуле
   if (csI == 0) {
-    pePixel -= fNeuRadSetup->GetRowNofPixels(); //TODO check!
+    peChId -= fNeuRadSetup->GetRowNofPixels(); //TODO check!
   }
   if (csI == 2) {
-    pePixel +=fNeuRadSetup->GetRowNofPixels(); //TODO check!
+    peChId += fNeuRadSetup->GetRowNofPixels(); //TODO check!
   }
 
   // Переход между столбцами волокон в модуле
   if (csJ == 0) {
-    pePixel -= 1;
+    peChId -= 1;
   }
   if (csJ == 2) {
-    pePixel += 1;
+    peChId += 1;
   }
 }
 //-----------------------------------------------------------------------------

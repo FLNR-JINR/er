@@ -53,11 +53,23 @@ private:
 
   void InitHistograms(void);
 
+  static Double_t fThresholdStep;
+  static Double_t fThresholdMax;
+  static Int_t fNthresholdSteps;
+
   /** Analysis histograms **/
   TH1D* fHistoChannelsF;
   TH1D* fHistoAmpsF;
   TH1D* fHistoChannelsB;
   TH1D* fHistoAmpsB;
+  TH1D* fHistoCounterF;
+  TH1D* fHistoCounterB;
+
+  TH2D* fHeatMapF;
+  TH2D* fHeatMapB;
+
+  TH2D* fHistoThrScanF;
+  TH2D* fHistoThrScanB;
 
   ClassDef(ERNeuRadWBTanalyser, 1);
 };

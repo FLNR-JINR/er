@@ -95,6 +95,16 @@ void ERNeuRadDigiPar::print()
   }
 
   LOG(INFO) << "*****************************************" << FairLogger::endl;
+
+  LOG(INFO) << "   ERNeuRadPixelCrosstalks: " << FairLogger::endl;
+  for (Int_t i=0; i<3*8; i++) {
+    for (Int_t j=0; j<3*8; j++) {
+      LOG(INFO) << (*fPixelCrosstalks)[i*3*8+j] << "\t";
+    }
+    LOG(INFO) << FairLogger::endl;
+  }
+
+  LOG(INFO) << "*****************************************" << FairLogger::endl;
 }
 
 //---------------------------------------------------------------------------------------
@@ -179,16 +189,45 @@ Bool_t ERNeuRadDigiPar::init(FairParIo* input) {
 }
 
 //---------------------------------------------------------------------------------------
-void ERNeuRadDigiPar::Crosstalks(Int_t iPixel, TArrayF& crosstalks) const {
+void ERNeuRadDigiPar::Crosstalks(Int_t iPMT, Int_t iChannel, TArrayF& crosstalks) const {
   // Возвращает матрицу три на три. Каждый элемент матрицы - кросс-толк к соответствующему соседу.
   // Центральная ячейка - вероятность фотонов, которые останутся в волокне.
   // Вне зависимости от того, что написано в файле параметров,
   // потом пересчитывается, чтобы суммарная вероятность была равна 1.
+
+  // Currently only channel ID is used.
+
+  //TODO
+  // 3 - one pixel crosstalk matrix size
+  // 8 - is actually fRowNofPixelsPerPMT - number of pixels in one row of the PMT
+  // 3*8 - width of the full crosstalk matrix
+  // 3*3*8 - step in vertical direction
+
+  Int_t x = iChannel % fRowNofPixelsPerPMT;
+  Int_t y = iChannel / fRowNofPixelsPerPMT;
+
+  Int_t startingIndex = x*3 + y*3*3*8;
+
+  LOG(DEBUG) << "iChannel=" << iChannel << "\tx=" << x << "\ty=" << y << "\tstartingIndex=" << startingIndex << FairLogger::endl;
+
   crosstalks.Set(9);
-  Int_t shift = iPixel*9;
+
+  crosstalks[0] = (*fPixelCrosstalks)[startingIndex + 0 + 0*3*8];
+  crosstalks[1] = (*fPixelCrosstalks)[startingIndex + 1 + 0*3*8];
+  crosstalks[2] = (*fPixelCrosstalks)[startingIndex + 2 + 0*3*8];
+  crosstalks[3] = (*fPixelCrosstalks)[startingIndex + 0 + 1*3*8];
+  crosstalks[4] = (*fPixelCrosstalks)[startingIndex + 1 + 1*3*8];
+  crosstalks[5] = (*fPixelCrosstalks)[startingIndex + 2 + 1*3*8];
+  crosstalks[6] = (*fPixelCrosstalks)[startingIndex + 0 + 2*3*8]; 
+  crosstalks[7] = (*fPixelCrosstalks)[startingIndex + 1 + 2*3*8];
+  crosstalks[8] = (*fPixelCrosstalks)[startingIndex + 2 + 2*3*8];
+
+  /*
+  Int_t shift = iChannel*9;
   for (Int_t i=0; i<9; i++) {
     crosstalks[i] = (*fPixelCrosstalks)[shift + i]; // + (*fFiberCrosstalks)[shift + i]; //FIXME Keep it commented for time being
   }
+  */
 }
 
 ClassImp(ERNeuRadDigiPar)

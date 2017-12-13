@@ -43,42 +43,39 @@ void analyse_digi(TString filename="results/digi.root")
 
   gStyle->SetOptStat(1111111);
 
-  TCanvas* canv1 = new TCanvas("canv1", "Basic digitization analysis 1", 1600, 800);
+  TCanvas* canv1 = new TCanvas("canv1", "Basic digitization analysis 1", 100, 40, 1800, 1000); // x, y, w, h
   canv1->Divide(2, 2);
   canv1->cd(1);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("fIndex");
+  inTree->Draw("NeuRadPhotoElectron.fIndex");
   canv1->cd(2);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("fSide");
+  inTree->Draw("NeuRadPhotoElectron.fSide");
   TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
   htemp->SetMinimum(0.);
   canv1->cd(3);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("fPhotonCount");
+  inTree->Draw("NeuRadPhotoElectron.fPhotonCount");
   canv1->cd(4);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("fAmplitude");
+  inTree->Draw("NeuRadPhotoElectron.fAmplitude");
 
   TF1* fSPEfunc = new TF1("fSPEfunc", "SPEfunc", 0., 2000., 7);
   fSPEfunc->SetParameters(85.8656, 30.6158, 447.112, 447.111, 52., 433., 141.);
-  fSPEfunc->Draw("sames][");
+  fSPEfunc->Draw("sames]["); //TODO scale!
 
-  TCanvas* canv2 = new TCanvas("canv2", "Basic digitization analysis 2", 1600, 800);
+  TCanvas* canv2 = new TCanvas("canv2", "Basic digitization analysis 2", 100, 40, 1800, 1000); // x, y, w, h
   canv2->Divide(2, 2);
   canv2->cd(1);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("fLYTime");
+  inTree->Draw("NeuRadPhotoElectron.fLYTime");
   canv2->cd(2);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("fCathodeTime");
+  inTree->Draw("NeuRadPhotoElectron.fCathodeTime");
   canv2->cd(3);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("fAnodeTime");
+  inTree->Draw("NeuRadPhotoElectron.fAnodeTime");
 
-  canv1->SaveAs("results/digi1.png");
-  canv2->SaveAs("results/digi2.png");
-
-
-  
+  canv1->SaveAs("results/pictures/digi1.png");
+  canv2->SaveAs("results/pictures/digi2.png");
 }

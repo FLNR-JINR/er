@@ -64,7 +64,7 @@ public:
   Float_t GetPixelGain (Int_t iPmtId, Int_t iChId) const { return (*fPixelGain)[iChId]; }
   Float_t GetPixelSigma (Int_t iPmtId, Int_t iChId) const { return (*fPixelSigma)[iChId]; }
 
-  void Crosstalks(Int_t iChId, TArrayF& crosstalks) const;
+  void Crosstalks(Int_t iPMT, Int_t iChannel, TArrayF& crosstalks) const;
 
 private:
   

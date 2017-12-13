@@ -65,7 +65,7 @@ public:
   Float_t GetPixelQuantumEfficiency(Int_t iPmtId, Int_t iChId) const;
   Float_t GetPixelGain(Int_t iPmtId, Int_t iChId) const;
   Float_t GetPixelSigma(Int_t iPmtId, Int_t iChId) const;
-  void Crosstalks(Int_t iCheckWhatItIs, TArrayF& crosstalks) const;
+  void Crosstalks(Int_t iPMT, Int_t iChannel, TArrayF& crosstalks) const;
 
   /** Accessors **/
   Float_t GetZ(void) const { return fZ; }

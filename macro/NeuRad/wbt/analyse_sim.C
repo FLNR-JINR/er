@@ -34,34 +34,31 @@ void analyse_sim(TString filename="results/sim.root")
 
   gStyle->SetOptStat(1111111);
 
-  TCanvas* canv1 = new TCanvas("canv1", "Basic simulation analysis 1", 1600, 800);
+  TCanvas* canv1 = new TCanvas("canv1", "Basic simulation analysis 1", 100, 100, 1800, 800); // x, y, w, h
   canv1->Divide(2);
   canv1->cd(1);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("fPmtId");
+  inTree->Draw("NeuRadPoint.fPmtId");
   canv1->cd(2);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("fChId");
+  inTree->Draw("NeuRadPoint.fChId");
 
-  TCanvas* canv2 = new TCanvas("canv2", "Basic simulation analysis 2", 1600, 800);
+  TCanvas* canv2 = new TCanvas("canv2", "Basic simulation analysis 2", 100, 40, 1800, 1000); // x, y, w, h
   canv2->Divide(2, 2);
   canv2->cd(1);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("NeuRadPoint.fELoss","TMath::Abs(NeuRadPoint.fELoss)<0.001","",1000,0);
-  TH1F* htemp = (TH1F*)gPad->GetPrimitive("htemp");
-  htemp->SetTitle("fELoss");
-  ////inTree->Draw("fELoss");
+  inTree->Draw("NeuRadPoint.fELoss"); // , "TMath::Abs(NeuRadPoint.fELoss)>0."
 
   canv2->cd(2);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("fLightYield");
+  inTree->Draw("NeuRadPoint.fLightYield");
   canv2->cd(3);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("fTimeIn");
+  inTree->Draw("NeuRadPoint.fTimeIn");
   canv2->cd(4);
   //gPad->SetGrid(1, 1);
-  inTree->Draw("fTimeOut");
+  inTree->Draw("NeuRadPoint.fTimeOut");
 
-  canv1->SaveAs("results/sim1.png");
-  canv2->SaveAs("results/sim2.png");
+  canv1->SaveAs("results/pictures/sim1.png");
+  canv2->SaveAs("results/pictures/sim2.png");
 }

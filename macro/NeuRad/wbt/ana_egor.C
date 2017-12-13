@@ -15,7 +15,7 @@ void ana_egor(Int_t nEvents = 1000)
   // ------------------------------------------------------------------------
 
   // ------------------------------------------------------------------------
-  FairRunAna *fRun= new FairRunAna();
+  FairRunAna *fRun = new FairRunAna();
   fRun->SetInputFile(digiFile);
   //fRun->AddFriend(simFile);
   //fRun->AddFriend(recoFile);

@@ -133,7 +133,7 @@ protected:
                                     std::vector<ERNeuRadPhotoElectron* >** pePerPixels,
                                     Int_t side); // 0 - front (smaller Z), 1 - back (bigger Z)
 
-  Int_t Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& peModule, Int_t& pePixel);
+  Int_t Crosstalks(Int_t pointPmtId, Int_t pointChId, Int_t& pePmtId, Int_t& peChId);
 
 public:
   /** Single photoeclectron spectrum.

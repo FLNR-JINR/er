@@ -338,11 +338,11 @@ Float_t ERNeuRadSetup::GetPixelSigma(Int_t iPmtId, Int_t iChId) const  {
   return fDigiPar->GetPixelSigma(iPmtId, iChId);
 }
 
-void ERNeuRadSetup::Crosstalks(Int_t iCheckWhatItIs, TArrayF& crosstalks) const {
+void ERNeuRadSetup::Crosstalks(Int_t iPMT, Int_t iChannel, TArrayF& crosstalks) const {
   if (!fDigiPar) {
     LOG(FATAL) << "ERNeuRadSetup::Crosstalks: fDigiPar is NULL. Aborting." << FairLogger::endl;
   }
-  return fDigiPar->Crosstalks(iCheckWhatItIs, crosstalks);
+  return fDigiPar->Crosstalks(iPMT, iChannel, crosstalks);
 }
 
 // ----------------------------------------------------------------------------
