@@ -97,9 +97,9 @@ void ERNeuRadDigiPar::print()
   LOG(INFO) << "*****************************************" << FairLogger::endl;
 
   LOG(INFO) << "   ERNeuRadPixelCrosstalks: " << FairLogger::endl;
-  for (Int_t i=0; i<3*8; i++) {
-    for (Int_t j=0; j<3*8; j++) {
-      LOG(INFO) << (*fPixelCrosstalks)[i*3*8+j] << "\t";
+  for (Int_t i=0; i<5*8; i++) {
+    for (Int_t j=0; j<5*8; j++) {
+      LOG(INFO) << (*fPixelCrosstalks)[i*5*8+j] << "\t";
     }
     LOG(INFO) << FairLogger::endl;
   }
@@ -165,8 +165,8 @@ Bool_t ERNeuRadDigiPar::getParams(FairParamList* l)
   fPixelQuantumEfficiency->Set(fNofPixelsPerPMT);
   fPixelGain->Set(fNofPixelsPerPMT);
   fPixelSigma->Set(fNofPixelsPerPMT);
-  fPixelCrosstalks->Set(fNofPixelsPerPMT*9);
-  // fFiberCrosstalks->Set(fNofPixelsPerPMT*9);  //FIXME Keep it commented for time being
+  fPixelCrosstalks->Set(fNofPixelsPerPMT*25);
+  // fFiberCrosstalks->Set(fNofPixelsPerPMT*9);  //FIXME Keep it commented for time being // 9 ->25
 
   // This is probably needed only for debugging reasons?
   //LOG(INFO) << "fPixelQuantumEfficiency size: " << fPixelQuantumEfficiency->GetSize() << FairLogger::endl;
@@ -190,37 +190,41 @@ Bool_t ERNeuRadDigiPar::init(FairParIo* input) {
 
 //---------------------------------------------------------------------------------------
 void ERNeuRadDigiPar::Crosstalks(Int_t iPMT, Int_t iChannel, TArrayF& crosstalks) const {
-  // Возвращает матрицу три на три. Каждый элемент матрицы - кросс-толк к соответствующему соседу.
+  // Возвращает матрицу (3x3) либо (5x5) через третий аргумент crosstalks
+  // Каждый элемент матрицы - кросс-толк к соответствующему соседу.
   // Центральная ячейка - вероятность фотонов, которые останутся в волокне.
   // Вне зависимости от того, что написано в файле параметров,
   // потом пересчитывается, чтобы суммарная вероятность была равна 1.
 
-  // Currently only channel ID is used.
+  // Currently only channel ID is used (not PMT ID)
 
   //TODO
-  // 3 - one pixel crosstalk matrix size
-  // 8 - is actually fRowNofPixelsPerPMT - number of pixels in one row of the PMT
-  // 3*8 - width of the full crosstalk matrix
-  // 3*3*8 - step in vertical direction
+  // crosstalkSubMatrixSize - one pixel crosstalk matrix size = 3 or 5 
+  // fRowNofPixelsPerPMT - number of pixels in one row of the PMT = 8 for H12700
+  // crosstalkSubMatrixSize*fRowNofPixelsPerPMT - width of the full crosstalk matrix
+  // crosstalkSubMatrixSize*crosstalkSubMatrixSize*fRowNofPixelsPerPMT - step in vertical direction
+
+  Int_t crosstalkSubMatrixSize = 5;
 
   Int_t x = iChannel % fRowNofPixelsPerPMT;
   Int_t y = iChannel / fRowNofPixelsPerPMT;
 
-  Int_t startingIndex = x*3 + y*3*3*8;
+  Int_t startingIndex = x*crosstalkSubMatrixSize +
+                        y*crosstalkSubMatrixSize*crosstalkSubMatrixSize*fRowNofPixelsPerPMT;
 
-  LOG(DEBUG) << "iChannel=" << iChannel << "\tx=" << x << "\ty=" << y << "\tstartingIndex=" << startingIndex << FairLogger::endl;
+  LOG(DEBUG) << "iChannel=" << iChannel
+             << "\tx=" << x
+             << "\ty=" << y
+             << "\tstartingIndex=" << startingIndex << FairLogger::endl;
 
-  crosstalks.Set(9);
+  crosstalks.Set(crosstalkSubMatrixSize*crosstalkSubMatrixSize);
 
-  crosstalks[0] = (*fPixelCrosstalks)[startingIndex + 0 + 0*3*8];
-  crosstalks[1] = (*fPixelCrosstalks)[startingIndex + 1 + 0*3*8];
-  crosstalks[2] = (*fPixelCrosstalks)[startingIndex + 2 + 0*3*8];
-  crosstalks[3] = (*fPixelCrosstalks)[startingIndex + 0 + 1*3*8];
-  crosstalks[4] = (*fPixelCrosstalks)[startingIndex + 1 + 1*3*8];
-  crosstalks[5] = (*fPixelCrosstalks)[startingIndex + 2 + 1*3*8];
-  crosstalks[6] = (*fPixelCrosstalks)[startingIndex + 0 + 2*3*8]; 
-  crosstalks[7] = (*fPixelCrosstalks)[startingIndex + 1 + 2*3*8];
-  crosstalks[8] = (*fPixelCrosstalks)[startingIndex + 2 + 2*3*8];
+  for (Int_t iY=0; iY<crosstalkSubMatrixSize; iY++) {
+    for (Int_t iX=0; iX<crosstalkSubMatrixSize; iX++) {
+      crosstalks[iY*crosstalkSubMatrixSize+iX] =
+        (*fPixelCrosstalks)[startingIndex + iX + iY*crosstalkSubMatrixSize*fRowNofPixelsPerPMT];
+    }
+  }
 
   /*
   Int_t shift = iChannel*9;

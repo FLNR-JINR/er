@@ -38,7 +38,7 @@ void digi_egor(Int_t nEvents = 1000)
 
   TString erPath = gSystem->Getenv("VMCWORKDIR");
 
-  TString NeuRadDetDigiFile = erPath + "/parameters/NeuRad_wbt_2.digi.par";
+  TString NeuRadDetDigiFile = erPath + "/parameters/NeuRad_wbt_extended.digi.par";
   parInput1->open(NeuRadDetDigiFile.Data(), "in");
 
   FairParRootFileIo* parInput2 = new FairParRootFileIo();

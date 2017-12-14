@@ -328,7 +328,7 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint,
 
       if (pePMT != pointPMT || peCh != pointCh) {
         // This means that crosstalk changed the channel of the current photoelectron
-        LOG(INFO) << "Crosstalk worked." << FairLogger::endl;
+        LOG(DEBUG) << "Crosstalk worked." << FairLogger::endl;
       }
 
       // The amplitude of the signal produced by the PMT
@@ -361,56 +361,78 @@ Int_t ERNeuRadDigitizer::Crosstalks(Int_t pointPmtId, Int_t pointChId, Int_t& pe
              << "pointChId=" << pointChId
              << FairLogger::endl;
 
-  pePmtId = pointPmtId;
-  peChId = pointChId;
+  // Get number of pixels in one direction in one PMT (8) from the setup
+  Int_t nPixelInRow = fNeuRadSetup->GetRowNofPixels();
+
+  // Get crosstalks sub-matrix for the current pixel
   TArrayF crosstalks;
+  fNeuRadSetup->Crosstalks(pointPmtId, pointChId, crosstalks);
 
-  fNeuRadSetup->Crosstalks(pePmtId, peChId, crosstalks);
+  Int_t crosstalkSubMatrixSize = 5; //TODO 3 or 5
 
-  LOG(DEBUG3) << crosstalks[0] << "\t" << crosstalks[1] << "\t" << crosstalks[2] << FairLogger::endl;
-  LOG(DEBUG3) << crosstalks[3] << "\t" << crosstalks[4] << "\t" << crosstalks[5] << FairLogger::endl;
-  LOG(DEBUG3) << crosstalks[6] << "\t" << crosstalks[7] << "\t" << crosstalks[8] << FairLogger::endl;
+  // Just debug output
+  for (Int_t i=0; i<crosstalkSubMatrixSize; i++) {
+    LOG(DEBUG3) << crosstalks[i*crosstalkSubMatrixSize + 0] << "\t"
+                << crosstalks[i*crosstalkSubMatrixSize + 1] << "\t"
+                << crosstalks[i*crosstalkSubMatrixSize + 2] << "\t"
+                << crosstalks[i*crosstalkSubMatrixSize + 3] << "\t"
+                << crosstalks[i*crosstalkSubMatrixSize + 4]
+                << FairLogger::endl;
+  }
 
+  // Generate random number between 0 and 1
   Float_t prob = gRandom->Uniform();
   Float_t curProb = 0.;
-  Int_t csI = -1;
-  Int_t csJ = -1;
 
   // Разбиваем отрезок от 0 до 1 на отрезки соответствующие вероятностям кросс-толков.
   // В какой именно промежуток вероятности попадёт prob, в тот файбер и перетечет фотоэлектрон.
   // Последний отрезок соответствует тому что фотоэлектрон останется в своём волокне.
-  for (Int_t i = 0; i < 3; i++) {
-    for (Int_t j = 0; j < 3; j++) {
-      if (crosstalks[i*3+j] == 0 || (i==1 && j==1)) continue;
+  Bool_t crosstalkWorked = kFALSE;
+  // Set output pixel same as input.
+  // Further operations may change the output pixel
+  // if any crosstalk happens
+  pePmtId = pointPmtId;
+  peChId = pointChId;
+  Int_t subMatrixI; // Define outside of the loop block cause they will be used right after
+  Int_t subMatrixJ; // Define outside of the loop block cause they will be used right after
+  for (subMatrixI = 0; subMatrixI<crosstalkSubMatrixSize; subMatrixI++) {
+    for (subMatrixJ = 0; subMatrixJ<crosstalkSubMatrixSize; subMatrixJ++) {
 
-      curProb += crosstalks[i*3+j];
+      Float_t curSubmatrixElement = crosstalks[subMatrixI*crosstalkSubMatrixSize + subMatrixJ];
 
+      if (curSubmatrixElement == 0. || (subMatrixI==(crosstalkSubMatrixSize/2) && subMatrixJ==(crosstalkSubMatrixSize/2))) {
+        //  Skip elements with zero probability and skip the central element
+        LOG(DEBUG3) << subMatrixI << "\t" << subMatrixJ << "\t" << curSubmatrixElement << "\tcontinue" << FairLogger::endl;
+        continue;
+      }
+
+      curProb += curSubmatrixElement;
+
+      LOG(DEBUG3) << subMatrixI << "\t" << subMatrixJ << "\t" << curSubmatrixElement << "\tprob=" << prob << "\tcurProb=" << curProb << FairLogger::endl;
       if (curProb > prob) {
-        csI = i;
-        csJ = j;
+        // Here is the one which worked
+        LOG(DEBUG3) << "Crosstalk worked. Break the loop." << FairLogger::endl;
+        crosstalkWorked = kTRUE;
         break;
       }
     }
-    if (csI != -1) break;
+    //LOG(DEBUG3) << "Woops" << FairLogger::endl;
+    if (crosstalkWorked) break;
   }
 
-  LOG(DEBUG3) << "csI=" << csI << "\t" << "csJ=" << csJ << FairLogger::endl;
+  if (crosstalkWorked) {
+    // pePMTId is not changed in the current version
+    Int_t dI = subMatrixI - crosstalkSubMatrixSize/2;
+    Int_t dJ = subMatrixJ - crosstalkSubMatrixSize/2;
+    peChId += dI*nPixelInRow + dJ;
+    LOG(DEBUG3) << "subMatrixI=" << subMatrixI << "\t"
+                << "subMatrixJ=" << subMatrixJ << "\t"
+                << "dI=" << dI << "\t"
+                << "dJ=" << dJ << "\t"
+                << "new peChId=" << peChId
+                << FairLogger::endl;
+  }
 
-  // Переход между строками волокон в модуле
-  if (csI == 0) {
-    peChId -= fNeuRadSetup->GetRowNofPixels(); //TODO check!
-  }
-  if (csI == 2) {
-    peChId += fNeuRadSetup->GetRowNofPixels(); //TODO check!
-  }
-
-  // Переход между столбцами волокон в модуле
-  if (csJ == 0) {
-    peChId -= 1;
-  }
-  if (csJ == 2) {
-    peChId += 1;
-  }
 }
 //-----------------------------------------------------------------------------
 
