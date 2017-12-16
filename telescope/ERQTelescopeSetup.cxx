@@ -40,9 +40,12 @@ vector<Double_t> ERQTelescopeSetup::fDoubleSiZ;
 vector<Double_t> ERQTelescopeSetup::fDoubleSiSensX;
 vector<Double_t> ERQTelescopeSetup::fDoubleSiSensY;
 vector<Double_t> ERQTelescopeSetup::fDoubleSiSensZ;
+vector<Double_t> ERQTelescopeSetup::fDoubleSiDeadLayerThicknessFrontSide;
+vector<Double_t> ERQTelescopeSetup::fDoubleSiDeadLayerThicknessBackSide;
 vector<Int_t>    ERQTelescopeSetup::fDoubleSiStripCountX;
 vector<Int_t>    ERQTelescopeSetup::fDoubleSiStripCountY;
 vector<TString>  ERQTelescopeSetup::fDoubleSiMedia;
+vector<Bool_t>   ERQTelescopeSetup::fDoubleSiIsDeadLayerSet;
 // ----- DoubleSi parameters --------------------------------------------------
 Int_t            ERQTelescopeSetup::fSingleSiCount = 0;
 vector<TString>  ERQTelescopeSetup::fSingleSiType;  
@@ -54,8 +57,11 @@ vector<Double_t> ERQTelescopeSetup::fSingleSiZ;
 vector<Double_t> ERQTelescopeSetup::fSingleSiSensX;
 vector<Double_t> ERQTelescopeSetup::fSingleSiSensY;
 vector<Double_t> ERQTelescopeSetup::fSingleSiSensZ;
+vector<Double_t> ERQTelescopeSetup::fSingleSiDeadLayerThicknessFrontSide;
+vector<Double_t> ERQTelescopeSetup::fSingleSiDeadLayerThicknessBackSide;
 vector<Int_t>    ERQTelescopeSetup::fSingleSiStripCount;
 vector<TString>  ERQTelescopeSetup::fSingleSiMedia;
+vector<Bool_t>   ERQTelescopeSetup::fSingleSiIsDeadLayerSet;
 // ----- CsI parameters -------------------------------------------------------
 Int_t            ERQTelescopeSetup::fCsICount = 0;
 vector<TString>  ERQTelescopeSetup::fCsIType;
@@ -80,6 +86,7 @@ void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAro
     fDoubleSiOrientAroundZ.push_back(orientAroundZ);
     fDoubleSiPosZ.push_back(position);
     fDoubleSiType.push_back(type);
+    fDoubleSiIsDeadLayerSet.push_back(false);
   } else {
     fSingleSiCount++;
     TString volumeNameInd = (orientAroundZ == "X") ? "_X" : "_Y";  
@@ -87,8 +94,38 @@ void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAro
     fSingleSiOrientAroundZ.push_back(orientAroundZ);
     fSingleSiPosZ.push_back(position);
     fSingleSiType.push_back(type);
+    fSingleSiIsDeadLayerSet.push_back(false);
   }
 }
+
+void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAroundZ, 
+                                                     Double_t deadLayerFront, 
+                                                     Double_t deadLayerBack)
+{
+  if (type.BeginsWith("Double")) {
+    TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
+    fDoubleSiCount++;  
+    fDetectorStations.push_back(type + volumeNameInd + TString::Itoa(fDoubleSiCount, 10));
+    fDoubleSiOrientAroundZ.push_back(orientAroundZ);
+    fDoubleSiPosZ.push_back(position);
+    fDoubleSiType.push_back(type);
+    fDoubleSiDeadLayerThicknessFrontSide.push_back(deadLayerFront);
+    fDoubleSiDeadLayerThicknessBackSide.push_back(deadLayerBack);
+    fDoubleSiIsDeadLayerSet.push_back(true);
+  } else {
+    fSingleSiCount++;
+    TString volumeNameInd = (orientAroundZ == "X") ? "_X" : "_Y";  
+    fDetectorStations.push_back(type + volumeNameInd + TString::Itoa(fSingleSiCount, 10));
+    fSingleSiOrientAroundZ.push_back(orientAroundZ);
+    fSingleSiPosZ.push_back(position);
+    fSingleSiType.push_back(type);
+    fSingleSiDeadLayerThicknessFrontSide.push_back(deadLayerFront);
+    fSingleSiDeadLayerThicknessBackSide.push_back(deadLayerBack);
+    fSingleSiIsDeadLayerSet.push_back(true);
+  }
+}
+ 
+
 void ERQTelescopeSetup::AddCsI(TString type, Double_t position) {
   fCsICount++;
   fDetectorStations.push_back(type + TString::Itoa(fCsICount, 10));
@@ -224,6 +261,16 @@ void ERQTelescopeSetup::GetSingleSiParameters(TXMLNode *node) {
               }
             }
           }
+          if(!strcasecmp(curNode2->GetNodeName(), "deadLayerThicknessFrontSide")) {
+            if(!fSingleSiIsDeadLayerSet[i]) {
+              fSingleSiDeadLayerThicknessFrontSide.push_back(atof(curNode2->GetText()));
+            }
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "deadLayerThicknessBackSide")) {
+            if(!fSingleSiIsDeadLayerSet[i]) {
+              fSingleSiDeadLayerThicknessBackSide.push_back(atof(curNode2->GetText()));
+            }
+          }
           if(!strcasecmp(curNode2->GetNodeName(), "stripCount")) {
             fSingleSiStripCount.push_back(atof(curNode2->GetText()));
           }
@@ -288,6 +335,16 @@ void ERQTelescopeSetup::GetDoubleSiParameters(TXMLNode *node) {
               if (!strcasecmp("doubleSiSensZ", attr->GetName())) {
                 fDoubleSiSensZ.push_back(atof(attr->GetValue()));
               }
+            }
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "deadLayerThicknessFrontSide")) {
+            if(!fDoubleSiIsDeadLayerSet[i]) {
+              fDoubleSiDeadLayerThicknessFrontSide.push_back(atof(curNode2->GetText()));
+            }
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "deadLayerThicknessBackSide")) {
+            if(!fDoubleSiIsDeadLayerSet[i]) {
+              fDoubleSiDeadLayerThicknessBackSide.push_back(atof(curNode2->GetText()));
             }
           }
           if(!strcasecmp(curNode2->GetNodeName(), "stripCountX")) {
@@ -361,6 +418,56 @@ void ERQTelescopeSetup::PrintDetectorParameters(void) {
 void ERQTelescopeSetup::PrintDetectorParametersToFile(TString fileName) {
   ofstream listingFile;
   listingFile.open(fileName);
+  listingFile << "------------------------------------------------" << endl;
+  listingFile << "Detector's parameters from " << fParamsXmlFileName << endl;
+  listingFile << "------------------------------------------------" << endl;
+  listingFile << "CsI parameters:" << endl;
+  for(Int_t i = 0; i < fCsICount; i++) {
+    listingFile << "CsI_"+TString::Itoa(i+1, 10) << " is " 
+         << fCsIType[i] << " with parameters:" << endl
+         << "\tpositionZ = " << fCsIPosZ[i] << endl
+         << "\tCsISizeX = " << fCsIX[i]
+         << "; CsISizeY = " << fCsIY[i] 
+         << "; CsISizeZ = " << fCsIZ[i] << endl
+         << "\tCsICubesCountX = " << fCsICubesCountX[i] << endl 
+         << "\tCsICubesCountY = " << fCsICubesCountY[i] << endl 
+         << "\tCsIMedia = " << fCsIMedia[i] << endl 
+         << endl;
+  }
+  listingFile << "------------------------------------------------" << endl;
+  listingFile << "DoubleSi parameters:" << endl;
+  for(Int_t i = 0; i < fDoubleSiCount; i++) {
+    listingFile << "DoubleSi_"+TString::Itoa(i+1, 10) << " is " 
+         << fDoubleSiType[i] << " with parameters:" << endl
+         << "\tpositionZ = " << fDoubleSiPosZ[i] << endl
+         << "\tdoubeSiSizeX = " << fDoubleSiX[i]
+         << "; doubeSiSizeY = " << fDoubleSiY[i] 
+         << "; doubeSiSizeZ = " << fDoubleSiZ[i] << endl
+         << "\tdoubleSiSensX = " << fDoubleSiSensX[i]
+         << "; doubleSiSensY = " << fDoubleSiSensY[i] 
+         << "; doubleSiSensZ = " << fDoubleSiSensZ[i] << endl
+         << "\tdoubleSiStripCountX = " << fDoubleSiStripCountX[i] << endl 
+         << "\tdoubleSiStripCountX = " << fDoubleSiStripCountY[i] << endl 
+         << "\tdoubleSiMedia = " << fDoubleSiMedia[i] << endl 
+         << endl;
+  }
+  listingFile << "------------------------------------------------" << endl;
+  listingFile << "SingleSi parameters:" << endl;
+  for(Int_t i = 0; i < fSingleSiCount; i++) {
+    listingFile << "SingleSi_"+TString::Itoa(i+1, 10) << " is " 
+         << fSingleSiType[i] << " with parameters:" << endl
+         << "\tpositionZ = " << fSingleSiPosZ[i] << endl
+         << "\tsingleSiSizeX = " << fSingleSiX[i]
+         << "; singleSiSizeY = " << fSingleSiY[i] 
+         << "; singleSiSizeZ = " << fSingleSiZ[i] << endl
+         << "\tsingleSiSensX = " << fSingleSiSensX[i]
+         << "; singleSiSensY = " << fSingleSiSensY[i] 
+         << "; singleSiSensZ = " << fSingleSiSensZ[i] << endl
+         << "\tsingleSiStripCount = " << fSingleSiStripCount[i] << endl 
+         << "\tsingleSiMedia = " << fSingleSiMedia[i] << endl 
+         << endl;
+  }
+  listingFile << "------------------------------------------------" << endl;
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeSetup::ParseXmlParameters() {
@@ -505,7 +612,8 @@ void ERQTelescopeSetup::ConstructGeometry() {
     //------------------ Single Si strip --------------------------------------
     Double_t singleSiStripX = fSingleSiSensX[i] / fSingleSiStripCount[i]; 
     Double_t singleSiStripY = fSingleSiSensY[i];   
-    Double_t singleSiStripZ = fSingleSiSensZ[i];   
+    Double_t singleSiStripZ = fSingleSiSensZ[i] - fSingleSiDeadLayerThicknessFrontSide[i]
+                                                - fSingleSiDeadLayerThicknessBackSide[i];   
     singleSiStrip.push_back(gGeoManager->MakeBox("SensitiveSingleSiStrip"+fSingleSiOrientAroundZ[i], 
                                                           pMedSingleSi[i], 
                                                           singleSiStripX / 2., 
@@ -524,7 +632,8 @@ void ERQTelescopeSetup::ConstructGeometry() {
     //------------------ Silicon strip   ---------------------------------------
     Double_t doubleSiStripX = fDoubleSiSensX[i] / fDoubleSiStripCountX[i];
     Double_t doubleSiStripY = fDoubleSiSensY[i];
-    Double_t doubleSiStripZ = fDoubleSiSensZ[i];
+    Double_t doubleSiStripZ = fDoubleSiSensZ[i] - fDoubleSiDeadLayerThicknessFrontSide[i]
+                                                - fDoubleSiDeadLayerThicknessBackSide[i];
     doubleSiStrip.push_back(gGeoManager->MakeBox("doubleSiStrip", pMedDoubleSi[i], 
                                                                   doubleSiStripX / 2, 
                                                                   doubleSiStripY / 2, 
@@ -543,9 +652,7 @@ void ERQTelescopeSetup::ConstructGeometry() {
   vector<TGeoVolume*> stationCsI;
   vector<TGeoVolume*> boxCsI;
   for (Int_t i = 0; i < fCsICount; i++) {
-    stationCsI.push_back(new TGeoVolumeAssembly("CsI_" + TString::Itoa(i+1, 10)));/*(gGeoManager->MakeBox("stationCsI", pMedCsI[i], fCsIX[i] / 2, 
-                                                                        fCsIY[i] / 2, 
-                                                                        fCsIZ[i] / 2));*/
+    stationCsI.push_back(new TGeoVolumeAssembly("CsI_" + TString::Itoa(i+1, 10)));
     Double_t CsIBoxX = fCsIX[i] / fCsICubesCountX[i];  
     Double_t CsIBoxY = fCsIY[i] / fCsICubesCountY[i]; 
     Double_t CsIBoxZ = fCsIZ[i]; 
@@ -571,9 +678,11 @@ void ERQTelescopeSetup::ConstructGeometry() {
     for (Int_t iStripX = 0; iStripX < fDoubleSiStripCountX[i]; iStripX++) {
       Double_t translateX = fDoubleSiSensX[i] / 2 
                           - doubleSiStripX *(iStripX)-(doubleSiStripX / 2);
+      Double_t translateZ = fDoubleSiDeadLayerThicknessFrontSide[i] 
+                          - fDoubleSiDeadLayerThicknessBackSide[i] ;
       doubleSi[i]->AddNode(doubleSiStrip[i], iStripX, new TGeoCombiTrans(translateX,
                                                                          0,
-                                                                         0,
+                                                                         translateZ,
                                                                          fZeroRotation));
     }
     TGeoRotation *rotation = new TGeoRotation();
@@ -592,9 +701,11 @@ void ERQTelescopeSetup::ConstructGeometry() {
     for (Int_t iStrip = 0; iStrip < fSingleSiStripCount[i]; iStrip++) {
       Double_t translateX = (-1) * fSingleSiSensX[i] / 2
                           + singleSiStripX/2. + iStrip*singleSiStripX;
+      Double_t translateZ = fSingleSiDeadLayerThicknessFrontSide[i] 
+                          - fSingleSiDeadLayerThicknessBackSide[i];
       singleSi[i]->AddNode(singleSiStrip[i], iStrip, new TGeoCombiTrans(translateX,
                                                                      0.,
-                                                                     0., 
+                                                                     translateZ, 
                                                                      fZeroRotation));
     }
     TGeoRotation *rotation = new TGeoRotation();
@@ -631,12 +742,11 @@ void ERQTelescopeSetup::ConstructGeometry() {
   }
   top->AddNode(qtelescope, 1, new TGeoCombiTrans(global_X ,global_Y, global_Z, fGlobalRotation));
    // ---------------   Finish   -----------------------------------------------
-  //gGeoMan->CloseGeometry();
-  //gGeoMan->CheckOverlaps(0.001);
-  //gGeoMan->PrintOverlaps();
-  //gGeoMan->Test();
-
-  //gGeoManager = gGeoMan;
+  gGeoMan->CloseGeometry();
+  gGeoMan->CheckOverlaps(0.001);
+  gGeoMan->PrintOverlaps();
+  gGeoMan->Test();
+  gGeoManager = gGeoMan;
 
   TFile* geoFile = new TFile(geoFileName, "RECREATE");
   top->Write();

@@ -3,15 +3,19 @@
 	<SiTypes>
 		<doubleSiTypes>
 			<doubleSi id="DoubleSi1">
-				<doubleSiSize doubleSiX="100" doubleSiY="100" doubleSiZ="0.01"/>
+				<doubleSiSize doubleSiX="100" doubleSiY="100" doubleSiZ="0.15"/>
 				<doubleSiSensAreaSize doubleSiSensX="100" doubleSiSensY="100" doubleSiSensZ="1"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
 				<stripCountX>16</stripCountX>
 				<stripCountY>16</stripCountY>
 				<doubleSiMedia>silicon</doubleSiMedia>
 			</doubleSi>
 			<doubleSi id="DoubleSi2">
-				<doubleSiSize doubleSiX="100" doubleSiY="100" doubleSiZ="0.01"/>
+				<doubleSiSize doubleSiX="100" doubleSiY="100" doubleSiZ="0.03"/>
 				<doubleSiSensAreaSize doubleSiSensX="100" doubleSiSensY="100" doubleSiSensZ="1"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
 				<stripCountX>16</stripCountX>
 				<stripCountY>16</stripCountY>
 				<doubleSiMedia>silicon</doubleSiMedia>
@@ -21,12 +25,16 @@
 			<singleSi id="SingleSi1">
 				<singleSiSize singleSiX="100" singleSiY="100" singleSiZ="0.01"/>
 				<singleSiSensAreaSize singleSiSensX="100" singleSiSensY="100" singleSiSensZ="1"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>	
 			<singleSi id="SingleSi2">
 				<singleSiSize singleSiX="100" singleSiY="100" singleSiZ="0.01"/>
 				<singleSiSensAreaSize singleSiSensX="100" singleSiSensY="100" singleSiSensZ="1"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>	

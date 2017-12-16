@@ -31,6 +31,9 @@ public:
   /* Modifiers */
   static void SetXmlParametersFile(TString xmlFileName) {fParamsXmlFileName = xmlFileName;}
   static void AddSi(TString type, Double_t position, TString orientAroundZ); 
+  static void AddSi(TString type, Double_t position, TString orientAroundZ, 
+                                                     Double_t deadLayerFront, 
+                                                     Double_t deadLayerBack); 
   static void AddCsI(TString type, Double_t position);
 
   static void ConstructGeometry();
@@ -58,9 +61,12 @@ private:
   static vector<Double_t> fDoubleSiSensX;
   static vector<Double_t> fDoubleSiSensY;
   static vector<Double_t> fDoubleSiSensZ;
+  static vector<Double_t> fDoubleSiDeadLayerThicknessFrontSide;
+  static vector<Double_t> fDoubleSiDeadLayerThicknessBackSide;
   static vector<Int_t>    fDoubleSiStripCountX;
   static vector<Int_t>    fDoubleSiStripCountY;
   static vector<TString>  fDoubleSiMedia;
+  static vector<Bool_t>   fDoubleSiIsDeadLayerSet;
   // ----- DoubleSi parameters --------------------------------------------------
   static Int_t            fSingleSiCount;
   static vector<Double_t> fSingleSiPosZ;
@@ -72,8 +78,11 @@ private:
   static vector<Double_t> fSingleSiSensX;
   static vector<Double_t> fSingleSiSensY;
   static vector<Double_t> fSingleSiSensZ;
+  static vector<Double_t> fSingleSiDeadLayerThicknessFrontSide;
+  static vector<Double_t> fSingleSiDeadLayerThicknessBackSide;
   static vector<Int_t>    fSingleSiStripCount;
   static vector<TString>  fSingleSiMedia;
+  static vector<Bool_t>   fSingleSiIsDeadLayerSet;
   // ----- CsI parameters -------------------------------------------------------
   static Int_t            fCsICount;
   static vector<TString>  fCsIType;

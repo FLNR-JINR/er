@@ -34,7 +34,7 @@ void QTelescope_full(Int_t nEvents = 50){
   ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE,verbose);
   ERQTelescopeSetup* qTelescopeSetup = ERQTelescopeSetup::Instance();
   qTelescopeSetup->AddSi("DoubleSi1", 0, "X");
-  qTelescopeSetup->AddSi("DoubleSi1", 10, "X");
+  qTelescopeSetup->AddSi("DoubleSi1", 10, "X", 0.01, 0.01);
   qTelescopeSetup->AddSi("SingleSi1", 100, "X");
   qTelescopeSetup->AddSi("SingleSi2", 50, "X");
   qTelescopeSetup->AddCsI("CsI1", -50);
