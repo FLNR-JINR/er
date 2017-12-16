@@ -40,7 +40,7 @@ class ERQTelescopeCsIPoint : public FairMCPoint
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t N_Wall ,Int_t N_Block);
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t wallNb ,Int_t blockNb);
 
 
   /** Copy constructor **/
@@ -79,8 +79,8 @@ class ERQTelescopeCsIPoint : public FairMCPoint
   // Int_t Sector() const {return fSector;}
   // Int_t Sensor() const {return fSensor;}
 
-  Int_t          N_Wall()  {return fN_Wall;}
-  Int_t          N_Block() {return fN_Block;}
+  Int_t          GetWallNb()  {return fWallNb;}
+  Int_t          GetBlockNb() {return fBlockNb;}
 
   /** Check for distance between in and out **/
   Bool_t IsUsable() const;
@@ -95,8 +95,8 @@ class ERQTelescopeCsIPoint : public FairMCPoint
   Double_t   fMass;
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
-  Int_t      fN_Wall;     // СsI
-  Int_t      fN_Block;
+  Int_t      fWallNb;     // СsI
+  Int_t      fBlockNb;
   ClassDef(ERQTelescopeCsIPoint,1)
 };
 #endif

@@ -23,7 +23,7 @@ class ERQTelescopeCsIDigi : public FairMultiLinkedData
   
   /** Constructor with arguments
    **/
-  ERQTelescopeCsIDigi(Int_t id, Float_t Edep, Double_t time, Int_t stationNb, Int_t stripNb);
+  ERQTelescopeCsIDigi(Int_t id, Float_t Edep, Double_t time, Int_t wallNb, Int_t blockNb);
                    
   /** Copy constructor **/
   ERQTelescopeCsIDigi(const ERQTelescopeCsIDigi&);
@@ -42,8 +42,8 @@ class ERQTelescopeCsIDigi : public FairMultiLinkedData
   
  protected:
   Int_t     fID;
-  Int_t     fStationNb;
-  Int_t     fBoxNb;
+  Int_t     fWallNb;
+  Int_t     fBlockNb;
   Double_t  fTime;
   Float_t   fEdep;
   

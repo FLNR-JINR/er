@@ -1,4 +1,4 @@
-# Create a library called "libR3BCal" which includes the source files given in
+# Create a library called "telescope" which includes the source files given in
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
@@ -10,7 +10,6 @@ ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/data
 ${CMAKE_SOURCE_DIR}/telescope/
 ${CMAKE_SOURCE_DIR}/telescope/data
-${CMAKE_SOURCE_DIR}/BeamDet/data
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

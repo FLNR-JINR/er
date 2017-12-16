@@ -19,12 +19,12 @@ ERQTelescopeCsIDigi::ERQTelescopeCsIDigi()
 {
 }
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeCsIDigi::ERQTelescopeCsIDigi(Int_t id, Float_t Edep, Double_t time, Int_t stationNb, Int_t stripNb)
+ERQTelescopeCsIDigi::ERQTelescopeCsIDigi(Int_t id, Float_t Edep, Double_t time, Int_t wallNb, Int_t blockNb)
   :fID(id),
   fEdep(Edep),
   fTime(time),
-  fStationNb(stationNb),
-  fBoxNb(stripNb)
+  fWallNb(wallNb),
+  fBlockNb(blockNb)
 {
 }
 //-------------------------------------------------------------------------------------------------
@@ -32,8 +32,8 @@ ERQTelescopeCsIDigi::ERQTelescopeCsIDigi(const ERQTelescopeCsIDigi& right)
   :fID(right.fID),
   fEdep(right.fEdep),
   fTime(right.fTime),
-  fStationNb(right.fStationNb),
-  fBoxNb(right.fBoxNb)
+  fWallNb(right.fWallNb),
+  fBlockNb(right.fBlockNb)
 {
 }
 //-------------------------------------------------------------------------------------------------

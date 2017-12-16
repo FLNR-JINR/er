@@ -14,7 +14,6 @@
 #include "ERQTelescopeCsIPoint.h"
 #include "ERQTelescopeSetup.h"
 
-
 #include "TLorentzVector.h"
 
 class TClonesArray;
@@ -162,7 +161,7 @@ private:
    **/
   void ResetParameters();
 
-  ClassDef(ERQTelescope,1);
+  ClassDef(ERQTelescope, 1);
 };
 
 #endif

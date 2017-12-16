@@ -161,20 +161,19 @@ void ERQTelescope::Register() {
       fDoubleSiXPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
       fDoubleSiYPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
       //TString::Itoa(fDoubleSiXPoints.size(), 10)
-      ioman->Register(sensVolumes->at(i) + "_X",
+      ioman->Register("ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_X",
                       "QTelescope", fDoubleSiXPoints.back(), kTRUE);
-      ioman->Register(sensVolumes->at(i) + "_Y",
+      ioman->Register("ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_Y",
                       "QTelescope", fDoubleSiYPoints.back(), kTRUE);
     }
     if (sensVolumes->at(i).BeginsWith("SingleSi")) {
       fSingleSiPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
-      TString singleSiInd = (sensVolumes->at(i).Contains("X")) ? "_X" : "_Y";
-      ioman->Register(sensVolumes->at(i),
+      ioman->Register("ERQTelescopeSiPoint_" + sensVolumes->at(i),
                       "QTelescope", fSingleSiPoints.back(), kTRUE);
     }
     if (sensVolumes->at(i).BeginsWith("CsI")) {
       fCsIPoints.push_back(new TClonesArray("ERQTelescopeCsIPoint"));
-      ioman->Register(sensVolumes->at(i),
+      ioman->Register("ERQTelescopeCsIPoint_" + sensVolumes->at(i),
                       "QTelescope", fCsIPoints.back(), kTRUE);
 
     }
