@@ -1,9 +1,12 @@
-void digi(Int_t nEvents = 10000){
+void SimToRaw1(Int_t nEvents = 1000000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "/home/muzalevsky/work/dataER/simNeuRad/simСoll2.root";
-  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/test_6000_20.root";
-  TString parFile = "/home/muzalevsky/work/dataER/simNeuRad/parColl2.root";
+  TString digiFile = "/home/muzalevsky/work/dataER/simNeuRad/digi1_6000_20.root";
+  // TString simFile = "sim.root";
+  // TString recoFile = "reco.root";
+  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/simRaw1_6000_20.root";
+  TString parFile = "/home/muzalevsky/work/dataER/simNeuRad/parColl1.root";
   // ------------------------------------------------------------------------
+  
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -11,43 +14,29 @@ void digi(Int_t nEvents = 10000){
   
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(inFile);
+  fRun->SetInputFile(digiFile);
+  //fRun->AddFriend(simFile);
+  //fRun->AddFriend(recoFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
-  //-------- Set MC event header --------------------------------------------
-  EREventHeader* header = new EREventHeader();
-  fRun->SetEventHeader(header);
+ 
+  // ------------------------NeuRadHitProducer-------------------------------- 
+  ERSimtoRaw* converter = new ERSimtoRaw(1);
+  fRun->AddTask(converter);
   //------------------------------------------------------------------------
-  // ------------------------NeuRadDigitizer---------------------------------
-  Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
-  ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
-  digitizer->SetUseCrosstalks(kFALSE);
-  digitizer->SetPixelJitter(0.28/2.36);
-  fRun->AddTask(digitizer);
-  // ------------------------------------------------------------------------
-  
   // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   
-  FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
-  TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
-  NeuRadDetDigiFile += "/parameters/NeuRad.digi.v4.par";
-  parInput1->open(NeuRadDetDigiFile.Data(),"in");
-
-  FairParRootFileIo*  parInput2 = new FairParRootFileIo();
-  parInput2->open(parFile.Data(), "UPDATE");
-  
-  rtdb->setFirstInput(parInput1);
-  rtdb->setSecondInput(parInput2);
+  FairParRootFileIo*  parIo1 = new FairParRootFileIo();
+  parIo1->open(parFile.Data(), "UPDATE");
+  rtdb->setFirstInput(parIo1);
   
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
-  rtdb->setOutput(parInput2);
+  rtdb->setOutput(parIo1);
   rtdb->saveOutput();
-  
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
@@ -57,6 +46,7 @@ void digi(Int_t nEvents = 10000){
   cout << "Output file writen:  "    << outFile << endl;
   cout << "Parameter file writen " << parFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
+  cout << nEvents <<" its a number of events" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
 

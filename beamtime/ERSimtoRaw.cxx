@@ -93,7 +93,7 @@ void ERSimtoRaw::Exec(Option_t* opt)
       for(Int_t i = 0; i<simSize; i++){
         if( maxAmp < result->GetAt(i) ) {maxAmp = result->GetAt(i);}
       }  //searching maxAmp
-      if(maxAmp > 5) { // trigger in [mV]
+      if(maxAmp > 20.) { // trigger in [mV]
         run->MarkFill(kTRUE);
       }
     }

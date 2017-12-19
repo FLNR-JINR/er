@@ -43,7 +43,7 @@ void ERNeuRadAEvent::ProcessEvent(Bool_t bSmooth) {
 		fTime[j] = time[j];
 	}
 
-//	fZeroLevel = FindZeroLevel();
+	//fZeroLevel = FindZeroLevel();
 	fZeroLevel = 0.;
 	for(Int_t j = 0; j < fNPoints; j++) {
 		fAmpPos[j] = fAmpPos[j] - fZeroLevel;

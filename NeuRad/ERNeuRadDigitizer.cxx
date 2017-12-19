@@ -21,7 +21,7 @@ using namespace std;
 
 #include "EREventHeader.h"
 
-const Double_t ERNeuRadDigitizer::cSciFiLightYield= 8000.; // [photons/MeV]
+const Double_t ERNeuRadDigitizer::cSciFiLightYield= 6000.; // [photons/MeV]
 const Double_t ERNeuRadDigitizer::cSpeedOfLight = 0.299792458e2;  //[cm/ns]
 const Double_t ERNeuRadDigitizer::cMaterialSpeedOfLight = ERNeuRadDigitizer::cSpeedOfLight/1.58;//[cm/ns]
 const Double_t ERNeuRadDigitizer::cLightFractionInTotalIntReflection = 0.04;
@@ -50,6 +50,7 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
 {
   fPEA = new TF1("fPEA", "ERNeuRadDigitizer::PeFunc", 0., 2000., 7);
   fPEA->SetParameters(85.8656,30.6158,447.112,447.111,52.,433.,141.);	
+  //fPEA->SetParameters(3.2,30.6158,447.112,447.111,52.,433.,141.); 
 }
 // ----------------------------------------------------------------------------
 
@@ -73,6 +74,7 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
 {
   fPEA = new TF1("fPEA", "ERNeuRadDigitizer::PeFunc", 0., 2000., 7);
   fPEA->SetParameters(85.8656,30.6158,447.112,447.111,52.,433.,141.);	
+  //fPEA->SetParameters(3.2,30.6158,447.112,447.111,52.,433.,141.); 
 }
 // ----------------------------------------------------------------------------
 
@@ -222,6 +224,8 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
     for(Int_t iPE=0;iPE<peCount;iPE++){
       //Экпоненциальный закон высвечивания. Обратное распределение
       Double_t peLYTime = pointTime + (-1)*fScincilationTau*TMath::Log(1-gRandom->Uniform());
+      //Double_t peLYTime = (-1.)*fScincilationTau*TMath::Log(1.-gRandom->Uniform());
+     // Double_t peLYTime = TMath::Abs(gRandom->Exp(3.2)/3.2);
       //Скорость света в материале.
       Double_t peCathodeTime = peLYTime + flightLength/cMaterialSpeedOfLight;
       //Учёт кросстолков
@@ -236,7 +240,8 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
       sumAmplitude+=peAmplitude;
       //Задержка динодной системы и джиттер
       Double_t peAnodeTime = peCathodeTime + (Double_t)gRandom->Gaus(fPixelDelay, fPixelJitter);
-      ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, pePhotonCount, peAmplitude);
+     // ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, pePhotonCount, peAmplitude);
+       ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime, peCathodeTime, peAnodeTime, pePhotonCount, peAmplitude);
       peInPixels[peModule][pePixel].push_back(pe);
     }
 }
@@ -362,8 +367,8 @@ Double_t ERNeuRadDigitizer::PeFunc(Double_t *x, Double_t *par) {
   if (x[0]>=par[2]) {
     fitval = par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
   }
+
   return fitval;
 }
-
 //-----------------------------------------------------------------------------
 ClassImp(ERNeuRadDigitizer)

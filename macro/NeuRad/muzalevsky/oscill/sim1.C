@@ -1,4 +1,4 @@
-void sim(Int_t nEvents = 1000000){
+void sim1(Int_t nEvents = 1000000){
 // void sim(Int_t nEvents = 100, Int_t index = 0) {
 
   // ------------------------------------------------------------------------
@@ -14,8 +14,8 @@ void sim(Int_t nEvents = 1000000){
 //gRandom->SetSeed(index);
 
   //---------------------Files-----------------------------------------------
-  TString outFile= "/home/muzalevsky/work/dataER/simNeuRad/simСoll2.root";
-  TString parFile= "/home/muzalevsky/work/dataER/simNeuRad/parColl2.root";
+  TString outFile= "/home/muzalevsky/work/dataER/simNeuRad/simСoll1.root";
+  TString parFile= "/home/muzalevsky/work/dataER/simNeuRad/parColl1.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -85,22 +85,29 @@ void sim(Int_t nEvents = 1000000){
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = TMath::ATan(0.3/10)*TMath::RadToDeg();;
   Double32_t kin_energy = 0.001332; //GeV
+  Double32_t kin_energy1 = 0.001173; //GeV
 
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
+  Double32_t momentum1 = TMath::Sqrt(kin_energy1*kin_energy1 + 2.*kin_energy1*mass); //GeV
 
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
+  FairBoxGenerator* boxGen1= new FairBoxGenerator(pdgId, 1);
 
   boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
 
+  boxGen1->SetThetaRange(theta1, theta2);
+  boxGen1->SetPRange(momentum1, momentum1);
   // boxGen->SetPhiRange(90, 90);
   boxGen->SetPhiRange(0., 360.);
+  boxGen1->SetPhiRange(0., 360.);
   // boxGen->SetBoxXYZ(0.,0,0.3,0.3,0.);
   boxGen->SetBoxXYZ(-0.149,-0.149,0.149,0.149,-17.4);
+  boxGen1->SetBoxXYZ(-0.149,-0.149,0.149,0.149,-17.4);
  // boxGen->SetBoxXYZ(-0.2,-2.5,0.2,2.5,4.4);
-  primGen->AddGenerator(boxGen);
-  //primGen->AddGenerator(boxGen1);
+  //primGen->AddGenerator(boxGen);
+  primGen->AddGenerator(boxGen1);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
   

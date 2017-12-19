@@ -1,13 +1,13 @@
 void DRS4_read()
 {
-	TString inFile = "/home/vitaliy/NeuRad_tests/data/rawDataDSR4/NeuRad_test_071216_1.dat";
+	TString inFile = "/home/muzalevsky/data/NeuRad2016EXP/NeuRad_test_081216_2.dat";
 
 	// --- Specify number of events to be produced.
 	// --- -1 means run until the end of the input file.
 	Int_t nEvents = -1;
 
 	// --- Specify output file name (this is just an example)
-	TString outFile = "drs4.out.root";
+	TString outFile = "/home/muzalevsky/work/dataER/drs4.out.root";
 
   std::cout << ">>> input file is " << inFile  << std::endl;
   std::cout << ">>> output file is " << outFile << std::endl;

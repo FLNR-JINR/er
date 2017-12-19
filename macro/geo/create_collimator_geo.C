@@ -42,7 +42,7 @@ void create_collimator_geo()
 
   // Collimator -------------------------------
   // Operands shapes
-  TGeoBBox* boxShape = new TGeoBBox("boxShape", 4.5/2., 9./2., 9./2.); 
+  /*TGeoBBox* boxShape = new TGeoBBox("boxShape", 4.5/2., 9./2., 9./2.); 
   TGeoTube* tube1Shape = new TGeoTube("tube1Shape", 0., 0.6, 3./2.+1./2.); 
   TGeoTube* tube2Shape = new TGeoTube("tube2Shape", 0., 0.2, 6./2.+1./2.+1./2.); 
 
@@ -52,7 +52,7 @@ void create_collimator_geo()
   TGeoCombiTrans* M1 = new TGeoCombiTrans("M1", 0., 0., -3.-1./2., rotNoRot); 
   TGeoCombiTrans* M2 = new TGeoCombiTrans("M2", 0., 0., 1.5, rotNoRot); 
   M1->RegisterYourself();
-  M2->RegisterYourself();
+  M2->RegisterYourself();*/
 
  /* // Third operand - rotated cylinder - false hole
   Double_t alpha = TMath::ATan(3./30.)*180./TMath::Pi();
@@ -71,9 +71,19 @@ void create_collimator_geo()
     "boxShape-tube1Shape:M1-tube2Shape:M2-tube3Shape:M3");
 */
 
+  // Collimator -------------------------------
+  // Operands shapes
+   TGeoBBox *box1 = new TGeoBBox("box1", 20./2., 20./2., 10./2);
+   TGeoBBox *box2 = new TGeoBBox("box2", 0.3/2., 20./2., 10./2); 
+
+  // Operands matrices
+  TGeoRotation* rotNoRot = new TGeoRotation("rotNoRot", 0., 0., 0.);
+  rotNoRot->RegisterYourself();
+  TGeoCombiTrans* M1 = new TGeoCombiTrans("M1", 0., 0., 2.4 - 10. - 5., rotNoRot); 
+  M1->RegisterYourself();
+
   // Shape
-  TGeoCompositeShape* collimatorShape = new TGeoCompositeShape("collimatorShape",
-    "boxShape-tube1Shape:M1-tube2Shape:M2");
+  TGeoCompositeShape* collimatorShape = new TGeoCompositeShape("collimatorShape","box1:M1 - box2:M1");
   // Volume
   TGeoVolume* collimatorVol = new TGeoVolume("collimatorVol", collimatorShape, pLead);
 
@@ -84,7 +94,7 @@ void create_collimator_geo()
 
   // World ------------------------------------
   TGeoVolumeAssembly* topVolAss = new TGeoVolumeAssembly("TOP");
-  topVolAss->AddNode(subdetectorVolAss, 1, new TGeoCombiTrans(.0,.0,-4.5 - 12.5 - 50., fZeroRotation));
+  topVolAss->AddNode(subdetectorVolAss, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
 
   // Finalize
   geoM->SetTopVolume(topVolAss);

@@ -1,8 +1,10 @@
-void digi(Int_t nEvents = 10000){
+//using namespace std;
+void RawToAnalyze1(Int_t nEvents = 5000){
   //---------------------Files-----------------------------------------------
-  TString inFile = "/home/muzalevsky/work/dataER/simNeuRad/simСoll2.root";
-  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/test_6000_20.root";
-  TString parFile = "/home/muzalevsky/work/dataER/simNeuRad/parColl2.root";
+  //TString inFile = "tektronix.out.root";
+  TString inFile = "/home/muzalevsky/work/dataER/simNeuRad/simRaw1_6000_20.root";
+  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/analyze1_6000_20.root";
+  TString parFile = "/home/muzalevsky/work/dataER/simNeuRad/parColl1.root";
   // ------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -14,38 +16,28 @@ void digi(Int_t nEvents = 10000){
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
-  //-------- Set MC event header --------------------------------------------
-  EREventHeader* header = new EREventHeader();
-  fRun->SetEventHeader(header);
-  //------------------------------------------------------------------------
-  // ------------------------NeuRadDigitizer---------------------------------
-  Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
-  ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
-  digitizer->SetUseCrosstalks(kFALSE);
-  digitizer->SetPixelJitter(0.28/2.36);
-  fRun->AddTask(digitizer);
+  // ---------------------------------------------------------
+  Int_t verbose = 1;
+ // Int_t sm_flag = 1; //1 - smooth, 0 - no smooth
+  ERRawToAnalyzeConverter* converter = new ERRawToAnalyzeConverter(verbose);
+  converter->SetNPoints(1000);
+  converter->SetNChanels(2);
+  converter->SetSmooth(0);  //1 - smooth, 0 - no smooth
+
+  fRun->AddTask(converter);
   // ------------------------------------------------------------------------
   
   // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo*  parInput = new FairParRootFileIo();
+  parInput->open(parFile.Data(), "UPDATE");
   
-  FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
-  TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
-  NeuRadDetDigiFile += "/parameters/NeuRad.digi.v4.par";
-  parInput1->open(NeuRadDetDigiFile.Data(),"in");
-
-  FairParRootFileIo*  parInput2 = new FairParRootFileIo();
-  parInput2->open(parFile.Data(), "UPDATE");
-  
-  rtdb->setFirstInput(parInput1);
-  rtdb->setSecondInput(parInput2);
-  
+  rtdb->setFirstInput(parInput);  
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
-  rtdb->setOutput(parInput2);
+  rtdb->setOutput(parInput);
   rtdb->saveOutput();
   
   // -----   Finish   -------------------------------------------------------
@@ -59,5 +51,4 @@ void digi(Int_t nEvents = 10000){
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-
 }

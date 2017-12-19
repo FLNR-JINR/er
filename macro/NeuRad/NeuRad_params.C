@@ -1,8 +1,8 @@
 void NeuRad_params(){
-	// wbt 
+/*	// wbt 
 	Int_t pixels = 64;
 	Int_t modules = 1;
-	Float_t QuantumEfficiency = 0.2;
+	Float_t QuantumEfficiency = 0.15;
 	Float_t Gain = 5.;
 	Float_t Sigma = 5.;
 	Float_t PixelCrosstalk = 0.005;
@@ -12,11 +12,11 @@ void NeuRad_params(){
 
 
 	TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
-	NeuRadDetDigiFile += "/parameters/NeuRad.digi.v3.par";
+	NeuRadDetDigiFile += "/parameters/NeuRad.digi.v3.par";*/
 	
     /**/
 
-    /* oscill 
+//     oscill 
     Int_t pixels = 256;
 	Int_t modules = 1;
 	Float_t QuantumEfficiency = 0.2;
@@ -28,7 +28,7 @@ void NeuRad_params(){
 	Float_t FiberDiagCrosstalk = 0.001;
 
 	TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
-	NeuRadDetDigiFile += "/parameters/NeuRad.digi.v4.par";*/
+	NeuRadDetDigiFile += "/parameters/NeuRad.digi.v4.par";
 	/**/
 	Int_t pixelsInRow = TMath::Sqrt(pixels);
 	ofstream fpar;

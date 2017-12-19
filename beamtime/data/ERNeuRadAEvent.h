@@ -169,7 +169,7 @@ public:
 
 	//void SetLED(Double_t threshold = 0.001);
 
-	void SetLED(Double_t threshold = 0.02);
+	void SetLED(Double_t threshold = 20.);
 
 	//leading edge discriminator
 

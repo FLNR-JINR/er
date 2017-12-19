@@ -90,7 +90,9 @@ void ERNeuRadPixelSignal::Generate(){
 
 Double_t ERNeuRadPixelSignal::OnePEFunction(Double_t time, Double_t amplitude){
 	//Аналитическая функция одноэлектронного сигнала
-	return 8.*amplitude*time*time*TMath::Exp(-time/0.45);
+	//return 8.*amplitude*time*time*TMath::Exp(-time/0.45);
+	if(time>0) return 8.*amplitude*pow((time+0.22),5)*TMath::Exp(-pow((time+0.22),1.5)/0.3);
+	else return 0;
 }
 
 Int_t ERNeuRadPixelSignal::OnePETime(Double_t amplitude){
@@ -178,7 +180,7 @@ std::vector<Double_t> ERNeuRadPixelSignal::Intersections(Double_t discriminatorT
  	return (peThreshold*OnePEIntegral()-fResFunctionRoot[prevI])/(fResFunctionRoot[lastI]-fResFunctionRoot[prevI])*(lastT-prevT)+prevT;
  }
 
-Double_t ERNeuRadPixelSignal::OnePEIntegral(){
+Double_t ERNeuRadPixelSignal::OnePEIntegral(){ // собираем res из 39 точек
 	Double_t res = 0.;
 	for (Int_t i=0; i<39; i++){
 		res += 0.5*(OnePEFunction(i*cdT,8.) + OnePEFunction((i+1)*cdT,8.))*cdT;

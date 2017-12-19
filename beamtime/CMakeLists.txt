@@ -35,7 +35,6 @@ set(SRCS
 	ERNXyterCalibrator.cxx
 	ERpmtPixelMap.cxx
 	ERSimtoRaw.cxx
-	ERSimtoWPT.cxx
 
 	data/ERNeuRadRawEvent.cxx
 	data/ERNeuRadAEvent.cxx
