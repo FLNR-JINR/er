@@ -92,6 +92,7 @@ private:
 	// start time of the signal
 	Double_t fStartTime;
 	Double_t fFinishTime;
+	Int_t fEvent;
 public:
 	ERNeuRadAEvent();
 	ERNeuRadAEvent(const Int_t npoints);
@@ -169,7 +170,7 @@ public:
 
 	//void SetLED(Double_t threshold = 0.001);
 
-	void SetLED(Double_t threshold = 20.);
+	void SetLED(Double_t threshold = 200.);
 
 	//leading edge discriminator
 
@@ -181,8 +182,10 @@ public:
 	void ObtainPE();
 	Double_t GetStartTime();
 	void SetStartTime(Double_t t);
-        Double_t GetFinishTime();
-        void SetFinishTime(Double_t t);
+    Double_t GetFinishTime();
+    void SetFinishTime(Double_t t);
+    void SetEvent(Int_t t);
+    Int_t GetEvent() {return fEvent;}
 
 private:
 	void Init();

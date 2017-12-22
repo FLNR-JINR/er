@@ -93,7 +93,7 @@ void ERSimtoRaw::Exec(Option_t* opt)
       for(Int_t i = 0; i<simSize; i++){
         if( maxAmp < result->GetAt(i) ) {maxAmp = result->GetAt(i);}
       }  //searching maxAmp
-      if(maxAmp > 20.) { // trigger in [mV]
+      if(maxAmp > 0.) { // trigger in [mV]
         run->MarkFill(kTRUE);
       }
     }
@@ -123,10 +123,12 @@ void ERSimtoRaw::Exec(Option_t* opt)
     if(signal->Side() == 0) {
       fRawEvents[0]->SetPETimes(signal->GetPETimes());
       fRawEvents[0]->SetPEAmps(signal->GetPEAmps());
+      fRawEvents[0]->SetEvent(fEvent);
     }
     if(signal->Side() == 1) {
       fRawEvents[1]->SetPETimes(signal->GetPETimes());
       fRawEvents[1]->SetPEAmps(signal->GetPEAmps());
+      fRawEvents[1]->SetEvent(fEvent);
     }
   }
 }// pixelsignal entries

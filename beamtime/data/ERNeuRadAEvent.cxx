@@ -37,6 +37,7 @@ void ERNeuRadAEvent::ProcessEvent(Bool_t bSmooth) {
 
 	const Double_t *amp = fInputEvent->GetAmp();
 	const Double_t *time = fInputEvent->GetTime();
+	fEvent = fInputEvent->GetEvent();
 
 	for(Int_t j = 0; j < fNPoints; j++) {
 		fAmpPos[j] = amp[j]*(-1.);
@@ -443,5 +444,9 @@ void ERNeuRadAEvent::SetFinishTime(Double_t t) {
   return;
 }
 //--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetEvent(Int_t t) {
+    fEvent = t;
+    return;
+}
+//--------------------------------------------------------------------------------------------------
 ClassImp(ERNeuRadAEvent)
-

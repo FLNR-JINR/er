@@ -36,6 +36,7 @@ private:
 
 	Double_t fStartTime;
 	Double_t fFinishTime;
+	Int_t fEvent;
 	const Int_t fNPoints;
 
 public:
@@ -77,7 +78,6 @@ public:
 //	TGraph* GetGraph() {
 //		return gAmp;
 //	}
-
 	TArrayF& GetPEAmps() {return fPEAmps;}
 	TArrayF& GetPETimes() {return fPETimes;}
 	void SetPETimes(TArrayF& fPETimesOLD) {fPETimesOLD.Copy(fPETimes);}
@@ -85,8 +85,10 @@ public:
 
 	void SetStartTime(Double_t t);
 	Double_t GetStartTime() {return fStartTime;}
-        void SetFinishTime(Double_t t);
-        Double_t GetFinishTime() {return fFinishTime;}
+    void SetFinishTime(Double_t t);
+    Double_t GetFinishTime() {return fFinishTime;}
+    void SetEvent(Int_t t);
+    Int_t GetEvent() {return fEvent;}
 
 private:
 	void Init();

@@ -1,7 +1,7 @@
-void digi(Int_t nEvents = 10000){
+void digi(Int_t nEvents = 200000){
   //---------------------Files-----------------------------------------------
   TString inFile = "/home/muzalevsky/work/dataER/simNeuRad/simСoll2.root";
-  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/test_6000_20.root";
+  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/tests/test_6000.root";
   TString parFile = "/home/muzalevsky/work/dataER/simNeuRad/parColl2.root";
   // ------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------
@@ -21,7 +21,7 @@ void digi(Int_t nEvents = 10000){
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERNeuRadDigitizer* digitizer = new ERNeuRadDigitizer(verbose);
-  digitizer->SetUseCrosstalks(kFALSE);
+  digitizer->SetUseCrosstalks(kTRUE);
   digitizer->SetPixelJitter(0.28/2.36);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------

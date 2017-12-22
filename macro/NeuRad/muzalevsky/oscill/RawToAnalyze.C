@@ -1,13 +1,13 @@
 //using namespace std;
-void RawToAnalyze(Int_t nEvents = 931){
+void RawToAnalyze(Int_t nEvents = 1000){
   //---------------------Files-----------------------------------------------
   /*TString inFile = "/home/muzalevsky/work/dataER/simNeuRad/simRaw1_8000_20.root";
   TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/analyze1_8000_20.root";
   TString parFile = "/home/muzalevsky/work/dataER/simNeuRad/parColl1.root";*/
 
 
-  TString inFile = "/home/muzalevsky/work/dataER/simNeuRad/simRaw_6000_20.root";
-  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/analyze2_6000_20.root";
+  TString inFile = "/home/muzalevsky/work/dataER/simNeuRad/tests/simraw6000_0.root";
+  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/tests/analyze6000_0_200.root";
   TString parFile = "/home/muzalevsky/work/dataER/simNeuRad/parColl2.root";
 
   //TString inFile = "/home/muzalevsky/work/dataER/drs4.out.root";
