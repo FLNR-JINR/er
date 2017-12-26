@@ -1,9 +1,7 @@
-void SimToRaw1(Int_t nEvents = 1000000){
+void SimToRaw1(Int_t nEvents = 400000){
   //---------------------Files-----------------------------------------------
-  TString digiFile = "/home/muzalevsky/work/dataER/simNeuRad/digi1_6000_20.root";
-  // TString simFile = "sim.root";
-  // TString recoFile = "reco.root";
-  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/simRaw1_6000_20.root";
+  TString digiFile = "/home/muzalevsky/work/dataER/simNeuRad/6000_3.2_noCross/digi1.root";
+  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/6000_3.2_noCross/simRaw1_100.root";
   TString parFile = "/home/muzalevsky/work/dataER/simNeuRad/parColl1.root";
   // ------------------------------------------------------------------------
   

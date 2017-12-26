@@ -22,10 +22,10 @@ void NeuRad_params(){
 	Float_t QuantumEfficiency = 0.2;
 	Float_t Gain = 5.;
 	Float_t Sigma = 5.;
-	Float_t PixelCrosstalk = 0.005;
-	Float_t PixelDiagCrosstalk = 0.001;
-	Float_t FiberCrosstalk = 0.005;
-	Float_t FiberDiagCrosstalk = 0.001;
+	Float_t PixelCrosstalk = 0.015;
+	Float_t PixelDiagCrosstalk = 0.015;
+	Float_t FiberCrosstalk = 0.015;
+	Float_t FiberDiagCrosstalk = 0.015;
 
 	TString NeuRadDetDigiFile = gSystem->Getenv("VMCWORKDIR");
 	NeuRadDetDigiFile += "/parameters/NeuRad.digi.v4.par";

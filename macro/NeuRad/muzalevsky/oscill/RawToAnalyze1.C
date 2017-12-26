@@ -1,9 +1,8 @@
 //using namespace std;
 void RawToAnalyze1(Int_t nEvents = 5000){
   //---------------------Files-----------------------------------------------
-  //TString inFile = "tektronix.out.root";
-  TString inFile = "/home/muzalevsky/work/dataER/simNeuRad/simRaw1_6000_20.root";
-  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/analyze1_6000_20.root";
+  TString inFile = "/home/muzalevsky/work/dataER/simNeuRad/6000_3.2_noCross/simRaw1_100.root";
+  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/6000_3.2_noCross/analyze1_100_200.root";
   TString parFile = "/home/muzalevsky/work/dataER/simNeuRad/parColl1.root";
   // ------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------

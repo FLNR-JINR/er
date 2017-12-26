@@ -2,8 +2,8 @@ void merge()
 {
    	TChain ch("cbmsim");
 
-	ch.Add("/home/muzalevsky/work/dataER/simNeuRad/analyze2_8000_20.root");
-    ch.Add("/home/muzalevsky/work/dataER/simNeuRad/analyze1_8000_20.root");
+	ch.Add("/home/muzalevsky/work/dataER/simNeuRad/6000_3.2_noCross/analyze2_100_200.root");
+    ch.Add("/home/muzalevsky/work/dataER/simNeuRad/6000_3.2_noCross/analyze1_100_200.root");
 
-	ch.Merge("/home/muzalevsky/work/dataER/simNeuRad/file8000_20.root");
+	ch.Merge("/home/muzalevsky/work/dataER/simNeuRad/6000_3.2_noCross/analyze_100_200.root");
 } 

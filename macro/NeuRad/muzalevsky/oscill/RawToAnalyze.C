@@ -1,18 +1,9 @@
 //using namespace std;
-void RawToAnalyze(Int_t nEvents = 1000){
+void RawToAnalyze(Int_t nEvents = 5000){
   //---------------------Files-----------------------------------------------
-  /*TString inFile = "/home/muzalevsky/work/dataER/simNeuRad/simRaw1_8000_20.root";
-  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/analyze1_8000_20.root";
-  TString parFile = "/home/muzalevsky/work/dataER/simNeuRad/parColl1.root";*/
-
-
-  TString inFile = "/home/muzalevsky/work/dataER/simNeuRad/tests/simraw6000_0.root";
-  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/tests/analyze6000_0_200.root";
+  TString inFile = "/home/muzalevsky/work/dataER/simNeuRad/6000_3.2_noCross/simRaw2_100.root";
+  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/6000_3.2_noCross/analyze2_100_200.root";
   TString parFile = "/home/muzalevsky/work/dataER/simNeuRad/parColl2.root";
-
-  //TString inFile = "/home/muzalevsky/work/dataER/drs4.out.root";
-  
-//  TString outFile = "/home/muzalevsky/work/dataER/simNeuRad/analyzeEXP.root";
   // ------------------------------------------------------------------------
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
