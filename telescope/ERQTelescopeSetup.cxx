@@ -1,3 +1,11 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #include "ERQTelescopeSetup.h"
 
 #include <ostream>
@@ -78,6 +86,16 @@ ERQTelescopeSetup::ERQTelescopeSetup() {
   std::cout << "ERQTelescopeSetup initialized! "<< std::endl;
 }
 //--------------------------------------------------------------------------------------------------
+ERQTelescopeSetup::~ERQTelescopeSetup() {
+}
+//--------------------------------------------------------------------------------------------------
+ERQTelescopeSetup* ERQTelescopeSetup::Instance(){
+  if (fInstance == NULL)
+    return new ERQTelescopeSetup();
+  else
+    return fInstance;
+}
+//--------------------------------------------------------------------------------------------------
 void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAroundZ) {
   if (type.BeginsWith("Double")) {
     TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
@@ -97,7 +115,7 @@ void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAro
     fSingleSiIsDeadLayerSet.push_back(false);
   }
 }
-
+//--------------------------------------------------------------------------------------------------
 void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAroundZ, 
                                                      Double_t deadLayerFront, 
                                                      Double_t deadLayerBack)
@@ -124,8 +142,7 @@ void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAro
     fSingleSiIsDeadLayerSet.push_back(true);
   }
 }
- 
-
+//--------------------------------------------------------------------------------------------------
 void ERQTelescopeSetup::AddCsI(TString type, Double_t position) {
   fCsICount++;
   fDetectorStations.push_back(type + TString::Itoa(fCsICount, 10));
@@ -133,11 +150,8 @@ void ERQTelescopeSetup::AddCsI(TString type, Double_t position) {
   fCsIType.push_back(type);
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeSetup* ERQTelescopeSetup::Instance(){
-  if (fInstance == NULL)
-    return new ERQTelescopeSetup();
-  else
-    return fInstance;
+vector<TString>* ERQTelescopeSetup::GetDetectorStations() {
+  return &fDetectorStations;
 }
 //--------------------------------------------------------------------------------------------------
 Int_t ERQTelescopeSetup::SetParContainers(){
@@ -148,359 +162,6 @@ Int_t ERQTelescopeSetup::SetParContainers(){
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
 
-}
-
-vector<TString>* ERQTelescopeSetup::GetDetectorStations() {
-  return &fDetectorStations;
-}
-
-void ERQTelescopeSetup::GetCsIParameters(TXMLNode *node) {
-  node = node->GetNextNode();
-  for (Int_t i = 0; i < fCsICount; i++) {
-    TXMLNode* curNode = node;
-    for (; curNode; curNode = curNode->GetNextNode()) {
-      TList *attrList;
-      TXMLAttr *attr = 0;
-      if (curNode->HasAttributes()){
-        attrList = curNode->GetAttributes();
-        TIter next(attrList);
-        while ((attr=(TXMLAttr*)next())) {
-          if (!strcasecmp("id", attr->GetName())) { 
-            break;
-          }
-        }
-      }
-      else {
-        continue;
-      }
-      if (!strcasecmp(fCsIType[i], attr->GetValue())) {
-        TXMLNode* curNode2 = curNode->GetChildren();
-        for (; curNode2; curNode2 = curNode2->GetNextNode()) {
-          if (!strcasecmp(curNode2->GetNodeName(), "CsISize")) {
-            attrList = curNode2->GetAttributes();
-            attr = 0;
-            TIter nextPlasticAttr(attrList);
-            while ((attr=(TXMLAttr*)nextPlasticAttr())) {
-              if (!strcasecmp("CsIX", attr->GetName())) {
-                fCsIX.push_back(atof(attr->GetValue()));
-              }
-              if (!strcasecmp("CsIY", attr->GetName())) {
-                fCsIY.push_back(atof(attr->GetValue()));
-              }
-              if (!strcasecmp("CsIZ", attr->GetName())) {
-                fCsIZ.push_back(atof(attr->GetValue()));
-              }
-            }
-          }
-          if (!strcasecmp(curNode2->GetNodeName(), "cubesCountX")) {
-            fCsICubesCountX.push_back(atof(curNode2->GetText()));
-          }
-          if (!strcasecmp(curNode2->GetNodeName(), "cubesCountY")) {
-            fCsICubesCountY.push_back(atof(curNode2->GetText()));
-          }
-          if (!strcasecmp(curNode2->GetNodeName(), "CsIMedia")) {
-            fCsIMedia.push_back(curNode2->GetText());
-          }
-        }
-      }
-    }
-  }
-}
-//--------------------------------------------------------------------------------------------------
-void ERQTelescopeSetup::GetSingleSiParameters(TXMLNode *node) {
-  node = node->GetNextNode();
-  for(Int_t i = 0; i < fSingleSiCount; i++) {
-    TXMLNode* curNode = node;
-    for(; curNode; curNode = curNode->GetNextNode()) {
-      TList *attrList;
-      TXMLAttr *attr = 0;
-      if (curNode->HasAttributes()){
-        attrList = curNode->GetAttributes();
-        TIter next(attrList);
-        while ((attr=(TXMLAttr*)next())) {
-          if (!strcasecmp("id", attr->GetName())) { 
-            break;
-          }
-        }
-      }
-      else {
-        continue;
-      }
-      if(!strcasecmp(fSingleSiType[i], attr->GetValue())) {
-        TXMLNode* curNode2 = curNode->GetChildren();
-        for(; curNode2; curNode2 = curNode2->GetNextNode()) {
-          if(!strcasecmp(curNode2->GetNodeName(), "singleSiSize")) {
-            attrList = curNode2->GetAttributes();
-            attr = 0;
-            TIter nextSingleSiSizeAttr(attrList);
-            while ((attr=(TXMLAttr*)nextSingleSiSizeAttr())) {
-              if (!strcasecmp("singleSiX", attr->GetName())) {
-                fSingleSiX.push_back(atof(attr->GetValue()));
-              }
-              if (!strcasecmp("singleSiY", attr->GetName())) {
-                fSingleSiY.push_back(atof(attr->GetValue()));
-              }
-              if (!strcasecmp("singleSiZ", attr->GetName())) {
-                fSingleSiZ.push_back(atof(attr->GetValue()));
-              }
-            }
-          }
-          if(!strcasecmp(curNode2->GetNodeName(), "singleSiSensAreaSize")) {
-            attrList = curNode2->GetAttributes();
-            attr = 0;
-            TIter nextSingleSiSensSizeAttr(attrList);
-            while ((attr=(TXMLAttr*)nextSingleSiSensSizeAttr())) {
-              if (!strcasecmp("singleSiSensX", attr->GetName())) {
-                fSingleSiSensX.push_back(atof(attr->GetValue()));
-              }
-              if (!strcasecmp("singleSiSensY", attr->GetName())) {
-                fSingleSiSensY.push_back(atof(attr->GetValue()));
-              }
-              if (!strcasecmp("singleSiSensZ", attr->GetName())) {
-                fSingleSiSensZ.push_back(atof(attr->GetValue()));
-              }
-            }
-          }
-          if(!strcasecmp(curNode2->GetNodeName(), "deadLayerThicknessFrontSide")) {
-            if(!fSingleSiIsDeadLayerSet[i]) {
-              fSingleSiDeadLayerThicknessFrontSide.push_back(atof(curNode2->GetText()));
-            }
-          }
-          if(!strcasecmp(curNode2->GetNodeName(), "deadLayerThicknessBackSide")) {
-            if(!fSingleSiIsDeadLayerSet[i]) {
-              fSingleSiDeadLayerThicknessBackSide.push_back(atof(curNode2->GetText()));
-            }
-          }
-          if(!strcasecmp(curNode2->GetNodeName(), "stripCount")) {
-            fSingleSiStripCount.push_back(atof(curNode2->GetText()));
-          }
-          if(!strcasecmp(curNode2->GetNodeName(), "singleSiMedia")) {
-            fSingleSiMedia.push_back(curNode2->GetText());
-          }
-        }
-      }
-    }
-  }
-}
-//--------------------------------------------------------------------------------------------------
-void ERQTelescopeSetup::GetDoubleSiParameters(TXMLNode *node) {
-  node = node->GetNextNode();
-  for(Int_t i = 0; i < fDoubleSiCount; i++) {
-    TXMLNode* curNode = node;
-    for(; curNode; curNode = curNode->GetNextNode()) {
-      TList *attrList;
-      TXMLAttr *attr = 0;
-      if (curNode->HasAttributes()){
-        attrList = curNode->GetAttributes();
-        TIter next(attrList);
-        while ((attr=(TXMLAttr*)next())) {
-          if (!strcasecmp("id", attr->GetName())) { 
-            break;
-          }
-        }
-      }
-      else {
-        continue;
-      }
-      if(!strcasecmp(fDoubleSiType[i], attr->GetValue())) {
-        TXMLNode* curNode2 = curNode->GetChildren();
-        for(; curNode2; curNode2 = curNode2->GetNextNode()) {
-          if(!strcasecmp(curNode2->GetNodeName(), "doubleSiSize")) {
-            attrList = curNode2->GetAttributes();
-            attr = 0;
-            TIter nextDoubleSiSizeAttr(attrList);
-            while ((attr=(TXMLAttr*)nextDoubleSiSizeAttr())) {
-              if (!strcasecmp("doubleSiX", attr->GetName())) {
-                fDoubleSiX.push_back(atof(attr->GetValue()));
-              }
-              if (!strcasecmp("doubleSiY", attr->GetName())) {
-                fDoubleSiY.push_back(atof(attr->GetValue()));
-              }
-              if (!strcasecmp("doubleSiZ", attr->GetName())) {
-                fDoubleSiZ.push_back(atof(attr->GetValue()));
-              }
-            }
-          }
-          if(!strcasecmp(curNode2->GetNodeName(), "doubleSiSensAreaSize")) {
-            attrList = curNode2->GetAttributes();
-            attr = 0;
-            TIter nextDoubleSiSensSizeAttr(attrList);
-            while ((attr=(TXMLAttr*)nextDoubleSiSensSizeAttr())) {
-              if (!strcasecmp("doubleSiSensX", attr->GetName())) {
-                fDoubleSiSensX.push_back(atof(attr->GetValue()));
-              }
-              if (!strcasecmp("doubleSiSensY", attr->GetName())) {
-                fDoubleSiSensY.push_back(atof(attr->GetValue()));
-              }
-              if (!strcasecmp("doubleSiSensZ", attr->GetName())) {
-                fDoubleSiSensZ.push_back(atof(attr->GetValue()));
-              }
-            }
-          }
-          if(!strcasecmp(curNode2->GetNodeName(), "deadLayerThicknessFrontSide")) {
-            if(!fDoubleSiIsDeadLayerSet[i]) {
-              fDoubleSiDeadLayerThicknessFrontSide.push_back(atof(curNode2->GetText()));
-            }
-          }
-          if(!strcasecmp(curNode2->GetNodeName(), "deadLayerThicknessBackSide")) {
-            if(!fDoubleSiIsDeadLayerSet[i]) {
-              fDoubleSiDeadLayerThicknessBackSide.push_back(atof(curNode2->GetText()));
-            }
-          }
-          if(!strcasecmp(curNode2->GetNodeName(), "stripCountX")) {
-            fDoubleSiStripCountX.push_back(atof(curNode2->GetText()));
-          }
-          if(!strcasecmp(curNode2->GetNodeName(), "stripCountY")) {
-            fDoubleSiStripCountY.push_back(atof(curNode2->GetText()));
-          }
-          if(!strcasecmp(curNode2->GetNodeName(), "doubleSiMedia")) {
-            fDoubleSiMedia.push_back(curNode2->GetText());
-          }
-        }
-      }
-    }
-  }
-}
-//--------------------------------------------------------------------------------------------------
-void ERQTelescopeSetup::PrintDetectorParameters(void) {
-  cout << "------------------------------------------------" << endl;
-  cout << "Detector's parameters from " << fParamsXmlFileName << endl;
-  cout << "------------------------------------------------" << endl;
-  cout << "CsI parameters:" << endl;
-  for(Int_t i = 0; i < fCsICount; i++) {
-    cout << "CsI_"+TString::Itoa(i+1, 10) << " is " 
-         << fCsIType[i] << " with parameters:" << endl
-         << "\tpositionZ = " << fCsIPosZ[i] << endl
-         << "\tCsISizeX = " << fCsIX[i]
-         << "; CsISizeY = " << fCsIY[i] 
-         << "; CsISizeZ = " << fCsIZ[i] << endl
-         << "\tCsICubesCountX = " << fCsICubesCountX[i] << endl 
-         << "\tCsICubesCountY = " << fCsICubesCountY[i] << endl 
-         << "\tCsIMedia = " << fCsIMedia[i] << endl 
-         << endl;
-  }
-  cout << "------------------------------------------------" << endl;
-  cout << "DoubleSi parameters:" << endl;
-  for(Int_t i = 0; i < fDoubleSiCount; i++) {
-    cout << "DoubleSi_"+TString::Itoa(i+1, 10) << " is " 
-         << fDoubleSiType[i] << " with parameters:" << endl
-         << "\tpositionZ = " << fDoubleSiPosZ[i] << endl
-         << "\tdoubeSiSizeX = " << fDoubleSiX[i]
-         << "; doubeSiSizeY = " << fDoubleSiY[i] 
-         << "; doubeSiSizeZ = " << fDoubleSiZ[i] << endl
-         << "\tdoubleSiSensX = " << fDoubleSiSensX[i]
-         << "; doubleSiSensY = " << fDoubleSiSensY[i] 
-         << "; doubleSiSensZ = " << fDoubleSiSensZ[i] << endl
-         << "\tdoubleSiStripCountX = " << fDoubleSiStripCountX[i] << endl 
-         << "\tdoubleSiStripCountX = " << fDoubleSiStripCountY[i] << endl 
-         << "\tdoubleSiMedia = " << fDoubleSiMedia[i] << endl 
-         << endl;
-  }
-  cout << "------------------------------------------------" << endl;
-  cout << "SingleSi parameters:" << endl;
-  for(Int_t i = 0; i < fSingleSiCount; i++) {
-    cout << "SingleSi_"+TString::Itoa(i+1, 10) << " is " 
-         << fSingleSiType[i] << " with parameters:" << endl
-         << "\tpositionZ = " << fSingleSiPosZ[i] << endl
-         << "\tsingleSiSizeX = " << fSingleSiX[i]
-         << "; singleSiSizeY = " << fSingleSiY[i] 
-         << "; singleSiSizeZ = " << fSingleSiZ[i] << endl
-         << "\tsingleSiSensX = " << fSingleSiSensX[i]
-         << "; singleSiSensY = " << fSingleSiSensY[i] 
-         << "; singleSiSensZ = " << fSingleSiSensZ[i] << endl
-         << "\tsingleSiStripCount = " << fSingleSiStripCount[i] << endl 
-         << "\tsingleSiMedia = " << fSingleSiMedia[i] << endl 
-         << endl;
-  }
-  cout << "------------------------------------------------" << endl;
-}
-//--------------------------------------------------------------------------------------------------
-void ERQTelescopeSetup::PrintDetectorParametersToFile(TString fileName) {
-  ofstream listingFile;
-  listingFile.open(fileName);
-  listingFile << "------------------------------------------------" << endl;
-  listingFile << "Detector's parameters from " << fParamsXmlFileName << endl;
-  listingFile << "------------------------------------------------" << endl;
-  listingFile << "CsI parameters:" << endl;
-  for(Int_t i = 0; i < fCsICount; i++) {
-    listingFile << "CsI_"+TString::Itoa(i+1, 10) << " is " 
-         << fCsIType[i] << " with parameters:" << endl
-         << "\tpositionZ = " << fCsIPosZ[i] << endl
-         << "\tCsISizeX = " << fCsIX[i]
-         << "; CsISizeY = " << fCsIY[i] 
-         << "; CsISizeZ = " << fCsIZ[i] << endl
-         << "\tCsICubesCountX = " << fCsICubesCountX[i] << endl 
-         << "\tCsICubesCountY = " << fCsICubesCountY[i] << endl 
-         << "\tCsIMedia = " << fCsIMedia[i] << endl 
-         << endl;
-  }
-  listingFile << "------------------------------------------------" << endl;
-  listingFile << "DoubleSi parameters:" << endl;
-  for(Int_t i = 0; i < fDoubleSiCount; i++) {
-    listingFile << "DoubleSi_"+TString::Itoa(i+1, 10) << " is " 
-         << fDoubleSiType[i] << " with parameters:" << endl
-         << "\tpositionZ = " << fDoubleSiPosZ[i] << endl
-         << "\tdoubeSiSizeX = " << fDoubleSiX[i]
-         << "; doubeSiSizeY = " << fDoubleSiY[i] 
-         << "; doubeSiSizeZ = " << fDoubleSiZ[i] << endl
-         << "\tdoubleSiSensX = " << fDoubleSiSensX[i]
-         << "; doubleSiSensY = " << fDoubleSiSensY[i] 
-         << "; doubleSiSensZ = " << fDoubleSiSensZ[i] << endl
-         << "\tdoubleSiStripCountX = " << fDoubleSiStripCountX[i] << endl 
-         << "\tdoubleSiStripCountX = " << fDoubleSiStripCountY[i] << endl 
-         << "\tdoubleSiMedia = " << fDoubleSiMedia[i] << endl 
-         << endl;
-  }
-  listingFile << "------------------------------------------------" << endl;
-  listingFile << "SingleSi parameters:" << endl;
-  for(Int_t i = 0; i < fSingleSiCount; i++) {
-    listingFile << "SingleSi_"+TString::Itoa(i+1, 10) << " is " 
-         << fSingleSiType[i] << " with parameters:" << endl
-         << "\tpositionZ = " << fSingleSiPosZ[i] << endl
-         << "\tsingleSiSizeX = " << fSingleSiX[i]
-         << "; singleSiSizeY = " << fSingleSiY[i] 
-         << "; singleSiSizeZ = " << fSingleSiZ[i] << endl
-         << "\tsingleSiSensX = " << fSingleSiSensX[i]
-         << "; singleSiSensY = " << fSingleSiSensY[i] 
-         << "; singleSiSensZ = " << fSingleSiSensZ[i] << endl
-         << "\tsingleSiStripCount = " << fSingleSiStripCount[i] << endl 
-         << "\tsingleSiMedia = " << fSingleSiMedia[i] << endl 
-         << endl;
-  }
-  listingFile << "------------------------------------------------" << endl;
-}
-//--------------------------------------------------------------------------------------------------
-void ERQTelescopeSetup::ParseXmlParameters() {
-  TDOMParser *domParser;//
-  //gROOT->ProcessLine(".O 0");
-  domParser = new TDOMParser;
-  domParser->SetValidate(false); // do not validate with DTD
-
-  Int_t parsecode = domParser->ParseFile(fParamsXmlFileName);
-  if (parsecode < 0) {
-     cerr << domParser->GetParseCodeMessage(parsecode) << endl;
- //    return -1;
-  }
-
-  TXMLNode *rootNode = domParser->GetXMLDocument()->GetRootNode();
-  TXMLNode *detPartNode = rootNode->GetChildren();
-  TXMLNode *SiTypeNodes;
-  for ( ; detPartNode; detPartNode = detPartNode->GetNextNode()) { // detector's part
-    if (!strcasecmp(detPartNode->GetNodeName(), "CsITypes")) {
-      GetCsIParameters(detPartNode->GetChildren());
-    }
-    if (!strcasecmp(detPartNode->GetNodeName(), "SiTypes")) {
-      SiTypeNodes = detPartNode->GetChildren();
-      for ( ; SiTypeNodes; SiTypeNodes = SiTypeNodes->GetNextNode()) {
-        if (!strcasecmp(SiTypeNodes->GetNodeName(), "singleSiTypes")) {
-          GetSingleSiParameters(SiTypeNodes->GetChildren());
-        }
-        if (!strcasecmp(SiTypeNodes->GetNodeName(), "doubleSiTypes")) {
-          GetDoubleSiParameters(SiTypeNodes->GetChildren());
-        }
-      }
-    }
-  }
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeSetup::ConstructGeometry() {
@@ -752,6 +413,355 @@ void ERQTelescopeSetup::ConstructGeometry() {
   top->Write();
   geoFile->Close();
   // --------------------------------------------------------------------------
+}
+//--------------------------------------------------------------------------------------------------
+void ERQTelescopeSetup::PrintDetectorParameters(void) {
+  cout << "------------------------------------------------" << endl;
+  cout << "Detector's parameters from " << fParamsXmlFileName << endl;
+  cout << "------------------------------------------------" << endl;
+  cout << "CsI parameters:" << endl;
+  for(Int_t i = 0; i < fCsICount; i++) {
+    cout << "CsI_"+TString::Itoa(i+1, 10) << " is " 
+         << fCsIType[i] << " with parameters:" << endl
+         << "\tpositionZ = " << fCsIPosZ[i] << endl
+         << "\tCsISizeX = " << fCsIX[i]
+         << "; CsISizeY = " << fCsIY[i] 
+         << "; CsISizeZ = " << fCsIZ[i] << endl
+         << "\tCsICubesCountX = " << fCsICubesCountX[i] << endl 
+         << "\tCsICubesCountY = " << fCsICubesCountY[i] << endl 
+         << "\tCsIMedia = " << fCsIMedia[i] << endl 
+         << endl;
+  }
+  cout << "------------------------------------------------" << endl;
+  cout << "DoubleSi parameters:" << endl;
+  for(Int_t i = 0; i < fDoubleSiCount; i++) {
+    cout << "DoubleSi_"+TString::Itoa(i+1, 10) << " is " 
+         << fDoubleSiType[i] << " with parameters:" << endl
+         << "\tpositionZ = " << fDoubleSiPosZ[i] << endl
+         << "\tdoubeSiSizeX = " << fDoubleSiX[i]
+         << "; doubeSiSizeY = " << fDoubleSiY[i] 
+         << "; doubeSiSizeZ = " << fDoubleSiZ[i] << endl
+         << "\tdoubleSiSensX = " << fDoubleSiSensX[i]
+         << "; doubleSiSensY = " << fDoubleSiSensY[i] 
+         << "; doubleSiSensZ = " << fDoubleSiSensZ[i] << endl
+         << "\tdoubleSiStripCountX = " << fDoubleSiStripCountX[i] << endl 
+         << "\tdoubleSiStripCountX = " << fDoubleSiStripCountY[i] << endl 
+         << "\tdoubleSiMedia = " << fDoubleSiMedia[i] << endl 
+         << endl;
+  }
+  cout << "------------------------------------------------" << endl;
+  cout << "SingleSi parameters:" << endl;
+  for(Int_t i = 0; i < fSingleSiCount; i++) {
+    cout << "SingleSi_"+TString::Itoa(i+1, 10) << " is " 
+         << fSingleSiType[i] << " with parameters:" << endl
+         << "\tpositionZ = " << fSingleSiPosZ[i] << endl
+         << "\tsingleSiSizeX = " << fSingleSiX[i]
+         << "; singleSiSizeY = " << fSingleSiY[i] 
+         << "; singleSiSizeZ = " << fSingleSiZ[i] << endl
+         << "\tsingleSiSensX = " << fSingleSiSensX[i]
+         << "; singleSiSensY = " << fSingleSiSensY[i] 
+         << "; singleSiSensZ = " << fSingleSiSensZ[i] << endl
+         << "\tsingleSiStripCount = " << fSingleSiStripCount[i] << endl 
+         << "\tsingleSiMedia = " << fSingleSiMedia[i] << endl 
+         << endl;
+  }
+  cout << "------------------------------------------------" << endl;
+}
+//--------------------------------------------------------------------------------------------------
+void ERQTelescopeSetup::PrintDetectorParametersToFile(TString fileName) {
+  ofstream listingFile;
+  listingFile.open(fileName);
+  listingFile << "------------------------------------------------" << endl;
+  listingFile << "Detector's parameters from " << fParamsXmlFileName << endl;
+  listingFile << "------------------------------------------------" << endl;
+  listingFile << "CsI parameters:" << endl;
+  for(Int_t i = 0; i < fCsICount; i++) {
+    listingFile << "CsI_"+TString::Itoa(i+1, 10) << " is " 
+         << fCsIType[i] << " with parameters:" << endl
+         << "\tpositionZ = " << fCsIPosZ[i] << endl
+         << "\tCsISizeX = " << fCsIX[i]
+         << "; CsISizeY = " << fCsIY[i] 
+         << "; CsISizeZ = " << fCsIZ[i] << endl
+         << "\tCsICubesCountX = " << fCsICubesCountX[i] << endl 
+         << "\tCsICubesCountY = " << fCsICubesCountY[i] << endl 
+         << "\tCsIMedia = " << fCsIMedia[i] << endl 
+         << endl;
+  }
+  listingFile << "------------------------------------------------" << endl;
+  listingFile << "DoubleSi parameters:" << endl;
+  for(Int_t i = 0; i < fDoubleSiCount; i++) {
+    listingFile << "DoubleSi_"+TString::Itoa(i+1, 10) << " is " 
+         << fDoubleSiType[i] << " with parameters:" << endl
+         << "\tpositionZ = " << fDoubleSiPosZ[i] << endl
+         << "\tdoubeSiSizeX = " << fDoubleSiX[i]
+         << "; doubeSiSizeY = " << fDoubleSiY[i] 
+         << "; doubeSiSizeZ = " << fDoubleSiZ[i] << endl
+         << "\tdoubleSiSensX = " << fDoubleSiSensX[i]
+         << "; doubleSiSensY = " << fDoubleSiSensY[i] 
+         << "; doubleSiSensZ = " << fDoubleSiSensZ[i] << endl
+         << "\tdoubleSiStripCountX = " << fDoubleSiStripCountX[i] << endl 
+         << "\tdoubleSiStripCountX = " << fDoubleSiStripCountY[i] << endl 
+         << "\tdoubleSiMedia = " << fDoubleSiMedia[i] << endl 
+         << endl;
+  }
+  listingFile << "------------------------------------------------" << endl;
+  listingFile << "SingleSi parameters:" << endl;
+  for(Int_t i = 0; i < fSingleSiCount; i++) {
+    listingFile << "SingleSi_"+TString::Itoa(i+1, 10) << " is " 
+         << fSingleSiType[i] << " with parameters:" << endl
+         << "\tpositionZ = " << fSingleSiPosZ[i] << endl
+         << "\tsingleSiSizeX = " << fSingleSiX[i]
+         << "; singleSiSizeY = " << fSingleSiY[i] 
+         << "; singleSiSizeZ = " << fSingleSiZ[i] << endl
+         << "\tsingleSiSensX = " << fSingleSiSensX[i]
+         << "; singleSiSensY = " << fSingleSiSensY[i] 
+         << "; singleSiSensZ = " << fSingleSiSensZ[i] << endl
+         << "\tsingleSiStripCount = " << fSingleSiStripCount[i] << endl 
+         << "\tsingleSiMedia = " << fSingleSiMedia[i] << endl 
+         << endl;
+  }
+  listingFile << "------------------------------------------------" << endl;
+}
+//--------------------------------------------------------------------------------------------------
+void ERQTelescopeSetup::ParseXmlParameters() {
+  TDOMParser *domParser;//
+  //gROOT->ProcessLine(".O 0");
+  domParser = new TDOMParser;
+  domParser->SetValidate(false); // do not validate with DTD
+
+  Int_t parsecode = domParser->ParseFile(fParamsXmlFileName);
+  if (parsecode < 0) {
+     cerr << domParser->GetParseCodeMessage(parsecode) << endl;
+ //    return -1;
+  }
+
+  TXMLNode *rootNode = domParser->GetXMLDocument()->GetRootNode();
+  TXMLNode *detPartNode = rootNode->GetChildren();
+  TXMLNode *SiTypeNodes;
+  for ( ; detPartNode; detPartNode = detPartNode->GetNextNode()) { // detector's part
+    if (!strcasecmp(detPartNode->GetNodeName(), "CsITypes")) {
+      GetCsIParameters(detPartNode->GetChildren());
+    }
+    if (!strcasecmp(detPartNode->GetNodeName(), "SiTypes")) {
+      SiTypeNodes = detPartNode->GetChildren();
+      for ( ; SiTypeNodes; SiTypeNodes = SiTypeNodes->GetNextNode()) {
+        if (!strcasecmp(SiTypeNodes->GetNodeName(), "singleSiTypes")) {
+          GetSingleSiParameters(SiTypeNodes->GetChildren());
+        }
+        if (!strcasecmp(SiTypeNodes->GetNodeName(), "doubleSiTypes")) {
+          GetDoubleSiParameters(SiTypeNodes->GetChildren());
+        }
+      }
+    }
+  }
+}
+//--------------------------------------------------------------------------------------------------
+void ERQTelescopeSetup::GetCsIParameters(TXMLNode *node) {
+  node = node->GetNextNode();
+  for (Int_t i = 0; i < fCsICount; i++) {
+    TXMLNode* curNode = node;
+    for (; curNode; curNode = curNode->GetNextNode()) {
+      TList *attrList;
+      TXMLAttr *attr = 0;
+      if (curNode->HasAttributes()){
+        attrList = curNode->GetAttributes();
+        TIter next(attrList);
+        while ((attr=(TXMLAttr*)next())) {
+          if (!strcasecmp("id", attr->GetName())) { 
+            break;
+          }
+        }
+      }
+      else {
+        continue;
+      }
+      if (!strcasecmp(fCsIType[i], attr->GetValue())) {
+        TXMLNode* curNode2 = curNode->GetChildren();
+        for (; curNode2; curNode2 = curNode2->GetNextNode()) {
+          if (!strcasecmp(curNode2->GetNodeName(), "CsISize")) {
+            attrList = curNode2->GetAttributes();
+            attr = 0;
+            TIter nextPlasticAttr(attrList);
+            while ((attr=(TXMLAttr*)nextPlasticAttr())) {
+              if (!strcasecmp("CsIX", attr->GetName())) {
+                fCsIX.push_back(atof(attr->GetValue()));
+              }
+              if (!strcasecmp("CsIY", attr->GetName())) {
+                fCsIY.push_back(atof(attr->GetValue()));
+              }
+              if (!strcasecmp("CsIZ", attr->GetName())) {
+                fCsIZ.push_back(atof(attr->GetValue()));
+              }
+            }
+          }
+          if (!strcasecmp(curNode2->GetNodeName(), "cubesCountX")) {
+            fCsICubesCountX.push_back(atof(curNode2->GetText()));
+          }
+          if (!strcasecmp(curNode2->GetNodeName(), "cubesCountY")) {
+            fCsICubesCountY.push_back(atof(curNode2->GetText()));
+          }
+          if (!strcasecmp(curNode2->GetNodeName(), "CsIMedia")) {
+            fCsIMedia.push_back(curNode2->GetText());
+          }
+        }
+      }
+    }
+  }
+}
+//--------------------------------------------------------------------------------------------------
+void ERQTelescopeSetup::GetSingleSiParameters(TXMLNode *node) {
+  node = node->GetNextNode();
+  for(Int_t i = 0; i < fSingleSiCount; i++) {
+    TXMLNode* curNode = node;
+    for(; curNode; curNode = curNode->GetNextNode()) {
+      TList *attrList;
+      TXMLAttr *attr = 0;
+      if (curNode->HasAttributes()){
+        attrList = curNode->GetAttributes();
+        TIter next(attrList);
+        while ((attr=(TXMLAttr*)next())) {
+          if (!strcasecmp("id", attr->GetName())) { 
+            break;
+          }
+        }
+      }
+      else {
+        continue;
+      }
+      if(!strcasecmp(fSingleSiType[i], attr->GetValue())) {
+        TXMLNode* curNode2 = curNode->GetChildren();
+        for(; curNode2; curNode2 = curNode2->GetNextNode()) {
+          if(!strcasecmp(curNode2->GetNodeName(), "singleSiSize")) {
+            attrList = curNode2->GetAttributes();
+            attr = 0;
+            TIter nextSingleSiSizeAttr(attrList);
+            while ((attr=(TXMLAttr*)nextSingleSiSizeAttr())) {
+              if (!strcasecmp("singleSiX", attr->GetName())) {
+                fSingleSiX.push_back(atof(attr->GetValue()));
+              }
+              if (!strcasecmp("singleSiY", attr->GetName())) {
+                fSingleSiY.push_back(atof(attr->GetValue()));
+              }
+              if (!strcasecmp("singleSiZ", attr->GetName())) {
+                fSingleSiZ.push_back(atof(attr->GetValue()));
+              }
+            }
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "singleSiSensAreaSize")) {
+            attrList = curNode2->GetAttributes();
+            attr = 0;
+            TIter nextSingleSiSensSizeAttr(attrList);
+            while ((attr=(TXMLAttr*)nextSingleSiSensSizeAttr())) {
+              if (!strcasecmp("singleSiSensX", attr->GetName())) {
+                fSingleSiSensX.push_back(atof(attr->GetValue()));
+              }
+              if (!strcasecmp("singleSiSensY", attr->GetName())) {
+                fSingleSiSensY.push_back(atof(attr->GetValue()));
+              }
+              if (!strcasecmp("singleSiSensZ", attr->GetName())) {
+                fSingleSiSensZ.push_back(atof(attr->GetValue()));
+              }
+            }
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "deadLayerThicknessFrontSide")) {
+            if(!fSingleSiIsDeadLayerSet[i]) {
+              fSingleSiDeadLayerThicknessFrontSide.push_back(atof(curNode2->GetText()));
+            }
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "deadLayerThicknessBackSide")) {
+            if(!fSingleSiIsDeadLayerSet[i]) {
+              fSingleSiDeadLayerThicknessBackSide.push_back(atof(curNode2->GetText()));
+            }
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "stripCount")) {
+            fSingleSiStripCount.push_back(atof(curNode2->GetText()));
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "singleSiMedia")) {
+            fSingleSiMedia.push_back(curNode2->GetText());
+          }
+        }
+      }
+    }
+  }
+}
+//--------------------------------------------------------------------------------------------------
+void ERQTelescopeSetup::GetDoubleSiParameters(TXMLNode *node) {
+  node = node->GetNextNode();
+  for(Int_t i = 0; i < fDoubleSiCount; i++) {
+    TXMLNode* curNode = node;
+    for(; curNode; curNode = curNode->GetNextNode()) {
+      TList *attrList;
+      TXMLAttr *attr = 0;
+      if (curNode->HasAttributes()){
+        attrList = curNode->GetAttributes();
+        TIter next(attrList);
+        while ((attr=(TXMLAttr*)next())) {
+          if (!strcasecmp("id", attr->GetName())) { 
+            break;
+          }
+        }
+      }
+      else {
+        continue;
+      }
+      if(!strcasecmp(fDoubleSiType[i], attr->GetValue())) {
+        TXMLNode* curNode2 = curNode->GetChildren();
+        for(; curNode2; curNode2 = curNode2->GetNextNode()) {
+          if(!strcasecmp(curNode2->GetNodeName(), "doubleSiSize")) {
+            attrList = curNode2->GetAttributes();
+            attr = 0;
+            TIter nextDoubleSiSizeAttr(attrList);
+            while ((attr=(TXMLAttr*)nextDoubleSiSizeAttr())) {
+              if (!strcasecmp("doubleSiX", attr->GetName())) {
+                fDoubleSiX.push_back(atof(attr->GetValue()));
+              }
+              if (!strcasecmp("doubleSiY", attr->GetName())) {
+                fDoubleSiY.push_back(atof(attr->GetValue()));
+              }
+              if (!strcasecmp("doubleSiZ", attr->GetName())) {
+                fDoubleSiZ.push_back(atof(attr->GetValue()));
+              }
+            }
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "doubleSiSensAreaSize")) {
+            attrList = curNode2->GetAttributes();
+            attr = 0;
+            TIter nextDoubleSiSensSizeAttr(attrList);
+            while ((attr=(TXMLAttr*)nextDoubleSiSensSizeAttr())) {
+              if (!strcasecmp("doubleSiSensX", attr->GetName())) {
+                fDoubleSiSensX.push_back(atof(attr->GetValue()));
+              }
+              if (!strcasecmp("doubleSiSensY", attr->GetName())) {
+                fDoubleSiSensY.push_back(atof(attr->GetValue()));
+              }
+              if (!strcasecmp("doubleSiSensZ", attr->GetName())) {
+                fDoubleSiSensZ.push_back(atof(attr->GetValue()));
+              }
+            }
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "deadLayerThicknessFrontSide")) {
+            if(!fDoubleSiIsDeadLayerSet[i]) {
+              fDoubleSiDeadLayerThicknessFrontSide.push_back(atof(curNode2->GetText()));
+            }
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "deadLayerThicknessBackSide")) {
+            if(!fDoubleSiIsDeadLayerSet[i]) {
+              fDoubleSiDeadLayerThicknessBackSide.push_back(atof(curNode2->GetText()));
+            }
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "stripCountX")) {
+            fDoubleSiStripCountX.push_back(atof(curNode2->GetText()));
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "stripCountY")) {
+            fDoubleSiStripCountY.push_back(atof(curNode2->GetText()));
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "doubleSiMedia")) {
+            fDoubleSiMedia.push_back(curNode2->GetText());
+          }
+        }
+      }
+    }
+  }
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeSetup)

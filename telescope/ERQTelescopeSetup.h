@@ -1,15 +1,13 @@
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
-// -----                        ERQTelescopeSetup header file              -----
-
-// -----                              -----
-
-// -------------------------------------------------------------------------
 #ifndef ERQTelescopeSetup_H
 #define ERQTelescopeSetup_H
-
-#include <map>
-#include <vector>
 
 #include "TString.h"
 #include <TXMLNode.h>
@@ -21,12 +19,8 @@ class ERQTelescopeSetup {
 public:
   ERQTelescopeSetup();
   ~ERQTelescopeSetup();
-  static ERQTelescopeSetup* Instance();
 
-  /* Accessors */
-  static vector<TString>* GetDetectorStations();
-  static void PrintDetectorParameters(void);
-  static void PrintDetectorParametersToFile(TString fileName);
+  static ERQTelescopeSetup* Instance();
 
   /* Modifiers */
   static void SetXmlParametersFile(TString xmlFileName) {fParamsXmlFileName = xmlFileName;}
@@ -36,8 +30,15 @@ public:
                                                      Double_t deadLayerBack); 
   static void AddCsI(TString type, Double_t position);
 
-  static void ConstructGeometry();
+  /* Accessors */
+  static vector<TString>* GetDetectorStations();
+
+public:
+
   static Int_t SetParContainers();
+  static void ConstructGeometry();
+  static void PrintDetectorParameters(void);
+  static void PrintDetectorParametersToFile(TString fileName);
 
 private:
   static void ParseXmlParameters();
@@ -45,10 +46,9 @@ private:
   static void GetSingleSiParameters(TXMLNode *node);
   static void GetDoubleSiParameters(TXMLNode *node);
 
-  // ----- Sensetive volumes parameters parameters ----------------------------
   static ERQTelescopeSetup* fInstance;
-  static TString          fParamsXmlFileName;
-  static vector<TString>  fDetectorStations;
+  static TString            fParamsXmlFileName;
+  static vector<TString>    fDetectorStations;
 
   // ----- SingleSi parameters --------------------------------------------------
   static Int_t            fDoubleSiCount;
