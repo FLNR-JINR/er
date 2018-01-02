@@ -1,7 +1,6 @@
-void QTelescope_sim(Int_t nEvents = 10)
-{
+void QTelescope_full(Int_t nEvents = 50){
   //---------------------Files-----------------------------------------------
-  TString outFile= "sim.root";
+  TString outFile= "full.root";
   TString parFile= "par.root";
   // ------------------------------------------------------------------------
 
@@ -18,9 +17,6 @@ void QTelescope_sim(Int_t nEvents = 10)
   run->SetName("TGeant4");              // Transport engine
   run->SetOutputFile(outFile.Data());          // Output file
 // ------------------------------------------------------------------------
-// -----   Runtime database   ---------------------------------------------
-  FairRuntimeDb* rtdb = run->GetRuntimeDb();
-// ------------------------------------------------------------------------
 // -----   Create media   -------------------------------------------------
   run->SetMaterials("media.geo");       // Materials
 // ------------------------------------------------------------------------
@@ -33,11 +29,12 @@ void QTelescope_sim(Int_t nEvents = 10)
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
+
   Int_t verbose = 1;
   ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE,verbose);
   ERQTelescopeSetup* qTelescopeSetup = ERQTelescopeSetup::Instance();
   qTelescopeSetup->AddSi("DoubleSi1", 0, "X");
-  qTelescopeSetup->AddSi("DoubleSi1", 10, "X", 0.001, 0.002);
+  qTelescopeSetup->AddSi("DoubleSi1", 10, "X", 0.01, 0.01);
   qTelescopeSetup->AddSi("SingleSi1", 100, "X");
   qTelescopeSetup->AddSi("SingleSi2", 50, "X");
   qTelescopeSetup->AddCsI("CsI1", -50);
@@ -47,24 +44,18 @@ void QTelescope_sim(Int_t nEvents = 10)
 
   run->AddModule(qtelescope);
 
- // FairModule* target = new ERTarget("BeamDetTarget", kTRUE, 1);
-  //target->SetGeometryFileName("target.h.geo.root");
-  //run->AddModule(target);
-  // ---------------.q
-  //--------------------------------------------------------
-  // -----   Create PrimaryGenerator   --------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   Int_t pdgId = 2212; // proton  beam
   Double32_t theta1 = -43.;  // polar angle distribution
-  Double32_t theta2 = 43.;  //ПОДОБРАТЬ ТЕТТА_1 и ТЕТТА_2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  Double32_t theta2 = 43.;  
   Double32_t kin_energy = .500; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
   boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(0, 360); // ?????????????????????????????????????????????????????????????????????
+  boxGen->SetPhiRange(0, 360); 
   boxGen->SetBoxXYZ(0.,0.,0.,0.,0.);
 
   primGen->AddGenerator(boxGen);
@@ -72,21 +63,39 @@ void QTelescope_sim(Int_t nEvents = 10)
   // ------------------------------------------------------------------------
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
+  // ------------------------------------------------------------------------
+  // -----   runtime database   ---------------------------------------------
+  FairRuntimeDb* rtdb = run->GetRuntimeDb();
+  // ------------------------------------------------------------------------
+
+  // —– runtime database ——————————————— 
+  Bool_t kParameterMerged = kTRUE; 
+  FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
+  parOut->open(parFile.Data());
+
+  rtdb->setOutput(parOut); 
+  rtdb->saveOutput(); 
+  rtdb->print(); // 
+ // ------------------------QTelescopeDigitizer---------------------------------
+  ERQTelescopeDigitizer* digitizer = new ERQTelescopeDigitizer(1);
+  digitizer->SetSiElossThreshold(0);
+  digitizer->SetSiElossSigma(0);
+  digitizer->SetSiTimeSigma(0);
+
+  digitizer->SetCsIElossThreshold(0);
+  digitizer->SetCsIElossSigma(0);
+  digitizer->SetCsITimeSigma(0);
+
+  run->AddTask(digitizer);
+  // ------------------------------------------------------------------------
+  // ------------------------------------------------------------------------
 
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
   // —– Initialize simulation run ———————————— 
   run->Init();
   Int_t nSteps = -15000;
-
-  // —– Runtime database ——————————————— 
-  Bool_t kParameterMerged = kTRUE; 
-  FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
-  parOut->open(parFile.Data()); 
-  rtdb->setOutput(parOut); 
-  rtdb->saveOutput(); 
-  rtdb->print(); // 
-  // -----   Run simulation  ------------------------------------------------
+  // -----   run simulation  ------------------------------------------------
     run->Run(nEvents);
 
     // -----   Finish   -------------------------------------------------------

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<QTelescopeParts>
+	<SiTypes>
+		<doubleSiTypes>
+			<doubleSi id="DoubleSi1">
+				<doubleSiSize doubleSiX="100" doubleSiY="100" doubleSiZ="0.15"/>
+				<doubleSiSensAreaSize doubleSiSensX="100" doubleSiSensY="100" doubleSiSensZ="1"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
+				<stripCountX>16</stripCountX>
+				<stripCountY>16</stripCountY>
+				<doubleSiMedia>silicon</doubleSiMedia>
+			</doubleSi>
+			<doubleSi id="DoubleSi2">
+				<doubleSiSize doubleSiX="100" doubleSiY="100" doubleSiZ="0.03"/>
+				<doubleSiSensAreaSize doubleSiSensX="100" doubleSiSensY="100" doubleSiSensZ="1"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
+				<stripCountX>16</stripCountX>
+				<stripCountY>16</stripCountY>
+				<doubleSiMedia>silicon</doubleSiMedia>
+			</doubleSi>
+		</doubleSiTypes>
+		<singleSiTypes>
+			<singleSi id="SingleSi1">
+				<singleSiSize singleSiX="100" singleSiY="100" singleSiZ="0.01"/>
+				<singleSiSensAreaSize singleSiSensX="100" singleSiSensY="100" singleSiSensZ="1"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>	
+			<singleSi id="SingleSi2">
+				<singleSiSize singleSiX="100" singleSiY="100" singleSiZ="0.01"/>
+				<singleSiSensAreaSize singleSiSensX="100" singleSiSensY="100" singleSiSensZ="1"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>	
+		</singleSiTypes>
+	</SiTypes>
+	<CsITypes>
+		<CsI id="CsI1">
+			<CsISize CsIX="100" CsIY="100" CsIZ="1"/>
+			<cubesCountX>2</cubesCountX>			
+			<cubesCountY>2</cubesCountY>
+			<CsIMedia>CsI</CsIMedia>
+		</CsI>	
+		<CsI id="CsI2">
+			<CsISize CsIX="100" CsIY="100" CsIZ="1"/>
+			<cubesCountX>4</cubesCountX>			
+			<cubesCountY>4</cubesCountY>			
+			<CsIMedia>CsI</CsIMedia>
+		</CsI>
+	</CsITypes>
+</QTelescopeParts>

@@ -1,11 +1,10 @@
-// -------------------------------------------------------------------------
-// -----                        ERQTelescope header file                   -----
-// -----                  Created data  by developer name              -----
-// -------------------------------------------------------------------------
-
-/**  ERQTelescope.h
- **/
-
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERQTelescope_H
 #define ERQTelescope_H
@@ -13,6 +12,7 @@
 #include "ERDetector.h"
 #include "ERQTelescopeSiPoint.h"
 #include "ERQTelescopeCsIPoint.h"
+#include "ERQTelescopeSetup.h"
 
 #include "TLorentzVector.h"
 
@@ -20,7 +20,7 @@ class TClonesArray;
 class FairVolume;
 class TF1;
 
-class ERQTelescope : public FairDetector
+class ERQTelescope : public ERDetector
 {
 
 public:
@@ -98,18 +98,17 @@ public:
   virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2,
 			  Int_t offset);
 
-
-  /** Virtaul method Construct geometry
-   **
-   ** Constructs the ERQTelescope geometry
-   **/
-  virtual void ConstructGeometry();
-
    /** Virtaul method Initialize
    **
    ** Initialize ERQTelescope data
    **/
   virtual void Initialize();
+
+  /** @brief Builds geometry and writes it to temporary file
+   ** trough parameters from ERBeamDetSetup class object.
+   ** Virtual from FairDetector.
+  **/
+  virtual void ConstructGeometry();
 
   /** Virtaul method CheckIfSensitive
 	**Check whether a volume is sensitive.
@@ -125,24 +124,27 @@ public:
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
 
 private:
-  TClonesArray*  fSiPoint;         //!  The point collection
-  TClonesArray*  fCsIPoint;        //!  The point collection
-  Int_t fVersion;                    //! geometry version
+  ERQTelescopeSetup         *fQTelescopeSetup;
+  vector<TClonesArray*>     fDoubleSiXPoints;          //!  The point collection
+  vector<TClonesArray*>     fDoubleSiYPoints;          //!  The point collection
+  vector<TClonesArray*>     fSingleSiPoints;          //!  The point collection
+  vector<TClonesArray*>     fCsIPoints;          //!  The point collection
 
-  Int_t          eventID;           //!  event index
-  Int_t          trackID;           //!  track index
-  Int_t          mot0TrackID;       //!  0th mother track index
-  Double_t       mass;              //!  mass
-  TLorentzVector posIn, posOut;    //!  position
-  TLorentzVector momIn, momOut;    //!  momentum
-  Double32_t     time;              //!  time
-  Double32_t     length;            //!  length
-  Double32_t     eLoss;             //!  energy loss
-  Int_t          fN_Station;     // Si
-  Int_t          fX_Strip;
-  Int_t          fY_Strip;
-  Int_t          fN_Block;   // CsI (0-3)
-  Int_t          fN_Wall;
+  Int_t                     fVersion;           //! geometry version
+
+  Int_t                     fEventID;           //!  event index
+  Int_t                     fTrackID;           //!  track index
+  Int_t                     fMot0TrackID;       //!  0th mother track index
+  Double_t                  fMass;              //!  mass
+  TLorentzVector            fPosIn, fPosOut;    //!  position
+  TLorentzVector            fMomIn, fMomOut;    //!  momentum
+  Double32_t                fTime;              //!  time
+  Double32_t                fLength;            //!  length
+  Double32_t                fEloss;             //!  energy loss
+  Int_t                     fSiStationNb;         // Si
+  Int_t                     fSiStripNb;
+  Int_t                     fCsIBoxNb;           // CsI (0-3)
+  Int_t                     fCsIStationNb;
 
 
 private:
@@ -150,9 +152,8 @@ private:
    **
    ** Adds a NeuRadPoint to the Point Collection
    **/
-
-  ERQTelescopeSiPoint* Add_SiPoint();
-  ERQTelescopeCsIPoint* Add_CsIPoint();
+  ERQTelescopeSiPoint* AddSiPoint(TClonesArray& clref);
+  ERQTelescopeCsIPoint* AddCsIPoint(TClonesArray& clref);
 
   /** Private method ResetParameters
    **
@@ -160,7 +161,7 @@ private:
    **/
   void ResetParameters();
 
-  ClassDef(ERQTelescope,1);
+  ClassDef(ERQTelescope, 1);
 };
 
 #endif

@@ -6,43 +6,43 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#include "ERQTelescopeSiDigi.h"
+#include "ERQTelescopeCsIDigi.h"
 
 #include "FairLogger.h"
 
 using namespace std;
 
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeSiDigi::ERQTelescopeSiDigi()
+ERQTelescopeCsIDigi::ERQTelescopeCsIDigi()
   :fID(-1),
   fEdep(0.)
 {
 }
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeSiDigi::ERQTelescopeSiDigi(Int_t id, Float_t Edep, Double_t time, Int_t stationNb, Int_t stripNb)
+ERQTelescopeCsIDigi::ERQTelescopeCsIDigi(Int_t id, Float_t Edep, Double_t time, Int_t wallNb, Int_t blockNb)
   :fID(id),
   fEdep(Edep),
   fTime(time),
-  fStationNb(stationNb),
-  fStripNb(stripNb)
+  fWallNb(wallNb),
+  fBlockNb(blockNb)
 {
 }
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeSiDigi::ERQTelescopeSiDigi(const ERQTelescopeSiDigi& right)
+ERQTelescopeCsIDigi::ERQTelescopeCsIDigi(const ERQTelescopeCsIDigi& right)
   :fID(right.fID),
   fEdep(right.fEdep),
   fTime(right.fTime),
-  fStationNb(right.fStationNb),
-  fStripNb(right.fStripNb)
+  fWallNb(right.fWallNb),
+  fBlockNb(right.fBlockNb)
 {
 }
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeSiDigi::~ERQTelescopeSiDigi(){
+ERQTelescopeCsIDigi::~ERQTelescopeCsIDigi(){
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescopeSiDigi::Print(const Option_t* opt /* = 0 */) const {
-  LOG(DEBUG) << "-I- ERQTelescopeSiDigi:  " << FairLogger::endl;
+void ERQTelescopeCsIDigi::Print(const Option_t* opt /* = 0 */) const {
+  LOG(DEBUG) << "-I- ERQTelescopeCsIDigi:  " << FairLogger::endl;
   LOG(DEBUG) << "    Edep : " << fEdep << FairLogger::endl;
 }
 //-------------------------------------------------------------------------------------------------
-ClassImp(ERQTelescopeSiDigi)
+ClassImp(ERQTelescopeCsIDigi)

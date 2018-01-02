@@ -6,8 +6,8 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERQTelescopeSiDigi_H
-#define ERQTelescopeSiDigi_H
+#ifndef ERQTelescopeCsIDigi_H
+#define ERQTelescopeCsIDigi_H
 
 
 #include "TObject.h"
@@ -15,23 +15,23 @@
 
 #include "FairMultiLinkedData.h"
 
-class ERQTelescopeSiDigi : public FairMultiLinkedData
+class ERQTelescopeCsIDigi : public FairMultiLinkedData
 {
  public:
   /** Default constructor **/
-  ERQTelescopeSiDigi();
+  ERQTelescopeCsIDigi();
   
   /** Constructor with arguments
    **/
-  ERQTelescopeSiDigi(Int_t id, Float_t Edep, Double_t time, Int_t stationNb, Int_t stripNb);
+  ERQTelescopeCsIDigi(Int_t id, Float_t Edep, Double_t time, Int_t wallNb, Int_t blockNb);
                    
   /** Copy constructor **/
-  ERQTelescopeSiDigi(const ERQTelescopeSiDigi&);
+  ERQTelescopeCsIDigi(const ERQTelescopeCsIDigi&);
 
   /** Destructor **/
-  virtual ~ERQTelescopeSiDigi();
+  virtual ~ERQTelescopeCsIDigi();
 
-  ERQTelescopeSiDigi& operator=(const ERQTelescopeSiDigi&) { return *this; }
+  ERQTelescopeCsIDigi& operator=(const ERQTelescopeCsIDigi&) { return *this; }
 
   /** Output to screen **/
   virtual void Print(const Option_t* opt = 0) const;
@@ -42,12 +42,12 @@ class ERQTelescopeSiDigi : public FairMultiLinkedData
   
  protected:
   Int_t     fID;
-  Int_t     fStationNb;
-  Int_t     fStripNb;
+  Int_t     fWallNb;
+  Int_t     fBlockNb;
   Double_t  fTime;
   Float_t   fEdep;
   
-  ClassDef(ERQTelescopeSiDigi,1)
+  ClassDef(ERQTelescopeCsIDigi,1)
 
 };
 

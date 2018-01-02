@@ -1,4 +1,4 @@
-# Create a library called "libR3BCal" which includes the source files given in
+# Create a library called "telescope" which includes the source files given in
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
@@ -10,7 +10,6 @@ ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/data
 ${CMAKE_SOURCE_DIR}/telescope/
 ${CMAKE_SOURCE_DIR}/telescope/data
-${CMAKE_SOURCE_DIR}/BeamDet/data
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -26,7 +25,7 @@ set(SRCS
 
 #simulation
 ERRTelescope.cxx
-ERRTelescopeDigitizer.cxx
+#ERRTelescopeDigitizer.cxx
 ERRTelescopeHitFinder.cxx
 ERRTelescopeSetup.cxx
 
@@ -38,9 +37,12 @@ data/ERRTelescopeHit.cxx
 
 ERQTelescope.cxx
 ERQTelescopeDigitizer.cxx
+ERQTelescopeSetup.cxx
 
 data/ERQTelescopeSiPoint.cxx
 data/ERQTelescopeSiDigi.cxx
+data/ERQTelescopeCsIPoint.cxx
+data/ERQTelescopeCsIDigi.cxx
 
 #AculRaw
 data/AculRaw.cxx
@@ -49,7 +51,7 @@ data/AculRaw.cxx
 #beamtest
 ERQTelescopeCalibrator.cxx
 ERRTelescopeCalibrator.cxx
-ERTelescopeReconstructorNew.cxx
+#ERTelescopeReconstructorNew.cxx
 
 data/ERRTelescopeEvent.cxx
 data/ERRTelescopeCalEvent.cxx
@@ -64,7 +66,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERTelescopeLinkDef.h)
 Set(LIBRARY_NAME telescope)
-Set(DEPENDENCIES ERBase ERData Base Core)
+Set(DEPENDENCIES ERBase ERData Base Core Geom XMLParser)
 
 GENERATE_LIBRARY()
 

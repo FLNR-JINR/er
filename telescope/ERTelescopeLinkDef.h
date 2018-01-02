@@ -17,10 +17,12 @@
 
 #pragma link C++ class ERQTelescope+;
 #pragma link C++ class ERQTelescopeDigitizer+;
+#pragma link C++ class ERQTelescopeSetup;
 
 #pragma link C++ class ERQTelescopeSiPoint+;
 #pragma link C++ class ERQTelescopeSiDigi+;
-
+#pragma link C++ class ERQTelescopeCsIPoint+;
+#pragma link C++ class ERQTelescopeCsIDigi+;
 
 #pragma link C++ class AculRaw+;
 #pragma link C++ class ERRTelescopeRawConverter+;
