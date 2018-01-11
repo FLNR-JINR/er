@@ -564,7 +564,7 @@ void ERBeamDetSetup::ConstructGeometry() {
 
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
-  gGeoMan->SetName("BeamDetGeom");
+  //gGeoMan->SetName("BeamDetGeom");
   TGeoVolume* top   = new TGeoVolumeAssembly("TOP");
   //gGeoMan->SetTopVolume(top);
 
