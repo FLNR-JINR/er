@@ -136,6 +136,9 @@ void ERGadast::StartPoint(){
       gMC->CurrentVolOffID(2, fCsIBlock);
       gMC->CurrentVolOffID(3, fCsIWall);
     }
+    else{
+      gMC->CurrentVolID(fLaBrCell);
+    }
 }
 //------------------------------------------------------------------------------
 
@@ -259,7 +262,7 @@ ERGadastCsIPoint* ERGadast::AddCsIPoint(){
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-              fTime, fLength, fELoss, fPDG, fCsIWall, fCsIBlock, fCsICell, fMeshElement);
+              fTime, fLength, fELoss, fPDG, fCsIWall, fCsIBlock, fCsICell);
 	
 }
 // ----------------------------------------------------------------------------
@@ -274,7 +277,7 @@ ERGadastLaBrPoint* ERGadast::AddLaBrPoint(){
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-              fTime, fLength, fELoss, fPDG, fMeshElement);
+              fTime, fLength, fELoss, fPDG, fLaBrCell);
               
   
 }

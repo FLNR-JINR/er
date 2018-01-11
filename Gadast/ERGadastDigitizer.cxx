@@ -89,8 +89,22 @@ void ERGadastDigitizer::Exec(Option_t* opt)
   // Reset entries in output arrays
   Reset();
 
-  
+  // Sort points by sensentive volumes
+  // Map points by cells: pointsCsI[iWall][iBlock][iCell]
+  map<Int_t, map<Int_t, map <Int_t, vector<Int_t> > > > pointsCsI;
+  for (Int_t iPoint = 0; iPoint < fGadastCsIPoints->GetEntriesFast(); iPoint++){
+    ERGadastCsIPoint* point = (ERGadastCsIPoint*)fGadastCsIPoints->At(iPoint);
+    pointsCsI[point->GetWall()][point->GetBlock()][point->GetCell()].push_back(iPoint);
+  }
 
+  // Map points by cells: pointsLaBr[iCell]
+  map<Int_t, vector<Int_t> > pointsLaBr;
+  for (Int_t iPoint = 0; iPoint < fGadastLaBrPoints->GetEntriesFast(); iPoint++){
+    ERGadastLaBrPoint* point = (ERGadastLaBrPoint*)fGadastLaBrPoints->At(iPoint);
+    pointsLaBr[point->GetCell()].push_back(iPoint);
+  }
+
+  
   for (Int_t iPoint = 0; iPoint < fGadastCsIPoints->GetEntriesFast(); iPoint++){
     ERGadastCsIPoint* point = (ERGadastCsIPoint*)fGadastCsIPoints->At(iPoint);
     Float_t edep = point->GetEnergyLoss();
@@ -105,8 +119,6 @@ void ERGadastDigitizer::Exec(Option_t* opt)
     fCsIElossInEvent += edep;
     AddDigi(edep);
   }
-
-  
 
   for (Int_t iPoint = 0; iPoint < fGadastLaBrPoints->GetEntriesFast(); iPoint++){
     ERGadastLaBrPoint* point = (ERGadastLaBrPoint*)fGadastLaBrPoints->At(iPoint);

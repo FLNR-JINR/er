@@ -40,7 +40,7 @@ class ERGadastLaBrPoint : public FairMCPoint
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t pdg,  Int_t meshEl);
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t pdg, Int_t cell);
 
 
   /** Copy constructor **/
@@ -67,7 +67,7 @@ class ERGadastLaBrPoint : public FairMCPoint
   Double_t GetPyOut()           const { return fPy_out; }
   Double_t GetPzOut()           const { return fPz_out; }
   Double_t GetMass()            const { return fMass; }
-  Int_t GetMeshEl()         const {return fMeshEl;}
+  Int_t GetCell()               const { return fCell; }
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
@@ -93,7 +93,8 @@ class ERGadastLaBrPoint : public FairMCPoint
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
   Int_t fPDG;
-  Int_t fMeshEl;
+  Int fCell;
+
 
   ClassDef(ERGadastLaBrPoint,1)
 };

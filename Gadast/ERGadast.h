@@ -134,9 +134,8 @@ private:
   TClonesArray*  fGadastSteps;      //!  The steps collection
   Int_t fVersion;                    //! geometry version
   Bool_t fStoreSteps;
-  //ERGadastMesh* fMesh;
-  //TRandom3* fRnd;
-  //current point state 
+
+  //current point state
   Int_t fEventID;           //!  event index
   Int_t fTrackID;           //!  track index
   Int_t fMot0TrackID;       //!  0th mother track index
@@ -150,13 +149,7 @@ private:
   Int_t  fStepNr;            //!  current step numb in this active volumes
   ERGadastDetectorType  fDetectorType;      //! CsI, LaBr
   Int_t fCsICell, fCsIBlock, fCsIWall;
-  Int_t fMeshElement;
-
-  TH1F* fHCsIElossInEvent;
-  TH1F* fHLaBrElossInEvent;
-
-  Float_t fCsIElossInEvent;
-  Float_t fLaBrElossInEvent;
+  Int_t fLaBrCell;
 private:
   /** Private method AddPoint
    **
