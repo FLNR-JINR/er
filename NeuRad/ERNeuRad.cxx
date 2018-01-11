@@ -32,7 +32,8 @@ ERNeuRad::ERNeuRad():
   fStoreAllSteps(kFALSE),
   fNeuRadPoints(NULL),
   fNeuRadFirstStep(NULL),
-  fNeuRadSteps(NULL)
+  fNeuRadSteps(NULL),
+  fStep(0.1)
 {
   fNeuRadPoints = new TClonesArray("ERNeuRadPoint");
   fNeuRadFirstStep = new TClonesArray("ERNeuRadStep");
@@ -47,7 +48,8 @@ ERNeuRad::ERNeuRad(const char* name, Bool_t active, Int_t verbose):
   ERDetector(name, active),
   fVerbose(verbose),
   fStorePrimarySteps(kFALSE),
-  fStoreAllSteps(kFALSE)
+  fStoreAllSteps(kFALSE),
+  fStep(0.1)
 {
   fNeuRadPoints = new TClonesArray("ERNeuRadPoint");
   fNeuRadFirstStep = new TClonesArray("ERNeuRadStep");
@@ -96,6 +98,8 @@ Bool_t ERNeuRad::ProcessHits(FairVolume* vol) {
   static const Double_t dP = 1.032 ;
   static const Double_t BirkC1 =  0.013/dP;
   static const Double_t BirkC2 =  9.6e-6/(dP * dP);
+
+  gMC->SetMaxStep(fStep);
   
   /** Track information to be stored until the track leaves the
       active volume. **/

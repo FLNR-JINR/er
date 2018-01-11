@@ -1,31 +1,31 @@
 // -------------------------------------------------------------------------
-// -----                        ERNDHitFinder header file          -----
+// -----                        ERNDDigitizer header file          -----
 // -----                  Created 03/16  by V.Schetinin                -----
 // -------------------------------------------------------------------------
 
-#ifndef ERNDHitFinder_H
-#define ERNDHitFinder_H
+#ifndef ERNDDigitizer_H
+#define ERNDDigitizer_H
 
 #include "TClonesArray.h"
 
 #include "FairTask.h"
 
-#include "ERNDHit.h"
+#include "ERNDDigi.h"
 #include "ERNDSetup.h"
 
-class ERNDHitFinder : public FairTask {
+class ERNDDigitizer : public FairTask {
 
 public:
   /** Default constructor **/
-  ERNDHitFinder();
+  ERNDDigitizer();
 
   /** Constructor 
   ** verbose: 1 - only standard log print, 2 - print digi information 
   **/
-  ERNDHitFinder(Int_t verbose);
+  ERNDDigitizer(Int_t verbose);
 
   /** Destructor **/
-  ~ERNDHitFinder();
+  ~ERNDDigitizer();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -40,17 +40,15 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
-  void SetLYDispersionA(Float_t sigma) {fLYDispersionA = sigma;} 
-  void SetLYDispersionB(Float_t sigma) {fLYDispersionB = sigma;} 
-  void SetTimeDispersionPar(Float_t sigma) {fTimeDispersionPar = sigma;}
+  void SetLYError(Float_t a, Float_t b, Float_t c) {fLYErrorA = a;fLYErrorB = b;fLYErrorC = c;}
+  void SetEdepError(Float_t a, Float_t b, Float_t c) {fEdepErrorA = a;fEdepErrorB = b;fEdepErrorC = c;}
+  void SetTimeError(Float_t a) {fTimeErrorA = a;}
+  
   void SetQuenchThreshold(Float_t th) {fQuenchThreshold = th;}
   void SetLYThreshold(Float_t th) {fLYThreshold = th;}
   void SetProbabilityB(Float_t b) {fProbabilityB = b;}
   void SetProbabilityC(Float_t c) {fProbabilityC = c;}
   /** Accessors **/ 
-  Float_t LYDispersionA() const {return fLYDispersionA;}
-  Float_t LYDispersionB() const {return fLYDispersionB;}
-  Float_t TimeDispersionPar() const {return fTimeDispersionPar;}
   Float_t ElossThreshold() const {return fQuenchThreshold;}
   Float_t LYThreshold() const {return fLYThreshold;}
   Float_t ProbabilityB() const {return fProbabilityB;}
@@ -59,12 +57,12 @@ protected:
   //Input arrays
   TClonesArray *fNDPoints;
   //Output arrays
-  TClonesArray *fNDHits;
+  TClonesArray *fNDDigis;
 
   static Int_t fEvent;
-  Float_t fLYDispersionA;
-  Float_t fLYDispersionB;
-  Float_t fTimeDispersionPar;
+  Float_t fEdepErrorA, fEdepErrorB, fEdepErrorC;
+  Float_t fLYErrorA, fLYErrorB, fLYErrorC;
+  Float_t fTimeErrorA;
   Float_t fQuenchThreshold;
   Float_t fLYThreshold;
   Float_t fProbabilityB;
@@ -72,12 +70,13 @@ protected:
 
   ERNDSetup* fSetup;
 protected:
-  ERNDHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, 
-          Int_t point_index, Float_t lightYield, Float_t time, Float_t neutronProb);
+  ERNDDigi* AddDigi(Int_t detID, TVector3& pos, TVector3& dpos, 
+          Int_t point_index, Float_t edep, Float_t lightYield, Float_t time, Float_t neutronProb);
+  Float_t NeutronProbability(Float_t edep, Float_t ly);
 private:
   virtual void SetParContainers();
   
-  ClassDef(ERNDHitFinder,1)
+  ClassDef(ERNDDigitizer,1)
 };
 
 #endif

@@ -68,6 +68,11 @@ public:
     **/
     void SetStoreAllSteps() {fStoreAllSteps = kTRUE;}
 
+    /** @brief Set propagation step in sensetive volumes.
+     ** Special process stepLimiter must be in TG4RunConfiguration
+    **/
+    void SetMaxStep(Double_t step) {fStep = step;}
+
     /*Accessors*/
 
     /** @brief Get array of ERNeuRadPoint
@@ -165,6 +170,8 @@ private:
 
     Float_t fFullEnergy;              ///< Sum Edep in event in sensetive volume
     Float_t fFullLY;                  ///< Sum Light Yield in event in sensetive volume
+
+    Float_t fStep;                    ///< Step length in sensetive volumes
 
     /* current step information*/
 

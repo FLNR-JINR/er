@@ -38,6 +38,11 @@ public:
   
   /** Destructor **/
   virtual ~ERND();
+
+  /** @brief Set propagation step in sensetive volumes.
+   ** Special process stepLimiter must be in TG4RunConfiguration
+   **/
+  void SetMaxStep(Double_t step) {fStep = step;}
   
   
   /** Virtual method ProcessHits
@@ -126,6 +131,7 @@ public:
 private:
   TClonesArray*  fNDPoints;     //!  The point collection
   Int_t fVersion;                    //! geometry version
+  Double_t fStep;               //! Max lengt of step of track propagetion in sensetive volume
 private:
   /** Private method AddPoint
    **

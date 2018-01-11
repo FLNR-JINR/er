@@ -1,7 +1,9 @@
-void ND_sim(Int_t nEvents = 1){
+void run(Int_t nEvents = 1, Float_t ekin = 0.5){
   //---------------------Files-----------------------------------------------
-  TString outFile= "sim.root";
-  TString parFile= "par.root";
+  TString outFile;
+  outFile.Form("run%.2f.root", ekin);
+  TString parFile;
+  parFile.Form("par%.2f.root", ekin);
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -46,10 +48,10 @@ void ND_sim(Int_t nEvents = 1){
 	
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  Int_t pdgId = 22; // gamma  beam
+  Int_t pdgId = 2212; // neutron  beam
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 0.;
-  Double32_t kin_energy = 661.7e-6; //GeV
+  Double32_t kin_energy = ekin; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
@@ -61,12 +63,24 @@ void ND_sim(Int_t nEvents = 1){
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
+
+  // ------------------------ND digitizer -----------------------------------
+  ERNDDigitizer* digitizer = new ERNDDigitizer(1);
+  digitizer->SetEdepError(0.0,0.01,0.01);
+  digitizer->SetLYError(0.0,0.01,0.01);
+  digitizer->SetTimeError(0.1);
+  digitizer->SetQuenchThreshold(0.005);
+  digitizer->SetLYThreshold(0.004);
+  digitizer->SetProbabilityB(0.1);
+  digitizer->SetProbabilityC(0.3);
+  run->AddTask(digitizer);
+  // ------------------------------------------------------------------------
 	
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
 	
   //-------Set LOG verbosity  ----------------------------------------------- 
-  FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
   
   // -----   Initialize simulation run   ------------------------------------
   run->Init();

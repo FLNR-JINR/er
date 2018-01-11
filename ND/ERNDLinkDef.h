@@ -5,10 +5,10 @@
 #pragma link off all functions;
 
 #pragma link C++ class ERND+;
-#pragma link C++ class ERNDHitFinder+;
+#pragma link C++ class ERNDDigitizer+;
 #pragma link C++ class ERNDSetup+;
 
 #pragma link C++ class ERNDPoint+;
-#pragma link C++ class ERNDHit+;
+#pragma link C++ class ERNDDigi+;
 
 #endif
