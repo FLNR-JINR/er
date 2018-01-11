@@ -12,6 +12,7 @@
 #include "TString.h"
 #include <TXMLNode.h>
 #include "Rtypes.h"
+#include <TVector3.h>
 
 using namespace std;
 
@@ -24,8 +25,8 @@ public:
 
   /* Modifiers */
   static void SetXmlParametersFile(TString xmlFileName) {fParamsXmlFileName = xmlFileName;}
-  static void AddSi(TString type, Double_t position, TString orientAroundZ); 
-  static void AddSi(TString type, Double_t position, TString orientAroundZ, 
+  static void AddSi(TString type, TVector3 position, TString orientAroundZ); 
+  static void AddSi(TString type, TVector3 position, TString orientAroundZ, 
                                                      Double_t deadLayerFront, 
                                                      Double_t deadLayerBack); 
   static void AddCsI(TString type, Double_t position);
@@ -53,7 +54,7 @@ private:
   // ----- SingleSi parameters --------------------------------------------------
   static Int_t            fDoubleSiCount;
   static vector<TString>  fDoubleSiType;
-  static vector<Double_t> fDoubleSiPosZ;
+  static vector<TVector3> fDoubleSiPos;
   static vector<TString>  fDoubleSiOrientAroundZ;
   static vector<Double_t> fDoubleSiX;
   static vector<Double_t> fDoubleSiY;
@@ -69,8 +70,8 @@ private:
   static vector<Bool_t>   fDoubleSiIsDeadLayerSet;
   // ----- DoubleSi parameters --------------------------------------------------
   static Int_t            fSingleSiCount;
-  static vector<Double_t> fSingleSiPosZ;
   static vector<TString>  fSingleSiType;  
+  static vector<TVector3> fSingleSiPos;
   static vector<TString>  fSingleSiOrientAroundZ;
   static vector<Double_t> fSingleSiX;
   static vector<Double_t> fSingleSiY;
