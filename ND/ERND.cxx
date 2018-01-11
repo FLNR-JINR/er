@@ -54,16 +54,22 @@ void ERND::Initialize()
 
 
 Bool_t ERND::ProcessHits(FairVolume* vol) {
-  // Set constants for Birk's Law implentation
+  // Set constants for Birk's Law implentation (Geant 4parametrization)
   /*
   static const Double_t dP = 1.032 ;
   static const Double_t BirkC1 =  0.013/dP;
   static const Double_t BirkC2 =  9.6e-6/(dP * dP);
   */
   //Birks constants from Craun, R. L.; Smith, D. L. NIM 80,2, p. 239, 1970
+  /*
   static const Double_t dP = 0.97;
   static const Double_t BirkC1 =  0.00856/dP;
   static const Double_t BirkC2 =  4.99e-6/(dP * dP);
+  */
+  // Bircks constant from experiment. S. Belogurov, E. Gazeeva
+  static const Double_t dP = 1.16;
+  static const Double_t BirkC1 =  0.027/dP;
+  static const Double_t BirkC2 =  0.0/(dP * dP);
 
   static Int_t          eventID;           //!  event index
   static Int_t          trackID;           //!  track index
@@ -77,7 +83,7 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
   static Int_t          stilbenNr;
   static Double_t       lightYield;
 
-  //gMC->SetMaxStep(fStep);
+  gMC->SetMaxStep(fStep);
 
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     eLoss  = 0.;

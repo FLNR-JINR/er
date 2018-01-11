@@ -16,11 +16,11 @@ void ND_digi(Int_t nEvents = 10000){
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
  
-  // ------------------------ND hit producer---------------------------------
+  // ------------------------ND digitizer ------------------------------------
   ERNDDigitizer* digitizer = new ERNDDigitizer(1);
-  digitizer->SetEdepError(0.0,0.01,0.01);
-  digitizer->SetLYError(0.0,0.01,0.01);
-  digitizer->SetTimeError(0.1);
+  digitizer->SetEdepError(0.0,0.04,0.02);
+  digitizer->SetLYError(0.0,0.04,0.02);
+  digitizer->SetTimeError(0.001);
   digitizer->SetQuenchThreshold(0.005);
   digitizer->SetLYThreshold(0.004);
   digitizer->SetProbabilityB(0.1);
