@@ -30,16 +30,17 @@ ERDecayEXP1803::ERDecayEXP1803():
   f3He(NULL),
   f5H (NULL),
   f3H (NULL),
-  fn  (NULL)
+  fn  (NULL),
+  fIon3He(NULL)
 {
   fRnd = new TRandom3();
   fReactionPhaseSpace = new TGenPhaseSpace();
   fDecayPhaseSpace = new TGenPhaseSpace();
   FairRunSim* run = FairRunSim::Instance();
-  FairIon* ion3He        = new FairIon("3He", 2, 3, 2);
   FairIon* unstableIon5H = new FairIon("5H",  1, 5, 1);
+  fIon3He                = new FairIon("3He", 2, 3, 2);
   run->AddNewIon(unstableIon5H);
-  run->AddNewIon(ion3He);
+  run->AddNewIon(fIon3He);
 }
 //-------------------------------------------------------------------------------------------------
 ERDecayEXP1803::~ERDecayEXP1803() {
@@ -64,7 +65,7 @@ Bool_t ERDecayEXP1803::Init(){
     return kFALSE;
   }
 
-  f3He = TDatabasePDG::Instance()->GetParticle("3He");
+  f3He = TDatabasePDG::Instance()->GetParticle(fIon3He->GetName());
   if ( ! f3He ) {
     std::cerr  << "-W- ERDecayEXP1803: Ion 3He not found in database!" << endl;
     return kFALSE;

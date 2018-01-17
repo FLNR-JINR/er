@@ -12,6 +12,8 @@
 #include "TRandom3.h"
 #include "TGenPhaseSpace.h"
 
+#include "FairIon.h"
+
 #include "ERDecay.h"
 
 class ERDecayEXP1803 : public ERDecay{
@@ -41,6 +43,8 @@ private:
   TParticlePDG   *f5H;
   TParticlePDG   *f3H;
   TParticlePDG   *fn;
+
+  FairIon        *fIon3He;
 
   TGenPhaseSpace *fReactionPhaseSpace;
   TGenPhaseSpace *fDecayPhaseSpace;
