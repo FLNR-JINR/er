@@ -102,8 +102,8 @@ void ERBeamDet::Register() {
   ioman->Register("BeamDetMWPCPoint","BeamDet", fMWPCPoints, kTRUE);
   ioman->Register("BeamDetTargetPoint","BeamDet", fTargetPoints, kTRUE);
 
-  ioman->Register("BeamDetMCParticle.", "BeamDet MC Particle", fBeamDetMCProjectile, kTRUE);
-  ioman->Register("BeamDetMCTrack.", "BeamDet MC track", fBeamDetMCTrack, kTRUE);
+  //ioman->Register("BeamDetMCParticle.", "BeamDet MC Particle", fBeamDetMCProjectile, kTRUE);
+  //ioman->Register("BeamDetMCTrack.", "BeamDet MC track", fBeamDetMCTrack, kTRUE);
 }
 //-------------------------------------------------------------------------------------------------
 TClonesArray* ERBeamDet::GetCollection(Int_t iColl) const {
@@ -130,12 +130,12 @@ void ERBeamDet::Print(Option_t *option) const
       point->Print();
     }
   }
-  if(fTargetPoints->GetEntriesFast() > 0) {
+  /*if(fTargetPoints->GetEntriesFast() > 0) {
     for (Int_t iPoint = 0; iPoint < fTargetPoints->GetEntriesFast(); iPoint++) {
       ERBeamDetTargetPoint* point = (ERBeamDetTargetPoint*)fTargetPoints->At(iPoint);
       point->Print();
     }
-  }
+  }*/
 }
 //-------------------------------------------------------------------------------------------------
 void ERBeamDet::Reset() {
@@ -200,9 +200,9 @@ Bool_t ERBeamDet::CheckIfSensitive(std::string name) {
   if(volName.Contains("plastic")) {
     return kTRUE;
   }
-  if(volName.Contains("targetH2")) {
+  /*if(volName.Contains("targetH2")) {
     return kTRUE;
-  }
+  }*/
   return kFALSE;
 }
 //-------------------------------------------------------------------------------------------------
@@ -231,10 +231,10 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
     fPID = gMC->TrackPid();
 
     TString volName = gMC->CurrentVolName();
-    if(volName.Contains("targetH2")) {
+    /*if(volName.Contains("targetH2")) {
       fBeamDetMCProjectile->AddParameters(fPID, fMomIn, 1);
       fBeamDetMCTrack->AddParameters(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect());   
-    }
+    }*/
   }
 
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
@@ -276,9 +276,9 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
         gMC->CurrentVolOffID(3, fMWPCNb);
         AddMWPCPoint();
       }
-      if(volName.Contains("targetH2")) {
+      /*if(volName.Contains("targetH2")) {
         AddTargetPoint();
-      }
+      }*/
     }
   }
   return kTRUE;

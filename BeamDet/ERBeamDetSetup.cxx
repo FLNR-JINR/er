@@ -7,6 +7,8 @@
 #include "TMath.h"
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
+#include "TGeoCompositeShape.h"
+#include "TGeoSphere.h"
 #include "TROOT.h"
 #include <Riostream.h>
 #include <TDOMParser.h>
@@ -63,16 +65,28 @@ Double_t ERBeamDetSetup::fTargetH2R = 2.;   //cm
 Double_t ERBeamDetSetup::fTargetH2Z = 0.4;   //cm
 Double_t ERBeamDetSetup::fTargetShellThicknessSide = 20 * 1e-4;
 Double_t ERBeamDetSetup::fTargetShellThicknessZ = 6 * 1e-4;
-
+/*Double_t box_X = 6.;
+Double_t box_Y = 6.;
+Double_t box_Z = 6.;
+Double_t tubeR = 1.;
+Double_t tubeZ = 0.0002;
+Double_t Rexit = 2.5;
+Double_t thsp_min = 0.;
+Double_t thsp_max = TMath::ATan(10./49.5)*TMath::RadToDeg();
+Double_t R_max = 5.05;
+Double_t R_min = R_max - 0.1;
+*/
 TString  ERBeamDetSetup::fParamsXmlFileName = "equip.xml";
 vector<TString>  ERBeamDetSetup::fToFType;
 vector<TString>  ERBeamDetSetup::fMWPCType;
 
 
-ERBeamDetSetup::ERBeamDetSetup() {
 
-  //-----------------------------------------------------------------------
+ERBeamDetSetup::ERBeamDetSetup() {
   std::cout << "ERBeamDetSetup initialized! "<< std::endl;
+}
+//-------------------------------------------------------------------------
+ERBeamDetSetup::~ERBeamDetSetup() {
 }
 //-------------------------------------------------------------------------
 void ERBeamDetSetup::AddMWPC(TString type, Double_t position) {
@@ -477,9 +491,14 @@ void ERBeamDetSetup::ConstructGeometry() {
   f90XRotation->RotateY(0.);
   f90XRotation->RotateZ(0.);
 
+  TGeoRotation *fRotation = new TGeoRotation();
+  fRotation->RotateX(180.);
+  fRotation->RotateY(0.);
+  fRotation->RotateZ(0.);
+
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------
-  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();//new FairGeoLoader("TGeo","FairGeoLoader");
+  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
   TString geoPath = gSystem->Getenv("VMCWORKDIR");
   TString medFile = geoPath + "/geometry/media.geo";
@@ -540,12 +559,18 @@ void ERBeamDetSetup::ConstructGeometry() {
     if ( ! pMedAnodeWire[i] ) Fatal("Main", "Medium tungsten not found");
   }
   // --------------------------------------------------------------------------
-  // ------ Create media for fTarget -------------------------------------------
+  // ------ Create media for Target -------------------------------------------
   FairGeoMedium* mH2 = geoMedia->getMedium("H2");
   if ( ! mH2 ) Fatal("Main", "FairMedium H2 not found");
   geoBuild->createMedium(mH2);
   TGeoMedium* pH2 = gGeoMan->GetMedium("H2");
   if ( ! pH2 ) Fatal("Main", "Medium H2 not found"); 
+
+  FairGeoMedium* mMylar = geoMedia->getMedium("mylar");
+  if ( ! mMylar ) Fatal("Main", "FairMedium mylar not found");
+  geoBuild->createMedium(mMylar);
+  TGeoMedium* pMylar = gGeoMan->GetMedium("mylar");
+  if ( ! pMylar ) Fatal("Main", "Medium mylar not found");
 
   FairGeoMedium* mSteel = geoMedia->getMedium("Steel");
   if ( ! mSteel ) Fatal("Main", "FairMedium Steel not found");
@@ -567,18 +592,56 @@ void ERBeamDetSetup::ConstructGeometry() {
   //gGeoMan->SetName("BeamDetGeom");
   TGeoVolume* top   = new TGeoVolumeAssembly("TOP");
   //gGeoMan->SetTopVolume(top);
-
   TGeoVolume* beamdet = new TGeoVolumeAssembly("beamdet");
   //TGeoVolume* MWPC    = new TGeoVolumeAssembly("MWPC");
   TGeoVolume* target  = new TGeoVolumeAssembly("target");
 
   // --------------------------------------------------------------------------
-  // ---------------- fTarget --------------------------------------------------
+  // ---------------- Target --------------------------------------------------
   Double_t fTargetShellR = fTargetH2R + fTargetShellThicknessSide;
   Double_t fTargetShellZ = fTargetH2Z/2 + fTargetShellThicknessZ;
 
   TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, fTargetH2R, fTargetH2Z/2);
   TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, fTargetShellR, fTargetShellZ);
+  
+  // box of steel
+  /*TGeoBBox box1 = TGeoBBox("box1", box_X / 2, box_Y / 2, box_Z / 2);
+  TGeoTube tube1 = TGeoTube("tube1", 0., 1., box_Z / 2);
+
+  TGeoCompositeShape *box2 = new TGeoCompositeShape("box2", "(box1) - (tube1)");
+  TGeoVolume* boxST = new TGeoVolume("boxST", box2, pSteel);
+
+  TGeoVolume *tube = gGeoManager->MakeTube("tube", pH2, 0, 1., box_Z / 2 + 0.15);
+  
+  // make tubes
+  TGeoVolume *entry = gGeoManager->MakeTube("entry", pMylar, 0, tubeR, tubeZ / 2);
+  TGeoVolume *exit = gGeoManager->MakeTube("exit", pMylar, 0, Rexit, tubeZ / 2);
+
+  TGeoSphere *sector1 = new TGeoSphere("sector1",R_min,R_max,thsp_min,thsp_max,0,360.);
+  TGeoSphere *sector2 = new TGeoSphere("sector2",R_min,R_max,thsp_min,thsp_max,0,360.); 
+  
+  // tube of H2 
+  TGeoTube tubeH = TGeoTube("tubeH", 0., 1., box_Z);
+
+  TGeoCombiTrans* trans1 = new TGeoCombiTrans("trans1", 0., 0., - box_Z + R_max - 0.1, fRotation);
+  trans1->RegisterYourself();
+  TGeoCombiTrans* trans2 = new TGeoCombiTrans("trans2", 0., 0., box_Z - R_max + 0.1 ,fZeroRotation); 
+  trans2->RegisterYourself();
+
+  TGeoCompositeShape *Htube = new TGeoCompositeShape("Htube", "sector1:trans1 + tubeH + sector2:trans2");
+  TGeoVolume* tubeH2 = new TGeoVolume("tubeH2", Htube, pH2);
+  
+  // tube of steel
+  TGeoCombiTrans* trans3 = new TGeoCombiTrans("trans3", 0., 0., - box_Z - 0.0006 + R_max - 0.1, fRotation);
+  trans3->RegisterYourself();
+  TGeoCombiTrans* trans4 = new TGeoCombiTrans("trans4", 0., 0.,  box_Z + 0.0006  - R_max + 0.1, fZeroRotation); 
+  trans4->RegisterYourself();
+  
+  TGeoTube tubeS = TGeoTube("tubeS", 0., 1., box_Z + 0.0006);
+
+  TGeoCompositeShape *steelTube = new TGeoCompositeShape("steelTube", "sector1:trans3 + tubeS + sector2:trans4");
+  TGeoVolume* tubeSt = new TGeoVolume("tubeSt", steelTube, pSteel);
+  */
   // --------------------------------------------------------------------------
   // ----------------- MWPC ---------------------------------------------------
   vector<TGeoVolume*> gasVol;
@@ -626,6 +689,13 @@ void ERBeamDetSetup::ConstructGeometry() {
   for(Int_t i = 0; i < fToFCount; i++) {
     beamdet->AddNode(plastic[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionToF[i], fGlobalRotation));
   }
+
+  //tubeSt->AddNode(tubeH2, 0, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
+  //target->AddNode(entry, 0, new TGeoCombiTrans(global_X,global_Y, -box_Z - 0.15 - 0.5, fZeroRotation));
+  //target->AddNode(exit, 0, new TGeoCombiTrans(global_X,global_Y, box_Z + 0.15 + 0.5, fZeroRotation));
+  //target->AddNode(boxST,0,new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
+  //target->AddNode(tubeSt,0,new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
+
   targetShell->AddNode(targetH2, 1, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
   target->AddNode(targetShell, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
 
