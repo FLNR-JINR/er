@@ -30,7 +30,7 @@ void exp1803_sim(Int_t nEvents = 100) {
   // ------------------------------------------------------------------------
  
   // -----   Create simulation run   ----------------------------------------
-  FairRunSim* run = new FairRunSim();
+  ERRunSim* run = new ERRunSim();
   /** Select transport engine
   * TGeant3
   * TGeant4
@@ -104,7 +104,7 @@ void exp1803_sim(Int_t nEvents = 100) {
   ERBeamDet* beamdet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
   run->AddModule(beamdet);
   // -----   Create PrimaryGenerator   --------------------------------------
-  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+  /*FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   Int_t pdgId = 2212; // proton  beam
   Double32_t theta1 = 0.;  // polar angle distribution
   Double32_t theta2 = 0.;
@@ -118,12 +118,31 @@ void exp1803_sim(Int_t nEvents = 100) {
   boxGen->SetBoxXYZ(0.,0.,0.,0.,-1200.);
 
   primGen->AddGenerator(boxGen);
+  run->SetGenerator(primGen);*/
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+
+  ERIonMixGenerator* generator = new ERIonMixGenerator("6He", 2, 6, 2, 1);
+  Double32_t kin_energy = 40 * 1e-3 * 28; //GeV
+  generator->SetPSigma(5., 5.*0.003);
+  generator->SetThetaRange(0., 0.);
+  generator->SetPhiRange(0, 360);
+  Double32_t distanceToTarget = 1200;
+  generator->SetBoxXYZ(0, 0, 0, 0, -distanceToTarget);
+
+  primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
 
+  // ------- Decayer --------------------------------------------------------
+  ERDecayer* decayer = new ERDecayer();
+  ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
+  targetDecay->SetTargetVolumeName("targetH2");
+  targetDecay->SetTargetThickness(0.4);
+  decayer->AddDecay(targetDecay);
+  run->SetDecayer(decayer);
+//-------------------------------------------------------------------------
   // ------- Magnetic field -------------------------------------------------
-  ERFieldMap* magField = new ERFieldMap("testField","A");
-  run->SetField(magField);
-
+  /*ERFieldMap* magField = new ERFieldMap("testField","A");
+  run->SetField(magField);*/
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
     
