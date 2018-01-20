@@ -22,6 +22,7 @@ void exp1803_sim(Int_t nEvents = 100) {
                          + "/db/QTelescope/QTelescopeParts.xml";
   TString paramFileBeamDet = workDirPath
                          + "/db/BeamDet/BeamDetParts.xml";
+  TString targetGeoFileName = workDirPath + "/geometry/target.h2.geo.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -45,15 +46,21 @@ void exp1803_sim(Int_t nEvents = 100) {
   
   // -----   Create media   -------------------------------------------------
   run->SetMaterials("media.geo");       // Materials
-  // ------------------------------------------------------------------------
 
   // -----   Create detectors  ----------------------------------------------   
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
+
+  // -----   Create target  -------------------------------------------------
+  FairModule* target = new ERTarget("targetH2", kTRUE, 1);
+  target->SetGeometryFileName(targetGeoFileName);
+  run->AddModule(target);
+
   // -----  QTelescope Setup ------------------------------------------------
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
   setupQTelescope->SetXmlParametersFile(paramFileQTelescope);
+
   // ----- T1 parameters ----------------------------------------------------
   // ----- T1.1--------------------------------------------------------------
   setupQTelescope->AddSi("DoubleSi_SD1", TVector3( T1Side/2 + T1Aperture/2, 
@@ -83,24 +90,28 @@ void exp1803_sim(Int_t nEvents = 100) {
   setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 + T1Aperture/2, 
                                          T1Side/2 + T1Aperture/2,  
                                          T1PosZ + T1D1 +T1Dl + T1D2/2), "X");
+
   // ----- D1 parameters ----------------------------------------------------
   setupQTelescope->AddSi("DoubleSi_D1", TVector3( 0, 
                                                   0,  
                                                   D1PosZ + D1D/2), "X");
+
   // ------QTelescope -------------------------------------------------------
   Int_t verbose = 1;
   ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE,verbose);
   run->AddModule(qtelescope);
-  // ------------------------------------------------------------------------
+
   // -----  BeamDet Setup ---------------------------------------------------
   ERBeamDetSetup* setupBeamDet = ERBeamDetSetup::Instance();
   setupBeamDet->SetXmlParametersFile(paramFileBeamDet);
+
   // -----  BeamDet parameters ----------------------------------------------
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);
   //setupBeamDet->SetSensitiveTarget();
+
   // ------BeamDet ----------------------------------------------------------
   ERBeamDet* beamdet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
   run->AddModule(beamdet);
@@ -136,11 +147,11 @@ void exp1803_sim(Int_t nEvents = 100) {
   // ------- Decayer --------------------------------------------------------
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
-  targetDecay->SetTargetVolumeName("targetH2");
+  targetDecay->SetTargetVolumeName("tubeH2");
   targetDecay->SetTargetThickness(0.4);
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);
-//-------------------------------------------------------------------------
+
   // ------- Magnetic field -------------------------------------------------
   /*ERFieldMap* magField = new ERFieldMap("testField","A");
   run->SetField(magField);*/
@@ -162,7 +173,6 @@ void exp1803_sim(Int_t nEvents = 100) {
   rtdb->setOutput(parOut);
   rtdb->saveOutput();
   rtdb->print();
-  // ---------------------------------------------------------
   
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);
