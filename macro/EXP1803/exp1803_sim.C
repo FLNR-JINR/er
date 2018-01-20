@@ -100,6 +100,7 @@ void exp1803_sim(Int_t nEvents = 100) {
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);
+  //setupBeamDet->SetSensitiveTarget();
   // ------BeamDet ----------------------------------------------------------
   ERBeamDet* beamdet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
   run->AddModule(beamdet);
