@@ -44,7 +44,6 @@ void exp1803_sim(Int_t nEvents = 100) {
   
   // -----   Runtime database   ---------------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
-  // ------------------------------------------------------------------------
   
   // -----   Create media   -------------------------------------------------
   run->SetMaterials("media.geo");       // Materials
@@ -63,10 +62,12 @@ void exp1803_sim(Int_t nEvents = 100) {
   ERGadast* gadast = new ERGadast("PartofGadast", kTRUE);
   gadast->SetGeometryFileName(gadastGeoFileName);
   run->AddModule(gadast);
+
   // -----   Create Part of Gadast ------------------------------------------
   ERND* neutronDetector = new ERND("StilbeneWall", kTRUE, 1);
   neutronDetector->SetGeometryFileName(ndGeoFileName);
   run->AddModule(neutronDetector);
+
   // -----  QTelescope Setup ------------------------------------------------
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
   setupQTelescope->SetXmlParametersFile(paramFileQTelescope);
@@ -163,8 +164,8 @@ void exp1803_sim(Int_t nEvents = 100) {
   run->SetDecayer(decayer);
 
   // ------- Magnetic field -------------------------------------------------
-  /*ERFieldMap* magField = new ERFieldMap("testField","A");
-  run->SetField(magField);*/
+  ERFieldMap* magField = new ERFieldMap("exp1803Field","A");
+  run->SetField(magField);
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
     
