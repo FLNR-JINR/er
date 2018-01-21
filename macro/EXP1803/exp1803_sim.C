@@ -24,6 +24,7 @@ void exp1803_sim(Int_t nEvents = 100) {
                          + "/db/BeamDet/BeamDetParts.xml";
   TString targetGeoFileName = workDirPath + "/geometry/target.h2.geo.root";
   TString gadastGeoFileName = workDirPath + "/geometry/partOfGadast.v1.geo.root";
+  TString ndGeoFileName = workDirPath + "/geometry/ND.geo.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -62,7 +63,10 @@ void exp1803_sim(Int_t nEvents = 100) {
   ERGadast* gadast = new ERGadast("PartofGadast", kTRUE);
   gadast->SetGeometryFileName(gadastGeoFileName);
   run->AddModule(gadast);
-
+  // -----   Create Part of Gadast ------------------------------------------
+  ERND* neutronDetector = new ERND("StilbeneWall", kTRUE, 1);
+  neutronDetector->SetGeometryFileName(ndGeoFileName);
+  run->AddModule(neutronDetector);
   // -----  QTelescope Setup ------------------------------------------------
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
   setupQTelescope->SetXmlParametersFile(paramFileQTelescope);

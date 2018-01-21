@@ -82,58 +82,68 @@ void create_ND_geo()
   // This is the one but last level in the hierarchy
   // This volume-assembly is the only volume to be inserted into TOP
   TGeoVolumeAssembly* subdetectorVolAss = new TGeoVolumeAssembly("neutrondet1ch");
-  subdetectorVolAss->AddNode(moduleVol, 1);
+  //subdetectorVolAss->AddNode(moduleVol, 1);
 
-  //	for (UInt_t iX=0; iX<iXmax; iX++) {
-  //		for (UInt_t iY=0; iY<iYmax; iY++) {
-  //			matrixName.Form("mHousingInND_%d", iX*iYmax+iY);
-  //			moduleVol->AddNode(submoduleVol, iX*2+iY, new TGeoCombiTrans(matrixName,
+  //  for (UInt_t iX=0; iX<iXmax; iX++) {
+  //    for (UInt_t iY=0; iY<iYmax; iY++) {
+  //      matrixName.Form("mHousingInND_%d", iX*iYmax+iY);
+  //      moduleVol->AddNode(submoduleVol, iX*2+iY, new TGeoCombiTrans(matrixName,
   // Modules' Positioning Here 
-  //			    -submoduleXsize/2.+submoduleXsize*iX, -submoduleYsize/2.+submoduleYsize*iY, 0., rotNoRot));
+  //          -submoduleXsize/2.+submoduleXsize*iX, -submoduleYsize/2.+submoduleYsize*iY, 0., rotNoRot));
   //  Modules' Positioning Here 
-  //		}
-  //	}
+  //    }
+  //  }
   // Regular positioning below
-/*
+
+  const Double_t r = 300;        // Sphere's radius
+  const Double_t l = 2*R_max_Housing - 0.1;        // Length of the arc between two cylinders
+  Double_t alpha[3];        // Angle of rotation of cylinders around axes:  alpha = l/r
+  Double_t h[3];          // h = sqrt[4*r*r*sin(alpha/2)*sin(alpha/2) - r*r*sin(alpha)*sin(alpha)]
+                // h - defines the location of the cylinder on the Z-axis
+  Double_t l1[3];         // span: l1=r*sin(alpha)
+  Double_t pi = 3.141592653589793;
+  //TMath::Pi();
+  Double_t rad = 180./pi;       // conversion of rads to degrees
+
   for(Int_t i=0; i<3; i++){
   for(Int_t j=0; j<3; j++){
   //1. Central cylinder:
   if((i==0)&&(j==0)){
-  NDVol->AddNode(ModuleVol, 26, new TGeoCombiTrans("r1",0,0,r,new TGeoRotation("r2",0,0,0)));
+  subdetectorVolAss->AddNode(moduleVol, 26, new TGeoCombiTrans("r1",0,0,r,new TGeoRotation("r2",0,0,0)));
   }
   //2. Cylinders along the Y-axis:
   else if((i==0)&&!(j==0)){
   alpha[j]= j*(l/r);
   l1[j] =r*sin(alpha[j]);
   h[j] = sqrt(4*r*r*sin(alpha[j]/2)*sin(alpha[j]/2) - r*r*sin(alpha[j])*sin(alpha[j]));
-  NDVol->AddNode(ModuleVol,2*j, new TGeoCombiTrans("r1",0,l1[j], r-h[j], new TGeoRotation("r2",0, -(alpha[j]*rad),0)));
-  NDVol->AddNode(ModuleVol,2*j+1, new TGeoCombiTrans("r1",0, -l1[j], r-h[j], new TGeoRotation("r2",0, (alpha[j]*rad),0)));
+  subdetectorVolAss->AddNode(moduleVol,2*j, new TGeoCombiTrans("r1",0,l1[j], r-h[j], new TGeoRotation("r2",0, -(alpha[j]*rad),0)));
+  subdetectorVolAss->AddNode(moduleVol,2*j+1, new TGeoCombiTrans("r1",0, -l1[j], r-h[j], new TGeoRotation("r2",0, (alpha[j]*rad),0)));
   //3. Cylinders along the X-axis:
   }else if((j==0)&&!(i==0)){
   alpha[i]= i*(l/r);
   l1[i] =r*sin(alpha[i]);
   h[i] = sqrt(4*r*r*sin(alpha[i]/2)*sin(alpha[i]/2) - r*r*sin(alpha[i])*sin(alpha[i]));
-  NDVol->AddNode(ModuleVol,2*i+4, new TGeoCombiTrans("r1",l1[i],0, r-h[i], new TGeoRotation("r2",0, 0,-(alpha[i]*rad))));
-  NDVol->AddNode(ModuleVol,2*i+5, new TGeoCombiTrans("r1",-l1[i],0, r-h[i], new TGeoRotation("r2",0,0, (alpha[i]*rad))));
+  subdetectorVolAss->AddNode(moduleVol,2*i+4, new TGeoCombiTrans("r1",l1[i],0, r-h[i], new TGeoRotation("r2",0, 0,-(alpha[i]*rad))));
+  subdetectorVolAss->AddNode(moduleVol,2*i+5, new TGeoCombiTrans("r1",-l1[i],0, r-h[i], new TGeoRotation("r2",0,0, (alpha[i]*rad))));
   //4. Cylinders placed on quadrants:
   }
   else {
-  NDVol->AddNode(ModuleVol,8*i+2*j, 
+  subdetectorVolAss->AddNode(moduleVol,8*i+2*j, 
   new TGeoCombiTrans("r1",l1[i],l1[j], r-h[j]-h[i], 
   new TGeoRotation("r2",0, -(alpha[j]*rad),-(alpha[i]*rad))));
-  NDVol->AddNode(ModuleVol,8*i+2*j+1, 
+  subdetectorVolAss->AddNode(moduleVol,8*i+2*j+1, 
   new TGeoCombiTrans("r1",l1[i], -l1[j], r-h[j]-h[i], 
   new TGeoRotation("r2",0,(alpha[j]*rad), -(alpha[i]*rad))));
-  NDVol->AddNode(ModuleVol,8*i+2*j+4, 
+  subdetectorVolAss->AddNode(moduleVol,8*i+2*j+4, 
   new TGeoCombiTrans("r1",-l1[i],-l1[j], r-h[j]-h[i], 
   new TGeoRotation("r2",0, (alpha[j]*rad),(alpha[i]*rad))));
-  NDVol->AddNode(ModuleVol,8*i+2*j+5, 
+  subdetectorVolAss->AddNode(moduleVol,8*i+2*j+5, 
   new TGeoCombiTrans("r1",-l1[i], l1[j], r-h[j]-h[i], 
   new TGeoRotation("r2",0, -(alpha[j]*rad),(alpha[i]*rad))));
   }//else
   }//for j
   }//for i
-*/
+
 
   // World ------------------------------------
   TGeoVolumeAssembly* topVolAss = new TGeoVolumeAssembly("TOP");
