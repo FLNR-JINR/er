@@ -23,6 +23,7 @@ void exp1803_sim(Int_t nEvents = 100) {
   TString paramFileBeamDet = workDirPath
                          + "/db/BeamDet/BeamDetParts.xml";
   TString targetGeoFileName = workDirPath + "/geometry/target.h2.geo.root";
+  TString gadastGeoFileName = workDirPath + "/geometry/partOfGadast.v1.geo.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -56,6 +57,11 @@ void exp1803_sim(Int_t nEvents = 100) {
   FairModule* target = new ERTarget("targetH2", kTRUE, 1);
   target->SetGeometryFileName(targetGeoFileName);
   run->AddModule(target);
+
+  // -----   Create Part of Gadast ------------------------------------------
+  ERGadast* gadast = new ERGadast("PartofGadast", kTRUE);
+  gadast->SetGeometryFileName(gadastGeoFileName);
+  run->AddModule(gadast);
 
   // -----  QTelescope Setup ------------------------------------------------
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
