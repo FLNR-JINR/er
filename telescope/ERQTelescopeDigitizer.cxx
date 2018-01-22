@@ -73,7 +73,7 @@ InitStatus ERQTelescopeDigitizer::Init() {
   while (bName = (TObjString*)nextBranch()) {
     TString bFullName = bName->GetString();
     cout << "Branch full name " << bFullName << endl;
-    if (bFullName.Contains("Point")) {
+    if (bFullName.Contains("Point") && bFullName.Contains("QTelescope")) {
       // Rename input point branches to output digi branches by changing class name prefix
       // ERDetectorPoint_sensitiveVolNameNumber -> ERDetectorDigi_sensitiveVolNameNumber
       // In map of output collections first parameter is full input branch name without class prefix 
