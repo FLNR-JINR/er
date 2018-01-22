@@ -1,4 +1,4 @@
-Double_t fieldTransZ = 50.;
+Double_t fieldTransZ = 50.; // this parameter should coincide with "magnetCenterZ" from /macro/geo/create_GadastEXP1803_geo.C
 
 void fieldDataToERFormat() {
 

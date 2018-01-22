@@ -1,19 +1,21 @@
 void exp1803_sim(Int_t nEvents = 100) {
   // --------------- Telescope T1 -------------------------------------------
-  Double_t T1Aperture = 50.;
-  Double_t T1Dl = 0.5;
-  Double_t T1PosZ = 30.;
-  Double_t T1D1 = 0.002;
-  Double_t T1D2 = 0.1;
-  Double_t T1Side = 100.;
+  Double_t T1Dl = 0.5;         // [cm]      
+  Double_t T1PosZ = 10.;       // [cm] 
+  Double_t T1D1Thick = 0.002;  // [cm]  
+  Double_t T1D2Thick = 0.1;    // [cm] 
+  Double_t T1Side = 6.2;       // [cm]  this parameter should coincide with SD1 side length from /db/QTelescope/QTelescopeParts.xml
+  Double_t T1Aperture = 3.1;   // [cm]  
   // --------------- Telescope D1 -------------------------------------------
-  Double_t D1PosZ = 40.;
-  Double_t D1D = 0.03;
+  Double_t D1PosZ = 20.;       // [cm]
+  Double_t D1Thick = 0.03;     // [cm]
   // --------------- BeamDet ------------------------------------------------
   Double_t BeamDetLToF = 100.;
   Double_t BeamDetPosZToF = -300;
   Double_t BeamDetLMWPC = 80.;
   Double_t BeamDetPosZMWPC = -50;
+  // --------------- Beam start position ------------------------------------
+  Double_t beamStartPosition = 1200;
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -75,37 +77,37 @@ void exp1803_sim(Int_t nEvents = 100) {
   // ----- T1 parameters ----------------------------------------------------
   // ----- T1.1--------------------------------------------------------------
   setupQTelescope->AddSi("DoubleSi_SD1", TVector3( T1Side/2 + T1Aperture/2, 
-                                         T1Side/2 - T1Aperture/2,  
-                                         T1PosZ + T1D1/2), "X");
+                                                   T1Side/2 - T1Aperture/2,  
+                                                   T1PosZ + T1D1Thick/2), "X");
   setupQTelescope->AddSi("DoubleSi_SD2", TVector3( T1Side/2 + T1Aperture/2, 
-                                         T1Side/2 - T1Aperture/2,  
-                                         T1PosZ + T1D1 +T1Dl + T1D2/2), "X");
+                                                   T1Side/2 - T1Aperture/2,  
+                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), "X");
   // ----- T1.2--------------------------------------------------------------
   setupQTelescope->AddSi("DoubleSi_SD1", TVector3( T1Side/2 - T1Aperture/2, 
-                                        -T1Side/2 - T1Aperture/2,  
-                                         T1PosZ + T1D1/2), "X");
+                                                  -T1Side/2 - T1Aperture/2,  
+                                                   T1PosZ + T1D1Thick/2), "X");
   setupQTelescope->AddSi("DoubleSi_SD2", TVector3( T1Side/2 - T1Aperture/2, 
-                                        -T1Side/2 - T1Aperture/2,  
-                                         T1PosZ + T1D1 +T1Dl + T1D2/2), "X");
+                                                  -T1Side/2 - T1Aperture/2,  
+                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), "X");
   // ----- T1.3 -------------------------------------------------------------
   setupQTelescope->AddSi("DoubleSi_SD1", TVector3(-T1Side/2 - T1Aperture/2, 
-                                        -T1Side/2 + T1Aperture/2,  
-                                         T1PosZ + T1D1/2), "X");
+                                                  -T1Side/2 + T1Aperture/2,  
+                                                   T1PosZ + T1D1Thick/2), "X");
   setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 - T1Aperture/2, 
-                                        -T1Side/2 + T1Aperture/2,  
-                                         T1PosZ + T1D1 +T1Dl + T1D2/2), "X");
+                                                  -T1Side/2 + T1Aperture/2,  
+                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), "X");
   // ----- T1.4--------------------------------------------------------------
   setupQTelescope->AddSi("DoubleSi_SD1", TVector3(-T1Side/2 + T1Aperture/2, 
-                                         T1Side/2 + T1Aperture/2,  
-                                         T1PosZ + T1D1/2), "X");
+                                                   T1Side/2 + T1Aperture/2,  
+                                                   T1PosZ + T1D1Thick/2), "X");
   setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 + T1Aperture/2, 
-                                         T1Side/2 + T1Aperture/2,  
-                                         T1PosZ + T1D1 +T1Dl + T1D2/2), "X");
+                                                   T1Side/2 + T1Aperture/2,  
+                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), "X");
 
   // ----- D1 parameters ----------------------------------------------------
   setupQTelescope->AddSi("DoubleSi_D1", TVector3( 0, 
                                                   0,  
-                                                  D1PosZ + D1D/2), "X");
+                                                  D1PosZ + D1Thick/2), "X");
 
   // ------QTelescope -------------------------------------------------------
   Int_t verbose = 1;
@@ -145,12 +147,12 @@ void exp1803_sim(Int_t nEvents = 100) {
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
   ERIonMixGenerator* generator = new ERIonMixGenerator("6He", 2, 6, 2, 1);
-  Double32_t kin_energy = 40 * 1e-3 * 28; //GeV
-  generator->SetPSigma(5., 5.*0.003);
+  Double32_t kin_energy = 35 * 1e-3 * 6; //GeV
+  generator->SetKinE(kin_energy);
+  generator->SetPSigmaOverP(0);
   generator->SetThetaRange(0., 0.);
   generator->SetPhiRange(0, 360);
-  Double32_t distanceToTarget = 1200;
-  generator->SetBoxXYZ(0, 0, 0, 0, -distanceToTarget);
+  generator->SetBoxXYZ(0, 0, 0, 0, -beamStartPosition);
 
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);

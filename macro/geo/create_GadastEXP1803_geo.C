@@ -13,8 +13,8 @@ Double_t cellShellInX1  = 7.29301787351589, cellShellInX2  = 3.82750999888938; /
 Double_t cellShellInY1  = 4.163004470682,   cellShellInY2  = 3.83230464765268; 
 Double_t cellShellInZ   = 3.0065;
 // ----- Transtalstion parameters ---------------------------------------------
-Double_t rotAngle = 30.;
-Double_t magnetCenterZ = 50.;
+Double_t rotAngle = 30.;          // this parameter should coincide with magnetic field rotation angle
+Double_t magnetCenterZ = 50.;     // this parameter should coincide with "fieldTransZ" from /macro/EXP1803/fielDataToERFormat.C
 Double_t distToMagnetCenter = 50.;
 
 void create_GadastEXP1803_geo()
