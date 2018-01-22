@@ -14,8 +14,8 @@ Double_t cellShellInY1  = 4.163004470682,   cellShellInY2  = 3.83230464765268;
 Double_t cellShellInZ   = 3.0065;
 // ----- Transtalstion parameters ---------------------------------------------
 Double_t rotAngle = 30.;
-Double_t magnetCenterZ = 30.;
-Double_t distToMagnetCenter = 30.;
+Double_t magnetCenterZ = 50.;
+Double_t distToMagnetCenter = 50.;
 
 void create_GadastEXP1803_geo()
 {
@@ -29,10 +29,10 @@ void create_GadastEXP1803_geo()
   fZeroRotation->RotateY(0.);
   fZeroRotation->RotateZ(0.);
   // Create a 90 degree rotation around Z axis
-  TGeoRotation *f90RotationZ = new TGeoRotation();
-  f90RotationZ->RotateX(0.);
-  f90RotationZ->RotateY(0.);
-  f90RotationZ->RotateZ(-90.);
+  TGeoRotation *fCsILocalRotation = new TGeoRotation();
+  fCsILocalRotation->RotateX(-rotAngle);
+  fCsILocalRotation->RotateY(0.);
+  fCsILocalRotation->RotateZ(-90.);
 
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------
@@ -144,7 +144,7 @@ void create_GadastEXP1803_geo()
     transY += transStepY;
     transZ -= transStepZ; 
   } 
-  gadast->AddNode(csiModule, 1, new TGeoCombiTrans(0, 0, 0, f90RotationZ));
+  gadast->AddNode(csiModule, 1, new TGeoCombiTrans(0, 0, 0, fCsILocalRotation));
   Double_t dZ = distToMagnetCenter * TMath::Cos(rotAngle * TMath::Pi() / 180);
   Double_t dX = distToMagnetCenter * TMath::Sin(rotAngle * TMath::Pi() / 180);
   Double_t dAlpha = 180 / TMath::Pi() * TMath::ATan(dX / (magnetCenterZ + dZ));
