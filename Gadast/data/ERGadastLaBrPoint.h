@@ -93,7 +93,7 @@ class ERGadastLaBrPoint : public FairMCPoint
   Double32_t fX_out,  fY_out,  fZ_out;
   Double32_t fPx_out, fPy_out, fPz_out;
   Int_t fPDG;
-  Int fCell;
+  Int_t fCell;
 
 
   ClassDef(ERGadastLaBrPoint,1)

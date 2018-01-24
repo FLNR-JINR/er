@@ -31,7 +31,8 @@ ERGadastDigitizer.cxx
 data/ERGadastCsIPoint.cxx
 data/ERGadastLaBrPoint.cxx
 data/ERGadastStep.cxx
-data/ERGadastDigi.cxx
+data/ERGadastCsIDigi.cxx
+data/ERGadastLaBrDigi.cxx
 )
 
 # fill list of header files from list of source files

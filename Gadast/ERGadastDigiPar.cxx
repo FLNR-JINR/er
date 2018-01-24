@@ -143,11 +143,11 @@ Bool_t ERGadastDigiPar::init(FairParIo* input){
 	std::cout << input->getFilename() << std::endl;
   if ( TString(input->getFilename()).Contains(".digi")){
     FairGenericParAsciiFileIo* p=new FairGenericParAsciiFileIo(((FairParAsciiFileIo*)input)->getFile());
-	return p->init(this);
+	  return p->init(this);
   }
   if ( TString(input->getFilename()).Contains(".root")){ 
     FairGenericParRootFileIo* p=new FairGenericParRootFileIo(((FairParRootFileIo*)input)->getParRootFile());
-	return p->init(this);
+	  return p->init(this);
   }
   return kFALSE;
 }

@@ -27,14 +27,16 @@ void Gadast_digi(Int_t nEvents = 1000){
   
   FairParRootFileIo*  parIo1 = new FairParRootFileIo();
   parIo1->open(parFile.Data(), "UPDATE");
-  rtdb->setFirstInput(parIo1);
+  
   
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   TString GadastDetDigiFile = gSystem->Getenv("VMCWORKDIR");
   GadastDetDigiFile += "/parameters/Gadast.digi.par";
   parInput2->open(GadastDetDigiFile.Data(),"in");
-  rtdb->setSecondInput(parInput2);
   
+  rtdb->setFirstInput(parInput2);
+  rtdb->setSecondInput(parIo1);
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);

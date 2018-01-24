@@ -41,7 +41,7 @@ class ERGadastCsIPoint : public FairMCPoint
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
 		  Double_t tof, Double_t length, Double_t eLoss, Int_t pdg,
-      Int_t wall, Int_t block, Int_t cell, Int_t meshEl);
+      Int_t wall, Int_t block, Int_t cell);
 
 
   /** Copy constructor **/
@@ -71,7 +71,6 @@ class ERGadastCsIPoint : public FairMCPoint
   Int_t GetWall()            const { return fWall; }
   Int_t GetBlock()            const { return fBlock; }
   Int_t GetCell()            const { return fCell; }
-  Int_t GetMeshEl()         const {return fMeshEl;}
 
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
@@ -101,7 +100,6 @@ class ERGadastCsIPoint : public FairMCPoint
   Int_t fWall;
   Int_t fBlock;
   Int_t fCell;
-  Int_t fMeshEl;
 
   ClassDef(ERGadastCsIPoint,1)
 };

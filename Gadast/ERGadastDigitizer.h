@@ -13,7 +13,8 @@
 
 #include "FairTask.h"
 
-#include "ERGadastDigi.h"
+#include "ERGadastCsIDigi.h"
+#include "ERGadastLaBrDigi.h"
 #include "ERGadastDigiPar.h"
 #include "ERGadastSetup.h"
 
@@ -63,16 +64,12 @@ protected:
   ERGadastSetup* fSetup;
 
   //Output arrays
-  TClonesArray *fGadastDigi;
-
-  TH1F* fHCsIElossInEvent;
-  TH1F* fHLaBrElossInEvent;
-
-  Float_t fCsIElossInEvent;
-  Float_t fLaBrElossInEvent;
+  TClonesArray *fGadastCsIDigi;
+  TClonesArray *fGadastLaBrDigi;
 protected:
   
-  ERGadastDigi* AddDigi(Float_t Edep);
+  ERGadastCsIDigi* AddCsIDigi(Float_t Edep,Int_t wall,Int_t block, Int_t cell);
+  ERGadastLaBrDigi* AddLaBrDigi(Float_t Edep, Int_t cell);
   
 private:
   virtual void SetParContainers();

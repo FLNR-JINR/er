@@ -9,11 +9,11 @@
 #include "ERGadastCsIPoint.h"
 #include "ERGadastLaBrPoint.h"
 
+using namespace std;
+
 // ----------------------------------------------------------------------------
 ERGadastDigitizer::ERGadastDigitizer()
   : FairTask("ER Gadast Digitization scheme"),
-  fHCsIElossInEvent(NULL),
-  fHLaBrElossInEvent(NULL),
   fSetup(NULL)
 {
 }
@@ -22,8 +22,6 @@ ERGadastDigitizer::ERGadastDigitizer()
 // ----------------------------------------------------------------------------
 ERGadastDigitizer::ERGadastDigitizer(Int_t verbose)
   : FairTask("ER Gadast Digitization scheme ", verbose),
-  fHCsIElossInEvent(NULL),
-  fHLaBrElossInEvent(NULL),
   fSetup(NULL)
 {
 }
@@ -66,11 +64,10 @@ InitStatus ERGadastDigitizer::Init()
   fGadastLaBrPoints = (TClonesArray*) ioman->GetObject("GadastLaBrPoint");
   
   // Register output arrays
-  fGadastDigi = new TClonesArray("ERGadastDigi",1000);
-  ioman->Register("GadastDigi", "Digital response in Gadast", fGadastDigi, kTRUE);
-
-  fHCsIElossInEvent = new TH1F("fHCsIElossInEvent", "fHCsIElossInEvent",1000, 0., 0.005);
-  fHLaBrElossInEvent = new TH1F("fHLaBrElossInEvent", "fHLaBrElossInEvent",1000, 0., 0.01);
+  fGadastCsIDigi = new TClonesArray("ERGadastCsIDigi",1000);
+  fGadastLaBrDigi = new TClonesArray("ERGadastLaBrDigi",1000);
+  ioman->Register("GadastCsIDigi", "Digital response in Gadast CsI", fGadastCsIDigi, kTRUE);
+  ioman->Register("GadastLaBrDigi", "Digital response in Gadast LaBr", fGadastLaBrDigi, kTRUE);
 
   fSetup = ERGadastSetup::Instance();
   if (!fSetup->Init()){
@@ -103,8 +100,7 @@ void ERGadastDigitizer::Exec(Option_t* opt)
     ERGadastLaBrPoint* point = (ERGadastLaBrPoint*)fGadastLaBrPoints->At(iPoint);
     pointsLaBr[point->GetCell()].push_back(iPoint);
   }
-
-  
+  /*
   for (Int_t iPoint = 0; iPoint < fGadastCsIPoints->GetEntriesFast(); iPoint++){
     ERGadastCsIPoint* point = (ERGadastCsIPoint*)fGadastCsIPoints->At(iPoint);
     Float_t edep = point->GetEnergyLoss();
@@ -133,21 +129,18 @@ void ERGadastDigitizer::Exec(Option_t* opt)
     fLaBrElossInEvent += edep;
     AddDigi(edep);
   }
-  if (fCsIElossInEvent > 0)
-    fHCsIElossInEvent->Fill(fCsIElossInEvent);
-  if (fLaBrElossInEvent > 0)
-    fHLaBrElossInEvent->Fill(fLaBrElossInEvent);
+  */
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void ERGadastDigitizer::Reset()
 {
-  fCsIElossInEvent = 0;
-  fLaBrElossInEvent = 0;
-
-  if (fGadastDigi) {
-    fGadastDigi->Delete();
+  if (fGadastCsIDigi) {
+    fGadastCsIDigi->Delete();
+  }
+  if (fGadastLaBrDigi) {
+    fGadastLaBrDigi->Delete();
   }
 }
 // ----------------------------------------------------------------------------
@@ -155,18 +148,22 @@ void ERGadastDigitizer::Reset()
 // ----------------------------------------------------------------------------
 void ERGadastDigitizer::Finish()
 { 
-  fHCsIElossInEvent->Write();
-  fHLaBrElossInEvent->Write();
   std::cout << "========== Finish of ERGadastDigitizer =================="<< std::endl;
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERGadastDigi* ERGadastDigitizer::AddDigi(Float_t Edep)
+ERGadastCsIDigi* ERGadastDigitizer::AddCsIDigi(Float_t Edep,Int_t wall,Int_t block, Int_t cell)
 {
-  ERGadastDigi *digi = new((*fGadastDigi)[fGadastDigi->GetEntriesFast()])
-							ERGadastDigi(fGadastDigi->GetEntriesFast(), Edep);
+  ERGadastCsIDigi *digi = new((*fGadastCsIDigi)[fGadastCsIDigi->GetEntriesFast()])
+							ERGadastCsIDigi(fGadastCsIDigi->GetEntriesFast(), Edep, wall, block, cell);
   return digi;
 }
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+ERGadastLaBrDigi* ERGadastDigitizer::AddLaBrDigi(Float_t Edep, Int_t cell)
+{
+  ERGadastLaBrDigi *digi = new((*fGadastLaBrDigi)[fGadastLaBrDigi->GetEntriesFast()])
+              ERGadastLaBrDigi(fGadastLaBrDigi->GetEntriesFast(), Edep, cell);
+  return digi;
+}
 ClassImp(ERGadastDigitizer)
