@@ -8,7 +8,7 @@
 #include "TRandom3.h"
 
 #include "FairRootManager.h"
-#include "FairRunAna.h"
+#include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
@@ -44,7 +44,7 @@ ERDigitizer::~ERDigitizer()
 void ERDigitizer::SetParContainers()
 {
   // Get run and runtime database
-  FairRunAna* run = FairRunAna::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
@@ -59,7 +59,7 @@ InitStatus ERDigitizer::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
 
-  TList* allBranchNames = (TList*)ioman->GetInChain()->GetListOfBranches();
+  TList* allBranchNames = ioman->GetBranchNameList();;
   TIter nextBranch(allBranchNames);
   TObjString* bName;
   vector<TString> pointBranches;

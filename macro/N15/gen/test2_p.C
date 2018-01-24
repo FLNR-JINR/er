@@ -107,7 +107,7 @@ CMmom = sqrt((shorty-4*m15N*m15N*m11B*m11B)/(4*invariant));
 		px_B=-px;
 		py_B=-py;
 		
-		out<< 0 <<"\t" <<  pz*10e-3<<"\t"<<px*10e-3<<"\t"<< py*10e-3<<"\t"<<-pz*10e-3<<"\t"<<-px*10e-3<<"\t"<< -py*10e-3<< "\t"<< 0 << endl;
+		out<< 0 <<"\t" <<px*10e-3<<"\t"<< py*10e-3<<"\t" << pz*10e-3<<"\t" <<-px*10e-3<<"\t"<<-px*10e-3<<"\t"<< -pz*10e-3<< "\t"<< 0 << endl;
 		
 		// Histograms filling
 		histo1->Fill(x);

@@ -167,7 +167,6 @@ Bool_t ERTextDecay::Stepping() {
 void ERTextDecay::SaveToEventHeader(){
   FairRunSim* run = FairRunSim::Instance();
   if (TString(run->GetMCEventHeader()->ClassName()).Contains("ERDecayMCEventHeader")){
-    cout << "ERDecayMCEventHeader" << endl;
     ERDecayMCEventHeader* header = (ERDecayMCEventHeader*)run->GetMCEventHeader();
     vector<TLorentzVector> decay = fDecays[gMC->CurrentEvent()];
     header->SetDecayPos(fDecayPos.Vect());
