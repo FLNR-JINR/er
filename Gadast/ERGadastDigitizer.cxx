@@ -14,7 +14,17 @@ using namespace std;
 // ----------------------------------------------------------------------------
 ERGadastDigitizer::ERGadastDigitizer()
   : FairTask("ER Gadast Digitization scheme"),
-  fSetup(NULL)
+  fSetup(NULL),
+  fCsILC(1.),
+  fCsIEdepErrorA(0.),
+  fCsIEdepErrorB(0.),
+  fCsIEdepErrorC(0.),
+  fCsITimeErrorA(0.),
+  fLaBrLC(1.),
+  fLaBrEdepErrorA(0.),
+  fLaBrEdepErrorB(0.),
+  fLaBrEdepErrorC(0.),
+  fLaBrTimeErrorA(0.)
 {
 }
 // ----------------------------------------------------------------------------
@@ -22,7 +32,17 @@ ERGadastDigitizer::ERGadastDigitizer()
 // ----------------------------------------------------------------------------
 ERGadastDigitizer::ERGadastDigitizer(Int_t verbose)
   : FairTask("ER Gadast Digitization scheme ", verbose),
-  fSetup(NULL)
+  fSetup(NULL),
+  fCsILC(1.),
+  fCsIEdepErrorA(0.),
+  fCsIEdepErrorB(0.),
+  fCsIEdepErrorC(0.),
+  fCsITimeErrorA(0.),
+  fLaBrLC(1.),
+  fLaBrEdepErrorA(0.),
+  fLaBrEdepErrorB(0.),
+  fLaBrEdepErrorC(0.),
+  fLaBrTimeErrorA(0.)
 {
 }
 // ----------------------------------------------------------------------------
@@ -100,36 +120,46 @@ void ERGadastDigitizer::Exec(Option_t* opt)
     ERGadastLaBrPoint* point = (ERGadastLaBrPoint*)fGadastLaBrPoints->At(iPoint);
     pointsLaBr[point->GetCell()].push_back(iPoint);
   }
-  /*
-  for (Int_t iPoint = 0; iPoint < fGadastCsIPoints->GetEntriesFast(); iPoint++){
-    ERGadastCsIPoint* point = (ERGadastCsIPoint*)fGadastCsIPoints->At(iPoint);
-    Float_t edep = point->GetEnergyLoss();
-    TVector3* pos = new TVector3(point->GetXIn(), point->GetYIn(), point->GetZIn());
 
-    Float_t LC = fSetup->CsILC(pos);
-    Float_t a = fSetup->CsIDispA(pos);
-    Float_t b = fSetup->CsIDispB(pos);
+  for (const auto &itWall : pointsCsI){
+    for (const auto &itBlock : itWall.second){
+      for (const auto &itCell : itBlock.second){
+        Float_t edep = 0; // sum edep in cell
+        Float_t time = std::numeric_limits<float>::max(); // first time in cell
+        for (const auto iPoint : itCell.second){
+          ERGadastCsIPoint* point = (ERGadastCsIPoint*)fGadastCsIPoints->At(iPoint);
+          edep += point->GetEnergyLoss();
+          if (point->GetTime() < time)
+            time = point->GetTime();
+        }
+        Float_t edepSigma = sqrt(pow(fCsIEdepErrorA,2) + pow(fCsIEdepErrorB*TMath::Sqrt(edep/1000.),2) + pow(fCsIEdepErrorC*edep,2));
+        edep = gRandom->Gaus(fCsILC*edep, edepSigma);
 
-    Float_t disp = a*a*edep + b*b*edep*edep;
-    edep = gRandom->Gaus(edep*LC, disp);
-    fCsIElossInEvent += edep;
-    AddDigi(edep);
+        Float_t timeSigma = TMath::Sqrt(fCsITimeErrorA/edep);
+        time = gRandom->Gaus(time, timeSigma);
+
+        AddCsIDigi(edep,itWall.first,itBlock.first,itCell.first);
+      }
+    }
   }
 
-  for (Int_t iPoint = 0; iPoint < fGadastLaBrPoints->GetEntriesFast(); iPoint++){
-    ERGadastLaBrPoint* point = (ERGadastLaBrPoint*)fGadastLaBrPoints->At(iPoint);
-    Float_t edep = point->GetEnergyLoss();
+  for (const auto &itCell : pointsLaBr){
+    Float_t edep = 0; // sum edep in cell
+    Float_t time = std::numeric_limits<float>::max(); // first time in cell
+    for (const auto iPoint : itCell.second){
+      ERGadastLaBrPoint* point = (ERGadastLaBrPoint*)fGadastLaBrPoints->At(iPoint);
+      edep += point->GetEnergyLoss();
+      if (point->GetTime() < time)
+        time = point->GetTime();
+    }
+    Float_t edepSigma = sqrt(pow(fLaBrEdepErrorA,2) + pow(fLaBrEdepErrorB*TMath::Sqrt(edep/1000.),2) + pow(fLaBrEdepErrorC*edep,2));
+    edep = gRandom->Gaus(fLaBrLC*edep, edepSigma);
 
-    Float_t LC = 0.8;
-    Float_t a = 0.01343;
-    Float_t b = 0.004;
+    Float_t timeSigma = TMath::Sqrt(fLaBrTimeErrorA/edep);
+    time = gRandom->Gaus(time, timeSigma);
 
-    Float_t disp = a*a*edep + b*b*edep*edep;
-    edep = gRandom->Gaus(edep*LC, disp);
-    fLaBrElossInEvent += edep;
-    AddDigi(edep);
+    AddLaBrDigi(edep,itCell.first);
   }
-  */
 }
 //----------------------------------------------------------------------------
 

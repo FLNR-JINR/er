@@ -19,6 +19,12 @@ void Gadast_digi(Int_t nEvents = 1000){
   // ------------------------NeuRadDigitizer---------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERGadastDigitizer* digitizer = new ERGadastDigitizer(verbose);
+  digitizer->SetCsILC(1.);
+  digitizer->SetCsIEdepError(0.0,0.04,0.02);
+  digitizer->SetCsITimeError(0.);
+  digitizer->SetLaBrLC(1.);
+  digitizer->SetLaBrEdepError(0.0,0.04,0.02);
+  digitizer->SetLaBrTimeError(0.);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   
