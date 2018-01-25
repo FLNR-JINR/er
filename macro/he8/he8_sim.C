@@ -52,7 +52,7 @@ void he8_sim(Int_t nEvents = 10){
   ERDecayer* decayer = new ERDecayer();
   ERTextDecay* decay = new ERTextDecay("10Heto8He2n");
   decay->SetInputIon(2,10,2);
-  decay->SetOutputIon(2,8,2);
+  decay->AddOutputIon(2,8,2);
   decay->AddOutputParticle(2112);
   decay->AddOutputParticle(2112);
   decay->SetUniformPos(0.5,0.7);
