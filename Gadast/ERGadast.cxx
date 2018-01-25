@@ -25,10 +25,8 @@ ERGadast::ERGadast():
   fCsIPoints(new TClonesArray("ERGadastCsIPoint")),
   fLaBrPoints(new TClonesArray("ERGadastLaBrPoint")),
   fGadastSteps(new TClonesArray("ERGadastStep")),
-  fVersion(1),
   fStoreSteps(kFALSE)
 {
-  ResetParameters();
   flGeoPar->SetName( GetName());
   flGeoPar = new TList();
   fVerboseLevel = 1;
@@ -42,10 +40,8 @@ ERGadast::ERGadast(const char* name, Bool_t active)
   fCsIPoints(new TClonesArray("ERGadastCsIPoint")),
   fLaBrPoints(new TClonesArray("ERGadastLaBrPoint")),
   fGadastSteps(new TClonesArray("ERGadastStep")),
-  fVersion(1),
   fStoreSteps(kFALSE)
 { 
-  ResetParameters();
   flGeoPar->SetName( GetName());
   flGeoPar = new TList();
   fVerboseLevel = 1;
@@ -153,12 +149,6 @@ void ERGadast::FinishPoint(){
     }
   }
 }
-//------------------------------------------------------------------------------
-
-// -----   Public method BeginOfEvent   -----------------------------------------
-void ERGadast::BeginEvent() {
-}
-
 // -----   Public method EndOfEvent   -----------------------------------------
 void ERGadast::EndOfEvent() {
   if (fVerboseLevel > 1) {
@@ -215,7 +205,6 @@ void ERGadast::Reset() {
   fCsIPoints->Clear();
   fLaBrPoints->Clear();
   fGadastSteps->Clear();
-  ResetParameters();
 }
 // ----------------------------------------------------------------------------
 
@@ -301,13 +290,6 @@ Bool_t ERGadast::CheckIfSensitive(std::string name)
   }
   return kFALSE;
 }
-// ----------------------------------------------------------------------------
 
-void ERGadast::WriteHistos(){
-}
-
-// ----------------------------------------------------------------------------
-void ERGadast::ResetParameters() {
-};
 // ----------------------------------------------------------------------------
 ClassImp(ERGadast)
