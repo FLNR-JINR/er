@@ -4,20 +4,19 @@
 // -------------------------------------------------------------------------
 #include "ERND.h"
 
-#include <iostream>
-using namespace std;
-
-#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
 
+#include "FairRootManager.h"
+#include "FairLogger.h"
 
 // -----   Default constructor   -------------------------------------------
 ERND::ERND() : 
   FairDetector("ERND", kTRUE),
-  fNDPoints(NULL)
+   fNDPoints(NULL),
+   fStep(1)
 {
   LOG(INFO) << "  ERND::ERND()" << FairLogger::endl;
   ResetParameters();
@@ -32,7 +31,7 @@ ERND::ERND() :
 // -----   Standard constructor   ------------------------------------------
 ERND::ERND(const char* name, Bool_t active, Int_t verbose) 
   : FairDetector(name, active,verbose),
-  fNDPoints(NULL)
+   fNDPoints(NULL)
   {
   ResetParameters();
   fNDPoints = new TClonesArray("ERNDPoint");
@@ -54,11 +53,23 @@ void ERND::Initialize()
 }
 
 
-Bool_t ERND::ProcessHits(FairVolume* vol) { 
-  // Set constants for Birk's Law implentation
+Bool_t ERND::ProcessHits(FairVolume* vol) {
+  // Set constants for Birk's Law implentation (Geant 4parametrization)
+  /*
   static const Double_t dP = 1.032 ;
   static const Double_t BirkC1 =  0.013/dP;
   static const Double_t BirkC2 =  9.6e-6/(dP * dP);
+  */
+  //Birks constants from Craun, R. L.; Smith, D. L. NIM 80,2, p. 239, 1970
+  /*
+  static const Double_t dP = 0.97;
+  static const Double_t BirkC1 =  0.00856/dP;
+  static const Double_t BirkC2 =  4.99e-6/(dP * dP);
+  */
+  // Bircks constant from experiment. S. Belogurov, E. Gazeeva
+  static const Double_t dP = 1.16;
+  static const Double_t BirkC1 =  0.027/dP;
+  static const Double_t BirkC2 =  0.0/(dP * dP);
 
   static Int_t          eventID;           //!  event index
   static Int_t          trackID;           //!  track index
@@ -70,7 +81,9 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
   static Double32_t     length;            //!  length
   static Double32_t     eLoss;             //!  energy loss
   static Int_t          stilbenNr;
-  static Double_t       lightYield; 
+  static Double_t       lightYield;
+
+  gMC->SetMaxStep(fStep);
 
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     eLoss  = 0.;
@@ -79,11 +92,11 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
     gMC->TrackPosition(posIn);
     gMC->TrackMomentum(momIn);
     trackID  = gMC->GetStack()->GetCurrentTrackNumber();
-    time   = gMC->TrackPid();// gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
+    time   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     pdg = gMC->TrackPid(); // GeV/c2
-    gMC->CurrentVolOffID(1, stilbenNr); 
+    gMC->CurrentVolOffID(3,stilbenNr); 
   }
   
   eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
@@ -132,9 +145,8 @@ void ERND::BeginEvent() {
 
 
 void ERND::EndOfEvent() {
-  if (fVerboseLevel > 1) {
-    Print();
-  }
+  LOG(DEBUG) << "ND Points Count: " << fNDPoints->GetEntriesFast() << FairLogger::endl;
+  Print();
   Reset();
 }
 
@@ -168,7 +180,6 @@ void ERND::Print(Option_t *option) const
 
 // -----   Public method Reset   ----------------------------------------------
 void ERND::Reset() {
-  LOG(INFO) << "  ERND::Reset()" << FairLogger::endl;
   fNDPoints->Clear();
   ResetParameters();
 }
@@ -176,10 +187,10 @@ void ERND::Reset() {
 
 // -----   Public method CopyClones   -----------------------------------------
 void ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
-  LOG(INFO) << "   ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)" 
+  LOG(DEBUG) << "   ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)" 
             << FairLogger::endl;
   Int_t nEntries = cl1->GetEntriesFast();
-  LOG(INFO) << "decector: " << nEntries << " entries to add" << FairLogger::endl;
+  LOG(DEBUG) << "decector: " << nEntries << " entries to add" << FairLogger::endl;
   TClonesArray& clref = *cl2;
   ERNDPoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
@@ -188,7 +199,7 @@ void ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
    oldpoint->SetTrackID(index);
    new (clref[cl2->GetEntriesFast()]) ERNDPoint(*oldpoint);
   }
-  LOG(INFO) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
+  LOG(DEBUG) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 }
 // ----------------------------------------------------------------------------
 
@@ -212,10 +223,10 @@ ERNDPoint* ERND::AddPoint(Int_t eventID, Int_t trackID,
 void ERND::ConstructGeometry() {
   TString fileName = GetGeometryFileName();
   if(fileName.EndsWith(".root")) {
-    cout << "Constructing ERND geometry from ROOT file " << fileName.Data() << FairLogger::endl;
+    LOG(DEBUG) << "Constructing ERND geometry from ROOT file " << fileName.Data() << FairLogger::endl;
     ConstructRootGeometry();
   } else {
-    cerr << "Geometry file name is not set" << FairLogger::endl;
+    LOG(DEBUG) << "Geometry file name is not set" << FairLogger::endl;
   }
   
 }
@@ -224,9 +235,8 @@ void ERND::ConstructGeometry() {
 // ----------------------------------------------------------------------------
 Bool_t ERND::CheckIfSensitive(std::string name)
 {
-  //cout << name << endl;
   TString volName = name;
-  if(volName.Contains("Stilbene")) {
+  if(volName.Contains("crystal")) {
     return kTRUE;
   }
 
@@ -236,7 +246,6 @@ Bool_t ERND::CheckIfSensitive(std::string name)
 
 // ----------------------------------------------------------------------------
 void ERND::ResetParameters() {
-  LOG(INFO) << "   ERND::ResetParameters() " << FairLogger::endl;
 };
 // ----------------------------------------------------------------------------
 ClassImp(ERND)

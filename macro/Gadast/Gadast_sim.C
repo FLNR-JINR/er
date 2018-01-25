@@ -32,8 +32,7 @@ void Gadast_sim(int nEvents = 1000){
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
 
-  ERGadast* gadast= new ERGadast("ERGadast", kTRUE);
-  //gadast->SetVerboseLevel(1);
+  ERGadast* gadast= new ERGadast("ERGadast", kTRUE, 1);
   //gadast->SetStoreSteps();
   gadast->SetGeometryFileName("gadast.gdml");
   run->AddModule(gadast);
@@ -87,7 +86,6 @@ void Gadast_sim(int nEvents = 1000){
   
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
-  gadast->WriteHistos();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   cout << endl << endl;

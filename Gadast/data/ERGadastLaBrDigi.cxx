@@ -1,45 +1,48 @@
 // -------------------------------------------------------------------------
-// -----                       ERGadastDigi source file                -----
+// -----                       ERGadastLaBrDigi source file                -----
 // -----           Created 11/12/15  by V.Schetinin        			   -----
 // -------------------------------------------------------------------------
 
-#include "ERGadastDigi.h"
+#include "ERGadastLaBrDigi.h"
 #include<iostream>
 
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
-ERGadastDigi::ERGadastDigi()
+ERGadastLaBrDigi::ERGadastLaBrDigi()
   :fID(-1),
   fEdep(0.)
 {
 }
 
-ERGadastDigi::ERGadastDigi(Int_t id, Float_t Edep)
+ERGadastLaBrDigi::ERGadastLaBrDigi(Int_t id, Float_t Edep, Int_t cell)
   :fID(id),
-  fEdep(Edep)
+  fEdep(Edep),
+  fCell(cell)
 {
 }
 
-ERGadastDigi::ERGadastDigi(const ERGadastDigi& right)
+ERGadastLaBrDigi::ERGadastLaBrDigi(const ERGadastLaBrDigi& right)
   :fID(right.fID),
-   fEdep(right.fEdep)
+   fEdep(right.fEdep),
+   fCell(right.fCell)
 {
 }
 
 
 
 // -----   Destructor   ----------------------------------------------------
-ERGadastDigi::~ERGadastDigi()
+ERGadastLaBrDigi::~ERGadastLaBrDigi()
 {
 }
 
 // -----   Public method Print   -------------------------------------------
-void ERGadastDigi::Print(const Option_t* opt /* = 0 */) const
+void ERGadastLaBrDigi::Print(const Option_t* opt /* = 0 */) const
 {
-  std::cout << "-I- ERGadastDigi:  " << endl;
+  std::cout << "-I- ERGadastLaBrDigi:  " << endl;
   std::cout << "    Edep : " << fEdep << endl;
+  std::cout << "    Cell : " << fCell << endl;
 }
 // -------------------------------------------------------------------------
 
-ClassImp(ERGadastDigi)
+ClassImp(ERGadastLaBrDigi)

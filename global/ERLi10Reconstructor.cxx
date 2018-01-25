@@ -15,7 +15,7 @@
 using namespace std;
 
 #include "ERDetectorList.h"
-#include "ERNDHit.h"
+#include "ERNDDigi.h"
 #include "ERRTelescopeHit.h"
 #include "ERLi10EventHeader.h"
 
@@ -94,7 +94,7 @@ void ERLi10Reconstructor::Exec(Option_t* opt)
   Int_t NDHit = -1;
   Int_t NDHitNb = 0;
   for (Int_t iHit = 0; iHit < fNDHits->GetEntriesFast(); iHit++){
-    ERNDHit* hit = (ERNDHit*)fNDHits->At(iHit);
+    ERNDDigi* hit = (ERNDDigi*)fNDHits->At(iHit);
     if (hit->NeutronProb() > 0){
       NDHit = iHit;
       NDHitNb++; 
@@ -119,7 +119,7 @@ void ERLi10Reconstructor::Exec(Option_t* opt)
 
   //Пропускаем событие, если количество хитов больше одного
   if (NDHitNb == 1){
-    ERNDHit* hit = (ERNDHit*)fNDHits->At(NDHit);
+    ERNDDigi* hit = (ERNDDigi*)fNDHits->At(NDHit);
     TVector3 hitPos;
     hit->Position(hitPos);
     TVector3 reactionPos(0.,0.,fMCHeader->ReactionPos());
@@ -170,11 +170,11 @@ void ERLi10Reconstructor::Finish()
 // ----------------------------------------------------------------------------
 /*
 // ----------------------------------------------------------------------------
-ERNDHit* ERLi10Reconstructor::AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
+ERNDDigi* ERLi10Reconstructor::AddHit(Int_t detID, TVector3& pos, TVector3& dpos,
                        Int_t point_index, Float_t eloss, Float_t time,Float_t neutronProb)
 {
-  ERNDHit *hit = new((*fNDHits)[fNDHits->GetEntriesFast()])
-              ERNDHit(fNDHits->GetEntriesFast(),detID, pos, dpos, point_index, eloss, time, neutronProb);
+  ERNDDigi *hit = new((*fNDHits)[fNDHits->GetEntriesFast()])
+              ERNDDigi(fNDHits->GetEntriesFast(),detID, pos, dpos, point_index, eloss, time, neutronProb);
   return hit;
 }
 // ----------------------------------------------------------------------------

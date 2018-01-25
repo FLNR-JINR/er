@@ -1,7 +1,7 @@
-void ND_reco(Int_t nEvents = 10000){
+void ND_digi(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
-  TString outFile = "reco.root";
+  TString outFile = "digi.root";
   TString parFile = "par.root";
   // ------------------------------------------------------------------------
   
@@ -16,16 +16,16 @@ void ND_reco(Int_t nEvents = 10000){
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
  
-  // ------------------------ND hit producer---------------------------------
-  ERNDHitFinder* hitFinder = new ERNDHitFinder(1);
-  hitFinder->SetLYDispersionA(0.0344);
-  hitFinder->SetLYDispersionB(0.0106);
-  hitFinder->SetTimeDispersionPar(0.1);
-  hitFinder->SetQuenchThreshold(0.005);
-  hitFinder->SetLYThreshold(0.004);
-  hitFinder->SetProbabilityB(0.1);
-  hitFinder->SetProbabilityC(0.3);
-  fRun->AddTask(hitFinder);
+  // ------------------------ND digitizer ------------------------------------
+  ERNDDigitizer* digitizer = new ERNDDigitizer(1);
+  digitizer->SetEdepError(0.0,0.04,0.02);
+  digitizer->SetLYError(0.0,0.04,0.02);
+  digitizer->SetTimeError(0.001);
+  digitizer->SetQuenchThreshold(0.005);
+  digitizer->SetLYThreshold(0.004);
+  digitizer->SetProbabilityB(0.1);
+  digitizer->SetProbabilityC(0.3);
+  fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   
   // -----------Runtime DataBase info -------------------------------------

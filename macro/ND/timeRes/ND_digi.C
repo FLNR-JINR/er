@@ -1,4 +1,4 @@
-void Gadast_digi(Int_t nEvents = 1000){
+void ND_digi(Int_t nEvents = 10000){
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "digi.root";
@@ -16,15 +16,15 @@ void Gadast_digi(Int_t nEvents = 1000){
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
  
-  // ------------------------NeuRadDigitizer---------------------------------
-  Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
-  ERGadastDigitizer* digitizer = new ERGadastDigitizer(verbose);
-  digitizer->SetCsILC(1.);
-  digitizer->SetCsIEdepError(0.0,0.04,0.02);
-  digitizer->SetCsITimeError(0.);
-  digitizer->SetLaBrLC(1.);
-  digitizer->SetLaBrEdepError(0.0,0.04,0.02);
-  digitizer->SetLaBrTimeError(0.);
+  // ------------------------ND hit producer---------------------------------
+  ERNDDigitizer* digitizer = new ERNDDigitizer(1);
+  digitizer->SetEdepError(0.0,0.01,0.01);
+  digitizer->SetLYError(0.0,0.01,0.01);
+  digitizer->SetTimeError(0.1);
+  digitizer->SetQuenchThreshold(0.005);
+  digitizer->SetLYThreshold(0.004);
+  digitizer->SetProbabilityB(0.1);
+  digitizer->SetProbabilityC(0.3);
   fRun->AddTask(digitizer);
   // ------------------------------------------------------------------------
   
@@ -33,23 +33,13 @@ void Gadast_digi(Int_t nEvents = 1000){
   
   FairParRootFileIo*  parIo1 = new FairParRootFileIo();
   parIo1->open(parFile.Data(), "UPDATE");
+  rtdb->setFirstInput(parIo1);
   
-  
-  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
-  TString GadastDetDigiFile = gSystem->Getenv("VMCWORKDIR");
-  GadastDetDigiFile += "/parameters/Gadast.digi.par";
-  parInput2->open(GadastDetDigiFile.Data(),"in");
-  
-  rtdb->setFirstInput(parInput2);
-  rtdb->setSecondInput(parIo1);
-
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
-  rtdb->setOutput(parIo1);
-  rtdb->saveOutput();
-  
+
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
@@ -61,5 +51,4 @@ void Gadast_digi(Int_t nEvents = 1000){
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-
 }

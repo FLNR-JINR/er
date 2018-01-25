@@ -13,7 +13,8 @@
 
 #include "FairTask.h"
 
-#include "ERGadastDigi.h"
+#include "ERGadastCsIDigi.h"
+#include "ERGadastLaBrDigi.h"
 #include "ERGadastDigiPar.h"
 #include "ERGadastSetup.h"
 
@@ -50,7 +51,12 @@ public:
   virtual void Reset();
   
   /** Modifiers **/
- 
+  void SetCsILC(Float_t lc){fCsILC = lc;}
+  void SetCsIEdepError(Float_t a, Float_t b, Float_t c) {fCsIEdepErrorA = a;fCsIEdepErrorB = b;fCsIEdepErrorC = c;}
+  void SetCsITimeError(Float_t a) {fCsITimeErrorA = a;}
+  void SetLaBrLC(Float_t lc){fLaBrLC = lc;}
+  void SetLaBrEdepError(Float_t a, Float_t b, Float_t c) {fLaBrEdepErrorA = a;fLaBrEdepErrorB = b;fLaBrEdepErrorC = c;}
+  void SetLaBrTimeError(Float_t a) {fLaBrTimeErrorA = a;}
   /** Accessors **/ 
 
 protected:
@@ -63,16 +69,20 @@ protected:
   ERGadastSetup* fSetup;
 
   //Output arrays
-  TClonesArray *fGadastDigi;
+  TClonesArray *fGadastCsIDigi;
+  TClonesArray *fGadastLaBrDigi;
 
-  TH1F* fHCsIElossInEvent;
-  TH1F* fHLaBrElossInEvent;
-
-  Float_t fCsIElossInEvent;
-  Float_t fLaBrElossInEvent;
+  //light collection
+  Float_t fCsILC;
+  Float_t fCsIEdepErrorA,fCsIEdepErrorB,fCsIEdepErrorC;
+  Float_t fCsITimeErrorA;
+  Float_t fLaBrLC;
+  Float_t fLaBrEdepErrorA,fLaBrEdepErrorB,fLaBrEdepErrorC;
+  Float_t fLaBrTimeErrorA;
 protected:
   
-  ERGadastDigi* AddDigi(Float_t Edep);
+  ERGadastCsIDigi* AddCsIDigi(Float_t Edep,Int_t wall,Int_t block, Int_t cell);
+  ERGadastLaBrDigi* AddLaBrDigi(Float_t Edep, Int_t cell);
   
 private:
   virtual void SetParContainers();

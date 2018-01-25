@@ -8,8 +8,9 @@
 #include "TRandom3.h"
 
 #include "FairRootManager.h"
-#include "FairRunAna.h"
+#include "FairRun.h"
 #include "FairRuntimeDb.h"
+#include "FairLogger.h"
 
 #include "ERPoint.h"
 
@@ -43,7 +44,7 @@ ERDigitizer::~ERDigitizer()
 void ERDigitizer::SetParContainers()
 {
   // Get run and runtime database
-  FairRunAna* run = FairRunAna::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
@@ -58,7 +59,7 @@ InitStatus ERDigitizer::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
 
-  TList* allBranchNames = ioman->GetBranchNameList();
+  TList* allBranchNames = ioman->GetBranchNameList();;
   TIter nextBranch(allBranchNames);
   TObjString* bName;
   vector<TString> pointBranches;
@@ -72,7 +73,7 @@ InitStatus ERDigitizer::Init()
     TString pBranch = pointBranches[iBranch];
     fSenVolPoints[pBranch] = (TClonesArray*) ioman->GetObject(pBranch);
     fSenVolDigis[pBranch] = new TClonesArray("ERDigi");
-    ioman->Register(pBranch+"Digi", fName, fSenVolDigis[pBranch], kTRUE);
+    ioman->Register(pBranch(0,pBranch.Length()-5)+"Digi", fName, fSenVolDigis[pBranch], kTRUE);
   }
   return kSUCCESS;
 }
@@ -105,6 +106,8 @@ void ERDigitizer::Exec(Option_t* opt){
           fTime = point->GetTime();
         }
       }
+
+
       TString volName = itSenVol.first(fName.Length(),itSenVol.first.Length()-fName.Length()-5);
       
       if (fSenVolErrors.find(volName) == fSenVolErrors.end()){
