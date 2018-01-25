@@ -32,8 +32,7 @@ void Gadast_sim(int nEvents = 1000){
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
 
-  ERGadast* gadast= new ERGadast("ERGadast", kTRUE);
-  //gadast->SetVerboseLevel(1);
+  ERGadast* gadast= new ERGadast("ERGadast", kTRUE, 1);
   //gadast->SetStoreSteps();
   gadast->SetGeometryFileName("gadast.gdml");
   run->AddModule(gadast);

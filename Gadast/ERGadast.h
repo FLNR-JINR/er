@@ -44,7 +44,7 @@ public:
      **                                 2 - Print points after each event, 
      **                                 3 - GEANT Step information.
   **/
-  ERGadast(const char* name, Bool_t active);
+  ERGadast(const char* name, Bool_t active, Int_t verbose);
    
   /** @brief Destructor **/
   virtual ~ERGadast();
@@ -161,13 +161,13 @@ private:
   Double32_t     fLength;                     ///< track length from his origin
   Double32_t     fELoss;                      ///< energy loss
   Int_t fPDG;                                 ///< particle PDG
-  Int_t  fStepNr;                             ///<  current step numb in this active volumes
+  Int_t  fStepNr;                             ///< current step numb in this active volumes
   ERGadastDetectorType  fDetectorType;        ///< CsI or LaBr point
   Int_t fCsIWall;                             ///< CsI Wall number
   Int_t fCsIBlock;                            ///< CsI Block number
   Int_t fCsICell;                             ///< CsI Cell number
   Int_t fLaBrCell;                            ///< laBr Cell number
-    
+
   ClassDef(ERGadast,1);
 };
 

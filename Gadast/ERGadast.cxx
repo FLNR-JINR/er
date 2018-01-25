@@ -20,9 +20,6 @@
 
 #include "ERGadastGeoPar.h"
 
-using namespace std;
-
-
 //--------------------------------------------------------------------------------------------------
 ERGadast::ERGadast(): 
   ERDetector("ERGadast", kTRUE),
@@ -37,7 +34,7 @@ ERGadast::ERGadast():
 }
 
 //--------------------------------------------------------------------------------------------------
-ERGadast::ERGadast(const char* name, Bool_t active):
+ERGadast::ERGadast(const char* name, Bool_t active, Int_t verbose):
   ERDetector(name, active),
   fCsIPoints(new TClonesArray("ERGadastCsIPoint")),
   fLaBrPoints(new TClonesArray("ERGadastLaBrPoint")),
@@ -46,7 +43,7 @@ ERGadast::ERGadast(const char* name, Bool_t active):
 { 
   flGeoPar->SetName( GetName());
   flGeoPar = new TList();
-  fVerboseLevel = 1;
+  fVerboseLevel = verbose;
 }
 
 //--------------------------------------------------------------------------------------------------
