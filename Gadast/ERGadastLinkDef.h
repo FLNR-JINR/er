@@ -16,7 +16,7 @@
 #pragma link C++ class ERGadastCsIPoint+;
 #pragma link C++ class ERGadastLaBrPoint+;
 #pragma link C++ class ERGadastStep+;
-#pragma link C++ class ERGadastDigi+;
-
+#pragma link C++ class ERGadastCsIDigi+;
+#pragma link C++ class ERGadastLaBrDigi+;
 
 #endif

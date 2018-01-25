@@ -9,12 +9,22 @@
 #include "ERGadastCsIPoint.h"
 #include "ERGadastLaBrPoint.h"
 
+using namespace std;
+
 // ----------------------------------------------------------------------------
 ERGadastDigitizer::ERGadastDigitizer()
   : FairTask("ER Gadast Digitization scheme"),
-  fHCsIElossInEvent(NULL),
-  fHLaBrElossInEvent(NULL),
-  fSetup(NULL)
+  fSetup(NULL),
+  fCsILC(1.),
+  fCsIEdepErrorA(0.),
+  fCsIEdepErrorB(0.),
+  fCsIEdepErrorC(0.),
+  fCsITimeErrorA(0.),
+  fLaBrLC(1.),
+  fLaBrEdepErrorA(0.),
+  fLaBrEdepErrorB(0.),
+  fLaBrEdepErrorC(0.),
+  fLaBrTimeErrorA(0.)
 {
 }
 // ----------------------------------------------------------------------------
@@ -22,9 +32,17 @@ ERGadastDigitizer::ERGadastDigitizer()
 // ----------------------------------------------------------------------------
 ERGadastDigitizer::ERGadastDigitizer(Int_t verbose)
   : FairTask("ER Gadast Digitization scheme ", verbose),
-  fHCsIElossInEvent(NULL),
-  fHLaBrElossInEvent(NULL),
-  fSetup(NULL)
+  fSetup(NULL),
+  fCsILC(1.),
+  fCsIEdepErrorA(0.),
+  fCsIEdepErrorB(0.),
+  fCsIEdepErrorC(0.),
+  fCsITimeErrorA(0.),
+  fLaBrLC(1.),
+  fLaBrEdepErrorA(0.),
+  fLaBrEdepErrorB(0.),
+  fLaBrEdepErrorC(0.),
+  fLaBrTimeErrorA(0.)
 {
 }
 // ----------------------------------------------------------------------------
@@ -66,11 +84,10 @@ InitStatus ERGadastDigitizer::Init()
   fGadastLaBrPoints = (TClonesArray*) ioman->GetObject("GadastLaBrPoint");
   
   // Register output arrays
-  fGadastDigi = new TClonesArray("ERGadastDigi",1000);
-  ioman->Register("GadastDigi", "Digital response in Gadast", fGadastDigi, kTRUE);
-
-  fHCsIElossInEvent = new TH1F("fHCsIElossInEvent", "fHCsIElossInEvent",1000, 0., 0.005);
-  fHLaBrElossInEvent = new TH1F("fHLaBrElossInEvent", "fHLaBrElossInEvent",1000, 0., 0.01);
+  fGadastCsIDigi = new TClonesArray("ERGadastCsIDigi",1000);
+  fGadastLaBrDigi = new TClonesArray("ERGadastLaBrDigi",1000);
+  ioman->Register("GadastCsIDigi", "Digital response in Gadast CsI", fGadastCsIDigi, kTRUE);
+  ioman->Register("GadastLaBrDigi", "Digital response in Gadast LaBr", fGadastLaBrDigi, kTRUE);
 
   fSetup = ERGadastSetup::Instance();
   if (!fSetup->Init()){
@@ -89,53 +106,71 @@ void ERGadastDigitizer::Exec(Option_t* opt)
   // Reset entries in output arrays
   Reset();
 
-  
-
+  // Sort points by sensentive volumes
+  // Map points by cells: pointsCsI[iWall][iBlock][iCell]
+  map<Int_t, map<Int_t, map <Int_t, vector<Int_t> > > > pointsCsI;
   for (Int_t iPoint = 0; iPoint < fGadastCsIPoints->GetEntriesFast(); iPoint++){
     ERGadastCsIPoint* point = (ERGadastCsIPoint*)fGadastCsIPoints->At(iPoint);
-    Float_t edep = point->GetEnergyLoss();
-    TVector3* pos = new TVector3(point->GetXIn(), point->GetYIn(), point->GetZIn());
-
-    Float_t LC = fSetup->CsILC(pos);
-    Float_t a = fSetup->CsIDispA(pos);
-    Float_t b = fSetup->CsIDispB(pos);
-
-    Float_t disp = a*a*edep + b*b*edep*edep;
-    edep = gRandom->Gaus(edep*LC, disp);
-    fCsIElossInEvent += edep;
-    AddDigi(edep);
+    pointsCsI[point->GetWall()][point->GetBlock()][point->GetCell()].push_back(iPoint);
   }
 
-  
-
+  // Map points by cells: pointsLaBr[iCell]
+  map<Int_t, vector<Int_t> > pointsLaBr;
   for (Int_t iPoint = 0; iPoint < fGadastLaBrPoints->GetEntriesFast(); iPoint++){
     ERGadastLaBrPoint* point = (ERGadastLaBrPoint*)fGadastLaBrPoints->At(iPoint);
-    Float_t edep = point->GetEnergyLoss();
-
-    Float_t LC = 0.8;
-    Float_t a = 0.01343;
-    Float_t b = 0.004;
-
-    Float_t disp = a*a*edep + b*b*edep*edep;
-    edep = gRandom->Gaus(edep*LC, disp);
-    fLaBrElossInEvent += edep;
-    AddDigi(edep);
+    pointsLaBr[point->GetCell()].push_back(iPoint);
   }
-  if (fCsIElossInEvent > 0)
-    fHCsIElossInEvent->Fill(fCsIElossInEvent);
-  if (fLaBrElossInEvent > 0)
-    fHLaBrElossInEvent->Fill(fLaBrElossInEvent);
+
+  for (const auto &itWall : pointsCsI){
+    for (const auto &itBlock : itWall.second){
+      for (const auto &itCell : itBlock.second){
+        Float_t edep = 0; // sum edep in cell
+        Float_t time = std::numeric_limits<float>::max(); // first time in cell
+        for (const auto iPoint : itCell.second){
+          ERGadastCsIPoint* point = (ERGadastCsIPoint*)fGadastCsIPoints->At(iPoint);
+          edep += point->GetEnergyLoss();
+          if (point->GetTime() < time)
+            time = point->GetTime();
+        }
+        Float_t edepSigma = sqrt(pow(fCsIEdepErrorA,2) + pow(fCsIEdepErrorB*TMath::Sqrt(edep/1000.),2) + pow(fCsIEdepErrorC*edep,2));
+        edep = gRandom->Gaus(fCsILC*edep, edepSigma);
+
+        Float_t timeSigma = TMath::Sqrt(fCsITimeErrorA/edep);
+        time = gRandom->Gaus(time, timeSigma);
+
+        AddCsIDigi(edep,itWall.first,itBlock.first,itCell.first);
+      }
+    }
+  }
+
+  for (const auto &itCell : pointsLaBr){
+    Float_t edep = 0; // sum edep in cell
+    Float_t time = std::numeric_limits<float>::max(); // first time in cell
+    for (const auto iPoint : itCell.second){
+      ERGadastLaBrPoint* point = (ERGadastLaBrPoint*)fGadastLaBrPoints->At(iPoint);
+      edep += point->GetEnergyLoss();
+      if (point->GetTime() < time)
+        time = point->GetTime();
+    }
+    Float_t edepSigma = sqrt(pow(fLaBrEdepErrorA,2) + pow(fLaBrEdepErrorB*TMath::Sqrt(edep/1000.),2) + pow(fLaBrEdepErrorC*edep,2));
+    edep = gRandom->Gaus(fLaBrLC*edep, edepSigma);
+
+    Float_t timeSigma = TMath::Sqrt(fLaBrTimeErrorA/edep);
+    time = gRandom->Gaus(time, timeSigma);
+
+    AddLaBrDigi(edep,itCell.first);
+  }
 }
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 void ERGadastDigitizer::Reset()
 {
-  fCsIElossInEvent = 0;
-  fLaBrElossInEvent = 0;
-
-  if (fGadastDigi) {
-    fGadastDigi->Delete();
+  if (fGadastCsIDigi) {
+    fGadastCsIDigi->Delete();
+  }
+  if (fGadastLaBrDigi) {
+    fGadastLaBrDigi->Delete();
   }
 }
 // ----------------------------------------------------------------------------
@@ -143,18 +178,22 @@ void ERGadastDigitizer::Reset()
 // ----------------------------------------------------------------------------
 void ERGadastDigitizer::Finish()
 { 
-  fHCsIElossInEvent->Write();
-  fHLaBrElossInEvent->Write();
   std::cout << "========== Finish of ERGadastDigitizer =================="<< std::endl;
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERGadastDigi* ERGadastDigitizer::AddDigi(Float_t Edep)
+ERGadastCsIDigi* ERGadastDigitizer::AddCsIDigi(Float_t Edep,Int_t wall,Int_t block, Int_t cell)
 {
-  ERGadastDigi *digi = new((*fGadastDigi)[fGadastDigi->GetEntriesFast()])
-							ERGadastDigi(fGadastDigi->GetEntriesFast(), Edep);
+  ERGadastCsIDigi *digi = new((*fGadastCsIDigi)[fGadastCsIDigi->GetEntriesFast()])
+							ERGadastCsIDigi(fGadastCsIDigi->GetEntriesFast(), Edep, wall, block, cell);
   return digi;
 }
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+ERGadastLaBrDigi* ERGadastDigitizer::AddLaBrDigi(Float_t Edep, Int_t cell)
+{
+  ERGadastLaBrDigi *digi = new((*fGadastLaBrDigi)[fGadastLaBrDigi->GetEntriesFast()])
+              ERGadastLaBrDigi(fGadastLaBrDigi->GetEntriesFast(), Edep, cell);
+  return digi;
+}
 ClassImp(ERGadastDigitizer)

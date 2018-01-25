@@ -1,10 +1,10 @@
 // -------------------------------------------------------------------------
-// -----                      ERGadastDigi header file             -----
+// -----                      ERGadastLaBrDigi header file             -----
 // -----                  Created 03/15  by V. Schetinin               -----
 // -------------------------------------------------------------------------
 
-#ifndef ERGadastDigi_H
-#define ERGadastDigi_H
+#ifndef ERGadastLaBrDigi_H
+#define ERGadastLaBrDigi_H
 
 
 #include "TObject.h"
@@ -12,23 +12,23 @@
 
 #include "FairMultiLinkedData.h"
 
-class ERGadastDigi : public FairMultiLinkedData
+class ERGadastLaBrDigi : public FairMultiLinkedData
 {
  public:
   /** Default constructor **/
-  ERGadastDigi();
+  ERGadastLaBrDigi();
   
   /** Constructor with arguments
    **/
-  ERGadastDigi(Int_t id, Float_t Edep);
+  ERGadastLaBrDigi(Int_t id, Float_t Edep, Int_t cell);
                    
   /** Copy constructor **/
-  ERGadastDigi(const ERGadastDigi&);
+  ERGadastLaBrDigi(const ERGadastLaBrDigi&);
 
   /** Destructor **/
-  virtual ~ERGadastDigi();
+  virtual ~ERGadastLaBrDigi();
 
-  ERGadastDigi& operator=(const ERGadastDigi&) { return *this; }
+  ERGadastLaBrDigi& operator=(const ERGadastLaBrDigi&) { return *this; }
 
   /** Output to screen **/
   virtual void Print(const Option_t* opt = 0) const;
@@ -40,9 +40,9 @@ class ERGadastDigi : public FairMultiLinkedData
  protected:
   Int_t fID;
   Float_t fEdep;
+  Int_t fCell;
   
-  ClassDef(ERGadastDigi,1)
-
+  ClassDef(ERGadastLaBrDigi,1)
 };
 
 #endif
