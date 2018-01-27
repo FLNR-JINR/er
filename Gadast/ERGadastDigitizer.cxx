@@ -1,6 +1,7 @@
 #include "ERGadastDigitizer.h"
 
 #include "TVector3.h"
+#include "TMath.h"
 
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
