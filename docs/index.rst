@@ -6,6 +6,8 @@
 ExpertRoot Documentation
 ========================
 
+EXPERTroot is a FAIRroot based framework for simulation of the detectrors' responce, event reconstruction and analysis in the EXPERT project at Super FRS at FAIR and ACCULINNA-2 fragment-separator in JINR. 
+
 .. note::
    Services:
       * Redmine - http://er.jinr.ru/develop/

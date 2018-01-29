@@ -18,8 +18,8 @@ Create detector geometry model
 
 .. include:: howto/create_geo.rst
 
-Создать библиотеку классов для детектора
-----------------------------------------
+Create detector class library
+-----------------------------
 
 .. include:: howto/create_lib.rst
 
