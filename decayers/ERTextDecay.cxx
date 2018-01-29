@@ -6,6 +6,7 @@
 
 #include "TVirtualMC.h"
 #include "TMCProcess.h"
+#include "TMath.h"
 
 #include "FairRunSim.h"
 #include "FairLogger.h"
@@ -137,8 +138,8 @@ Bool_t ERTextDecay::Stepping() {
         TParticlePDG* particle = (TParticlePDG*)fOutputs[iOut];
         TLorentzVector particleV = decay[iOut];
 
-        particleV.SetE(particleV.Px()*particleV.Px() + particleV.Py()*particleV.Py() + 
-                       particleV.Pz()* particleV.Pz() + particle->Mass()*particle->Mass());
+        particleV.SetE(TMath::Sqrt(particleV.Px()*particleV.Px() + particleV.Py()*particleV.Py() + 
+                       particleV.Pz()* particleV.Pz() + particle->Mass()*particle->Mass()));
         particleV.Boost(fInputIonV.BoostVector());
         
         Int_t newTrackNb;
