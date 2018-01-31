@@ -274,5 +274,20 @@ void ERRunSim::SetMCConfig()
   gROOT->LoadMacro(cuts);
   gROOT->ProcessLine("SetCuts()");
 
-  fApp->InitMC(ConfigMacro.Data(), cuts.Data());
+  if (fLocMagField){
+    //Add local magnetic field
+    TGeoVolume* vol =  gGeoManager->GetVolume(fLocMagFieldVolName);
+    if (!vol)
+      LOG(ERROR) << "Volume " << fLocMagFieldVolName <<
+          "for local magnetic field not found in geometry" << FairLogger::endl;
+    else
+      vol->SetField(fLocMagField);
+  }
+
+  ((ERMCApplication*)fApp)->InitMC(ConfigMacro.Data(), cuts.Data());
+}
+
+void ERRunSim::SetField(FairField* magField,TString volName){
+  fLocMagField = magField;
+  fLocMagFieldVolName = volName;
 }

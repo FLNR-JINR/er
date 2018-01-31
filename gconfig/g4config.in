@@ -27,6 +27,7 @@
 
 
 #/mcVerbose/all 2
+/mcDet/setIsLocalMagField true
 #/mcVerbose/geometryManager 1
 /mcVerbose/regionsManager 2
 #/mcVerbose/physicsList 2
