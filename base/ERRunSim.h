@@ -8,6 +8,10 @@
 
 #include "FairRunSim.h"                    // for FairRunSim
 
+#include "TString.h"
+
+#include "FairField.h"
+
 #include "ERMCApplication.h"
 #include "ERDecayer.h"
 
@@ -25,8 +29,15 @@ class ERRunSim : public FairRunSim
 
     void SetDecayer(ERDecayer* decayer){fDecayer = decayer;}
 
+    //Set local magnetic field for volume volName
+    void SetField(FairField* magField,TString volName);
   private:
     ERDecayer* fDecayer;
+    
+    //local magnetic field
+    FairField* fLocMagField;
+    TString fLocMagFieldVolName;
+
     ERRunSim(const ERRunSim& M);
     ERRunSim& operator= (const  ERRunSim&) {return *this;}
 
