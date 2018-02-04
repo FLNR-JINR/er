@@ -51,8 +51,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'ExpertRoot'
-copyright = u'2016, Vitaliy Schetinin'
-author = u'Vitaliy Schetinin'
+copyright = u'2018, JINR'
+author = u'Vitaliy Schetinin, Sergey Belogurov, Egor Ovcharenko, Mikhail Kozlov'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -68,7 +68,7 @@ release = u'0.3'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = 'ru'
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

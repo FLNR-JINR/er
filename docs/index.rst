@@ -3,19 +3,22 @@
 .. You can adapt this file completely to your liking, but it should at least
 .. contain the root `toctree` directive.
 
-Документация ExpertRoot
-=======================
+ExpertRoot Documentation
+========================
+
+EXPERTroot is a FAIRroot based framework for simulation of the detectrors' responce, event reconstruction and analysis in the EXPERT project at Super FRS at FAIR and ACCULINNA-2 fragment-separator in JINR. 
 
 .. note::
-   Основные сервисы:
+   Services:
       * Redmine - http://er.jinr.ru/develop/
       * github - https://github.com/ExpertRootGroup/er/
       * Jenkins - http://er.jinr.ru:8080
       * doxygen - http://er.jinr.ru/doxygen/
+      * gitlab - http://er.jinr.ru:90
 
 .. toctree::
    :maxdepth: 2
-   :caption: Содержание:
+   :caption: Content:
 
    install
    common

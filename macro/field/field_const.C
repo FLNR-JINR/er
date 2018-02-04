@@ -10,7 +10,7 @@ void field_const(Int_t nEvents = 1){
   // ------------------------------------------------------------------------
  
   // -----   Create simulation run   ----------------------------------------
-  FairRunSim* run = new FairRunSim();
+  ERRunSim* run = new ERRunSim();
   /** Select transport engine
   * TGeant3
   * TGeant4
@@ -31,13 +31,18 @@ void field_const(Int_t nEvents = 1){
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
+  //TODO Выпилить отсюда ERTarget. Завести класс для пассивных объемов(чтобы было не важно что это)
+  FairModule* magnet = new ERTarget("Magnet",1,kTRUE);
+  magnet->SetGeometryFileName("magnet.geo.root");
+  run->AddModule(magnet);
+
   // ------------------------------------------------------------------------
 
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  Int_t pdgId = 2212; // neutron  beam
+  Int_t pdgId =2212; // proton  beam
   Double32_t theta1 = 0.;  // polar angle distribution
-  Double32_t theta2 = 7.;
+  Double32_t theta2 = 0.;
   Double32_t kin_energy = .05; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
@@ -45,18 +50,21 @@ void field_const(Int_t nEvents = 1){
   boxGen->SetThetaRange(theta1, theta1);
   boxGen->SetPRange(momentum, momentum);
   boxGen->SetPhiRange(90, 90);
-  boxGen->SetBoxXYZ(0.,0,0.6,0.6,0.);
+  boxGen->SetBoxXYZ(0.,0,0.0,0.0,-10.);
 
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
-
+  
   // ------- Magnetic field -------------------------------------------------
   ERFieldConst* magField = new ERFieldConst();
-  magField->SetField(5000.,0.,0.);//values are in kG, 1T = 10kG
-  magField->SetFieldRegion(-200,200.,-200.,200.,0., 100); // in cm
-  run->SetField(magField);
+  magField->SetField(-50.,0.,0.);//values are in kG, 1T = 10kG
+  magField->SetFieldRegion(-200000,200000.,-200000.,200000.,0., 100.); // in cm
+  run->SetField(magField,"magnet");
 
+  //for global magnetic field
+  //run->SetField(magField);
+  
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
 	

@@ -33,7 +33,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERFieldLinkDef.h)
 Set(LIBRARY_NAME ERField)
-Set(DEPENDENCIES ERBase ERData Base Core Geom)
+Set(DEPENDENCIES ERData Base Core Geom)
 
 GENERATE_LIBRARY()
 

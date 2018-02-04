@@ -1,15 +1,15 @@
-Общее
-=====
+General
+=======
 
 **EXPERTroot** это фрэймворк для Монте-Карло симуляций откликов детекторов, реконструкции событий и анализа эксперимента EXPERT.
 Симуляции необходимы для оптимизации конструкции детекторов, предстказания эффективности и отношения сигнала к фону и разработки и тестирования алгоритмов анализа.
 
-Литература
+Literature
 ----------
 
 #. :download:`H. Geissel et al. EXPERT (EXOTIC PARTICLE EMISSION AND RADIOACTIVITY BY TRACKING) STUDIES AT THE SUPER-FRS SPECTROMETER, in VIIth International Symposium on Exotic Nuclei (EXON-2014), Kaliningrad, Russia, 8 - 13 Sept. 2014, pp.579-596. World Scientific, Singapore, 2015.<_bin/EXPERT_EXON2014_short.pdf>`
 
-Структура
+Structure
 ---------
 
 .. figure:: _images/sructure.png
@@ -65,8 +65,8 @@ ER реализует workflow на базе событий. Монте-Карл
 
 Отметим, что все шаги после диджитизации являются одинаковыми как для симуляций, так и для реальных данных из эксперимента.
 
-Пользовательские распады
-------------------------
+User defined decays
+-------------------
 
-Классы Setup
-------------
+Setup classes
+-------------

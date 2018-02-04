@@ -1,8 +1,8 @@
-Установка
-=========
+Installation
+============
 
-Установка FairSoft
--------------------
+FairSoft installation
+---------------------
 
 ::
 
@@ -22,10 +22,10 @@
 
 BRANCH_NAME=mar17
 
-В случае, если установка прекращена из-за отсутствия пакетов, проверьте "~/fair_install/FairSoft/DEPENDENCIES" и следуйте инструкциям из него.
+In case the installation is stopped due to missing packages, check "~ / fair_install / FairSoft / DEPENDENCIES" and follow the instructions from it.
 
-Установка FairRoot
-------------------
+FairRoot installation
+---------------------
 
 ::
 
@@ -44,8 +44,8 @@ BRANCH_NAME=mar17
 
 BRANCH_NAME=v-17.03a
 
-Установка ExpertRoot
---------------------
+ExpertRoot installation
+-----------------------
 
 ::
 
@@ -61,22 +61,18 @@ BRANCH_NAME=v-17.03a
 	cmake ../ -DUSE_DIFFERENT_COMPILER=TRUE
 	make
 
-* BRANCH_NAME=v-0.3 - для установки последнего релиза
-* BRANCH_NAME=dev - для установки версии разработчиков
+* BRANCH_NAME=dev
 
-.. note::
-  Вместо -DUSE_DIFFERENT_COMPILER=TRUE лучше использовать вместе два других флага -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+ExpertRoot initialization
+-------------------------
 
-Использование ExpertRoot
-------------------------
-
-Для инициализации переменных окружения пакета необходимо вызвать:
+To initialize package environment variables, you must call:
 
 ::
 
 	. ~/expertroot/build/config.sh
 
-Для использования пакета желательно создать отдельную папку run. После этого туда можно будет скопировать стандартный макрос и папки macro, модифицировать его и запустить.
+To use the package, it is desirable to create a separate run directory. After that, you can copy the standard macro and macro folders, modify it and run it.
 
 ::
 
@@ -86,18 +82,18 @@ BRANCH_NAME=v-17.03a
 	cp ../macro/NeuRad/NeuRad_sim.C
 	root -l NeuRad_sim.C
 
-Сборка документации
--------------------
+Local documentation building
+----------------------------
 
-Документация для ER написана для системы сборки
+The documentation for ER is written for the system
 `sphinx-doc <http://www.sphinx-doc.org/en/1.5.1/>`.
-Необходимо установить данную систему.
-Для установки под Ubuntu используйте пакет ``python-sphinx``.
-Затем перейдите в папку с исходниками документации и скомпилируйте проект:
+You must install this system.
+To install under Ubuntu, use the `` python-sphinx`` package.
+Then go to the documentation source folder and compile the project:
 
 ::
 
 	cd ${EXPERTROOT}/docs/
 	make html
 
-После завершения процедуры сборки появится ряд файлов, а html-страница верхнего уровня будет называться ${EXPERTROOT}/docs/_build/index.html .
+After the completion of the build procedure, a number of files will appear, and the html-top-level page will be called ${EXPERTROOT}/docs/_build/index.html .
