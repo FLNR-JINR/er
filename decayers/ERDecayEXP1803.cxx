@@ -155,7 +155,7 @@ Bool_t ERDecayEXP1803::Stepping() {
 //-------------------------------------------------------------------------------------------------
 void ERDecayEXP1803::BeginEvent() {	
   fDecayFinish = kFALSE;
-  fTargetReactZ = fRnd->Uniform()*(fTargetThickness);
+  fTargetReactZ = fRnd->Uniform(-fTargetThickness / 2, fTargetThickness / 2);
   FairRunSim* run = FairRunSim::Instance();
 }
 //-------------------------------------------------------------------------------------------------
