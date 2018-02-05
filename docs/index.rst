@@ -26,6 +26,7 @@ EXPERTroot is a FAIRroot based framework for simulation of the detectrors' respo
    howto
    dev
    beamdet
+   qtelescope
    decays
    neurad
    gadast
