@@ -6,7 +6,7 @@
 #include "TGeoNode.h"
 #include <iostream>
 
-#include "FairRunAna.h"
+#include "FairRun.h"
 #include "FairRuntimeDb.h"
 
 #include "ERDetectorList.h"
@@ -27,7 +27,7 @@ ERGadastSetup* ERGadastSetup::Instance(){
 ERGadastSetup::ERGadastSetup()
 {
 
-	FairRunAna* run = FairRunAna::Instance();
+	FairRun* run = FairRun::Instance();
     if ( ! run ) Fatal("ERGadastSetup", "No analysis run");
 
     FairRuntimeDb* rtdb = run->GetRuntimeDb();

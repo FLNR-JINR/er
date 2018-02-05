@@ -3,7 +3,7 @@
 #include "TVector3.h"
 #include "TMath.h"
 
-#include "FairRunAna.h"
+#include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "FairEventHeader.h"
 
@@ -59,7 +59,7 @@ ERGadastDigitizer::~ERGadastDigitizer()
 void ERGadastDigitizer::SetParContainers()
 {
   // Get run and runtime database
-  FairRunAna* run = FairRunAna::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
@@ -102,7 +102,7 @@ InitStatus ERGadastDigitizer::Init()
 void ERGadastDigitizer::Exec(Option_t* opt)
 {
   Int_t iEvent =
-			FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
+			FairRun::Instance()->GetEventHeader()->GetMCEntryNumber();
   std::cout << "Event " << iEvent << std::endl;
   // Reset entries in output arrays
   Reset();
