@@ -1,4 +1,4 @@
-Double_t fieldTransZ = 50.; // this parameter should coincide with "magnetCenterZ" from /macro/geo/create_GadastEXP1803_geo.C
+Double_t fieldTransZ = 0.; // this parameter should coincide with "magnetCenterZ" from /macro/geo/create_GadastEXP1803_geo.C
 
 void fieldDataToERFormat() {
 
@@ -24,10 +24,21 @@ void fieldDataToERFormat() {
   outFile << startCoordZ << "\t" << finishCoordZ << "\t" << abs(startCoordZ - finishCoordZ) / gridStep + 1 << endl;
   Double_t number;
   Int_t    iterCount = 0;
-
+  Double_t x, y, z;
+  Double_t integralB = 0;
   while (inFile >> number) {
+    switch (iterCount) {
+      case 0: x = number; break;
+      case 1: y = number; break;
+      case 2: z = number; break;
+    }
     if (iterCount > 2) {
-      outFile << number << "\t";
+      outFile << -number << "\t";
+    }
+    if (iterCount == 4 && x == 0 && y == 0 && z >= -1500) {
+      static int cou = 0;
+      cout << "x = " << x << "; y = " << y << "; z = " << z << "; By = " << number << "; - " << ++cou << endl;
+      integralB += number * gridStep * 1e-2;
     }
     iterCount++;
     if (iterCount == 6) {
@@ -35,4 +46,5 @@ void fieldDataToERFormat() {
         iterCount = 0;
     }
   }
+  cout << "Field integral along the trajectory (x = 0, y = 0) is " << integralB << endl;
 }

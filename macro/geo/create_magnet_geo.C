@@ -51,9 +51,10 @@ void create_magnet_geo()
   TGeoVolume* intBoxVol = new TGeoVolume("intBoxVol", intBoxSh, pVacuum);
 
   // Matrices
-  TGeoRotation* rot = new TGeoRotation("rot", 0., 45., 0.);
-  rot->RegisterYourself();
-
+  // TGeoRotation* rot = new TGeoRotation("rot", 0., 45., 0.);
+  // rot->RegisterYourself();
+  TGeoRotation* rot = new TGeoRotation();
+  rot->RotateY(0.);
   // Structure
   // intBoxVol in extBoxVol
   extBoxVol->AddNode(intBoxVol, 1);
@@ -62,7 +63,7 @@ void create_magnet_geo()
   subdetectorVolAss->AddNode(extBoxVol, 1);
   // World ------------------------------------
   TGeoVolumeAssembly* topVolAss = new TGeoVolumeAssembly("TOP");
-  topVolAss->AddNode(subdetectorVolAss, 1,new TGeoCombiTrans("mIntBoxInExtBox", 0., 0., 100.,rot));
+  topVolAss->AddNode(subdetectorVolAss, 1,new TGeoCombiTrans("mIntBoxInExtBox", 0., 0., 70., rot));
 
   // Finalize
   geoM->SetTopVolume(topVolAss);

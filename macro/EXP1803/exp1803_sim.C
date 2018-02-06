@@ -15,7 +15,9 @@ void exp1803_sim(Int_t nEvents = 100) {
   Double_t BeamDetLMWPC = 80.;
   Double_t BeamDetPosZMWPC = -50;
   // --------------- Beam start position ------------------------------------
-  Double_t beamStartPosition = 1200;
+  Double_t beamStartPosition = 0;
+  // --------------- Target -------------------------------------------------
+  Double_t targetH2Thickness = 0.4;  // this parameter should coincide with target H2 thickness in /macro/geo/create_GadastEXP1803_geo.C 
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -27,6 +29,7 @@ void exp1803_sim(Int_t nEvents = 100) {
   TString targetGeoFileName = workDirPath + "/geometry/target.h2.geo.root";
   TString gadastGeoFileName = workDirPath + "/geometry/partOfGadast.v1.geo.root";
   TString ndGeoFileName = workDirPath + "/geometry/ND.geo.root";
+  TString magnetGeoFileName = workDirPath + "/geometry/magnet.geo.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -61,14 +64,19 @@ void exp1803_sim(Int_t nEvents = 100) {
   run->AddModule(target);
 
   // -----   Create Part of Gadast ------------------------------------------
-  ERGadast* gadast = new ERGadast("PartofGadast", kTRUE);
+  ERGadast* gadast = new ERGadast("PartofGadast", kTRUE, 1);
   gadast->SetGeometryFileName(gadastGeoFileName);
   run->AddModule(gadast);
 
-  // -----   Create Part of Gadast ------------------------------------------
+  // -----   Create Stilbene wall -------------------------------------------
   ERND* neutronDetector = new ERND("StilbeneWall", kTRUE, 1);
   neutronDetector->SetGeometryFileName(ndGeoFileName);
   run->AddModule(neutronDetector);
+
+  // -----   Create Magnet geometry -----------------------------------------
+  FairModule* magnet = new ERTarget("magnet", 1, kTRUE);
+  magnet->SetGeometryFileName(magnetGeoFileName);
+  run->AddModule(magnet);
 
   // -----  QTelescope Setup ------------------------------------------------
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
@@ -123,31 +131,22 @@ void exp1803_sim(Int_t nEvents = 100) {
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);
-  //setupBeamDet->SetSensitiveTarget();
+  // //setupBeamDet->SetSensitiveTarget();
 
   // ------BeamDet ----------------------------------------------------------
   ERBeamDet* beamdet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
   run->AddModule(beamdet);
   // -----   Create PrimaryGenerator   --------------------------------------
-  /*FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  Int_t pdgId = 2212; // proton  beam
-  Double32_t theta1 = 0.;  // polar angle distribution
-  Double32_t theta2 = 0.;
-  Double32_t kin_energy = .5; //GeV
-  Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
-  Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.* kin_energy*mass); //GeV
-  FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-  boxGen->SetThetaRange(theta1, theta1);
-  boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(0, 0);
-  boxGen->SetBoxXYZ(0.,0.,0.,0.,-1200.);
 
-  primGen->AddGenerator(boxGen);
-  run->SetGenerator(primGen);*/
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
-  ERIonMixGenerator* generator = new ERIonMixGenerator("6He", 2, 6, 2, 1);
-  Double32_t kin_energy = 35 * 1e-3 * 6; //GeV
+  Double_t  kinE_MevPerNucleon = 40.;
+  // Int_t     Z = 1, A = 3, Q = 1;
+  // TString   ionName = "3H";
+  Int_t Z = 2, A = 6, Q = 2;
+  TString ionName = "6He";
+  ERIonMixGenerator* generator = new ERIonMixGenerator(ionName, Z, A, Q, 1);
+  Double32_t kin_energy = kinE_MevPerNucleon * 1e-3 * A; //GeV
   generator->SetKinE(kin_energy);
   generator->SetPSigmaOverP(0);
   generator->SetThetaRange(0., 0.);
@@ -156,18 +155,17 @@ void exp1803_sim(Int_t nEvents = 100) {
 
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
-
   // ------- Decayer --------------------------------------------------------
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
   targetDecay->SetTargetVolumeName("tubeH2");
-  targetDecay->SetTargetThickness(0.4);
+  targetDecay->SetTargetThickness(targetH2Thickness);
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);
 
   // ------- Magnetic field -------------------------------------------------
-  ERFieldMap* magField = new ERFieldMap("exp1803Field","A");
-  run->SetField(magField);
+  ERFieldMap* magField = new ERFieldMap("testField","A"); //exp1803Field, testField
+  run->SetField(magField, "magnet");
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
     

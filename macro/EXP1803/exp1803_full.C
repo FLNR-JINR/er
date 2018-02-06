@@ -16,7 +16,7 @@ void exp1803_full(Int_t nEvents = 100) {
   Double_t BeamDetPosZMWPC = -50;
   // --------------- Beam start position ------------------------------------
   Double_t beamStartPosition = 0;
-  // --------------- Beam start position ------------------------------------
+  // --------------- Target -------------------------------------------------
   Double_t targetH2Thickness = 0.4;  // this parameter should coincide with target H2 thickness in /macro/geo/create_GadastEXP1803_geo.C
   //---------------------Files-----------------------------------------------
   TString outFile= "full.root";
@@ -72,10 +72,12 @@ void exp1803_full(Int_t nEvents = 100) {
   ERND* neutronDetector = new ERND("StilbeneWall", kTRUE, 1);
   neutronDetector->SetGeometryFileName(ndGeoFileName);
   run->AddModule(neutronDetector);
+
   // -----   Create Magnet geometry -----------------------------------------
   FairModule* magnet = new ERTarget("magnet", 1, kTRUE);
   magnet->SetGeometryFileName(magnetGeoFileName);
   run->AddModule(magnet);
+
   // -----  QTelescope Setup ------------------------------------------------
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
   setupQTelescope->SetXmlParametersFile(paramFileQTelescope);
@@ -138,10 +140,10 @@ void exp1803_full(Int_t nEvents = 100) {
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
   Double_t  kinE_MevPerNucleon = 40.;
-  Int_t     Z = 1, A = 3, Q = 1;
-  TString   ionName = "3H";
-  // Int_t Z = 2, A = 6, Q = 2;
-  // TString ionName = "6He";
+  // Int_t     Z = 1, A = 3, Q = 1;
+  // TString   ionName = "3H";
+  Int_t Z = 2, A = 6, Q = 2;
+  TString ionName = "6He";
   ERIonMixGenerator* generator = new ERIonMixGenerator(ionName, Z, A, Q, 1);
   Double32_t kin_energy = kinE_MevPerNucleon * 1e-3 * A; //GeV
   generator->SetKinE(kin_energy);
@@ -152,13 +154,13 @@ void exp1803_full(Int_t nEvents = 100) {
 
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
-  // // ------- Decayer --------------------------------------------------------
-  // ERDecayer* decayer = new ERDecayer();
-  // ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
-  // targetDecay->SetTargetVolumeName("tubeH2");
-  // targetDecay->SetTargetThickness(targetH2Thickness);
-  // decayer->AddDecay(targetDecay);
-  // run->SetDecayer(decayer);
+  // ------- Decayer --------------------------------------------------------
+  ERDecayer* decayer = new ERDecayer();
+  ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
+  targetDecay->SetTargetVolumeName("tubeH2");
+  targetDecay->SetTargetThickness(targetH2Thickness);
+  decayer->AddDecay(targetDecay);
+  run->SetDecayer(decayer);
 
   // ------- Magnetic field -------------------------------------------------
   ERFieldMap* magField = new ERFieldMap("testField","A");
