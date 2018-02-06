@@ -10,7 +10,7 @@ void field_map(Int_t nEvents = 1){
   // ------------------------------------------------------------------------
  
   // -----   Create simulation run   ----------------------------------------
-  FairRunSim* run = new FairRunSim();
+  ERRunSim* run = new ERRunSim();
   /** Select transport engine
   * TGeant3
   * TGeant4
@@ -31,6 +31,11 @@ void field_map(Int_t nEvents = 1){
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
+
+   FairModule* magnet = new ERTarget("Magnet",1,kTRUE);
+  magnet->SetGeometryFileName("magnet.geo.root");
+  run->AddModule(magnet);
+
   // ------------------------------------------------------------------------
 
   // -----   Create PrimaryGenerator   --------------------------------------
@@ -53,7 +58,7 @@ void field_map(Int_t nEvents = 1){
 
   // ------- Magnetic field -------------------------------------------------
   ERFieldMap* magField = new ERFieldMap("field_example","A");
-  run->SetField(magField);
+  run->SetField(magField,"magnet");
 
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);

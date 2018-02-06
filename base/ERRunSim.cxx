@@ -280,8 +280,10 @@ void ERRunSim::SetMCConfig()
     if (!vol)
       LOG(ERROR) << "Volume " << fLocMagFieldVolName <<
           "for local magnetic field not found in geometry" << FairLogger::endl;
-    else
+    else{
+      fLocMagField->Init();
       vol->SetField(fLocMagField);
+    }
   }
 
   ((ERMCApplication*)fApp)->InitMC(ConfigMacro.Data(), cuts.Data());
