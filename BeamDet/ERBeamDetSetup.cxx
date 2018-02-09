@@ -124,8 +124,10 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
     if (name.Contains("MWPC", TString::kIgnoreCase) ) {
       mwpc = beamDet->GetDaughter(iNode);
       mwpcStationZ = mwpc->GetMatrix()->GetTranslation()[2]; 
-      (name.Contains("1", TString::kIgnoreCase)) ? mwpcStationZ1 = mwpcStationZ 
+      (name.EndsWith("1", TString::kIgnoreCase)) ? mwpcStationZ1 = mwpcStationZ 
                                                  : mwpcStationZ2 = mwpcStationZ;
+      cout << "MWPC z1 " << mwpcStationZ1 << endl;
+      cout << "MWPC z2 " << mwpcStationZ2 << endl;
       mwpcStation = mwpc->GetDaughter(0);
       //--------------------------------------------------------------------
       for (Int_t planeNb = 0; planeNb < mwpcStation->GetNdaughters(); planeNb++) {
@@ -156,7 +158,7 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
     TString name = beamDet->GetDaughter(iNode)->GetName();
     if ( name.Contains("plastic", TString::kIgnoreCase) ) {
       tofPlastic = beamDet->GetDaughter(iNode);
-      if (name.Contains("1", TString::kIgnoreCase)) {
+      if (name.EndsWith("1", TString::kIgnoreCase)) {
         tofPlastic1Pos = tofPlastic->GetMatrix()->GetTranslation()[2];
       }
       else {
