@@ -112,9 +112,9 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   LOG(DEBUG) << "xFar = " <<  xFar << "; yFar = " << yFar << "; zFar = " << zFar << FairLogger::endl
             << "xClose = " <<  xClose << "; yClose = " << yClose << "; zClose = " << zClose << FairLogger::endl;
 
-  if(TMath::Sqrt(xTarget*xTarget + yTarget*yTarget) <= fBeamDetSetup->TargetR()) {
+ // if(TMath::Sqrt(xTarget*xTarget + yTarget*yTarget) <= fBeamDetSetup->TargetR()) {
     AddTrack(xTarget, yTarget, 0, vectorOnTarget.Unit());
-  }
+ // }
   LOG(DEBUG) << "Point on target " << "(" << xTarget << ", " 
                                          << yTarget << ") cm" << FairLogger::endl;
 }

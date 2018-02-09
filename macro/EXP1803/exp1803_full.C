@@ -10,12 +10,12 @@ void exp1803_full(Int_t nEvents = 100) {
   Double_t D1PosZ = 20.;       // [cm]
   Double_t D1Thick = 0.03;     // [cm]
   // --------------- BeamDet ------------------------------------------------
-  Double_t BeamDetLToF = 100.;     // [cm] 
-  Double_t BeamDetPosZToF = -300;  // [cm] 
-  Double_t BeamDetLMWPC = 80.;     // [cm]
-  Double_t BeamDetPosZMWPC = -50;  // [cm]  
+  Double_t BeamDetLToF = 1500.;     // [cm] 
+  Double_t BeamDetPosZToF = -50;  // [cm] 
+  Double_t BeamDetLMWPC = 32.;     // [cm]
+  Double_t BeamDetPosZMWPC = -8;  // [cm]  
   // --------------- Beam start position ------------------------------------
-  Double_t beamStartPosition = -500;  // [cm]
+  Double_t beamStartPosition = -1600;  // [cm]
   // --------------- Target -------------------------------------------------
   Double_t targetH2Thickness = 0.4;  // [cm] this parameter should coincide with target H2 thickness in /macro/geo/create_GadastEXP1803_geo.C
   //---------------------Files-----------------------------------------------
@@ -148,7 +148,9 @@ void exp1803_full(Int_t nEvents = 100) {
   Double32_t kin_energy = kinE_MevPerNucleon * 1e-3 * A; //GeV
   generator->SetKinE(kin_energy);
   generator->SetPSigmaOverP(0);
-  generator->SetThetaRange(0., 0.);
+  Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
+  generator->SetThetaSigma(0, sigmaTheta);
+ // generator->SetThetaRange(0., 5.);
   generator->SetPhiRange(0, 360);
   generator->SetBoxXYZ(0, 0, 0, 0, beamStartPosition);
 
