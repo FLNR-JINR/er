@@ -10,14 +10,14 @@ void exp1803_full(Int_t nEvents = 100) {
   Double_t D1PosZ = 20.;       // [cm]
   Double_t D1Thick = 0.03;     // [cm]
   // --------------- BeamDet ------------------------------------------------
-  Double_t BeamDetLToF = 100.;
-  Double_t BeamDetPosZToF = -300;
-  Double_t BeamDetLMWPC = 80.;
-  Double_t BeamDetPosZMWPC = -50;
+  Double_t BeamDetLToF = 100.;     // [cm] 
+  Double_t BeamDetPosZToF = -300;  // [cm] 
+  Double_t BeamDetLMWPC = 80.;     // [cm]
+  Double_t BeamDetPosZMWPC = -50;  // [cm]  
   // --------------- Beam start position ------------------------------------
-  Double_t beamStartPosition = 0;
+  Double_t beamStartPosition = -500;  // [cm]
   // --------------- Target -------------------------------------------------
-  Double_t targetH2Thickness = 0.4;  // this parameter should coincide with target H2 thickness in /macro/geo/create_GadastEXP1803_geo.C
+  Double_t targetH2Thickness = 0.4;  // [cm] this parameter should coincide with target H2 thickness in /macro/geo/create_GadastEXP1803_geo.C
   //---------------------Files-----------------------------------------------
   TString outFile= "full.root";
   TString parFile= "par.root";
@@ -57,6 +57,18 @@ void exp1803_full(Int_t nEvents = 100) {
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
+   
+  Int_t verbose = 1;
+  // -----  BeamDet Setup ---------------------------------------------------
+  ERBeamDetSetup* setupBeamDet = ERBeamDetSetup::Instance();
+  setupBeamDet->SetXmlParametersFile(paramFileBeamDet);
+
+  // -----  BeamDet parameters ----------------------------------------------
+  setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);
+  setupBeamDet->AddToF("ToF1", BeamDetPosZToF);
+  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);
+  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);
+  //setupBeamDet->SetSensitiveTarget();
 
   // -----   Create target  -------------------------------------------------
   FairModule* target = new ERTarget("targetH2", kTRUE, 1);
@@ -118,20 +130,8 @@ void exp1803_full(Int_t nEvents = 100) {
                                                   D1PosZ + D1Thick/2), "X");
 
   // ------QTelescope -------------------------------------------------------
-   Int_t verbose = 1;
   ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE,verbose);
   run->AddModule(qtelescope);
-
-  // -----  BeamDet Setup ---------------------------------------------------
-  ERBeamDetSetup* setupBeamDet = ERBeamDetSetup::Instance();
-  setupBeamDet->SetXmlParametersFile(paramFileBeamDet);
-
-  // -----  BeamDet parameters ----------------------------------------------
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);
-  setupBeamDet->AddToF("ToF1", BeamDetPosZToF);
-  setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);
-  setupBeamDet->SetSensitiveTarget();
 
   // ------BeamDet ----------------------------------------------------------
   ERBeamDet* beamdet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
@@ -150,7 +150,7 @@ void exp1803_full(Int_t nEvents = 100) {
   generator->SetPSigmaOverP(0);
   generator->SetThetaRange(0., 0.);
   generator->SetPhiRange(0, 360);
-  generator->SetBoxXYZ(0, 0, 0, 0, -beamStartPosition);
+  generator->SetBoxXYZ(0, 0, 0, 0, beamStartPosition);
 
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
@@ -164,7 +164,6 @@ void exp1803_full(Int_t nEvents = 100) {
 
   // ------- Magnetic field -------------------------------------------------
   ERFieldMap* magField = new ERFieldMap("testField","A");
-
   run->SetField(magField,"magnet");
     // ------- QTelescope Digitizer -------------------------------------------
   ERQTelescopeDigitizer* qtelescopeDigitizer = new ERQTelescopeDigitizer(verbose);
@@ -179,6 +178,26 @@ void exp1803_full(Int_t nEvents = 100) {
   // ------  Gadast Digitizer -----------------------------------------------
   ERGadastDigitizer* gadastDigitizer = new ERGadastDigitizer(verbose);
   run->AddTask(gadastDigitizer);
+   // -----  BeamDet Digitizer ----------------------------------------------
+  ERBeamDetDigitizer* beamDetDigitizer = new ERBeamDetDigitizer(verbose);
+  // beamDetDigitizer->SetMWPCElossThreshold(0.006);
+  // beamDetDigitizer->SetToFElossThreshold(0.006);
+  // beamDetDigitizer->SetToFElossSigmaOverEloss(0);
+  // beamDetDigitizer->SetToFTimeSigma(1e-10);
+  run->AddTask(beamDetDigitizer);
+  // -----------------------BeamDetTrackFinder------------------------------
+  ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(1);
+  run->AddTask(trackFinder);
+  // // ------------------------------------------------------------------------
+  // -----------------------BeamDetTrackPID-------------------------------
+  ERBeamDetPID* pid = new ERBeamDetPID(1);
+  pid->SetIon(ionName, Z, A, Q);
+  //pid->SetBoxPID(203., 206., 0.005, 0.12);
+  pid->SetBoxPID(0., 1000., 0., 1000.);
+  pid->SetOffsetToF(0.);
+  pid->SetProbabilityThreshold(0);
+
+  run->AddTask(pid);
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
   //-------Set LOG verbosity  ----------------------------------------------- 

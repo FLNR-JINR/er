@@ -118,12 +118,11 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
   Double_t    mwpcMasterPos[3];
   TGeoNode*   plane = NULL;
   TGeoNode*   wire = NULL;
-
+  Int_t       mwpcNb = 0;
   for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
     TString name = beamDet->GetDaughter(iNode)->GetName();
     if (name.Contains("MWPC", TString::kIgnoreCase) ) {
       mwpc = beamDet->GetDaughter(iNode);
-      Int_t mwpcNb = iNode - 2;
       mwpcStationZ = mwpc->GetMatrix()->GetTranslation()[2]; 
       (name.Contains("1", TString::kIgnoreCase)) ? mwpcStationZ1 = mwpcStationZ 
                                                  : mwpcStationZ2 = mwpcStationZ;
@@ -143,6 +142,7 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
                                                           << mwpcStationZ << ") cm" << endl;
         }
       } 
+      mwpcNb++;
     }
   }
   // Stations located simmetrically relative to local center

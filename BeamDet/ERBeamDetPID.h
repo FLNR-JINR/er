@@ -10,8 +10,10 @@
 #define ERBeamDetPID_H
 
 #include "TClonesArray.h"
+#include "TParticlePDG.h"
 
 #include "FairTask.h"
+#include "FairIon.h"
 
 #include "ERBeamDetTOFDigi.h"
 #include "ERBeamDetTrack.h"
@@ -100,6 +102,8 @@ public:
   **/
   void SetProbabilityThreshold(Double_t probabilityThreshold) {fProbabilityThreshold = probabilityThreshold;}
 
+  void SetIon(TString ionName, Int_t a, Int_t z, Int_t q) {fIonName = ionName; fA = a; fZ = z, fQ = q;}
+
 protected:
   //Paramaters
   ERBeamDetSetup *fBeamDetSetup;        ///< access to ERBeamDetSetup class instance
@@ -115,6 +119,9 @@ protected:
   Double_t       fOffsetToF;            ///< ToF calibration parameter
   Double_t       fIonMass;              ///< ion mass
   Double_t       fProbabilityThreshold; ///< probability threshold
+  TParticlePDG   *fIon;
+  Double_t       fA, fZ, fQ;
+  TString        fIonName;
   //Output arrays
   ERBeamDetParticle* fProjectile;       ///< output projectile collection
 

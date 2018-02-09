@@ -6,7 +6,7 @@
 #include "TParticlePDG.h"
 
 #include "FairRootManager.h"
-#include "FairRunAna.h"
+#include "FairRunSim.h"
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
@@ -46,16 +46,23 @@ InitStatus ERBeamDetPID::Init() {
   fBeamDetSetup = ERBeamDetSetup::Instance();
   fBeamDetSetup->SetParContainers();
   fBeamDetSetup->GetGeoParamsFromParContainer();
-     
-  return kSUCCESS;
+
+  FairRunSim* run = FairRunSim::Instance();
+  fIon = TDatabasePDG::Instance()->GetParticle(fIonName);
+  if ( ! fIon ) {
+    FairIon*  ion = new FairIon(fIonName, fA, fZ, fQ);
+    run->AddNewIon(ion);
+  } 
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetPID::Exec(Option_t* opt) { 
   Reset();
   if (!fBeamDetTrack || !fBeamDetToFDigi1->At(0) || !fBeamDetToFDigi2->At(0)) {
-    LOG(DEBUG)  << "ERBeamDetPID: No track" << FairLogger::endl;
+    cout  << "ERBeamDetPID: No track" << endl;
     return;
   }
+  fIon = TDatabasePDG::Instance()->GetParticle(fIonName);
+  fIonMass = fIon->Mass();
 
   Double_t ToF1, ToF2, ToF;
   Double_t dE1, dE2, dE;
@@ -65,8 +72,8 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   Double_t gamma;
   /*TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPID);
   if ( ! particle ) {
-      LOG(DEBUG) << "ERIonGenerator: Ion " << fPID
-      << " not found in database!" << FairLogger::endl;
+      cout << "ERIonGenerator: Ion " << fPID
+      << " not found in database!" << endl;
       return ;
     }*/
   //Double_t mass = 26.2716160;//particle->Mass();
@@ -77,16 +84,16 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   digi = (ERBeamDetTOFDigi*)fBeamDetToFDigi1->At(0);
   ToF1 = digi->GetTime();
   dE1 = digi->Edep();
-  LOG(DEBUG) << "dE1 = " << dE1 << " ToF1 = " << ToF1 << FairLogger::endl;
+  cout << "dE1 = " << dE1 << " ToF1 = " << ToF1 << endl;
   digi = (ERBeamDetTOFDigi*)fBeamDetToFDigi2->At(0);
   ToF2 = digi->GetTime();
   dE2 = digi->Edep();
-  LOG(DEBUG) << "dE2 = " << dE2 << " ToF2 = " << ToF2 << FairLogger::endl;
+  cout << "dE2 = " << dE2 << " ToF2 = " << ToF2 << endl;
 
   dE = dE1 + dE2;
-  LOG(DEBUG) << "dE = " << dE << " Gev; " << " ToF1 = " << ToF1 << " ns;" << " ToF2 = " << ToF2 << " ns;" << FairLogger::endl;
-  ToF = ToF2 - ToF1 + fOffsetToF;
-  LOG(DEBUG) << "dE = " << dE << " Gev; " << " ToF = " << ToF << " ns;" << FairLogger::endl;
+  cout << "dE = " << dE << " Gev; " << " ToF1 = " << ToF1 << " ns;" << " ToF2 = " << ToF2 << " ns;" << endl;
+  ToF = TMath::Abs(ToF2 - ToF1) + fOffsetToF;
+  cout << "dE = " << dE << " Gev; " << " ToF = " << ToF << " ns;" << endl;
 
   if(ToF <= fToF1 || ToF >= fToF2 || dE <= fdE1 || dE >= fdE2){
     probability = 0;
@@ -96,15 +103,15 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   }
 
   if(probability < fProbabilityThreshold) {
-    LOG(DEBUG) << "Probability " << probability << " less then threshold " << fProbabilityThreshold << FairLogger::endl;
+    cout << "Probability " << probability << " less then threshold " << fProbabilityThreshold << endl;
     FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
     return ;
   }
-
+  cout << "Mass " << fIonMass << endl;
   beta = fBeamDetSetup->DistanceBetweenToF() * 1e-2 / (ToF * 1e-9) / TMath::C();
   if(beta <= 0 || beta >= 1) {
-    LOG(DEBUG) << "Wrong beta " << beta << FairLogger::endl;
+    cout << "Wrong beta " << beta << endl;
     FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
     return ;
@@ -120,8 +127,8 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   pz = p * TMath::Cos(fBeamDetTrack->GetVector().Theta());
 
   energy = fIonMass * gamma;
-  LOG(DEBUG) << "PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
-            << " energy: " << energy << "; probability " << probability << FairLogger::endl;
+  cout << "PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
+            << " energy: " << energy << "; probability " << probability << endl;
 
   AddParticle(fPID, TLorentzVector(px, py, pz, energy), probability);
 }
