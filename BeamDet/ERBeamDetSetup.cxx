@@ -126,8 +126,6 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
       mwpcStationZ = mwpc->GetMatrix()->GetTranslation()[2]; 
       (name.EndsWith("1", TString::kIgnoreCase)) ? mwpcStationZ1 = mwpcStationZ 
                                                  : mwpcStationZ2 = mwpcStationZ;
-      cout << "MWPC z1 " << mwpcStationZ1 << endl;
-      cout << "MWPC z2 " << mwpcStationZ2 << endl;
       mwpcStation = mwpc->GetDaughter(0);
       //--------------------------------------------------------------------
       for (Int_t planeNb = 0; planeNb < mwpcStation->GetNdaughters(); planeNb++) {

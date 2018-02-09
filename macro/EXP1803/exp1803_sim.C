@@ -127,11 +127,11 @@ void exp1803_sim(Int_t nEvents = 100) {
   setupBeamDet->SetXmlParametersFile(paramFileBeamDet);
 
   // -----  BeamDet parameters ----------------------------------------------
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);
-  setupBeamDet->AddToF("ToF1", BeamDetPosZToF);
-  setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);
-  // //setupBeamDet->SetSensitiveTarget();
+  setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);       // 
+  setupBeamDet->AddToF("ToF1", BeamDetPosZToF);                     //  BeamDet parts should be added in ascending order   
+  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);   //  of Z-coordinate of part.
+  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);                  // 
+ // //setupBeamDet->SetSensitiveTarget();
 
   // ------BeamDet ----------------------------------------------------------
   ERBeamDet* beamdet= new ERBeamDet("ERBeamDet", kTRUE,verbose);

@@ -48,11 +48,14 @@ void exp1803_full(Int_t nEvents = 100) {
   // ------------------------------------------------------------------------
   // -----   Runtime database   ---------------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
+    //-------- Set MC event header --------------------------------------------
+  ERDecayMCEventHeader* decayMCheader = new ERDecayMCEventHeader();
+  run->SetMCEventHeader(decayMCheader);
   // -----   Create media   -------------------------------------------------
   run->SetMaterials("media.geo");       // Materials
   //-------- Set MC event header --------------------------------------------
-  ERMCEventHeader* header = new ERMCEventHeader();
-  run->SetMCEventHeader(header);
+  // ERMCEventHeader* header = new ERMCEventHeader();
+  // run->SetMCEventHeader(header);
   // -----   Create detectors  ----------------------------------------------   
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
@@ -64,10 +67,10 @@ void exp1803_full(Int_t nEvents = 100) {
   setupBeamDet->SetXmlParametersFile(paramFileBeamDet);
 
   // -----  BeamDet parameters ----------------------------------------------
-  setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);
-  setupBeamDet->AddToF("ToF1", BeamDetPosZToF);
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);
+  setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);       // 
+  setupBeamDet->AddToF("ToF1", BeamDetPosZToF);                     //  BeamDet parts should be added in ascending order   
+  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);   //  of Z-coordinate of part.
+  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);                  // 
   //setupBeamDet->SetSensitiveTarget();
 
   // -----   Create target  -------------------------------------------------
