@@ -99,6 +99,8 @@ class ERMCTrack : public TObject
 
 private:
 
+  Int_t fID;
+
   /**  PDG particle code  **/
   Int_t  fPdgCode;
 

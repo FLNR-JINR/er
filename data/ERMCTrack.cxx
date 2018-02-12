@@ -92,7 +92,9 @@ ERMCTrack::ERMCTrack(TParticle* part)
     fStartY(part->Vy()),
     fStartZ(part->Vz()),
     fStartT(part->T()*1e09),
-    fNPoints(0)
+    fNPoints(0),
+    //@TODO выплить этот костыль
+    fID(part->GetStatusCode())
 {
     fMass = GetMass();
     fEnergy = GetEnergy();
