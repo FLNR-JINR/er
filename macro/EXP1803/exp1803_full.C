@@ -53,9 +53,6 @@ void exp1803_full(Int_t nEvents = 100) {
   run->SetMCEventHeader(decayMCheader);
   // -----   Create media   -------------------------------------------------
   run->SetMaterials("media.geo");       // Materials
-  //-------- Set MC event header --------------------------------------------
-  // ERMCEventHeader* header = new ERMCEventHeader();
-  // run->SetMCEventHeader(header);
   // -----   Create detectors  ----------------------------------------------   
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
@@ -145,17 +142,21 @@ void exp1803_full(Int_t nEvents = 100) {
   Double_t  kinE_MevPerNucleon = 40.;
   // Int_t     Z = 1, A = 3, Q = 1;
   // TString   ionName = "3H";
-  Int_t Z = 2, A = 6, Q = 2;
+    Int_t Z = 2, A = 6, Q = 2;
   TString ionName = "6He";
   ERIonMixGenerator* generator = new ERIonMixGenerator(ionName, Z, A, Q, 1);
   Double32_t kin_energy = kinE_MevPerNucleon * 1e-3 * A; //GeV
   generator->SetKinE(kin_energy);
   generator->SetPSigmaOverP(0);
   Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
-  generator->SetThetaSigma(0, sigmaTheta);
+  generator->SetThetaSigma(0, 0);
  // generator->SetThetaRange(0., 5.);
-  generator->SetPhiRange(0, 360);
+ // generator->SetPhiRange(0, 360);
   generator->SetBoxXYZ(0, 0, 0, 0, beamStartPosition);
+  generator->SpreadingOnTarget();
+
+  primGen->AddGenerator(generator);
+  run->SetGenerator(primGen);
 
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
@@ -168,8 +169,9 @@ void exp1803_full(Int_t nEvents = 100) {
   run->SetDecayer(decayer);
 
   // ------- Magnetic field -------------------------------------------------
-  ERFieldMap* magField = new ERFieldMap("testField","A");
-  run->SetField(magField,"magnet");
+  ERFieldMap* magField = new ERFieldMap("exp1803Field","A"); //exp1803Field, testField
+  magField->SetVolume("magnet");
+  run->SetField(magField);
     // ------- QTelescope Digitizer -------------------------------------------
   ERQTelescopeDigitizer* qtelescopeDigitizer = new ERQTelescopeDigitizer(verbose);
   qtelescopeDigitizer->SetSiElossThreshold(0);
@@ -183,7 +185,7 @@ void exp1803_full(Int_t nEvents = 100) {
   // ------  Gadast Digitizer -----------------------------------------------
   ERGadastDigitizer* gadastDigitizer = new ERGadastDigitizer(verbose);
   run->AddTask(gadastDigitizer);
-   // -----  BeamDet Digitizer ----------------------------------------------
+  // -----  BeamDet Digitizer ----------------------------------------------
   ERBeamDetDigitizer* beamDetDigitizer = new ERBeamDetDigitizer(verbose);
   // beamDetDigitizer->SetMWPCElossThreshold(0.006);
   // beamDetDigitizer->SetToFElossThreshold(0.006);
