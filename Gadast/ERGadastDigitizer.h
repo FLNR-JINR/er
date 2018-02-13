@@ -57,6 +57,10 @@ public:
   void SetLaBrLC(Float_t lc){fLaBrLC = lc;}
   void SetLaBrEdepError(Float_t a, Float_t b, Float_t c) {fLaBrEdepErrorA = a;fLaBrEdepErrorB = b;fLaBrEdepErrorC = c;}
   void SetLaBrTimeError(Float_t a) {fLaBrTimeErrorA = a;}
+  void SetCsIElossThreshold(Float_t treshold){fCsIElossThreshold = treshold;}
+  void SetLaBrElossThreshold(Float_t treshold){fLaBrElossThreshold = treshold;}
+
+
   /** Accessors **/ 
 
 protected:
@@ -79,6 +83,9 @@ protected:
   Float_t fLaBrLC;
   Float_t fLaBrEdepErrorA,fLaBrEdepErrorB,fLaBrEdepErrorC;
   Float_t fLaBrTimeErrorA;
+
+  Float_t fCsIElossThreshold;
+  Float_t fLaBrElossThreshold;
 protected:
   
   ERGadastCsIDigi* AddCsIDigi(Float_t Edep,Int_t wall,Int_t block, Int_t cell);
