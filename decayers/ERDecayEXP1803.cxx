@@ -93,8 +93,8 @@ Bool_t ERDecayEXP1803::Stepping() {
     TLorentzVector curPos;
     gMC->TrackPosition(curPos);
     if (curPos.Z() > fTargetReactZ){
-      std::cout << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
-      //6He + 2H → 3He + 5H
+      // std::cout << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
+      // 6He + 2H → 3He + 5H
       TLorentzVector lv6He;
       gMC->TrackMomentum(lv6He);
       TLorentzVector lv2H(0., 0., 0., f2H->Mass());
@@ -125,31 +125,26 @@ Bool_t ERDecayEXP1803::Stepping() {
       TLorentzVector *lvn2 = fDecayPhaseSpace->GetDecay(2);
 
       Int_t newTrackNb;
-      Int_t htTrackNb = 100001;
       gMC->GetStack()->PushTrack(1, 0, f5H->PdgCode(),
                                  lv5H->Px(),lv5H->Py(),lv5H->Pz(),
                                  lv5H->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, htTrackNb, fn->Mass(), 0);
-      cout  << "New h5 " << htTrackNb << endl;
+                                 kPDecay, newTrackNb, fn->Mass(), 0);
       gMC->GetStack()->PushTrack(1, 0, f3He->PdgCode(),
                                  lv3He->Px(),lv3He->Py(),lv3He->Pz(),
                                  lv3He->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, newTrackNb, fn->Mass(), 0);
-      cout  << "New Track nimber " << newTrackNb << endl;
       gMC->GetStack()->PushTrack(1, 0, f3H->PdgCode(),
                                  lv3H->Px(),lv3H->Py(),lv3H->Pz(),
                                  lv3H->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, newTrackNb, f3H->Mass(), 0);
-      cout  << "New Track nimber " << newTrackNb << endl;
       gMC->GetStack()->PushTrack(1, 0, fn->PdgCode(),
                                  lvn1->Px(),lvn1->Py(),lvn1->Pz(),
                                  lvn1->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, newTrackNb, fn->Mass(), 0);
-      cout  << "New Track nimber " << newTrackNb << endl;
       gMC->GetStack()->PushTrack(1, 0, fn->PdgCode(),
                                  lvn2->Px(),lvn2->Py(),lvn2->Pz(),
                                  lvn2->E(), curPos.X(), curPos.Y(), curPos.Z(),
