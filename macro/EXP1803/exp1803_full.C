@@ -157,9 +157,6 @@ void exp1803_full(Int_t nEvents = 100) {
 
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
-
-  primGen->AddGenerator(generator);
-  run->SetGenerator(primGen);
   // ------- Decayer --------------------------------------------------------
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
