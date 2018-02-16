@@ -47,8 +47,8 @@ class ERMCTrack : public TObject
 
   /**  Standard constructor  **/
   ERMCTrack(Int_t pdgCode, Int_t motherID, Double_t px, Double_t py,
-	     Double_t pz, Double_t x, Double_t y, Double_t z,
-	     Double_t t, Int_t nPoints);
+       Double_t pz, Double_t x, Double_t y, Double_t z,
+       Double_t t, Int_t nPoints);
 
   /**  Copy constructor  **/
   ERMCTrack(const ERMCTrack& track);
@@ -67,6 +67,7 @@ class ERMCTrack : public TObject
 
   //Int_t AccNeuRad() const {return GetNPoints(kNEURAD);}
   /**  Accessors  **/
+
   Int_t    GetPdgCode()  const { return fPdgCode; }
   Int_t    GetMotherId() const { return fMotherId; }
   Double_t GetPx()       const { return fPx; }
@@ -80,11 +81,14 @@ class ERMCTrack : public TObject
   Double_t GetCharge()   const;
   Double_t GetEnergy()   const;
   Double_t GetPt()       const { return TMath::Sqrt(fPx*fPx+fPy*fPy); }
-  Double_t GetP() 		 const { return TMath::Sqrt(fPx*fPx+fPy*fPy+fPz*fPz); }
+  Double_t GetP()      const { return TMath::Sqrt(fPx*fPx+fPy*fPy+fPz*fPz); }
   Double_t GetRapidity() const;
   void GetMomentum(TVector3& momentum) const;
   void Get4Momentum(TLorentzVector& momentum) const;
   void GetStartVertex(TVector3& vertex) const;
+  TLorentzVector GetVector();
+  Double_t GetTheta();
+  Double_t GetPhi();
 
 
   /** Accessors to the number of MCPoints in the detectors **/
@@ -94,8 +98,6 @@ class ERMCTrack : public TObject
   /**  Modifiers  **/
   void SetMotherId(Int_t id) { fMotherId = id; }
   void SetNPoints(Int_t iDet, Int_t np);
-
-
 
 private:
 
@@ -116,6 +118,9 @@ private:
   Int_t fNPoints;
   Double_t fMass;
   Double_t fEnergy;
+  Double_t fTheta,fPhi;
+  
+  TLorentzVector fMomentum;
 
   ClassDef(ERMCTrack,2);
 
@@ -126,8 +131,7 @@ private:
 // ==========   Inline functions   ========================================
 
 inline Double_t ERMCTrack::GetEnergy() const {
-  Double_t mass = GetMass();
-  return TMath::Sqrt(mass*mass + fPx*fPx + fPy*fPy + fPz*fPz );
+  return fEnergy;
 }
 
 
@@ -137,12 +141,13 @@ inline void ERMCTrack::GetMomentum(TVector3& momentum) const {
 
 
 inline void ERMCTrack::Get4Momentum(TLorentzVector& momentum) const {
-  momentum.SetXYZT(fPx,fPy,fPz,GetEnergy());
+  momentum.SetXYZT(fPx,fPy,fPz,fEnergy);
 }
 
 
 inline void ERMCTrack::GetStartVertex(TVector3& vertex) const {
   vertex.SetXYZ(fStartX,fStartY,fStartZ);
 }
+
 
 #endif /* ERMCTRACK_H_ */

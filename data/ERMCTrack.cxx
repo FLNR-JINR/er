@@ -35,8 +35,8 @@ ERMCTrack::ERMCTrack()
 
 // -----   Standard constructor   ------------------------------------------
 ERMCTrack::ERMCTrack(Int_t pdgCode, Int_t motherId, Double_t px,
-		       Double_t py, Double_t pz, Double_t x, Double_t y,
-		       Double_t z, Double_t t, Int_t nPoints = 0)
+           Double_t py, Double_t pz, Double_t x, Double_t y,
+           Double_t z, Double_t t, Int_t nPoints = 0)
   : TObject(),
     fPdgCode(pdgCode),
     fMotherId(motherId),
@@ -112,8 +112,8 @@ ERMCTrack::~ERMCTrack() { }
 // -----   Public method Print   -------------------------------------------
 void ERMCTrack::Print(Int_t trackId) const {
   /*std::cout << "Track " << trackId << ", mother : " << fMotherId
-	     << ", Type " << fPdgCode << ", momentum (" << fPx << ", "
-	     << fPy << ", " << fPz << ") GeV" << std::endl;*/
+       << ", Type " << fPdgCode << ", momentum (" << fPx << ", "
+       << fPy << ", " << fPz << ") GeV" << std::endl;*/
   //std::cout << "       Ref " << GetNPoints(kREF) << std::endl;
 }
 // -------------------------------------------------------------------------
@@ -122,12 +122,13 @@ void ERMCTrack::Print(Int_t trackId) const {
 
 // -----   Public method GetMass   -----------------------------------------
 Double_t ERMCTrack::GetMass() const {
-  if ( TDatabasePDG::Instance() ) {
-    TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPdgCode);
-    if ( particle ) return particle->Mass();
-    else return 0.;
-  }
-  return 0.;
+  // if ( TDatabasePDG::Instance() ) {
+  //   TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPdgCode);
+  //   if ( particle ) return particle->Mass();
+  //   else return 0.;
+  // }
+  // return 0.;
+  return fMass;
 }
 // -------------------------------------------------------------------------
 
@@ -166,7 +167,7 @@ Int_t ERMCTrack::GetNPoints(DetectorId detId) const {
   else if ( detId == kPSD  ) return ( (fNPoints & ( 1 << 25) ) >> 25);
   else {
     std::cerr << "GetNPoints: Unknown detector ID "
-	       << detId << std::endl;
+         << detId << std::endl;
   */
     return 0;
   //}
@@ -233,9 +234,28 @@ void ERMCTrack::SetNPoints(Int_t iDet, Int_t nPoints) {
   }
 
   else std::cerr << "Unknown detector ID "
-		  << iDet << std::endl;
+      << iDet << std::endl;
 */
 }
+
+
+TLorentzVector ERMCTrack::GetVector(){
+  fMomentum.SetXYZT(fPx,fPy,fPz,fEnergy);
+  return fMomentum;
+}
+
+Double_t ERMCTrack::GetTheta(){
+  fMomentum.SetXYZT(fPx,fPy,fPz,fEnergy);
+  fTheta = fMomentum.Theta();
+  return fTheta;
+}
+
+Double_t ERMCTrack::GetPhi(){
+  fMomentum.SetXYZT(fPx,fPy,fPz,fEnergy);
+  fPhi = fMomentum.Phi();
+  return fPhi;
+}
+
 // -------------------------------------------------------------------------
 
 
