@@ -100,6 +100,8 @@ class ERMCTrack : public TObject
   void SetNPoints(Int_t iDet, Int_t np);
 
 private:
+  Double_t CalculateMass();
+  Double_t CalculateEnergy();
 
   Int_t fID;
 
@@ -119,7 +121,7 @@ private:
   Double_t fMass;
   Double_t fEnergy;
   Double_t fTheta,fPhi;
-  
+
   TLorentzVector fMomentum;
 
   ClassDef(ERMCTrack,2);

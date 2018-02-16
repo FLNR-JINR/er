@@ -51,8 +51,8 @@ ERMCTrack::ERMCTrack(Int_t pdgCode, Int_t motherId, Double_t px,
 {
   if (nPoints >= 0) fNPoints = nPoints;
   //  else              fNPoints = 0;
-  fMass = GetMass();
-  fEnergy = GetEnergy();
+  fMass = CalculateMass();
+  fEnergy = CalculateEnergy();
 }
 // -------------------------------------------------------------------------
 
@@ -96,8 +96,8 @@ ERMCTrack::ERMCTrack(TParticle* part)
     //@TODO выплить этот костыль
     fID(part->GetStatusCode())
 {
-    fMass = GetMass();
-    fEnergy = GetEnergy();
+    fMass = CalculateMass();
+    fEnergy = CalculateEnergy();
 }
 // -------------------------------------------------------------------------
 
@@ -122,12 +122,6 @@ void ERMCTrack::Print(Int_t trackId) const {
 
 // -----   Public method GetMass   -----------------------------------------
 Double_t ERMCTrack::GetMass() const {
-  // if ( TDatabasePDG::Instance() ) {
-  //   TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPdgCode);
-  //   if ( particle ) return particle->Mass();
-  //   else return 0.;
-  // }
-  // return 0.;
   return fMass;
 }
 // -------------------------------------------------------------------------
@@ -257,6 +251,18 @@ Double_t ERMCTrack::GetPhi(){
 }
 
 // -------------------------------------------------------------------------
+Double_t ERMCTrack::CalculateMass() {
+  if ( TDatabasePDG::Instance() ) {
+    TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPdgCode);
+    if ( particle ) return particle->Mass();
+    else return 0.;
+  }
+  return 0.;
+}
+// -------------------------------------------------------------------------
+Double_t ERMCTrack::CalculateEnergy() {
+  return TMath::Sqrt(fMass*fMass + fPx*fPx + fPy*fPy + fPz*fPz );
+}
 
 
 ClassImp(ERMCTrack)
