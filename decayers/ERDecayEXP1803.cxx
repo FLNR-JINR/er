@@ -15,11 +15,12 @@
 #include "TMCProcess.h"
 
 #include "FairRunSim.h"
+#include "FairLogger.h"
+
 #include "ERDecayMCEventHeader.h"
+#include "ERMCEventHeader.h"
 
 using namespace std;
-
-#include "ERMCEventHeader.h"      //for ERMCEventHeader
 
 ERDecayEXP1803::ERDecayEXP1803():
   ERDecay("EXP1803"),
@@ -32,7 +33,9 @@ ERDecayEXP1803::ERDecayEXP1803():
   f5H (NULL),
   f3H (NULL),
   fn  (NULL),
-  fIon3He(NULL)
+  fIon3He(NULL),
+  f5HMass(0.),
+  fIs5HUserMassSet(false)
 {
   fRnd = new TRandom3();
   fReactionPhaseSpace = new TGenPhaseSpace();
@@ -101,9 +104,12 @@ Bool_t ERDecayEXP1803::Stepping() {
       TLorentzVector lvReaction;
       lvReaction = lv6He + lv2H;
 
+      Double_t mass5H = (fIs5HUserMassSet) ? f5HMass : f5H->Mass();
+      LOG(DEBUG) << "Ion H5 mass in reaction " << mass5H << FairLogger::endl;
+
       Double_t reactMasses[2];
       reactMasses[0] = f3He->Mass();
-      reactMasses[1] = f5H->Mass();
+      reactMasses[1] = mass5H;
 
       fReactionPhaseSpace->SetDecay(lvReaction, 2, reactMasses);
       fReactionPhaseSpace->Generate();
@@ -125,16 +131,17 @@ Bool_t ERDecayEXP1803::Stepping() {
       TLorentzVector *lvn2 = fDecayPhaseSpace->GetDecay(2);
 
       Int_t newTrackNb;
+
       gMC->GetStack()->PushTrack(1, 0, f5H->PdgCode(),
                                  lv5H->Px(),lv5H->Py(),lv5H->Pz(),
                                  lv5H->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, newTrackNb, fn->Mass(), 0);
+                                 kPDecay, newTrackNb, mass5H, 0);
       gMC->GetStack()->PushTrack(1, 0, f3He->PdgCode(),
                                  lv3He->Px(),lv3He->Py(),lv3He->Pz(),
                                  lv3He->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, newTrackNb, fn->Mass(), 0);
+                                 kPDecay, newTrackNb, f3He->Mass(), 0);
       gMC->GetStack()->PushTrack(1, 0, f3H->PdgCode(),
                                  lv3H->Px(),lv3H->Py(),lv3H->Pz(),
                                  lv3H->E(), curPos.X(), curPos.Y(), curPos.Z(),

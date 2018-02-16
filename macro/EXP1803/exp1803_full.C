@@ -158,10 +158,13 @@ void exp1803_full(Int_t nEvents = 100) {
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
   // ------- Decayer --------------------------------------------------------
+  Double_t massH5 = 4.8;  // [GeV]
+
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
   targetDecay->SetTargetVolumeName("tubeH2");
   targetDecay->SetTargetThickness(targetH2Thickness);
+  // targetDecay->SetH5Mass(massH5);
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);
 
