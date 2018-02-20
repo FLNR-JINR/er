@@ -105,9 +105,6 @@ InitStatus ERGadastDigitizer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERGadastDigitizer::Exec(Option_t* opt)
 {
-  Int_t iEvent =
-			FairRun::Instance()->GetEventHeader()->GetMCEntryNumber();
-  std::cout << "Event " << iEvent << std::endl;
   // Reset entries in output arrays
   Reset();
 

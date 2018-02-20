@@ -46,13 +46,6 @@ InitStatus ERBeamDetPID::Init() {
   fBeamDetSetup = ERBeamDetSetup::Instance();
   fBeamDetSetup->SetParContainers();
   fBeamDetSetup->GetGeoParamsFromParContainer();
-
-  FairRunSim* run = FairRunSim::Instance();
-  fIon = TDatabasePDG::Instance()->GetParticle(fIonName);
-  if ( ! fIon ) {
-    FairIon*  ion = new FairIon(fIonName, fA, fZ, fQ);
-    run->AddNewIon(ion);
-  } 
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetPID::Exec(Option_t* opt) { 
@@ -61,8 +54,6 @@ void ERBeamDetPID::Exec(Option_t* opt) {
     LOG(DEBUG)  << "ERBeamDetPID: No track" << FairLogger::endl;
     return;
   }
-  fIon = TDatabasePDG::Instance()->GetParticle(fIonName);
-  fIonMass = fIon->Mass();
 
   Double_t ToF1, ToF2, ToF;
   Double_t dE1, dE2, dE;
@@ -70,13 +61,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
 
   Double_t beta;
   Double_t gamma;
-  /*TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPID);
-  if ( ! particle ) {
-      LOG(DEBUG) << "ERIonGenerator: Ion " << fPID
-      << " not found in database!" << FairLogger::endl;
-      return ;
-    }*/
-  //Double_t mass = 26.2716160;//particle->Mass();
+
   Double_t p, energy;
 
   ERBeamDetTOFDigi* digi;
@@ -140,6 +125,13 @@ void ERBeamDetPID::Reset() {
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetPID::Finish(){    
+}
+//--------------------------------------------------------------------------------------------------
+void ERBeamDetPID::SetIonMassNumber(Int_t a) {
+  TDatabasePDG* pdgDB = TDatabasePDG::Instance();
+  TParticlePDG* kProton = pdgDB->GetParticle(2212);
+  Double_t kProtonMass=kProton->Mass();
+  fIonMass = kProtonMass * Double_t(a);
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability){

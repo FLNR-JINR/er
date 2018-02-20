@@ -1,4 +1,4 @@
-void exp1803_full(Int_t nEvents = 100) {
+void exp1803_sim_digi(Int_t nEvents = 100) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -19,7 +19,7 @@ void exp1803_full(Int_t nEvents = 100) {
   // --------------- Target -------------------------------------------------
   Double_t targetH2Thickness = 0.4;  // [cm] this parameter should coincide with target H2 thickness in /macro/geo/create_GadastEXP1803_geo.C
   //---------------------Files-----------------------------------------------
-  TString outFile= "full.root";
+  TString outFile= "sim_digi.root";
   TString parFile= "par.root";
   TString workDirPath = gSystem->Getenv("VMCWORKDIR");
   TString paramFileQTelescope = workDirPath
@@ -58,7 +58,7 @@ void exp1803_full(Int_t nEvents = 100) {
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
    
-  Int_t verbose = 1;
+  Int_t verbose = 0;
   // -----  BeamDet Setup ---------------------------------------------------
   ERBeamDetSetup* setupBeamDet = ERBeamDetSetup::Instance();
   setupBeamDet->SetXmlParametersFile(paramFileBeamDet);
@@ -192,23 +192,10 @@ void exp1803_full(Int_t nEvents = 100) {
   // beamDetDigitizer->SetToFElossSigmaOverEloss(0);
   // beamDetDigitizer->SetToFTimeSigma(1e-10);
   run->AddTask(beamDetDigitizer);
-  // -----------------------BeamDetTrackFinder------------------------------
-  ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(1);
-  run->AddTask(trackFinder);
-  // // ------------------------------------------------------------------------
-  // -----------------------BeamDetTrackPID-------------------------------
-  ERBeamDetPID* pid = new ERBeamDetPID(1);
-  pid->SetIon(ionName, Z, A, Q);
-  //pid->SetBoxPID(203., 206., 0.005, 0.12);
-  pid->SetBoxPID(0., 1000., 0., 1000.);
-  pid->SetOffsetToF(0.);
-  pid->SetProbabilityThreshold(0);
-
-  run->AddTask(pid);
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
   //-------Set LOG verbosity  ----------------------------------------------- 
-  FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");  
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
   Int_t nSteps = -15000;

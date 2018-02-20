@@ -102,7 +102,10 @@ public:
   **/
   void SetProbabilityThreshold(Double_t probabilityThreshold) {fProbabilityThreshold = probabilityThreshold;}
 
-  void SetIon(TString ionName, Int_t a, Int_t z, Int_t q) {fIonName = ionName; fA = a; fZ = z, fQ = q;}
+  /** @brief Sets ion mass number.
+   ** @param a - nucleon number.
+  **/
+  void SetIonMassNumber(Int_t a);
 
 protected:
   //Paramaters
