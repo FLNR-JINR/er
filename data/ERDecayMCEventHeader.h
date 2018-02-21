@@ -13,23 +13,25 @@
 #define ERDecayMCEventHeader_H_
 
 #include "TLorentzVector.h"
-#include "TClonesArray.h"
+#include "TArrayI.h"
 
 #include "FairMCEventHeader.h"
 
 class ERDecayMCEventHeader : public FairMCEventHeader {
 private:
-	TVector3 fDecayPos;
-	TLorentzVector fInputIon;
-  TClonesArray* fOutputsParticles;
+  TVector3 fDecayPos;
+  Int_t fInputTrackID;
+  TArrayI fOutputTrackID;
+  Int_t fOutputsTracksNb = 0;
 public:
-	ERDecayMCEventHeader();
-	void SetDecayPos(TVector3 pos){fDecayPos = pos;}
-  void SetInputIon(TLorentzVector iion){fInputIon = iion;}
-  void AddOutputParticle(TLorentzVector oparticle){
-          new((*fOutputsParticles)[fOutputsParticles->GetEntriesFast()])TLorentzVector(oparticle);}
-  
-	ClassDef(ERDecayMCEventHeader,1)
+  ERDecayMCEventHeader();
+  void SetDecayPos(TVector3 pos){fDecayPos = pos;}
+  void SetInputIon(Int_t iID){fInputTrackID = iID;}
+  void AddOutputParticle(Int_t oID){fOutputsTracksNb++; 
+                                    fOutputTrackID.Set(fOutputsTracksNb);
+                                    fOutputTrackID[fOutputsTracksNb-1]=oID;}
+
+  ClassDef(ERDecayMCEventHeader,1)
 };
 
 #endif
