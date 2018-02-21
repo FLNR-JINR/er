@@ -70,11 +70,6 @@ class ERIonGenerator : public FairGenerator
     **/
     void SetExcitationEnergy(Double_t eExc);
 
-    /** @brief Defines mass of generated FairIon object.
-     ** @param mass  mass [GeV].If mass is not given, it will be set to a times the proton mass.
-    **/
-    void SetMass(Double_t mass);
-
     void SetPDGType      (Int_t pdg)  {fPDGType = pdg;  };
 
     /** @brief Defines number of ions generated per event.
@@ -268,7 +263,7 @@ class ERIonGenerator : public FairGenerator
     TString    fName;                ///< Ion name
     Int_t      fPDGType;             ///< Particle type (PDG encoding)
 
-    Double32_t fPDGMass;             ///< Particle mass [GeV]
+    Double32_t fIonMass;             ///< Ion mass + Ion Exitation [GeV]
     Double32_t fPtMin,  fPtMax;      ///< Transverse momentum range [GeV]
     Double32_t fPhiMin, fPhiMax;     ///< Azimuth angle range [degree]
     Double32_t fEtaMin, fEtaMax;     ///< Pseudorapidity range in lab system

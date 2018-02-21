@@ -36,7 +36,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERGeneratorsLinkDef.h)
 Set(LIBRARY_NAME generators)
-Set(DEPENDENCIES ERBase ERData Base Core)
+Set(DEPENDENCIES ERBase ERData Base Core G4particles)
 
 GENERATE_LIBRARY()
 
