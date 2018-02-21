@@ -44,9 +44,10 @@ InitStatus ERBeamDetTrackFinder::Init()
   fBeamDetMWPCDigiY1 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiY1");
   fBeamDetMWPCDigiY2 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiY2");
   // Register output array fBeamDetHits
-  fBeamDetTrack = (ERBeamDetTrack*)new ERBeamDetTrack();
+  fBeamDetTrack = new TClonesArray("ERBeamDetTrack",1000);
+  //fBeamDetTrack = (ERBeamDetTrack*)new ERBeamDetTrack();
 
-  ioman->Register("BeamDetTrack.", "BeamDet track", fBeamDetTrack, kTRUE);
+  ioman->Register("BeamDetTrack", "BeamDet track", fBeamDetTrack, kTRUE);
 
   fBeamDetSetup = ERBeamDetSetup::Instance();
   fBeamDetSetup->SetParContainers();
@@ -133,7 +134,8 @@ void ERBeamDetTrackFinder::Finish()
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrack* ERBeamDetTrackFinder::AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v)
 {
-  fBeamDetTrack->AddParameters(xt, yt, zt, v);
+  return new((*fBeamDetTrack)[fBeamDetTrack->GetEntriesFast()])
+              ERBeamDetTrack(xt, yt, zt, v);
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetTrackFinder::SetParContainers()

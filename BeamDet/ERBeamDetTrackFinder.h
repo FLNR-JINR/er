@@ -74,7 +74,12 @@ protected:
   TClonesArray   *fBeamDetMWPCDigiY2; ///< input collection of MWPC Digi
 
   //Output arrays
-  ERBeamDetTrack *fBeamDetTrack ;     ///< output collection of tracks
+  TClonesArray   *fBeamDetTrack ;     ///< output collection of tracks
+
+  Int_t   fMultipicityMWPCX1;
+  Int_t   fMultipicityMWPCY1;
+  Int_t   fMultipicityMWPCX2;
+  Int_t   fMultipicityMWPCY2;
 
 private:
   /** @brief Initializes runtime database for getting parameters from .par file**/

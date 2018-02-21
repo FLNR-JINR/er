@@ -153,7 +153,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
  // generator->SetThetaRange(0., 5.);
  // generator->SetPhiRange(0, 360);
   generator->SetBoxXYZ(0, 0, 0, 0, beamStartPosition);
-  generator->SpreadingOnTarget();
+  generator->SpreadingOnTarget(); 
 
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
@@ -192,6 +192,17 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   // beamDetDigitizer->SetToFElossSigmaOverEloss(0);
   // beamDetDigitizer->SetToFTimeSigma(1e-10);
   run->AddTask(beamDetDigitizer);
+
+  ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
+  run->AddTask(trackFinder);
+  // -----------------------BeamDetTrackPID----------------------------------
+  ERBeamDetPID* pid = new ERBeamDetPID(verbose);
+  pid->SetIonMassNumber(A);
+  pid->SetBoxPID(0., 1000., 0., 1000.);
+  pid->SetOffsetToF(0.);
+  pid->SetProbabilityThreshold(0);
+
+  run->AddTask(pid);  
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
   //-------Set LOG verbosity  ----------------------------------------------- 
