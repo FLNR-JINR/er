@@ -11,7 +11,6 @@ class ERRunAna : public FairRunAna
     virtual ~ERRunAna(){}
     ERRunAna();
     void Init();
-    void Calc();
     
     ClassDef(ERRunAna ,1)
 

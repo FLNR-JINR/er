@@ -30,7 +30,8 @@ void ERRunAna::Init(){
   FairGeoLoader* loader=new FairGeoLoader("TGeo", "Geo Loader");
   FairGeoInterface* GeoInterFace=loader->getGeoInterface();
   GeoInterFace->SetNoOfSets(0);
-  GeoInterFace->setMediaFile("/home/vitaliy.schetinin/er/geometry/media.geo");
+  TString erPath = gSystem->Getenv("VMCWORKDIR");
+  GeoInterFace->setMediaFile(erPath+"/geometry/media.geo");
   GeoInterFace->readMedia();
 
   ERRecoMCApplication* fApp= new ERRecoMCApplication("Fair","The Fair VMC App",new TObjArray(), "/home/vitaliy.schetinin/er/geometry/media.geo");
@@ -46,15 +47,12 @@ void ERRunAna::Init(){
   geant4->ProcessRun(0);
 
 }
-
-void ERRunAna::Calc(){
-
+/*Example of energy deposit calculation
+  
   G4EmCalculator* calc = new G4EmCalculator();
   G4NistManager* nist = G4NistManager::Instance();
   G4Material* mat = nist->FindOrBuildMaterial("BC408");
   cout << calc->GetDEDX(0.5, G4Proton::Definition(),mat) << endl;
-
-}
-
+*/
 ClassImp(ERRunAna)
 

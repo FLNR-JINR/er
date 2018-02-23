@@ -15,5 +15,4 @@ void base_reco(){
 	run->SetOutputFile(outFile);
 	run->Init();
 	run->Run(0,1);
-	run->Calc();
 }
