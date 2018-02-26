@@ -34,7 +34,7 @@ void ERRunAna::Init(){
   GeoInterFace->setMediaFile(erPath+"/geometry/media.geo");
   GeoInterFace->readMedia();
 
-  ERRecoMCApplication* fApp= new ERRecoMCApplication("Fair","The Fair VMC App",new TObjArray(), "/home/vitaliy.schetinin/er/geometry/media.geo");
+  ERRecoMCApplication* fApp= new ERRecoMCApplication("Fair","The Fair VMC App",new TObjArray(), erPath+"/geometry/media.geo");
 
   FairRunAna::Init();
 
@@ -43,6 +43,7 @@ void ERRunAna::Init(){
 
   TGeant4* geant4 = new TGeant4("TGeant4", "The Geant4 Monte Carlo", runConfiguration);
 
+  geant4->ProcessGeantMacro(erPath+"/gconfig/g4config.in");
   geant4->Init();
   geant4->ProcessRun(0);
 
