@@ -11,6 +11,7 @@
 #pragma link C++ class ERDetectorGeoPar+;
 #pragma link C++ class ERDigitizer+;
 
-//#pragma link C++ class ERRunAna+;
+#pragma link C++ class ERRunAna+;
+#pragma link C++ class ERRecoMCApplication+;
 
 #endif

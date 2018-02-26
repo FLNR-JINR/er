@@ -39,7 +39,7 @@ void base_sim(Int_t nEvents = 10){
    * 1 - Print points after each event
   */
   Int_t verbose = 0;
-    ERDetector* detector= new ERDetector("TestDetector", kTRUE,verbose);
+  ERDetector* detector= new ERDetector("TestDetector", kTRUE,verbose);
   detector->SetGeometryFileName("base.geo.root");
   detector->AddSensetive("gas");
   detector->AddSensetive("Si");
@@ -118,7 +118,7 @@ void base_sim(Int_t nEvents = 10){
   rtdb->print(); // 
   // -----   Run simulation  ------------------------------------------------
     run->Run(nEvents);
-
+    run->CreateGeometryFile("allGeo.root");
     // -----   Finish   -------------------------------------------------------
     timer.Stop();
     Double_t rtime = timer.RealTime();
