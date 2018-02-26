@@ -166,6 +166,8 @@ Bool_t ERTextDecay::Stepping() {
 }
 
 void ERTextDecay::SaveToEventHeader(){
+  //@TODO
+  /*
   FairRunSim* run = FairRunSim::Instance();
   if (TString(run->GetMCEventHeader()->ClassName()).Contains("ERDecayMCEventHeader")){   
     ERDecayMCEventHeader* header = (ERDecayMCEventHeader*)run->GetMCEventHeader();
@@ -176,6 +178,7 @@ void ERTextDecay::SaveToEventHeader(){
       header->AddOutputParticle(decay[iOutput]);
     }
   }
+  */
 }
 
 void ERTextDecay::BeginEvent(){

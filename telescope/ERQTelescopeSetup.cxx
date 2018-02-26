@@ -40,7 +40,7 @@ vector<TString>    ERQTelescopeSetup::fDetectorStations;
 // ----- SingleSi parameters --------------------------------------------------
 Int_t            ERQTelescopeSetup::fDoubleSiCount = 0;
 vector<TString>  ERQTelescopeSetup::fDoubleSiType;
-vector<Double_t> ERQTelescopeSetup::fDoubleSiPosZ;
+vector<TVector3> ERQTelescopeSetup::fDoubleSiPos;
 vector<TString>  ERQTelescopeSetup::fDoubleSiOrientAroundZ;
 vector<Double_t> ERQTelescopeSetup::fDoubleSiX;
 vector<Double_t> ERQTelescopeSetup::fDoubleSiY;
@@ -57,7 +57,7 @@ vector<Bool_t>   ERQTelescopeSetup::fDoubleSiIsDeadLayerSet;
 // ----- DoubleSi parameters --------------------------------------------------
 Int_t            ERQTelescopeSetup::fSingleSiCount = 0;
 vector<TString>  ERQTelescopeSetup::fSingleSiType;  
-vector<Double_t> ERQTelescopeSetup::fSingleSiPosZ;
+vector<TVector3> ERQTelescopeSetup::fSingleSiPos;
 vector<TString>  ERQTelescopeSetup::fSingleSiOrientAroundZ;
 vector<Double_t> ERQTelescopeSetup::fSingleSiX;
 vector<Double_t> ERQTelescopeSetup::fSingleSiY;
@@ -96,13 +96,13 @@ ERQTelescopeSetup* ERQTelescopeSetup::Instance(){
     return fInstance;
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAroundZ) {
+void ERQTelescopeSetup::AddSi(TString type, TVector3 position, TString orientAroundZ) {
   if (type.BeginsWith("Double")) {
     TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
     fDoubleSiCount++;  
     fDetectorStations.push_back(type + volumeNameInd + TString::Itoa(fDoubleSiCount, 10));
     fDoubleSiOrientAroundZ.push_back(orientAroundZ);
-    fDoubleSiPosZ.push_back(position);
+    fDoubleSiPos.push_back(position);
     fDoubleSiType.push_back(type);
     fDoubleSiIsDeadLayerSet.push_back(false);
   } else {
@@ -110,13 +110,13 @@ void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAro
     TString volumeNameInd = (orientAroundZ == "X") ? "_X" : "_Y";  
     fDetectorStations.push_back(type + volumeNameInd + TString::Itoa(fSingleSiCount, 10));
     fSingleSiOrientAroundZ.push_back(orientAroundZ);
-    fSingleSiPosZ.push_back(position);
+    fSingleSiPos.push_back(position);
     fSingleSiType.push_back(type);
     fSingleSiIsDeadLayerSet.push_back(false);
   }
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAroundZ, 
+void ERQTelescopeSetup::AddSi(TString type, TVector3 position, TString orientAroundZ, 
                                                      Double_t deadLayerFront, 
                                                      Double_t deadLayerBack)
 {
@@ -125,7 +125,7 @@ void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAro
     fDoubleSiCount++;  
     fDetectorStations.push_back(type + volumeNameInd + TString::Itoa(fDoubleSiCount, 10));
     fDoubleSiOrientAroundZ.push_back(orientAroundZ);
-    fDoubleSiPosZ.push_back(position);
+    fDoubleSiPos.push_back(position);
     fDoubleSiType.push_back(type);
     fDoubleSiDeadLayerThicknessFrontSide.push_back(deadLayerFront);
     fDoubleSiDeadLayerThicknessBackSide.push_back(deadLayerBack);
@@ -135,7 +135,7 @@ void ERQTelescopeSetup::AddSi(TString type, Double_t position, TString orientAro
     TString volumeNameInd = (orientAroundZ == "X") ? "_X" : "_Y";  
     fDetectorStations.push_back(type + volumeNameInd + TString::Itoa(fSingleSiCount, 10));
     fSingleSiOrientAroundZ.push_back(orientAroundZ);
-    fSingleSiPosZ.push_back(position);
+    fSingleSiPos.push_back(position);
     fSingleSiType.push_back(type);
     fSingleSiDeadLayerThicknessFrontSide.push_back(deadLayerFront);
     fSingleSiDeadLayerThicknessBackSide.push_back(deadLayerBack);
@@ -256,7 +256,7 @@ void ERQTelescopeSetup::ConstructGeometry() {
 
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
-  gGeoMan->SetName("BeamDetGeom");
+  //gGeoMan->SetName("BeamDetGeom");
   TGeoVolume* top   = new TGeoVolumeAssembly("TOP");
   //gGeoMan->SetTopVolume(top);
   TGeoVolume* qtelescope = new TGeoVolumeAssembly("QTelescope");
@@ -350,9 +350,9 @@ void ERQTelescopeSetup::ConstructGeometry() {
     if (fDoubleSiOrientAroundZ[i] == "Y") {
       rotation = f90ZRotation;
     }
-    qtelescope->AddNode(doubleSi[i], i, new TGeoCombiTrans(0.,
-                                                           0.,
-                                                           fDoubleSiPosZ[i], 
+    qtelescope->AddNode(doubleSi[i], i, new TGeoCombiTrans(fDoubleSiPos[i].X(),
+                                                           fDoubleSiPos[i].Y(),
+                                                           fDoubleSiPos[i].Z(), 
                                                            rotation));
   }
   //----------------------- Single Si structure -------------------------------
@@ -373,9 +373,9 @@ void ERQTelescopeSetup::ConstructGeometry() {
     if (fSingleSiOrientAroundZ[i] == "Y") {
       rotation = f90ZRotation;
     }
-    qtelescope->AddNode(singleSi[i], i, new TGeoCombiTrans(0.,
-                                                           0.,
-                                                           fSingleSiPosZ[i], 
+    qtelescope->AddNode(singleSi[i], i, new TGeoCombiTrans(fSingleSiPos[i].X(),
+                                                           fSingleSiPos[i].Y(),
+                                                           fSingleSiPos[i].Z(), 
                                                            rotation));
   }
   //----------------------- CsI structure -------------------------------------
@@ -403,11 +403,11 @@ void ERQTelescopeSetup::ConstructGeometry() {
   }
   top->AddNode(qtelescope, 1, new TGeoCombiTrans(global_X ,global_Y, global_Z, fGlobalRotation));
    // ---------------   Finish   -----------------------------------------------
-  gGeoMan->CloseGeometry();
-  gGeoMan->CheckOverlaps(0.001);
-  gGeoMan->PrintOverlaps();
-  gGeoMan->Test();
-  gGeoManager = gGeoMan;
+  //gGeoMan->CloseGeometry();
+  //gGeoMan->CheckOverlaps(0.001);
+  //gGeoMan->PrintOverlaps();
+  //gGeoMan->Test();
+  //gGeoManager = gGeoMan;
 
   TFile* geoFile = new TFile(geoFileName, "RECREATE");
   top->Write();
@@ -437,7 +437,9 @@ void ERQTelescopeSetup::PrintDetectorParameters(void) {
   for(Int_t i = 0; i < fDoubleSiCount; i++) {
     cout << "DoubleSi_"+TString::Itoa(i+1, 10) << " is " 
          << fDoubleSiType[i] << " with parameters:" << endl
-         << "\tpositionZ = " << fDoubleSiPosZ[i] << endl
+         << "\tpositionX = " << fDoubleSiPos[i].X() << endl
+         << "\tpositionY = " << fDoubleSiPos[i].Y() << endl
+         << "\tpositionZ = " << fDoubleSiPos[i].Z() << endl
          << "\tdoubeSiSizeX = " << fDoubleSiX[i]
          << "; doubeSiSizeY = " << fDoubleSiY[i] 
          << "; doubeSiSizeZ = " << fDoubleSiZ[i] << endl
@@ -454,7 +456,9 @@ void ERQTelescopeSetup::PrintDetectorParameters(void) {
   for(Int_t i = 0; i < fSingleSiCount; i++) {
     cout << "SingleSi_"+TString::Itoa(i+1, 10) << " is " 
          << fSingleSiType[i] << " with parameters:" << endl
-         << "\tpositionZ = " << fSingleSiPosZ[i] << endl
+         << "\tpositionX = " << fSingleSiPos[i].X() << endl
+         << "\tpositionY = " << fSingleSiPos[i].Y() << endl
+         << "\tpositionZ = " << fSingleSiPos[i].Z() << endl
          << "\tsingleSiSizeX = " << fSingleSiX[i]
          << "; singleSiSizeY = " << fSingleSiY[i] 
          << "; singleSiSizeZ = " << fSingleSiZ[i] << endl
@@ -492,7 +496,9 @@ void ERQTelescopeSetup::PrintDetectorParametersToFile(TString fileName) {
   for(Int_t i = 0; i < fDoubleSiCount; i++) {
     listingFile << "DoubleSi_"+TString::Itoa(i+1, 10) << " is " 
          << fDoubleSiType[i] << " with parameters:" << endl
-         << "\tpositionZ = " << fDoubleSiPosZ[i] << endl
+         << "\tpositionX = " << fDoubleSiPos[i].X() << endl
+         << "\tpositionY = " << fDoubleSiPos[i].Y() << endl
+         << "\tpositionZ = " << fDoubleSiPos[i].Z() << endl
          << "\tdoubeSiSizeX = " << fDoubleSiX[i]
          << "; doubeSiSizeY = " << fDoubleSiY[i] 
          << "; doubeSiSizeZ = " << fDoubleSiZ[i] << endl
@@ -509,7 +515,9 @@ void ERQTelescopeSetup::PrintDetectorParametersToFile(TString fileName) {
   for(Int_t i = 0; i < fSingleSiCount; i++) {
     listingFile << "SingleSi_"+TString::Itoa(i+1, 10) << " is " 
          << fSingleSiType[i] << " with parameters:" << endl
-         << "\tpositionZ = " << fSingleSiPosZ[i] << endl
+         << "\tpositionX = " << fSingleSiPos[i].X() << endl
+         << "\tpositionY = " << fSingleSiPos[i].Y() << endl
+         << "\tpositionZ = " << fSingleSiPos[i].Z() << endl
          << "\tsingleSiSizeX = " << fSingleSiX[i]
          << "; singleSiSizeY = " << fSingleSiY[i] 
          << "; singleSiSizeZ = " << fSingleSiZ[i] << endl

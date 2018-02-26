@@ -10,8 +10,10 @@
 #define ERBeamDetPID_H
 
 #include "TClonesArray.h"
+#include "TParticlePDG.h"
 
 #include "FairTask.h"
+#include "FairIon.h"
 
 #include "ERBeamDetTOFDigi.h"
 #include "ERBeamDetTrack.h"
@@ -100,6 +102,11 @@ public:
   **/
   void SetProbabilityThreshold(Double_t probabilityThreshold) {fProbabilityThreshold = probabilityThreshold;}
 
+  /** @brief Sets ion mass number.
+   ** @param a - nucleon number.
+  **/
+  void SetIonMassNumber(Int_t a);
+
 protected:
   //Paramaters
   ERBeamDetSetup *fBeamDetSetup;        ///< access to ERBeamDetSetup class instance
@@ -107,7 +114,7 @@ protected:
   //Input arrays
   TClonesArray   *fBeamDetToFDigi1;     ///< input collection of ToF first plastic points
   TClonesArray   *fBeamDetToFDigi2;     ///< input collection of ToF second plastic points
-  ERBeamDetTrack *fBeamDetTrack;        ///< input collection of tracks
+  TClonesArray   *fBeamDetTrack;        ///< input collection of tracks
 
   Int_t          fPID;                  ///< ion PDG
   Double_t       fToF1, fToF2;          ///< ToF selection boundaries
@@ -115,8 +122,11 @@ protected:
   Double_t       fOffsetToF;            ///< ToF calibration parameter
   Double_t       fIonMass;              ///< ion mass
   Double_t       fProbabilityThreshold; ///< probability threshold
+  TParticlePDG   *fIon;
+  Double_t       fA, fZ, fQ;
+  TString        fIonName;
   //Output arrays
-  ERBeamDetParticle* fProjectile;       ///< output projectile collection
+  TClonesArray   *fProjectile;           ///< output projectile collection
 
 private:
   /** @brief Adds a ERBeamDetParticle to the output Collection **/

@@ -19,6 +19,7 @@
 #include "FairPrimaryGenerator.h"       // for FairPrimaryGenerator
 #include "FairRunSim.h"                 // for FairRunSim
 #include "FairLogger.h"                 // for logging
+#include "G4IonTable.hh"
 //-------------------------------------------------------------------------------------------------
 ERIonGenerator::ERIonGenerator()
   :FairGenerator(),
@@ -60,7 +61,7 @@ ERIonGenerator::ERIonGenerator(const Char_t* ionName, Int_t mult)
 //-------------------------------------------------------------------------------------------------
 ERIonGenerator::ERIonGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mult)
   :FairGenerator(),
-  fPDGType(-1),fMult(mult),fPDGMass(0),fPtMin(0),fPtMax(0),
+  fPDGType(-1),fMult(mult),fPtMin(0),fPtMax(0),
   fPhiMin(0),fPhiMax(0),fEtaMin(0),fEtaMax(0),fYMin(0),fYMax(0),
   fPMin(0),fPMax(0),fThetaMin(0),fThetaMax(0),fX(0),fY(0),fZ(0),
   fX1(0),fY1(0),fX2(0),fY2(0), 
@@ -76,9 +77,11 @@ ERIonGenerator::ERIonGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mu
 {
   SetPhiRange();
   fIon= new FairIon(fName, z, a, q);
+  G4IonTable* fIonTable =  G4IonTable::GetIonTable();
+  fIonMass = fIonTable->GetIonMass(z,a)/1000.;
   FairRunSim* run = FairRunSim::Instance();
   if ( ! run ) {
-    LOG(ERROR) << "No FairRun instantised!" 
+    LOG(ERROR) << "No FairRunSim instantised!" 
 	       << FairLogger::endl;
   } else {
     run->AddNewIon(fIon);
@@ -93,30 +96,26 @@ ERIonGenerator::~ERIonGenerator()
 void ERIonGenerator::SetExcitationEnergy(Double_t eExc)
 {
   fIon->SetExcEnergy(eExc);
-}
-//-------------------------------------------------------------------------------------------------
-void ERIonGenerator::SetMass(Double_t mass)
-{
-  fIon->SetMass(mass);
+  fIonMass += eExc;
 }
 //-------------------------------------------------------------------------------------------------
 void ERIonGenerator::SetKinERange(Double32_t kinEMin, Double32_t kinEMax)
 { 
-  fPMin = TMath::Sqrt(kinEMin*kinEMin + 2.*kinEMin*fIon->GetMass());
-  fPMax = TMath::Sqrt(kinEMax*kinEMax + 2.*kinEMax*fIon->GetMass());
+  fPMin = TMath::Sqrt(kinEMin*kinEMin + 2.*kinEMin*fIonMass);
+  fPMax = TMath::Sqrt(kinEMax*kinEMax + 2.*kinEMax*fIonMass);
   fPRangeIsSet=kTRUE;
 }
 //-------------------------------------------------------------------------------------------------
 void ERIonGenerator::SetKinESigma(Double32_t kinE, Double32_t sigmaKinE)
 { 
-  fGausP = TMath::Sqrt(kinE*kinE + 2.*kinE*fIon->GetMass());
-  fSigmaP = sigmaKinE*(kinE + fIon->GetMass()) / TMath::Sqrt(kinE*kinE + 2.*kinE*fIon->GetMass());
+  fGausP = TMath::Sqrt(kinE*kinE + 2.*kinE*fIonMass);
+  fSigmaP = sigmaKinE*(kinE + fIonMass) / TMath::Sqrt(kinE*kinE + 2.*kinE*fIonMass);
   fSigmaPIsSet=kTRUE; 
 }
 //-------------------------------------------------------------------------------------------------
 void ERIonGenerator::SetKinE(Double32_t kinE) 
 {
-  fGausP = TMath::Sqrt(kinE*kinE + 2.*kinE*fIon->GetMass()); 
+  fGausP = TMath::Sqrt(kinE*kinE + 2.*kinE*fIonMass); 
 }
 //-------------------------------------------------------------------------------------------------
 Bool_t ERIonGenerator::ReadEvent(FairPrimaryGenerator* primGen)
@@ -180,7 +179,7 @@ void ERIonGenerator::SpreadingParameters()
     theta = 2*TMath::ATan(TMath::Exp(-eta));
   } else if (fYRangeIsSet) {
     y     = gRandom->Uniform(fYMin,fYMax);
-    mt = TMath::Sqrt(fPDGMass*fPDGMass + pt*pt);
+    mt = TMath::Sqrt(fIonMass*fIonMass + pt*pt);
     fPz = mt * TMath::SinH(y);
   }
 

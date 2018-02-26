@@ -44,9 +44,10 @@ InitStatus ERBeamDetTrackFinder::Init()
   fBeamDetMWPCDigiY1 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiY1");
   fBeamDetMWPCDigiY2 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiY2");
   // Register output array fBeamDetHits
-  fBeamDetTrack = (ERBeamDetTrack*)new ERBeamDetTrack();
+  fBeamDetTrack = new TClonesArray("ERBeamDetTrack",1000);
+  //fBeamDetTrack = (ERBeamDetTrack*)new ERBeamDetTrack();
 
-  ioman->Register("BeamDetTrack.", "BeamDet track", fBeamDetTrack, kTRUE);
+  ioman->Register("BeamDetTrack", "BeamDet track", fBeamDetTrack, kTRUE);
 
   fBeamDetSetup = ERBeamDetSetup::Instance();
   fBeamDetSetup->SetParContainers();
@@ -104,7 +105,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   TVector3 hitClose(xClose, yClose, zClose);
   TVector3 vectorOnTarget = hitClose - hitFar;
 
-  cout << "Theta = " << vectorOnTarget.Theta() << "; Phi = " << vectorOnTarget.Phi() << FairLogger::endl;
+  LOG(DEBUG) << "Theta = " << vectorOnTarget.Theta() << "; Phi = " << vectorOnTarget.Phi() << FairLogger::endl;
 
   Double_t xTarget = xClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Cos(vectorOnTarget.Phi());
   Double_t yTarget = yClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Sin(vectorOnTarget.Phi());
@@ -112,9 +113,9 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   LOG(DEBUG) << "xFar = " <<  xFar << "; yFar = " << yFar << "; zFar = " << zFar << FairLogger::endl
             << "xClose = " <<  xClose << "; yClose = " << yClose << "; zClose = " << zClose << FairLogger::endl;
 
-  if(TMath::Sqrt(xTarget*xTarget + yTarget*yTarget) <= fBeamDetSetup->TargetR()) {
+ // if(TMath::Sqrt(xTarget*xTarget + yTarget*yTarget) <= fBeamDetSetup->TargetR()) {
     AddTrack(xTarget, yTarget, 0, vectorOnTarget.Unit());
-  }
+ // }
   LOG(DEBUG) << "Point on target " << "(" << xTarget << ", " 
                                          << yTarget << ") cm" << FairLogger::endl;
 }
@@ -133,7 +134,8 @@ void ERBeamDetTrackFinder::Finish()
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrack* ERBeamDetTrackFinder::AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v)
 {
-  fBeamDetTrack->AddParameters(xt, yt, zt, v);
+  return new((*fBeamDetTrack)[fBeamDetTrack->GetEntriesFast()])
+              ERBeamDetTrack(xt, yt, zt, v);
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetTrackFinder::SetParContainers()

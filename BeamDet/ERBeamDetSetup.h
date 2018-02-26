@@ -34,6 +34,7 @@ public:
   static Double_t WireX(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
   static Double_t WireY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
   static Double_t WireZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
+  static Bool_t   CheckIfTargetIsSet(void) {return fSensitiveTargetIsSet;}
   static Double_t DistanceBetweenMWPC() {return fDistanceBetweenMWPC;}
   static Double_t DistanceBetweenToF() {return fDistanceBetweenToF;}
   static Double_t TargetR() {return fTargetR;}
@@ -42,6 +43,7 @@ public:
 
   /* Modifiers */
   static void SetXmlParametersFile(TString xmlFileName) {fParamsXmlFileName = xmlFileName;}
+  static void SetSensitiveTarget(void) {fSensitiveTargetIsSet = true;}
   static void AddMWPC(TString type, Double_t position); 
   static void AddToF(TString type, Double_t position);
 
@@ -92,6 +94,7 @@ private:
   static Double_t fTargetH2Z;   //cm
   static Double_t fTargetShellThicknessSide;
   static Double_t fTargetShellThicknessZ;
+  static Bool_t   fSensitiveTargetIsSet;
 
 
   static TString  fParamsXmlFileName;

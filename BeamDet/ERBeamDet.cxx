@@ -28,10 +28,12 @@ ERBeamDet::ERBeamDet() :
 {
   fToFPoints    = new TClonesArray("ERBeamDetTOFPoint");
   fMWPCPoints   = new TClonesArray("ERBeamDetMWPCPoint");
-  fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
 
-  fBeamDetMCProjectile = new ERBeamDetParticle(); 
-  fBeamDetMCTrack      = new ERBeamDetTrack();
+  if (fSensitiveTargetIsSet) {
+    fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
+    fBeamDetMCProjectile = new ERBeamDetParticle(); 
+    fBeamDetMCTrack      = new ERBeamDetTrack();
+  }
   //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
@@ -47,11 +49,12 @@ ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
 {
   fToFPoints    = new TClonesArray("ERBeamDetTOFPoint");
   fMWPCPoints   = new TClonesArray("ERBeamDetMWPCPoint");
-  fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
-
-  fBeamDetMCProjectile = new ERBeamDetParticle(); 
-  fBeamDetMCTrack      = new ERBeamDetTrack();
-
+  
+  if (fSensitiveTargetIsSet) {
+    fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
+    fBeamDetMCProjectile = new ERBeamDetParticle(); 
+    fBeamDetMCTrack      = new ERBeamDetTrack();
+  }
   fBeamDetSetup = ERBeamDetSetup::Instance();
  //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
@@ -69,15 +72,17 @@ ERBeamDet::~ERBeamDet() {
     fMWPCPoints->Delete();
     delete fMWPCPoints;
   } 
-  if (fTargetPoints) {
-    fTargetPoints->Delete();
-    delete fTargetPoints;
-  }
-  if(fBeamDetMCTrack) {
-    delete fBeamDetMCTrack;
-  }   
-  if(fBeamDetMCProjectile) {
-    delete fBeamDetMCProjectile;
+  if (fSensitiveTargetIsSet) {
+    if (fTargetPoints) {
+      fTargetPoints->Delete();
+      delete fTargetPoints;
+    }
+    if(fBeamDetMCTrack) {
+      delete fBeamDetMCTrack;
+    }   
+    if(fBeamDetMCProjectile) {
+      delete fBeamDetMCProjectile;
+    }
   }
 }
 //-------------------------------------------------------------------------------------------------
@@ -100,10 +105,12 @@ void ERBeamDet::Register() {
     Fatal("Init", "IO manager is not set");
   ioman->Register("BeamDetToFPoint","BeamDet", fToFPoints, kTRUE);
   ioman->Register("BeamDetMWPCPoint","BeamDet", fMWPCPoints, kTRUE);
-  ioman->Register("BeamDetTargetPoint","BeamDet", fTargetPoints, kTRUE);
 
-  ioman->Register("BeamDetMCParticle.", "BeamDet MC Particle", fBeamDetMCProjectile, kTRUE);
-  ioman->Register("BeamDetMCTrack.", "BeamDet MC track", fBeamDetMCTrack, kTRUE);
+  if (fSensitiveTargetIsSet) {
+    ioman->Register("BeamDetTargetPoint","BeamDet", fTargetPoints, kTRUE);
+    ioman->Register("BeamDetMCParticle.", "BeamDet MC Particle", fBeamDetMCProjectile, kTRUE);
+    ioman->Register("BeamDetMCTrack.", "BeamDet MC track", fBeamDetMCTrack, kTRUE);
+  }
 }
 //-------------------------------------------------------------------------------------------------
 TClonesArray* ERBeamDet::GetCollection(Int_t iColl) const {
@@ -111,8 +118,10 @@ TClonesArray* ERBeamDet::GetCollection(Int_t iColl) const {
     return fToFPoints;
   if (iColl == 0)
     return fMWPCPoints;
-  if (iColl == 0)
-    return fTargetPoints;
+  if (fSensitiveTargetIsSet) {
+    if (iColl == 0)
+      return fTargetPoints;
+  }
   return NULL;
 }
 //-------------------------------------------------------------------------------------------------
@@ -130,10 +139,12 @@ void ERBeamDet::Print(Option_t *option) const
       point->Print();
     }
   }
-  if(fTargetPoints->GetEntriesFast() > 0) {
-    for (Int_t iPoint = 0; iPoint < fTargetPoints->GetEntriesFast(); iPoint++) {
-      ERBeamDetTargetPoint* point = (ERBeamDetTargetPoint*)fTargetPoints->At(iPoint);
-      point->Print();
+  if (fSensitiveTargetIsSet) {
+    if(fSensitiveTargetIsSet && fTargetPoints->GetEntriesFast() > 0) {
+      for (Int_t iPoint = 0; iPoint < fTargetPoints->GetEntriesFast(); iPoint++) {
+        ERBeamDetTargetPoint* point = (ERBeamDetTargetPoint*)fTargetPoints->At(iPoint);
+        point->Print();
+      }
     }
   }
 }
@@ -200,7 +211,7 @@ Bool_t ERBeamDet::CheckIfSensitive(std::string name) {
   if(volName.Contains("plastic")) {
     return kTRUE;
   }
-  if(volName.Contains("targetH2")) {
+  if(fSensitiveTargetIsSet && volName.Contains("targetH2")) {
     return kTRUE;
   }
   return kFALSE;
@@ -210,6 +221,7 @@ void ERBeamDet::ConstructGeometry() {
   fBeamDetSetup->ConstructGeometry();
   SetGeometryFileName("beamdet.temp.root");
   ConstructRootGeometry();
+  fSensitiveTargetIsSet = fBeamDetSetup->CheckIfTargetIsSet();
 }
 //-------------------------------------------------------------------------------------------------
 Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
@@ -231,10 +243,10 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
     fPID = gMC->TrackPid();
 
     TString volName = gMC->CurrentVolName();
-    if(volName.Contains("targetH2")) {
+    /*if(volName.Contains("targetH2")) {
       fBeamDetMCProjectile->AddParameters(fPID, fMomIn, 1);
       fBeamDetMCTrack->AddParameters(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect());   
-    }
+    }*/
   }
 
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
@@ -276,8 +288,10 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
         gMC->CurrentVolOffID(3, fMWPCNb);
         AddMWPCPoint();
       }
-      if(volName.Contains("targetH2")) {
-        AddTargetPoint();
+      if (fSensitiveTargetIsSet) {
+        if(volName.Contains("targetH2")) {
+          AddTargetPoint();
+        }
       }
     }
   }

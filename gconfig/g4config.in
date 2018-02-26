@@ -18,6 +18,8 @@
 /mcPhysics/rangeCuts 1 mm
 /mcPhysics/rangeCutForGamma  1. mm
 /mcPhysics/rangeCutForElectron 1. mm
+/mcPhysics/g4NeutronHPVerbose 0
+/mcPhysics/g4HadronicProcessStoreVerbose 0
 
 #/cuts/setLowEdge 100 eV
 #/cuts/setHighEdge 100 GeV

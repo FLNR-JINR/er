@@ -6,7 +6,7 @@
 #include "TParticlePDG.h"
 
 #include "FairRootManager.h"
-#include "FairRunAna.h"
+#include "FairRunSim.h"
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
@@ -36,24 +36,25 @@ InitStatus ERBeamDetPID::Init() {
   
   fBeamDetToFDigi1 = (TClonesArray*) ioman->GetObject("BeamDetToFDigi1");
   fBeamDetToFDigi2 = (TClonesArray*) ioman->GetObject("BeamDetToFDigi2");
-  fBeamDetTrack  = (ERBeamDetTrack*) ioman->GetObject("BeamDetTrack.");
+  fBeamDetTrack    = (TClonesArray*) ioman->GetObject("BeamDetTrack");
+
+  fProjectile = new TClonesArray("ERBeamDetParticle",1000);
 
   // Register output object fProjectile
-  fProjectile = (ERBeamDetParticle*)new ERBeamDetParticle();
 
   ioman->Register("BeamDetParticle.", "BeamDet Particle", fProjectile, kTRUE);
 
   fBeamDetSetup = ERBeamDetSetup::Instance();
   fBeamDetSetup->SetParContainers();
   fBeamDetSetup->GetGeoParamsFromParContainer();
-     
-  return kSUCCESS;
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetPID::Exec(Option_t* opt) { 
   Reset();
-  if (!fBeamDetTrack || !fBeamDetToFDigi1->At(0) || !fBeamDetToFDigi2->At(0)) {
+  if (!fBeamDetTrack->At(0) || !fBeamDetToFDigi1->At(0) || !fBeamDetToFDigi2->At(0)) {
     LOG(DEBUG)  << "ERBeamDetPID: No track" << FairLogger::endl;
+    FairRun* run = FairRun::Instance();
+    run->MarkFill(kFALSE);
     return;
   }
 
@@ -63,13 +64,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
 
   Double_t beta;
   Double_t gamma;
-  /*TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPID);
-  if ( ! particle ) {
-      LOG(DEBUG) << "ERIonGenerator: Ion " << fPID
-      << " not found in database!" << FairLogger::endl;
-      return ;
-    }*/
-  //Double_t mass = 26.2716160;//particle->Mass();
+
   Double_t p, energy;
 
   ERBeamDetTOFDigi* digi;
@@ -85,7 +80,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
 
   dE = dE1 + dE2;
   LOG(DEBUG) << "dE = " << dE << " Gev; " << " ToF1 = " << ToF1 << " ns;" << " ToF2 = " << ToF2 << " ns;" << FairLogger::endl;
-  ToF = ToF2 - ToF1 + fOffsetToF;
+  ToF = TMath::Abs(ToF2 - ToF1) + fOffsetToF;
   LOG(DEBUG) << "dE = " << dE << " Gev; " << " ToF = " << ToF << " ns;" << FairLogger::endl;
 
   if(ToF <= fToF1 || ToF >= fToF2 || dE <= fdE1 || dE >= fdE2){
@@ -101,7 +96,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
     run->MarkFill(kFALSE);
     return ;
   }
-
+  LOG(DEBUG) << "Mass " << fIonMass << FairLogger::endl;
   beta = fBeamDetSetup->DistanceBetweenToF() * 1e-2 / (ToF * 1e-9) / TMath::C();
   if(beta <= 0 || beta >= 1) {
     LOG(DEBUG) << "Wrong beta " << beta << FairLogger::endl;
@@ -115,9 +110,11 @@ void ERBeamDetPID::Exec(Option_t* opt) {
 
   Double_t px, py, pz;
 
-  px = p * TMath::Sin(fBeamDetTrack->GetVector().Theta()) * TMath::Cos(fBeamDetTrack->GetVector().Phi());
-  py = p * TMath::Sin(fBeamDetTrack->GetVector().Theta()) * TMath::Sin(fBeamDetTrack->GetVector().Phi());
-  pz = p * TMath::Cos(fBeamDetTrack->GetVector().Theta());
+  ERBeamDetTrack* track = (ERBeamDetTrack*)fBeamDetTrack->At(0);
+
+  px = p * TMath::Sin(track->GetVector().Theta()) * TMath::Cos(track->GetVector().Phi());
+  py = p * TMath::Sin(track->GetVector().Theta()) * TMath::Sin(track->GetVector().Phi());
+  pz = p * TMath::Cos(track->GetVector().Theta());
 
   energy = fIonMass * gamma;
   LOG(DEBUG) << "PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
@@ -135,8 +132,16 @@ void ERBeamDetPID::Reset() {
 void ERBeamDetPID::Finish(){    
 }
 //--------------------------------------------------------------------------------------------------
+void ERBeamDetPID::SetIonMassNumber(Int_t a) {
+  TDatabasePDG* pdgDB = TDatabasePDG::Instance();
+  TParticlePDG* kProton = pdgDB->GetParticle(2212);
+  Double_t kProtonMass=kProton->Mass();
+  fIonMass = kProtonMass * Double_t(a);
+}
+//--------------------------------------------------------------------------------------------------
 ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability){
- fProjectile->AddParameters(pid, fourMomentum, probability); 
+ return new((*fProjectile)[fProjectile->GetEntriesFast()])
+              ERBeamDetParticle(pid, fourMomentum, probability); 
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetPID::SetParContainers() {

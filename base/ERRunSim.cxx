@@ -117,7 +117,6 @@ void  ERRunSim::Init(){
     fApp->AddMeshList(fMeshList);
   }
 
-  if(fField) { fField->Init(); }
   fApp->SetField(fField);
   SetFieldContainer();
 
@@ -144,6 +143,9 @@ void  ERRunSim::Init(){
     ((ERMCApplication*)fApp)->SetDecayer(fDecayer);
     if (!fDecayer->Init())
       Fatal("ERRunSim::Init", "Decayer init problem");
+  }
+  if(fField) { 
+    fField->Init(); 
   }
 }
 
@@ -274,20 +276,5 @@ void ERRunSim::SetMCConfig()
   gROOT->LoadMacro(cuts);
   gROOT->ProcessLine("SetCuts()");
 
-  if (fLocMagField){
-    //Add local magnetic field
-    TGeoVolume* vol =  gGeoManager->GetVolume(fLocMagFieldVolName);
-    if (!vol)
-      LOG(ERROR) << "Volume " << fLocMagFieldVolName <<
-          "for local magnetic field not found in geometry" << FairLogger::endl;
-    else
-      vol->SetField(fLocMagField);
-  }
-
   ((ERMCApplication*)fApp)->InitMC(ConfigMacro.Data(), cuts.Data());
-}
-
-void ERRunSim::SetField(FairField* magField,TString volName){
-  fLocMagField = magField;
-  fLocMagFieldVolName = volName;
 }

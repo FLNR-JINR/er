@@ -7,6 +7,8 @@
 #include "TMath.h"
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
+#include "TGeoCompositeShape.h"
+#include "TGeoSphere.h"
 #include "TROOT.h"
 #include <Riostream.h>
 #include <TDOMParser.h>
@@ -63,16 +65,19 @@ Double_t ERBeamDetSetup::fTargetH2R = 2.;   //cm
 Double_t ERBeamDetSetup::fTargetH2Z = 0.4;   //cm
 Double_t ERBeamDetSetup::fTargetShellThicknessSide = 20 * 1e-4;
 Double_t ERBeamDetSetup::fTargetShellThicknessZ = 6 * 1e-4;
+Bool_t   ERBeamDetSetup::fSensitiveTargetIsSet = false;
 
 TString  ERBeamDetSetup::fParamsXmlFileName = "equip.xml";
 vector<TString>  ERBeamDetSetup::fToFType;
 vector<TString>  ERBeamDetSetup::fMWPCType;
 
 
-ERBeamDetSetup::ERBeamDetSetup() {
 
-  //-----------------------------------------------------------------------
+ERBeamDetSetup::ERBeamDetSetup() {
   std::cout << "ERBeamDetSetup initialized! "<< std::endl;
+}
+//-------------------------------------------------------------------------
+ERBeamDetSetup::~ERBeamDetSetup() {
 }
 //-------------------------------------------------------------------------
 void ERBeamDetSetup::AddMWPC(TString type, Double_t position) {
@@ -113,14 +118,13 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
   Double_t    mwpcMasterPos[3];
   TGeoNode*   plane = NULL;
   TGeoNode*   wire = NULL;
-
+  Int_t       mwpcNb = 0;
   for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
     TString name = beamDet->GetDaughter(iNode)->GetName();
     if (name.Contains("MWPC", TString::kIgnoreCase) ) {
       mwpc = beamDet->GetDaughter(iNode);
-      Int_t mwpcNb = iNode - 2;
       mwpcStationZ = mwpc->GetMatrix()->GetTranslation()[2]; 
-      (name.Contains("1", TString::kIgnoreCase)) ? mwpcStationZ1 = mwpcStationZ 
+      (name.EndsWith("1", TString::kIgnoreCase)) ? mwpcStationZ1 = mwpcStationZ 
                                                  : mwpcStationZ2 = mwpcStationZ;
       mwpcStation = mwpc->GetDaughter(0);
       //--------------------------------------------------------------------
@@ -138,6 +142,7 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
                                                           << mwpcStationZ << ") cm" << endl;
         }
       } 
+      mwpcNb++;
     }
   }
   // Stations located simmetrically relative to local center
@@ -151,7 +156,7 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
     TString name = beamDet->GetDaughter(iNode)->GetName();
     if ( name.Contains("plastic", TString::kIgnoreCase) ) {
       tofPlastic = beamDet->GetDaughter(iNode);
-      if (name.Contains("1", TString::kIgnoreCase)) {
+      if (name.EndsWith("1", TString::kIgnoreCase)) {
         tofPlastic1Pos = tofPlastic->GetMatrix()->GetTranslation()[2];
       }
       else {
@@ -479,7 +484,7 @@ void ERBeamDetSetup::ConstructGeometry() {
 
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------
-  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();//new FairGeoLoader("TGeo","FairGeoLoader");
+  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
   TString geoPath = gSystem->Getenv("VMCWORKDIR");
   TString medFile = geoPath + "/geometry/media.geo";
@@ -540,7 +545,7 @@ void ERBeamDetSetup::ConstructGeometry() {
     if ( ! pMedAnodeWire[i] ) Fatal("Main", "Medium tungsten not found");
   }
   // --------------------------------------------------------------------------
-  // ------ Create media for fTarget -------------------------------------------
+  // ------ Create media for Target -------------------------------------------
   FairGeoMedium* mH2 = geoMedia->getMedium("H2");
   if ( ! mH2 ) Fatal("Main", "FairMedium H2 not found");
   geoBuild->createMedium(mH2);
@@ -564,21 +569,27 @@ void ERBeamDetSetup::ConstructGeometry() {
 
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
-  gGeoMan->SetName("BeamDetGeom");
+  //gGeoMan->SetName("BeamDetGeom");
   TGeoVolume* top   = new TGeoVolumeAssembly("TOP");
   //gGeoMan->SetTopVolume(top);
-
   TGeoVolume* beamdet = new TGeoVolumeAssembly("beamdet");
   //TGeoVolume* MWPC    = new TGeoVolumeAssembly("MWPC");
   TGeoVolume* target  = new TGeoVolumeAssembly("target");
 
   // --------------------------------------------------------------------------
-  // ---------------- fTarget --------------------------------------------------
-  Double_t fTargetShellR = fTargetH2R + fTargetShellThicknessSide;
-  Double_t fTargetShellZ = fTargetH2Z/2 + fTargetShellThicknessZ;
+  // ---------------- Target --------------------------------------------------
+  if (fSensitiveTargetIsSet) {
+    Double_t fTargetShellR = fTargetH2R + fTargetShellThicknessSide;
+    Double_t fTargetShellZ = fTargetH2Z/2 + fTargetShellThicknessZ;
 
-  TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, fTargetH2R, fTargetH2Z/2);
-  TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, fTargetShellR, fTargetShellZ);
+    TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, fTargetH2R, fTargetH2Z/2);
+    TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, fTargetShellR, fTargetShellZ);
+    
+    targetShell->AddNode(targetH2, 1, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
+    target->AddNode(targetShell, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation)); 
+
+    beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fZeroRotation));
+  }
   // --------------------------------------------------------------------------
   // ----------------- MWPC ---------------------------------------------------
   vector<TGeoVolume*> gasVol;
@@ -626,10 +637,7 @@ void ERBeamDetSetup::ConstructGeometry() {
   for(Int_t i = 0; i < fToFCount; i++) {
     beamdet->AddNode(plastic[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionToF[i], fGlobalRotation));
   }
-  targetShell->AddNode(targetH2, 1, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
-  target->AddNode(targetShell, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
 
-  beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fZeroRotation));
   top->AddNode(beamdet, 1, new TGeoCombiTrans(global_X ,global_Y, global_Z, fGlobalRotation));
    // ---------------   Finish   -----------------------------------------------
   //gGeoMan->CloseGeometry();

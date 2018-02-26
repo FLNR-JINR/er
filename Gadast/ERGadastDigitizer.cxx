@@ -3,7 +3,7 @@
 #include "TVector3.h"
 #include "TMath.h"
 
-#include "FairRunAna.h"
+#include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "FairEventHeader.h"
 
@@ -25,7 +25,9 @@ ERGadastDigitizer::ERGadastDigitizer()
   fLaBrEdepErrorA(0.),
   fLaBrEdepErrorB(0.),
   fLaBrEdepErrorC(0.),
-  fLaBrTimeErrorA(0.)
+  fLaBrTimeErrorA(0.),
+  fCsIElossThreshold(0.),
+  fLaBrElossThreshold(0.)
 {
 }
 // ----------------------------------------------------------------------------
@@ -43,7 +45,9 @@ ERGadastDigitizer::ERGadastDigitizer(Int_t verbose)
   fLaBrEdepErrorA(0.),
   fLaBrEdepErrorB(0.),
   fLaBrEdepErrorC(0.),
-  fLaBrTimeErrorA(0.)
+  fLaBrTimeErrorA(0.),
+  fCsIElossThreshold(0.),
+  fLaBrElossThreshold(0.)
 {
 }
 // ----------------------------------------------------------------------------
@@ -59,7 +63,7 @@ ERGadastDigitizer::~ERGadastDigitizer()
 void ERGadastDigitizer::SetParContainers()
 {
   // Get run and runtime database
-  FairRunAna* run = FairRunAna::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
@@ -101,9 +105,6 @@ InitStatus ERGadastDigitizer::Init()
 // -----   Public method Exec   --------------------------------------------
 void ERGadastDigitizer::Exec(Option_t* opt)
 {
-  Int_t iEvent =
-			FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber();
-  std::cout << "Event " << iEvent << std::endl;
   // Reset entries in output arrays
   Reset();
 
@@ -135,7 +136,8 @@ void ERGadastDigitizer::Exec(Option_t* opt)
         }
         Float_t edepSigma = sqrt(pow(fCsIEdepErrorA,2) + pow(fCsIEdepErrorB*TMath::Sqrt(edep/1000.),2) + pow(fCsIEdepErrorC*edep,2));
         edep = gRandom->Gaus(fCsILC*edep, edepSigma);
-
+        if (edep < fCsIElossThreshold)
+          continue;
         Float_t timeSigma = TMath::Sqrt(fCsITimeErrorA/edep);
         time = gRandom->Gaus(time, timeSigma);
 
@@ -155,7 +157,8 @@ void ERGadastDigitizer::Exec(Option_t* opt)
     }
     Float_t edepSigma = sqrt(pow(fLaBrEdepErrorA,2) + pow(fLaBrEdepErrorB*TMath::Sqrt(edep/1000.),2) + pow(fLaBrEdepErrorC*edep,2));
     edep = gRandom->Gaus(fLaBrLC*edep, edepSigma);
-
+    if (edep < fLaBrElossThreshold)
+      continue;
     Float_t timeSigma = TMath::Sqrt(fLaBrTimeErrorA/edep);
     time = gRandom->Gaus(time, timeSigma);
 

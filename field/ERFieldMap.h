@@ -9,6 +9,9 @@
  **/
 #ifndef ERFieldMap_H
 #define ERFieldMap_H 1
+
+#include "TGeoNode.h"
+
 #include "FairField.h"
 
 class TArrayF;
@@ -54,6 +57,9 @@ public:
   void WriteRootFile(const char* fileName, const char* mapName);
   /** Set the position of the field centre **/
   virtual void SetPosition(Double_t x, Double_t y, Double_t z);
+
+//void SetLocalNode(TGeoNode* localMagFieldNode) {fLocalMagFieldNode = localMagFieldNode;}
+  void SetVolume(TString localMagFieldVolName) {fLocalMagFieldVolName = localMagFieldVolName;}
   /** Set a global field scaling factor **/
   virtual void SetScale(Double_t factor) { fScale = factor; }
   /** Accessors to field parameters in local coordinate system **/
@@ -122,6 +128,9 @@ public:
   Double_t fBxOrigin;               //! x-component of the field at the origin
   Double_t fByOrigin;               //! y-component of the field at the origin
   Double_t fBzOrigin;               //! z-component of the field at the origin
+
+  TGeoNode *fLocalMagFieldNode;
+  TString  fLocalMagFieldVolName;
  private:
   ERFieldMap(const ERFieldMap&);
   ERFieldMap& operator=(const ERFieldMap&);

@@ -10,6 +10,7 @@
 #include "TArrayF.h"
 #include "TFile.h"
 #include "TMath.h"
+#include "TGeoManager.h"
 // Includes from C
 #include <iomanip>
 #include <iostream>
@@ -46,7 +47,9 @@ ERFieldMap::ERFieldMap()
     fBz(NULL),
     fBxOrigin(0.),
     fByOrigin(0.),
-    fBzOrigin(0.)
+    fBzOrigin(0.),
+    fLocalMagFieldNode(NULL),
+    fLocalMagFieldVolName("")
 {
   // Initilization of arrays is to my knowledge not
   // possible in member initalization lists
@@ -91,7 +94,9 @@ ERFieldMap::ERFieldMap(const char* mapName, const char* fileType)
     fBz(NULL),
     fBxOrigin(0.),
     fByOrigin(0.),
-    fBzOrigin(0.)
+    fBzOrigin(0.),
+    fLocalMagFieldNode(NULL),
+    fLocalMagFieldVolName("")
 {
   // Initilization of arrays is to my knowledge not
   // possible in member initalization lists
@@ -144,7 +149,9 @@ ERFieldMap::ERFieldMap(ERFieldPar* fieldPar)
     fBz(NULL),
     fBxOrigin(0.),
     fByOrigin(0.),
-    fBzOrigin(0.)
+    fBzOrigin(0.),
+    fLocalMagFieldNode(NULL),
+    fLocalMagFieldVolName("")
 {
   // Initilization of arrays is to my knowledge not
   // possible in member initalization lists
@@ -187,6 +194,22 @@ ERFieldMap::~ERFieldMap() {
 // ------------------------------------------------------------------------
 // -----------   Intialisation   ------------------------------------------
 void ERFieldMap::Init() {
+  if (fLocalMagFieldVolName.Length() != 0) {
+    if ( ! gGeoManager ) {
+          std::cerr << "ERFieldMap: cannot initialise without TGeoManager!"<< std::endl;
+    }
+    gGeoManager->CdTop();
+    TGeoNode* cave = gGeoManager->GetCurrentNode();
+    TGeoNode* localMagField  = NULL;
+    for (Int_t iNode = 0; iNode < cave->GetNdaughters(); iNode++) {
+        TString name = cave->GetDaughter(iNode)->GetName();
+        if ( name.Contains(fLocalMagFieldVolName, TString::kIgnoreCase) ) {
+            localMagField = cave->GetDaughter(iNode);
+            break;
+        }
+    }
+    fLocalMagFieldNode = localMagField;
+  }
   if      (fFileName.EndsWith(".root")) ReadRootFile(fFileName, fName);
   else if (fFileName.EndsWith(".dat"))  ReadAsciiFile(fFileName);
   else {
@@ -196,9 +219,20 @@ void ERFieldMap::Init() {
   }
   // Fill values needed in the Print() function. This is needed to allow
   // a constant Print() function.
-  fBxOrigin = GetBx(0.,0.,0.);
-  fByOrigin = GetBy(0.,0.,0.);
-  fBzOrigin = GetBz(0.,0.,0.);
+  Double_t originX = 0;
+  Double_t originY = 0;
+  Double_t originZ = 0;
+  if (fLocalMagFieldNode != NULL) {
+    originX = fLocalMagFieldNode->GetMatrix()->GetTranslation()[0];
+    originY = fLocalMagFieldNode->GetMatrix()->GetTranslation()[1];
+    originZ = fLocalMagFieldNode->GetMatrix()->GetTranslation()[2];
+    fPosX = originX;
+    fPosY = originY;
+    fPosZ = originZ;
+  }
+  fBxOrigin = GetBx(originX, originY, originZ);
+  fByOrigin = GetBy(originX, originY, originZ);
+  fBzOrigin = GetBz(originX, originY, originZ);
   Print();
 }
 // ------------------------------------------------------------------------
@@ -210,18 +244,35 @@ Double_t ERFieldMap::GetBx(Double_t x, Double_t y, Double_t z) {
   Double_t dx = 0.;
   Double_t dy = 0.;
   Double_t dz = 0.;
-  if ( IsInside(x, y, z, ix, iy, iz, dx, dy, dz) ) {
-  // Get Bx field values at grid cell corners
-  fHa[0][0][0] = fBx->At(ix    *fNy*fNz + iy    *fNz + iz);
-  fHa[1][0][0] = fBx->At((ix+1)*fNy*fNz + iy    *fNz + iz);
-  fHa[0][1][0] = fBx->At(ix    *fNy*fNz + (iy+1)*fNz + iz);
-  fHa[1][1][0] = fBx->At((ix+1)*fNy*fNz + (iy+1)*fNz + iz);
-  fHa[0][0][1] = fBx->At(ix    *fNy*fNz + iy    *fNz + (iz+1));
-  fHa[1][0][1] = fBx->At((ix+1)*fNy*fNz + iy    *fNz + (iz+1));
-  fHa[0][1][1] = fBx->At(ix    *fNy*fNz + (iy+1)*fNz + (iz+1));
-  fHa[1][1][1] = fBx->At((ix+1)*fNy*fNz + (iy+1)*fNz + (iz+1));
-  // Return interpolated field value
-  return Interpolate(dx, dy, dz);
+  Double_t masterCoord[3];
+  Double_t masterVecB[3];
+  Double_t localCoord[3];
+
+  localCoord[0] = masterCoord[0] = x;
+  localCoord[1] = masterCoord[1] = y;
+  localCoord[2] = masterCoord[2] = z;
+  if (fLocalMagFieldNode != NULL) {
+    fLocalMagFieldNode->MasterToLocal(masterCoord, localCoord);
+  }
+  if ( IsInside(localCoord[0], localCoord[1], localCoord[2], ix, iy, iz, dx, dy, dz) ) {
+    // Get Bx field values at grid cell corners
+    fHa[0][0][0] = fBx->At(ix    *fNy*fNz + iy    *fNz + iz);
+    fHa[1][0][0] = fBx->At((ix+1)*fNy*fNz + iy    *fNz + iz);
+    fHa[0][1][0] = fBx->At(ix    *fNy*fNz + (iy+1)*fNz + iz);
+    fHa[1][1][0] = fBx->At((ix+1)*fNy*fNz + (iy+1)*fNz + iz);
+    fHa[0][0][1] = fBx->At(ix    *fNy*fNz + iy    *fNz + (iz+1));
+    fHa[1][0][1] = fBx->At((ix+1)*fNy*fNz + iy    *fNz + (iz+1));
+    fHa[0][1][1] = fBx->At(ix    *fNy*fNz + (iy+1)*fNz + (iz+1));
+    fHa[1][1][1] = fBx->At((ix+1)*fNy*fNz + (iy+1)*fNz + (iz+1));
+    // Return interpolated field value
+    Double_t interpolatedCoord[3];
+    interpolatedCoord[0] = masterVecB[0] = Interpolate(dx, dy, dz);
+    interpolatedCoord[1] = 0;
+    interpolatedCoord[2] = 0;
+    if (fLocalMagFieldNode != NULL) {
+      fLocalMagFieldNode->LocalToMasterVect(interpolatedCoord, masterVecB);
+    }
+    return masterVecB[0];
   }
   return 0.;
 }
@@ -234,18 +285,35 @@ Double_t ERFieldMap::GetBy(Double_t x, Double_t y, Double_t z) {
   Double_t dx = 0.;
   Double_t dy = 0.;
   Double_t dz = 0.;
-  if ( IsInside(x, y, z, ix, iy, iz, dx, dy, dz) ) {
-  // Get By field values at grid cell corners
-  fHa[0][0][0] = fBy->At(ix    *fNy*fNz + iy    *fNz + iz);
-  fHa[1][0][0] = fBy->At((ix+1)*fNy*fNz + iy    *fNz + iz);
-  fHa[0][1][0] = fBy->At(ix    *fNy*fNz + (iy+1)*fNz + iz);
-  fHa[1][1][0] = fBy->At((ix+1)*fNy*fNz + (iy+1)*fNz + iz);
-  fHa[0][0][1] = fBy->At(ix    *fNy*fNz + iy    *fNz + (iz+1));
-  fHa[1][0][1] = fBy->At((ix+1)*fNy*fNz + iy    *fNz + (iz+1));
-  fHa[0][1][1] = fBy->At(ix    *fNy*fNz + (iy+1)*fNz + (iz+1));
-  fHa[1][1][1] = fBy->At((ix+1)*fNy*fNz + (iy+1)*fNz + (iz+1));
-  // Return interpolated field value
-  return Interpolate(dx, dy, dz);
+  Double_t masterCoord[3];
+  Double_t masterVecB[3];
+  Double_t localCoord[3];
+
+  localCoord[0] = masterCoord[0] = x;
+  localCoord[1] = masterCoord[1] = y;
+  localCoord[2] = masterCoord[2] = z;
+  if (fLocalMagFieldNode != NULL) {
+    fLocalMagFieldNode->MasterToLocal(masterCoord, localCoord);
+  }
+  if ( IsInside(localCoord[0], localCoord[1], localCoord[2], ix, iy, iz, dx, dy, dz) ) {
+    // Get Bx field values at grid cell corners
+    fHa[0][0][0] = fBy->At(ix    *fNy*fNz + iy    *fNz + iz);
+    fHa[1][0][0] = fBy->At((ix+1)*fNy*fNz + iy    *fNz + iz);
+    fHa[0][1][0] = fBy->At(ix    *fNy*fNz + (iy+1)*fNz + iz);
+    fHa[1][1][0] = fBy->At((ix+1)*fNy*fNz + (iy+1)*fNz + iz);
+    fHa[0][0][1] = fBy->At(ix    *fNy*fNz + iy    *fNz + (iz+1));
+    fHa[1][0][1] = fBy->At((ix+1)*fNy*fNz + iy    *fNz + (iz+1));
+    fHa[0][1][1] = fBy->At(ix    *fNy*fNz + (iy+1)*fNz + (iz+1));
+    fHa[1][1][1] = fBy->At((ix+1)*fNy*fNz + (iy+1)*fNz + (iz+1));
+    // Return interpolated field value
+    Double_t interpolatedCoord[3];// = {0, 0, 0};
+    interpolatedCoord[0] = 0;
+    interpolatedCoord[1] = masterVecB[1] = Interpolate(dx, dy, dz);
+    interpolatedCoord[2] = 0;
+    if (fLocalMagFieldNode != NULL) {
+      fLocalMagFieldNode->LocalToMasterVect(interpolatedCoord, masterVecB);
+    }
+    return masterVecB[1];
   }
   return 0.;
 }
@@ -258,18 +326,35 @@ Double_t ERFieldMap::GetBz(Double_t x, Double_t y, Double_t z) {
   Double_t dx = 0.;
   Double_t dy = 0.;
   Double_t dz = 0.;
-  if ( IsInside(x, y, z, ix, iy, iz, dx, dy, dz) ) {
-  // Get Bz field values at grid cell corners
-  fHa[0][0][0] = fBz->At(ix    *fNy*fNz + iy    *fNz + iz);
-  fHa[1][0][0] = fBz->At((ix+1)*fNy*fNz + iy    *fNz + iz);
-  fHa[0][1][0] = fBz->At(ix    *fNy*fNz + (iy+1)*fNz + iz);
-  fHa[1][1][0] = fBz->At((ix+1)*fNy*fNz + (iy+1)*fNz + iz);
-  fHa[0][0][1] = fBz->At(ix    *fNy*fNz + iy    *fNz + (iz+1));
-  fHa[1][0][1] = fBz->At((ix+1)*fNy*fNz + iy    *fNz + (iz+1));
-  fHa[0][1][1] = fBz->At(ix    *fNy*fNz + (iy+1)*fNz + (iz+1));
-  fHa[1][1][1] = fBz->At((ix+1)*fNy*fNz + (iy+1)*fNz + (iz+1));
-  // Return interpolated field value
-  return Interpolate(dx, dy, dz);
+  Double_t masterCoord[3];
+  Double_t masterVecB[3];
+  Double_t localCoord[3];
+
+  localCoord[0] = masterCoord[0] = x;
+  localCoord[1] = masterCoord[1] = y;
+  localCoord[2] = masterCoord[2] = z;
+  if (fLocalMagFieldNode != NULL) {
+    fLocalMagFieldNode->MasterToLocal(masterCoord, localCoord);
+  }
+  if ( IsInside(localCoord[0], localCoord[1], localCoord[2], ix, iy, iz, dx, dy, dz) ) {
+    // Get Bx field values at grid cell corners
+    fHa[0][0][0] = fBz->At(ix    *fNy*fNz + iy    *fNz + iz);
+    fHa[1][0][0] = fBz->At((ix+1)*fNy*fNz + iy    *fNz + iz);
+    fHa[0][1][0] = fBz->At(ix    *fNy*fNz + (iy+1)*fNz + iz);
+    fHa[1][1][0] = fBz->At((ix+1)*fNy*fNz + (iy+1)*fNz + iz);
+    fHa[0][0][1] = fBz->At(ix    *fNy*fNz + iy    *fNz + (iz+1));
+    fHa[1][0][1] = fBz->At((ix+1)*fNy*fNz + iy    *fNz + (iz+1));
+    fHa[0][1][1] = fBz->At(ix    *fNy*fNz + (iy+1)*fNz + (iz+1));
+    fHa[1][1][1] = fBz->At((ix+1)*fNy*fNz + (iy+1)*fNz + (iz+1));
+    // Return interpolated field value
+    Double_t interpolatedCoord[3];
+    interpolatedCoord[0] = 0;
+    interpolatedCoord[1] = 0;
+    interpolatedCoord[2] = masterVecB[2] = Interpolate(dx, dy, dz);
+    if (fLocalMagFieldNode != NULL) {
+      fLocalMagFieldNode->LocalToMasterVect(interpolatedCoord, masterVecB);
+    }
+    return masterVecB[2];
   }
   return 0.;
 }
@@ -279,9 +364,9 @@ Bool_t ERFieldMap::IsInside(Double_t x, Double_t y, Double_t z,
                              Int_t& ix, Int_t& iy, Int_t& iz,
                              Double_t& dx, Double_t& dy, Double_t& dz) {
   // --- Transform into local coordinate system
-  Double_t xl = x - fPosX;
-  Double_t yl = y - fPosY;
-  Double_t zl = z - fPosZ;
+  Double_t xl = x; //- fPosX;
+  Double_t yl = y; //- fPosY;
+  Double_t zl = z; //- fPosZ;
   // ---  Check for being outside the map range
   if ( ! ( xl >= fXmin && xl < fXmax && yl >= fYmin && yl < fYmax &&
            zl >= fZmin && zl < fZmax ) ) {
@@ -412,6 +497,10 @@ void ERFieldMap::Reset() {
 // -----   Read field map from ASCII file (private)   ---------------------
 void ERFieldMap::ReadAsciiFile(const char* fileName) {
   Double_t bx=0., by=0., bz=0.;
+  Double_t localVecB[3];  // (Bx, By, Bz) in local frame;
+  Double_t masterVecB[3]; // (Bx, By, Bz) in master frame;
+  Double_t localCoord[3];
+  Double_t masterCoord[3];
   // Open file
   LOG(INFO) << "ERFieldMap: Reading field map from ASCII file " 
             << fileName << FairLogger::endl;
@@ -438,6 +527,7 @@ void ERFieldMap::ReadAsciiFile(const char* fileName) {
   mapFile >> fXmin >> fXmax >> fNx;
   mapFile >> fYmin >> fYmax >> fNy;
   mapFile >> fZmin >> fZmax >> fNz;
+
   fXstep = ( fXmax - fXmin ) / Double_t( fNx - 1 );
   fYstep = ( fYmax - fYmin ) / Double_t( fNy - 1 );
   fZstep = ( fZmax - fZmin ) / Double_t( fNz - 1 );
@@ -455,6 +545,8 @@ void ERFieldMap::ReadAsciiFile(const char* fileName) {
   Int_t index = 0;
   div_t modul;
   Int_t iDiv = TMath::Nint(nTot/100.);
+
+
   for (Int_t ix=0; ix<fNx; ix++) {
     for (Int_t iy = 0; iy<fNy; iy++) {
       for (Int_t iz = 0; iz<fNz; iz++) {
@@ -470,6 +562,7 @@ void ERFieldMap::ReadAsciiFile(const char* fileName) {
         }
         */
         mapFile >> bx >> by >> bz;
+
         fBx->AddAt(factor*bx, index);
         fBy->AddAt(factor*by, index);
         fBz->AddAt(factor*bz, index);
