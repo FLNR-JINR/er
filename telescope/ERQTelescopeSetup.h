@@ -9,12 +9,22 @@
 #ifndef ERQTelescopeSetup_H
 #define ERQTelescopeSetup_H
 
+#include <map>
+
 #include "TString.h"
 #include <TXMLNode.h>
 #include "Rtypes.h"
 #include <TVector3.h>
 
 using namespace std;
+
+struct ERQTelescopeStrip{
+  Double_t fX;
+  Double_t fY;
+  Double_t fZ;
+  ERQTelescopeStrip(Double_t x, Double_t y, Double_t z) {fX = x; fY = y; fZ = z;}
+  ERQTelescopeStrip(Double_t* trans) {fX = trans[0]; fY = trans[1]; fZ = trans[2];}
+};
 
 class ERQTelescopeSetup {
 public:
@@ -32,11 +42,14 @@ public:
   static void AddCsI(TString type, Double_t position);
 
   /* Accessors */
+  static Double_t GetStripX(TString stationId, Int_t stripNb);
+  static Double_t GetStripY(TString stationId, Int_t stripNb);
+  static Double_t GetStripZ(TString stationId, Int_t stripNb);
   static vector<TString>* GetDetectorStations();
 
 public:
-
   static Int_t SetParContainers();
+  static void ReadGeoParamsFromParContainer();
   static void ConstructGeometry();
   static void PrintDetectorParameters(void);
   static void PrintDetectorParametersToFile(TString fileName);
@@ -47,9 +60,10 @@ private:
   static void GetSingleSiParameters(TXMLNode *node);
   static void GetDoubleSiParameters(TXMLNode *node);
 
-  static ERQTelescopeSetup* fInstance;
-  static TString            fParamsXmlFileName;
-  static vector<TString>    fDetectorStations;
+  static ERQTelescopeSetup*                                 fInstance;
+  static TString                                            fParamsXmlFileName;
+  static vector<TString>                                    fDetectorStations;
+  static map<TString, vector<ERQTelescopeStrip*>> fStrips;            
 
   // ----- SingleSi parameters --------------------------------------------------
   static Int_t            fDoubleSiCount;
