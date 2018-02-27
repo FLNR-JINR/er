@@ -114,7 +114,6 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
         Int_t yStripNb;
         gMC->CurrentVolOffID(0, yStripNb);
         gMC->CurrentVolOffID(1, xStripNb);
-        std::cout << "Von nasm " << volName << "; x strip NB " << xStripNb << "; y strip nb " << yStripNb << std::endl;
         gMC->CurrentVolOffID(2, fSiStationNb);
         if (volName.EndsWith("X")) {
           // swap X and Y strip numbers

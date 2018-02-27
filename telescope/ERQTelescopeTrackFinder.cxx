@@ -87,8 +87,9 @@ InitStatus ERQTelescopeTrackFinder::Init() {
   if (!fUserTargetPointIsSet) {
     fBeamDetTrack = (TClonesArray*) ioman->GetObject("BeamDetTrack");   
     if (!fBeamDetTrack) {
-      cout << "ERQTelescopeTrackFinder: target point not initialized by user " <<
-                    "(by means of SetTargetPoint()) and there is no ERBeamDetTrack branch" << endl;
+      LOG(DEBUG) << "ERQTelescopeTrackFinder: target point not initialized by user " 
+                 << "(by means of SetTargetPoint()) and there is no ERBeamDetTrack branch" 
+                 <<FairLogger::endl;
       return kFATAL;
     } 
   }
@@ -106,18 +107,14 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
     vector<pair<Int_t, Int_t>>  hitTelescopePoint;
     auto xDigiBranchName = itSiStationPair.second.first;
     auto yDigiBranchName = itSiStationPair.second.second;  
-    cout << "xDigi " << xDigiBranchName << " ; yDigi " << yDigiBranchName << endl;
     TClonesArray *xDigi = fQTelescopeDigi[xDigiBranchName];
     TClonesArray *yDigi = fQTelescopeDigi[yDigiBranchName];
     if ( !xDigi || !yDigi) {
       continue;
     } 
 
-    cout  << "Array power " << xDigi->GetEntriesFast() << endl;
-
     for (Int_t iXDigi  = 0; iXDigi < xDigi->GetEntriesFast(); iXDigi++) {
       Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(iXDigi))->GetEdep();
-      cout << "Search pair ededp " << iXDigi << " edepX - " << xStripEdep << endl;
       if (xStripEdep > fSiDigiEdepMin && xStripEdep < fSiDigiEdepMax) {
         correctStripsX.push_back(iXDigi);
       }
@@ -139,11 +136,12 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         }
       }
     }
-
+    LOG(DEBUG) << "Strips array pair " << itSiStationPair.second.first << " " 
+                                       << itSiStationPair.second.second << FairLogger::endl;      
     for (const auto itHitPoint : hitTelescopePoint) {
       Int_t xStripNb = ((ERQTelescopeSiDigi*)xDigi->At(itHitPoint.first))->GetStripNb();
       Int_t yStripNb = ((ERQTelescopeSiDigi*)yDigi->At(itHitPoint.second))->GetStripNb();
-      cout << "Search pair corpair " << itHitPoint.first << " " << itHitPoint.second << endl;
+      LOG(DEBUG) << "  Strips pair " << itHitPoint.first << " " << itHitPoint.second << FairLogger::endl;
       Double_t xQtelescopeHit = fQTelescopeSetup->GetStripX(xDigiBranchName, xStripNb);
       Double_t yQtelescopeHit = fQTelescopeSetup->GetStripY(yDigiBranchName, yStripNb);
       Double_t zQtelescopeHit = (fQTelescopeSetup->GetStripZ(xDigiBranchName, xStripNb) 
