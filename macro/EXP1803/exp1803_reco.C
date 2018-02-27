@@ -15,7 +15,7 @@ void exp1803_reco(Int_t nEvents = 100) {
   //-------- Set MC event header --------------------------------------------
   EREventHeader* header = new EREventHeader();
   run->SetEventHeader(header);
-  // ------------------------BeamDetTrackFinger--------------------------------
+  // ------------------------BeamDetDigitizer--------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
   run->AddTask(trackFinder);
@@ -27,17 +27,8 @@ void exp1803_reco(Int_t nEvents = 100) {
   pid->SetBoxPID(0., 1000., 0., 1000.);
   pid->SetOffsetToF(0.);
   pid->SetProbabilityThreshold(0);
+
   run->AddTask(pid);  
-  // ------- QTelescope TrackFinder -------------------------------------------
-  ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
-  qtelescopeTrackFinder->SetHitStation("DoubleSi_SD2_XY_1");
-  qtelescopeTrackFinder->SetHitStation("DoubleSi_SD2_XY_3");
-  qtelescopeTrackFinder->SetStripEdepRange(0., 100.);          // [GeV]
-  qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
-  // qtelescopeTrackFinder->SetStripEdepRange(0.0097, 100.);   // [GeV]
-  // qtelescopeTrackFinder->SetEdepDiffXY(5.);                 // [GeV]
-  qtelescopeTrackFinder->SetEdepMaxDiffXY(0.5); 
-  run->AddTask(qtelescopeTrackFinder);  
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   FairParRootFileIo*  parInput = new FairParRootFileIo();
