@@ -19,7 +19,7 @@ ERQTelescopeSiDigi::ERQTelescopeSiDigi()
 {
 }
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeSiDigi::ERQTelescopeSiDigi(Int_t id, Float_t Edep, Double_t time, Int_t stationNb, Int_t stripNb)
+ERQTelescopeSiDigi::ERQTelescopeSiDigi(Int_t id, Double_t Edep, Double_t time, Int_t stationNb, Int_t stripNb)
   :fID(id),
   fEdep(Edep),
   fTime(time),

@@ -23,7 +23,7 @@ class ERQTelescopeSiDigi : public FairMultiLinkedData
   
   /** Constructor with arguments
    **/
-  ERQTelescopeSiDigi(Int_t id, Float_t Edep, Double_t time, Int_t stationNb, Int_t stripNb);
+  ERQTelescopeSiDigi(Int_t id, Double_t Edep, Double_t time, Int_t stationNb, Int_t stripNb);
                    
   /** Copy constructor **/
   ERQTelescopeSiDigi(const ERQTelescopeSiDigi&);
@@ -38,17 +38,17 @@ class ERQTelescopeSiDigi : public FairMultiLinkedData
 
   /* Accessors */
   Int_t ID () const {return fID;}
-  Float_t Edep() const {return fEdep;}
+  Double_t GetEdep() const {return fEdep;}
+  Double_t GetStripNb() const {return fStripNb;}
   
  protected:
   Int_t     fID;
   Int_t     fStationNb;
   Int_t     fStripNb;
   Double_t  fTime;
-  Float_t   fEdep;
+  Double_t  fEdep;
   
   ClassDef(ERQTelescopeSiDigi,1)
-
 };
 
 #endif
