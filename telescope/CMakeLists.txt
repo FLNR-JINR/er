@@ -9,6 +9,7 @@ ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/data
 ${CMAKE_SOURCE_DIR}/telescope/
+${CMAKE_SOURCE_DIR}/BeamDet/data
 ${CMAKE_SOURCE_DIR}/telescope/data
 )
 
@@ -38,11 +39,13 @@ data/ERRTelescopeHit.cxx
 ERQTelescope.cxx
 ERQTelescopeDigitizer.cxx
 ERQTelescopeSetup.cxx
+ERQTelescopeTrackFinder.cxx
 
 data/ERQTelescopeSiPoint.cxx
 data/ERQTelescopeSiDigi.cxx
 data/ERQTelescopeCsIPoint.cxx
 data/ERQTelescopeCsIDigi.cxx
+data/ERQTelescopeTrack.cxx
 
 #AculRaw
 data/AculRaw.cxx
