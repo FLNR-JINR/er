@@ -130,33 +130,37 @@ Bool_t ERDecayEXP1803::Stepping() {
       TLorentzVector *lvn1 = fDecayPhaseSpace->GetDecay(1);
       TLorentzVector *lvn2 = fDecayPhaseSpace->GetDecay(2);
 
-      Int_t newTrackNb;
 
-      gMC->GetStack()->PushTrack(1, 0, f5H->PdgCode(),
+      Int_t He6TrackNb, H5TrackNb, He3TrackNb, H3TrackNb, n1TrackNb, n2TrackNb;
+
+      He6TrackNb = gMC->GetStack()->GetCurrentTrackNumber();
+
+      gMC->GetStack()->PushTrack(1, He6TrackNb, f5H->PdgCode(),
                                  lv5H->Px(),lv5H->Py(),lv5H->Pz(),
                                  lv5H->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, newTrackNb, mass5H, 0);
-      gMC->GetStack()->PushTrack(1, 0, f3He->PdgCode(),
+                                 kPDecay, H5TrackNb, mass5H, 0);
+      gMC->GetStack()->PushTrack(1, He6TrackNb, f3He->PdgCode(),
                                  lv3He->Px(),lv3He->Py(),lv3He->Pz(),
                                  lv3He->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, newTrackNb, f3He->Mass(), 0);
-      gMC->GetStack()->PushTrack(1, 0, f3H->PdgCode(),
+                                 kPDecay, He3TrackNb, f3He->Mass(), 0);
+      gMC->GetStack()->PushTrack(1, He6TrackNb, f3H->PdgCode(),
                                  lv3H->Px(),lv3H->Py(),lv3H->Pz(),
                                  lv3H->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, newTrackNb, f3H->Mass(), 0);
-      gMC->GetStack()->PushTrack(1, 0, fn->PdgCode(),
+                                 kPDecay, H3TrackNb, f3H->Mass(), 0);
+      gMC->GetStack()->PushTrack(1, He6TrackNb, fn->PdgCode(),
                                  lvn1->Px(),lvn1->Py(),lvn1->Pz(),
                                  lvn1->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, newTrackNb, fn->Mass(), 0);
-      gMC->GetStack()->PushTrack(1, 0, fn->PdgCode(),
+                                 kPDecay, n1TrackNb, fn->Mass(), 0);
+      gMC->GetStack()->PushTrack(1, He6TrackNb, fn->PdgCode(),
                                  lvn2->Px(),lvn2->Py(),lvn2->Pz(),
                                  lvn2->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, newTrackNb, fn->Mass(), 0);
+                                 kPDecay, n2TrackNb, fn->Mass(), 0);
+      LOG(INFO) << He6TrackNb << " " << H5TrackNb << " " << He3TrackNb << FairLogger::endl;
       gMC->StopTrack();
       fDecayFinish = kTRUE;
       gMC->SetMaxStep(100.);
@@ -165,10 +169,12 @@ Bool_t ERDecayEXP1803::Stepping() {
       if (TString(run->GetMCEventHeader()->ClassName()).Contains("ERDecayMCEventHeader")){   
         ERDecayMCEventHeader* header = (ERDecayMCEventHeader*)run->GetMCEventHeader();
         header->SetDecayPos(curPos.Vect());
-        header->SetInputIon(*lv5H);
-        header->AddOutputParticle(*lv3H);
-        header->AddOutputParticle(*lvn1);
-        header->AddOutputParticle(*lvn2);
+        header->SetInputIon(He6TrackNb);
+        header->AddOutputParticle(H5TrackNb);
+        header->AddOutputParticle(He3TrackNb);
+        header->AddOutputParticle(H3TrackNb);
+        header->AddOutputParticle(n1TrackNb);
+        header->AddOutputParticle(n2TrackNb);
       }
     }
   }

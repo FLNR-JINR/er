@@ -5,9 +5,7 @@
 #include "ERDecayMCEventHeader.h"
 
 
-ERDecayMCEventHeader::ERDecayMCEventHeader():
-fOutputsParticles(new TClonesArray("TLorentzVector", 10))
-{
+ERDecayMCEventHeader::ERDecayMCEventHeader(){
 
 }
 
