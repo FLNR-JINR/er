@@ -22,7 +22,8 @@ ERBeamDetPID::ERBeamDetPID()
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetPID::ERBeamDetPID(Int_t verbose)
-  : FairTask("ER BeamDet particle finding scheme ", verbose)
+  : FairTask("ER BeamDet particle finding scheme ", verbose),
+  fPID(-1)
 {
 }
 //--------------------------------------------------------------------------------------------------
@@ -30,6 +31,9 @@ ERBeamDetPID::~ERBeamDetPID() {
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERBeamDetPID::Init() {
+  if (fPID == -1){
+    LOG(FATAL) << "PID not defined for ERBeamDetPID!" << FairLogger::endl;
+  }
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
@@ -120,6 +124,8 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   LOG(DEBUG) << "PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
             << " energy: " << energy << "; probability " << probability << FairLogger::endl;
 
+  //eloss calculation
+  Double_t eLoss = fBeamDetSetup->CalcEloss(*track,fPID,p,fIonMass);
   AddParticle(fPID, TLorentzVector(px, py, pz, energy), probability);
 }
 //--------------------------------------------------------------------------------------------------

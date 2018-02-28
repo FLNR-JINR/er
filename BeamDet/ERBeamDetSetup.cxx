@@ -16,6 +16,12 @@
 #include <TXMLNode.h>
 #include <TList.h>
 
+#include "G4IonTable.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4EmCalculator.hh"
+#include "G4NistManager.hh"
+#include "G4UnitsTable.hh"
+
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
@@ -24,6 +30,7 @@
 #include "FairGeoInterface.h"
 #include "FairGeoBuilder.h"
 #include "FairGeoMedia.h"
+#include "FairLogger.h"
 
 using namespace std;
 
@@ -651,6 +658,51 @@ void ERBeamDetSetup::ConstructGeometry() {
   top->Write();
   geoFile->Close();
   // --------------------------------------------------------------------------
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom, Float_t mass){
+  //calclculation ion energy loss in BeamDet volumes
+  TVector3 targetVertex = track.GetTargetVertex();
+  LOG(DEBUG) << "Eloss calculation with target vertex = (" << targetVertex.X() << ","
+            << targetVertex.Y() << "," << targetVertex.Z() << "), direction on target = ("
+            << track.GetVector().X() << "," << track.GetVector().Y() << "," << track.GetVector().Z() << ")" << FairLogger::endl;
+  
+  Float_t zStart = -3000.;//@TODO change to BeamDet start position
+  Float_t xStart = targetVertex.X() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Cos(track.GetVector().Phi());
+  Float_t yStart = targetVertex.Y() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Sin(track.GetVector().Phi());
+
+  LOG(DEBUG) << "Eloss calculation start vertex = (" << xStart << "," << yStart << "," << zStart << ")" << FairLogger::endl; 
+
+  G4IonTable* ionTable = G4IonTable::GetIonTable();
+  G4ParticleDefinition* ion =  ionTable->GetIon(pid);
+  G4EmCalculator* calc = new G4EmCalculator();
+  G4NistManager* nist = G4NistManager::Instance();
+
+  TGeoNode* node;
+  node = gGeoManager->InitTrack(xStart,yStart,zStart,track.GetVector().X(),track.GetVector().Y(),track.GetVector().Z());
+  
+  Float_t E = TMath::Sqrt(mom*mom + mass*mass);
+  Float_t T = E - mass;
+  while(!gGeoManager->IsOutside()){
+    
+    TString matName = node->GetMedium()->GetMaterial()->GetName();
+    G4Material* mat = nist->FindOrBuildMaterial(matName.Data());
+    
+    node = gGeoManager->FindNextBoundary();
+    
+    Double_t range = gGeoManager->GetStep();
+    Double_t edep = calc->GetDEDX(T,ion,mat)*1e-3;
+
+    node = gGeoManager->GetCurrentNode();
+
+    LOG(DEBUG) <<"Current path  = " <<  gGeoManager->GetPath() << FairLogger::endl;
+    LOG(DEBUG) <<"Current medium " << matName << FairLogger::endl;
+    LOG(DEBUG) <<"range  = " << range << FairLogger::endl;
+    LOG(DEBUG) <<"edep = " << edep << FairLogger::endl;
+
+    node = gGeoManager->Step();
+  }
+
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetSetup)

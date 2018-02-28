@@ -21,6 +21,7 @@ public:
   void AddParameters(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
 
   TVector3 GetVector(void) const {return fVectorOnTarget;}
+  TVector3 GetTargetVertex() const {return TVector3(fXt,fYt,fZt);}
 
 	ClassDef(ERBeamDetTrack, 1)
 };
