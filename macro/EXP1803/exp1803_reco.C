@@ -8,7 +8,7 @@ void exp1803_reco(Int_t nEvents = 100) {
   TStopwatch timer;
   timer.Start();  
   // -----   Digitization run   ---------------------------------------------
-  FairRunAna *run= new FairRunAna();
+  ERRunAna *run= new ERRunAna();
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -23,11 +23,11 @@ void exp1803_reco(Int_t nEvents = 100) {
   Int_t Z = 2, A = 6, Q = 2;
   TString ionName = "6He";
   ERBeamDetPID* pid = new ERBeamDetPID(verbose);
-  pid->SetIonMassNumber(A);
   pid->SetBoxPID(0., 1000., 0., 1000.);
   pid->SetOffsetToF(0.);
   pid->SetProbabilityThreshold(0);
-
+  pid->SetIonMass(5.60554);
+  pid->SetPID(1000020060);
   run->AddTask(pid);  
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();

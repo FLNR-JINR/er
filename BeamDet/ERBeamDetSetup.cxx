@@ -15,6 +15,7 @@
 #include <TXMLAttr.h>
 #include <TXMLNode.h>
 #include <TList.h>
+#include "TSystem.h"
 
 #include "G4IonTable.hh"
 #include "G4ParticleDefinition.hh"
@@ -22,7 +23,7 @@
 #include "G4NistManager.hh"
 
 #include "FairRootManager.h"
-#include "FairRunAna.h"
+#include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "FairGeoLoader.h"
 #include "FairGeoMedium.h"
@@ -660,6 +661,13 @@ void ERBeamDetSetup::ConstructGeometry() {
 }
 //--------------------------------------------------------------------------------------------------
 Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom, Float_t mass){
+  
+  FairRun* run = FairRun::Instance();
+  if (!TString(run->ClassName()).Contains("ERRunAna")){
+    LOG(FATAL) << "Use ERRunAna for ERBeamDetSetup::CalcEloss!!!" << FairLogger::endl;
+    return 0;
+  }
+
   //calclculation ion energy loss in BeamDet volumes
   TVector3 targetVertex = track.GetTargetVertex();
   LOG(DEBUG) << " [CalcEloss] Eloss calculation with target vertex = (" << targetVertex.X() << ","
@@ -683,12 +691,19 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
   Float_t E = TMath::Sqrt(mom*mom + mass*mass);
   Float_t T = E - mass;
   Float_t sumLoss = 0.;
+
+  Bool_t inTarget = kFALSE;
+  Float_t tarEdep = 0.;
+
   while(!gGeoManager->IsOutside()){
     
     TString matName = node->GetMedium()->GetMaterial()->GetName();
     G4Material* mat = nist->FindOrBuildMaterial(matName.Data());
     
     node = gGeoManager->FindNextBoundary();
+
+    if (inTarget && !(TString(gGeoManager->GetPath()).Contains("target")))
+      break;
     
     Double_t range = gGeoManager->GetStep();
     Double_t edep = calc->GetDEDX(T*1e3,ion,mat)*range*10*1e-3;
@@ -701,10 +716,21 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
     LOG(DEBUG) <<" [CalcEloss] range  = " << range << FairLogger::endl;
     LOG(DEBUG) <<" [CalcEloss] edep = " << edep << FairLogger::endl;
 
+    if (TString(gGeoManager->GetPath()).Contains("target"))
+      inTarget = kTRUE;
+
+    if (inTarget)
+      tarEdep+=edep;
+
     T -= edep;
     sumLoss += edep;
     node = gGeoManager->Step();
   }
+  
+  T += tarEdep/2.;
+  sumLoss -= tarEdep/2.;
+  
+  LOG(DEBUG) <<" [CalcEloss] Target Eloss = " <<  tarEdep << FairLogger::endl;
   LOG(DEBUG) <<" [CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::endl;
   return T;
 }
