@@ -20,7 +20,6 @@
 #include "G4ParticleDefinition.hh"
 #include "G4EmCalculator.hh"
 #include "G4NistManager.hh"
-#include "G4UnitsTable.hh"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -663,7 +662,7 @@ void ERBeamDetSetup::ConstructGeometry() {
 Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom, Float_t mass){
   //calclculation ion energy loss in BeamDet volumes
   TVector3 targetVertex = track.GetTargetVertex();
-  LOG(DEBUG) << "Eloss calculation with target vertex = (" << targetVertex.X() << ","
+  LOG(DEBUG) << " [CalcEloss] Eloss calculation with target vertex = (" << targetVertex.X() << ","
             << targetVertex.Y() << "," << targetVertex.Z() << "), direction on target = ("
             << track.GetVector().X() << "," << track.GetVector().Y() << "," << track.GetVector().Z() << ")" << FairLogger::endl;
   
@@ -671,7 +670,7 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
   Float_t xStart = targetVertex.X() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Cos(track.GetVector().Phi());
   Float_t yStart = targetVertex.Y() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Sin(track.GetVector().Phi());
 
-  LOG(DEBUG) << "Eloss calculation start vertex = (" << xStart << "," << yStart << "," << zStart << ")" << FairLogger::endl; 
+  LOG(DEBUG) << " [CalcEloss] Eloss calculation start vertex = (" << xStart << "," << yStart << "," << zStart << ")" << FairLogger::endl; 
 
   G4IonTable* ionTable = G4IonTable::GetIonTable();
   G4ParticleDefinition* ion =  ionTable->GetIon(pid);
@@ -683,6 +682,7 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
   
   Float_t E = TMath::Sqrt(mom*mom + mass*mass);
   Float_t T = E - mass;
+  Float_t sumLoss = 0.;
   while(!gGeoManager->IsOutside()){
     
     TString matName = node->GetMedium()->GetMaterial()->GetName();
@@ -691,18 +691,22 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
     node = gGeoManager->FindNextBoundary();
     
     Double_t range = gGeoManager->GetStep();
-    Double_t edep = calc->GetDEDX(T,ion,mat)*1e-3;
+    Double_t edep = calc->GetDEDX(T*1e3,ion,mat)*range*10*1e-3;
 
     node = gGeoManager->GetCurrentNode();
+    
+    LOG(DEBUG) <<" [CalcEloss] Kinetic Energy  = " << T << FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] path  = " <<  gGeoManager->GetPath() << FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] medium " << matName << FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] range  = " << range << FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] edep = " << edep << FairLogger::endl;
 
-    LOG(DEBUG) <<"Current path  = " <<  gGeoManager->GetPath() << FairLogger::endl;
-    LOG(DEBUG) <<"Current medium " << matName << FairLogger::endl;
-    LOG(DEBUG) <<"range  = " << range << FairLogger::endl;
-    LOG(DEBUG) <<"edep = " << edep << FairLogger::endl;
-
+    T -= edep;
+    sumLoss += edep;
     node = gGeoManager->Step();
   }
-
+  LOG(DEBUG) <<" [CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::endl;
+  return T;
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetSetup)
