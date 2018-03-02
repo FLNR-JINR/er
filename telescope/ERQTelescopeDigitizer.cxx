@@ -28,23 +28,17 @@ using namespace std;
 //-------------------------------------------------------------------------------------------------
 ERQTelescopeDigitizer::ERQTelescopeDigitizer()
   : FairTask("ER qtelescope digitization"), 
-  fQTelescopeSiPoints(NULL), 
-  fQTelescopeSiDigi(NULL), 
   fSiElossSigma(0),
   fSiTimeSigma(0),
-  fSiElossThreshold(0),
-  fDigiEloss(0)
+  fSiElossThreshold(0)
 {
 }
 //-------------------------------------------------------------------------------------------------
 ERQTelescopeDigitizer::ERQTelescopeDigitizer(Int_t verbose)
   : FairTask("ER qtelescope digitization ", verbose),
-  fQTelescopeSiPoints(NULL), 
-  fQTelescopeSiDigi(NULL), 
   fSiElossSigma(0),
   fSiTimeSigma(0),
-  fSiElossThreshold(0),
-  fDigiEloss(0)
+  fSiElossThreshold(0)
 {
 }
 //-------------------------------------------------------------------------------------------------
@@ -93,15 +87,13 @@ InitStatus ERQTelescopeDigitizer::Init() {
 //-------------------------------------------------------------------------------------------------
 void ERQTelescopeDigitizer::Exec(Option_t* opt) {
   Reset();
-
   for (const auto &itPointBranches : fQTelescopePoints) {
     Float_t   edep = 0.; //sum edep in strip
     Float_t   time = numeric_limits<float>::max(); // min time in strip
     Int_t     pointType;
     Double_t  elossThreshold, timeThreshold;
     Double_t  elossSigma, timeSigma;
-    map<Int_t, vector<Int_t>> points;
-    points.clear();
+    map<Int_t, vector<Int_t>> sortedPoints;
     if (itPointBranches.first.Contains("Si")) {
       pointType = 0;  // Si point
       elossThreshold = fSiElossThreshold;
@@ -109,7 +101,7 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt) {
       timeSigma      = fSiTimeSigma;
       for (Int_t iPoint = 0; iPoint < itPointBranches.second->GetEntriesFast(); iPoint++){
         ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)(itPointBranches.second->At(iPoint));
-        points[point->GetStripNb()].push_back(iPoint);
+        sortedPoints[point->GetStripNb()].push_back(iPoint);
       }
     }
     if (itPointBranches.first.Contains("CsI")) {
@@ -119,11 +111,12 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt) {
       timeSigma      = fCsITimeSigma;
       for (Int_t iPoint = 0; iPoint < itPointBranches.second->GetEntriesFast(); iPoint++){
         ERQTelescopeCsIPoint* point = (ERQTelescopeCsIPoint*)(itPointBranches.second->At(iPoint));
-        points[point->GetBlockNb()].push_back(iPoint);
+        sortedPoints[point->GetBlockNb()].push_back(iPoint);
       }
     }
     FairMCPoint* mcPoint;
-    for (const auto &itPoint : points) {
+    for (const auto &itPoint : sortedPoints) {
+      edep = 0;
       for (const auto itPointsForCurrentVolume : itPoint.second) {
         if (pointType == 0) { // 0 - Si point, 1 - CsI point
           mcPoint = (ERQTelescopeSiPoint*)(itPointBranches.second->At(itPointsForCurrentVolume));
@@ -168,8 +161,10 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt) {
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescopeDigitizer::Reset() {
-  if (fQTelescopeSiDigi) {
-    fQTelescopeSiDigi->Delete();
+  for (const auto itDigiBranches : fQTelescopeDigi) {
+    if (itDigiBranches.second) {
+      itDigiBranches.second->Delete();
+    }
   }
 }
 //-------------------------------------------------------------------------------------------------

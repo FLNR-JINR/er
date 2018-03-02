@@ -57,13 +57,9 @@ public:
   void SetCsITimeSigma(Float_t sigma)  {fCsITimeSigma = sigma;}
 protected:
   //Input arrays
-  TClonesArray              *fQTelescopeSiPoints;
-
-  std::map<TString, TClonesArray*> fQTelescopeDigi;
   std::map<TString, TClonesArray*> fQTelescopePoints;
   //Output arrays
-  TClonesArray *fQTelescopeSiDigi;
-
+  std::map<TString, TClonesArray*> fQTelescopeDigi;
   
   Float_t       fSiElossThreshold;
   Float_t       fSiElossSigma;
@@ -71,11 +67,6 @@ protected:
   Float_t       fCsIElossThreshold;
   Float_t       fCsIElossSigma;
   Float_t       fCsITimeSigma;
-
-
-  Float_t       fDigiEloss;
-
-  //ERBeamDetSetup* fBeamDetSetup;
 protected:
   ERQTelescopeSiDigi* AddSiDigi(Float_t edep, Double_t time, Int_t stationNb, 
                                                              Int_t stripNb, 
