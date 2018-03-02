@@ -112,8 +112,8 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
       if (volName.Contains("DoubleSi")) {
         Int_t xStripNb;
         Int_t yStripNb;
-        gMC->CurrentVolOffID(0, xStripNb);
-        gMC->CurrentVolOffID(1, yStripNb);
+        gMC->CurrentVolOffID(0, yStripNb);
+        gMC->CurrentVolOffID(1, xStripNb);
         gMC->CurrentVolOffID(2, fSiStationNb);
         if (volName.EndsWith("X")) {
           // swap X and Y strip numbers
@@ -153,28 +153,31 @@ void ERQTelescope::EndOfEvent() {
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
+  TString branchName;
   if (!ioman)
-	  Fatal("Init", "IO manager is not set");
+    Fatal("Init", "IO manager is not set");
+  Int_t iDoubleSi = 0; 
+  Int_t iSingleSi = 0; 
+  Int_t iCsI      = 0; 
   vector<TString>* sensVolumes = fQTelescopeSetup->GetDetectorStations();
   for (Int_t i = 0; i < sensVolumes->size(); i++) {
     if (sensVolumes->at(i).BeginsWith("DoubleSi")) {
       fDoubleSiXPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
       fDoubleSiYPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
-      //TString::Itoa(fDoubleSiXPoints.size(), 10)
-      ioman->Register("ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_X",
-                      "QTelescope", fDoubleSiXPoints.back(), kTRUE);
-      ioman->Register("ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_Y",
-                      "QTelescope", fDoubleSiYPoints.back(), kTRUE);
+      branchName = "ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iDoubleSi, 10) + "_X";
+      ioman->Register(branchName, "QTelescope", fDoubleSiXPoints.back(), kTRUE);
+      branchName = "ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iDoubleSi++, 10) + "_Y";
+      ioman->Register(branchName, "QTelescope", fDoubleSiYPoints.back(), kTRUE);
     }
     if (sensVolumes->at(i).BeginsWith("SingleSi")) {
       fSingleSiPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
-      ioman->Register("ERQTelescopeSiPoint_" + sensVolumes->at(i),
-                      "QTelescope", fSingleSiPoints.back(), kTRUE);
+      branchName = "ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iSingleSi++, 10);
+      ioman->Register(branchName, "QTelescope", fSingleSiPoints.back(), kTRUE);
     }
     if (sensVolumes->at(i).BeginsWith("CsI")) {
       fCsIPoints.push_back(new TClonesArray("ERQTelescopeCsIPoint"));
-      ioman->Register("ERQTelescopeCsIPoint_" + sensVolumes->at(i),
-                      "QTelescope", fCsIPoints.back(), kTRUE);
+      branchName = "ERQTelescopeCsIPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iCsI++, 10);      
+      ioman->Register(branchName, "QTelescope", fCsIPoints.back(), kTRUE);
 
     }
   }
