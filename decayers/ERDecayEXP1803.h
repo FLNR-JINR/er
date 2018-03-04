@@ -27,6 +27,7 @@ public:
   void SetTargetVolumeName(TString volumeName) {fVolumeName = volumeName;}
   void SetTargetThickness(Double_t targetThickness) {fTargetThickness = targetThickness;}
   void SetH5Mass(Double_t mass) {f5HMass = mass; fIs5HUserMassSet = true;}
+  void SetH5Exitation(Double_t excMean, Double_t fwhm);
 
 public:
   Bool_t Init();
@@ -54,6 +55,8 @@ private:
   Double_t        fMinStep;
   Double_t        fTargetThickness;
 	Bool_t          fDecayFinish;
+  Double_t        f5HExcitationMean;
+  Double_t        f5HExcitationSigma;
 
   Double_t        f5HMass;
   Bool_t          fIs5HUserMassSet;

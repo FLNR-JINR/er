@@ -165,6 +165,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   targetDecay->SetTargetVolumeName("tubeH2");
   targetDecay->SetTargetThickness(targetH2Thickness);
   // targetDecay->SetH5Mass(massH5);
+  targetDecay->SetH5Exitation(0.4, 0.02355);
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);
 

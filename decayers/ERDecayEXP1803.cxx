@@ -35,6 +35,8 @@ ERDecayEXP1803::ERDecayEXP1803():
   fn  (NULL),
   fIon3He(NULL),
   f5HMass(0.),
+  f5HExcitationMean(0.),
+  f5HExcitationSigma(0.),
   fIs5HUserMassSet(false)
 {
   fRnd = new TRandom3();
@@ -48,6 +50,11 @@ ERDecayEXP1803::ERDecayEXP1803():
 }
 //-------------------------------------------------------------------------------------------------
 ERDecayEXP1803::~ERDecayEXP1803() {
+}
+//-------------------------------------------------------------------------------------------------
+void ERDecayEXP1803::SetH5Exitation(Double_t excMean, Double_t fwhm) {
+  f5HExcitationMean = excMean;
+  f5HExcitationSigma = fwhm / 2.355;
 }
 //-------------------------------------------------------------------------------------------------
 Bool_t ERDecayEXP1803::Init(){
@@ -105,6 +112,7 @@ Bool_t ERDecayEXP1803::Stepping() {
       lvReaction = lv6He + lv2H;
 
       Double_t mass5H = (fIs5HUserMassSet) ? f5HMass : f5H->Mass();
+      mass5H += gRandom->Gaus(f5HExcitationMean, f5HExcitationSigma);
       LOG(DEBUG) << "Ion H5 mass in reaction " << mass5H << FairLogger::endl;
 
       Double_t reactMasses[2];
