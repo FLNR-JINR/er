@@ -35,12 +35,15 @@ public:
 
   /* Modifiers */
   static void SetXmlParametersFile(TString xmlFileName) {fParamsXmlFileName = xmlFileName;}
-  static void AddSi(TString type, TVector3 position, TString orientAroundZ); 
-  static void AddSi(TString type, TVector3 position, TString orientAroundZ, 
+  static void AddSi(TString type, TVector3 position, TVector3 rotation, 
+                                                     TString orientAroundZ); 
+  static void AddSi(TString type, TVector3 position, TVector3 rotation, 
+                                                     TString orientAroundZ, 
                                                      Double_t deadLayerFront, 
                                                      Double_t deadLayerBack); 
-  static void AddCsI(TString type, Double_t position);
-
+  static void AddCsI(TString type, TVector3 position, TVector3 rotation);
+  static void AddCsI(TString type, TVector3 position, TVector3 rotation, 
+                                                      TString orientAroundZ);
   /* Accessors */
   static Double_t GetStripX(TString stationId, Int_t stripNb);
   static Double_t GetStripY(TString stationId, Int_t stripNb);
@@ -82,6 +85,7 @@ private:
   static vector<Int_t>    fDoubleSiStripCountY;
   static vector<TString>  fDoubleSiMedia;
   static vector<Bool_t>   fDoubleSiIsDeadLayerSet;
+  static vector<TVector3> fDoubleSiRotation;
   // ----- DoubleSi parameters --------------------------------------------------
   static Int_t            fSingleSiCount;
   static vector<TString>  fSingleSiType;  
@@ -98,10 +102,11 @@ private:
   static vector<Int_t>    fSingleSiStripCount;
   static vector<TString>  fSingleSiMedia;
   static vector<Bool_t>   fSingleSiIsDeadLayerSet;
+  static vector<TVector3> fSingleSiRotation;
   // ----- CsI parameters -------------------------------------------------------
   static Int_t            fCsICount;
   static vector<TString>  fCsIType;
-  static vector<Double_t> fCsIPosZ;  
+  static vector<TVector3> fCsIPos;  
   static vector<TString>  fCsIOrientAroundZ;
   static vector<Double_t> fCsIX;
   static vector<Double_t> fCsIY;
@@ -109,6 +114,7 @@ private:
   static vector<Int_t>    fCsICubesCountX;
   static vector<Int_t>    fCsICubesCountY;
   static vector<TString>  fCsIMedia;
+  static vector<TVector3> fCsIRotation;
 
   ClassDef(ERQTelescopeSetup,1)
 };

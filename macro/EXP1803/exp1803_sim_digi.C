@@ -93,41 +93,44 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   // -----  QTelescope Setup ------------------------------------------------
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
   setupQTelescope->SetXmlParametersFile(paramFileQTelescope);
-
   // ----- T1 parameters ----------------------------------------------------
+  TVector3 T1Rotation(0., 0., 0);
+  Double_t xPos, yPos, zPos;
+  TVector3* T1Translation;
   // ----- T1.1--------------------------------------------------------------
   setupQTelescope->AddSi("DoubleSi_SD1", TVector3( T1Side/2 + T1Aperture/2, 
                                                    T1Side/2 - T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick/2), "X");
+                                                   T1PosZ   + T1D1Thick/2), T1Rotation,"X");
   setupQTelescope->AddSi("DoubleSi_SD2", TVector3( T1Side/2 + T1Aperture/2, 
                                                    T1Side/2 - T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), "X");
+                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
   // ----- T1.2--------------------------------------------------------------
   setupQTelescope->AddSi("DoubleSi_SD1", TVector3( T1Side/2 - T1Aperture/2, 
                                                   -T1Side/2 - T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick/2), "X");
+                                                   T1PosZ + T1D1Thick/2), T1Rotation, "X");
   setupQTelescope->AddSi("DoubleSi_SD2", TVector3( T1Side/2 - T1Aperture/2, 
                                                   -T1Side/2 - T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), "X");
+                                                   T1PosZ   + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
   // ----- T1.3 -------------------------------------------------------------
   setupQTelescope->AddSi("DoubleSi_SD1", TVector3(-T1Side/2 - T1Aperture/2, 
                                                   -T1Side/2 + T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick/2), "X");
+                                                   T1PosZ   + T1D1Thick/2), T1Rotation, "X");
   setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 - T1Aperture/2, 
                                                   -T1Side/2 + T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), "X");
+                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
   // ----- T1.4--------------------------------------------------------------
   setupQTelescope->AddSi("DoubleSi_SD1", TVector3(-T1Side/2 + T1Aperture/2, 
                                                    T1Side/2 + T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick/2), "X");
+                                                   T1PosZ + T1D1Thick/2), T1Rotation, "X");
   setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 + T1Aperture/2, 
                                                    T1Side/2 + T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), "X");
+                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
 
   // ----- D1 parameters ----------------------------------------------------
+  TVector3* D1Rotation = new TVector3(0., 5., 0);
   setupQTelescope->AddSi("DoubleSi_D1", TVector3( 0, 
                                                   0,  
-                                                  D1PosZ + D1Thick/2), "X");
+                                                  D1PosZ + D1Thick/2), *D1Rotation, "X");
 
   // ------QTelescope -------------------------------------------------------
   ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE,verbose);
