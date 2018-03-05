@@ -13,6 +13,7 @@
 #include "TVirtualMC.h"
 #include "TLorentzVector.h"
 #include "TMCProcess.h"
+#include "TRandom.h"
 
 #include "FairRunSim.h"
 #include "FairLogger.h"
@@ -35,9 +36,8 @@ ERDecayEXP1803::ERDecayEXP1803():
   fn  (NULL),
   fIon3He(NULL),
   f5HMass(0.),
-  f5HExcitationMean(0.),
-  f5HExcitationSigma(0.),
-  fIs5HUserMassSet(false)
+  fIs5HUserMassSet(false),
+  fIs5HExcitationSet(false)
 {
   fRnd = new TRandom3();
   fReactionPhaseSpace = new TGenPhaseSpace();
@@ -52,9 +52,15 @@ ERDecayEXP1803::ERDecayEXP1803():
 ERDecayEXP1803::~ERDecayEXP1803() {
 }
 //-------------------------------------------------------------------------------------------------
-void ERDecayEXP1803::SetH5Exitation(Double_t excMean, Double_t fwhm) {
-  f5HExcitationMean = excMean;
-  f5HExcitationSigma = fwhm / 2.355;
+void ERDecayEXP1803::SetH5Exitation(Double_t excMean, Double_t fwhm, Double_t distibWeight) {
+  f5HExcitationMean.push_back(excMean);
+  f5HExcitationSigma.push_back(fwhm / 2.355);
+  if (!fIs5HExcitationSet) {
+    f5HExcitationWeight.push_back(distibWeight);    
+    fIs5HExcitationSet = true;
+    return ;
+  }
+  f5HExcitationWeight.push_back(f5HExcitationWeight.back() + distibWeight);
 }
 //-------------------------------------------------------------------------------------------------
 Bool_t ERDecayEXP1803::Init(){
@@ -112,7 +118,20 @@ Bool_t ERDecayEXP1803::Stepping() {
       lvReaction = lv6He + lv2H;
 
       Double_t mass5H = (fIs5HUserMassSet) ? f5HMass : f5H->Mass();
-      mass5H += gRandom->Gaus(f5HExcitationMean, f5HExcitationSigma);
+      Double_t exc = 0;
+
+      if (fIs5HExcitationSet) {
+        Double_t randWeight = gRandom->Uniform(0., f5HExcitationWeight.back());
+        Int_t distribNum = 0;
+        for (; distribNum < f5HExcitationWeight.size(); distribNum++) {
+          if (randWeight < f5HExcitationWeight[distribNum]) {
+            break;
+          }
+        }
+        exc = gRandom->Gaus(f5HExcitationMean[distribNum], f5HExcitationSigma[distribNum]);
+      }
+      mass5H += exc;
+      fMassFullDelete = mass5H;
       LOG(DEBUG) << "Ion H5 mass in reaction " << mass5H << FairLogger::endl;
 
       Double_t reactMasses[2];
