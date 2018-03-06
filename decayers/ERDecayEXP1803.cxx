@@ -131,7 +131,6 @@ Bool_t ERDecayEXP1803::Stepping() {
         exc = gRandom->Gaus(f5HExcitationMean[distribNum], f5HExcitationSigma[distribNum]);
       }
       mass5H += exc;
-      fMassFullDelete = mass5H;
       LOG(DEBUG) << "Ion H5 mass in reaction " << mass5H << FairLogger::endl;
 
       Double_t reactMasses[2];
