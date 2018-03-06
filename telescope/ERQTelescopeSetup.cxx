@@ -217,7 +217,6 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
         qtelescopeStation = qtelescope->GetDaughter(iStation);
         TString qtelescopeStationName = qtelescopeStation->GetName();
         Double_t stripInStationTrans[3];
-        Double_t stationTrans[3];
         Double_t stripGlobTrans[3];
         if (qtelescopeStationName.Contains("DoubleSi", TString::kIgnoreCase) ) {
           TGeoNode* doubleSiStrip;
@@ -229,13 +228,10 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
           Int_t     iDoubleSiStrip = 0;
           for (; iDoubleSiStrip < qtelescopeStation->GetNdaughters(); iDoubleSiStrip++) {
             doubleSiStrip = qtelescopeStation->GetDaughter(iDoubleSiStrip);
-
             stripInStationTrans[0] = doubleSiStrip->GetMatrix()->GetTranslation()[0];
             stripInStationTrans[1] = doubleSiStrip->GetMatrix()->GetTranslation()[1];
             stripInStationTrans[2] = doubleSiStrip->GetMatrix()->GetTranslation()[2];
-
-            doubleSiStrip->LocalToMaster(stripInStationTrans, stationTrans);
-            qtelescopeStation->LocalToMaster(stationTrans, stripGlobTrans);
+            qtelescopeStation->LocalToMaster(stripInStationTrans, stripGlobTrans);
             fStrips[firstStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans));
             
             TGeoNode* doubleSiBox;
@@ -249,12 +245,10 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
                 siBoxLocalTrans[1] = doubleSiBox->GetMatrix()->GetTranslation()[1];
                 siBoxLocalTrans[2] = doubleSiBox->GetMatrix()->GetTranslation()[2];
 
-                doubleSiBox->LocalToMaster(siBoxLocalTrans, stripInStationTrans);
-                doubleSiStrip->LocalToMaster(stripInStationTrans, stationTrans);
-                (qtelescopeStationName.Contains("XY")) ? stationTrans[0] = 0
-                                                       : stationTrans[1] = 0;
-                qtelescopeStation->LocalToMaster(stationTrans, stripGlobTrans);
-
+                doubleSiStrip->LocalToMaster(siBoxLocalTrans, stripInStationTrans);
+                (qtelescopeStationName.Contains("XY")) ? stripInStationTrans[0] = 0
+                                                       : stripInStationTrans[1] = 0;
+                qtelescopeStation->LocalToMaster(stripInStationTrans, stripGlobTrans);
                 fStrips[secondStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans));
               }
               flagFirstStripReaded = kTRUE;
@@ -271,8 +265,7 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
             stripInStationTrans[1] = singleSiStrip->GetMatrix()->GetTranslation()[1];
             stripInStationTrans[2] = singleSiStrip->GetMatrix()->GetTranslation()[2];
 
-            singleSiStrip->LocalToMaster(stripInStationTrans, stationTrans);
-            qtelescopeStation->LocalToMaster(stationTrans, stripGlobTrans);
+            singleSiStrip->LocalToMaster(stripInStationTrans, stripGlobTrans);
             fStrips[qtelescopeStationName].push_back(new ERQTelescopeStrip(stripGlobTrans));            
           }
         }
