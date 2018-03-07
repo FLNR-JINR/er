@@ -47,6 +47,7 @@ private:
   TParticlePDG   *fn;
 
   FairIon        *fIon3He;
+  FairIon* fUnstableIon5H;
 
   TGenPhaseSpace  *fReactionPhaseSpace;
   TGenPhaseSpace  *fDecayPhaseSpace;
