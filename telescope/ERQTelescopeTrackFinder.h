@@ -89,6 +89,7 @@ private:
   /** @brief Adds a ERQTelescopeTrack to the output Collection **/
   ERQTelescopeTrack* AddTrack(Double_t targetX,    Double_t targetY,    Double_t targetZ, 
                               Double_t telescopeX, Double_t telescopeY, Double_t telescopeZ,
+                              Double_t sumEdep,
                               TString digiBranchName);
 
   ClassDef(ERQTelescopeTrackFinder,1)

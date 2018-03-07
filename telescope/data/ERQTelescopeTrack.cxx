@@ -12,13 +12,15 @@ ERQTelescopeTrack::ERQTelescopeTrack()
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeTrack::ERQTelescopeTrack(Double_t targetX,   Double_t targetY,   Double_t targetZ, 
-                    				 Double_t telescopeX, Double_t telescopeY, Double_t telescopeZ)
+                    				 Double_t telescopeX, Double_t telescopeY, Double_t telescopeZ,
+                    				 Double_t sumEdep)
 : fTargetX(targetX),
   fTargetY(targetY),
   fTargetZ(targetZ),
   fTelescopeX(telescopeX),
   fTelescopeY(telescopeY),
-  fTelescopeZ(telescopeZ)
+  fTelescopeZ(telescopeZ),
+  fSumEdep(sumEdep)
 {
 }
 //--------------------------------------------------------------------------------------------------
