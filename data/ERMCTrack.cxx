@@ -15,6 +15,7 @@
 #ifndef ROOT_TDatabasePDG
  #include "TDatabasePDG.h"
 #endif
+#include "FairRunSim.h"
 
 // -----   Default constructor   -------------------------------------------
 ERMCTrack::ERMCTrack()
@@ -51,6 +52,9 @@ ERMCTrack::ERMCTrack(Int_t pdgCode, Int_t motherId, Double_t px,
 {
   if (nPoints >= 0) fNPoints = nPoints;
   //  else              fNPoints = 0;
+  fPx = px;
+  fPy = py;
+  fPz = pz;
   fMass = CalculateMass();
   fEnergy = CalculateEnergy();
 }
@@ -254,7 +258,16 @@ Double_t ERMCTrack::GetPhi(){
 Double_t ERMCTrack::CalculateMass() {
   if ( TDatabasePDG::Instance() ) {
     TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPdgCode);
-    if ( particle ) return particle->Mass();
+    if ( particle ) {
+      TString particleName = particle->GetName();
+      TObjArray *userIons  = FairRunSim::Instance()->GetUserDefIons();
+      FairIon* ion = (FairIon*)userIons->FindObject(particleName);
+      if (ion) {
+        return ion->GetMass() + ion->GetExcEnergy();
+      } else {
+        return particle->Mass();
+      }
+    }
     else return 0.;
   }
   return 0.;
