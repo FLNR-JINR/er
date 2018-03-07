@@ -29,9 +29,11 @@ public:
    ** @param telescopeX - hit x-coordinate on QTelescope station;
    ** @param telescopeY - hit y-coordinate on QTelescope station;
    ** @param telescopeZ - hit z-coordinate on QTelescope station;
+   ** @param sumEdep - summary enegy deposit in X and Y strips;
   **/
   ERQTelescopeTrack(Double_t targetX,    Double_t targetY,    Double_t targetZ, 
-                    Double_t telescopeX, Double_t telescopeY, Double_t telescopeZ);
+                    Double_t telescopeX, Double_t telescopeY, Double_t telescopeZ,
+                    Double_t sumEdep);
 
 private:
   Double_t  fTargetX;
@@ -40,6 +42,8 @@ private:
   Double_t  fTelescopeX;
   Double_t  fTelescopeY;
   Double_t  fTelescopeZ;
+
+  Double_t  fSumEdep;
 
   ClassDef(ERQTelescopeTrack, 1)
 };
