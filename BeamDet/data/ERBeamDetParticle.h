@@ -13,7 +13,8 @@
 
 class ERBeamDetParticle : public TNamed{
 private:
-  TLorentzVector fFourMomentum;
+  TLorentzVector fTofState;
+  TLorentzVector fTargetState;
   Int_t          fPID;
   Double_t		   fPx;
   Double_t		   fPy;
@@ -22,9 +23,9 @@ private:
   Double_t       fProbability;
 public:
   ERBeamDetParticle();
-  ERBeamDetParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability);
+  ERBeamDetParticle(Int_t pid, TLorentzVector tofState, TLorentzVector targetState, Double_t probability);
 
-  void AddParameters(Int_t pid, TLorentzVector fourMomentum, Double_t probability);
+  void AddParameters(Int_t pid, TLorentzVector tofState, TLorentzVector targetState, Double_t probability);
 
 	ClassDef(ERBeamDetParticle, 1)
 };

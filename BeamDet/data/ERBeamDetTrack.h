@@ -24,6 +24,7 @@ public:
   Double_t GetTargetX(void) const {return fXt;}
   Double_t GetTargetY(void) const {return fYt;}
   Double_t GetTargetZ(void) const {return fZt;}
+  TVector3 GetTargetVertex() const {return TVector3(fXt,fYt,fZt);}
 	ClassDef(ERBeamDetTrack, 1)
 };
 

@@ -17,6 +17,8 @@
 
 using namespace std;
 
+#include "ERBeamDetTrack.h"
+
 struct ERBeamDetWire{
   Float_t fX;
   Float_t fY;
@@ -51,6 +53,7 @@ public:
   static void ConstructGeometry();
   static Int_t    SetParContainers();
 
+  static Double_t CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom, Float_t mass);
 private:
   static void ParseXmlParameters();
   static void GetToFParameters(TXMLNode *node);

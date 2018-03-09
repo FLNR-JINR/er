@@ -22,7 +22,8 @@ ERBeamDetPID::ERBeamDetPID()
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetPID::ERBeamDetPID(Int_t verbose)
-  : FairTask("ER BeamDet particle finding scheme ", verbose)
+  : FairTask("ER BeamDet particle finding scheme ", verbose),
+  fPID(-1)
 {
 }
 //--------------------------------------------------------------------------------------------------
@@ -30,6 +31,9 @@ ERBeamDetPID::~ERBeamDetPID() {
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERBeamDetPID::Init() {
+  if (fPID == -1){
+    LOG(FATAL) << "PID not defined for ERBeamDetPID!" << FairLogger::endl;
+  }
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
@@ -117,10 +121,25 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   pz = p * TMath::Cos(track->GetVector().Theta());
 
   energy = fIonMass * gamma;
-  LOG(DEBUG) << "PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
+  LOG(DEBUG) << "TOF State:: PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
             << " energy: " << energy << "; probability " << probability << FairLogger::endl;
 
-  AddParticle(fPID, TLorentzVector(px, py, pz, energy), probability);
+  //eloss calculation, T-kinetic energy on target
+  Double_t T = fBeamDetSetup->CalcEloss(*track,fPID,p,fIonMass);
+  
+  Double_t pt, ptx, pty, ptz, et;
+
+  pt = TMath::Sqrt(T*T + 2.*T*fIonMass);
+  ptx = pt * TMath::Sin(track->GetVector().Theta()) * TMath::Cos(track->GetVector().Phi());
+  pty = pt * TMath::Sin(track->GetVector().Theta()) * TMath::Sin(track->GetVector().Phi());
+  ptz = pt * TMath::Cos(track->GetVector().Theta());
+
+  et = fIonMass + T;
+
+  LOG(DEBUG) << "Target State::  px: " << ptx << "; py: " << pty << "; pz: " << ptz 
+            << " energy: " << et << FairLogger::endl;
+
+  AddParticle(fPID, TLorentzVector(px, py, pz, energy), TLorentzVector(ptx,pty,ptz,et), probability);
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetPID::Reset() {
@@ -139,9 +158,9 @@ void ERBeamDetPID::SetIonMassNumber(Int_t a) {
   fIonMass = kProtonMass * Double_t(a);
 }
 //--------------------------------------------------------------------------------------------------
-ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability){
+ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector tofState, TLorentzVector targetState, Double_t probability){
  return new((*fProjectile)[fProjectile->GetEntriesFast()])
-              ERBeamDetParticle(pid, fourMomentum, probability); 
+              ERBeamDetParticle(pid, tofState, targetState,  probability); 
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetPID::SetParContainers() {

@@ -15,15 +15,22 @@
 #include <TXMLAttr.h>
 #include <TXMLNode.h>
 #include <TList.h>
+#include "TSystem.h"
+
+#include "G4IonTable.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4EmCalculator.hh"
+#include "G4NistManager.hh"
 
 #include "FairRootManager.h"
-#include "FairRunAna.h"
+#include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "FairGeoLoader.h"
 #include "FairGeoMedium.h"
 #include "FairGeoInterface.h"
 #include "FairGeoBuilder.h"
 #include "FairGeoMedia.h"
+#include "FairLogger.h"
 
 using namespace std;
 
@@ -651,6 +658,81 @@ void ERBeamDetSetup::ConstructGeometry() {
   top->Write();
   geoFile->Close();
   // --------------------------------------------------------------------------
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom, Float_t mass){
+  
+  FairRun* run = FairRun::Instance();
+  if (!TString(run->ClassName()).Contains("ERRunAna")){
+    LOG(FATAL) << "Use ERRunAna for ERBeamDetSetup::CalcEloss!!!" << FairLogger::endl;
+    return 0;
+  }
+
+  //calclculation ion energy loss in BeamDet volumes
+  TVector3 targetVertex = track.GetTargetVertex();
+  LOG(DEBUG) << " [CalcEloss] Eloss calculation with target vertex = (" << targetVertex.X() << ","
+            << targetVertex.Y() << "," << targetVertex.Z() << "), direction on target = ("
+            << track.GetVector().X() << "," << track.GetVector().Y() << "," << track.GetVector().Z() << ")" << FairLogger::endl;
+  
+  Float_t zStart = -3000.;//@TODO change to BeamDet start position
+  Float_t xStart = targetVertex.X() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Cos(track.GetVector().Phi());
+  Float_t yStart = targetVertex.Y() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Sin(track.GetVector().Phi());
+
+  LOG(DEBUG) << " [CalcEloss] Eloss calculation start vertex = (" << xStart << "," << yStart << "," << zStart << ")" << FairLogger::endl; 
+
+  G4IonTable* ionTable = G4IonTable::GetIonTable();
+  G4ParticleDefinition* ion =  ionTable->GetIon(pid);
+  G4EmCalculator* calc = new G4EmCalculator();
+  G4NistManager* nist = G4NistManager::Instance();
+
+  TGeoNode* node;
+  node = gGeoManager->InitTrack(xStart,yStart,zStart,track.GetVector().X(),track.GetVector().Y(),track.GetVector().Z());
+  
+  Float_t E = TMath::Sqrt(mom*mom + mass*mass);
+  Float_t T = E - mass;
+  Float_t sumLoss = 0.;
+
+  Bool_t inTarget = kFALSE;
+  Float_t tarEdep = 0.;
+
+  while(!gGeoManager->IsOutside()){
+    
+    TString matName = node->GetMedium()->GetMaterial()->GetName();
+    G4Material* mat = nist->FindOrBuildMaterial(matName.Data());
+    
+    node = gGeoManager->FindNextBoundary();
+
+    if (inTarget && !(TString(gGeoManager->GetPath()).Contains("target")))
+      break;
+    
+    Double_t range = gGeoManager->GetStep();
+    Double_t edep = calc->GetDEDX(T*1e3,ion,mat)*range*10*1e-3;
+
+    node = gGeoManager->GetCurrentNode();
+    
+    LOG(DEBUG) <<" [CalcEloss] Kinetic Energy  = " << T << FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] path  = " <<  gGeoManager->GetPath() << FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] medium " << matName << FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] range  = " << range << FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] edep = " << edep << FairLogger::endl;
+
+    if (TString(gGeoManager->GetPath()).Contains("target"))
+      inTarget = kTRUE;
+
+    if (inTarget)
+      tarEdep+=edep;
+
+    T -= edep;
+    sumLoss += edep;
+    node = gGeoManager->Step();
+  }
+  
+  T += tarEdep/2.;
+  sumLoss -= tarEdep/2.;
+  
+  LOG(DEBUG) <<" [CalcEloss] Target Eloss = " <<  tarEdep << FairLogger::endl;
+  LOG(DEBUG) <<" [CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::endl;
+  return T;
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetSetup)

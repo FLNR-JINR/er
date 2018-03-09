@@ -107,6 +107,11 @@ public:
   **/
   void SetIonMassNumber(Int_t a);
 
+  /** @brief Sets ion mass.
+   ** @param mass - ion mass.
+  **/
+  void SetIonMass(Float_t mass){fIonMass = mass;}
+
 protected:
   //Paramaters
   ERBeamDetSetup *fBeamDetSetup;        ///< access to ERBeamDetSetup class instance
@@ -130,7 +135,7 @@ protected:
 
 private:
   /** @brief Adds a ERBeamDetParticle to the output Collection **/
-  ERBeamDetParticle* AddParticle(Int_t pid, TLorentzVector fourMomentum, Double_t probability);
+  ERBeamDetParticle* AddParticle(Int_t pid, TLorentzVector tofState, TLorentzVector targetState, Double_t probability);
   
   /** @brief Initializes runtime database for getting parameters from .par file**/
   virtual void SetParContainers();
