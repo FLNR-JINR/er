@@ -78,7 +78,7 @@ InitStatus ERQTelescopeTrackFinder::Init() {
       fQTelescopeDigi[brName] = (TClonesArray*) ioman->GetObject(bFullName);
     }
   }
-  // Register output track branches only for setted stations by interface SetStation()
+  // Register output track branches only for stations that are setted by interface SetStation()
   for (const auto itHitStations : fSiHitStationsPair) {
     fQTelescopeTrack[itHitStations.first] = new TClonesArray("ERQTelescopeTrack");
     ioman->Register("ERQTelescopeTrack_" + itHitStations.first, "QTelescope", 
@@ -164,7 +164,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
           run->MarkFill(kFALSE);
           return ;
       }
-      Double_t sumEdep = xStrip->GetEdep() + yStrip->GetEdep();
+      Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep()) / 2.;
       AddTrack(fTargetX, fTargetY, fTargetZ, xQtelescopeHit, yQtelescopeHit, zQtelescopeHit,
                sumEdep,
                itSiStationPair.first);
