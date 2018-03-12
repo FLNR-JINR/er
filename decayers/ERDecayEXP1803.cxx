@@ -113,46 +113,41 @@ Bool_t ERDecayEXP1803::Stepping() {
       // 6He + 2H → 3He + 5H
       TLorentzVector lv6He;
       gMC->TrackMomentum(lv6He);
-      cout << "He6 momentum " << lv6He.Px() << " " << lv6He.Py() << " " << lv6He.Pz() << endl; 
 
       TLorentzVector lv2H(0., 0., 0., f2H->Mass());
-      cout << "H2 momentum " << lv2H.Px() << " " << lv2H.Py() << " " << lv2H.Pz() << endl; 
       TLorentzVector lvReaction;
       lvReaction = lv6He + lv2H;
-      cout << "lvReaction momentum" << lvReaction.Px() << " " << lvReaction.Py() << " " << lvReaction.Pz() << endl; 
 
       Double_t mass5H = (fIs5HUserMassSet) ? f5HMass : f5H->Mass();
-      Double_t exc = 0;
-      if (fIs5HExcitationSet) {
-        Double_t randWeight = gRandom->Uniform(0., f5HExcitationWeight.back());
-        Int_t distribNum = 0;
-        for (; distribNum < f5HExcitationWeight.size(); distribNum++) {
-          if (randWeight < f5HExcitationWeight[distribNum]) {
-            break;
+      
+      Int_t decayHappen = kFALSE;
+      // while decay condition is not fullfilled  
+      while (!decayHappen) {
+        Double_t decay5HMass = mass5H;
+        Double_t excitation = 0;  // excitation energy
+        if (fIs5HExcitationSet) {
+          Double_t randWeight = gRandom->Uniform(0., f5HExcitationWeight.back());
+          Int_t distribNum = 0;
+          for (; distribNum < f5HExcitationWeight.size(); distribNum++) {
+            if (randWeight < f5HExcitationWeight[distribNum]) {
+              break;
+            }
           }
+          excitation = gRandom->Gaus(f5HExcitationMean[distribNum], f5HExcitationSigma[distribNum]);
+          fUnstableIon5H->SetExcEnergy(excitation);
         }
-        exc = gRandom->Gaus(f5HExcitationMean[distribNum], f5HExcitationSigma[distribNum]);
-        fUnstableIon5H->SetExcEnergy(exc);
+        decay5HMass += excitation;
+
+        Double_t reactMasses[2];
+        reactMasses[0] = f3He->Mass();
+        reactMasses[1] = decay5HMass;
+       
+        decayHappen = fReactionPhaseSpace->SetDecay(lvReaction, 2, reactMasses);
       }
-      mass5H += exc;
-      cout  << "exc 123 " << exc << endl;
-      LOG(DEBUG) << "Ion H5 mass in reaction " << mass5H << FairLogger::endl;
-
-      Double_t reactMasses[2];
-      reactMasses[0] = f3He->Mass();
-      cout << "H3 mass " << reactMasses[0] << endl;
-      reactMasses[1] = mass5H;
-      cout << "mass5H mass " << reactMasses[1] << endl;
-     
-      cout << "reaction decay momentum" << lvReaction.Px() << " " << lvReaction.Py() << " " << lvReaction.Pz() << endl; 
-
-      fReactionPhaseSpace->SetDecay(lvReaction, 2, reactMasses);
       fReactionPhaseSpace->Generate();
 
       TLorentzVector *lv3He = fReactionPhaseSpace->GetDecay(0);
-      cout << "h3 decay momentum " << lv3He->Px() << " " << lv3He->Py() << " " << lv3He->Pz() << endl; 
       TLorentzVector *lv5H  = fReactionPhaseSpace->GetDecay(1);
-      cout << "H5 decay momentum " << lv5H->Px() << " " << lv5H->Py() << " " << lv5H->Pz() << endl; 
       //5H → f3H + n +n.
       Double_t decayMasses[3];
       decayMasses[0] = f3H->Mass();
@@ -171,7 +166,6 @@ Bool_t ERDecayEXP1803::Stepping() {
 
       He6TrackNb = gMC->GetStack()->GetCurrentTrackNumber();
 
-      cout << "h5 pdg " << f5H->PdgCode() << endl;
       gMC->GetStack()->PushTrack(1, He6TrackNb, f5H->PdgCode(),
                                  lv5H->Px(),lv5H->Py(),lv5H->Pz(),
                                  lv5H->E(), curPos.X(), curPos.Y(), curPos.Z(),
