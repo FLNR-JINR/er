@@ -118,7 +118,7 @@ Bool_t ERDecayEXP1803::Stepping() {
       TLorentzVector lvReaction;
       lvReaction = lv6He + lv2H;
 
-      Double_t mass5H = (fIs5HUserMassSet) ? f5HMass : f5H->Mass();
+      Double_t mass5H = (fIs5HUserMassSet) ? f5HMass : f5H->Mass();  // if user mass is not defined in ERDecayEXP1803::SetH5Mass() than get a GEANT mass
       
       Int_t decayHappen = kFALSE;
       // while decay condition is not fullfilled  
@@ -128,6 +128,7 @@ Bool_t ERDecayEXP1803::Stepping() {
         if (fIs5HExcitationSet) {
           Double_t randWeight = gRandom->Uniform(0., f5HExcitationWeight.back());
           Int_t distribNum = 0;
+          // choose distribution by weight
           for (; distribNum < f5HExcitationWeight.size(); distribNum++) {
             if (randWeight < f5HExcitationWeight[distribNum]) {
               break;
