@@ -27,6 +27,7 @@ public:
   void SetTargetVolumeName(TString volumeName) {fVolumeName = volumeName;}
   void SetTargetThickness(Double_t targetThickness) {fTargetThickness = targetThickness;}
   void SetH5Mass(Double_t mass) {f5HMass = mass; fIs5HUserMassSet = true;}
+  void SetH5Exitation(Double_t excMean, Double_t fwhm, Double_t distibWeight);
 
 public:
   Bool_t Init();
@@ -46,17 +47,22 @@ private:
   TParticlePDG   *fn;
 
   FairIon        *fIon3He;
+  FairIon* fUnstableIon5H;
 
-  TGenPhaseSpace *fReactionPhaseSpace;
-  TGenPhaseSpace *fDecayPhaseSpace;
-  TString         fVolumeName;
-  Double_t        fTargetReactZ;
-  Double_t        fMinStep;
-  Double_t        fTargetThickness;
-	Bool_t          fDecayFinish;
+  TGenPhaseSpace  *fReactionPhaseSpace;
+  TGenPhaseSpace  *fDecayPhaseSpace;
+  TString          fVolumeName;
+  Double_t         fTargetReactZ;
+  Double_t         fMinStep;
+  Double_t         fTargetThickness;
+	Bool_t           fDecayFinish;
+  std::vector<Double_t> f5HExcitationMean;
+  std::vector<Double_t> f5HExcitationSigma; 
+  std::vector<Double_t> f5HExcitationWeight;
 
   Double_t        f5HMass;
   Bool_t          fIs5HUserMassSet;
+  Bool_t          fIs5HExcitationSet;
 
 	ClassDef(ERDecayEXP1803,1)
 };

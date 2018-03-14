@@ -13,6 +13,7 @@
 #include "TVirtualMC.h"
 #include "TLorentzVector.h"
 #include "TMCProcess.h"
+#include "TRandom.h"
 
 #include "FairRunSim.h"
 #include "FairLogger.h"
@@ -35,19 +36,31 @@ ERDecayEXP1803::ERDecayEXP1803():
   fn  (NULL),
   fIon3He(NULL),
   f5HMass(0.),
-  fIs5HUserMassSet(false)
+  fIs5HUserMassSet(false),
+  fIs5HExcitationSet(false)
 {
   fRnd = new TRandom3();
   fReactionPhaseSpace = new TGenPhaseSpace();
   fDecayPhaseSpace = new TGenPhaseSpace();
   FairRunSim* run = FairRunSim::Instance();
-  FairIon* unstableIon5H = new FairIon("5H",  1, 5, 1);
+  fUnstableIon5H = new FairIon("5H",  1, 5, 1);
   fIon3He                = new FairIon("3He", 2, 3, 2);
-  run->AddNewIon(unstableIon5H);
+  run->AddNewIon(fUnstableIon5H);
   run->AddNewIon(fIon3He);
 }
 //-------------------------------------------------------------------------------------------------
 ERDecayEXP1803::~ERDecayEXP1803() {
+}
+//-------------------------------------------------------------------------------------------------
+void ERDecayEXP1803::SetH5Exitation(Double_t excMean, Double_t fwhm, Double_t distibWeight) {
+  f5HExcitationMean.push_back(excMean);
+  f5HExcitationSigma.push_back(fwhm / 2.355);
+  if (!fIs5HExcitationSet) {
+    f5HExcitationWeight.push_back(distibWeight);    
+    fIs5HExcitationSet = true;
+    return ;
+  }
+  f5HExcitationWeight.push_back(f5HExcitationWeight.back() + distibWeight);
 }
 //-------------------------------------------------------------------------------------------------
 Bool_t ERDecayEXP1803::Init(){
@@ -86,7 +99,11 @@ Bool_t ERDecayEXP1803::Init(){
     std::cerr  << "-W- ERDecayEXP1803: Particle neutron not found in database!" << endl;
     return kFALSE;
   }
-
+  if (fIs5HUserMassSet) {
+    fUnstableIon5H->SetMass(f5HMass / .931494028);
+  } else {
+    f5HMass = f5H->Mass(); // if user mass is not defined in ERDecayEXP1803::SetH5Mass() than get a GEANT mass
+  }
   return kTRUE;
 }
 //-------------------------------------------------------------------------------------------------
@@ -100,23 +117,41 @@ Bool_t ERDecayEXP1803::Stepping() {
       // 6He + 2H → 3He + 5H
       TLorentzVector lv6He;
       gMC->TrackMomentum(lv6He);
+
       TLorentzVector lv2H(0., 0., 0., f2H->Mass());
       TLorentzVector lvReaction;
       lvReaction = lv6He + lv2H;
+      
+      Int_t decayHappen = kFALSE;
+      // while decay condition is not fullfilled  
+      Double_t decay5HMass;
+      while (!decayHappen) {
+        decay5HMass = f5HMass;
+        Double_t excitation = 0;  // excitation energy
+        if (fIs5HExcitationSet) {
+          Double_t randWeight = gRandom->Uniform(0., f5HExcitationWeight.back());
+          Int_t distribNum = 0;
+          // choose distribution by weight
+          for (; distribNum < f5HExcitationWeight.size(); distribNum++) {
+            if (randWeight < f5HExcitationWeight[distribNum]) {
+              break;
+            }
+          }
+          excitation = gRandom->Gaus(f5HExcitationMean[distribNum], f5HExcitationSigma[distribNum]);
+          fUnstableIon5H->SetExcEnergy(excitation);
+        }
+        decay5HMass += excitation;
 
-      Double_t mass5H = (fIs5HUserMassSet) ? f5HMass : f5H->Mass();
-      LOG(DEBUG) << "Ion H5 mass in reaction " << mass5H << FairLogger::endl;
-
-      Double_t reactMasses[2];
-      reactMasses[0] = f3He->Mass();
-      reactMasses[1] = mass5H;
-
-      fReactionPhaseSpace->SetDecay(lvReaction, 2, reactMasses);
+        Double_t reactMasses[2];
+        reactMasses[0] = f3He->Mass();
+        reactMasses[1] = decay5HMass;
+       
+        decayHappen = fReactionPhaseSpace->SetDecay(lvReaction, 2, reactMasses);
+      }
       fReactionPhaseSpace->Generate();
 
       TLorentzVector *lv3He = fReactionPhaseSpace->GetDecay(0);
       TLorentzVector *lv5H  = fReactionPhaseSpace->GetDecay(1);
-
       //5H → f3H + n +n.
       Double_t decayMasses[3];
       decayMasses[0] = f3H->Mass();
@@ -139,7 +174,7 @@ Bool_t ERDecayEXP1803::Stepping() {
                                  lv5H->Px(),lv5H->Py(),lv5H->Pz(),
                                  lv5H->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, H5TrackNb, mass5H, 0);
+                                 kPDecay, H5TrackNb, decay5HMass, 0);
       gMC->GetStack()->PushTrack(1, He6TrackNb, f3He->PdgCode(),
                                  lv3He->Px(),lv3He->Py(),lv3He->Pz(),
                                  lv3He->E(), curPos.X(), curPos.Y(), curPos.Z(),
@@ -181,7 +216,7 @@ Bool_t ERDecayEXP1803::Stepping() {
   return kTRUE;
 }
 //-------------------------------------------------------------------------------------------------
-void ERDecayEXP1803::BeginEvent() {	
+void ERDecayEXP1803::BeginEvent() { 
   fDecayFinish = kFALSE;
   fTargetReactZ = fRnd->Uniform(-fTargetThickness / 2, fTargetThickness / 2);
   FairRunSim* run = FairRunSim::Instance();
