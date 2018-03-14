@@ -158,14 +158,14 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
   // ------- Decayer --------------------------------------------------------
-  Double_t massH5 = 4.8;  // [GeV]
+  Double_t massH5 = 4.65;  // [GeV]
 
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
   targetDecay->SetTargetVolumeName("tubeH2");
   targetDecay->SetTargetThickness(targetH2Thickness);
-  // targetDecay->SetH5Mass(massH5);
-  targetDecay->SetH5Exitation(0.02, 0.001, 1);
+  targetDecay->SetH5Mass(massH5);
+  // targetDecay->SetH5Exitation(0.02, 0.001, 1);
   // targetDecay->SetH5Exitation(1.2, 0.2355, 1);
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);

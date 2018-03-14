@@ -99,7 +99,11 @@ Bool_t ERDecayEXP1803::Init(){
     std::cerr  << "-W- ERDecayEXP1803: Particle neutron not found in database!" << endl;
     return kFALSE;
   }
-
+  if (fIs5HUserMassSet) {
+    fUnstableIon5H->SetMass(f5HMass / .931494028);
+  } else {
+    f5HMass = f5H->Mass(); // if user mass is not defined in ERDecayEXP1803::SetH5Mass() than get a GEANT mass
+  }
   return kTRUE;
 }
 //-------------------------------------------------------------------------------------------------
@@ -117,13 +121,12 @@ Bool_t ERDecayEXP1803::Stepping() {
       TLorentzVector lv2H(0., 0., 0., f2H->Mass());
       TLorentzVector lvReaction;
       lvReaction = lv6He + lv2H;
-
-      Double_t mass5H = (fIs5HUserMassSet) ? f5HMass : f5H->Mass();  // if user mass is not defined in ERDecayEXP1803::SetH5Mass() than get a GEANT mass
       
       Int_t decayHappen = kFALSE;
       // while decay condition is not fullfilled  
+      Double_t decay5HMass;
       while (!decayHappen) {
-        Double_t decay5HMass = mass5H;
+        decay5HMass = f5HMass;
         Double_t excitation = 0;  // excitation energy
         if (fIs5HExcitationSet) {
           Double_t randWeight = gRandom->Uniform(0., f5HExcitationWeight.back());
@@ -171,7 +174,7 @@ Bool_t ERDecayEXP1803::Stepping() {
                                  lv5H->Px(),lv5H->Py(),lv5H->Pz(),
                                  lv5H->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, H5TrackNb, mass5H, 0);
+                                 kPDecay, H5TrackNb, decay5HMass, 0);
       gMC->GetStack()->PushTrack(1, He6TrackNb, f3He->PdgCode(),
                                  lv3He->Px(),lv3He->Py(),lv3He->Pz(),
                                  lv3He->E(), curPos.X(), curPos.Y(), curPos.Z(),
