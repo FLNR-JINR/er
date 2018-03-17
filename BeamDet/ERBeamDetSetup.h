@@ -38,7 +38,6 @@ public:
   static Double_t WireZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
   static Bool_t   CheckIfTargetIsSet(void) {return fSensitiveTargetIsSet;}
   static Double_t DistanceBetweenMWPC() {return fDistanceBetweenMWPC;}
-  static Double_t DistanceBetweenToF() {return fDistanceBetweenToF;}
   static Double_t TargetR() {return fTargetR;}
   static void     PrintDetectorParameters(void);
   static void     PrintDetectorParametersToFile(TString fileName);
