@@ -12,6 +12,7 @@
 #include "TGraph.h"
 #include "TF1.h"
 #include "TRandom3.h"
+#include "TRandom2.h"
 #include "TGenPhaseSpace.h"
 
 #include "FairIon.h"
@@ -31,7 +32,7 @@ public:
   void SetH5Mass(Double_t mass) {f5HMass = mass; fIs5HUserMassSet = true;}
   void SetH5Exitation(Double_t excMean, Double_t fwhm, Double_t distibWeight);
 
-  void phasegen2(Double_t Ecm, Double_t h5Mass);
+  void PhaseGen2(Double_t Ecm, Double_t h5Mass);
   void ReadADInput(TString ADfile);
 
 public:
@@ -43,6 +44,7 @@ public:
 
 private:
   TRandom3       *fRnd;
+  TRandom3       *fRnd2;
   
   TParticlePDG   *f6He;
   TParticlePDG   *f2H;

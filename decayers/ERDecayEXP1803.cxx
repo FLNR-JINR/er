@@ -39,6 +39,9 @@ ERDecayEXP1803::ERDecayEXP1803():
   fIs5HExcitationSet(false)
 {
   fRnd = new TRandom3();
+  // fRnd->SetSeed();
+  fRnd2 = new TRandom3();
+  fRnd2->SetSeed();
   fReactionPhaseSpace = new TGenPhaseSpace();
   fDecayPhaseSpace = new TGenPhaseSpace();
   FairRunSim* run = FairRunSim::Instance();
@@ -176,7 +179,7 @@ Bool_t ERDecayEXP1803::Stepping() {
           fUnstableIon5H->SetExcEnergy(excitation);
         }
         decay5HMass += excitation;
-        if((ECM - f3He->Mass() - decay5HMass) > 0) { // выход из цикла while для phasegen2
+        if((ECM - f3He->Mass() - decay5HMass) > 0) { // выход из цикла while для PhaseGen2
           decayHappen = kTRUE;
         }
 
@@ -187,15 +190,17 @@ Bool_t ERDecayEXP1803::Stepping() {
          //decayHappen = fReactionPhaseSpace->SetDecay(lvReaction, 2, reactMasses);
 
         //if(decayHappen == kFALSE) cout << " forbidden " << ECM - f3He->Mass() - decay5HMass << endl;  
-  //cout << lv6HeCM(3) << " " << lv2HCM(3) << " " << f3He->Mass() << " " <<  decay5HMass << endl; 
-  cout << lv6He(0) << " " << lv6He(1) << " " << lv6He(2)<< " " <<lv6He(3) << endl;  
+        // cout << lv6HeCM(3) << " " << lv2HCM(3) << " " << f3He->Mass() << " " <<  decay5HMass << endl; 
+        // if (lv6He(3) == 0) {
+          // cout << lv6He(0) << " " << lv6He(1) << " " << lv6He(2)<< " " <<lv6He(3) << endl;  
+        // }
       }
-      cout << " allowed " << ECM - f3He->Mass() - decay5HMass << endl; 
+      // cout << " allowed " << ECM - f3He->Mass() - decay5HMass << endl; 
       // cout << " MASS 5H " <<  decay5HMass << endl; 
       //// TLorentzVector *flv3He;
       //// TLorentzVector *lv5H;
 
-      phasegen2(ECM, decay5HMass);
+      PhaseGen2(ECM, decay5HMass);
       flv5H->Boost(boost);
       flv3He->Boost(boost);
 
@@ -281,13 +286,13 @@ void ERDecayEXP1803::FinishEvent() {
 }
 
 //-------------------------------------------------------------------------------------------------
-void ERDecayEXP1803::phasegen2(Double_t Ecm, Double_t h5Mass) {
+void ERDecayEXP1803::PhaseGen2(Double_t Ecm, Double_t h5Mass) {
   //generate 2 - body decay in phase space approach.
   //Ecm -Total energy in CM
   //No security checks, cause it should be fast!
 
   //todo !!Vratislav: set excited masses should be function
-  //it is the same algorithm for phasegen2 and phasegen3
+  //it is the same algorithm for PhaseGen2 and phasegen3
 
 
   Double_t m1 = h5Mass;
@@ -303,7 +308,7 @@ void ERDecayEXP1803::phasegen2(Double_t Ecm, Double_t h5Mass) {
 
   //Generate angles of particles in CM
 
-   Double_t thetaCM = TMath::ACos(gRandom->Uniform(-1., 1.));
+  Double_t thetaCM = TMath::ACos(fRnd2->Uniform(-1., 1.));
    //Double_t thetaCM = fADFunction->GetRandom(1.,150.)*TMath::DegToRad();
   Double_t phi = gRandom->Uniform(0., 2. * TMath::Pi());
 
