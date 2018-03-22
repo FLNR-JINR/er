@@ -117,7 +117,9 @@ Bool_t ERDecayEXP1803::Stepping() {
       // 6He + 2H → 3He + 5H
       TLorentzVector lv6He;
       gMC->TrackMomentum(lv6He);
-
+      if (lv6He.P() == 0) {
+        return kTRUE;
+      }
       TLorentzVector lv2H(0., 0., 0., f2H->Mass());
       TLorentzVector lvReaction;
       lvReaction = lv6He + lv2H;
