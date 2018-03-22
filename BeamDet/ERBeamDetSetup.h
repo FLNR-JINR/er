@@ -1,10 +1,10 @@
-// -------------------------------------------------------------------------
-
-// -----                        ERBeamDetSetup header file              -----
-
-// -----                              -----
-
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 #ifndef ERBeamDetSETUP_H
 #define ERBeamDetSETUP_H
 
@@ -38,7 +38,6 @@ public:
   static Double_t WireZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
   static Bool_t   CheckIfTargetIsSet(void) {return fSensitiveTargetIsSet;}
   static Double_t DistanceBetweenMWPC() {return fDistanceBetweenMWPC;}
-  static Double_t DistanceBetweenToF() {return fDistanceBetweenToF;}
   static Double_t TargetR() {return fTargetR;}
   static void     PrintDetectorParameters(void);
   static void     PrintDetectorParametersToFile(TString fileName);
@@ -49,8 +48,11 @@ public:
   static void AddMWPC(TString type, Double_t position); 
   static void AddToF(TString type, Double_t position);
 
-  static void GetGeoParamsFromParContainer();
-  static void ConstructGeometry();
+  static Int_t    GetToFCount()  {return fToFCount;}
+  static Double_t GetToFThickness(Int_t tofInd)  {return fPlasticZ[tofInd - 1];}
+  static void     GetGeoParamsFromParContainer();
+  static Double_t GetDistanceBetweenToF(Int_t tof1Ind, Int_t tof2Ind);
+  static void     ConstructGeometry();
   static Int_t    SetParContainers();
 
   static Double_t CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom, Float_t mass);
@@ -72,7 +74,6 @@ private:
   static vector<Double_t> fPlasticY;
   static vector<Double_t> fPlasticZ;
   static vector<TString>  fPlasticMedia;
-  // --------------------------------------------------------------------------
   // ----- MWPC parameters ----------------------------------------------------
   static vector<Double_t> fGasVolX; 
   static vector<Double_t> fGasVolY;
@@ -88,7 +89,6 @@ private:
   static vector<TString>  fCathodeMedia;
   static vector<TString>  fAnodeWireMedia;
   static vector<TString>  fGasMedia;
-  // --------------------------------------------------------------------------
   // ------ fPosition of detector's parts relative to zero ---------------------
   static vector<Double_t> fPositionToF;
   static vector<Double_t> fPositionMWPC;
@@ -99,13 +99,11 @@ private:
   static Double_t fTargetShellThicknessZ;
   static Bool_t   fSensitiveTargetIsSet;
 
-
-  static TString  fParamsXmlFileName;
+  static TString          fParamsXmlFileName;
   static vector<TString>  fToFType;
   static vector<TString>  fMWPCType;
-
+  static Bool_t           fGeoFromContainerIsRead;
   ClassDef(ERBeamDetSetup,1)
-
 };
 #endif
 

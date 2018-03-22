@@ -67,7 +67,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
      fBeamDetMWPCDigiY2->GetEntriesFast() > 1 ) {
     LOG(DEBUG) << "Multiplicity more than one" << FairLogger::endl;
     FairRun* run = FairRun::Instance();
-    run->MarkFill(kFALSE);
+    // run->MarkFill(kFALSE);
     return ;
   }
  
@@ -77,7 +77,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
      fBeamDetMWPCDigiY2->GetEntriesFast() < 1 ) {
     LOG(DEBUG) << "Multiplicity less than one" << FairLogger::endl;
     FairRun* run = FairRun::Instance();
-    run->MarkFill(kFALSE);
+    // run->MarkFill(kFALSE);
     return ;
   }
 

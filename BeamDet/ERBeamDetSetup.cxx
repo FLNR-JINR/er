@@ -1,3 +1,10 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 #include "ERBeamDetSetup.h"
 
 #include <ostream>
@@ -77,6 +84,7 @@ Bool_t   ERBeamDetSetup::fSensitiveTargetIsSet = false;
 TString  ERBeamDetSetup::fParamsXmlFileName = "equip.xml";
 vector<TString>  ERBeamDetSetup::fToFType;
 vector<TString>  ERBeamDetSetup::fMWPCType;
+Bool_t           ERBeamDetSetup::fGeoFromContainerIsRead = kFALSE;
 
 
 
@@ -99,6 +107,9 @@ void ERBeamDetSetup::AddToF(TString type, Double_t position) {
 }
 //-------------------------------------------------------------------------
 void ERBeamDetSetup::GetGeoParamsFromParContainer() {
+  if (fGeoFromContainerIsRead) {
+    return ;
+  }
   // --- Catch absence of TGeoManager
   if ( ! gGeoManager ) {
     std::cerr << "ERBeamDetSetup: cannot initialise without TGeoManager!"<< std::endl;
@@ -157,21 +168,21 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
   cout << "The distance between MWPC stations: " << fDistanceBetweenMWPC << " cm;" << endl;
   //-----------------------------------------------------------------------
   // ---- Getting tofPlastic geometry parameters ---------------------------------
-  TGeoNode* tofPlastic = NULL;
-  Double_t tofPlastic1Pos, tofPlastic2Pos;
-  for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
-    TString name = beamDet->GetDaughter(iNode)->GetName();
-    if ( name.Contains("plastic", TString::kIgnoreCase) ) {
-      tofPlastic = beamDet->GetDaughter(iNode);
-      if (name.EndsWith("1", TString::kIgnoreCase)) {
-        tofPlastic1Pos = tofPlastic->GetMatrix()->GetTranslation()[2];
-      }
-      else {
-        tofPlastic2Pos = tofPlastic->GetMatrix()->GetTranslation()[2];
-      }
-    }
-  }
-  fDistanceBetweenToF = TMath::Abs(tofPlastic1Pos - tofPlastic2Pos);
+  // TGeoNode* tofPlastic = NULL;
+  // Double_t tofPlastic1Pos, tofPlastic2Pos;
+  // for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
+  //   TString name = beamDet->GetDaughter(iNode)->GetName();
+  //   if ( name.Contains("plastic", TString::kIgnoreCase) ) {
+  //     tofPlastic = beamDet->GetDaughter(iNode);
+  //     if (name.EndsWith("1", TString::kIgnoreCase)) {
+  //       tofPlastic1Pos = tofPlastic->GetMatrix()->GetTranslation()[2];
+  //     }
+  //     else {
+  //       tofPlastic2Pos = tofPlastic->GetMatrix()->GetTranslation()[2];
+  //     }
+  //   }
+  // }
+  fDistanceBetweenToF = TMath::Abs(fPositionToF[0] - fPositionToF[1]);
   std::cout<< "The distance between plastics: " << fDistanceBetweenToF << " cm;" << std::endl;
   //-----------------------------------------------------------------------
   // ---- Getting fTarget geometry parameters ------------------------------
@@ -188,6 +199,7 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
       break;
     }
   } 
+  fGeoFromContainerIsRead = kTRUE;  
   std::cout << "ERBeamDetSetup: read parameters from parContainer! "<< std::endl; 
 }
 //--------------------------------------------------------------------------------------------------
@@ -354,6 +366,10 @@ void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
       }
     }
   }
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERBeamDetSetup::GetDistanceBetweenToF(Int_t tof1Ind, Int_t tof2Ind) {
+  return TMath::Abs(fPositionToF[tof1Ind - 1] - fPositionToF[tof2Ind - 1]);
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetSetup::PrintDetectorParameters(void) {
@@ -642,6 +658,13 @@ void ERBeamDetSetup::ConstructGeometry() {
     beamdet->AddNode(MWPC[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionMWPC[i], fGlobalRotation));
   }
   for(Int_t i = 0; i < fToFCount; i++) {
+    if (!i) {
+      beamdet->AddNode(plastic[i], i+1, new TGeoCombiTrans(global_X, 
+                                                           global_Y, 
+                                                           fPositionToF[GetToFCount() - 1] - fPlasticZ[i] / 2, 
+                                                           fGlobalRotation));      
+      continue;
+    }
     beamdet->AddNode(plastic[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionToF[i], fGlobalRotation));
   }
 
