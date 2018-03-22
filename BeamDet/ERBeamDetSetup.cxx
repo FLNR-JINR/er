@@ -168,20 +168,15 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
   cout << "The distance between MWPC stations: " << fDistanceBetweenMWPC << " cm;" << endl;
   //-----------------------------------------------------------------------
   // ---- Getting tofPlastic geometry parameters ---------------------------------
-  // TGeoNode* tofPlastic = NULL;
-  // Double_t tofPlastic1Pos, tofPlastic2Pos;
-  // for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
-  //   TString name = beamDet->GetDaughter(iNode)->GetName();
-  //   if ( name.Contains("plastic", TString::kIgnoreCase) ) {
-  //     tofPlastic = beamDet->GetDaughter(iNode);
-  //     if (name.EndsWith("1", TString::kIgnoreCase)) {
-  //       tofPlastic1Pos = tofPlastic->GetMatrix()->GetTranslation()[2];
-  //     }
-  //     else {
-  //       tofPlastic2Pos = tofPlastic->GetMatrix()->GetTranslation()[2];
-  //     }
-  //   }
-  // }
+  TGeoNode* tofPlastic = NULL;
+  Double_t tofPlastic1Pos, tofPlastic2Pos;
+  for (Int_t iNode = 0; iNode < beamDet->GetNdaughters(); iNode++) {
+    TString name = beamDet->GetDaughter(iNode)->GetName();
+    if ( name.Contains("plastic", TString::kIgnoreCase) ) {
+      tofPlastic = beamDet->GetDaughter(iNode);
+      fPositionToF.push_back(tofPlastic->GetMatrix()->GetTranslation()[2]);
+    }
+  }
   fDistanceBetweenToF = TMath::Abs(fPositionToF[0] - fPositionToF[1]);
   std::cout<< "The distance between plastics: " << fDistanceBetweenToF << " cm;" << std::endl;
   //-----------------------------------------------------------------------
