@@ -294,6 +294,9 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
           fTime -= flightDistance * 1e9 / v;
         }
         AddTOFPoint();
+        if (fMot0TrackID != -1) {
+          gMC->StopTrack();
+        }
       }
       if(volName.Contains("gasStrip")) {
         gMC->CurrentVolOffID(0, fMWPCWireNb);
