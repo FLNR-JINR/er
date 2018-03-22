@@ -152,7 +152,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
         if (!trackFromMWPC) {
           FairRun* run = FairRun::Instance();
-          run->MarkFill(kFALSE);
+          // run->MarkFill(kFALSE);
           return ;
         }
         fTargetX = trackFromMWPC->GetTargetX();
@@ -161,7 +161,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
       }
       if (!fBeamDetTrack) {
         FairRun* run = FairRun::Instance();
-          run->MarkFill(kFALSE);
+          // run->MarkFill(kFALSE);
           return ;
       }
       Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep()) / 2.;

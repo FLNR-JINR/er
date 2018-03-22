@@ -58,7 +58,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   if (!fBeamDetTrack->At(0) || !fBeamDetToFDigi1->At(0) || !fBeamDetToFDigi2->At(0)) {
     LOG(DEBUG)  << "ERBeamDetPID: No track" << FairLogger::endl;
     FairRun* run = FairRun::Instance();
-    run->MarkFill(kFALSE);
+    // run->MarkFill(kFALSE);
     return;
   }
 
