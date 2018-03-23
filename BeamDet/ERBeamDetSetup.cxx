@@ -177,7 +177,8 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
       fPositionToF.push_back(tofPlastic->GetMatrix()->GetTranslation()[2]);
     }
   }
-  fDistanceBetweenToF = TMath::Abs(fPositionToF[0] - fPositionToF[1]);
+  fToFCount = fPositionToF.size();
+  fDistanceBetweenToF = TMath::Abs(fPositionToF[0] - fPositionToF[GetToFCount() - 1]);
   std::cout<< "The distance between plastics: " << fDistanceBetweenToF << " cm;" << std::endl;
   //-----------------------------------------------------------------------
   // ---- Getting fTarget geometry parameters ------------------------------
@@ -364,7 +365,7 @@ void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
 }
 //--------------------------------------------------------------------------------------------------
 Double_t ERBeamDetSetup::GetDistanceBetweenToF(Int_t tof1Ind, Int_t tof2Ind) {
-  return TMath::Abs(fPositionToF[tof1Ind - 1] - fPositionToF[tof2Ind - 1]);
+  return TMath::Abs(fPositionToF[0] - fPositionToF[tof2Ind]);
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetSetup::PrintDetectorParameters(void) {
@@ -509,10 +510,8 @@ void ERBeamDetSetup::ConstructGeometry() {
   geoFace->setMediaFile(medFile);
   geoFace->readMedia();
   gGeoMan = gGeoManager;
-  // --------------------------------------------------------------------------
   // -------   Geometry file name (output)   ----------------------------------
   TString geoFileName = geoPath + "/geometry/beamdet.temp.root";
-  // --------------------------------------------------------------------------
   // -----------------   Get and create the required media    -----------------
   FairGeoMedia*   geoMedia = geoFace->getMedia();
   FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
@@ -527,7 +526,6 @@ void ERBeamDetSetup::ConstructGeometry() {
     pMedPlastic.push_back(gGeoMan->GetMedium(fPlasticMedia[i]));
     if ( ! pMedPlastic[i] ) Fatal("Main", "Medium Plastic not found");
   }
-  // --------------------------------------------------------------------------
   // ----- Create media for MWPC ----------------------------------------------
   vector<FairGeoMedium*> mCF4;  
   vector<TGeoMedium*> pMedCF4;
@@ -562,7 +560,6 @@ void ERBeamDetSetup::ConstructGeometry() {
     pMedAnodeWire.push_back(gGeoMan->GetMedium(fAnodeWireMedia[i]));
     if ( ! pMedAnodeWire[i] ) Fatal("Main", "Medium tungsten not found");
   }
-  // --------------------------------------------------------------------------
   // ------ Create media for Target -------------------------------------------
   FairGeoMedium* mH2 = geoMedia->getMedium("H2");
   if ( ! mH2 ) Fatal("Main", "FairMedium H2 not found");
@@ -575,16 +572,13 @@ void ERBeamDetSetup::ConstructGeometry() {
   geoBuild->createMedium(mSteel);
   TGeoMedium* pSteel = gGeoMan->GetMedium("Steel");
   if ( ! pSteel ) Fatal("Main", "Medium vacuum not found");
-  // --------------------------------------------------------------------------
   // ------ Create vacuum media -----------------------------------------------
   FairGeoMedium* vacuum = geoMedia->getMedium("vacuum");
   if ( ! vacuum ) Fatal("Main", "FairMedium vacuum not found");
   geoBuild->createMedium(vacuum);
   TGeoMedium* pMed0 = gGeoMan->GetMedium("vacuum");
   if ( ! pMed0 ) Fatal("Main", "Medium vacuum not found");
-  // --------------------------------------------------------------------------
   //------------------------- VOLUMES -----------------------------------------
-
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   //gGeoMan->SetName("BeamDetGeom");
@@ -594,7 +588,6 @@ void ERBeamDetSetup::ConstructGeometry() {
   //TGeoVolume* MWPC    = new TGeoVolumeAssembly("MWPC");
   TGeoVolume* target  = new TGeoVolumeAssembly("target");
 
-  // --------------------------------------------------------------------------
   // ---------------- Target --------------------------------------------------
   if (fSensitiveTargetIsSet) {
     Double_t fTargetShellR = fTargetH2R + fTargetShellThicknessSide;
@@ -608,7 +601,6 @@ void ERBeamDetSetup::ConstructGeometry() {
 
     beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fZeroRotation));
   }
-  // --------------------------------------------------------------------------
   // ----------------- MWPC ---------------------------------------------------
   vector<TGeoVolume*> gasVol;
   vector<TGeoVolume*> MWPC;
@@ -627,15 +619,18 @@ void ERBeamDetSetup::ConstructGeometry() {
     anodeWire.push_back(gGeoManager->MakeTube("anodeWire_" + fMWPCType[i], pMedAnodeWire[i], 
                                               0, fAnodeWireDiameter[i] / 2, fGasStripY[i]/2));
   }
-  // --------------------------------------------------------------------------
   // ---------------- ToF -----------------------------------------------------
+
+  TGeoVolume* fictitiousFirstPlastic; // fictitious first plastic for correct data reading from ParContainer
+  fictitiousFirstPlastic = gGeoManager->MakeBox("plastic_Fictitous", pMed0, 
+                                                fPlasticX[0]/2, fPlasticY[0]/2, fPlasticZ[0]/2);
   vector<TGeoVolume*> plastic;
   for(Int_t i = 0; i < fToFCount; i++) {
     plastic.push_back(gGeoManager->MakeBox("plastic_" + fToFType[i], pMedPlastic[i], 
                                            fPlasticX[i]/2, fPlasticY[i]/2, fPlasticZ[i]/2));
   }
-  // --------------------------------------------------------------------------
   //------------------ STRUCTURE  ---------------------------------------------
+  // ----------------- MWPC ---------------------------------------------------
   for(Int_t i = 0; i < fMWPCCount; i++) {
     gasStrip[i]->AddNode(anodeWire[i], 1, new TGeoCombiTrans(0, 0, 0, f90XRotation));
     Int_t gasCount = (fGasVolX[i]/2) / (fGasStripX[i]);
@@ -652,6 +647,8 @@ void ERBeamDetSetup::ConstructGeometry() {
     MWPC[i]->AddNode(gasVol[i], 1, new TGeoCombiTrans(0, 0, 0, fZeroRotation));
     beamdet->AddNode(MWPC[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionMWPC[i], fGlobalRotation));
   }
+  // ---------------- ToF -----------------------------------------------------
+  beamdet->AddNode(fictitiousFirstPlastic, 0, new TGeoCombiTrans(global_X, global_Y, fPositionToF[0], fGlobalRotation));
   for(Int_t i = 0; i < fToFCount; i++) {
     if (!i) {
       beamdet->AddNode(plastic[i], i+1, new TGeoCombiTrans(global_X, 
