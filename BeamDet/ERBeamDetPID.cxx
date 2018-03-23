@@ -101,7 +101,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
     return ;
   }
   LOG(DEBUG) << "Mass " << fIonMass << FairLogger::endl;
-  Double_t distanceBetweenToF = fBeamDetSetup->GetDistanceBetweenToF(1, fBeamDetSetup->GetToFCount());
+  Double_t distanceBetweenToF = fBeamDetSetup->GetDistanceBetweenToF(0, fBeamDetSetup->GetToFCount() - 1);
   beta = distanceBetweenToF * 1e-2 / (ToF * 1e-9) / TMath::C();
   if(beta <= 0 || beta >= 1) {
     LOG(DEBUG) << "Wrong beta " << beta << FairLogger::endl;
