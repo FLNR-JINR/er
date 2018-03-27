@@ -43,25 +43,53 @@ BRANCH_NAME=v-16.06
 
 ```
 # Set the shell variable FAIRROOTPATH to the FairRoot installation directory
-export FAIRROOTPATH=~/fair_install/FairRootInst
+export FAIRROOTPATH=~/fair_install/
+FairRootInst
+```
 
-mkdir ~/expertroot
-cd ~/expertroot
+Далее предполагается, что expertroot будет находиться в папке expertroot в домашней папке пользователя, т.е. в '~/expertroot'.
+
+```
+cd ~
+mkdir expertroot
+cd expertroot
+```
+
+Создайте локальный репозиторий путём клонирования 'центрального' репозитория с github и ОБЯЗАТЕЛЬНО перейдите на требуемую ветку.
+
+```
 git clone https://github.com/ExpertRootGroup/er/ .
 git checkout BRANCH_NAME
+```
+
+Альтернативно, можно воспользоваться командой
+```
+git checkout -b <local_branch_name> <remote_branch_name>
+```
+
+Директория, в которой будет собран expertroot может находиться как внутри репозитория, так и за его пределами.
+Настоятельно рекомендуется использовать второй подход.
+Для этого создайте папку build на одном уровне с папкой expertroot (либо в любом другом месте):
+
+```
+cd ../
 mkdir build
 cd build
+```
+
+```
 cmake ../ -DUSE_DIFFERENT_COMPILER=TRUE
 make
 ```
+
 BRANCH_NAME=master - для установки текущей стабильной версии
+
 BRANCH_NAME=dev - для установки версии разработчиков
 
-
-For using:
+Перед работой с expertroot необходимо объявить специальные переменные окружения. Для этого, находясь в папке, где собран expertroot (т.е. build), выполните следующую команду:
 
 ```
-. ~/expertroot/build/config.sh
+. ./config.sh
 ```
 
-
+Объявленные переммые активны только в текущей сессии терминала.
