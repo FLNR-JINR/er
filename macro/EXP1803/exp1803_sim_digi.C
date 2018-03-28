@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 10000) {
+void exp1803_sim_digi(Int_t nEvents = 50) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -163,7 +163,7 @@ void exp1803_sim_digi(Int_t nEvents = 10000) {
 
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
-  // targetDecay->ReadADInput("/home/muzalevsky/dataMuzalevsky/Cs_6He_d_3He_5H_35-25AMeV.txt");
+  targetDecay->SetAngularDistribution("Cs_6He_d_3He_5H_35-25AMeV.txt");
   targetDecay->SetTargetVolumeName("tubeH2");
   targetDecay->SetTargetThickness(targetH2Thickness);
   targetDecay->SetH5Mass(massH5);

@@ -32,8 +32,13 @@ public:
   void SetH5Mass(Double_t mass) {f5HMass = mass; fIs5HUserMassSet = true;}
   void SetH5Exitation(Double_t excMean, Double_t fwhm, Double_t distibWeight);
 
-  void PhaseGen2(Double_t Ecm, Double_t h5Mass);
-  void ReadADInput(TString ADfile);
+  void PhaseGenerator(Double_t Ecm, Double_t h5Mass);
+
+  
+  /** @brief Sets distribution is contained in file.
+   ** @param ADfile  file with angular distribution.
+  **/  
+  void SetAngularDistribution(TString ADfile);   
 
 public:
   Bool_t Init();
@@ -53,8 +58,8 @@ private:
   TParticlePDG   *f3H;
   TParticlePDG   *fn;
 
-  TLorentzVector *flv3He; //!
-  TLorentzVector *flv5H; //!
+  TLorentzVector *fLv3He; //!
+  TLorentzVector *fLv5H; //!
 
   FairIon        *fIon3He;
   FairIon        *fUnstableIon5H;
@@ -66,6 +71,7 @@ private:
   Double_t         fMinStep;
   Double_t         fTargetThickness;
   Bool_t           fDecayFinish;
+
   std::vector<Double_t> f5HExcitationMean;
   std::vector<Double_t> f5HExcitationSigma; 
   std::vector<Double_t> f5HExcitationWeight;
@@ -74,10 +80,10 @@ private:
   Bool_t          fIs5HUserMassSet;
   Bool_t          fIs5HExcitationSet;
 
-  TString fADFile;     //!   distribution is taken from file containing angular
-  TGraph *fADInput;    //!   distribution (AD) graph containing AD input
-  TF1    *fADFunction; //!   function describing AD of binary reaction
+  TGraph *fADInput;    //!   distribution (angular distribution) graph containing AD input
+  TF1    *fADFunction; //!   function describing AD (angular distribution) of binary reaction
 
+  //ADEvaluate function is necessary for TF1 constructor
   Double_t ADEvaluate(Double_t *x, Double_t *p);
 
   ClassDef(ERDecayEXP1803,1)
