@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 100) {
+void exp1803_sim_digi(Int_t nEvents = 1000) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -94,37 +94,34 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
   setupQTelescope->SetXmlParametersFile(paramFileQTelescope);
   // ----- T1 parameters ----------------------------------------------------
-  TVector3 T1Rotation(0., 0., 0);
+  TVector3 SD1Rotation(0., 27., 0.);
+  TVector3 SD2Rotation(0., -27., 0.);
   Double_t xPos, yPos, zPos;
   TVector3* T1Translation;
   // ----- T1.1--------------------------------------------------------------
-  setupQTelescope->AddSi("DoubleSi_SD1", TVector3( T1Side/2 + T1Aperture/2, 
-                                                   T1Side/2 - T1Aperture/2,  
-                                                   T1PosZ   + T1D1Thick/2), T1Rotation,"X");
-  setupQTelescope->AddSi("DoubleSi_SD2", TVector3( T1Side/2 + T1Aperture/2, 
-                                                   T1Side/2 - T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
-  // ----- T1.2--------------------------------------------------------------
-  setupQTelescope->AddSi("DoubleSi_SD1", TVector3( T1Side/2 - T1Aperture/2, 
-                                                  -T1Side/2 - T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick/2), T1Rotation, "X");
-  setupQTelescope->AddSi("DoubleSi_SD2", TVector3( T1Side/2 - T1Aperture/2, 
-                                                  -T1Side/2 - T1Aperture/2,  
-                                                   T1PosZ   + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
-  // ----- T1.3 -------------------------------------------------------------
-  setupQTelescope->AddSi("DoubleSi_SD1", TVector3(-T1Side/2 - T1Aperture/2, 
-                                                  -T1Side/2 + T1Aperture/2,  
-                                                   T1PosZ   + T1D1Thick/2), T1Rotation, "X");
-  setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 - T1Aperture/2, 
-                                                  -T1Side/2 + T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
-  // ----- T1.4--------------------------------------------------------------
-  setupQTelescope->AddSi("DoubleSi_SD1", TVector3(-T1Side/2 + T1Aperture/2, 
-                                                   T1Side/2 + T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick/2), T1Rotation, "X");
-  setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 + T1Aperture/2, 
-                                                   T1Side/2 + T1Aperture/2,  
-                                                   T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
+  setupQTelescope->AddSi("DoubleSi_SD1", TVector3( 9.07981,0., 17.8201), SD1Rotation,"X");
+  setupQTelescope->AddSi("DoubleSi_SD2", TVector3( -9.07981,0., 17.8201), SD2Rotation,"X");
+  // // ----- T1.2--------------------------------------------------------------
+  // setupQTelescope->AddSi("DoubleSi_SD1", TVector3( T1Side/2 - T1Aperture/2, 
+  //                                                 -T1Side/2 - T1Aperture/2,  
+  //                                                  T1PosZ + T1D1Thick/2), T1Rotation, "X");
+  // setupQTelescope->AddSi("DoubleSi_SD2", TVector3( T1Side/2 - T1Aperture/2, 
+  //                                                 -T1Side/2 - T1Aperture/2,  
+  //                                                  T1PosZ   + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
+  // // ----- T1.3 -------------------------------------------------------------
+  // setupQTelescope->AddSi("DoubleSi_SD1", TVector3(-T1Side/2 - T1Aperture/2, 
+  //                                                 -T1Side/2 + T1Aperture/2,  
+  //                                                  T1PosZ   + T1D1Thick/2), T1Rotation, "X");
+  // setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 - T1Aperture/2, 
+  //                                                 -T1Side/2 + T1Aperture/2,  
+  //                                                  T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
+  // // ----- T1.4--------------------------------------------------------------
+  // setupQTelescope->AddSi("DoubleSi_SD1", TVector3(-T1Side/2 + T1Aperture/2, 
+  //                                                  T1Side/2 + T1Aperture/2,  
+  //                                                  T1PosZ + T1D1Thick/2), T1Rotation, "X");
+  // setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 + T1Aperture/2, 
+  //                                                  T1Side/2 + T1Aperture/2,  
+  //                                                  T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
 
   // ----- D1 parameters ----------------------------------------------------
   TVector3* D1Rotation = new TVector3(0., 5., 0);
@@ -152,24 +149,27 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   generator->SetKinE(kin_energy);
   generator->SetPSigmaOverP(0);
   Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
+  // generator->SetKinERange(0,kin_energy);
   generator->SetThetaSigma(0, 0);
- // generator->SetThetaRange(0., 5.);
- // generator->SetPhiRange(0, 360);
+  generator->SetPhiRange(0, 360);
   generator->SetBoxXYZ(0, 0, 0, 0, beamStartPosition);
   generator->SpreadingOnTarget(); 
 
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
+
   // ------- Decayer --------------------------------------------------------
-  Double_t massH5 = 4.65;  // [GeV]
+  Double_t massH5 = 4.69036244;  // [GeV]
 
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
+  targetDecay->SetAngularDistribution("Cs_6He_d_3He_5H_35-25AMeV.txt");
   targetDecay->SetTargetVolumeName("tubeH2");
   targetDecay->SetTargetThickness(targetH2Thickness);
   targetDecay->SetH5Mass(massH5);
-  // targetDecay->SetH5Exitation(0.02, 0.001, 1);
-  // targetDecay->SetH5Exitation(1.2, 0.2355, 1);
+  targetDecay->SetH5Exitation(0.0004, 0.00002355, 1);
+  targetDecay->SetH5Exitation(0.0012, 0.0002355, 1);
+
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);
 
@@ -196,7 +196,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   // beamDetDigitizer->SetToFElossThreshold(0.006);
   // beamDetDigitizer->SetToFElossSigmaOverEloss(0);
   // beamDetDigitizer->SetToFTimeSigma(1e-10);
-  run->AddTask(beamDetDigitizer);
+  run->AddTask(beamDetDigitizer); 
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
   //-------Set LOG verbosity  ----------------------------------------------- 
