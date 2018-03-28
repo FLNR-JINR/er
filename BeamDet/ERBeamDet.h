@@ -160,6 +160,7 @@ class ERBeamDet : public ERDetector
     TString           fIonName;
     Int_t             fIonPID;
     Bool_t            fIonPIDIsSet;
+    Double_t          fDistanceBetweenToFs;
 
 
     ClassDef(ERBeamDet,1);
