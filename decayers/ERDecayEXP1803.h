@@ -32,6 +32,10 @@ public:
   void SetH5Mass(Double_t mass) {f5HMass = mass; fIs5HUserMassSet = true;}
   void SetH5Exitation(Double_t excMean, Double_t fwhm, Double_t distibWeight);
 
+  /** @brief Body decay in phase space approach.
+   ** @param Ecm     Total energy in CM.
+   ** @oaram h5Mass  H5 ion mass.
+  **/
   void PhaseGenerator(Double_t Ecm, Double_t h5Mass);
 
   

@@ -135,7 +135,7 @@ Bool_t ERDecayEXP1803::Stepping() {
       TLorentzVector lv6He;
       gMC->TrackMomentum(lv6He);
 
-      if (lv6He.P() == 0) { // temporary fix of bug with zero linetic energy
+      if (lv6He.P() == 0) { // temporary fix of bug with zero kinetic energy
         return kTRUE;
       }
 
@@ -257,26 +257,18 @@ void ERDecayEXP1803::FinishEvent() {
 
 //-------------------------------------------------------------------------------------------------
 void ERDecayEXP1803::PhaseGenerator(Double_t Ecm, Double_t h5Mass) {
-  //generate 2 - body decay in phase space approach.
-  //Ecm -Total energy in CM
-  //No security checks, cause it should be fast!
-
-  //todo !!Vratislav: set excited masses should be function
-  //it is the same algorithm for PhaseGenerator and phasegen3
   Double_t m1 = h5Mass;
   Double_t m2 = f3He->Mass();
 
-  // Energy of 1-st particle in cm:
-  //TODO Vratislav: check this statement
-  //is it true also for binary reaction?
+  // Energy of 1-st particle in cm.
+  //total energy of the first particle is calculated as
   Double_t E1 = 0.5 * (Ecm * Ecm + m1 * m1 - m2 * m2) / Ecm;
 
   //Impulse in CM
   Double_t Pcm = TMath::Sqrt(E1 * E1 - m1 * m1);
 
-  //Generate angles of particles in CM
 
-  // Double_t thetaCM = TMath::ACos(fRnd2->Uniform(-1., 1.));
+  //Generate angles of particles in CM
   Double_t thetaCM = fADFunction->GetRandom(1., fADInput->GetN()-1)*TMath::DegToRad();
   Double_t phi = gRandom->Uniform(0., 2. * TMath::Pi());
 

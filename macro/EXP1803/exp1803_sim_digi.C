@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 50) {
+void exp1803_sim_digi(Int_t nEvents = 1000) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -15,7 +15,7 @@ void exp1803_sim_digi(Int_t nEvents = 50) {
   Double_t BeamDetLMWPC = 32.;     // [cm]
   Double_t BeamDetPosZMWPC = -8;  // [cm]  
   // --------------- Beam start position ------------------------------------
-  Double_t beamStartPosition = -4;  // [cm]
+  Double_t beamStartPosition = -1600;  // [cm]
   // --------------- Target -------------------------------------------------
   Double_t targetH2Thickness = 0.4;  // [cm] this parameter should coincide with target H2 thickness in /macro/geo/create_target_h2_geo.C
   //---------------------Files-----------------------------------------------
@@ -167,8 +167,8 @@ void exp1803_sim_digi(Int_t nEvents = 50) {
   targetDecay->SetTargetVolumeName("tubeH2");
   targetDecay->SetTargetThickness(targetH2Thickness);
   targetDecay->SetH5Mass(massH5);
-  //targetDecay->SetH5Exitation(0.0004, 0.00002355, 1);
-  //targetDecay->SetH5Exitation(0.0012, 0.0002355, 1);
+  targetDecay->SetH5Exitation(0.0004, 0.00002355, 1);
+  targetDecay->SetH5Exitation(0.0012, 0.0002355, 1);
 
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);
@@ -196,27 +196,7 @@ void exp1803_sim_digi(Int_t nEvents = 50) {
   // beamDetDigitizer->SetToFElossThreshold(0.006);
   // beamDetDigitizer->SetToFElossSigmaOverEloss(0);
   // beamDetDigitizer->SetToFTimeSigma(1e-10);
-  run->AddTask(beamDetDigitizer);
-  // // ------- BeamDet TrackFinder -------------------------------------------
-  // ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
-  // run->AddTask(trackFinder);
-  // // -----------------------BeamDetTrackPID----------------------------------
-  // ERBeamDetPID* pid = new ERBeamDetPID(verbose);
-  // pid->SetIonMassNumber(A);
-  // pid->SetBoxPID(0., 1000., 0., 1000.);
-  // pid->SetOffsetToF(0.);
-  // pid->SetProbabilityThreshold(0);
-  // run->AddTask(pid);  
-  // // ------- QTelescope TrackFinder -------------------------------------------
-  // ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
-  // qtelescopeTrackFinder->SetHitStation("DoubleSi_SD2_XY_1");
-  // qtelescopeTrackFinder->SetHitStation("DoubleSi_SD2_XY_3");
-  // qtelescopeTrackFinder->SetStripEdepRange(0., 100.);          // [GeV]
-  // qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
-  // // qtelescopeTrackFinder->SetStripEdepRange(0.0097, 100.);   // [GeV]
-  // // qtelescopeTrackFinder->SetEdepDiffXY(5.);                 // [GeV]
-  // qtelescopeTrackFinder->SetEdepMaxDiffXY(0.5); 
-  // run->AddTask(qtelescopeTrackFinder); 
+  run->AddTask(beamDetDigitizer); 
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
   //-------Set LOG verbosity  ----------------------------------------------- 
