@@ -43,25 +43,69 @@ BRANCH_NAME=v-16.06
 
 ```
 # Set the shell variable FAIRROOTPATH to the FairRoot installation directory
-export FAIRROOTPATH=~/fair_install/FairRootInst
+export FAIRROOTPATH=~/fair_install/
+FairRootInst
+```
 
-mkdir ~/expertroot
-cd ~/expertroot
+Далее предполагается, что expertroot будет находиться в папке expertroot в домашней папке пользователя, т.е. в '~/expertroot'.
+
+```
+cd ~
+mkdir expertroot
+cd expertroot
+```
+
+Создайте локальный репозиторий путём клонирования 'центрального' репозитория с github и ОБЯЗАТЕЛЬНО перейдите на требуемую ветку.
+
+```
 git clone https://github.com/ExpertRootGroup/er/ .
 git checkout BRANCH_NAME
-mkdir build
-cd build
-cmake ../ -DUSE_DIFFERENT_COMPILER=TRUE
-make
 ```
+
+Альтернативно, можно воспользоваться командой:
+
+```
+git checkout -b <local_branch_name> <remote_branch_name>
+```
+
 BRANCH_NAME=master - для установки текущей стабильной версии
+
 BRANCH_NAME=dev - для установки версии разработчиков
 
-
-For using:
+Для того чтобы получить полный список веток, воспользуйтесь командой:
 
 ```
-. ~/expertroot/build/config.sh
+git branch --all
 ```
 
+Директория, в которой будет собран expertroot может находиться как внутри репозитория, так и за его пределами.
+Настоятельно рекомендуется использовать второй подход.
+Для этого создайте папку build на одном уровне с папкой expertroot (либо в любом другом месте):
 
+```
+cd ../
+mkdir build
+cd build
+```
+
+Чтобы собрать expertroot необходимо сначала сгенерировать исходники с помощью cmake, а затем выполнить компиляцию с помощью make.
+
+```
+cmake ../
+make
+```
+
+При выполнении cmake возможно появление ошибки, в которой говорится о несоответствии компиляторов.
+В таком случае рекомендуется явно указывать компилятор, а не использовать флаг -DUSE_DIFFERENT_COMPILER.
+
+```
+cmake ../ -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+```
+
+Перед работой с expertroot необходимо объявить специальные переменные окружения. Для этого, находясь в папке, где собран expertroot (т.е. build), выполните следующую команду:
+
+```
+. ./config.sh
+```
+
+Объявленные переммые активны только в текущей сессии терминала.
