@@ -36,7 +36,9 @@ ERDecayEXP1803::ERDecayEXP1803():
   fIon3He(NULL),
   f5HMass(0.),
   fIs5HUserMassSet(false),
-  fIs5HExcitationSet(false)
+  fIs5HExcitationSet(false),
+  fADInput(NULL),
+  fADFunction(NULL)
 {
   fRnd = new TRandom3();
   // fRnd->SetSeed();
@@ -49,9 +51,6 @@ ERDecayEXP1803::ERDecayEXP1803():
   fIon3He        = new FairIon("3He", 2, 3, 2);
   run->AddNewIon(fUnstableIon5H);
   run->AddNewIon(fIon3He);
-
-  fADInput = NULL;
-  fADFunction = NULL;
 
   fLv5H = new TLorentzVector();
   fLv3He = new TLorentzVector();
@@ -267,9 +266,14 @@ void ERDecayEXP1803::PhaseGenerator(Double_t Ecm, Double_t h5Mass) {
   //Impulse in CM
   Double_t Pcm = TMath::Sqrt(E1 * E1 - m1 * m1);
 
-
   //Generate angles of particles in CM
-  Double_t thetaCM = fADFunction->GetRandom(1., fADInput->GetN()-1)*TMath::DegToRad();
+  Double_t thetaCM;
+  if(fADInput == NULL) { // if file with angular distribution isn't setted than isotropic distribution is generated
+    thetaCM = TMath::ACos(gRandom->Uniform(-1, 1));
+  }
+  else { 
+    thetaCM = fADFunction->GetRandom(1., fADInput->GetN()-1)*TMath::DegToRad();
+  }
   Double_t phi = gRandom->Uniform(0., 2. * TMath::Pi());
 
   TVector3 Pcmv;
