@@ -138,7 +138,7 @@ Bool_t ERElasticScattering::Stepping() {
       Float_t theta = ThetaGen();
       Float_t phi = fRnd->Uniform(fPhi1*DegToRad(),fPhi2*DegToRad());
 
-      LOG(INFO) << "  Theta = " << theta*RadToDeg() << ", phi = " << phi*RadToDeg() << FairLogger::endl;
+      LOG(INFO) << "  CM Theta = " << theta*RadToDeg() << ", phi = " << phi*RadToDeg() << FairLogger::endl;
 
       TLorentzVector out1V (Pcm*sin(theta)*cos(phi),
                             Pcm*sin(theta)*sin(phi),
@@ -157,8 +157,13 @@ Bool_t ERElasticScattering::Stepping() {
       LOG(INFO) << "  Boosting with beta = " << fInputIonV.Beta() 
                 << ", gamma = " << fInputIonV.Gamma() << FairLogger::endl;
 
-      out1V.Boost(fInputIonV.BoostVector());
-      out2V.Boost(fInputIonV.BoostVector());
+      TLorentzVector targetV(0,0,0,tM);
+      TLorentzVector cmV = targetV + fInputIonV;
+
+      out1V.Boost(cmV.BoostVector());
+      out2V.Boost(cmV.BoostVector());
+
+      LOG(INFO) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl; 
       
       AddParticleToStack(fInputIonPDG->PdgCode(),curPos,out1V);
       AddParticleToStack(fTargetIonPDG->PdgCode(),curPos,out2V);

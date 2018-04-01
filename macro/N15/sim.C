@@ -66,7 +66,7 @@ void sim(Int_t nEvents = 1000){
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11");
 
-  scattering->SetThetaRange(5., 20.);
+  scattering->SetThetaRange(10.9, 10.9);
   scattering->SetPhiRange(160., 200.);
 
 
@@ -93,14 +93,14 @@ void sim(Int_t nEvents = 1000){
 
   Double32_t theta = 0;
   Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
-  generator->SetThetaSigma(theta, sigmaTheta);
+  generator->SetThetaSigma(theta, 0);
   
   generator->SetPhiRange(0, 360);
 
   Double32_t distanceToTarget = 200;
   Double32_t sigmaOnTarget = 0.5;
   generator->SetSigmaXYZ(0, 0, -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
-  generator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -distanceToTarget);
+  generator->SetBoxXYZ(0,0,0,0, -distanceToTarget);
 
   //generator->AddBackgroundIon("26P", 15, 26, 15, 0.25);
   //generator->AddBackgroundIon("26S", 16, 26, 16, 0.25);
