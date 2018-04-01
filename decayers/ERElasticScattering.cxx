@@ -9,11 +9,13 @@
 #include "ERElasticScattering.h"
 
 #include <iostream>
+#include <fstream>
 
 #include "TVirtualMC.h"
 #include "TLorentzVector.h"
 #include "TMCProcess.h"
 #include "TMath.h"
+#include "TVectorD.h"
 
 #include "FairRunSim.h"
 #include "FairLogger.h"
@@ -24,6 +26,18 @@
 using namespace std;
 using namespace TMath;
 
+//-------------------------------------------------------------------------------------------------
+TGraph* thetaCDFGr = NULL, *thetaInvCDFGr = NULL;
+Double_t ThetaCDF(Double_t *x, Double_t *par)
+{
+  return thetaCDFGr->Eval(x[0]);
+}
+
+Double_t ThetaInvCDF(Double_t *x, Double_t *par)
+{
+  return thetaInvCDFGr->Eval(x[0]);
+}
+//-------------------------------------------------------------------------------------------------
 ERElasticScattering::ERElasticScattering(TString name):
   ERDecay(name),
   fThetaFileName(""),
@@ -32,7 +46,10 @@ ERElasticScattering::ERElasticScattering(TString name):
   fPhi1(0),
   fPhi2(360.),
   fTargetIonName(""),
-  fTargetIonPDG(NULL)
+  fTargetIonPDG(NULL),
+  fThetaInvCDF(NULL),
+  fCDFmin(0.),
+  fCDFmax(1.)
 {
 }
 //-------------------------------------------------------------------------------------------------
@@ -54,6 +71,38 @@ Bool_t ERElasticScattering::Init(){
   if ( ! fTargetIonPDG ) {
     LOG(FATAL) << "Target ion not found in pdg database!" << endl;
     return kFALSE;
+  }
+
+  if (fThetaFileName != ""){
+    LOG(INFO) << "ElasticScattering " << fName << " initialize from theta distribution file" << FairLogger::endl;   
+    
+    TString path = TString(gSystem->Getenv("VMCWORKDIR")) + "/input/" + fThetaFileName;
+    ifstream f;
+    f.open(path.Data());
+    if (!f.is_open()){
+      LOG(FATAL) << "Can`t open file " << path << endl;
+      return kFALSE;  
+    }
+
+    Int_t nPoints = std::count(std::istreambuf_iterator<char>(f), 
+                               std::istreambuf_iterator<char>(), '\n');
+    f.seekg(0, ios::beg);
+    TVectorD tet(nPoints);
+    TVectorD sigma(nPoints);
+    
+    Int_t i = 0;
+    while(!f.eof()){
+      f >> tet(i) >> sigma(i++);
+    }
+
+    thetaCDFGr = new TGraph(tet,sigma);
+    thetaInvCDFGr = new TGraph(sigma,tet);
+
+    TF1* thetaCDF = new TF1("thetaCDF",ThetaCDF, 0.,180.,0);
+    fThetaInvCDF = new TF1("thetaInvCDF",ThetaInvCDF, 0.,1.,0);
+
+    fCDFmin = thetaCDF->Eval(fTheta1);
+    fCDFmax = thetaCDF->Eval(fTheta2);
   }
 
   return kTRUE;
@@ -89,7 +138,7 @@ Bool_t ERElasticScattering::Stepping() {
       Float_t theta = ThetaGen();
       Float_t phi = fRnd->Uniform(fPhi1*DegToRad(),fPhi2*DegToRad());
 
-      LOG(INFO) << "  Theta = : " << theta*RadToDeg() << ", phi = " << phi*RadToDeg() << FairLogger::endl;
+      LOG(INFO) << "  Theta = " << theta*RadToDeg() << ", phi = " << phi*RadToDeg() << FairLogger::endl;
 
       TLorentzVector out1V (Pcm*sin(theta)*cos(phi),
                             Pcm*sin(theta)*sin(phi),
@@ -100,10 +149,10 @@ Bool_t ERElasticScattering::Stepping() {
                              -out1V.Pz(),
                               sqrt(pow(Pcm,2) + tM2));
 
-      LOG(INFO) << "  CM out1 state(px,py,pz,E) = : "<<out1V.Px()<<","<<out1V.Py()<<","<<out1V.Pz()
-                << out1V.E() <<  FairLogger::endl;
-      LOG(INFO) << "  CM out2 state(px,py,pz,E) = : "<<out2V.Px()<<","<<out2V.Py()<<","<<out2V.Pz()
-                << out2V.E() <<  FairLogger::endl;
+      LOG(INFO) << "  CM out1 state(px,py,pz,E) = "<<out1V.Px()<<","<<out1V.Py()<<","<<out1V.Pz()
+                << "," << out1V.E() <<  FairLogger::endl;
+      LOG(INFO) << "  CM out2 state(px,py,pz,E) = "<<out2V.Px()<<","<<out2V.Py()<<","<<out2V.Pz()
+                << "," << out2V.E() <<  FairLogger::endl;
 
       LOG(INFO) << "  Boosting with beta = " << fInputIonV.Beta() 
                 << ", gamma = " << fInputIonV.Gamma() << FairLogger::endl;
@@ -125,7 +174,13 @@ Bool_t ERElasticScattering::Stepping() {
 
 Float_t ERElasticScattering::ThetaGen(){
 
-  Float_t theta = acos(fRnd->Uniform(cos(fTheta1*DegToRad()),cos(fTheta2*DegToRad())));
+  Float_t theta = 0.;
+
+  if (fThetaFileName == "")
+    theta = acos(fRnd->Uniform(cos(fTheta1*DegToRad()),cos(fTheta2*DegToRad())));
+  else{
+    theta = fThetaInvCDF->Eval(fRnd->Uniform(fCDFmin,fCDFmax))*DegToRad();
+  }
 
   return theta;
 }

@@ -12,6 +12,8 @@
 #include "TRandom3.h"
 #include "TString.h"
 #include "TParticlePDG.h"
+#include "TF1.h"
+#include "TGraph.h"
 
 #include "FairIon.h"
 
@@ -38,10 +40,13 @@ private:
   TString        fThetaFileName;
   Float_t        fTargetMass;
   Float_t        fTheta1,fTheta2;
+  Float_t        fCDFmin,fCDFmax;
   Float_t        fPhi1, fPhi2;
 
   TString       fTargetIonName;
   TParticlePDG* fTargetIonPDG;
+
+  TF1* fThetaInvCDF;
 
   Float_t ThetaGen();
 

@@ -60,6 +60,8 @@ void sim(Int_t nEvents = 1000){
   scattering->SetInputIon(Z,A,Q);
   scattering->SetTargetIon(5,11,5);
 
+  scattering->SetThetaCDF("cos_tetta_cross_11_180.txt");
+
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11");
