@@ -48,30 +48,29 @@ void sim(Int_t nEvents = 1000){
   detector->AddSensetive("plastic");
   run->AddModule(detector);
   
-  ERDetector* detector1= new ERDetector("TestDetector2", kTRUE,verbose);
-  detector1->SetGeometryFileName("N15.base.geo_2.root");
-  detector1->AddSensetive("gas1");
-  detector1->AddSensetive("plastic1");
-  run->AddModule(detector1);
-  
-  ERDetector* detector2= new ERDetector("TestDetector3", kTRUE,verbose);
-  detector2->SetGeometryFileName("N15.base.geo_4.root");
-  detector2->AddSensetive("gas2");
-  detector2->AddSensetive("plastic2");
-  run->AddModule(detector2);
-  
   //------    ER Decayer   -------------------------------------------------
+  //Ion 15N
+  Int_t A = 15;
+  Int_t Z = 7;
+  Int_t Q = 3;
+
   ERDecayer* decayer = new ERDecayer();
-  ERTextDecay* decay = new ERTextDecay("15Nto15N11B");
-  decay->SetInputIon(7,15,7);
-  decay->AddOutputIon(7,15,7);
-  decay->AddOutputIon(5,11,5);
-  decay->SetUniformPos(-0.00035,0.00035);
-  decay->SetStep(0.00001); //0.1 micron
-  decay->SetFileName("CMom_B11_N15.txt");
-  decay->SetDecayVolume("targetB11");
-  decay->SetTargetReactionMass(16*0.94);
-  decayer->AddDecay(decay);
+  ERElasticScattering* scattering = new ERElasticScattering("15Nto15N11B");
+  
+  scattering->SetInputIon(Z,A,Q);
+  scattering->SetTargetIon(5,11,5);
+
+  scattering->SetUniformPos(-0.00035,0.00035);
+  scattering->SetStep(0.00001); //0.1 micron
+  scattering->SetDecayVolume("targetB11");
+
+  scattering->SetThetaRange(5., 20.);
+  scattering->SetPhiRange(160., 200.);
+
+
+  //decay->SetFileName("CMom_B11_N15.txt");
+
+  decayer->AddDecay(scattering);
   run->SetDecayer(decayer);
   //-------------------------------------------------------------------------
  // FairModule* target = new ERTarget("BeamDetTarget", kTRUE, 1);
@@ -81,11 +80,6 @@ void sim(Int_t nEvents = 1000){
   //--------------------------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  
-  //Ion 15N
-  Int_t A = 15;
-  Int_t Z = 7;
-  Int_t Q = 3;
 
   ERIonMixGenerator* generator = new ERIonMixGenerator("15N", Z, A, Q, 1);
   Double32_t kin_energy = 0.043; //GeV
