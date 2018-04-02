@@ -43,9 +43,9 @@ void sim(Int_t nEvents = 1000){
   Int_t verbose = 0;
 
   ERDetector* detector= new ERDetector("TestDetector1", kTRUE,verbose);
-  detector->SetGeometryFileName("N15.base.geo.root");
-  detector->AddSensetive("gas");
-  detector->AddSensetive("plastic");
+  detector->SetGeometryFileName("N15.base.geo_1.root");
+  detector->AddSensetive("gas1");
+  detector->AddSensetive("plastic1");
   run->AddModule(detector);
   
   //------    ER Decayer   -------------------------------------------------
@@ -60,26 +60,17 @@ void sim(Int_t nEvents = 1000){
   scattering->SetInputIon(Z,A,Q);
   scattering->SetTargetIon(5,11,5);
 
-  scattering->SetThetaCDF("cos_tetta_cross_11_180.txt");
+  scattering->SetThetaCDF("cos_tetta_cross.txt");
 
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11");
 
-  scattering->SetThetaRange(24, 24);
+  scattering->SetThetaRange(23, 25);
   scattering->SetPhiRange(0, 0);
-
-
-  //decay->SetFileName("CMom_B11_N15.txt");
 
   decayer->AddDecay(scattering);
   run->SetDecayer(decayer);
-  //-------------------------------------------------------------------------
- // FairModule* target = new ERTarget("BeamDetTarget", kTRUE, 1);
-  //target->SetGeometryFileName("target.h.geo.root");
-  //run->AddModule(target);
-  // 
-  //--------------------------------------------------------
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
@@ -87,7 +78,7 @@ void sim(Int_t nEvents = 1000){
   Double32_t kin_energy = 0.043; //GeV
   //generator->SetKinESigma(kin_energy, 0);
   //generator->SetPSigma(6.7835, 6.7835*0.003);
-   generator->SetKinESigma(kin_energy, 0);
+  generator->SetKinESigma(kin_energy, 0);
 
   generator->SpreadingOnTarget();
 
@@ -123,8 +114,8 @@ void sim(Int_t nEvents = 1000){
   boxGen->SetXYZ(0.,0., -100.);
 
   primGen->AddGenerator(boxGen);
-*/  
-run->SetGenerator(primGen);
+  */  
+  run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
@@ -144,17 +135,17 @@ run->SetGenerator(primGen);
   rtdb->saveOutput(); 
   rtdb->print(); // 
   // -----   Run simulation  ------------------------------------------------
-    run->Run(nEvents);
+  run->Run(nEvents);
 
-    // -----   Finish   -------------------------------------------------------
-    timer.Stop();
-    Double_t rtime = timer.RealTime();
-    Double_t ctime = timer.CpuTime();
-    cout << endl << endl;
-    cout << "Macro finished succesfully." << endl;
-    cout << "Output file is sim.root" << endl;
-    cout << "Parameter file is par.root" << endl;
-    cout << "Real time " << rtime << " s, CPU time " << ctime
-                    << "s" << endl << endl;
-   // cout << "Energy " << momentum << "; mass " << mass << endl; 
+  // -----   Finish   -------------------------------------------------------
+  timer.Stop();
+  Double_t rtime = timer.RealTime();
+  Double_t ctime = timer.CpuTime();
+  cout << endl << endl;
+  cout << "Macro finished succesfully." << endl;
+  cout << "Output file is sim.root" << endl;
+  cout << "Parameter file is par.root" << endl;
+  cout << "Real time " << rtime << " s, CPU time " << ctime
+                  << "s" << endl << endl;
+  // cout << "Energy " << momentum << "; mass " << mass << endl; 
 }
