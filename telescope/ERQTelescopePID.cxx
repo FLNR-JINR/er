@@ -100,11 +100,30 @@ void ERQTelescopePID::Exec(Option_t* opt) {
       for (const auto itParticesBranches : fQTelescopeParticle[itTrackBranches.first]){
 
         Int_t pdg = itParticesBranches.first;
-
-
         Double_t deadEloss = CalcEloss(itTrackBranches.first,track, pdg);
 
-        AddParticle(deadEloss,itParticesBranches.second);
+        //mass 
+        G4IonTable* ionTable = G4IonTable::GetIonTable();
+        G4ParticleDefinition* ion =  ionTable->GetIon(pdg);
+        Float_t mass = ion->GetPDGMass()/1000.; //GeV
+
+        //LotentzVector on telescope
+        Double_t T = track->GetSumEdep();
+        Double_t P = sqrt(pow(T,2) + 2*mass*T);
+        TVector3 direction = track->GetTelescopeVertex()-track->GetTargetVertex();
+        TLorentzVector lvTelescope (P*sin(direction.Theta())*cos(direction.Phi()),
+                                    P*sin(direction.Theta())*sin(direction.Phi()),
+                                    P*cos(direction.Theta()),
+                                    sqrt(pow(P,2)+pow(mass,2)));
+        //LorentVector on target
+        T -= deadEloss;
+        P = sqrt(pow(T,2) + 2*mass*T);
+        TLorentzVector lvTarget (P*sin(direction.Theta())*cos(direction.Phi()),
+                                    P*sin(direction.Theta())*sin(direction.Phi()),
+                                    P*cos(direction.Theta()),
+                                    sqrt(pow(P,2)+pow(mass,2)));
+
+        AddParticle(lvTelescope, lvTarget, deadEloss,itParticesBranches.second);
 
       }
 
@@ -126,11 +145,11 @@ void ERQTelescopePID::Reset() {
 void ERQTelescopePID::Finish() {   
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeParticle* ERQTelescopePID::AddParticle(Double_t deadEloss, TClonesArray* col) 
+ERQTelescopeParticle* ERQTelescopePID::AddParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget, Double_t deadEloss, TClonesArray* col) 
 {
   ERQTelescopeParticle *particle = new((*col)
                                         [col->GetEntriesFast()])
-                                        ERQTelescopeParticle(deadEloss);
+                                        ERQTelescopeParticle(lvTelescope,lvTarget,deadEloss);
   return particle;
 }
 //------------------------------------------------------------------------------------s--------------

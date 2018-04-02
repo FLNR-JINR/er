@@ -79,7 +79,8 @@ private:
   virtual void SetParContainers();
 
   /** @brief Adds a ERQTelescopeParticles to the output Collection **/
-  ERQTelescopeParticle* AddParticle(Double_t deadEloss, TClonesArray* col);
+  ERQTelescopeParticle* AddParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget, 
+                                      Double_t deadEloss, TClonesArray* col);
 
   ClassDef(ERQTelescopePID,1)
 };

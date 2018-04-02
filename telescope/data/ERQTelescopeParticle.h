@@ -9,6 +9,7 @@
 #define ERQTelescopeParticle_H
 
 #include "TNamed.h"
+#include "TLorentzVector.h"
 
 /** @class ERQTelescopeParticle
  ** @brief 
@@ -25,9 +26,11 @@ public:
   /** @brief Constructor 
    ** @param deadEloss - eloss in passive detector volumes;
   **/
-  ERQTelescopeParticle(Double_t deadEloss);
+  ERQTelescopeParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget,Double_t deadEloss);
 
 private:
+  TLorentzVector fLVTarget;
+  TLorentzVector fLVTelescope;
   Double_t  fDeadEloss;
 
   ClassDef(ERQTelescopeParticle, 1)
