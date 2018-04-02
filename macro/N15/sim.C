@@ -1,4 +1,5 @@
-void sim(Int_t nEvents = 1000){
+void sim(Int_t nEvents = 1000)
+{
   //---------------------Files-----------------------------------------------
   TString outFile= "sim.root";
   TString parFile= "par.root";
@@ -16,17 +17,21 @@ void sim(Int_t nEvents = 1000){
   **/
   run->SetName("TGeant4");              // Transport engine
   run->SetOutputFile(outFile.Data());          // Output file
+
   // ------------------------------------------------------------------------
   // -----   Runtime database   ---------------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   // ------------------------------------------------------------------------
+
   // -----   Create media   -------------------------------------------------
   run->SetMaterials("N15.media.geo");       // Materials
   // ------------------------------------------------------------------------
+
   //-------- Set MC event header --------------------------------------------
   ERDecayMCEventHeader* header = new ERDecayMCEventHeader();
   run->SetMCEventHeader(header);
   //-------------------------------------------------------------------------
+
   // -----   Create detectors  ----------------------------------------------
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
@@ -59,18 +64,16 @@ void sim(Int_t nEvents = 1000){
   
   scattering->SetInputIon(Z,A,Q);
   scattering->SetTargetIon(5,11,5);
-
   scattering->SetThetaCDF("cos_tetta_cross.txt");
-
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11");
-
   scattering->SetThetaRange(23, 25);
   scattering->SetPhiRange(0, 0);
 
   decayer->AddDecay(scattering);
   run->SetDecayer(decayer);
+
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
@@ -79,13 +82,11 @@ void sim(Int_t nEvents = 1000){
   //generator->SetKinESigma(kin_energy, 0);
   //generator->SetPSigma(6.7835, 6.7835*0.003);
   generator->SetKinESigma(kin_energy, 0);
-
   generator->SpreadingOnTarget();
 
   Double32_t theta = 0;
   Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
   generator->SetThetaSigma(theta, 0);
-  
   generator->SetPhiRange(0, 360);
 
   Double32_t distanceToTarget = 200;
@@ -98,14 +99,14 @@ void sim(Int_t nEvents = 1000){
   //generator->AddBackgroundIon("24Si", 14, 24, 14, 0.25);
 
   primGen->AddGenerator(generator);
- /*
-  Int_t pdgId = 2212; // 
-  Double32_t theta1 = 0.;  // polar angle distribution
+/*
+  Int_t pdgId = 2212;
+  Double32_t theta1 = 0.; // polar angle distribution
   Double32_t theta2 = 0.;
-  //Double32_t momentum = 0.05; //GeV
-  Double32_t kin_energy = .05; //GeV
+  //Double32_t momentum = 0.05; // GeV
+  Double32_t kin_energy = .05; // GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
-  Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
+  Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); // GeV
 
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
   boxGen->SetThetaRange(theta1, theta2);
@@ -114,9 +115,10 @@ void sim(Int_t nEvents = 1000){
   boxGen->SetXYZ(0.,0., -100.);
 
   primGen->AddGenerator(boxGen);
-  */  
+*/  
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
+
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
 
@@ -134,6 +136,7 @@ void sim(Int_t nEvents = 1000){
   rtdb->setOutput(parOut); 
   rtdb->saveOutput(); 
   rtdb->print(); // 
+
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);
 

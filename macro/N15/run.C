@@ -1,10 +1,13 @@
-void run(Int_t nEvents = 1000){
+void run(Int_t nEvents = 1000)
+{
   //---------------------Files--------------------------------------------------
   TString outFile= "run.root";
   TString parFile= "par.root";
+
   // -----   Timer   -----------------------------------------------------------
   TStopwatch timer;
   timer.Start(); 
+
   // -----   Create simulation run   -------------------------------------------
   ERRunSim* run = new ERRunSim();
   /** Select transport engine
@@ -13,14 +16,18 @@ void run(Int_t nEvents = 1000){
   **/
   run->SetName("TGeant4");
   run->SetOutputFile(outFile.Data());
+
   // -----   Runtime database   ------------------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
+
   // -----   Create media   ----------------------------------------------------
   run->SetMaterials("N15.media.geo");
+
   //-------- Set MC event header -----------------------------------------------
   ERDecayMCEventHeader* header = new ERDecayMCEventHeader();
   run->SetMCEventHeader(header);
-// -----   Create detectors  ----------------------------------------------
+
+  // -----   Create detectors  ----------------------------------------------
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
@@ -35,7 +42,7 @@ void run(Int_t nEvents = 1000){
 
   Int_t verbose = 0;
 
-  ERDetector* detector= new ERDetector("TestDetector1", kTRUE,verbose);
+  ERDetector* detector= new ERDetector("TestDetector1", kTRUE, verbose);
   detector->SetGeometryFileName("N15.base.geo_1.root");
   detector->AddSensetive("gas1");
   detector->AddSensetive("plastic1");
@@ -52,18 +59,16 @@ void run(Int_t nEvents = 1000){
   
   scattering->SetInputIon(Z,A,Q);
   scattering->SetTargetIon(5,11,5);
-
   scattering->SetThetaCDF("cos_tetta_cross.txt");
-
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11");
-
   scattering->SetThetaRange(23, 25);
   scattering->SetPhiRange(0, 0);
 
   decayer->AddDecay(scattering);
   run->SetDecayer(decayer);
+
   //-------------------------------------------------------------------------
   // -----   Create PrimaryGenerator   -----------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
@@ -82,27 +87,34 @@ void run(Int_t nEvents = 1000){
   generator->SetBoxXYZ(-0.4,-0.4,0.4,0.4, -distanceToTarget);
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
+
   //-------Set visualisation flag to true---------------------------------------
   run->SetStoreTraj(kTRUE);
+
   //-------Digitization tasks --------------------------------------------------
   ERDigitizer* digitizer = new ERDigitizer("TestDetector1",verbose);
   digitizer->AddError("gas1",0.,0.0,0.0);
   digitizer->AddError("plastic1",0.0,0.,0.);
   run->AddTask(digitizer);
+
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
   FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+
   //-------Initialize simulation run--------------------------------------------
   run->Init();
+
   //-------Runtime database-----------------------------------------------------
   Bool_t kParameterMerged = kTRUE; 
   FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
   parOut->open(parFile.Data()); 
   rtdb->setOutput(parOut); 
   rtdb->saveOutput(); 
-  rtdb->print(); // 
+  rtdb->print();
+
   // ------Run simulation/digitization------------------------------------------
   run->Run(nEvents);
+
   // -----   Finish   ----------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();

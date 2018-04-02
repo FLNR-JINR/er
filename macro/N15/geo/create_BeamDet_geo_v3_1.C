@@ -22,7 +22,7 @@ Double_t SiZ = 0.4;
 
 // ------ Position of detector's parts relative to zero ---------------------
 
-Double_t positionSi = 27.15045;
+Double_t positionSi =  27.2;    //27.15045;
 Double_t positiongasCone = 24.50045;
 Double_t positionshell=21.90035; 
 
@@ -184,9 +184,7 @@ TGeoVolume* beamdet = new TGeoVolumeAssembly("beamdet_1");
 // --------------------------------------------------------------------------
 // ---------------- gasCone-----------------------------------------------------
 
- 
 TGeoVolume* gasCone = gGeoManager->MakeCone("gas1",pmisobutan003, dz/2, rmin1,rmax1, rmin2,rmax2);
-
 TGeoVolume* gCone_shell = gGeoManager->MakeCone("gCone_shell",pmaluminium, dz/2, rmax1,rmax1+0.2, rmax2,rmax2+0.2);
 TGeoVolume *mylar1 = gGeoManager->MakeTube("mylar1", pmmylar, 0, rmax1, mylarZ/2);
 TGeoVolume *Shell_Z = gGeoManager->MakeTube("Shell_Z", pmaluminium, 0.2, rmax1+0.2, shell_Z/2);
@@ -195,12 +193,9 @@ TGeoVolume *Shell_Z = gGeoManager->MakeTube("Shell_Z", pmaluminium, 0.2, rmax1+0
 
 // -----------------   (Si) ---------------------------------------------------
 
-
 //TGeoVolume* gasVol = gGeoManager->MakeBox("MWPCVol", pMedCF4, gasVolX, gasVolY, gasVolZ);
 
 TGeoVolume* Si = gGeoManager->MakeTube("plastic1", silicon_Si, 0,SiR, SiZ/2);
-
-
 
 //TGeoVolume* gas = gGeoManager->MakeBox("gas", pMedCF4, gasX, gasY, gasZ);
 

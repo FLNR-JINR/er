@@ -154,12 +154,12 @@ Bool_t ERElasticScattering::Stepping() {
                               sqrt(pow(Pcm,2) + tM2));
 
       LOG(DEBUG) << "  CM out1 state(px,py,pz,E) = "<<out1V.Px()<<","<<out1V.Py()<<","<<out1V.Pz()
-                << "," << out1V.E() <<  FairLogger::endl;
+                 << "," << out1V.E() <<  FairLogger::endl;
       LOG(DEBUG) << "  CM out2 state(px,py,pz,E) = "<<out2V.Px()<<","<<out2V.Py()<<","<<out2V.Pz()
-                << "," << out2V.E() <<  FairLogger::endl;
+                 << "," << out2V.E() <<  FairLogger::endl;
 
-      LOG(DEBUG) << "  CM out1 Ekin = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
-      LOG(DEBUG) << "  CM out2 Ekin = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;
+      LOG(DEBUG) << "  CM out1 Ekin = "<< sqrt(pow(out1V.P(),2)+iM2) - iM << FairLogger::endl;
+      LOG(DEBUG) << "  CM out2 Ekin = "<< sqrt(pow(out2V.P(),2)+tM2) - tM << FairLogger::endl;
 
       LOG(DEBUG) << "  Boosting with beta = " << fInputIonV.Beta() 
                 << ", gamma = " << fInputIonV.Gamma() << FairLogger::endl;
@@ -170,11 +170,9 @@ Bool_t ERElasticScattering::Stepping() {
       out1V.Boost(cmV.BoostVector());
       out2V.Boost(cmV.BoostVector());
 
-      LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl; 
-      
+      LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;      
       LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
       LOG(DEBUG) << "  Lab out2 T = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;
-
 
       AddParticleToStack(fInputIonPDG->PdgCode(),curPos,out1V);
       AddParticleToStack(fTargetIonPDG->PdgCode(),curPos,out2V);
@@ -187,8 +185,7 @@ Bool_t ERElasticScattering::Stepping() {
   return kTRUE;
 }
 
-
-Float_t ERElasticScattering::ThetaGen(){
+Float_t ERElasticScattering::ThetaGen() {
 
   Float_t theta = 0.;
 
@@ -200,6 +197,5 @@ Float_t ERElasticScattering::ThetaGen(){
 
   return theta;
 }
-
 
 ClassImp(ERElasticScattering)
