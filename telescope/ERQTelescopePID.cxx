@@ -31,12 +31,18 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERQTelescopePID::ERQTelescopePID()
-  : FairTask("ER qtelescope particle identification scheme")
+  : FairTask("ER qtelescope particle identification scheme"),
+  fEventsForProcessing(NULL),
+  fQTelescopeSetup(NULL),
+  fUserCut("")
 {
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopePID::ERQTelescopePID(Int_t verbose)
-  : FairTask("ER qtelescope particle identification scheme", verbose)
+  : FairTask("ER qtelescope particle identification scheme", verbose),
+  fEventsForProcessing(NULL),
+  fQTelescopeSetup(NULL),
+  fUserCut("")
 {
 }
 //--------------------------------------------------------------------------------------------------
@@ -60,7 +66,6 @@ InitStatus ERQTelescopePID::Init() {
       fQTelescopeDigi[brName] = (TClonesArray*) ioman->GetObject(bFullName);
     }
 
-    
     if (bFullName.Contains("Track") && bFullName.Contains("QTelescope")) {
       Int_t bPrefixNameLength = bFullName.First('_'); 
       TString brName(bFullName(bPrefixNameLength + 1, bFullName.Length()));
@@ -77,6 +82,13 @@ InitStatus ERQTelescopePID::Init() {
     }
   }
 
+  if (fUserCut != ""){
+    LOG(INFO) << "User cut " << fUserCut << " implementation" << FairLogger::endl;
+    TTree* tree = ioman->GetInTree();
+    fEventsForProcessing =  new TH1I ("hist", "Events for processing", tree->GetEntries(), 1, tree->GetEntries());
+    tree->Draw("MCEventHeader.GetEventID()>>hist",fUserCut,"goff");
+  }
+
   fQTelescopeSetup = ERQTelescopeSetup::Instance();
   fQTelescopeSetup->ReadGeoParamsFromParContainer();
   return kSUCCESS;
@@ -85,10 +97,15 @@ InitStatus ERQTelescopePID::Init() {
 void ERQTelescopePID::Exec(Option_t* opt) { 
   
   Reset();
-
-  LOG(DEBUG) << "Event " << FairRun::Instance()->GetEventHeader()->GetMCEntryNumber() 
-             <<" ERQTelescopePID: " << FairLogger::endl;
   
+  Int_t mcEvent = FairRun::Instance()->GetEventHeader()->GetMCEntryNumber();
+  LOG(INFO) << "Event " << mcEvent <<" ERQTelescopePID: " << FairLogger::endl;
+  if (fUserCut != "")
+    if (!fEventsForProcessing->GetBinContent(mcEvent)){
+      LOG(INFO) << "  Skip event with user cut"<< FairLogger::endl;
+      return;
+    }
+
   for (const auto itTrackBranches : fQTelescopeTrack) {
 
     LOG(DEBUG) << " Work with traks in " << itTrackBranches.first << FairLogger::endl;

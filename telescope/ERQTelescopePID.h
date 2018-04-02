@@ -11,6 +11,7 @@
 
 #include "TClonesArray.h"
 #include "TString.h"
+#include "TH1.h"
 
 #include "FairTask.h"
 
@@ -42,6 +43,7 @@ public:
 
   /* Modifiers */
   void SetStationParticle(TString station, Int_t pdg) {fStationParticles[station].push_back(pdg);}
+  void SetUserCut(TString cut){fUserCut = cut;}
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding.
@@ -69,6 +71,9 @@ protected:
   std::map<TString, std::map<Int_t,TClonesArray*> >    fQTelescopeParticle;
 
   std::map<TString, std::vector<Int_t>> fStationParticles;
+
+  TH1I* fEventsForProcessing;
+  TString fUserCut;
 
 protected:
 
