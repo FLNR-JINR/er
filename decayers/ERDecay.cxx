@@ -84,7 +84,7 @@ void ERDecay::AddParticleToStack(Int_t pdg, TLorentzVector pos, TLorentzVector s
 	                   pos.X(), pos.Y(), pos.Z(),
 	                   gMC->TrackTime(), 0., 0., 0.,
 	                   kPDecay, newTrackNb, fInputIonPDG->Mass(),0);
-	LOG(INFO) << "ERDecay: Added output particle with ID = " << newTrackNb << " PDG = " << pdg
+	LOG(DEBUG) << "ERDecay: Added output particle with ID = " << newTrackNb << " PDG = " << pdg
 		 << "; pos=(" << pos.X() << "," << pos.Y() << "," << pos.Z() 
 		 << "); mom=(" << state.Px() << "," << state.Py() << "," << state.Pz() << ")" << FairLogger::endl;
 }

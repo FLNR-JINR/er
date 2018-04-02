@@ -131,6 +131,7 @@ run->SetGenerator(primGen);
 
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
   // —– Initialize simulation run ———————————— 
   run->Init();
   Int_t nSteps = -15000;

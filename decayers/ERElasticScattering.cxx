@@ -124,8 +124,8 @@ Bool_t ERElasticScattering::Stepping() {
       
       Float_t inputIonT = sqrt(pow(fInputIonV.P(),2)+iM2) - iM;
 
-      LOG(INFO) << "ElasticScattering: " << fName << FairLogger::endl;
-      LOG(INFO) << "  Input ion with Ekin = " << inputIonT
+      LOG(DEBUG) << "ElasticScattering: " << fName << FairLogger::endl;
+      LOG(DEBUG) << "  Input ion with Ekin = " << inputIonT
                 << ", mass = " << iM 
                 << " mom = " <<  fInputIonV.Px() << "," <<  fInputIonV.Py() << "," << fInputIonV.Pz() << FairLogger::endl;
 
@@ -133,13 +133,16 @@ Bool_t ERElasticScattering::Stepping() {
       Double_t shorty=pow(invariant-iM2-tM2,2);
       Float_t Pcm = sqrt((shorty-4*iM2*tM2)/(4*invariant));
 
-      LOG(INFO) << "  CM momentum: " << Pcm << FairLogger::endl;
-      LOG(INFO) << "  CM T: " << sqrt(pow(Pcm,2)+iM2) - iM<< FairLogger::endl;
+      LOG(DEBUG) << "  CM momentum: " << Pcm << FairLogger::endl;
+      LOG(DEBUG) << "  CM Ekin: " << sqrt(pow(Pcm,2)+iM2) - iM<< FairLogger::endl;
 
       Float_t theta = ThetaGen();
       Float_t phi = fRnd->Uniform(fPhi1*DegToRad(),fPhi2*DegToRad());
 
-      LOG(INFO) << "  CM Theta = " << theta*RadToDeg() << ", phi = " << phi*RadToDeg() << FairLogger::endl;
+      if (fThetaFileName != "")
+        LOG(DEBUG) << "  CM [CDFmin,CDFmax] = [" << fCDFmin << "," << fCDFmax << "]" << FairLogger::endl;
+
+      LOG(DEBUG) << "  CM Theta = " << theta*RadToDeg() << ", phi = " << phi*RadToDeg() << FairLogger::endl;
 
       TLorentzVector out1V (Pcm*sin(theta)*cos(phi),
                             Pcm*sin(theta)*sin(phi),
@@ -150,15 +153,15 @@ Bool_t ERElasticScattering::Stepping() {
                              -out1V.Pz(),
                               sqrt(pow(Pcm,2) + tM2));
 
-      LOG(INFO) << "  CM out1 state(px,py,pz,E) = "<<out1V.Px()<<","<<out1V.Py()<<","<<out1V.Pz()
+      LOG(DEBUG) << "  CM out1 state(px,py,pz,E) = "<<out1V.Px()<<","<<out1V.Py()<<","<<out1V.Pz()
                 << "," << out1V.E() <<  FairLogger::endl;
-      LOG(INFO) << "  CM out2 state(px,py,pz,E) = "<<out2V.Px()<<","<<out2V.Py()<<","<<out2V.Pz()
+      LOG(DEBUG) << "  CM out2 state(px,py,pz,E) = "<<out2V.Px()<<","<<out2V.Py()<<","<<out2V.Pz()
                 << "," << out2V.E() <<  FairLogger::endl;
 
-      LOG(INFO) << "  CM out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
-      LOG(INFO) << "  CM out2 T = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;
+      LOG(DEBUG) << "  CM out1 Ekin = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
+      LOG(DEBUG) << "  CM out2 Ekin = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;
 
-      LOG(INFO) << "  Boosting with beta = " << fInputIonV.Beta() 
+      LOG(DEBUG) << "  Boosting with beta = " << fInputIonV.Beta() 
                 << ", gamma = " << fInputIonV.Gamma() << FairLogger::endl;
 
       TLorentzVector targetV(0,0,0,tM);
@@ -167,10 +170,10 @@ Bool_t ERElasticScattering::Stepping() {
       out1V.Boost(cmV.BoostVector());
       out2V.Boost(cmV.BoostVector());
 
-      LOG(INFO) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl; 
+      LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl; 
       
-      LOG(INFO) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
-      LOG(INFO) << "  Lab out2 T = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;
+      LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
+      LOG(DEBUG) << "  Lab out2 T = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;
 
 
       AddParticleToStack(fInputIonPDG->PdgCode(),curPos,out1V);
