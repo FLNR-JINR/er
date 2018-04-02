@@ -41,6 +41,7 @@ public:
   ~ERQTelescopePID();
 
   /* Modifiers */
+  void SetStationParticle(TString station, Int_t pdg) {fStationParticles[station].push_back(pdg);}
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding.
@@ -65,14 +66,20 @@ protected:
   std::map<TString, TClonesArray*>    fQTelescopeDigi;
   std::map<TString, TClonesArray*>    fQTelescopeTrack;
   //Output arrays
-  std::map<TString, TClonesArray*>    fQTelescopeParticle;
+  std::map<TString, std::map<Int_t,TClonesArray*> >    fQTelescopeParticle;
+
+  std::map<TString, std::vector<Int_t>> fStationParticles;
+
+protected:
+
+  Double_t CalcEloss(TString station, ERQTelescopeTrack* track, Int_t pdg);
 
 private:
   /** @brief Initializes runtime database for getting parameters from .par file**/
   virtual void SetParContainers();
 
   /** @brief Adds a ERQTelescopeParticles to the output Collection **/
-  ERQTelescopeParticle* AddParticle(Double_t deadEloss, TString digiBranchName);
+  ERQTelescopeParticle* AddParticle(Double_t deadEloss, TClonesArray* col);
 
   ClassDef(ERQTelescopePID,1)
 };
