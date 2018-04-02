@@ -40,12 +40,14 @@ ERQTelescope.cxx
 ERQTelescopeDigitizer.cxx
 ERQTelescopeSetup.cxx
 ERQTelescopeTrackFinder.cxx
+ERQTelescopePID.cxx
 
 data/ERQTelescopeSiPoint.cxx
 data/ERQTelescopeSiDigi.cxx
 data/ERQTelescopeCsIPoint.cxx
 data/ERQTelescopeCsIDigi.cxx
 data/ERQTelescopeTrack.cxx
+data/ERQTelescopeParticle.cxx
 
 #AculRaw
 data/AculRaw.cxx

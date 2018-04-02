@@ -39,7 +39,12 @@ void exp1803_reco(Int_t nEvents = 1000) {
   // qtelescopeTrackFinder->SetStripEdepRange(0.0097, 100.);   // [GeV]
   // qtelescopeTrackFinder->SetEdepDiffXY(5.);                 // [GeV]
   qtelescopeTrackFinder->SetEdepMaxDiffXY(0.5); 
-  run->AddTask(qtelescopeTrackFinder);  
+  run->AddTask(qtelescopeTrackFinder);
+
+  // ------- QTelescope PID -------------------------------------------
+  ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
+  run->AddTask(qtelescopePID);  
+
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   FairParRootFileIo*  parInput = new FairParRootFileIo();
