@@ -8,7 +8,6 @@
 
 #include "ERElasticScattering.h"
 
-#include <iostream>
 #include <fstream>
 
 #include "TVirtualMC.h"
@@ -23,11 +22,13 @@
 #include "ERDecayMCEventHeader.h"
 #include "ERMCEventHeader.h"
 
-using namespace std;
-using namespace TMath;
+using TMath::DegToRad;
+using TMath::RadToDeg;
 
 //-------------------------------------------------------------------------------------------------
-TGraph* thetaCDFGr = NULL, *thetaInvCDFGr = NULL;
+TGraph* thetaCDFGr = NULL;
+TGraph* thetaInvCDFGr = NULL;
+
 Double_t ThetaCDF(Double_t *x, Double_t *par)
 {
   return thetaCDFGr->Eval(x[0]);
@@ -37,6 +38,7 @@ Double_t ThetaInvCDF(Double_t *x, Double_t *par)
 {
   return thetaInvCDFGr->Eval(x[0]);
 }
+
 //-------------------------------------------------------------------------------------------------
 ERElasticScattering::ERElasticScattering(TString name):
   ERDecay(name),
@@ -52,24 +54,27 @@ ERElasticScattering::ERElasticScattering(TString name):
   fCDFmax(1.)
 {
 }
+
 //-------------------------------------------------------------------------------------------------
 ERElasticScattering::~ERElasticScattering() {
 }
+
 //-------------------------------------------------------------------------------------------------
-void ERElasticScattering::SetTargetIon(Int_t A, Int_t Z, Int_t Q){
+void ERElasticScattering::SetTargetIon(Int_t A, Int_t Z, Int_t Q) {
   FairRunSim* run = FairRunSim::Instance();
   fTargetIonName = fName + TString("_TargetIon");
   FairIon* ion = new FairIon(fTargetIonName,A,Z,Q);
   run->AddNewIon(ion);
 }
+
 //-------------------------------------------------------------------------------------------------
-Bool_t ERElasticScattering::Init(){
+Bool_t ERElasticScattering::Init() {
   if (!ERDecay::Init())
     return kFALSE;
 
   fTargetIonPDG = TDatabasePDG::Instance()->GetParticle(fTargetIonName);
   if ( ! fTargetIonPDG ) {
-    LOG(FATAL) << "Target ion not found in pdg database!" << endl;
+    LOG(FATAL) << "Target ion not found in pdg database!" << FairLogger::endl;
     return kFALSE;
   }
 
@@ -77,29 +82,35 @@ Bool_t ERElasticScattering::Init(){
     LOG(INFO) << "ElasticScattering " << fName << " initialize from theta distribution file" << FairLogger::endl;   
     
     TString path = TString(gSystem->Getenv("VMCWORKDIR")) + "/input/" + fThetaFileName;
-    ifstream f;
+    std::ifstream f;
     f.open(path.Data());
-    if (!f.is_open()){
-      LOG(FATAL) << "Can`t open file " << path << endl;
+    if (!f.is_open()) {
+      LOG(FATAL) << "Can't open file " << path << FairLogger::endl;
       return kFALSE;  
     }
 
     Int_t nPoints = std::count(std::istreambuf_iterator<char>(f), 
                                std::istreambuf_iterator<char>(), '\n');
-    f.seekg(0, ios::beg);
+    f.seekg(0, std::ios::beg);
     TVectorD tet(nPoints);
     TVectorD sigma(nPoints);
     
+    LOG(DEBUG2) << "nPoints = " << nPoints << FairLogger::endl;
+
     Int_t i = 0;
-    while(!f.eof()){
-      f >> tet(i) >> sigma(i++);
+    while(!f.eof()) {
+      // Костыль
+      if (i == nPoints) break;
+      f >> tet(i) >> sigma(i);
+      LOG(DEBUG2) << i << ": " << tet(i) << "\t" << sigma(i) << FairLogger::endl;
+      i++;
     }
 
-    thetaCDFGr = new TGraph(tet,sigma);
-    thetaInvCDFGr = new TGraph(sigma,tet);
+    thetaCDFGr = new TGraph(tet, sigma);
+    thetaInvCDFGr = new TGraph(sigma, tet);
 
-    TF1* thetaCDF = new TF1("thetaCDF",ThetaCDF, 0.,180.,0);
-    fThetaInvCDF = new TF1("thetaInvCDF",ThetaInvCDF, 0.,1.,0);
+    TF1* thetaCDF = new TF1("thetaCDF", ThetaCDF, 0., 180., 0);
+    fThetaInvCDF = new TF1("thetaInvCDF", ThetaInvCDF, 0., 1., 0);
 
     fCDFmin = thetaCDF->Eval(fTheta1);
     fCDFmax = thetaCDF->Eval(fTheta2);
@@ -107,13 +118,14 @@ Bool_t ERElasticScattering::Init(){
 
   return kTRUE;
 }
+
 //-------------------------------------------------------------------------------------------------
 Bool_t ERElasticScattering::Stepping() {
-  if(!fDecayFinish && gMC->TrackPid() == fInputIonPDG->PdgCode() && TString(gMC->CurrentVolName()).Contains(fVolumeName)){
+  if (!fDecayFinish && gMC->TrackPid() == fInputIonPDG->PdgCode() && TString(gMC->CurrentVolName()).Contains(fVolumeName)){
     gMC->SetMaxStep(fStep);
     TLorentzVector curPos;
     gMC->TrackPosition(curPos);
-    if (curPos.Z() > fDecayPosZ){
+    if (curPos.Z() > fDecayPosZ) {
 
       TLorentzVector fInputIonV;
       gMC->TrackMomentum(fInputIonV);
@@ -126,21 +138,22 @@ Bool_t ERElasticScattering::Stepping() {
 
       LOG(DEBUG) << "ElasticScattering: " << fName << FairLogger::endl;
       LOG(DEBUG) << "  Input ion with Ekin = " << inputIonT
-                << ", mass = " << iM 
-                << " mom = " <<  fInputIonV.Px() << "," <<  fInputIonV.Py() << "," << fInputIonV.Pz() << FairLogger::endl;
+                 << ", mass = " << iM 
+                 << " mom = " << fInputIonV.Px() << "," << fInputIonV.Py() << "," << fInputIonV.Pz() << FairLogger::endl;
 
       Float_t invariant = pow((iM+tM),2)+2*tM*inputIonT;
-      Double_t shorty=pow(invariant-iM2-tM2,2);
+      Double_t shorty = pow(invariant-iM2-tM2,2);
       Float_t Pcm = sqrt((shorty-4*iM2*tM2)/(4*invariant));
 
       LOG(DEBUG) << "  CM momentum: " << Pcm << FairLogger::endl;
       LOG(DEBUG) << "  CM Ekin: " << sqrt(pow(Pcm,2)+iM2) - iM<< FairLogger::endl;
 
       Float_t theta = ThetaGen();
-      Float_t phi = fRnd->Uniform(fPhi1*DegToRad(),fPhi2*DegToRad());
+      Float_t phi = fRnd->Uniform(fPhi1*DegToRad(), fPhi2*DegToRad());
 
-      if (fThetaFileName != "")
+      if (fThetaFileName != "") {
         LOG(DEBUG) << "  CM [CDFmin,CDFmax] = [" << fCDFmin << "," << fCDFmax << "]" << FairLogger::endl;
+      }
 
       LOG(DEBUG) << "  CM Theta = " << theta*RadToDeg() << ", phi = " << phi*RadToDeg() << FairLogger::endl;
 
@@ -186,15 +199,12 @@ Bool_t ERElasticScattering::Stepping() {
 }
 
 Float_t ERElasticScattering::ThetaGen() {
-
   Float_t theta = 0.;
-
   if (fThetaFileName == "")
-    theta = acos(fRnd->Uniform(cos(fTheta1*DegToRad()),cos(fTheta2*DegToRad())));
+    theta = acos(fRnd->Uniform(cos(fTheta1*DegToRad()), cos(fTheta2*DegToRad())));
   else{
     theta = fThetaInvCDF->Eval(fRnd->Uniform(fCDFmin,fCDFmax))*DegToRad();
   }
-
   return theta;
 }
 
