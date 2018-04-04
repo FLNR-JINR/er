@@ -9,6 +9,9 @@
 #define ERQTelescopeTrack_H
 
 #include "TNamed.h"
+#include "TVector3.h"
+
+#include "FairMultiLinkedData.h"
 
 /** @class ERQTelescopeTrackFinder
  ** @brief 
@@ -16,7 +19,7 @@
  ** @version 1.0
 **/
 
-class ERQTelescopeTrack : public TNamed{
+class ERQTelescopeTrack : public FairMultiLinkedData{
 
 public:
   /** @brief Default constructor **/
@@ -35,6 +38,11 @@ public:
                     Double_t telescopeX, Double_t telescopeY, Double_t telescopeZ,
                     Double_t sumEdep);
 
+  /* Accessors */
+  TVector3 GetTargetVertex()    const {return TVector3(fTargetX,fTargetY,fTargetZ);}
+  TVector3 GetTelescopeVertex() const {return TVector3(fTelescopeX,fTelescopeY,fTelescopeZ);}
+  Double_t GetSumEdep()      const {return fSumEdep;}
+
 private:
   Double_t  fTargetX;
   Double_t  fTargetY;
@@ -44,6 +52,7 @@ private:
   Double_t  fTelescopeZ;
 
   Double_t  fSumEdep;
+
 
   ClassDef(ERQTelescopeTrack, 1)
 };

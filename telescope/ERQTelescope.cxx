@@ -211,7 +211,6 @@ void ERQTelescope::Print(Option_t *option) const {
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::Reset() {
-  LOG(INFO) << "  ERQTelescope::Reset()" << FairLogger::endl;
   for(auto &itDobleSiXPoints : fDoubleSiXPoints) {
     itDobleSiXPoints->Clear();
   }
@@ -253,7 +252,6 @@ Bool_t ERQTelescope::CheckIfSensitive(std::string name) {
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::ResetParameters() {
-  LOG(INFO) << "   ERQTelescope::ResetParameters() " << FairLogger::endl;
 };
 //-------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescope)

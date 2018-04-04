@@ -6,6 +6,7 @@ set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
 ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
+${GEANT4_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/data
 ${CMAKE_SOURCE_DIR}/telescope/
@@ -18,6 +19,7 @@ include_directories( ${INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
 ${BASE_LINK_DIRECTORIES}
 ${FAIRROOT_LIBRARY_DIR}
+${GEANT4_LIB_DIR}
 ) 
 
 link_directories( ${LINK_DIRECTORIES})
@@ -40,12 +42,14 @@ ERQTelescope.cxx
 ERQTelescopeDigitizer.cxx
 ERQTelescopeSetup.cxx
 ERQTelescopeTrackFinder.cxx
+ERQTelescopePID.cxx
 
 data/ERQTelescopeSiPoint.cxx
 data/ERQTelescopeSiDigi.cxx
 data/ERQTelescopeCsIPoint.cxx
 data/ERQTelescopeCsIDigi.cxx
 data/ERQTelescopeTrack.cxx
+data/ERQTelescopeParticle.cxx
 
 #AculRaw
 data/AculRaw.cxx
@@ -69,7 +73,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERTelescopeLinkDef.h)
 Set(LIBRARY_NAME telescope)
-Set(DEPENDENCIES ERBase ERData Base Core Geom XMLParser)
+Set(DEPENDENCIES ERBase ERData Base Core Geom XMLParser G4particles)
 
 GENERATE_LIBRARY()
 

@@ -222,7 +222,6 @@ Bool_t ERDecayEXP1803::Stepping() {
                                  lvn2->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, n2TrackNb, fn->Mass(), 0);
-      LOG(INFO) << He6TrackNb << " " << H5TrackNb << " " << He3TrackNb << FairLogger::endl;
       gMC->StopTrack();
       fDecayFinish = kTRUE;
       gMC->SetMaxStep(100.);
