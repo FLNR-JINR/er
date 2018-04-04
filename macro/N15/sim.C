@@ -1,8 +1,11 @@
-void sim(Int_t nEvents = 1000)
+void sim(Int_t nEvents = 1000, Int_t index = 0)
 {
   //---------------------Files-----------------------------------------------
-  TString outFile= "sim.root";
-  TString parFile= "par.root";
+  TString outDir("output");
+  TString outFile;
+  outFile.Form("%s/sim%d.root", outDir.Data(), index);
+  TString parFile;
+  parFile.Form("%s/par%d.root", outDir.Data(), index);
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
