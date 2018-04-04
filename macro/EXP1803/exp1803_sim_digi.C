@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 1000) {
+void exp1803_sim_digi(Int_t nEvents = 100) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -94,13 +94,32 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
   setupQTelescope->SetXmlParametersFile(paramFileQTelescope);
   // ----- T1 parameters ----------------------------------------------------
-  TVector3 SD1Rotation(0., 27., 0.);
-  TVector3 SD2Rotation(0., -27., 0.);
+  Double_t radius = 20.;
+  Double_t radiusCsI = 30.;
   Double_t xPos, yPos, zPos;
   TVector3* T1Translation;
   // ----- T1.1--------------------------------------------------------------
-  setupQTelescope->AddSi("DoubleSi_SD1", TVector3( 9.07981,0., 17.8201), SD1Rotation,"X");
-  setupQTelescope->AddSi("DoubleSi_SD2", TVector3( -9.07981,0., 17.8201), SD2Rotation,"X");
+  TVector3 SD1Rotation(0., 27., 0.);
+  xPos = radius * TMath::Sin(SD1Rotation.Y() * TMath::DegToRad());
+  yPos = 0.;
+  zPos = radius * TMath::Cos(SD1Rotation.Y() * TMath::DegToRad());
+  setupQTelescope->AddSi("DoubleSi_SD1", TVector3(xPos, yPos, zPos), SD1Rotation,"X");
+  
+  xPos = radiusCsI * TMath::Sin(SD1Rotation.Y() * TMath::DegToRad());
+  yPos = 0.;
+  zPos = radiusCsI * TMath::Cos(SD1Rotation.Y() * TMath::DegToRad());
+  setupQTelescope->AddCsI("CsI1", TVector3(xPos, yPos, zPos), SD1Rotation);
+  
+  TVector3 SD2Rotation(0., -27., 0.);
+  xPos = radius * TMath::Sin(SD2Rotation.Y() * TMath::DegToRad());
+  yPos = 0.;
+  zPos = radius * TMath::Cos(SD2Rotation.Y() * TMath::DegToRad());
+  setupQTelescope->AddSi("DoubleSi_SD2", TVector3(xPos, yPos, zPos), SD2Rotation,"X");
+
+  xPos = radiusCsI * TMath::Sin(SD2Rotation.Y() * TMath::DegToRad());
+  yPos = 0.;
+  zPos = radiusCsI * TMath::Cos(SD2Rotation.Y() * TMath::DegToRad());
+  setupQTelescope->AddCsI("CsI1", TVector3(xPos, yPos, zPos), SD2Rotation);
   // // ----- T1.2--------------------------------------------------------------
   // setupQTelescope->AddSi("DoubleSi_SD1", TVector3( T1Side/2 - T1Aperture/2, 
   //                                                 -T1Side/2 - T1Aperture/2,  
@@ -124,11 +143,16 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   //                                                  T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
 
   // ----- D1 parameters ----------------------------------------------------
-  TVector3* D1Rotation = new TVector3(0., 5., 0);
-  setupQTelescope->AddSi("DoubleSi_D1", TVector3( 0, 
-                                                  0,  
-                                                  D1PosZ + D1Thick/2), *D1Rotation, "X");
+  TVector3 D1Rotation(0., 0., 0);
+  xPos = radius * TMath::Sin(D1Rotation.Y() * TMath::DegToRad());
+  yPos = 0.;
+  zPos = radius * TMath::Cos(D1Rotation.Y() * TMath::DegToRad());
+  setupQTelescope->AddSi("DoubleSi_D1", TVector3(xPos, yPos, zPos), D1Rotation, "X");
 
+  xPos = radiusCsI * TMath::Sin(D1Rotation.Y() * TMath::DegToRad());
+  yPos = 0.;
+  zPos = radiusCsI * TMath::Cos(D1Rotation.Y() * TMath::DegToRad());
+  setupQTelescope->AddCsI("CsI1", TVector3(xPos, yPos, zPos), D1Rotation);
   // ------QTelescope -------------------------------------------------------
   ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE,verbose);
   run->AddModule(qtelescope);

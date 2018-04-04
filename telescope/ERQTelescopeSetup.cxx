@@ -85,6 +85,8 @@ vector<Int_t>    ERQTelescopeSetup::fCsICubesCountX;
 vector<Int_t>    ERQTelescopeSetup::fCsICubesCountY;
 vector<TString>  ERQTelescopeSetup::fCsIMedia;
 vector<TVector3> ERQTelescopeSetup::fCsIRotation;
+vector<Double_t> ERQTelescopeSetup::fCsISplitSize;
+vector<Double_t> ERQTelescopeSetup::fCsIDeadLayer;  
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeSetup::ERQTelescopeSetup() {
   std::cout << "ERQTelescopeSetup initialized! "<< std::endl;
@@ -155,16 +157,6 @@ void ERQTelescopeSetup::AddSi(TString type, TVector3 position, TVector3 rotation
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeSetup::AddCsI(TString type, TVector3 position, TVector3 rotation) {
-  fCsICount++;
-  fDetectorStations.push_back(type);
-  fCsIPos.push_back(position);
-  fCsIType.push_back(type);
-  fCsIRotation.push_back(rotation);
-}
-
-void ERQTelescopeSetup::AddCsI(TString type, TVector3 position, TVector3 rotation, 
-                                                                TString orientAroundZ) 
-{
   fCsICount++;
   fDetectorStations.push_back(type);
   fCsIPos.push_back(position);
@@ -421,9 +413,14 @@ void ERQTelescopeSetup::ConstructGeometry() {
     Double_t CsIBoxX = fCsIX[i] / fCsICubesCountX[i];  
     Double_t CsIBoxY = fCsIY[i] / fCsICubesCountY[i]; 
     Double_t CsIBoxZ = fCsIZ[i]; 
-    boxCsI.push_back(gGeoManager->MakeBox("SensitiveCsIBox", pMedCsI[i], CsIBoxX / 2, 
-                                                                         CsIBoxY / 2, 
-                                                                         CsIBoxZ / 2));
+    TGeoVolume* boxCsISensitive = gGeoManager->MakeBox("SensitiveCsIBox", pMedCsI[i], CsIBoxX / 2, 
+                                                                                      CsIBoxY / 2, 
+                                                                                      CsIBoxZ / 2);
+    TGeoVolume* shellCsI = gGeoManager->MakeBox("CsIBoxShell", pMedCsI[i], CsIBoxX / 2 + fCsIDeadLayer[i], 
+                                                                           CsIBoxY / 2 + fCsIDeadLayer[i], 
+                                                                           CsIBoxZ / 2 + fCsIDeadLayer[i]);
+    shellCsI->AddNode(boxCsISensitive, 1, new TGeoCombiTrans(0, 0, 0, fZeroRotation));
+    boxCsI.push_back(shellCsI);
   }
   //------------------ STRUCTURE  ---------------------------------------------
   //----------------------- Double Si structure -------------------------------
@@ -506,13 +503,13 @@ void ERQTelescopeSetup::ConstructGeometry() {
     Double_t CsIBoxX = fCsIX[i] / fCsICubesCountX[i];  
     Double_t CsIBoxY = fCsIY[i] / fCsICubesCountY[i]; 
     for (Int_t iCsIX = 0; iCsIX < fCsICubesCountX[i]; iCsIX++) {
-      Double_t translateX = (-1) * fCsIX[i] / 2
-                          + CsIBoxX / 2. + iCsIX * CsIBoxX;
+      Double_t translateX = fCsIX[i] / 2
+                          - CsIBoxX / 2. - iCsIX * CsIBoxX;
       for (Int_t iCsIY = 0; iCsIY < fCsICubesCountY[i]; iCsIY++) {
         Double_t translateY = fCsIY[i] / 2 
                             - CsIBoxY * iCsIY - (CsIBoxY / 2);
-        stationCsI[i]->AddNode(boxCsI[i], iBox+1, new TGeoCombiTrans(translateX,
-                                                                     translateY,
+        stationCsI[i]->AddNode(boxCsI[i], iBox+1, new TGeoCombiTrans(translateX + fCsISplitSize[i] / 2,
+                                                                     translateY + fCsISplitSize[i] / 2,
                                                                      0., 
                                                                      fZeroRotation));
         iBox++;
@@ -742,6 +739,12 @@ void ERQTelescopeSetup::GetCsIParameters(TXMLNode *node) {
           }
           if (!strcasecmp(curNode2->GetNodeName(), "cubesCountY")) {
             fCsICubesCountY.push_back(atof(curNode2->GetText()));
+          }
+          if (!strcasecmp(curNode2->GetNodeName(), "splitSize")) {
+            fCsISplitSize.push_back(atof(curNode2->GetText()));
+          }
+          if (!strcasecmp(curNode2->GetNodeName(), "deadLayer")) {
+            fCsIDeadLayer.push_back(atof(curNode2->GetText()));
           }
           if (!strcasecmp(curNode2->GetNodeName(), "CsIMedia")) {
             fCsIMedia.push_back(curNode2->GetText());

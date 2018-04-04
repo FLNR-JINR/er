@@ -42,8 +42,6 @@ public:
                                                      Double_t deadLayerFront, 
                                                      Double_t deadLayerBack); 
   static void AddCsI(TString type, TVector3 position, TVector3 rotation);
-  static void AddCsI(TString type, TVector3 position, TVector3 rotation, 
-                                                      TString orientAroundZ);
   /* Accessors */
   static Double_t GetStripX(TString stationId, Int_t stripNb);
   static Double_t GetStripY(TString stationId, Int_t stripNb);
@@ -115,6 +113,8 @@ private:
   static vector<Int_t>    fCsICubesCountY;
   static vector<TString>  fCsIMedia;
   static vector<TVector3> fCsIRotation;
+  static vector<Double_t> fCsISplitSize;
+  static vector<Double_t> fCsIDeadLayer;  
 
   ClassDef(ERQTelescopeSetup,1)
 };

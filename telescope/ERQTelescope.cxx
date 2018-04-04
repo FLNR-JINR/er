@@ -132,8 +132,8 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
         AddSiPoint(*(fSingleSiPoints[fSiStationNb]));
       }
       if (volName.Contains("CsI")) {
-        gMC->CurrentVolID(fCsIBoxNb);
-        gMC->CurrentVolOffID(1, fCsIStationNb);
+        gMC->CurrentVolOffID(1,fCsIBoxNb);
+        gMC->CurrentVolOffID(2, fCsIStationNb);
         AddCsIPoint(*(fCsIPoints[fCsIStationNb]));
       }
     }

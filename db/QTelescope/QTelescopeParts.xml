@@ -51,9 +51,11 @@
 	</SiTypes>
 	<CsITypes>
 		<CsI id="CsI1">
-			<CsISize CsIX="100" CsIY="100" CsIZ="1"/>
-			<cubesCountX>2</cubesCountX>			
-			<cubesCountY>2</cubesCountY>
+			<CsISize CsIX="6.4" CsIY="6.4" CsIZ="2"/>
+			<cubesCountX>4</cubesCountX>			
+			<cubesCountY>4</cubesCountY>
+			<splitSize>0.01</splitSize>
+			<deadLayer>0.002</deadLayer>
 			<CsIMedia>CsI</CsIMedia>
 		</CsI>	
 		<CsI id="CsI2">
