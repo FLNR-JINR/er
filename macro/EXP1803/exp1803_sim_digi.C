@@ -36,7 +36,6 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   TStopwatch timer; 
   timer.Start();
   // ------------------------------------------------------------------------
- 
   // -----   Create simulation run   ----------------------------------------
   ERRunSim* run = new ERRunSim();
   /** Select transport engine
@@ -94,35 +93,37 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
   setupQTelescope->SetXmlParametersFile(paramFileQTelescope);
   // ----- T1 parameters ----------------------------------------------------
+  ERGeoSubAssembly* assemblyT1 = new ERGeoSubAssembly("T1", TVector3(0., 0., 0.), TVector3(0., 0., 0.));
   TVector3 T1Rotation(0., 0., 0);
   Double_t xPos, yPos, zPos;
   TVector3* T1Translation;
   // ----- T1.1--------------------------------------------------------------
-  setupQTelescope->AddSi("DoubleSi_SD1", TVector3( T1Side/2 + T1Aperture/2, 
+  vector<ERQTelescopeGeoComponentDoubleSi> componentsT1; 
+  componentsT1.push_back(AddSi("DoubleSi_SD1", TVector3( T1Side/2 + T1Aperture/2, 
                                                    T1Side/2 - T1Aperture/2,  
-                                                   T1PosZ   + T1D1Thick/2), T1Rotation,"X");
-  setupQTelescope->AddSi("DoubleSi_SD2", TVector3( T1Side/2 + T1Aperture/2, 
+                                                   T1PosZ   + T1D1Thick/2), T1Rotation,"X"));
+  componentsT1.push_back(AddSi("DoubleSi_SD2", TVector3( T1Side/2 + T1Aperture/2, 
                                                    T1Side/2 - T1Aperture/2,  
                                                    T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
   // ----- T1.2--------------------------------------------------------------
-  setupQTelescope->AddSi("DoubleSi_SD1", TVector3( T1Side/2 - T1Aperture/2, 
+  componentsT1.push_back(AddSi("DoubleSi_SD1", TVector3( T1Side/2 - T1Aperture/2, 
                                                   -T1Side/2 - T1Aperture/2,  
                                                    T1PosZ + T1D1Thick/2), T1Rotation, "X");
-  setupQTelescope->AddSi("DoubleSi_SD2", TVector3( T1Side/2 - T1Aperture/2, 
+  componentsT1.push_back(AddSi("DoubleSi_SD2", TVector3( T1Side/2 - T1Aperture/2, 
                                                   -T1Side/2 - T1Aperture/2,  
                                                    T1PosZ   + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
   // ----- T1.3 -------------------------------------------------------------
-  setupQTelescope->AddSi("DoubleSi_SD1", TVector3(-T1Side/2 - T1Aperture/2, 
+  componentsT1.push_back(AddSi("DoubleSi_SD1", TVector3(-T1Side/2 - T1Aperture/2, 
                                                   -T1Side/2 + T1Aperture/2,  
                                                    T1PosZ   + T1D1Thick/2), T1Rotation, "X");
-  setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 - T1Aperture/2, 
+  componentsT1.push_back(AddSi("DoubleSi_SD2", TVector3(-T1Side/2 - T1Aperture/2, 
                                                   -T1Side/2 + T1Aperture/2,  
                                                    T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
   // ----- T1.4--------------------------------------------------------------
-  setupQTelescope->AddSi("DoubleSi_SD1", TVector3(-T1Side/2 + T1Aperture/2, 
+  componentsT1.push_back(AddSi("DoubleSi_SD1", TVector3(-T1Side/2 + T1Aperture/2, 
                                                    T1Side/2 + T1Aperture/2,  
                                                    T1PosZ + T1D1Thick/2), T1Rotation, "X");
-  setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 + T1Aperture/2, 
+  componentsT1.push_back(AddSi("DoubleSi_SD2", TVector3(-T1Side/2 + T1Aperture/2, 
                                                    T1Side/2 + T1Aperture/2,  
                                                    T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
 

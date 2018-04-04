@@ -11,6 +11,7 @@ ${CMAKE_SOURCE_DIR}/data
 ${CMAKE_SOURCE_DIR}/telescope/
 ${CMAKE_SOURCE_DIR}/BeamDet/data
 ${CMAKE_SOURCE_DIR}/telescope/data
+${CMAKE_SOURCE_DIR}/telescope/geo
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -36,10 +37,12 @@ data/ERRTelescopeCsIDigi.cxx
 data/ERRTelescopeSiDigi.cxx
 data/ERRTelescopeHit.cxx
 
+geo/ERQTelescopeGeoComponentDoubleSi.cxx
+
 ERQTelescope.cxx
 ERQTelescopeDigitizer.cxx
 ERQTelescopeSetup.cxx
-ERQTelescopeTrackFinder.cxx
+#ERQTelescopeTrackFinder.cxx
 
 data/ERQTelescopeSiPoint.cxx
 data/ERQTelescopeSiDigi.cxx

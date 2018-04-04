@@ -35,6 +35,10 @@ ERDetectorContFact.cxx
 ERDetectorGeoPar.cxx
 ERDigitizer.cxx
 ERRunAna.cxx
+
+ERGeoComponent.cxx
+ERGeoSubAssembly.cxx
+ERSetup.cxx
 )
 
 # fill list of header files from list of source files

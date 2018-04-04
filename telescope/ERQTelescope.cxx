@@ -159,7 +159,7 @@ void ERQTelescope::Register() {
   Int_t iDoubleSi = 0; 
   Int_t iSingleSi = 0; 
   Int_t iCsI      = 0; 
-  vector<TString>* sensVolumes = fQTelescopeSetup->GetDetectorStations();
+  vector<TString>* sensVolumes = fQTelescopeSetup->GetComponentNames();
   for (Int_t i = 0; i < sensVolumes->size(); i++) {
     if (sensVolumes->at(i).BeginsWith("DoubleSi")) {
       fDoubleSiXPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));

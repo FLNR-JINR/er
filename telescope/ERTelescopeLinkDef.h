@@ -28,7 +28,7 @@
 #pragma link C++ class AculRaw+;
 #pragma link C++ class ERRTelescopeRawConverter+;
 
-
+#pragma link C++ class ERQTelescopeGeoComponentDoubleSi+;
 
 #pragma link C++ class ERQTelescopeCalibrator+;
 #pragma link C++ class ERRTelescopeCalibrator+;
