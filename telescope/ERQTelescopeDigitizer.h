@@ -53,7 +53,7 @@ public:
   void SetSiTimeSigma(Float_t sigma)  {fSiTimeSigma = sigma;}
 
   void SetCsIElossThreshold(Float_t th){fCsIElossThreshold = th;}
-  void SetCsIElossSigma(Float_t sigma) {fCsIElossSigma = sigma;}
+  void SetCsIElossError(Float_t a, Float_t b, Float_t c) {fCsIElossErrorA = a;fCsIElossErrorB = b;fCsIElossErrorC = c;}
   void SetCsITimeSigma(Float_t sigma)  {fCsITimeSigma = sigma;}
 protected:
   //Input arrays
@@ -65,8 +65,8 @@ protected:
   Float_t       fSiElossSigma;
   Float_t       fSiTimeSigma;
   Float_t       fCsIElossThreshold;
-  Float_t       fCsIElossSigma;
   Float_t       fCsITimeSigma;
+  Float_t       fCsIElossErrorA,fCsIElossErrorB,fCsIElossErrorC;
 protected:
   ERQTelescopeSiDigi* AddSiDigi(Float_t edep, Double_t time, Int_t stationNb, 
                                                              Int_t stripNb, 

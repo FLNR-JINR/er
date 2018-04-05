@@ -92,12 +92,11 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt) {
     Float_t   time = numeric_limits<float>::max(); // min time in strip
     Int_t     pointType;
     Double_t  elossThreshold, timeThreshold;
-    Double_t  elossSigma, timeSigma;
+    Double_t  timeSigma;
     map<Int_t, vector<Int_t>> sortedPoints;
     if (itPointBranches.first.Contains("Si")) {
       pointType = 0;  // Si point
       elossThreshold = fSiElossThreshold;
-      elossSigma     = fSiElossSigma;
       timeSigma      = fSiTimeSigma;
       for (Int_t iPoint = 0; iPoint < itPointBranches.second->GetEntriesFast(); iPoint++){
         ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)(itPointBranches.second->At(iPoint));
@@ -107,7 +106,6 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt) {
     if (itPointBranches.first.Contains("CsI")) {
       pointType = 1;  // CsI point
       elossThreshold = fCsIElossThreshold;
-      elossSigma     = fCsIElossSigma;
       timeSigma      = fCsITimeSigma;
       for (Int_t iPoint = 0; iPoint < itPointBranches.second->GetEntriesFast(); iPoint++){
         ERQTelescopeCsIPoint* point = (ERQTelescopeCsIPoint*)(itPointBranches.second->At(iPoint));
@@ -129,9 +127,18 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt) {
           time = mcPoint->GetTime();
         }
       }
+
       if (edep == 0) {  // if no points in input branch
         continue;
       }
+
+      Float_t elossSigma = 0;
+      if (pointType == 0) //Si
+        elossSigma = fSiElossSigma;
+      if (pointType == 1) //CsI
+        elossSigma = sqrt(pow(fCsIElossErrorA,2) + pow(fCsIElossErrorB*TMath::Sqrt(edep/1000.),2)
+           + pow(fCsIElossErrorC*edep,2));
+
       edep = gRandom->Gaus(edep, elossSigma);
       if (edep < elossThreshold)
         continue;

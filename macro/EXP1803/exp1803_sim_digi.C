@@ -208,7 +208,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   qtelescopeDigitizer->SetSiTimeSigma(0);
 
   qtelescopeDigitizer->SetCsIElossThreshold(0);
-  qtelescopeDigitizer->SetCsIElossSigma(0);
+  qtelescopeDigitizer->SetCsIElossError(0,0,0);
   qtelescopeDigitizer->SetCsITimeSigma(0);
   run->AddTask(qtelescopeDigitizer);
   // ------  Gadast Digitizer -----------------------------------------------
