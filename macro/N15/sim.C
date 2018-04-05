@@ -49,13 +49,13 @@ void sim(Int_t nEvents = 1000, Int_t index = 0)
   run->AddModule(target);
 
   Int_t verbose = 0;
-/*
-  ERDetector* detector= new ERDetector("TestDetector1", kTRUE,verbose);
-  detector->SetGeometryFileName("N15.base.geo_1.root");
-  detector->AddSensetive("gas1");
-  detector->AddSensetive("plastic1");
+
+  ERDetector* detector = new ERDetector("TestDetector1", kTRUE, verbose);
+  detector->SetGeometryFileName("all.det.geo.root");
+  detector->AddSensetive("vDetGasPart");
+  detector->AddSensetive("vSemi");
   run->AddModule(detector);
-*/
+
   //------    ER Decayer   -------------------------------------------------
   //Ion 15N
   Int_t A = 15;
@@ -71,7 +71,7 @@ void sim(Int_t nEvents = 1000, Int_t index = 0)
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11");
-  scattering->SetThetaRange(23., 25.);
+  scattering->SetThetaRange(23.,25.);
   scattering->SetPhiRange(0., 0.);
 
   decayer->AddDecay(scattering);

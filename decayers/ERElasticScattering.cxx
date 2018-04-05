@@ -187,6 +187,8 @@ Bool_t ERElasticScattering::Stepping() {
       LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
       LOG(DEBUG) << "  Lab out2 T = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;
 
+      curPos[2] += 0.0007; //TODO
+
       AddParticleToStack(fInputIonPDG->PdgCode(),curPos,out1V);
       AddParticleToStack(fTargetIonPDG->PdgCode(),curPos,out2V);
 

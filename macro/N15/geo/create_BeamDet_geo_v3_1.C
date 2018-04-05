@@ -29,7 +29,7 @@ Double_t positionshell=21.90035;
 Double_t positionmylar1=22.00045;
 
 
-void create_BeamDet_geo_v3_1(Double_t p_angle=10)
+void create_BeamDet_geo_v3_1(Double_t p_angle=-78) //TODO
 {
   // Create a global translation
   Float_t global_X = 0.;
