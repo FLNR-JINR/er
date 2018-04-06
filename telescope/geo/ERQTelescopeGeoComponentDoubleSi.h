@@ -27,7 +27,7 @@ public:
   
   /* Accessors */
 public:
-  virtual void ConstructGeometryVolume(void) = 0;
+  virtual void ConstructGeometryVolume(void);
 
 private:
   static Int_t fConstructedObjCount;
@@ -45,7 +45,7 @@ private:
   Int_t    fStripCountY;
   TString  fMedia;
 
-  void ParseXmlParameters() = 0;
+  void ParseXmlParameters();
 
   ClassDef(ERQTelescopeGeoComponentDoubleSi,1)
 };

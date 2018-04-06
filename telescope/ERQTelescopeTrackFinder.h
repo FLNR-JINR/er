@@ -43,6 +43,7 @@ public:
   /* Modifiers */
   void SetHitStation(TString stationID);
   void SetHitStation(TString xStationID, TString yStationID2);
+  void SetHitSubAssembly(TString subassemblyName);
   void SetStripEdepRange(Double_t edepMin, Double_t edepMax);
   void SetEdepMaxDiffXY(Double_t edepDiff) {fEdepDiffXY = edepDiff;}
   void SetTargetPoint(Double_t x, Double_t y, Double_t z);
@@ -73,6 +74,8 @@ protected:
   //Output arrays
   std::map<TString, TClonesArray*>          fQTelescopeTrack;
   std::map<TString, pair<TString, TString>> fSiHitStationsPair; 
+  std::map<TString, map<TString, pair<TString, TString>>> fSiHitStationsPair1; //// map<subassembly,map<component, pair<xBranch, yBranch>>> 
+
 
   Double_t fSiDigiEdepMin;
   Double_t fSiDigiEdepMax;

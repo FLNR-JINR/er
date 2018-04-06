@@ -30,18 +30,21 @@ public:
   
   /* Accessors */
   TGeoVolume*   GetVolume()   const {return fVolume;}
-  TVector3      GetPosition() const {return fPosition;}
+  TVector3*     GetPosition() const {return fPosition;}
   TGeoRotation* GetRotation() const {return fRotation;}
+  TString       GetBranchName() {return (fType + this->GetName());}
+
 public:
   virtual void ConstructGeometryVolume(void) = 0;
 
 protected:
+  virtual void ParseXmlParameters() = 0;
+  
   TGeoVolume*   fVolume;
-  TVector3      fPosition;
+  TVector3*     fPosition;
   TGeoRotation* fRotation;
   TString       fType;
 
-  virtual void ParseXmlParameters() = 0;
 
   ClassDef(ERGeoComponent,1)
 };

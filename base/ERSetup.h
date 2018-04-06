@@ -32,10 +32,12 @@ public:
   /* Modifiers */
   void SetXMLParametersFile(TString xmlFileName) {fParamsXMLFileName = xmlFileName;} 
   void SetGeoName(TString name) {fGeoName = name;}
-  void AddSubAssembly(ERGeoSubAssembly* subAssembly);
+  void AddSubAssembly(TObject* subAssembly);
   /* Accessors */
-  std::vector<TString>* GetComponentNames() const {return fComponentNames;}
-  TString GetXMLParametersFile(void) {return fParamsXMLFileName;} 
+  TString               GetGeoFileName()           const {return (fGeoName + ".temp.root");}
+  TString               GetGeoName()               const {return fGeoName;}
+  TString               GetXMLParametersFile(void) const {return fParamsXMLFileName;} 
+  std::vector<TString>* GetComponentNames()        const {return fComponentNames;}
 public:
   virtual void  ReadGeoParamsFromParContainer() = 0;
   virtual Int_t SetParContainers();

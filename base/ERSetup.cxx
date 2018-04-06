@@ -9,7 +9,11 @@
 #include "ERSetup.h"
 
 //--------------------------------------------------------------------------------------------------
-ERSetup::ERSetup() {
+ERSetup::ERSetup() 
+: fSubAssembies(new TObjArray()),
+  fComponentNames(new std::vector<TString>())
+{
+ std::cout << "ERSetup::ERSetup()" << std::endl;
 }
 //--------------------------------------------------------------------------------------------------
 ERSetup::~ERSetup() {
@@ -24,7 +28,7 @@ Int_t ERSetup::SetParContainers(){
   if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
 }
 //--------------------------------------------------------------------------------------------------
-void ERSetup::AddSubAssembly(ERGeoSubAssembly* subAssembly) {
+void ERSetup::AddSubAssembly(TObject* subAssembly) {
   fSubAssembies->AddLast(subAssembly);
 }
 //--------------------------------------------------------------------------------------------------
@@ -52,18 +56,22 @@ void ERSetup::ConstructGeometry(void) {
   //------------------ STRUCTURE  ---------------------------------------------
   TIter itSubAssembly(fSubAssembies);
   ERGeoSubAssembly *subAssembly;
-  while(subAssembly = (ERGeoSubAssembly*)itSubAssembly.Next()){
+  TObject *obj;
+  int i = 0;
+  while(subAssembly = (ERGeoSubAssembly*)(itSubAssembly.Next())){
+    // std::cout << "ERSetup::ConstructGeometry " << std::endl;
+    subAssembly->ConstructGeometryVolume();
     TGeoVolume*   volume = subAssembly->GetVolume(); 
     TGeoRotation* rotation = subAssembly->GetRotation();
-    TVector3      trans = subAssembly->GetPosition();
+    TVector3*     trans = subAssembly->GetPosition();
     std::vector<TString> *compNames = subAssembly->GetComponentNames();
     for (const auto itCompNames : *compNames) {
       fComponentNames->push_back(itCompNames);
     }
-    top->AddNode(volume, 1, new TGeoCombiTrans(trans.X() ,trans.Y(), trans.Y(), rotation)); 
-    // geoVol->AddNode(volume, 1, new TGeoCombiTrans(trans.X() ,trans.Y(), trans.Y(), rotation)); 
+    top->AddNode(volume, ++i, new TGeoCombiTrans(trans->X() ,trans->Y(), trans->Z(), rotation));
+    // geoVol->AddNode(volume, ++i, new TGeoCombiTrans(trans->X() ,trans->Y(), trans->Z(), rotation)); 
   }
-
+  // top->AddNode(geoVol, 1, new TGeoCombiTrans(0., 0., 0., new TGeoRotation()));  
   TFile* geoFile = new TFile(geoFileName, "RECREATE");
   top->Write();
   geoFile->Close();

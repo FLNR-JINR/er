@@ -46,8 +46,10 @@ ERQTelescopeSetup::~ERQTelescopeSetup() {
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeSetup* ERQTelescopeSetup::Instance(){
-  if (fInstance == NULL)
-    return new ERQTelescopeSetup();
+  if (fInstance == NULL) {
+    fInstance = new ERQTelescopeSetup();
+    return fInstance;
+  }
   else
     return fInstance;
 }
@@ -123,18 +125,18 @@ ERQTelescopeSetup* ERQTelescopeSetup::Instance(){
 //   fCsIType.push_back(type);
 //   fCsIRotation.push_back(rotation);
 // }
-// //--------------------------------------------------------------------------------------------------
-// Double_t ERQTelescopeSetup::GetStripX(TString stationId, Int_t stripNb){
-//   return fStrips[stationId][stripNb]->fX;
-// }
-// //--------------------------------------------------------------------------------------------------
-// Double_t ERQTelescopeSetup::GetStripY(TString stationId, Int_t stripNb){
-//   return fStrips[stationId][stripNb]->fY;
-// }
-// //--------------------------------------------------------------------------------------------------
-// Double_t ERQTelescopeSetup::GetStripZ(TString stationId, Int_t stripNb){
-//   return fStrips[stationId][stripNb]->fZ;
-// }
+//--------------------------------------------------------------------------------------------------
+Double_t ERQTelescopeSetup::GetStripX(TString subassemblyName,TString componentBranchName, Int_t stripNb){
+  return fStrips[subassemblyName][componentBranchName][stripNb]->fX;
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERQTelescopeSetup::GetStripY(TString subassemblyName,TString componentBranchName, Int_t stripNb){
+  return fStrips[subassemblyName][componentBranchName][stripNb]->fY;
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERQTelescopeSetup::GetStripZ(TString subassemblyName,TString componentBranchName, Int_t stripNb){
+  return fStrips[subassemblyName][componentBranchName][stripNb]->fZ;
+}
 // //--------------------------------------------------------------------------------------------------
 // vector<TString>* ERQTelescopeSetup::GetDetectorStations() {
 //   return &fDetectorStations;
@@ -151,79 +153,86 @@ ERQTelescopeSetup* ERQTelescopeSetup::Instance(){
 // }
 // // --------------------------------------------------------------------------------------------------
 void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
-//   if ( ! gGeoManager ) {
-//     std::cerr << "ERQTelescopeSetup: cannot initialise without TGeoManager!"<< std::endl;
-//   }
-//   gGeoManager->CdTop();
+  if ( ! gGeoManager ) {
+    std::cerr << "ERQTelescopeSetup: cannot initialise without TGeoManager!"<< std::endl;
+  }
+  gGeoManager->CdTop();
 
-//   TGeoNode* cave = gGeoManager->GetCurrentNode();
-//   TGeoNode* qtelescope  = NULL;
-//   TGeoNode* qtelescopeStation = NULL;
-//   for (Int_t iNode = 0; iNode < cave->GetNdaughters(); iNode++) {
-//     TString moduleName = cave->GetDaughter(iNode)->GetName();
+  TGeoNode* cave = gGeoManager->GetCurrentNode();
+  TGeoNode* qtelescope  = NULL;
+  TGeoNode* qtelescopeSubassembly = NULL;
+  TGeoNode* qtelescopeComponent = NULL;
+  for (Int_t iNode = 0; iNode < cave->GetNdaughters(); iNode++) { // cycle by volumes in TOP
+    TString moduleName = cave->GetDaughter(iNode)->GetName();
 
-//     if ( moduleName.Contains("QTelescope", TString::kIgnoreCase) ) {
-//       qtelescope = cave->GetDaughter(iNode);
+    if ( moduleName.Contains(this->GetGeoName(), TString::kIgnoreCase) ) {
+      qtelescope = cave->GetDaughter(iNode);
+      for (Int_t iSubassembly = 0; iSubassembly < qtelescope->GetNdaughters(); iSubassembly++) { // cycle by subassemblies in QTelescope
+        qtelescopeSubassembly = qtelescopeSubassembly->GetDaughter(iSubassembly);
+        TString subassemblyName = qtelescopeSubassembly->GetName();
+        for (Int_t iComponent = 0; iComponent < qtelescopeSubassembly->GetNdaughters(); iComponent++) { // cycle by components in subassembly
+          qtelescopeComponent = qtelescopeSubassembly->GetDaughter(iComponent);
+          TString qtelescopeComponentName = qtelescopeComponent->GetName();
+          Double_t stripInComponentTrans[3];
+          Double_t stripInSubAssemblyTrans[3];
+          Double_t stripGlobTrans[3];
+          if (qtelescopeComponentName.Contains("DoubleSi", TString::kIgnoreCase) ) {
+            TGeoNode* doubleSiStrip;
+            TString   firstStripArrayName = (qtelescopeComponentName.Contains("XY")) ? qtelescopeComponentName + "_X"
+                                                                                     : qtelescopeComponentName + "_Y";
+            TString   secondStripArrayName = (firstStripArrayName.EndsWith("X"))   ? qtelescopeComponentName + "_Y"
+                                                                                   : qtelescopeComponentName + "_X";
+            Bool_t    flagFirstStripReaded = kFALSE;
+            Int_t     iDoubleSiStrip = 0;
+            for (; iDoubleSiStrip < qtelescopeComponent->GetNdaughters(); iDoubleSiStrip++) {
+              doubleSiStrip = qtelescopeComponent->GetDaughter(iDoubleSiStrip);
+              stripInComponentTrans[0] = doubleSiStrip->GetMatrix()->GetTranslation()[0];
+              stripInComponentTrans[1] = doubleSiStrip->GetMatrix()->GetTranslation()[1];
+              stripInComponentTrans[2] = doubleSiStrip->GetMatrix()->GetTranslation()[2];
+              qtelescopeComponent->LocalToMaster(stripInComponentTrans, stripInSubAssemblyTrans);
+              qtelescopeSubassembly->LocalToMaster(stripInSubAssemblyTrans, stripGlobTrans);
+              fStrips[subassemblyName][firstStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans));
+              
+              TGeoNode* doubleSiBox;
+              Int_t iDoubleSiBox = 0;
+              if (!flagFirstStripReaded) {
+                for (; iDoubleSiBox < doubleSiStrip->GetNdaughters(); iDoubleSiBox++) {
+                  Double_t siBoxLocalTrans[3];
+                  doubleSiBox = doubleSiStrip->GetDaughter(iDoubleSiBox);
+                  TString siBoxName = doubleSiBox->GetName();
+                  siBoxLocalTrans[0] = doubleSiBox->GetMatrix()->GetTranslation()[0];
+                  siBoxLocalTrans[1] = doubleSiBox->GetMatrix()->GetTranslation()[1];
+                  siBoxLocalTrans[2] = doubleSiBox->GetMatrix()->GetTranslation()[2];
 
-//       for (Int_t iStation = 0; iStation < qtelescope->GetNdaughters(); iStation++) {
-//         qtelescopeStation = qtelescope->GetDaughter(iStation);
-//         TString qtelescopeStationName = qtelescopeStation->GetName();
-//         Double_t stripInStationTrans[3];
-//         Double_t stripGlobTrans[3];
-//         if (qtelescopeStationName.Contains("DoubleSi", TString::kIgnoreCase) ) {
-//           TGeoNode* doubleSiStrip;
-//           TString   firstStripArrayName = (qtelescopeStationName.Contains("XY")) ? qtelescopeStationName + "_X"
-//                                                                                  : qtelescopeStationName + "_Y";
-//           TString   secondStripArrayName = (firstStripArrayName.EndsWith("X"))   ? qtelescopeStationName + "_Y"
-//                                                                                  : qtelescopeStationName + "_X";
-//           Bool_t    flagFirstStripReaded = kFALSE;
-//           Int_t     iDoubleSiStrip = 0;
-//           for (; iDoubleSiStrip < qtelescopeStation->GetNdaughters(); iDoubleSiStrip++) {
-//             doubleSiStrip = qtelescopeStation->GetDaughter(iDoubleSiStrip);
-//             stripInStationTrans[0] = doubleSiStrip->GetMatrix()->GetTranslation()[0];
-//             stripInStationTrans[1] = doubleSiStrip->GetMatrix()->GetTranslation()[1];
-//             stripInStationTrans[2] = doubleSiStrip->GetMatrix()->GetTranslation()[2];
-//             qtelescopeStation->LocalToMaster(stripInStationTrans, stripGlobTrans);
-//             fStrips[firstStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans));
-            
-//             TGeoNode* doubleSiBox;
-//             Int_t iDoubleSiBox = 0;
-//             if (!flagFirstStripReaded) {
-//               for (; iDoubleSiBox < doubleSiStrip->GetNdaughters(); iDoubleSiBox++) {
-//                 Double_t siBoxLocalTrans[3];
-//                 doubleSiBox = doubleSiStrip->GetDaughter(iDoubleSiBox);
-//                 TString siBoxName = doubleSiBox->GetName();
-//                 siBoxLocalTrans[0] = doubleSiBox->GetMatrix()->GetTranslation()[0];
-//                 siBoxLocalTrans[1] = doubleSiBox->GetMatrix()->GetTranslation()[1];
-//                 siBoxLocalTrans[2] = doubleSiBox->GetMatrix()->GetTranslation()[2];
+                  doubleSiStrip->LocalToMaster(siBoxLocalTrans, stripInComponentTrans);
+                  (qtelescopeComponentName.Contains("XY")) ? stripInComponentTrans[0] = 0
+                                                           : stripInComponentTrans[1] = 0;
+                  qtelescopeComponent->LocalToMaster(stripInComponentTrans, stripInSubAssemblyTrans);
+                  qtelescopeSubassembly->LocalToMaster(stripInSubAssemblyTrans, stripGlobTrans);
+                  fStrips[subassemblyName][secondStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans));
+                }
+                flagFirstStripReaded = kTRUE;
+              }
+            }
+          }
+          if (qtelescopeComponentName.Contains("SingleSi", TString::kIgnoreCase) ) {
+            TGeoNode* singleSiStrip;
+            Int_t     iSingleSiStrip = 0;
+            for (; iSingleSiStrip < qtelescopeComponent->GetNdaughters(); iSingleSiStrip++) {
+              singleSiStrip = qtelescopeComponent->GetDaughter(iSingleSiStrip);
 
-//                 doubleSiStrip->LocalToMaster(siBoxLocalTrans, stripInStationTrans);
-//                 (qtelescopeStationName.Contains("XY")) ? stripInStationTrans[0] = 0
-//                                                        : stripInStationTrans[1] = 0;
-//                 qtelescopeStation->LocalToMaster(stripInStationTrans, stripGlobTrans);
-//                 fStrips[secondStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans));
-//               }
-//               flagFirstStripReaded = kTRUE;
-//             }
-//           }
-//         }
-//         if (qtelescopeStationName.Contains("SingleSi", TString::kIgnoreCase) ) {
-//           TGeoNode* singleSiStrip;
-//           Int_t     iSingleSiStrip = 0;
-//           for (; iSingleSiStrip < qtelescopeStation->GetNdaughters(); iSingleSiStrip++) {
-//             singleSiStrip = qtelescopeStation->GetDaughter(iSingleSiStrip);
+              stripInComponentTrans[0] = singleSiStrip->GetMatrix()->GetTranslation()[0];
+              stripInComponentTrans[1] = singleSiStrip->GetMatrix()->GetTranslation()[1];
+              stripInComponentTrans[2] = singleSiStrip->GetMatrix()->GetTranslation()[2];
 
-//             stripInStationTrans[0] = singleSiStrip->GetMatrix()->GetTranslation()[0];
-//             stripInStationTrans[1] = singleSiStrip->GetMatrix()->GetTranslation()[1];
-//             stripInStationTrans[2] = singleSiStrip->GetMatrix()->GetTranslation()[2];
-
-//             singleSiStrip->LocalToMaster(stripInStationTrans, stripGlobTrans);
-//             fStrips[qtelescopeStationName].push_back(new ERQTelescopeStrip(stripGlobTrans));            
-//           }
-//         }
-//       }
-//     }
-//   }
+              singleSiStrip->LocalToMaster(stripInComponentTrans, stripGlobTrans);
+              fStrips[subassemblyName][qtelescopeComponentName].push_back(new ERQTelescopeStrip(stripGlobTrans));            
+            }
+          }
+        }
+      }
+    }
+  }
 }
 //--------------------------------------------------------------------------------------------------
 // void ERQTelescopeSetup::ConstructGeometry() {

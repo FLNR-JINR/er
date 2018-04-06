@@ -50,6 +50,15 @@ void ERQTelescopeTrackFinder::SetHitStation(TString xStationID, TString yStation
   fSiHitStationsPair.emplace(make_pair( xStationID + yStationID,
                                        pair<TString, TString>(xStationID, yStationID)));
 }
+//--------------------------------------------------------------------------------------------------
+void ERQTelescopeTrackFinder::SetHitSubAssembly(TString subassemblyName, TString componentId) {
+  TString xStripArrayName = componentId;
+  TString yStripArrayName = componentId;
+  fSiHitStationsPair1.emplace(make_pair(componentId, 
+                                       pair<TString, TString>(xStripArrayName.Append("_X"), 
+                                                              yStripArrayName.Append("_Y"))));
+}
+//--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::SetStripEdepRange(Double_t edepMin, Double_t edepMax) {
   fSiDigiEdepMin = edepMin; 
   fSiDigiEdepMax = edepMax;
@@ -78,11 +87,13 @@ InitStatus ERQTelescopeTrackFinder::Init() {
       fQTelescopeDigi[brName] = (TClonesArray*) ioman->GetObject(bFullName);
     }
   }
-  // Register output track branches only for stations that are setted by interface SetStation()
-  for (const auto itHitStations : fSiHitStationsPair) {
-    fQTelescopeTrack[itHitStations.first] = new TClonesArray("ERQTelescopeTrack");
-    ioman->Register("ERQTelescopeTrack_" + itHitStations.first, "QTelescope", 
-                    fQTelescopeTrack[itHitStations.first], kTRUE);
+  // Register output track branches only for stations that are setted by interface SetStation(){
+  for (const auto itSubassemblies : fSiHitStationsPair1) {
+    for (const auto itComponent : itSubassemblies) {
+      fQTelescopeTrack[itComponent.first] = new TClonesArray("ERQTelescopeTrack");
+      ioman->Register("ERQTelescopeTrack_" + itComponent.first, "QTelescope", 
+                      fQTelescopeTrack[itComponent.first], kTRUE);
+    }
   }
 
   fBeamDetTrack = (TClonesArray*) ioman->GetObject("BeamDetTrack");   

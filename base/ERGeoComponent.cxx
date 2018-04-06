@@ -15,19 +15,22 @@ ERGeoComponent::ERGeoComponent() {
 }
 //--------------------------------------------------------------------------------------------------
 ERGeoComponent::ERGeoComponent(TString name) 
-: TNamed(name, name)
+: TNamed(name, name),
+  fPosition(new TVector3()),
+  fRotation(new TGeoRotation())
 {
 }
 //--------------------------------------------------------------------------------------------------
 ERGeoComponent::ERGeoComponent(TString name, TString typeFromXML, TVector3 position, TVector3 rotation)
 : TNamed(name, name),
   fType(typeFromXML),
-  fPosition(position)
+  fPosition(new TVector3(position))
 {
   fRotation = new TGeoRotation();
   fRotation->RotateX(rotation.X());
   fRotation->RotateY(rotation.Y());
-  fRotation->RotateZ(rotation.Z());}
+  fRotation->RotateZ(rotation.Z());
+}
 //--------------------------------------------------------------------------------------------------
 ERGeoComponent::~ERGeoComponent() {
 }

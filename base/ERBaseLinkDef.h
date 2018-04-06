@@ -10,7 +10,7 @@
 #pragma link C++ class ERDetectorContFact+;
 #pragma link C++ class ERDetectorGeoPar+;
 #pragma link C++ class ERDigitizer+;
-#pragma link C++ class ERGeoComponent+;
+#pragma link C++ class ERGeoComponent;
 #pragma link C++ class ERGeoSubAssembly+;
 #pragma link C++ class ERSetup+;
 

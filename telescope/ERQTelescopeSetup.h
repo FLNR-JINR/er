@@ -45,9 +45,9 @@ public:
   // static void AddCsI(TString type, TVector3 position, TVector3 rotation, 
   //                                                     TString orientAroundZ);
   /* Accessors */
-  // static Double_t GetStripX(TString stationId, Int_t stripNb);
-  // static Double_t GetStripY(TString stationId, Int_t stripNb);
-  // static Double_t GetStripZ(TString stationId, Int_t stripNb);
+  Double_t GetStripX(TString subassemblyName,TString componentBranchName, Int_t stripNb);
+  Double_t GetStripY(TString subassemblyName,TString componentBranchName, Int_t stripNb);
+  Double_t GetStripZ(TString subassemblyName,TString componentBranchName, Int_t stripNb);
   // static vector<TString>* GetDetectorStations();
 
 public:
@@ -58,6 +58,8 @@ public:
   // static void PrintDetectorParametersToFile(TString fileName);
 
 private:
+  map<TString, map<TString, vector<ERQTelescopeStrip*>>> fStrips;  // map<subassembly,map<component, vector<strip>>>            
+
   static ERQTelescopeSetup* fInstance;
   static TString            fParamsXmlFileName;
   static vector<TString>    fDetectorStations;

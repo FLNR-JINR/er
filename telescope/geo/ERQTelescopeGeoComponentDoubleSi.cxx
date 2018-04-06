@@ -31,7 +31,7 @@ ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(TString name,
 : ERGeoComponent(name, typeFromXML, position, rotation)
 {
   TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
-  fType = typeFromXML + volumeNameInd;
+  fType = typeFromXML;
   fOrientAroundZ = volumeNameInd;
   fDeadLayerThicknessFrontSide = 0.;
   fDeadLayerThicknessBackSide  = 0.;
@@ -40,6 +40,7 @@ ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(TString name,
 ERQTelescopeGeoComponentDoubleSi::~ERQTelescopeGeoComponentDoubleSi() {
 }
 void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
+  ParseXmlParameters();
    // ----- BeamDet parameters -------------------------------------------------
   Double_t transTargetX = 0.;
   Double_t transTargetY = 0.; 
@@ -80,6 +81,7 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   FairGeoMedium* mDoubleSi;
   TGeoMedium*    pMed; 
   mDoubleSi = geoMedia->getMedium(fMedia);
+
   if ( ! mDoubleSi ) Fatal("Main", "Medium for DoubleSi not found");
   geoBuild->createMedium(mDoubleSi);
   pMed = gGeoMan->GetMedium(fMedia);
@@ -134,7 +136,7 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   // rotation->RotateY(fRotation->Y());
   // rotation->RotateZ(fRotation->Z() + deltaRotAroundZ);
   fVolume->AddNode(shell, fConstructedObjCount++, 
-                   new TGeoCombiTrans(fPosition.X(), fPosition.Y(), fPosition.Z(), fRotation));
+                   new TGeoCombiTrans(fPosition->X(), fPosition->Y(), fPosition->Z(), fRotation));
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoComponentDoubleSi::ParseXmlParameters() {
@@ -149,7 +151,6 @@ void ERQTelescopeGeoComponentDoubleSi::ParseXmlParameters() {
      LOG(FATAL) << domParser->GetParseCodeMessage(parsecode) << FairLogger::FairLogger::endl;
     return ;
   }
-
   TXMLNode *rootNode = domParser->GetXMLDocument()->GetRootNode();
   TXMLNode *detPartNode = rootNode->GetChildren();
   TXMLNode *SiTypeNodes;

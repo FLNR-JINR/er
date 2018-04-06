@@ -80,7 +80,7 @@ void exp1803_sim(Int_t nEvents = 100) {
 
   // -----  QTelescope Setup ------------------------------------------------
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
-  setupQTelescope->SetXmlParametersFile(paramFileQTelescope);
+  setupQTelescope->SetXMLParametersFile(paramFileQTelescope);
 
   // ----- T1 parameters ----------------------------------------------------
   // ----- T1.1--------------------------------------------------------------
@@ -124,7 +124,7 @@ void exp1803_sim(Int_t nEvents = 100) {
 
   // -----  BeamDet Setup ---------------------------------------------------
   ERBeamDetSetup* setupBeamDet = ERBeamDetSetup::Instance();
-  setupBeamDet->SetXmlParametersFile(paramFileBeamDet);
+  setupBeamDet->SetXMLParametersFile(paramFileBeamDet);
 
   // -----  BeamDet parameters ----------------------------------------------
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);       // 

@@ -9,15 +9,16 @@
 #ifndef ERGeoSubAssembly_H
 #define ERGeoSubAssembly_H
 
+#include "ERGeoComponent.h"
+
 #include "TString.h"
 #include "TVector3.h"
 #include "TGeoVolume.h"
 #include "TGeoMatrix.h"
 
-#include "ERGeoComponent.h"
-
 class ERGeoSubAssembly : public TNamed {
 public:
+  ERGeoSubAssembly();
   ERGeoSubAssembly(TString name);
   ERGeoSubAssembly(TString name, TVector3 position, TVector3 rotation);
   ~ERGeoSubAssembly();
@@ -25,21 +26,23 @@ public:
   /* Modifiers */
   void SetPosition(Double_t x, Double_t y, Double_t z);
   void SetRotation(Double_t x, Double_t y, Double_t z);
-  void AddComponent(ERGeoComponent* component);
+  void AddComponent(TObject* component);
   /* Accessors */
   TGeoVolume*   GetVolume()   const {return fVolume;}
-  TVector3      GetPosition() const {return fPosition;}
+  TVector3*     GetPosition() const {return fPosition;}
   TGeoRotation* GetRotation() const {return fRotation;}
   std::vector<TString>* GetComponentNames() const {return fComponentNames;}
+  
 public:
   void  ConstructGeometryVolume();
 
 protected:
   TObjArray*           fComponents;
-  TVector3             fPosition;
+  TVector3*            fPosition;
   TGeoRotation*        fRotation;
   TGeoVolume*          fVolume;
   std::vector<TString> *fComponentNames;
+
   ClassDef(ERGeoSubAssembly,1)
 };
 #endif
