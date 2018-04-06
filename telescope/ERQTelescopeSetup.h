@@ -28,7 +28,6 @@ struct ERQTelescopeStrip{
 
 class ERQTelescopeSetup : public ERSetup {
 public:
-  ERQTelescopeSetup();
   ~ERQTelescopeSetup();
 
   static ERQTelescopeSetup* Instance();
@@ -58,6 +57,7 @@ public:
   // static void PrintDetectorParametersToFile(TString fileName);
 
 private:
+  ERQTelescopeSetup();
   map<TString, map<TString, vector<ERQTelescopeStrip*>>> fStrips;  // map<subassembly,map<component, vector<strip>>>            
 
   static ERQTelescopeSetup* fInstance;

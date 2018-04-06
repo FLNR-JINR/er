@@ -90,13 +90,13 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
 
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
-  fVolume = new TGeoVolumeAssembly(fType);
+  // fVolume = new TGeoVolumeAssembly(fType);
   // ----------------- DoubleSi -----------------------------------------------
   TGeoVolume* shell;
   TGeoVolume* strip;
   TGeoVolume* box;
 
-  shell =  gGeoManager->MakeBox(fType + fOrientAroundZ, pMed, fSizeX / 2, fSizeY / 2,  fSizeZ / 2);
+  fVolume =  gGeoManager->MakeBox(fType + fOrientAroundZ, pMed, fSizeX / 2, fSizeY / 2,  fSizeZ / 2);
   //------------------ Silicon strip   ---------------------------------------
   Double_t stripX = fSensX / fStripCountX;
   Double_t stripY = fSensY;
@@ -125,18 +125,17 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
                         - stripX *(iStripX)-(stripX / 2);
     Double_t translateZ = fDeadLayerThicknessFrontSide 
                         - fDeadLayerThicknessBackSide ;
-    shell->AddNode(strip, iStripX, new TGeoCombiTrans(translateX, 0, translateZ, fZeroRotation));
+    fVolume->AddNode(strip, iStripX, new TGeoCombiTrans(translateX, 0, translateZ, fZeroRotation));
   }
-  Double_t deltaRotAroundZ = 0;
   if (fOrientAroundZ == "Y") {
-    deltaRotAroundZ = 90;
+    fRotation->RotateZ(90.);
   }
   // TGeoRotation *rotation = new TGeoRotation();
   // rotation->RotateX(fRotation->X());
   // rotation->RotateY(fRotation->Y());
   // rotation->RotateZ(fRotation->Z() + deltaRotAroundZ);
-  fVolume->AddNode(shell, fConstructedObjCount++, 
-                   new TGeoCombiTrans(fPosition->X(), fPosition->Y(), fPosition->Z(), fRotation));
+  // fVolume->AddNode(shell, fConstructedObjCount++, 
+  //                  new TGeoCombiTrans(fPosition->X(), fPosition->Y(), fPosition->Z(), fRotation));
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoComponentDoubleSi::ParseXmlParameters() {
