@@ -27,7 +27,7 @@
 class ERSetup {
 public:
   ERSetup();
-  ~ERSetup();
+  virtual ~ERSetup();
 
   /* Modifiers */
   void SetXMLParametersFile(TString xmlFileName) {fParamsXMLFileName = xmlFileName;} 

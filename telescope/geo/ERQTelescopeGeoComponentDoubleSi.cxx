@@ -88,6 +88,7 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   if ( ! pMed ) Fatal("Main", "Medium for DoubleSi not found");
   LOG(DEBUG) << "Created double Si media" << FairLogger::endl;
 
+  fType += fOrientAroundZ;
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   // fVolume = new TGeoVolumeAssembly(fType);
@@ -95,8 +96,7 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   TGeoVolume* shell;
   TGeoVolume* strip;
   TGeoVolume* box;
-
-  fVolume =  gGeoManager->MakeBox(fType + fOrientAroundZ, pMed, fSizeX / 2, fSizeY / 2,  fSizeZ / 2);
+  fVolume =  gGeoManager->MakeBox(this->GetBranchName(), pMed, fSizeX / 2, fSizeY / 2,  fSizeZ / 2);
   //------------------ Silicon strip   ---------------------------------------
   Double_t stripX = fSensX / fStripCountX;
   Double_t stripY = fSensY;

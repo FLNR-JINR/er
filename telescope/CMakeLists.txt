@@ -42,7 +42,7 @@ geo/ERQTelescopeGeoComponentDoubleSi.cxx
 ERQTelescope.cxx
 ERQTelescopeDigitizer.cxx
 ERQTelescopeSetup.cxx
-#ERQTelescopeTrackFinder.cxx
+ERQTelescopeTrackFinder.cxx
 
 data/ERQTelescopeSiPoint.cxx
 data/ERQTelescopeSiDigi.cxx

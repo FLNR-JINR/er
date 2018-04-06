@@ -56,10 +56,8 @@ void ERSetup::ConstructGeometry(void) {
   //------------------ STRUCTURE  ---------------------------------------------
   TIter itSubAssembly(fSubAssembies);
   ERGeoSubAssembly *subAssembly;
-  TObject *obj;
   int i = 0;
   while(subAssembly = (ERGeoSubAssembly*)(itSubAssembly.Next())){
-    // std::cout << "ERSetup::ConstructGeometry " << std::endl;
     subAssembly->ConstructGeometryVolume();
     TGeoVolume*   volume = subAssembly->GetVolume(); 
     TGeoRotation* rotation = subAssembly->GetRotation();

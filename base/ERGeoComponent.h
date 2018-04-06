@@ -32,7 +32,7 @@ public:
   TGeoVolume*   GetVolume()   const {return fVolume;}
   TVector3*     GetPosition() const {return fPosition;}
   TGeoRotation* GetRotation() const {return fRotation;}
-  TString       GetBranchName() {return (fType + this->GetName());}
+  TString       GetBranchName() {return (TString(this->GetName()) + "_" + fType);}
 
 public:
   virtual void ConstructGeometryVolume(void) = 0;

@@ -43,7 +43,7 @@ public:
   /* Modifiers */
   void SetHitStation(TString stationID);
   void SetHitStation(TString xStationID, TString yStationID2);
-  void SetHitSubAssembly(TString subassemblyName);
+  void SetHitSubAssembly(TString subassemblyName, TString componentId);
   void SetStripEdepRange(Double_t edepMin, Double_t edepMax);
   void SetEdepMaxDiffXY(Double_t edepDiff) {fEdepDiffXY = edepDiff;}
   void SetTargetPoint(Double_t x, Double_t y, Double_t z);

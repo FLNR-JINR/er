@@ -26,6 +26,7 @@ ERQTelescopeTrackFinder::ERQTelescopeTrackFinder()
     fUserTargetPointIsSet(kFALSE),
     fBeamDetTrack(NULL)
 {
+  fQTelescopeSetup = ERQTelescopeSetup::Instance();
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeTrackFinder::ERQTelescopeTrackFinder(Int_t verbose)
@@ -33,6 +34,7 @@ ERQTelescopeTrackFinder::ERQTelescopeTrackFinder(Int_t verbose)
     fUserTargetPointIsSet(kFALSE),
     fBeamDetTrack(NULL)
 {
+  fQTelescopeSetup = ERQTelescopeSetup::Instance();
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeTrackFinder::~ERQTelescopeTrackFinder() {
@@ -54,7 +56,7 @@ void ERQTelescopeTrackFinder::SetHitStation(TString xStationID, TString yStation
 void ERQTelescopeTrackFinder::SetHitSubAssembly(TString subassemblyName, TString componentId) {
   TString xStripArrayName = componentId;
   TString yStripArrayName = componentId;
-  fSiHitStationsPair1.emplace(make_pair(componentId, 
+  fSiHitStationsPair1[subassemblyName].emplace(make_pair(componentId, 
                                        pair<TString, TString>(xStripArrayName.Append("_X"), 
                                                               yStripArrayName.Append("_Y"))));
 }
@@ -74,7 +76,6 @@ void ERQTelescopeTrackFinder::SetTargetPoint(Double_t x, Double_t y, Double_t z)
 InitStatus ERQTelescopeTrackFinder::Init() {
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
-
   TList* allbrNames = ioman->GetBranchNameList();
   TIter nextBranch(allbrNames);
   TObjString* bName;
@@ -89,7 +90,7 @@ InitStatus ERQTelescopeTrackFinder::Init() {
   }
   // Register output track branches only for stations that are setted by interface SetStation(){
   for (const auto itSubassemblies : fSiHitStationsPair1) {
-    for (const auto itComponent : itSubassemblies) {
+    for (const auto itComponent : itSubassemblies.second) {
       fQTelescopeTrack[itComponent.first] = new TClonesArray("ERQTelescopeTrack");
       ioman->Register("ERQTelescopeTrack_" + itComponent.first, "QTelescope", 
                       fQTelescopeTrack[itComponent.first], kTRUE);
@@ -106,79 +107,81 @@ InitStatus ERQTelescopeTrackFinder::Init() {
     } 
   }
 
-  fQTelescopeSetup = ERQTelescopeSetup::Instance();
-  fQTelescopeSetup->ReadGeoParamsFromParContainer();
+  fQTelescopeSetup->ERQTelescopeSetup::ReadGeoParamsFromParContainer();
+  
   return kSUCCESS;
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::Exec(Option_t* opt) { 
   Reset();
 
-  for (const auto &itSiStationPair : fSiHitStationsPair) {
-    vector<pair<Int_t, Int_t>>  hitTelescopePoint;    // pairs of X and Y strips that have difference between edep less than fEdepDiffXY 
-    vector<Int_t>               correctStripsX;       // strips with edep in correct interval (fSiDigiEdepMin, fSiDigiEdepMax)     
-    vector<Int_t>               correctStripsY;       // strips with edep in correct interval (fSiDigiEdepMin, fSiDigiEdepMax)
-    TString xDigiBranchName = itSiStationPair.second.first;
-    TString yDigiBranchName = itSiStationPair.second.second;  
-    TClonesArray *xDigi = fQTelescopeDigi[xDigiBranchName];
-    TClonesArray *yDigi = fQTelescopeDigi[yDigiBranchName];
-    if ( !xDigi || !yDigi) {
-      continue;
-    } 
-    for (Int_t iXDigi  = 0; iXDigi < xDigi->GetEntriesFast(); iXDigi++) {
-      Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(iXDigi))->GetEdep();
-      if (xStripEdep > fSiDigiEdepMin && xStripEdep < fSiDigiEdepMax) {
-        correctStripsX.push_back(iXDigi);
-      }
-    }
-    for (Int_t iYDigi  = 0; iYDigi < yDigi->GetEntriesFast(); iYDigi++) {
-      Double_t yStripEdep = ((ERQTelescopeSiDigi*)yDigi->At(iYDigi))->GetEdep();
-      if (yStripEdep > fSiDigiEdepMin && yStripEdep < fSiDigiEdepMax) {
-        correctStripsY.push_back(iYDigi);
-      }
-    }
-    for (const auto itCorrectStripsX : correctStripsX) {
-      Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(itCorrectStripsX))->GetEdep();
-      for (const auto itCorrectStripsY : correctStripsY) {
-        Double_t yStripEdep = ((ERQTelescopeSiDigi*)yDigi->At(itCorrectStripsY))->GetEdep();
-        if (TMath::Abs(xStripEdep - yStripEdep) < fEdepDiffXY) {
-          hitTelescopePoint.push_back(pair<Int_t, Int_t>(itCorrectStripsX, itCorrectStripsY));
+  for (const auto itSubassemblies : fSiHitStationsPair1) {
+    for (const auto itComponent : itSubassemblies.second) {
+      vector<pair<Int_t, Int_t>>  hitTelescopePoint;    // pairs of X and Y strips that have difference between edep less than fEdepDiffXY 
+      vector<Int_t>               correctStripsX;       // strips with edep in correct interval (fSiDigiEdepMin, fSiDigiEdepMax)     
+      vector<Int_t>               correctStripsY;       // strips with edep in correct interval (fSiDigiEdepMin, fSiDigiEdepMax)
+      TString xDigiBranchName = itComponent.second.first;
+      TString yDigiBranchName = itComponent.second.second;  
+      TClonesArray *xDigi = fQTelescopeDigi[xDigiBranchName];
+      TClonesArray *yDigi = fQTelescopeDigi[yDigiBranchName];
+      if ( !xDigi || !yDigi) {
+        continue;
+      } 
+      for (Int_t iXDigi  = 0; iXDigi < xDigi->GetEntriesFast(); iXDigi++) {
+        Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(iXDigi))->GetEdep();
+        if (xStripEdep > fSiDigiEdepMin && xStripEdep < fSiDigiEdepMax) {
+          correctStripsX.push_back(iXDigi);
         }
       }
-    }
-    LOG(DEBUG) << "Strips array pair " << itSiStationPair.second.first << " " 
-                                       << itSiStationPair.second.second << FairLogger::endl; 
-    for (auto &itHitPoint : hitTelescopePoint) {
-      ERQTelescopeSiDigi* xStrip = ((ERQTelescopeSiDigi*)xDigi->At(itHitPoint.first));
-      ERQTelescopeSiDigi* yStrip = ((ERQTelescopeSiDigi*)yDigi->At(itHitPoint.second));
+      for (Int_t iYDigi  = 0; iYDigi < yDigi->GetEntriesFast(); iYDigi++) {
+        Double_t yStripEdep = ((ERQTelescopeSiDigi*)yDigi->At(iYDigi))->GetEdep();
+        if (yStripEdep > fSiDigiEdepMin && yStripEdep < fSiDigiEdepMax) {
+          correctStripsY.push_back(iYDigi);
+        }
+      }
+      for (const auto itCorrectStripsX : correctStripsX) {
+        Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(itCorrectStripsX))->GetEdep();
+        for (const auto itCorrectStripsY : correctStripsY) {
+          Double_t yStripEdep = ((ERQTelescopeSiDigi*)yDigi->At(itCorrectStripsY))->GetEdep();
+          if (TMath::Abs(xStripEdep - yStripEdep) < fEdepDiffXY) {
+            hitTelescopePoint.push_back(pair<Int_t, Int_t>(itCorrectStripsX, itCorrectStripsY));
+          }
+        }
+      }
+      LOG(DEBUG) << "Strips array pair " << itComponent.second.first << " " 
+                                         << itComponent.second.second << FairLogger::endl; 
+      for (auto &itHitPoint : hitTelescopePoint) {
+        ERQTelescopeSiDigi* xStrip = ((ERQTelescopeSiDigi*)xDigi->At(itHitPoint.first));
+        ERQTelescopeSiDigi* yStrip = ((ERQTelescopeSiDigi*)yDigi->At(itHitPoint.second));
 
-      Int_t xStripNb = xStrip->GetStripNb();
-      Int_t yStripNb = yStrip->GetStripNb();
-      LOG(DEBUG) << "  Strips pair " << itHitPoint.first << " " << itHitPoint.second << FairLogger::endl;
-      Double_t xQtelescopeHit = fQTelescopeSetup->GetStripX(xDigiBranchName, xStripNb);
-      Double_t yQtelescopeHit = fQTelescopeSetup->GetStripY(yDigiBranchName, yStripNb);
-      Double_t zQtelescopeHit = (fQTelescopeSetup->GetStripZ(xDigiBranchName, xStripNb) 
-                              +  fQTelescopeSetup->GetStripZ(yDigiBranchName, yStripNb)) / 2;
-      if (!fUserTargetPointIsSet) {
-        ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
-        if (!trackFromMWPC) {
-          FairRun* run = FairRun::Instance();
-          run->MarkFill(kFALSE);
-          return ;
+        Int_t xStripNb = xStrip->GetStripNb();
+        Int_t yStripNb = yStrip->GetStripNb();
+        LOG(DEBUG) << "  Strips pair " << itHitPoint.first << " " << itHitPoint.second << FairLogger::endl;
+        Double_t xQtelescopeHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripX(itSubassemblies.first, xDigiBranchName, xStripNb);
+        Double_t yQtelescopeHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripY(itSubassemblies.first, yDigiBranchName, yStripNb);
+        Double_t zQtelescopeHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripZ(itSubassemblies.first, xDigiBranchName, xStripNb) 
+                                +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripZ(itSubassemblies.first, yDigiBranchName, yStripNb)) / 2;
+        if (!fUserTargetPointIsSet) {
+          ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
+          if (!trackFromMWPC) {
+            FairRun* run = FairRun::Instance();
+            run->MarkFill(kFALSE);
+            return ;
+          }
+          fTargetX = trackFromMWPC->GetTargetX();
+          fTargetY = trackFromMWPC->GetTargetY();
+          fTargetZ = trackFromMWPC->GetTargetZ();
         }
-        fTargetX = trackFromMWPC->GetTargetX();
-        fTargetY = trackFromMWPC->GetTargetY();
-        fTargetZ = trackFromMWPC->GetTargetZ();
+        if (!fBeamDetTrack) {
+          FairRun* run = FairRun::Instance();
+            run->MarkFill(kFALSE);
+            return ;
+        }
+        Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep()) / 2.;
+        AddTrack(fTargetX, fTargetY, fTargetZ, xQtelescopeHit, yQtelescopeHit, zQtelescopeHit,
+                 sumEdep,
+                 itComponent.first);
       }
-      if (!fBeamDetTrack) {
-        FairRun* run = FairRun::Instance();
-          run->MarkFill(kFALSE);
-          return ;
-      }
-      Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep()) / 2.;
-      AddTrack(fTargetX, fTargetY, fTargetZ, xQtelescopeHit, yQtelescopeHit, zQtelescopeHit,
-               sumEdep,
-               itSiStationPair.first);
     }
   }
 }

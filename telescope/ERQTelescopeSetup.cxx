@@ -35,11 +35,10 @@
 using namespace std;
 
 ERQTelescopeSetup* ERQTelescopeSetup::fInstance = NULL;
-TString            ERQTelescopeSetup::fParamsXmlFileName = "";
-vector<TString>    ERQTelescopeSetup::fDetectorStations;
+map<TString, vector<ERQTelescopeStrip*>> ERQTelescopeSetup::fStrips;  // map<subassembly,map<component, vector<strip>>>            
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeSetup::ERQTelescopeSetup() {
-  std::cout << "ERQTelescopeSetup initialized! "<< std::endl;
+ERQTelescopeSetup::ERQTelescopeSetup(): ERSetup() {
+  LOG(DEBUG) << "ERQTelescopeSetup initialized! "<< FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeSetup::~ERQTelescopeSetup() {
@@ -127,15 +126,18 @@ ERQTelescopeSetup* ERQTelescopeSetup::Instance(){
 // }
 //--------------------------------------------------------------------------------------------------
 Double_t ERQTelescopeSetup::GetStripX(TString subassemblyName,TString componentBranchName, Int_t stripNb){
-  return fStrips[subassemblyName][componentBranchName][stripNb]->fX;
+  // return fStrips[subassemblyName][componentBranchName][stripNb]->fX;
+  return fStrips[componentBranchName][stripNb]->fX;
 }
 //--------------------------------------------------------------------------------------------------
 Double_t ERQTelescopeSetup::GetStripY(TString subassemblyName,TString componentBranchName, Int_t stripNb){
-  return fStrips[subassemblyName][componentBranchName][stripNb]->fY;
+  // return fStrips[subassemblyName][componentBranchName][stripNb]->fY;
+  return fStrips[componentBranchName][stripNb]->fY;
 }
 //--------------------------------------------------------------------------------------------------
 Double_t ERQTelescopeSetup::GetStripZ(TString subassemblyName,TString componentBranchName, Int_t stripNb){
-  return fStrips[subassemblyName][componentBranchName][stripNb]->fZ;
+  // return fStrips[subassemblyName][componentBranchName][stripNb]->fZ;
+  return fStrips[componentBranchName][stripNb]->fZ;
 }
 // //--------------------------------------------------------------------------------------------------
 // vector<TString>* ERQTelescopeSetup::GetDetectorStations() {
@@ -164,11 +166,10 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
   TGeoNode* qtelescopeComponent = NULL;
   for (Int_t iNode = 0; iNode < cave->GetNdaughters(); iNode++) { // cycle by volumes in TOP
     TString moduleName = cave->GetDaughter(iNode)->GetName();
-
-    if ( moduleName.Contains(this->GetGeoName(), TString::kIgnoreCase) ) {
-      qtelescope = cave->GetDaughter(iNode);
+    if ( moduleName.Contains("QTelescope", TString::kIgnoreCase) ) {
+      qtelescope = cave->GetDaughter(iNode);    
       for (Int_t iSubassembly = 0; iSubassembly < qtelescope->GetNdaughters(); iSubassembly++) { // cycle by subassemblies in QTelescope
-        qtelescopeSubassembly = qtelescopeSubassembly->GetDaughter(iSubassembly);
+        qtelescopeSubassembly = qtelescope->GetDaughter(iSubassembly);
         TString subassemblyName = qtelescopeSubassembly->GetName();
         for (Int_t iComponent = 0; iComponent < qtelescopeSubassembly->GetNdaughters(); iComponent++) { // cycle by components in subassembly
           qtelescopeComponent = qtelescopeSubassembly->GetDaughter(iComponent);
@@ -191,8 +192,9 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
               stripInComponentTrans[2] = doubleSiStrip->GetMatrix()->GetTranslation()[2];
               qtelescopeComponent->LocalToMaster(stripInComponentTrans, stripInSubAssemblyTrans);
               qtelescopeSubassembly->LocalToMaster(stripInSubAssemblyTrans, stripGlobTrans);
-              fStrips[subassemblyName][firstStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans));
-              
+
+              // fStrips[subassemblyName][firstStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans));
+              fStrips[firstStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans));
               TGeoNode* doubleSiBox;
               Int_t iDoubleSiBox = 0;
               if (!flagFirstStripReaded) {
@@ -209,7 +211,8 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
                                                            : stripInComponentTrans[1] = 0;
                   qtelescopeComponent->LocalToMaster(stripInComponentTrans, stripInSubAssemblyTrans);
                   qtelescopeSubassembly->LocalToMaster(stripInSubAssemblyTrans, stripGlobTrans);
-                  fStrips[subassemblyName][secondStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans));
+                  // fStrips[subassemblyName][secondStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans));
+                  fStrips[secondStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans));
                 }
                 flagFirstStripReaded = kTRUE;
               }
@@ -226,7 +229,8 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
               stripInComponentTrans[2] = singleSiStrip->GetMatrix()->GetTranslation()[2];
 
               singleSiStrip->LocalToMaster(stripInComponentTrans, stripGlobTrans);
-              fStrips[subassemblyName][qtelescopeComponentName].push_back(new ERQTelescopeStrip(stripGlobTrans));            
+              // fStrips[subassemblyName][qtelescopeComponentName].push_back(new ERQTelescopeStrip(stripGlobTrans));            
+              fStrips[qtelescopeComponentName].push_back(new ERQTelescopeStrip(stripGlobTrans));            
             }
           }
         }

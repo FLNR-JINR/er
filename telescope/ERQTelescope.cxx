@@ -156,13 +156,12 @@ void ERQTelescope::Register() {
   TString branchName;
   if (!ioman)
     Fatal("Init", "IO manager is not set");
-  Int_t iDoubleSi = 0; 
-  Int_t iSingleSi = 0; 
-  Int_t iCsI      = 0; 
+  Int_t iDoubleSi = 1; 
+  Int_t iSingleSi = 1; 
+  Int_t iCsI      = 1; 
   vector<TString>* sensVolumes = fQTelescopeSetup->GetComponentNames();
-  std::cout << "asppdwuiiashud ERQTelescopeC ConstructGeometry " << sensVolumes->size()  << endl;
   for (Int_t i = 0; i < sensVolumes->size(); i++) {
-    if (sensVolumes->at(i).BeginsWith("DoubleSi")) {
+    if (sensVolumes->at(i).Contains("DoubleSi")) {
       fDoubleSiXPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
       fDoubleSiYPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
       branchName = "ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iDoubleSi, 10) + "_X";
@@ -170,12 +169,12 @@ void ERQTelescope::Register() {
       branchName = "ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iDoubleSi++, 10) + "_Y";
       ioman->Register(branchName, "QTelescope", fDoubleSiYPoints.back(), kTRUE);
     }
-    if (sensVolumes->at(i).BeginsWith("SingleSi")) {
+    if (sensVolumes->at(i).Contains("SingleSi")) {
       fSingleSiPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
       branchName = "ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iSingleSi++, 10);
       ioman->Register(branchName, "QTelescope", fSingleSiPoints.back(), kTRUE);
     }
-    if (sensVolumes->at(i).BeginsWith("CsI")) {
+    if (sensVolumes->at(i).Contains("CsI")) {
       fCsIPoints.push_back(new TClonesArray("ERQTelescopeCsIPoint"));
       branchName = "ERQTelescopeCsIPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iCsI++, 10);      
       ioman->Register(branchName, "QTelescope", fCsIPoints.back(), kTRUE);

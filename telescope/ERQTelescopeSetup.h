@@ -44,25 +44,24 @@ public:
   // static void AddCsI(TString type, TVector3 position, TVector3 rotation, 
   //                                                     TString orientAroundZ);
   /* Accessors */
-  Double_t GetStripX(TString subassemblyName,TString componentBranchName, Int_t stripNb);
-  Double_t GetStripY(TString subassemblyName,TString componentBranchName, Int_t stripNb);
-  Double_t GetStripZ(TString subassemblyName,TString componentBranchName, Int_t stripNb);
+  Double_t GetStripX(TString subassemblyName, TString componentBranchName, Int_t stripNb);
+  Double_t GetStripY(TString subassemblyName, TString componentBranchName, Int_t stripNb);
+  Double_t GetStripZ(TString subassemblyName, TString componentBranchName, Int_t stripNb);
   // static vector<TString>* GetDetectorStations();
 
 public:
   // static Int_t SetParContainers();
-  void ReadGeoParamsFromParContainer();
+  virtual void ReadGeoParamsFromParContainer();
   // static void ConstructGeometry();
   // static void PrintDetectorParameters(void);
   // static void PrintDetectorParametersToFile(TString fileName);
 
 private:
   ERQTelescopeSetup();
-  map<TString, map<TString, vector<ERQTelescopeStrip*>>> fStrips;  // map<subassembly,map<component, vector<strip>>>            
+  // map<TString, map<TString, vector<ERQTelescopeStrip*>>> fStrips;  // map<subassembly,map<component, vector<strip>>>            
 
+  static map<TString, vector<ERQTelescopeStrip*>> fStrips;  // map<subassembly,map<component, vector<strip>>>            
   static ERQTelescopeSetup* fInstance;
-  static TString            fParamsXmlFileName;
-  static vector<TString>    fDetectorStations;
 
   ClassDef(ERQTelescopeSetup,1)
 };
