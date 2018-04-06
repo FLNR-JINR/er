@@ -1,0 +1,51 @@
+# Use an official ubuntu image
+FROM jupyter/base-notebook
+
+USER root
+
+# Set the working directory to /opt
+WORKDIR /opt
+
+RUN apt-get -y update &&\
+  apt-get -y install bzip2 cmake cmake-data g++ gcc gfortran \
+  debianutils build-essential make patch sed \
+  libx11-dev libxft-dev libxext-dev libxpm-dev libxmu-dev \
+  libglu1-mesa-dev libgl1-mesa-dev \
+  libncurses5-dev curl libcurl4-openssl-dev bzip2 libbz2-dev gzip unzip tar \
+  subversion git xutils-dev flex bison lsb-release python-dev \
+  libc6-dev-i386 libxml2-dev wget libssl-dev libkrb5-dev \
+  automake autoconf libtool
+
+#install packages
+RUN mkdir fair_install &&\
+    cd fair_install &&\
+    git clone https://github.com/FairRootGroup/FairSoft.git &&\
+    cd FairSoft &&\
+    git checkout oct17p1
+
+WORKDIR /opt/fair_install/FairSoft
+
+RUN printf " compiler=gcc\n\
+ debug=no\n\
+ optimize=yes\n\
+ geant4_download_install_data_automatic=yes\n\
+ geant4_install_data_from_dir=no\n\
+ build_root6=yes\n\
+ build_python=no\n\
+ install_sim=yes\n\
+ SIMPATH_INSTALL=$PWD/installation" > install.conf &&\
+ ls -l  &&\
+ ./configure.sh install.conf
+
+WORKDIR /opt/fair_install
+RUN export SIMPATH=/opt/fair_install/FairSoft/installation &&\
+	git clone https://github.com/FairRootGroup/FairRoot.git &&\
+	cd FairRoot &&\
+	git checkout v-17.10b &&\
+	mkdir build &&\
+	cd build &&\
+	/opt/fair_install/FairSoft/installation/bin/cmake -DCMAKE_INSTALL_PREFIX="/opt/FairRoot/insttallation" .. &&\
+	make -j10 &&\
+	make install -j10
+
+RUN export FAIRROOTPATH=/opt/fair_install/FairRoot/installation
