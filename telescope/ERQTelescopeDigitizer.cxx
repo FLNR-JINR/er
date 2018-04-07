@@ -66,7 +66,7 @@ InitStatus ERQTelescopeDigitizer::Init() {
   vector<TString> pointBranches;
   while (bName = (TObjString*)nextBranch()) {
     TString bFullName = bName->GetString();
-    cout << "Branch full name " << bFullName << endl;
+    LOG(DEBUG) << "Branch full name " << bFullName << FairLogger::endl;
     if (bFullName.Contains("Point") && bFullName.Contains("QTelescope")) {
       // Rename input point branches to output digi branches by changing class name prefix
       // ERDetectorPoint_sensitiveVolNameNumber -> ERDetectorDigi_sensitiveVolNameNumber
@@ -78,7 +78,7 @@ InitStatus ERQTelescopeDigitizer::Init() {
       bPrefixName.Replace(bPrefixNameLength - 5, bPrefixNameLength, "Digi");
       TString outBrName =  bPrefixName + "_" + brName;
       fQTelescopeDigi[brName] = new TClonesArray(bPrefixName);
-      cout << "Branch name " << brName << endl;
+      LOG(DEBUG) << "Branch name " << brName << FairLogger::endl;
       ioman->Register(outBrName, "QTelescope", fQTelescopeDigi[brName], kTRUE);
     }
   }
