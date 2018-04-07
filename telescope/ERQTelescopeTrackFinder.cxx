@@ -157,10 +157,10 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         Int_t xStripNb = xStrip->GetStripNb();
         Int_t yStripNb = yStrip->GetStripNb();
         LOG(DEBUG) << "  Strips pair " << itHitPoint.first << " " << itHitPoint.second << FairLogger::endl;
-        Double_t xQtelescopeHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripX(itSubassemblies.first, xDigiBranchName, xStripNb);
-        Double_t yQtelescopeHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripY(itSubassemblies.first, yDigiBranchName, yStripNb);
-        Double_t zQtelescopeHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripZ(itSubassemblies.first, xDigiBranchName, xStripNb) 
-                                +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripZ(itSubassemblies.first, yDigiBranchName, yStripNb)) / 2;
+        Double_t xQtelescopeHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripX(xDigiBranchName, xStripNb);
+        Double_t yQtelescopeHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripY(yDigiBranchName, yStripNb);
+        Double_t zQtelescopeHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripZ(xDigiBranchName, xStripNb) 
+                                +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripZ(yDigiBranchName, yStripNb)) / 2;
         if (!fUserTargetPointIsSet) {
           ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
           if (!trackFromMWPC) {

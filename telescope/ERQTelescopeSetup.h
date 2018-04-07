@@ -33,34 +33,20 @@ public:
   static ERQTelescopeSetup* Instance();
 
   /* Modifiers */
-  // static void SetXmlParametersFile(TString xmlFileName) {fParamsXmlFileName = xmlFileName;}
-  // static void AddSi(TString type, TVector3 position, TVector3 rotation, 
-  //                                                    TString orientAroundZ); 
-  // static void AddSi(TString type, TVector3 position, TVector3 rotation, 
-  //                                                    TString orientAroundZ, 
-  //                                                    Double_t deadLayerFront, 
-  //                                                    Double_t deadLayerBack); 
-  // static void AddCsI(TString type, TVector3 position, TVector3 rotation);
-  // static void AddCsI(TString type, TVector3 position, TVector3 rotation, 
-  //                                                     TString orientAroundZ);
   /* Accessors */
-  Double_t GetStripX(TString subassemblyName, TString componentBranchName, Int_t stripNb);
-  Double_t GetStripY(TString subassemblyName, TString componentBranchName, Int_t stripNb);
-  Double_t GetStripZ(TString subassemblyName, TString componentBranchName, Int_t stripNb);
-  // static vector<TString>* GetDetectorStations();
+  Double_t GetStripX(TString componentBranchName, Int_t stripNb);
+  Double_t GetStripY(TString componentBranchName, Int_t stripNb);
+  Double_t GetStripZ(TString componentBranchName, Int_t stripNb);
 
 public:
-  // static Int_t SetParContainers();
   virtual void ReadGeoParamsFromParContainer();
-  // static void ConstructGeometry();
   // static void PrintDetectorParameters(void);
   // static void PrintDetectorParametersToFile(TString fileName);
 
 private:
   ERQTelescopeSetup();
-  // map<TString, map<TString, vector<ERQTelescopeStrip*>>> fStrips;  // map<subassembly,map<component, vector<strip>>>            
 
-  static map<TString, vector<ERQTelescopeStrip*>> fStrips;  // map<subassembly,map<component, vector<strip>>>            
+  static map<TString, vector<ERQTelescopeStrip*>> fStrips; 
   static ERQTelescopeSetup* fInstance;
 
   ClassDef(ERQTelescopeSetup,1)
