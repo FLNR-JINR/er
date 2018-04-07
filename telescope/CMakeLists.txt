@@ -38,6 +38,7 @@ data/ERRTelescopeSiDigi.cxx
 data/ERRTelescopeHit.cxx
 
 geo/ERQTelescopeGeoComponentDoubleSi.cxx
+geo/ERQTelescopeGeoComponentSingleSi.cxx
 
 ERQTelescope.cxx
 ERQTelescopeDigitizer.cxx
