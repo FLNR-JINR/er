@@ -41,27 +41,20 @@ ERQTelescopeTrackFinder::ERQTelescopeTrackFinder(Int_t verbose)
 ERQTelescopeTrackFinder::~ERQTelescopeTrackFinder() {
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::SetHitStation(TString stationID) {
-  TString xStripArrayName = stationID;
-  TString yStripArrayName = stationID;
-  fSiHitStationsPair.emplace(make_pair(stationID, 
-                                       pair<TString, TString>(xStripArrayName.Append("_X"), 
-                                                              yStripArrayName.Append("_Y"))));
-}
-//--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::SetHitStation(TString xStationID, TString yStationID) {
-  fSiHitStationsPair.emplace(make_pair( xStationID + yStationID,
-                                       pair<TString, TString>(xStationID, yStationID)));
-}
-//--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::SetHitSubAssembly(TString subassemblyName, TString componentId) {
+void ERQTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString componentId) {
   TString xStripArrayName = componentId;
   TString yStripArrayName = componentId;
-  fSiHitStationsPair1[subassemblyName].emplace(make_pair(componentId, 
+  fSiHitStationsPair[subassemblyName].emplace(make_pair(componentId, 
                                        pair<TString, TString>(xStripArrayName.Append("_X"), 
                                                               yStripArrayName.Append("_Y"))));
 }
 //--------------------------------------------------------------------------------------------------
+void ERQTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString componentIdX,
+                                                                     TString componentIdY) 
+{
+  fSiHitStationsPair[subassemblyName].emplace(make_pair(componentIdX + componentIdY, 
+                                              pair<TString, TString>(componentIdX, componentIdX)));
+}//--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::SetStripEdepRange(Double_t edepMin, Double_t edepMax) {
   fSiDigiEdepMin = edepMin; 
   fSiDigiEdepMax = edepMax;
@@ -90,7 +83,7 @@ InitStatus ERQTelescopeTrackFinder::Init() {
     }
   }
   // Register output track branches only for stations that are setted by interface SetStation(){
-  for (const auto itSubassemblies : fSiHitStationsPair1) {
+  for (const auto itSubassemblies : fSiHitStationsPair) {
     for (const auto itComponent : itSubassemblies.second) {
       fQTelescopeTrack[itComponent.first] = new TClonesArray("ERQTelescopeTrack");
       ioman->Register("ERQTelescopeTrack_" + itComponent.first, "QTelescope", 
@@ -116,7 +109,7 @@ InitStatus ERQTelescopeTrackFinder::Init() {
 void ERQTelescopeTrackFinder::Exec(Option_t* opt) { 
   Reset();
 
-  for (const auto itSubassemblies : fSiHitStationsPair1) {
+  for (const auto itSubassemblies : fSiHitStationsPair) {
     for (const auto itComponent : itSubassemblies.second) {
       vector<pair<Int_t, Int_t>>  hitTelescopePoint;    // pairs of X and Y strips that have difference between edep less than fEdepDiffXY 
       vector<Int_t>               correctStripsX;       // strips with edep in correct interval (fSiDigiEdepMin, fSiDigiEdepMax)     
@@ -166,7 +159,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
           ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
           if (!trackFromMWPC) {
             FairRun* run = FairRun::Instance();
-            run->MarkFill(kFALSE);
+            // run->MarkFill(kFALSE);
             return ;
           }
           fTargetX = trackFromMWPC->GetTargetX();
@@ -175,24 +168,16 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         }
         if (!fBeamDetTrack) {
           FairRun* run = FairRun::Instance();
-          // run->MarkFill(kFALSE);
-          return ;
+            // run->MarkFill(kFALSE);
+            return ;
         }
-        fTargetX = trackFromMWPC->GetTargetX();
-        fTargetY = trackFromMWPC->GetTargetY();
-        fTargetZ = trackFromMWPC->GetTargetZ();
+        Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep()) / 2.;
+        ERQTelescopeTrack *track = AddTrack(fTargetX, fTargetY, fTargetZ, xQtelescopeHit, yQtelescopeHit, zQtelescopeHit,
+                                           sumEdep,
+                                           itComponent.first);
+        track->AddLink(FairLink(xDigiBranchName,itHitPoint.first));
+        track->AddLink(FairLink(yDigiBranchName,itHitPoint.second));
       }
-      if (!fBeamDetTrack) {
-        FairRun* run = FairRun::Instance();
-          // run->MarkFill(kFALSE);
-          return ;
-      }
-      Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep()) / 2.;
-      ERQTelescopeTrack *track = AddTrack(fTargetX, fTargetY, fTargetZ, xQtelescopeHit, yQtelescopeHit, zQtelescopeHit,
-                                         sumEdep,
-                                         itSiStationPair.first);
-      track->AddLink(FairLink(xDigiBranchName,itHitPoint.first));
-      track->AddLink(FairLink(yDigiBranchName,itHitPoint.second));
     }
   }
 }
