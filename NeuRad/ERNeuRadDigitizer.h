@@ -129,7 +129,7 @@ protected:
 
   Int_t Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& peModule, Int_t& pePixel);
 
-  Double_t PeFunc(Double_t *x, Double_t *par);
+  static Double_t PeFunc(Double_t *x, Double_t *par);
 
 private:
 

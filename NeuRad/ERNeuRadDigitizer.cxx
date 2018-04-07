@@ -80,7 +80,7 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   fPECountB(0),
   fUseCrosstalks(kFALSE)
 {
-  fPEA = new TF1("fPEA", "ERNeuRadDigitizer::PeFunc", 0., 2000., 7);
+  fPEA = new TF1("fPEA", ERNeuRadDigitizer::PeFunc, 0., 2000., 7);
   fPEA->SetParameters(85.8656,30.6158,447.112,447.111,52.,433.,141.);	
   //fPEA->SetParameters(3.2,30.6158,447.112,447.111,52.,433.,141.); 
 }
