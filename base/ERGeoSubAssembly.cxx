@@ -51,7 +51,6 @@ void ERGeoSubAssembly::SetRotation(Double_t x, Double_t y, Double_t z) {
 }
 //--------------------------------------------------------------------------------------------------
 void ERGeoSubAssembly::AddComponent(TObject* component) {
-  cout << "ERGeoSubAssembly::AddComponent " << ((ERGeoComponent*)component)->GetBranchName() << endl;  
   fComponents->AddLast(component);  
 }
 //--------------------------------------------------------------------------------------------------
@@ -60,14 +59,19 @@ void ERGeoSubAssembly::ConstructGeometryVolume() {
   TIter itComponent(fComponents);
   ERGeoComponent *component;
   int i = 0;
+  std::map<TString, Int_t> componentNames; // <"ComponentName", count of components with "ComponentName">
   while(component = (ERGeoComponent*)(itComponent.Next())){
-    cout << "ERGeoSubAssembly::ConstructGeometryVolume" << endl;
     component->ConstructGeometryVolume();
     TGeoVolume*   volume = component->GetVolume(); 
     TGeoRotation* rotation = component->GetRotation();
     TVector3*     trans = component->GetPosition();
     fComponentNames->push_back(component->GetBranchName());
-    fVolume->AddNode(volume, ++i, new TGeoCombiTrans(trans->X() ,trans->Y(), trans->Z(), rotation)); 
+    if (!componentNames[component->GetBranchName()]) {
+      componentNames[component->GetBranchName()] = 0;
+    } else {
+      componentNames[component->GetBranchName()]++;
+    }
+    fVolume->AddNode(volume, componentNames[component->GetBranchName()], new TGeoCombiTrans(trans->X() ,trans->Y(), trans->Z(), rotation)); 
   }
 }
 //--------------------------------------------------------------------------------------------------

@@ -80,7 +80,7 @@ void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
   Double_t singleSiStripX = fSensX / fStripCount; 
   Double_t singleSiStripY = fSensY;   
   Double_t singleSiStripZ = fSensZ - fDeadLayerThicknessFrontSide - fDeadLayerThicknessBackSide;   
-  singleSiStrip = gGeoManager->MakeBox("SensitiveStrip"+fOrientAroundZ, pMed, 
+  singleSiStrip = gGeoManager->MakeBox("SensitiveSingleSiStrip"+fOrientAroundZ, pMed, 
                                                                         singleSiStripX / 2., 
                                                                         singleSiStripY / 2., 
                                                                         singleSiStripZ / 2.);
