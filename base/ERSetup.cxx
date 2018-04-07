@@ -8,6 +8,9 @@
 
 #include "ERSetup.h"
 
+TGeoManager*    ERSetup::fGeoMan   = NULL;
+FairGeoMedia*   ERSetup::fGeoMedia = NULL;
+FairGeoBuilder* ERSetup::fGeoBuild = NULL;
 //--------------------------------------------------------------------------------------------------
 ERSetup::ERSetup() 
 : fSubAssembies(new TObjArray()),
@@ -43,13 +46,11 @@ void ERSetup::ConstructGeometry(void) {
   geoFace->readMedia();
   gGeoMan = gGeoManager;
   // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/" + fGeoName + ".temp.root";
   // -----------------   Get and create the required media    -----------------
   FairGeoMedia*   geoMedia = geoFace->getMedia();
   FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
  
   // --------------   Create geometry and top volume  -------------------------
-  gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   TGeoVolume* top   = new TGeoVolumeAssembly("TOP");
   TGeoVolume* geoVol = new TGeoVolumeAssembly(fGeoName);
 
@@ -70,6 +71,8 @@ void ERSetup::ConstructGeometry(void) {
     geoVol->AddNode(volume, ++i, new TGeoCombiTrans(trans->X() ,trans->Y(), trans->Z(), rotation)); 
   }
   top->AddNode(geoVol, 1, new TGeoCombiTrans(0., 0., 0., new TGeoRotation()));  
+  
+  TString geoFileName = geoPath + "/geometry/" + fGeoName + ".temp.root";
   TFile* geoFile = new TFile(geoFileName, "RECREATE");
   top->Write();
   geoFile->Close();

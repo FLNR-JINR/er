@@ -44,12 +44,13 @@ public:
   virtual void  ConstructGeometry();
 
 protected:
-  // static void ParseXMLParameters();
-
-  TString              fParamsXMLFileName;
-  TObjArray*           fSubAssembies;
-  TString              fGeoName;
-  std::vector<TString> *fComponentNames;
+  static TGeoManager    *fGeoMan;
+  static FairGeoMedia   *fGeoMedia;
+  static FairGeoBuilder *fGeoBuild;
+  TString               fParamsXMLFileName;
+  TObjArray*            fSubAssembies;
+  TString               fGeoName;
+  std::vector<TString>  *fComponentNames;
 
   ClassDef(ERSetup,1)
 };
