@@ -58,7 +58,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   if (!fBeamDetTrack->At(0) || !fBeamDetToFDigi1->At(0) || !fBeamDetToFDigi2->At(0)) {
     LOG(DEBUG)  << "ERBeamDetPID: No track" << FairLogger::endl;
     FairRun* run = FairRun::Instance();
-    run->MarkFill(kFALSE);
+    // run->MarkFill(kFALSE);
     return;
   }
 
@@ -101,7 +101,8 @@ void ERBeamDetPID::Exec(Option_t* opt) {
     return ;
   }
   LOG(DEBUG) << "Mass " << fIonMass << FairLogger::endl;
-  beta = fBeamDetSetup->DistanceBetweenToF() * 1e-2 / (ToF * 1e-9) / TMath::C();
+  Double_t distanceBetweenToF = fBeamDetSetup->GetDistanceBetweenToF(0, fBeamDetSetup->GetToFCount() - 1);
+  beta = distanceBetweenToF * 1e-2 / (ToF * 1e-9) / TMath::C();
   if(beta <= 0 || beta >= 1) {
     LOG(DEBUG) << "Wrong beta " << beta << FairLogger::endl;
     FairRun* run = FairRun::Instance();

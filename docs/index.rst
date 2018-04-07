@@ -14,7 +14,7 @@ EXPERTroot is a FAIRroot based framework for simulation of the detectrors' respo
       * github - https://github.com/ExpertRootGroup/er/
       * Jenkins - http://er.jinr.ru:8080
       * doxygen - http://er.jinr.ru/doxygen/
-      * gitlab - http://er.jinr.ru:90
+      * gitlab - http://er.jinr.ru/git
 
 .. toctree::
    :maxdepth: 2

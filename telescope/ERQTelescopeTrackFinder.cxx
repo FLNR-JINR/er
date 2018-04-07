@@ -15,6 +15,7 @@
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
+#include "FairLink.h"
 
 #include "ERBeamDetTrack.h"
 
@@ -174,14 +175,24 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         }
         if (!fBeamDetTrack) {
           FairRun* run = FairRun::Instance();
-            run->MarkFill(kFALSE);
-            return ;
+          // run->MarkFill(kFALSE);
+          return ;
         }
-        Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep()) / 2.;
-        AddTrack(fTargetX, fTargetY, fTargetZ, xQtelescopeHit, yQtelescopeHit, zQtelescopeHit,
-                 sumEdep,
-                 itComponent.first);
+        fTargetX = trackFromMWPC->GetTargetX();
+        fTargetY = trackFromMWPC->GetTargetY();
+        fTargetZ = trackFromMWPC->GetTargetZ();
       }
+      if (!fBeamDetTrack) {
+        FairRun* run = FairRun::Instance();
+          // run->MarkFill(kFALSE);
+          return ;
+      }
+      Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep()) / 2.;
+      ERQTelescopeTrack *track = AddTrack(fTargetX, fTargetY, fTargetZ, xQtelescopeHit, yQtelescopeHit, zQtelescopeHit,
+                                         sumEdep,
+                                         itSiStationPair.first);
+      track->AddLink(FairLink(xDigiBranchName,itHitPoint.first));
+      track->AddLink(FairLink(yDigiBranchName,itHitPoint.second));
     }
   }
 }

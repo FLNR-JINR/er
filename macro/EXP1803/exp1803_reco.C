@@ -1,4 +1,4 @@
-void exp1803_reco(Int_t nEvents = 100) {
+void exp1803_reco(Int_t nEvents = 1000) {
   //---------------------Files-----------------------------------------------
   TString inFile = "sim_digi.root";
   TString outFile = "reco.root";
@@ -31,14 +31,27 @@ void exp1803_reco(Int_t nEvents = 100) {
   run->AddTask(pid);  
   // ------- QTelescope TrackFinder -------------------------------------------
   ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
+
   qtelescopeTrackFinder->SetHitSubAssembly("T1", "T1.1_DoubleSi_SD2_XY_2");
   qtelescopeTrackFinder->SetHitSubAssembly("T1", "T1.2_DoubleSi_SD2_XY_4");
+
   qtelescopeTrackFinder->SetStripEdepRange(0., 100.);          // [GeV]
   qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
   // qtelescopeTrackFinder->SetStripEdepRange(0.0097, 100.);   // [GeV]
   // qtelescopeTrackFinder->SetEdepDiffXY(5.);                 // [GeV]
   qtelescopeTrackFinder->SetEdepMaxDiffXY(0.5); 
-  run->AddTask(qtelescopeTrackFinder);  
+  run->AddTask(qtelescopeTrackFinder);
+
+  // ------- QTelescope PID -------------------------------------------
+  ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
+
+  qtelescopePID->SetUserCut("ERQTelescopeSiDigi_DoubleSi_D1_XY_2_X.fEdep > 0.00001");
+
+  qtelescopePID->SetStationParticle("DoubleSi_SD1_XY_0",1000020030);
+  qtelescopePID->SetStationParticle("DoubleSi_SD2_XY_1",1000020030);
+  qtelescopePID->SetStationParticle("DoubleSi_D1_XY_2",1000020030);
+  run->AddTask(qtelescopePID); 
+
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   FairParRootFileIo*  parInput = new FairParRootFileIo();
