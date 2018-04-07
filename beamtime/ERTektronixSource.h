@@ -1,3 +1,11 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #ifndef ERTektronixSource_H
 #define ERTektronixSource_H
 
@@ -11,7 +19,19 @@ using namespace std;
 
 #include "FairSource.h"
 
-#include "RawEvent.h"
+#include "ERNeuRadRawEvent.h"
+
+class TString;
+
+class FairSource;
+
+class ERNeuRadRawEvent;
+
+/** @class ERTektronixSource
+ ** @brief task for reading raw data from text files 
+ ** @author I.Muzalevsky <ivanmuzalevskij@gmail.com>
+ ** @version 1.0
+**/
 
 class ERTektronixSource : public FairSource
 {
@@ -41,7 +61,7 @@ class ERTektronixSource : public FairSource
     void SetNChanels(Int_t chanels){fNChanels = chanels;}
   private:
     map<Int_t, vector<TString> > fPaths;
-    map<Int_t, vector<ifstream*> > fFiles;
+    map<Int_t, ifstream*> fCurrenStream;
     Int_t fNPoints;
     Int_t fNProcessedFiles;
     Int_t fNForProcFiles;
@@ -49,7 +69,9 @@ class ERTektronixSource : public FairSource
     map<Int_t, Int_t> fCurrentFiles;
 
     //Output data
-    RawEvent** fRawEvents;
+   ERNeuRadRawEvent** fRawEvents;
+
+    static Int_t fEvent;
   public:
     ClassDef(ERTektronixSource, 1)
 };
