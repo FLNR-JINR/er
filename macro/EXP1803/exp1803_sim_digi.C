@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 1000) {
+void exp1803_sim_digi(Int_t nEvents = 100) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -94,45 +94,66 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   setupQTelescope->SetXMLParametersFile(paramFileQTelescope);
   setupQTelescope->SetGeoName("QTelescopeTmp");
   // ----- T1 parameters ----------------------------------------------------
-  ERGeoSubAssembly* assemblyT1 = new ERGeoSubAssembly("T1", TVector3(0., 0., T1PosZ), TVector3(0., 0., 0.));
-  TVector3 T1Rotation(0., 0., 0);
-  Double_t xPos, yPos, zPos;
-  TVector3* T1Translation;
+  // ERGeoSubAssembly* assemblyT1 = new ERGeoSubAssembly("T1", TVector3(0., 0., T1PosZ), TVector3(0., 0., 0.));
+  // TVector3 T1Rotation(0., 0., 0);
+  // Double_t xPos, yPos, zPos;
+  // TVector3* T1Translation;
   // ----- T1.1--------------------------------------------------------------
-  vector<ERQTelescopeGeoComponentDoubleSi*> componentsT1; 
-  componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.1", "DoubleSi_SD1", TVector3( T1Side/2 + T1Aperture/2, 
-                                                                                                T1Side/2 - T1Aperture/2,  
-                                                                                                0), T1Rotation,"X"));
-  componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.1", "DoubleSi_SD2", TVector3( T1Side/2 + T1Aperture/2, 
-                                                                                                T1Side/2 - T1Aperture/2,  
-                                                                                                T1Dl + T1D2Thick/2), T1Rotation, "X"));
-  // ----- T1.2--------------------------------------------------------------
-  componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.2", "DoubleSi_SD1", TVector3( T1Side/2 - T1Aperture/2, 
-                                                                                               -T1Side/2 - T1Aperture/2,  
-                                                                                                0), T1Rotation, "X"));
-  componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.2", "DoubleSi_SD2", TVector3( T1Side/2 - T1Aperture/2, 
-                                                                                               -T1Side/2 - T1Aperture/2,  
-                                                                                                T1Dl + T1D2Thick/2), T1Rotation, "X"));
-  // ----- T1.3 -------------------------------------------------------------
-  componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.3", "DoubleSi_SD1", TVector3(-T1Side/2 - T1Aperture/2, 
-                                                                                               -T1Side/2 + T1Aperture/2,  
-                                                                                                0), T1Rotation, "X"));
-  componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.3", "DoubleSi_SD2", TVector3(-T1Side/2 - T1Aperture/2, 
-                                                                                               -T1Side/2 + T1Aperture/2,  
-                                                                                                T1Dl + T1D2Thick/2), T1Rotation, "X"));
-  // ----- T1.4--------------------------------------------------------------
-  componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.4", "DoubleSi_SD1", TVector3(-T1Side/2 + T1Aperture/2, 
-                                                                                                T1Side/2 + T1Aperture/2,  
-                                                                                                0), T1Rotation, "X"));
-  componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.4", "DoubleSi_SD2", TVector3(-T1Side/2 + T1Aperture/2, 
-                                                                                                T1Side/2 + T1Aperture/2,  
-                                                                                                T1Dl + T1D2Thick/2), T1Rotation, "X"));
+  // vector<ERQTelescopeGeoComponentDoubleSi*> componentsT1; 
+  // componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.1", "DoubleSi_SD1", TVector3( T1Side/2 + T1Aperture/2, 
+  //                                                                                               T1Side/2 - T1Aperture/2,  
+  //                                                                                               0), T1Rotation,"X"));
+  // componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.1", "DoubleSi_SD2", TVector3( T1Side/2 + T1Aperture/2, 
+  //                                                                                               T1Side/2 - T1Aperture/2,  
+  //                                                                                               T1Dl + T1D2Thick/2), T1Rotation, "X"));
+  // // ----- T1.2--------------------------------------------------------------
+  // componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.2", "DoubleSi_SD1", TVector3( T1Side/2 - T1Aperture/2, 
+  //                                                                                              -T1Side/2 - T1Aperture/2,  
+  //                                                                                               0), T1Rotation, "X"));
+  // componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.2", "DoubleSi_SD2", TVector3( T1Side/2 - T1Aperture/2, 
+  //                                                                                              -T1Side/2 - T1Aperture/2,  
+  //                                                                                               T1Dl + T1D2Thick/2), T1Rotation, "X"));
+  // // ----- T1.3 -------------------------------------------------------------
+  // componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.3", "DoubleSi_SD1", TVector3(-T1Side/2 - T1Aperture/2, 
+  //                                                                                              -T1Side/2 + T1Aperture/2,  
+  //                                                                                               0), T1Rotation, "X"));
+  // componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.3", "DoubleSi_SD2", TVector3(-T1Side/2 - T1Aperture/2, 
+  //                                                                                              -T1Side/2 + T1Aperture/2,  
+  //                                                                                               T1Dl + T1D2Thick/2), T1Rotation, "X"));
+  // // ----- T1.4--------------------------------------------------------------
+  // componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.4", "DoubleSi_SD1", TVector3(-T1Side/2 + T1Aperture/2, 
+  //                                                                                               T1Side/2 + T1Aperture/2,  
+  //                                                                                               0), T1Rotation, "X"));
+  // componentsT1.push_back(new ERQTelescopeGeoComponentDoubleSi("T1.4", "DoubleSi_SD2", TVector3(-T1Side/2 + T1Aperture/2, 
+  //                                                                                               T1Side/2 + T1Aperture/2,  
+  //                                                                                               T1Dl + T1D2Thick/2), T1Rotation, "X"));
 
-  for (auto itCompT1 : componentsT1) {
-    TNamed* tmp = itCompT1;
-    assemblyT1->AddComponent(tmp);
-  }
+  ERGeoSubAssembly* assemblyT1 = new ERGeoSubAssembly("T1", TVector3(0., 0., 25.), TVector3(0., 0., 0.));
+  ERQTelescopeGeoComponentSingleSi* thinT1 = new ERQTelescopeGeoComponentSingleSi("T1", "SingleSi_1", 
+                                                                                  TVector3(0, 0, 0.), TVector3(), "X");
+  ERQTelescopeGeoComponentDoubleSi* thickT1 = new ERQTelescopeGeoComponentDoubleSi("T1", "DoubleSi_SD2", 
+                                                                                  TVector3(0, 0, 1.), TVector3(), "X");
+  // ERQTelescopeGeoComponentCsI* csi1 = new ERQTelescopeGeoComponentCsI(("T1", "CsI_1", 
+  //                                                                      TVector3(0, 0, 2.), TVector3());
+  assemblyT1->AddComponent(thinT1);
+  assemblyT1->AddComponent(thickT1);
+  // assemblyT1->AddComponent(csi1);
+  // for (auto itCompT1 : componentsT1) {
+  //   TNamed* tmp = itCompT1;
+  //   assemblyT1->AddComponent(tmp);
+  // }
   setupQTelescope->AddSubAssembly(assemblyT1);
+
+  // ERGeoSubAssembly* assemblyT1 = new ERGeoSubAssembly("T1", TVector3(0., 0., 25.), TVector3(0., 0., 0.));
+  // ERQTelescopeGeoComponentSingleSi* thinT1 = new ERQTelescopeGeoComponentSingleSi("T1", "SingleSi_1", 
+  //                                                                                 TVector3(0, 0, 0.), TVector3(), "X");
+  // ERQTelescopeGeoComponentDoubleSi* thickT1 = new ERQTelescopeGeoComponentDoubleSi("T1", "DoubleSi_SD2", 
+  //                                                                                 TVector3(0, 0, 1.), TVector3(), "X");
+  // // ERQTelescopeGeoComponentCsI* csi1 = new ERQTelescopeGeoComponentCsI(("T1", "CsI_1", 
+  // //                                                                      TVector3(0, 0, 2.), TVector3());
+  // assemblyT1->AddComponent(thinT1);
+  // assemblyT1->AddComponent(thickT1);
+  // assemblyT1->AddComponent(csi1);
   // TVector3 SD1Rotation(0., 27., 0.);
   // TVector3 SD2Rotation(0., -27., 0.);
   // Double_t xPos, yPos, zPos;

@@ -32,8 +32,8 @@ void exp1803_reco(Int_t nEvents = 1000) {
   // ------- QTelescope TrackFinder -------------------------------------------
   ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
 
-  qtelescopeTrackFinder->SetHitSubAssembly("T1", "T1.1_DoubleSi_SD2_XY_2");
-  qtelescopeTrackFinder->SetHitSubAssembly("T1", "T1.2_DoubleSi_SD2_XY_4");
+  qtelescopeTrackFinder->SetHitStation("T1", "T1_DoubleSi_SD2_XY_0");
+  qtelescopeTrackFinder->SetHitStation("D1", "D1_DoubleSi_D1_XY_0");
 
   qtelescopeTrackFinder->SetStripEdepRange(0., 100.);          // [GeV]
   qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);

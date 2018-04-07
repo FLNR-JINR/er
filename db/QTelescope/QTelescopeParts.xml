@@ -31,9 +31,9 @@
 			</doubleSi>
 		</doubleSiTypes>
 		<singleSiTypes>
-			<singleSi id="SingleSi1">
-				<singleSiSize singleSiX="100" singleSiY="100" singleSiZ="0.01"/>
-				<singleSiSensAreaSize singleSiSensX="100" singleSiSensY="100" singleSiSensZ="1"/>
+			<singleSi id="SingleSi_1">
+				<singleSiSize singleSiX="5" singleSiY="5" singleSiZ="0.002"/>
+				<singleSiSensAreaSize singleSiSensX="5" singleSiSensY="5" singleSiSensZ="1"/>
 				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
 				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
@@ -50,7 +50,7 @@
 		</singleSiTypes>
 	</SiTypes>
 	<CsITypes>
-		<CsI id="CsI1">
+		<CsI id="CsI_1">
  			<CsISize CsIX="6.4" CsIY="6.4" CsIZ="2"/>
  			<cubesCountX>4</cubesCountX>			
  			<cubesCountY>4</cubesCountY>
