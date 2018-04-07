@@ -23,14 +23,13 @@ ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(TString name)
 {
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(TString name, TString typeFromXML, 
+ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(TString typeFromXML, TString id, 
                                                                    TVector3 position, 
                                                                    TVector3 rotation,
                                                                    TString  orientAroundZ)
-: ERGeoComponent(name, typeFromXML, position, rotation)
+: ERGeoComponent(typeFromXML, id, position, rotation)
 {
   TString volumeNameInd = (orientAroundZ == "X") ? "_X" : "_Y";  
-  fType = typeFromXML;
   fOrientAroundZ = volumeNameInd;
   fDeadLayerThicknessFrontSide = 0.;
   fDeadLayerThicknessBackSide  = 0.;
@@ -41,6 +40,7 @@ ERQTelescopeGeoComponentSingleSi::~ERQTelescopeGeoComponentSingleSi() {
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
   ParseXmlParameters();
+  fComponentId += fOrientAroundZ;
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------
   FairGeoLoader* geoLoad = FairGeoLoader::Instance();//
@@ -68,13 +68,12 @@ void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
   if ( ! pMed ) Fatal("Main", "Medium for SingleSi not found");
   LOG(DEBUG) << "Created single Si media" << FairLogger::endl;
 
-  fType += fOrientAroundZ;
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   // ---------------- SingleSi-------------------------------------------------
   TGeoVolume* singleSiStrip;
 
-  fVolume = gGeoManager->MakeBox(this->GetBranchName(), pMed, fSizeX / 2., fSizeY / 2., fSizeZ / 2.);
+  fVolume = gGeoManager->MakeBox(this->GetID(), pMed, fSizeX / 2., fSizeY / 2., fSizeZ / 2.);
 
   //------------------ Single Si strip --------------------------------------
   Double_t singleSiStripX = fSensX / fStripCount; 
@@ -135,7 +134,7 @@ void ERQTelescopeGeoComponentSingleSi::ParseXmlParameters() {
             else {
               continue;
             }
-            if(!strcasecmp(fType, attr->GetValue())) {
+            if(!strcasecmp(fComponentId, attr->GetValue())) {
               TXMLNode* curNode2 = curNode->GetChildren();
               for(; curNode2; curNode2 = curNode2->GetNextNode()) {
                 if(!strcasecmp(curNode2->GetNodeName(), "singleSiSize")) {

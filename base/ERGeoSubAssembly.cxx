@@ -12,6 +12,9 @@
 #include "ERGeoComponent.h"
 
 using namespace std;
+  
+std::map<TString, Int_t>* ERGeoSubAssembly::fComponentTypes = new std::map<TString, Int_t>(); 
+
 //--------------------------------------------------------------------------------------------------
 ERGeoSubAssembly::ERGeoSubAssembly() {
 }
@@ -58,20 +61,20 @@ void ERGeoSubAssembly::ConstructGeometryVolume() {
   fVolume = new TGeoVolumeAssembly(fName);
   TIter itComponent(fComponents);
   ERGeoComponent *component;
-  int i = 0;
-  std::map<TString, Int_t> componentNames; // <"ComponentName", count of components with "ComponentName">
   while(component = (ERGeoComponent*)(itComponent.Next())){
     component->ConstructGeometryVolume();
     TGeoVolume*   volume = component->GetVolume(); 
     TGeoRotation* rotation = component->GetRotation();
     TVector3*     trans = component->GetPosition();
-    fComponentNames->push_back(component->GetBranchName());
-    if (!componentNames[component->GetBranchName()]) {
-      componentNames[component->GetBranchName()] = 0;
+    // fComponentNames->push_back(TString(this->GetName()) + "_" + component->GetID());
+    fComponentNames->push_back(TString(component->GetID()));
+    if (fComponentTypes->find(component->GetType()) == fComponentTypes->end()) {
+      fComponentTypes->emplace(make_pair(component->GetType(), 0));
     } else {
-      componentNames[component->GetBranchName()]++;
+      fComponentTypes->at(component->GetType())++;
     }
-    fVolume->AddNode(volume, componentNames[component->GetBranchName()], new TGeoCombiTrans(trans->X() ,trans->Y(), trans->Z(), rotation)); 
+    fVolume->AddNode(volume, fComponentTypes->at(component->GetType()), 
+                     new TGeoCombiTrans(trans->X() ,trans->Y(), trans->Z(), rotation)); 
   }
 }
 //--------------------------------------------------------------------------------------------------

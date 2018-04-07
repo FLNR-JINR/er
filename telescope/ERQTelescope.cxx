@@ -132,8 +132,8 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
         AddSiPoint(*(fSingleSiPoints[fSiStationNb]));
       }
       if (volName.Contains("CsI")) {
-        gMC->CurrentVolID(fCsIBoxNb);
-        gMC->CurrentVolOffID(1, fCsIStationNb);
+        gMC->CurrentVolOffID(1, fCsIBoxNb);
+        gMC->CurrentVolOffID(2, fCsIStationNb);
         AddCsIPoint(*(fCsIPoints[fCsIStationNb]));
       }
     }
@@ -156,9 +156,9 @@ void ERQTelescope::Register() {
   TString branchName;
   if (!ioman)
     Fatal("Init", "IO manager is not set");
-  Int_t iDoubleSi = 1; 
-  Int_t iSingleSi = 1; 
-  Int_t iCsI      = 1; 
+  Int_t iDoubleSi = 0; 
+  Int_t iSingleSi = 0; 
+  Int_t iCsI      = 0; 
   vector<TString>* sensVolumes = fQTelescopeSetup->GetComponentNames();
   for (Int_t i = 0; i < sensVolumes->size(); i++) {
     if (sensVolumes->at(i).Contains("DoubleSi")) {

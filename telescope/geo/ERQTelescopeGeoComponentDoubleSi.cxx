@@ -24,14 +24,13 @@ ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(TString name)
 {
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(TString name, TString typeFromXML, 
+ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(TString typeFromXML, TString id, 
                                                                    TVector3 position, 
                                                                    TVector3 rotation,
                                                                    TString  orientAroundZ)
-: ERGeoComponent(name, typeFromXML, position, rotation)
+: ERGeoComponent(typeFromXML, id, position, rotation)
 {
   TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
-  fType = typeFromXML;
   fOrientAroundZ = volumeNameInd;
   fDeadLayerThicknessFrontSide = 0.;
   fDeadLayerThicknessBackSide  = 0.;
@@ -41,6 +40,7 @@ ERQTelescopeGeoComponentDoubleSi::~ERQTelescopeGeoComponentDoubleSi() {
 }
 void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   ParseXmlParameters();
+  fComponentId += fOrientAroundZ;
    // ----- BeamDet parameters -------------------------------------------------
   Double_t transTargetX = 0.;
   Double_t transTargetY = 0.; 
@@ -88,7 +88,6 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   if ( ! pMed ) Fatal("Main", "Medium for DoubleSi not found");
   LOG(DEBUG) << "Created double Si media" << FairLogger::endl;
 
-  fType += fOrientAroundZ;
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   // fVolume = new TGeoVolumeAssembly(fType);
@@ -96,7 +95,7 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   TGeoVolume* shell;
   TGeoVolume* strip;
   TGeoVolume* box;
-  fVolume =  gGeoManager->MakeBox(this->GetBranchName(), pMed, fSizeX / 2, fSizeY / 2,  fSizeZ / 2);
+  fVolume =  gGeoManager->MakeBox(this->GetID(), pMed, fSizeX / 2, fSizeY / 2,  fSizeZ / 2);
   //------------------ Silicon strip   ---------------------------------------
   Double_t stripX = fSensX / fStripCountX;
   Double_t stripY = fSensY;
@@ -174,7 +173,7 @@ void ERQTelescopeGeoComponentDoubleSi::ParseXmlParameters() {
             else {
               continue;
             }
-            if(!strcasecmp(fType, attr->GetValue())) {
+            if(!strcasecmp(fComponentId, attr->GetValue())) {
               TXMLNode* curNode2 = curNode->GetChildren();
               for(; curNode2; curNode2 = curNode2->GetNextNode()) {
                 if(!strcasecmp(curNode2->GetNodeName(), "doubleSiSize")) {

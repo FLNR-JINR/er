@@ -37,11 +37,13 @@ public:
   void  ConstructGeometryVolume();
 
 protected:
-  TObjArray*           fComponents;
-  TVector3*            fPosition;
-  TGeoRotation*        fRotation;
-  TGeoVolume*          fVolume;
-  std::vector<TString> *fComponentNames;
+  TObjArray*               fComponents;
+  TVector3*                fPosition;
+  TGeoRotation*            fRotation;
+  TGeoVolume*              fVolume;
+  std::vector<TString>     *fComponentNames;
+  
+  static std::map<TString, Int_t> *fComponentTypes; // <"ComponentName", count of components with "ComponentName">
 
   ClassDef(ERGeoSubAssembly,1)
 };

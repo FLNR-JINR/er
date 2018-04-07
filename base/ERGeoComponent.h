@@ -24,15 +24,16 @@ class ERGeoComponent : public TNamed {
 public:
   ERGeoComponent();
   ERGeoComponent(TString name);
-  ERGeoComponent(TString name, TString typeFromXML, TVector3 position, TVector3 rotation);
+  ERGeoComponent(TString typeFromXML, TString id, TVector3 position, TVector3 rotation);
   ~ERGeoComponent();
   /* Modifiers */
-  
   /* Accessors */
-  TGeoVolume*   GetVolume()   const {return fVolume;}
-  TVector3*     GetPosition() const {return fPosition;}
-  TGeoRotation* GetRotation() const {return fRotation;}
-  TString       GetBranchName() {return (TString(this->GetName()) + "_" + fType);}
+  TGeoVolume*   GetVolume()      const {return fVolume;}
+  TVector3*     GetPosition()    const {return fPosition;}
+  TGeoRotation* GetRotation()    const {return fRotation;}
+  // TString       GetBranchName()  const {return (fComponentId);}
+  TString       GetID()          const {return fComponentId;}
+  TString       GetType()        const {return fType;}
 
 public:
   virtual void ConstructGeometryVolume(void) = 0;
@@ -44,7 +45,7 @@ protected:
   TVector3*     fPosition;
   TGeoRotation* fRotation;
   TString       fType;
-
+  TString       fComponentId;
 
   ClassDef(ERGeoComponent,1)
 };

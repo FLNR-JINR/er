@@ -23,10 +23,10 @@ ERQTelescopeGeoComponentCsI::ERQTelescopeGeoComponentCsI(TString name)
 {
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentCsI::ERQTelescopeGeoComponentCsI(TString name, TString typeFromXML, 
-                                                                       TVector3 position, 
-                                                                       TVector3 rotation)
-: ERGeoComponent(name, typeFromXML, position, rotation)
+ERQTelescopeGeoComponentCsI::ERQTelescopeGeoComponentCsI(TString typeFromXML, TString id, 
+                                                                              TVector3 position, 
+                                                                              TVector3 rotation)
+: ERGeoComponent(typeFromXML, id, position, rotation)
 {
 }
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void ERQTelescopeGeoComponentCsI::ConstructGeometryVolume(void) {
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   // ---------------- CsI-------------------------------------------------
-  fVolume = gGeoManager->MakeBox(this->GetBranchName(), 
+  fVolume = gGeoManager->MakeBox(this->GetID(), 
                                  pMed, 
                                  fSizeX / 2. + fDeadLayer * fCubesCountX + fSplitSize * fCubesCountX / 2, 
                                  fSizeY / 2. + fDeadLayer * fCubesCountY + fSplitSize * fCubesCountY / 2, 
@@ -124,7 +124,7 @@ void ERQTelescopeGeoComponentCsI::ParseXmlParameters() {
         else {
           continue;
         }
-        if (!strcasecmp(fType, attr->GetValue())) {
+        if (!strcasecmp(fComponentId, attr->GetValue())) {
           TXMLNode* curNode2 = curNode->GetChildren();
           for (; curNode2; curNode2 = curNode2->GetNextNode()) {
             if (!strcasecmp(curNode2->GetNodeName(), "CsISize")) {
