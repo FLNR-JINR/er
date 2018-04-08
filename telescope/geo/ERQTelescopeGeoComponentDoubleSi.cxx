@@ -32,6 +32,7 @@ ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(TString typeF
 {
   TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
   fOrientAroundZ = volumeNameInd;
+  fVolumeName += volumeNameInd;
   fDeadLayerThicknessFrontSide = 0.;
   fDeadLayerThicknessBackSide  = 0.;
 }
@@ -40,7 +41,6 @@ ERQTelescopeGeoComponentDoubleSi::~ERQTelescopeGeoComponentDoubleSi() {
 }
 void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   ParseXmlParameters();
-  fComponentId += fOrientAroundZ;
    // ----- BeamDet parameters -------------------------------------------------
   Double_t transTargetX = 0.;
   Double_t transTargetY = 0.; 
@@ -95,7 +95,7 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   TGeoVolume* shell;
   TGeoVolume* strip;
   TGeoVolume* box;
-  fVolume =  gGeoManager->MakeBox(this->GetID(), pMed, fSizeX / 2, fSizeY / 2,  fSizeZ / 2);
+  fVolume =  gGeoManager->MakeBox(this->GetVolumeName(), pMed, fSizeX / 2, fSizeY / 2,  fSizeZ / 2);
   //------------------ Silicon strip   ---------------------------------------
   Double_t stripX = fSensX / fStripCountX;
   Double_t stripY = fSensY;

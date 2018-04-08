@@ -62,12 +62,12 @@ void ERGeoSubAssembly::ConstructGeometryVolume() {
   TIter itComponent(fComponents);
   ERGeoComponent *component;
   while(component = (ERGeoComponent*)(itComponent.Next())){
+    component->SetVolumeNamePrefix(TString(this->GetName()) + "_");
     component->ConstructGeometryVolume();
     TGeoVolume*   volume = component->GetVolume(); 
     TGeoRotation* rotation = component->GetRotation();
     TVector3*     trans = component->GetPosition();
-    // fComponentNames->push_back(TString(this->GetName()) + "_" + component->GetID());
-    fComponentNames->push_back(TString(component->GetID()));
+    fComponentNames->push_back(component->GetVolumeName());
     if (fComponentTypes->find(component->GetType()) == fComponentTypes->end()) {
       fComponentTypes->emplace(make_pair(component->GetType(), 0));
     } else {

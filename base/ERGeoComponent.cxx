@@ -25,6 +25,7 @@ ERGeoComponent::ERGeoComponent(TString typeFromXML, TString id, TVector3 positio
 : TNamed(typeFromXML + id, typeFromXML + id),
   fType(typeFromXML),
   fComponentId(id),
+  fVolumeName(id),
   fPosition(new TVector3(position))
 {
   fRotation = new TGeoRotation();

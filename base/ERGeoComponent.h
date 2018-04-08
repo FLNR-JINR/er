@@ -27,13 +27,14 @@ public:
   ERGeoComponent(TString typeFromXML, TString id, TVector3 position, TVector3 rotation);
   ~ERGeoComponent();
   /* Modifiers */
+  void          SetVolumeNamePrefix(TString prefix) {fVolumeName = prefix + fVolumeName;}
   /* Accessors */
-  TGeoVolume*   GetVolume()      const {return fVolume;}
-  TVector3*     GetPosition()    const {return fPosition;}
-  TGeoRotation* GetRotation()    const {return fRotation;}
-  // TString       GetBranchName()  const {return (fComponentId);}
-  TString       GetID()          const {return fComponentId;}
-  TString       GetType()        const {return fType;}
+  TGeoVolume*   GetVolume()     const {return fVolume;}
+  TVector3*     GetPosition()   const {return fPosition;}
+  TGeoRotation* GetRotation()   const {return fRotation;}
+  TString       GetID()         const {return fComponentId;}
+  TString       GetType()       const {return fType;}
+  TString       GetVolumeName() const {return fVolumeName;}
 
 public:
   virtual void ConstructGeometryVolume(void) = 0;
@@ -46,6 +47,7 @@ protected:
   TGeoRotation* fRotation;
   TString       fType;
   TString       fComponentId;
+  TString       fVolumeName;
 
   ClassDef(ERGeoComponent,1)
 };

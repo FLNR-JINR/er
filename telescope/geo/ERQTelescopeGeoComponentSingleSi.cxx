@@ -31,6 +31,7 @@ ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(TString typeF
 {
   TString volumeNameInd = (orientAroundZ == "X") ? "_X" : "_Y";  
   fOrientAroundZ = volumeNameInd;
+  fVolumeName += volumeNameInd;
   fDeadLayerThicknessFrontSide = 0.;
   fDeadLayerThicknessBackSide  = 0.;
 }
@@ -40,7 +41,6 @@ ERQTelescopeGeoComponentSingleSi::~ERQTelescopeGeoComponentSingleSi() {
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
   ParseXmlParameters();
-  fComponentId += fOrientAroundZ;
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------
   FairGeoLoader* geoLoad = FairGeoLoader::Instance();//
@@ -73,7 +73,7 @@ void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
   // ---------------- SingleSi-------------------------------------------------
   TGeoVolume* singleSiStrip;
 
-  fVolume = gGeoManager->MakeBox(this->GetID(), pMed, fSizeX / 2., fSizeY / 2., fSizeZ / 2.);
+  fVolume = gGeoManager->MakeBox(this->GetVolumeName(), pMed, fSizeX / 2., fSizeY / 2., fSizeZ / 2.);
 
   //------------------ Single Si strip --------------------------------------
   Double_t singleSiStripX = fSensX / fStripCount; 

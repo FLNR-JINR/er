@@ -61,7 +61,7 @@ void ERQTelescopeGeoComponentCsI::ConstructGeometryVolume(void) {
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   // ---------------- CsI-------------------------------------------------
-  fVolume = gGeoManager->MakeBox(this->GetID(), 
+  fVolume = gGeoManager->MakeBox(this->GetVolumeName(), 
                                  pMed, 
                                  fSizeX / 2. + fDeadLayer * fCubesCountX + fSplitSize * fCubesCountX / 2, 
                                  fSizeY / 2. + fDeadLayer * fCubesCountY + fSplitSize * fCubesCountY / 2, 
