@@ -17,7 +17,7 @@
 class ERQTelescopeGeoComponentDoubleSi : public ERGeoComponent {
 public:
   ERQTelescopeGeoComponentDoubleSi();
-  ERQTelescopeGeoComponentDoubleSi(TString name);
+  ERQTelescopeGeoComponentDoubleSi(TString typeFromXML, TString id, TString orientAroundZ); 
   ERQTelescopeGeoComponentDoubleSi(TString typeFromXML, TString id, 
                                    TVector3 position, 
                                    TVector3 rotation,

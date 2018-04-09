@@ -17,7 +17,7 @@
 class ERQTelescopeGeoComponentSingleSi : public ERGeoComponent {
 public:
   ERQTelescopeGeoComponentSingleSi();
-  ERQTelescopeGeoComponentSingleSi(TString name);
+  ERQTelescopeGeoComponentSingleSi(TString typeFromXML, TString id, TString orientAroundZ); 
   ERQTelescopeGeoComponentSingleSi(TString typeFromXML, TString id, 
                                    TVector3 position, 
                                    TVector3 rotation,

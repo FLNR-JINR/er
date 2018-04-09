@@ -19,9 +19,16 @@ Int_t ERQTelescopeGeoComponentDoubleSi::fConstructedObjCount = 0;
 ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi() {
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(TString name) 
-: ERGeoComponent(name)
+ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(TString typeFromXML, 
+                                                                   TString id,
+                                                                   TString orientAroundZ) 
+: ERGeoComponent(typeFromXML, id)
 {
+  TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
+  fOrientAroundZ = volumeNameInd;
+  fVolumeName += volumeNameInd;
+  fDeadLayerThicknessFrontSide = 0.;
+  fDeadLayerThicknessBackSide  = 0.;
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(TString typeFromXML, TString id, 

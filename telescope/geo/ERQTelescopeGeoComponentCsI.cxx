@@ -18,8 +18,8 @@ using namespace std;
 ERQTelescopeGeoComponentCsI::ERQTelescopeGeoComponentCsI() {
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentCsI::ERQTelescopeGeoComponentCsI(TString name) 
-: ERGeoComponent(name)
+ERQTelescopeGeoComponentCsI::ERQTelescopeGeoComponentCsI(TString typeFromXML, TString id) 
+: ERGeoComponent(typeFromXML, id)
 {
 }
 //--------------------------------------------------------------------------------------------------

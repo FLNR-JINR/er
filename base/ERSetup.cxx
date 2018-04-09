@@ -35,6 +35,12 @@ void ERSetup::AddSubAssembly(TObject* subAssembly) {
   fSubAssembies->AddLast(subAssembly);
 }
 //--------------------------------------------------------------------------------------------------
+void ERSetup::AddSubAssembly(TObject* subAssembly, TVector3 position, TVector3 rotation) {
+  ((ERGeoSubAssembly*)subAssembly)->SetPosition(position);
+  ((ERGeoSubAssembly*)subAssembly)->SetRotation(rotation);  
+  fSubAssembies->AddLast(subAssembly);
+}
+//--------------------------------------------------------------------------------------------------
 void ERSetup::ConstructGeometry(void) {
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------

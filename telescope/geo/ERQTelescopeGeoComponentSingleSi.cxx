@@ -18,9 +18,16 @@ using namespace std;
 ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi() {
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(TString name) 
-: ERGeoComponent(name)
+ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(TString typeFromXML, 
+                                                                   TString id, 
+                                                                   TString orientAroundZ) 
+: ERGeoComponent(typeFromXML, id)
 {
+  TString volumeNameInd = (orientAroundZ == "X") ? "_X" : "_Y";  
+  fOrientAroundZ = volumeNameInd;
+  fVolumeName += volumeNameInd;
+  fDeadLayerThicknessFrontSide = 0.;
+  fDeadLayerThicknessBackSide  = 0.;
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(TString typeFromXML, TString id, 

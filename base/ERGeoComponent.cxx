@@ -21,6 +21,14 @@ ERGeoComponent::ERGeoComponent(TString name)
 {
 }
 //--------------------------------------------------------------------------------------------------
+ERGeoComponent::ERGeoComponent(TString typeFromXML, TString id) 
+: TNamed(typeFromXML + id, typeFromXML + id),
+  fType(typeFromXML),
+  fComponentId(id),
+  fVolumeName(id)
+{
+}
+//--------------------------------------------------------------------------------------------------
 ERGeoComponent::ERGeoComponent(TString typeFromXML, TString id, TVector3 position, TVector3 rotation)
 : TNamed(typeFromXML + id, typeFromXML + id),
   fType(typeFromXML),
@@ -35,6 +43,17 @@ ERGeoComponent::ERGeoComponent(TString typeFromXML, TString id, TVector3 positio
 }
 //--------------------------------------------------------------------------------------------------
 ERGeoComponent::~ERGeoComponent() {
+}
+//--------------------------------------------------------------------------------------------------
+void ERGeoComponent::SetPosition(TVector3 position) {
+  fPosition = new TVector3(position);
+}
+//--------------------------------------------------------------------------------------------------
+void ERGeoComponent::SetRotation(TVector3 rotation) {
+  fRotation = new TGeoRotation();
+  fRotation->RotateX(rotation.X());
+  fRotation->RotateY(rotation.Y());
+  fRotation->RotateZ(rotation.Z());
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERGeoComponent)

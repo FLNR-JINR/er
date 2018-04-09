@@ -33,6 +33,7 @@ public:
   void SetXMLParametersFile(TString xmlFileName) {fParamsXMLFileName = xmlFileName;} 
   void SetGeoName(TString name) {fGeoName = name;}
   void AddSubAssembly(TObject* subAssembly);
+  void AddSubAssembly(TObject* subAssembly, TVector3 position, TVector3 rotation);
   /* Accessors */
   TString               GetGeoFileName()           const {return (fGeoName + ".temp.root");}
   TString               GetGeoName()               const {return fGeoName;}

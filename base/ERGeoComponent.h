@@ -24,10 +24,13 @@ class ERGeoComponent : public TNamed {
 public:
   ERGeoComponent();
   ERGeoComponent(TString name);
+  ERGeoComponent(TString typeFromXML, TString id);
   ERGeoComponent(TString typeFromXML, TString id, TVector3 position, TVector3 rotation);
   ~ERGeoComponent();
   /* Modifiers */
-  void          SetVolumeNamePrefix(TString prefix) {fVolumeName = prefix + fVolumeName;}
+  void SetVolumeNamePrefix(TString prefix) {fVolumeName = prefix + fVolumeName;}
+  void SetPosition(TVector3 position);
+  void SetRotation(TVector3 rotation);
   /* Accessors */
   TGeoVolume*   GetVolume()     const {return fVolume;}
   TVector3*     GetPosition()   const {return fPosition;}

@@ -17,7 +17,7 @@
 class ERQTelescopeGeoComponentCsI : public ERGeoComponent {
 public:
   ERQTelescopeGeoComponentCsI();
-  ERQTelescopeGeoComponentCsI(TString name);
+  ERQTelescopeGeoComponentCsI(TString typeFromXML, TString id);
   ERQTelescopeGeoComponentCsI(TString typeFromXML, TString id, 
                                                    TVector3 position, 
                                                    TVector3 rotation);

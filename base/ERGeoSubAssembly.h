@@ -24,9 +24,10 @@ public:
   ~ERGeoSubAssembly();
 
   /* Modifiers */
-  void SetPosition(Double_t x, Double_t y, Double_t z);
-  void SetRotation(Double_t x, Double_t y, Double_t z);
+  void SetPosition(TVector3 position);
+  void SetRotation(TVector3 rotation);
   void AddComponent(TObject* component);
+  void AddComponent(TObject* component, TVector3 position, TVector3 rotation);
   /* Accessors */
   TGeoVolume*   GetVolume()   const {return fVolume;}
   TVector3*     GetPosition() const {return fPosition;}

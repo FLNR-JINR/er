@@ -43,18 +43,25 @@ ERGeoSubAssembly::ERGeoSubAssembly(TString name, TVector3 position, TVector3 rot
 ERGeoSubAssembly::~ERGeoSubAssembly() {
 }
 //--------------------------------------------------------------------------------------------------
-void ERGeoSubAssembly::SetPosition(Double_t x, Double_t y, Double_t z) {
-	fPosition = new TVector3(x, y, z);
+void ERGeoSubAssembly::SetPosition(TVector3 position) {
+	fPosition = new TVector3(position);
 }
 //--------------------------------------------------------------------------------------------------
-void ERGeoSubAssembly::SetRotation(Double_t x, Double_t y, Double_t z) {
-  fRotation->RotateX(x);
-  fRotation->RotateY(y);
-  fRotation->RotateZ(z);
+void ERGeoSubAssembly::SetRotation(TVector3 rotation) {
+  fRotation = new TGeoRotation();
+  fRotation->RotateX(rotation.X());
+  fRotation->RotateY(rotation.Y());
+  fRotation->RotateZ(rotation.Z());
 }
 //--------------------------------------------------------------------------------------------------
-void ERGeoSubAssembly::AddComponent(TObject* component) {
-  fComponents->AddLast(component);  
+void ERGeoSubAssembly::AddComponent(TObject* component) {  
+  fComponents->AddLast(component); 
+}
+//--------------------------------------------------------------------------------------------------
+void ERGeoSubAssembly::AddComponent(TObject* component, TVector3 position, TVector3 rotation) {
+  ((ERGeoComponent*)component)->SetPosition(position);
+  ((ERGeoComponent*)component)->SetRotation(rotation);  
+  fComponents->AddLast(component);
 }
 //--------------------------------------------------------------------------------------------------
 void ERGeoSubAssembly::ConstructGeometryVolume() {
