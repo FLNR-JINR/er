@@ -45,11 +45,10 @@ void exp1803_reco(Int_t nEvents = 1000) {
   // ------- QTelescope PID -------------------------------------------
   ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
 
-  qtelescopePID->SetUserCut("ERQTelescopeSiDigi_DoubleSi_D1_XY_2_X.fEdep > 0.00001");
+  //qtelescopePID->SetUserCut("CUTG && ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.003");
 
-  qtelescopePID->SetStationParticle("DoubleSi_SD1_XY_0",1000020030);
-  qtelescopePID->SetStationParticle("DoubleSi_SD2_XY_1",1000020030);
-  qtelescopePID->SetStationParticle("DoubleSi_D1_XY_2",1000020030);
+  qtelescopePID->SetStationParticle("T1_DoubleSi_SD2_XY_0",1000020030);
+  qtelescopePID->SetStationParticle("T2_DoubleSi_SD2_XY_1",1000020030);
   run->AddTask(qtelescopePID); 
 
   // -----------Runtime DataBase info ---------------------------------------
@@ -58,7 +57,7 @@ void exp1803_reco(Int_t nEvents = 1000) {
   parInput->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parInput);
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
   
   run->Init();
   run->Run(0, nEvents);

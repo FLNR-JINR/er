@@ -64,6 +64,7 @@ InitStatus ERQTelescopePID::Init() {
       Int_t bPrefixNameLength = bFullName.First('_'); 
       TString brName(bFullName(bPrefixNameLength + 1, bFullName.Length()));
       fQTelescopeDigi[brName] = (TClonesArray*) ioman->GetObject(bFullName);
+      LOG(DEBUG) << "Digi branche " << brName << FairLogger::endl; 
     }
 
     if (bFullName.Contains("Track") && bFullName.Contains("QTelescope")) {
@@ -214,6 +215,7 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
 
   Bool_t inTarget = kFALSE;
   Float_t tarEdep = 0.;
+  Bool_t firstSens = kTRUE;
 
   while(!gGeoManager->IsOutside()){
     
@@ -226,9 +228,16 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
 
     if (inTarget && !(TString(gGeoManager->GetPath()).Contains("target")))
       break;
-
     if (TString(gGeoManager->GetPath()).Contains("Sensitive")){
-      LOG(DEBUG) <<" [CalcEloss]    Sensetive Volume -> skip" << FairLogger::endl;
+      if (firstSens){
+        firstSens = kFALSE;
+        LOG(DEBUG) <<" [CalcEloss]    Pass first sens volume" << FairLogger::endl;
+      }
+      else{
+        LOG(DEBUG) <<" [CalcEloss]    Sensetive Volume -> get Eloss from digi" << FairLogger::endl;
+        Double_t edep = FindDigiEdepByNode(node);
+        T += edep;
+      }
       node = gGeoManager->Step();
       continue;
     }
@@ -251,6 +260,7 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
 
     T += edep;
     sumLoss += edep;
+  
     node = gGeoManager->Step();
   }
   
@@ -263,4 +273,45 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
   return sumLoss;
 }
 //--------------------------------------------------------------------------------------------------
+Double_t ERQTelescopePID::FindDigiEdepByNode(TGeoNode* node){
+  //@ TODO Now working only for SingleSi
+  Double_t edep = 0.;
+
+  TString brNamePrefix = node->GetMotherVolume()->GetName();
+  LOG(DEBUG) <<" [CalcEloss]    Branch name prefix " << brNamePrefix << FairLogger::endl;
+  
+  TString brName = "";
+  for (auto digiBranch : fQTelescopeDigi){
+    TString currentBrNamePrefix(digiBranch.first(0,digiBranch.first.Last('_')));
+    if (currentBrNamePrefix == brNamePrefix)
+      brName = digiBranch.first;
+  }
+  if (brName == ""){
+    LOG(WARNING) << " [CalcEloss]   Branch not found in telescope branches name" << FairLogger::endl;
+    return 0.;
+  }
+  else{
+    TString sensVolName = node->GetName();
+    Int_t bLastPostfix = sensVolName.Last('_'); 
+    TString stripNbStr(sensVolName(bLastPostfix + 1, sensVolName.Length()));
+    Int_t stripNb = stripNbStr.Atoi();
+    Bool_t found = kFALSE;
+
+    for (Int_t iDigi = 0; iDigi < fQTelescopeDigi[brName]->GetEntriesFast(); iDigi++){
+      ERQTelescopeSiDigi* digi = (ERQTelescopeSiDigi*)fQTelescopeDigi[brName]->At(iDigi);
+      if (digi->GetStripNb() == stripNb){
+        found = kTRUE;
+        LOG(DEBUG) << " [CalcEloss]   Found digi with edep " << digi->GetEdep() << FairLogger::endl;
+        edep = digi->GetEdep();
+        break;
+      }
+    }
+    if (!found)
+      LOG(WARNING) << " [CalcEloss]   Digi with strip number " << stripNb << " not found in collection" << FairLogger::endl;
+  }
+
+
+  return edep;
+}
+
 ClassImp(ERQTelescopePID)

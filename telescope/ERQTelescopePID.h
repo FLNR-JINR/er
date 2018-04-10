@@ -79,6 +79,7 @@ protected:
 protected:
 
   Double_t CalcEloss(TString station, ERQTelescopeTrack* track, Int_t pdg);
+  Double_t FindDigiEdepByNode(TGeoNode* node);
 
 private:
   /** @brief Initializes runtime database for getting parameters from .par file**/
