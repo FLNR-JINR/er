@@ -3,14 +3,14 @@ void sim(Int_t nEvents = 1000, Int_t index = 0)
   //---------------------Files-----------------------------------------------
   TString outDir("output");
   TString outFile;
-  outFile.Form("%s/sim%d.root", outDir.Data(), index);
+  outFile.Form("%s/sim_%d.root", outDir.Data(), index);
   TString parFile;
-  parFile.Form("%s/par%d.root", outDir.Data(), index);
+  parFile.Form("%s/par_%d.root", outDir.Data(), index);
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
-  timer.Start(); 
+  timer.Start();
 
   // -----   Create simulation run   ----------------------------------------
   ERRunSim* run = new ERRunSim();
@@ -64,14 +64,14 @@ void sim(Int_t nEvents = 1000, Int_t index = 0)
 
   ERDecayer* decayer = new ERDecayer();
   ERElasticScattering* scattering = new ERElasticScattering("15Nto15N11B");
-  
+
   scattering->SetInputIon(Z,A,Q);
   scattering->SetTargetIon(5,11,5);
   scattering->SetThetaCDF("cos_tetta_cross.txt");
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11");
-  scattering->SetThetaRange(23.,25.);
+  scattering->SetThetaRange(23., 25.);
   scattering->SetPhiRange(0., 0.);
 
   decayer->AddDecay(scattering);
@@ -135,11 +135,11 @@ void sim(Int_t nEvents = 1000, Int_t index = 0)
   Int_t nSteps = -15000;
 
   //--- Runtime database ----------------------------------------------------
-  Bool_t kParameterMerged = kTRUE; 
+  Bool_t kParameterMerged = kTRUE;
   FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
-  parOut->open(parFile.Data()); 
-  rtdb->setOutput(parOut); 
-  rtdb->saveOutput(); 
+  parOut->open(parFile.Data());
+  rtdb->setOutput(parOut);
+  rtdb->saveOutput();
   rtdb->print();
 
   // -----   Run simulation  ------------------------------------------------
@@ -155,5 +155,5 @@ void sim(Int_t nEvents = 1000, Int_t index = 0)
   cout << "Parameter file is par.root" << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime
                   << "s" << endl << endl;
-  // cout << "Energy " << momentum << "; mass " << mass << endl; 
+  // cout << "Energy " << momentum << "; mass " << mass << endl;
 }

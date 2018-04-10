@@ -21,4 +21,4 @@ echo "===========================SIMULATION===================="
 INDEX=0
 OUTDIR=output
 
-root -l -b -q "sim.C(100, ${INDEX})" > ${OUTDIR}/sim${INDEX}.out 2> ${OUTDIR}/sim${INDEX}.err
+root -l -b -q "sim.C(100, ${INDEX})" > ${OUTDIR}/sim_${INDEX}.out 2> ${OUTDIR}/sim_${INDEX}.err
