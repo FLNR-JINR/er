@@ -21,14 +21,14 @@ using namespace std;
 
 #include "EREventHeader.h"
 
-const Double_t ERNeuRadDigitizer::cSciFiLightYield= 6000.; // [photons/MeV]
+const Double_t ERNeuRadDigitizer::cSciFiLightYield= 8000.; // [photons/MeV]
 const Double_t ERNeuRadDigitizer::cSpeedOfLight = 0.299792458e2;  //[cm/ns]
 const Double_t ERNeuRadDigitizer::cMaterialSpeedOfLight = ERNeuRadDigitizer::cSpeedOfLight/1.58;//[cm/ns]
 const Double_t ERNeuRadDigitizer::cLightFractionInTotalIntReflection = 0.04;
 //доля света захватываемая файбером в полное внутренне отражение в каждую сторону.
 const Double_t ERNeuRadDigitizer::cPixelDelay=6.;//[ns] (H8500)
 const Double_t ERNeuRadDigitizer::cPixelJitter = 0.4/2.36; //[ns] (H8500)
-const Double_t ERNeuRadDigitizer::cScincilationTau = 1.94687; //[ns]
+const Double_t ERNeuRadDigitizer::cScincilationTau = 3.2; //[ns]
 
 // ----------------------------------------------------------------------------
 ERNeuRadDigitizer::ERNeuRadDigitizer()

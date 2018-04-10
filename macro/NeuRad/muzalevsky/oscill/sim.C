@@ -1,4 +1,4 @@
-void sim(Int_t nEvents = 1000000){
+void sim(Int_t nEvents = 1000){
 // void sim(Int_t nEvents = 100, Int_t index = 0) {
 
   // ------------------------------------------------------------------------
@@ -14,8 +14,8 @@ void sim(Int_t nEvents = 1000000){
 //gRandom->SetSeed(index);
 
   //---------------------Files-----------------------------------------------
-  TString outFile= "/home/muzalevsky/work/dataER/simNeuRad/simСoll2.root";
-  TString parFile= "/home/muzalevsky/work/dataER/simNeuRad/parColl2.root";
+  TString outFile= "sim.root";
+  TString parFile= "par.root";
   // ------------------------------------------------------------------------
 
   // -----   Timer   --------------------------------------------------------
@@ -76,10 +76,6 @@ void sim(Int_t nEvents = 1000000){
   
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  // Int_t pdgId = 2112; // neutron  beam
-  // Double32_t theta1 = 0.;  // polar angle distribution
-  // Double32_t theta2 = 7.;
-  // Double32_t kin_energy = .500; //GeV
   Int_t pdgId = 22; // neutron  beam
 
   Double32_t theta1 = 0.;  // polar angle distribution
@@ -94,13 +90,9 @@ void sim(Int_t nEvents = 1000000){
   boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
 
-  // boxGen->SetPhiRange(90, 90);
   boxGen->SetPhiRange(0., 360.);
-  // boxGen->SetBoxXYZ(0.,0,0.3,0.3,0.);
   boxGen->SetBoxXYZ(-0.149,-0.149,0.149,0.149,-17.4);
- // boxGen->SetBoxXYZ(-0.2,-2.5,0.2,2.5,4.4);
   primGen->AddGenerator(boxGen);
-  //primGen->AddGenerator(boxGen1);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
   

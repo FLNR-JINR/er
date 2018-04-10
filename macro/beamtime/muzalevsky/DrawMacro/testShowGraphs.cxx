@@ -20,7 +20,6 @@ void testShowGraphs()
 
 	const Long64_t kFirstEvent = 1;
 
-	//TFile fr("../data/dataTektronix/GSItests/1000V_trigg40mv/30_60_10_50_GSI.root");
 	TFile fr("../../NeuRad/oscill/tests/analyze.root");
 	TCanvas *c1 = new TCanvas("c1","test",10,10,1000,600);
 //	c1->Divide(4,4);
@@ -60,8 +59,5 @@ void testShowGraphs()
 		// f1->SetRange(t10[k], t90[k]);
 		// gr[k]->Fit(f1, "RQ");
 	}
-c1->Print("shape.png");
-	//c1->Print(Form("../macros/picsDRS4/file%s/signals%s", foldername, ext));
-//	c1->cd(2);
-//	tr->Draw("gAmp.Draw()","","goff",1,124);
+
 }
