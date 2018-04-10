@@ -61,31 +61,33 @@ void ERQTelescopeGeoComponentCsI::ConstructGeometryVolume(void) {
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   // ---------------- CsI-------------------------------------------------
+  Float_t fullX = fSizeX*fCubesCountX + fSplitSize/2.*fCubesCountX;
+  Float_t fullY = fSizeY*fCubesCountY + fSplitSize/2.*fCubesCountY;
+
   fVolume = gGeoManager->MakeBox(this->GetVolumeName(), 
                                  pMed, 
-                                 fSizeX / 2. + fDeadLayer * fCubesCountX + fSplitSize * fCubesCountX / 2, 
-                                 fSizeY / 2. + fDeadLayer * fCubesCountY + fSplitSize * fCubesCountY / 2, 
-                                 fSizeZ / 2. + fDeadLayer);
+                                 fullX/2., 
+                                 fullY/2., 
+                                 fSizeZ/2.);
  
-  Double_t csIBoxX = fSizeX / fCubesCountX;  
-  Double_t csIBoxY = fSizeY / fCubesCountY; 
-  Double_t csIBoxZ = fSizeZ;  
-  TGeoVolume* shellCsI = gGeoManager->MakeBox("CsIBoxShell", pMed, csIBoxX / 2 + fDeadLayer, 
-                                                                   csIBoxY / 2 + fDeadLayer, 
-                                                                   csIBoxZ / 2 + fDeadLayer);
-  TGeoVolume* boxCsISensitive = gGeoManager->MakeBox("SensitiveCsIBox", pMed, csIBoxX / 2, 
-                                                                              csIBoxY / 2, 
-                                                                              csIBoxZ / 2);
+
+  TGeoVolume* shellCsI = gGeoManager->MakeBox("CsIBoxShell", pMed, fSizeX / 2, 
+                                                                   fSizeY / 2, 
+                                                                   fSizeZ / 2);
+
+  TGeoVolume* boxCsISensitive = gGeoManager->MakeBox("SensitiveCsIBox", pMed, fSizeX / 2 - fDeadLayer, 
+                                                                              fSizeY / 2 - fDeadLayer, 
+                                                                              fSizeZ / 2 - fDeadLayer);
   shellCsI->AddNode(boxCsISensitive, 1, new TGeoCombiTrans(0, 0, 0, new TGeoRotation()));
 
   //------------------ STRUCTURE  ---------------------------------------------
   Int_t iBox = 1;
   for (Int_t iCsIX = 0; iCsIX < fCubesCountX; iCsIX++) {
-    Double_t transX = fSizeX / 2 - csIBoxX / 2. - iCsIX * csIBoxX;
+    Double_t transX = -fSizeX*fCubesCountX + fSizeX / 2.  + fSplitSize / 2 + iCsIX *(fSizeX +fSplitSize) ;
     for (Int_t iCsIY = 0; iCsIY < fCubesCountY; iCsIY++) {
-      Double_t transY = fSizeY / 2 - csIBoxY * iCsIY - (csIBoxY / 2);
-      fVolume->AddNode(shellCsI, iBox++, new TGeoCombiTrans(transX + fSplitSize / 2,
-                                                            transY + fSplitSize / 2,
+      Double_t transY = -fSizeY*fCubesCountY + fSizeY / 2. + fSplitSize / 2 + iCsIY*(fSizeY + fSplitSize) ;
+      fVolume->AddNode(shellCsI, iBox++, new TGeoCombiTrans(transX,
+                                                            transY,
                                                             0., 
                                                             new TGeoRotation()));
     }

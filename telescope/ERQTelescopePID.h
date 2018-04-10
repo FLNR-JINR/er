@@ -19,7 +19,6 @@
 #include "ERQTelescopeTrack.h"
 #include "ERQTelescopeParticle.h"
 #include "ERQTelescopeSetup.h"
-#include "ERQTelescopeSiDigi.h"
 
 /** @class ERQTelescopePID
  ** @brief 
@@ -78,9 +77,9 @@ protected:
 
 protected:
 
-  Double_t CalcEloss(TString station, ERQTelescopeTrack* track, Int_t pdg);
+  Double_t CalcEloss(TString station, ERQTelescopeTrack* track, Int_t pdg, Double_t T);
   Double_t FindDigiEdepByNode(TGeoNode* node);
-
+  Double_t FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg);
 private:
   /** @brief Initializes runtime database for getting parameters from .par file**/
   virtual void SetParContainers();

@@ -25,6 +25,8 @@
 #include "FairEventHeader.h"
 
 #include "ERBeamDetTrack.h"
+#include "ERQTelescopeSiDigi.h"
+#include "ERQTelescopeCsIDigi.h"
 
 #include <iostream>
 using namespace std;
@@ -118,7 +120,11 @@ void ERQTelescopePID::Exec(Option_t* opt) {
       for (const auto itParticesBranches : fQTelescopeParticle[itTrackBranches.first]){
 
         Int_t pdg = itParticesBranches.first;
-        Double_t deadEloss = CalcEloss(itTrackBranches.first,track, pdg);
+
+        //sum edep on road from telescope hit produce station to CsI and edep in CsI digi
+        Double_t csIedep = FindCsIEdepByTrack(track,pdg);
+        Float_t T = track->GetSumEdep() + csIedep;
+        Double_t deadEloss = CalcEloss(itTrackBranches.first,track, pdg,T);
 
         //mass 
         G4IonTable* ionTable = G4IonTable::GetIonTable();
@@ -126,7 +132,6 @@ void ERQTelescopePID::Exec(Option_t* opt) {
         Float_t mass = ion->GetPDGMass()/1000.; //GeV
 
         //LotentzVector on telescope
-        Double_t T = track->GetSumEdep();
         Double_t P = sqrt(pow(T,2) + 2*mass*T);
         TVector3 direction = track->GetTelescopeVertex()-track->GetTargetVertex();
         TLorentzVector lvTelescope (P*sin(direction.Theta())*cos(direction.Phi()),
@@ -180,7 +185,7 @@ void ERQTelescopePID::SetParContainers() {
   if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, Int_t pdg){
+Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, Int_t pdg, Double_t T){
   
   FairRun* run = FairRun::Instance();
   if (!TString(run->ClassName()).Contains("ERRunAna")){
@@ -210,7 +215,6 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
                                 direction.X(),direction.Y(),direction.Z());
   
   Float_t sumLoss = 0.;
-  Float_t T = track->GetSumEdep();
   
 
   Bool_t inTarget = kFALSE;
@@ -312,6 +316,97 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(TGeoNode* node){
 
 
   return edep;
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERQTelescopePID::FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg){
+  Double_t edep = 0;
+  Int_t CsInb = -1;
+
+  TVector3 telescopeVertex = track->GetTelescopeVertex();
+  TVector3 direction = telescopeVertex - track->GetTargetVertex();
+
+  TGeoNode* node;
+  node = gGeoManager->InitTrack(telescopeVertex.X(),telescopeVertex.Y(),telescopeVertex.Z(),
+                                direction.X(),direction.Y(),direction.Z());
+
+  G4IonTable* ionTable = G4IonTable::GetIonTable();
+  G4ParticleDefinition* ion =  ionTable->GetIon(pdg);
+  Float_t mass = ion->GetPDGMass()/1000.; //GeV
+  G4EmCalculator* calc = new G4EmCalculator();
+  G4NistManager* nist = G4NistManager::Instance();
+
+  std::vector<Double_t> ranges;
+  std::vector<TString> materials;
+  
+  Bool_t finish = kFALSE;
+
+  while(!gGeoManager->IsOutside()){
+    TString path =  gGeoManager->GetPath();
+    LOG(DEBUG) <<" [FindCsIByTrack]  path  = " << path  << FairLogger::endl;
+
+    if (TString(node->GetName()).Contains("CsIBoxShell")){
+
+      LOG(DEBUG) << " [FindCsIByTrack] CsI found" << FairLogger::endl;
+      
+      TString sensVolName = node->GetName();
+      Int_t bLastPostfix = sensVolName.Last('_'); 
+      TString CsINbStr(sensVolName(bLastPostfix + 1, sensVolName.Length()));
+      CsInb = CsINbStr.Atoi();
+
+      LOG(DEBUG) << " [FindCsIByTrack] CsI crystall nb " << CsInb << FairLogger::endl;
+
+      for (auto branch : fQTelescopeDigi){
+        if (path.Contains(branch.first)) {
+          LOG(DEBUG) << " [FindCsIByTrack] CsI Branch found " << branch.first << FairLogger::endl;
+          for (Int_t iDigi = 0; iDigi < branch.second->GetEntriesFast(); iDigi++){
+            ERQTelescopeCsIDigi* digi = (ERQTelescopeCsIDigi*)branch.second->At(iDigi);
+            if (digi->BlockNb() == CsInb){
+              LOG(DEBUG) << " [FindCsIByTrack] Found CsI with edep " << digi->Edep() << FairLogger::endl;
+              edep = digi->Edep();
+            }
+          }
+        }
+      }
+
+      finish = kTRUE;
+    }
+
+    LOG(DEBUG) << " [FindCsIByTrack] material  " << node->GetMedium()->GetMaterial()->GetName();
+
+    materials.push_back(node->GetMedium()->GetMaterial()->GetName());
+    
+    node = gGeoManager->FindNextBoundary();
+
+    ranges.push_back(gGeoManager->GetStep());
+
+    LOG(DEBUG) << " range " << gGeoManager->GetStep() << FairLogger::endl;
+    
+    if (finish)
+      break;
+    node = gGeoManager->Step();
+  }
+
+  if (edep == 0)
+    LOG(DEBUG) << " [FindCsIByTrack] CsI not found!" << FairLogger::endl;
+  else{
+    LOG(DEBUG) << " [FindCsIByTrack] Calc eloss in dead layers " << FairLogger::endl;
+    Float_t T = edep;
+    for (Int_t iRange = ranges.size()-1; iRange >= 0; iRange--){
+      G4Material* mat = nist->FindOrBuildMaterial(materials[iRange].Data());
+      Double_t rangeEdep = calc->GetDEDX(T*1e3,ion,mat)*ranges[iRange]*10*1e-3;
+      edep += rangeEdep;
+
+      LOG(DEBUG) << " [FindCsIByTrack] Ekin " << T <<  " range " << ranges[iRange]
+                <<  " material " << materials[iRange] 
+                <<  " edep " << rangeEdep << FairLogger::endl;
+
+      T+=rangeEdep;
+    }
+    LOG(DEBUG) << " [FindCsIByTrack] Sum edep from hit to Csi " << edep << FairLogger::endl;
+  }
+
+  return edep;
+
 }
 
 ClassImp(ERQTelescopePID)

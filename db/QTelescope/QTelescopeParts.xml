@@ -51,7 +51,7 @@
 	</SiTypes>
 	<CsITypes>
 		<CsI id="CsI_1">
- 			<CsISize CsIX="6.4" CsIY="6.4" CsIZ="2"/>
+ 			<CsISize CsIX="1.6" CsIY="1.6" CsIZ="2"/>
  			<cubesCountX>4</cubesCountX>			
  			<cubesCountY>4</cubesCountY>
  			<splitSize>0.01</splitSize>
