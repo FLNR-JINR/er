@@ -275,6 +275,7 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
   
   LOG(DEBUG) <<" [CalcEloss] Target Eloss = " <<  tarEdep << FairLogger::endl;
   LOG(DEBUG) <<" [CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::endl;
+  LOG(DEBUG) <<" [CalcEloss] Ekin on target = " <<  T << FairLogger::endl;
 
   return sumLoss;
 }
@@ -343,55 +344,68 @@ Double_t ERQTelescopePID::FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg
   
   Bool_t finish = kFALSE;
   Bool_t first = kTRUE;
+  Int_t CsIDigiCount = 0;
+
   while(!gGeoManager->IsOutside()){
     TString path =  gGeoManager->GetPath();
-    LOG(DEBUG) <<" [FindCsIByTrack]  path  = " << path  << FairLogger::endl;
+    LOG(DEBUG) <<" [FindCsIEdepByTrack] path  = " << path  << FairLogger::endl;
 
     if (first && path.Contains("Sensitive")){
-      LOG(DEBUG) << " [FindCsIByTrack] Skip first Sensitive " << FairLogger::endl; 
+      LOG(DEBUG) << " [FindCsIEdepByTrack]    Skip first Sensitive " << FairLogger::endl; 
       first = kFALSE;
       node = gGeoManager->FindNextBoundary();
       node = gGeoManager->Step();
       continue;
     }
-    
-    if (TString(node->GetName()).Contains("CsIBoxShell")){
+
+    if (CsIDigiCount > 0)
+      if (!path.Contains("CsI")) //мы были в CsI и вышли из него в пещеру
+        break;
+
+    if (TString(node->GetName()).Contains("SensitiveCsIBox")){
       
-      LOG(DEBUG) << " [FindCsIByTrack] CsI found" << FairLogger::endl;
+      if (CsIDigiCount > 0)
+        LOG(WARNING) << " [FindCsIEdepByTrack] Few CsI crystalls on one track" << FairLogger::endl;
+
+      LOG(DEBUG) << " [FindCsIEdepByTrack]    CsI found " << FairLogger::endl;
       
-      TString sensVolName = node->GetName();
-      Int_t bLastPostfix = sensVolName.Last('_'); 
-      TString CsINbStr(sensVolName(bLastPostfix + 1, sensVolName.Length()));
+      TObjArray *pathArray = path.Tokenize("/");
+      TString shellName = ((TObjString *)pathArray->At(pathArray->GetEntries()-2))->String();
+      Int_t bLastPostfix = shellName.Last('_');
+      TString CsINbStr(shellName(bLastPostfix + 1, shellName.Length()));
       CsInb = CsINbStr.Atoi();
 
-      LOG(DEBUG) << " [FindCsIByTrack] CsI crystall nb " << CsInb << FairLogger::endl;
+      LOG(DEBUG) << " [FindCsIEdepByTrack]      CsI crystall nb " << CsInb << FairLogger::endl;
 
       for (auto branch : fQTelescopeDigi){
         if (path.Contains(branch.first)) {
-          LOG(DEBUG) << " [FindCsIByTrack] CsI Branch found " << branch.first << FairLogger::endl;
+          LOG(DEBUG) << " [FindCsIEdepByTrack]      CsI Branch found " << branch.first << FairLogger::endl;
           for (Int_t iDigi = 0; iDigi < branch.second->GetEntriesFast(); iDigi++){
             ERQTelescopeCsIDigi* digi = (ERQTelescopeCsIDigi*)branch.second->At(iDigi);
             if (digi->BlockNb() == CsInb){
-              LOG(DEBUG) << " [FindCsIByTrack] Found CsI with edep " << digi->Edep() << FairLogger::endl;
+              LOG(DEBUG) << " [FindCsIEdepByTrack]      Found CsI with edep " << digi->Edep() << FairLogger::endl;
               edep = digi->Edep();
             }
           }
         }
       }
-      
-      finish = kTRUE;
+
+      node = gGeoManager->FindNextBoundary();
+      node = gGeoManager->Step();
+      CsIDigiCount++;
+      continue;
     }
   
 
     //LOG(DEBUG) << " [FindCsIByTrack] node name " << node->GetName() << FairLogger::endl;
-    LOG(DEBUG) << " [FindCsIByTrack] material  " << node->GetMedium()->GetMaterial()->GetName();
+    LOG(DEBUG) << " [FindCsIEdepByTrack]    material  " << node->GetMedium()->GetMaterial()->GetName();
 
     materials.push_back(node->GetMedium()->GetMaterial()->GetName());
     node = gGeoManager->FindNextBoundary();
 
     ranges.push_back(gGeoManager->GetStep());
     Double_t range = gGeoManager->GetStep();
-    LOG(DEBUG) << " range " <<range << FairLogger::endl;
+    LOG(DEBUG) << "   range " <<range << FairLogger::endl;
    
     
     if (finish)
@@ -401,22 +415,23 @@ Double_t ERQTelescopePID::FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg
   }
 
   if (edep == 0)
-    LOG(DEBUG) << " [FindCsIByTrack] CsI not found!" << FairLogger::endl;
+    LOG(DEBUG) << " [FindCsIEdepByTrack] CsI not found!" << FairLogger::endl;
   else{
-    LOG(DEBUG) << " [FindCsIByTrack] Calc eloss in dead layers " << FairLogger::endl;
+    LOG(DEBUG) << " [FindCsIEdepByTrack] Calc eloss in dead layers " << FairLogger::endl;
     Float_t T = edep;
-    for (Int_t iRange = ranges.size()-1; iRange >= 0; iRange--){
+    //-2 Последний мертвый слой не учитываем, потому что мы до него не добежали 
+    for (Int_t iRange = ranges.size()-2; iRange >= 0; iRange--){
       G4Material* mat = nist->FindOrBuildMaterial(materials[iRange].Data());
       Double_t rangeEdep = calc->GetDEDX(T*1e3,ion,mat)*ranges[iRange]*10*1e-3;
       edep += rangeEdep;
 
-      LOG(DEBUG) << " [FindCsIByTrack] Ekin " << T <<  " range " << ranges[iRange]
+      LOG(DEBUG) << " [FindCsIEdepByTrack]    Ekin " << T <<  " range " << ranges[iRange]
                 <<  " material " << materials[iRange] 
                 <<  " edep " << rangeEdep << FairLogger::endl;
 
       T+=rangeEdep;
     }
-    LOG(DEBUG) << " [FindCsIByTrack] Sum edep from hit to Csi " << edep << FairLogger::endl;
+    LOG(DEBUG) << " [FindCsIEdepByTrack] Sum edep from hit to Csi " << edep << FairLogger::endl;
   }
 
   return edep;

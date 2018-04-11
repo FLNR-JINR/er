@@ -57,7 +57,7 @@ void exp1803_reco(Int_t nEvents = 1000) {
   parInput->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parInput);
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   
   run->Init();
   run->Run(0, nEvents);
