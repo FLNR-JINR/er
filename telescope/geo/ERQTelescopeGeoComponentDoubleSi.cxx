@@ -129,8 +129,8 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   for (Int_t iStripX = 0; iStripX < fStripCountX; iStripX++) {
     Double_t translateX = fSensX / 2 
                         - stripX *(iStripX)-(stripX / 2);
-    Double_t translateZ = fDeadLayerThicknessFrontSide 
-                        - fDeadLayerThicknessBackSide ;
+    Double_t translateZ = (fDeadLayerThicknessFrontSide 
+                        - fDeadLayerThicknessBackSide)/2. ;
     fVolume->AddNode(strip, iStripX, new TGeoCombiTrans(translateX, 0, translateZ, fZeroRotation));
   }
   if (fOrientAroundZ == "Y") {

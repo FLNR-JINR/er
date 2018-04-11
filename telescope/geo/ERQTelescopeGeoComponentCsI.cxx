@@ -61,8 +61,8 @@ void ERQTelescopeGeoComponentCsI::ConstructGeometryVolume(void) {
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   // ---------------- CsI-------------------------------------------------
-  Float_t fullX = fSizeX*fCubesCountX + fSplitSize/2.*fCubesCountX;
-  Float_t fullY = fSizeY*fCubesCountY + fSplitSize/2.*fCubesCountY;
+  Float_t fullX = fSizeX*fCubesCountX + fSplitSize*fCubesCountX;
+  Float_t fullY = fSizeY*fCubesCountY + fSplitSize*fCubesCountY;
 
   fVolume = gGeoManager->MakeBox(this->GetVolumeName(), 
                                  pMed, 
@@ -83,9 +83,9 @@ void ERQTelescopeGeoComponentCsI::ConstructGeometryVolume(void) {
   //------------------ STRUCTURE  ---------------------------------------------
   Int_t iBox = 1;
   for (Int_t iCsIX = 0; iCsIX < fCubesCountX; iCsIX++) {
-    Double_t transX = -fSizeX*fCubesCountX + fSizeX / 2.  + fSplitSize / 2 + iCsIX *(fSizeX +fSplitSize) ;
+    Double_t transX = -fullX/2 + fSizeX / 2. + fSplitSize / 2 + iCsIX *(fSizeX +fSplitSize);
     for (Int_t iCsIY = 0; iCsIY < fCubesCountY; iCsIY++) {
-      Double_t transY = -fSizeY*fCubesCountY + fSizeY / 2. + fSplitSize / 2 + iCsIY*(fSizeY + fSplitSize) ;
+      Double_t transY = -fullY/2 + fSizeY / 2. + fSplitSize / 2 + iCsIY*(fSizeY + fSplitSize);
       fVolume->AddNode(shellCsI, iBox++, new TGeoCombiTrans(transX,
                                                             transY,
                                                             0., 

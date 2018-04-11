@@ -81,7 +81,6 @@ void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
   TGeoVolume* singleSiStrip;
 
   fVolume = gGeoManager->MakeBox(this->GetVolumeName(), pMed, fSizeX / 2., fSizeY / 2., fSizeZ / 2.);
-
   //------------------ Single Si strip --------------------------------------
   Double_t singleSiStripX = fSensX / fStripCount; 
   Double_t singleSiStripY = fSensY;   
@@ -96,8 +95,8 @@ void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
   for (Int_t iStrip = 0; iStrip < fStripCount; iStrip++) {
     Double_t transX = (-1) * fSensX / 2
                         + singleSiStripX/2. + iStrip*singleSiStripX;
-    Double_t transZ = fDeadLayerThicknessFrontSide 
-                        - fDeadLayerThicknessBackSide;
+    Double_t transZ = (fDeadLayerThicknessFrontSide 
+                        - fDeadLayerThicknessBackSide)/2.;
     fVolume->AddNode(singleSiStrip, iStrip, new TGeoCombiTrans(transX, 0., transZ, new TGeoRotation()));
   }
   if (fOrientAroundZ == "Y") {

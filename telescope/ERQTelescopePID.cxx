@@ -123,6 +123,7 @@ void ERQTelescopePID::Exec(Option_t* opt) {
 
         //sum edep on road from telescope hit produce station to CsI and edep in CsI digi
         Double_t csIedep = FindCsIEdepByTrack(track,pdg);
+        
         Float_t T = track->GetSumEdep() + csIedep;
         Double_t deadEloss = CalcEloss(itTrackBranches.first,track, pdg,T);
 
@@ -187,15 +188,16 @@ void ERQTelescopePID::SetParContainers() {
 //--------------------------------------------------------------------------------------------------
 Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, Int_t pdg, Double_t T){
   
-  FairRun* run = FairRun::Instance();
-  if (!TString(run->ClassName()).Contains("ERRunAna")){
+ /* FairRun* run = FairRun::Instance();
+  if (!TString(run->ClassName()).Contains("ERRunAna") or !TString(run->ClassName()).Contains("ERRunSim")){
     LOG(FATAL) << "Use ERRunAna for ERQTelescopePID::CalcEloss!!!" << FairLogger::endl;
     return 0;
-  }
+  }*/
 
   //calclculation ion energy loss in BeamDet volumes
   TVector3 telescopeVertex = track->GetTelescopeVertex();
   TVector3 direction = track->GetTargetVertex() - telescopeVertex;
+  direction.SetMag(1.);
 
   G4IonTable* ionTable = G4IonTable::GetIonTable();
   G4ParticleDefinition* ion =  ionTable->GetIon(pdg);
@@ -324,6 +326,7 @@ Double_t ERQTelescopePID::FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg
 
   TVector3 telescopeVertex = track->GetTelescopeVertex();
   TVector3 direction = telescopeVertex - track->GetTargetVertex();
+  direction.SetMag(1.);
 
   TGeoNode* node;
   node = gGeoManager->InitTrack(telescopeVertex.X(),telescopeVertex.Y(),telescopeVertex.Z(),
@@ -339,13 +342,21 @@ Double_t ERQTelescopePID::FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg
   std::vector<TString> materials;
   
   Bool_t finish = kFALSE;
-
+  Bool_t first = kTRUE;
   while(!gGeoManager->IsOutside()){
     TString path =  gGeoManager->GetPath();
     LOG(DEBUG) <<" [FindCsIByTrack]  path  = " << path  << FairLogger::endl;
 
+    if (first && path.Contains("Sensitive")){
+      LOG(DEBUG) << " [FindCsIByTrack] Skip first Sensitive " << FairLogger::endl; 
+      first = kFALSE;
+      node = gGeoManager->FindNextBoundary();
+      node = gGeoManager->Step();
+      continue;
+    }
+    
     if (TString(node->GetName()).Contains("CsIBoxShell")){
-
+      
       LOG(DEBUG) << " [FindCsIByTrack] CsI found" << FairLogger::endl;
       
       TString sensVolName = node->GetName();
@@ -367,22 +378,25 @@ Double_t ERQTelescopePID::FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg
           }
         }
       }
-
+      
       finish = kTRUE;
     }
+  
 
+    //LOG(DEBUG) << " [FindCsIByTrack] node name " << node->GetName() << FairLogger::endl;
     LOG(DEBUG) << " [FindCsIByTrack] material  " << node->GetMedium()->GetMaterial()->GetName();
 
     materials.push_back(node->GetMedium()->GetMaterial()->GetName());
-    
     node = gGeoManager->FindNextBoundary();
 
     ranges.push_back(gGeoManager->GetStep());
-
-    LOG(DEBUG) << " range " << gGeoManager->GetStep() << FairLogger::endl;
+    Double_t range = gGeoManager->GetStep();
+    LOG(DEBUG) << " range " <<range << FairLogger::endl;
+   
     
     if (finish)
       break;
+
     node = gGeoManager->Step();
   }
 
