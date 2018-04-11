@@ -23,12 +23,12 @@ ERQTelescopeCsIPoint::ERQTelescopeCsIPoint(Int_t eventID, Int_t trackID,
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss,Int_t wallNb ,Int_t blockNb)
+		  Double_t tof, Double_t length, Double_t eLoss,Int_t wallNb ,Int_t blockNb, Int_t pdg)
   : FairMCPoint(trackID, -1., posIn, momIn, tof, length, eLoss),
     fEventID(eventID),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
-    fWallNb(wallNb), fBlockNb(blockNb)
+    fWallNb(wallNb), fBlockNb(blockNb), fPDG(pdg)
 {
 }
 //-------------------------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ ERQTelescopeCsIPoint::ERQTelescopeCsIPoint(const ERQTelescopeCsIPoint& right)
   : FairMCPoint(right),
     fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
     fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out),
-    fWallNb(right.fWallNb), fBlockNb(right.fBlockNb)
+    fWallNb(right.fWallNb), fBlockNb(right.fBlockNb), fPDG(right.fPDG)
 {
 }
 //-------------------------------------------------------------------------------------------------

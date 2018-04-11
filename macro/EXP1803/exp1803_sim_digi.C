@@ -48,8 +48,8 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   // -----   Runtime database   ---------------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
     //-------- Set MC event header --------------------------------------------
-  ERDecayMCEventHeader* decayMCheader = new ERDecayMCEventHeader();
-  run->SetMCEventHeader(decayMCheader);
+  //ERDecayMCEventHeader* decayMCheader = new ERDecayMCEventHeader();
+  // /run->SetMCEventHeader(decayMCheader);
   // -----   Create media   -------------------------------------------------
   run->SetMaterials("media.geo");       // Materials
   // -----   Create detectors  ----------------------------------------------   
@@ -95,34 +95,35 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   setupQTelescope->SetGeoName("QTelescopeTmp");
   // ----- T1 parameters ----------------------------------------------------
   Double_t xPos, yPos, zPos;
-  Double_t radius = 25.;
-  TVector3 rotationT1(0., 25., 0.);
+  Double_t radius = 23.;
+  TVector3 rotationT1(0., 12., 0.);
   xPos = radius * TMath::Sin(rotationT1.Y() * TMath::DegToRad());
   yPos = 0.;
   zPos = radius * TMath::Cos(rotationT1.Y() * TMath::DegToRad());
   ERGeoSubAssembly* assemblyT1 = new ERGeoSubAssembly("T1", TVector3(xPos, yPos, zPos), rotationT1);
   ERQTelescopeGeoComponentSingleSi* thinT1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_1", 
-                                                                                  TVector3(0.2, 0.3, 0.), TVector3(), "X");
+                                                                                  TVector3(0., 0., -5.36), TVector3(), "X");
   ERQTelescopeGeoComponentDoubleSi* thickT1 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SD2", 
-                                                                                  TVector3(0, 0, 1.), TVector3(), "X");
-  ERQTelescopeGeoComponentCsI* csi1 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_1", TVector3(0, 0, 6.), TVector3());
+                                                                                  TVector3(0, 0, 0.), TVector3(), "X");
+  ERQTelescopeGeoComponentCsI* csi1 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_1", TVector3(0, 0, 5.), TVector3());
   assemblyT1->AddComponent(thinT1);
   assemblyT1->AddComponent(thickT1);
   assemblyT1->AddComponent(csi1);
 
   setupQTelescope->AddSubAssembly(assemblyT1);
   // ----- T2 parameters ----------------------------------------------------
-  TVector3 rotationT2(0., 5., 0.);
+  radius = 29.;
+  TVector3 rotationT2(0., -8.27, 0.);
   xPos = radius * TMath::Sin(rotationT2.Y() * TMath::DegToRad());
   yPos = 0.;
   zPos = radius * TMath::Cos(rotationT2.Y() * TMath::DegToRad());
   ERGeoSubAssembly* assemblyT2 = new ERGeoSubAssembly("T2", TVector3(xPos, yPos, zPos), rotationT2);
-  ERQTelescopeGeoComponentSingleSi* thinT2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_1", 
-                                                                                  TVector3(0, 0, 0.), TVector3(), "X");
+  /*ERQTelescopeGeoComponentSingleSi* thinT2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_1", 
+                                                                                  TVector3(0, 0, 0.), TVector3(), "X");*/
   ERQTelescopeGeoComponentDoubleSi* thickT2 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SD2", 
-                                                                                  TVector3(0, 0, 1.), TVector3(), "X");
-  ERQTelescopeGeoComponentCsI* csi2 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_1", TVector3(0, 0, 6.), TVector3());
-  assemblyT2->AddComponent(thinT2);
+                                                                                  TVector3(0, 0, 0.), TVector3(), "X");
+  ERQTelescopeGeoComponentCsI* csi2 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_1", TVector3(0, 0, 5.), TVector3());
+  //assemblyT2->AddComponent(thinT2);
   assemblyT2->AddComponent(thickT2);
   assemblyT2->AddComponent(csi2);
 
@@ -140,7 +141,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   Double_t  kinE_MevPerNucleon = 40.;
   // Int_t     Z = 1, A = 3, Q = 1;
   // TString   ionName = "3H";
-  Int_t Z = 2, A = 6, Q = 2;
+    Int_t Z = 2, A = 6, Q = 2;
   TString ionName = "6He";
   ERIonMixGenerator* generator = new ERIonMixGenerator(ionName, Z, A, Q, 1);
   Double32_t kin_energy = kinE_MevPerNucleon * 1e-3 * A; //GeV
@@ -199,9 +200,9 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
   run->AddTask(trackFinder);
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kTRUE);
+  //run->SetStoreTraj(kTRUE);
   //-------Set LOG verbosity  ----------------------------------------------- 
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
   Int_t nSteps = -15000;

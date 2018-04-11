@@ -145,6 +145,7 @@ private:
   Int_t                     fSiStripNb;
   Int_t                     fCsIBoxNb;           // CsI (0-3)
   Int_t                     fCsIStationNb;
+  Int_t                     fPDG;
 
 
 private:

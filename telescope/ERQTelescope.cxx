@@ -65,7 +65,7 @@ ERQTelescopeSiPoint* ERQTelescope::AddSiPoint(TClonesArray& clref) {
     TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
     TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
     TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-    fTime, fLength, fEloss, fSiStationNb, fSiStripNb);
+    fTime, fLength, fEloss, fSiStationNb, fSiStripNb,fPDG);
 }
 //-------------------------------------------------------------------------------------------------
 ERQTelescopeCsIPoint* ERQTelescope::AddCsIPoint(TClonesArray& clref) {
@@ -75,7 +75,7 @@ ERQTelescopeCsIPoint* ERQTelescope::AddCsIPoint(TClonesArray& clref) {
     TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
     TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
     TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-    fTime, fLength, fEloss, fCsIStationNb, fCsIBoxNb);
+    fTime, fLength, fEloss, fCsIStationNb, fCsIBoxNb,fPDG);
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::ConstructGeometry() {
@@ -95,6 +95,7 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
     fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     fMass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
+    fPDG = gMC->TrackPid();
     // gMC->CurrentVolID(sensor);
     // gMC->CurrentVolOffID(1, sector);
   }

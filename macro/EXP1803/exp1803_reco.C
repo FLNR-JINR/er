@@ -36,7 +36,7 @@ void exp1803_reco(Int_t nEvents = 1000) {
   qtelescopeTrackFinder->SetHitStation("T2", "T2_DoubleSi_SD2_XY_1");
 
   qtelescopeTrackFinder->SetStripEdepRange(0., 100.);          // [GeV]
-  qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
+  //qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
   // qtelescopeTrackFinder->SetStripEdepRange(0.0097, 100.);   // [GeV]
   // qtelescopeTrackFinder->SetEdepDiffXY(5.);                 // [GeV]
   qtelescopeTrackFinder->SetEdepMaxDiffXY(0.5); 
@@ -61,6 +61,7 @@ void exp1803_reco(Int_t nEvents = 1000) {
   
   run->Init();
   run->Run(0, nEvents);
+  //run->Run(27, 28);
   // ------------------------------------------------------------------------;
   rtdb->setOutput(parInput);
   rtdb->saveOutput();

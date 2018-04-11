@@ -42,7 +42,7 @@ class ERQTelescopeSiPoint : public FairMCPoint
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t StationNb ,Int_t X_StripNb);
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t StationNb ,Int_t X_StripNb, Int_t pdg);
 
 
 
@@ -102,6 +102,7 @@ class ERQTelescopeSiPoint : public FairMCPoint
   Double32_t fPx_out, fPy_out, fPz_out;
   Int_t      fStationNb;     // Si
   Int_t      fStrip;
+  Int_t      fPDG;
   ClassDef(ERQTelescopeSiPoint,1)
 };
 #endif
