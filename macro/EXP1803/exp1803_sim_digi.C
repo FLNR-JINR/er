@@ -47,9 +47,9 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   // ------------------------------------------------------------------------
   // -----   Runtime database   ---------------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
-    //-------- Set MC event header --------------------------------------------
-  //ERDecayMCEventHeader* decayMCheader = new ERDecayMCEventHeader();
-  // /run->SetMCEventHeader(decayMCheader);
+  //-------- Set MC event header --------------------------------------------
+  ERDecayMCEventHeader* decayMCheader = new ERDecayMCEventHeader();
+  run->SetMCEventHeader(decayMCheader);
   // -----   Create media   -------------------------------------------------
   run->SetMaterials("media.geo");       // Materials
   // -----   Create detectors  ----------------------------------------------   
