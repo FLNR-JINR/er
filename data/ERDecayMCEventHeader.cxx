@@ -9,4 +9,10 @@ ERDecayMCEventHeader::ERDecayMCEventHeader(){
 
 }
 
+void ERDecayMCEventHeader::Clear(){
+	fOutputsTracksNb = 0;
+	fOutputTrackID.Set(fOutputsTracksNb);
+	fOutputTrackID.Reset();
+}
+
 ClassImp(ERDecayMCEventHeader)

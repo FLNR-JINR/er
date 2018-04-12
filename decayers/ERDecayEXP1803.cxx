@@ -253,6 +253,11 @@ void ERDecayEXP1803::BeginEvent() {
 
 //-------------------------------------------------------------------------------------------------
 void ERDecayEXP1803::FinishEvent() {
+  FairRunSim* run = FairRunSim::Instance();
+  if (TString(run->GetMCEventHeader()->ClassName()).Contains("ERDecayMCEventHeader")){   
+    ERDecayMCEventHeader* header = (ERDecayMCEventHeader*)run->GetMCEventHeader();
+    header->Clear();
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

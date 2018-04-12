@@ -30,6 +30,7 @@ public:
   void AddOutputParticle(Int_t oID){fOutputsTracksNb++; 
                                     fOutputTrackID.Set(fOutputsTracksNb);
                                     fOutputTrackID[fOutputsTracksNb-1]=oID;}
+  void Clear();
 
   ClassDef(ERDecayMCEventHeader,1)
 };
