@@ -68,7 +68,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output")
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11");
-  scattering->SetThetaRange(18., 20.);
+  scattering->SetThetaRange(0., 180.);
   scattering->SetPhiRange(0., 0.);
 
   decayer->AddDecay(scattering);

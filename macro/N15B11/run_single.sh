@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OUTDIR=output
-NEVENTS=1000
+NEVENTS=500000
 
 cd ../../../build/
 make -j4
@@ -19,6 +19,6 @@ fi
 
 echo -e "\e[1m\e[32m========== Cleanup finished =============== \e[0m"
 
-root -l -b -q "sim.C(${NEVENTS}, 0, ${OUTDIR})" > ${OUTDIR}/out.txt 2> ${OUTDIR}/err.txt
+root -l -b -q "sim.C(${NEVENTS}, 0, \"${OUTDIR}\")" > ${OUTDIR}/out.txt 2> ${OUTDIR}/err.txt
 
 echo -e "\e[1m\e[32m========== Simulation finished ============ \e[0m"

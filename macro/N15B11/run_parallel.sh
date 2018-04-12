@@ -3,7 +3,10 @@
 OUTDIR=output_parallel
 
 # Number of events per thread
-NEVENTS=1000
+NEVENTS=100000
+
+# Number of threads
+NTHREADS=16
 
 cd ../../../build/
 make -j4
@@ -21,8 +24,7 @@ fi
 
 echo -e "\e[1m\e[32m========== Cleanup finished =============== \e[0m"
 
-for THR in {1..8}
-do
+for THR in $(seq 1 ${NTHREADS}); do
 	echo "Starting simulation in thread ${THR}"
 	root -l -b -q "sim.C(${NEVENTS}, ${THR}, \"${OUTDIR}\")" > ${OUTDIR}/out_${THR}.txt 2> ${OUTDIR}/err_${THR}.txt &
 done

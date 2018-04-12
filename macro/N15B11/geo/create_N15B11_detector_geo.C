@@ -85,8 +85,8 @@ void create_N15B11_detector_geo()
     TGeoTranslation* tGasAndCase = new TGeoTranslation("tGasAndCase", 0., 0., 2e-4+0.2+(-2e-4-0.2+5.-0.4)/2.);
     TGeoTranslation* tSemi = new TGeoTranslation("tSemi", 0., 0., 2e-4+0.2+(-2e-4-0.2+5.-0.4)+0.4/2.);
 
-    /*vDetContainer->AddNode(vFilm, 1, tFilm);
-    vDetContainer->AddNode(vCap, 1, tCap);*/
+    vDetContainer->AddNode(vFilm, 1, tFilm);
+    vDetContainer->AddNode(vCap, 1, tCap);
     vDetContainer->AddNode(vDetCasingPart, 1, tGasAndCase);
     vDetContainer->AddNode(vDetGasPart, 1, tGasAndCase);
     vDetContainer->AddNode(vSemi, 1, tSemi);
