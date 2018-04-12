@@ -26,7 +26,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
                          + "/db/QTelescope/QTelescopeParts.xml";
   TString paramFileBeamDet = workDirPath
                          + "/db/BeamDet/BeamDetParts.xml";
-  TString targetGeoFileName = workDirPath + "/geometry/target.h2.geo.root";
+  TString targetGeoFileName = workDirPath + "/geometry/target_CD2_geo.root";
   TString gadastGeoFileName = workDirPath + "/geometry/partOfGadast.v1.geo.root";
   TString ndGeoFileName = workDirPath + "/geometry/ND.geo.root";
   TString magnetGeoFileName = workDirPath + "/geometry/magnet.geo.root";
@@ -163,7 +163,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
   targetDecay->SetAngularDistribution("Cs_6He_d_3He_5H_35-25AMeV.txt");
-  targetDecay->SetTargetVolumeName("tubeH2");
+  targetDecay->SetTargetVolumeName("boxCD"); // "tubeH2"
   targetDecay->SetTargetThickness(targetH2Thickness);
   targetDecay->SetH5Mass(massH5);
   targetDecay->SetH5Exitation(0.0004, 0.00002355, 1);
