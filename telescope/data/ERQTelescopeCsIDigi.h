@@ -39,6 +39,7 @@ class ERQTelescopeCsIDigi : public FairMultiLinkedData
   /* Accessors */
   Int_t ID () const {return fID;}
   Float_t Edep() const {return fEdep;}
+  Int_t BlockNb() const {return fBlockNb;}
   
  protected:
   Int_t     fID;

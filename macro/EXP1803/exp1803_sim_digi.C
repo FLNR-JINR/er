@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 1000) {
+void exp1803_sim_digi(Int_t nEvents = 100) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -36,7 +36,6 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   TStopwatch timer; 
   timer.Start();
   // ------------------------------------------------------------------------
- 
   // -----   Create simulation run   ----------------------------------------
   ERRunSim* run = new ERRunSim();
   /** Select transport engine
@@ -49,8 +48,8 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   // -----   Runtime database   ---------------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
     //-------- Set MC event header --------------------------------------------
-  ERDecayMCEventHeader* decayMCheader = new ERDecayMCEventHeader();
-  run->SetMCEventHeader(decayMCheader);
+  //ERDecayMCEventHeader* decayMCheader = new ERDecayMCEventHeader();
+  // /run->SetMCEventHeader(decayMCheader);
   // -----   Create media   -------------------------------------------------
   run->SetMaterials("media.geo");       // Materials
   // -----   Create detectors  ----------------------------------------------   
@@ -78,57 +77,57 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   // -----   Create Part of Gadast ------------------------------------------
   ERGadast* gadast = new ERGadast("PartofGadast", kTRUE, 1);
   gadast->SetGeometryFileName(gadastGeoFileName);
-  run->AddModule(gadast);
+  //run->AddModule(gadast);
 
   // -----   Create Stilbene wall -------------------------------------------
   ERND* neutronDetector = new ERND("StilbeneWall", kTRUE, 1);
   neutronDetector->SetGeometryFileName(ndGeoFileName);
-  run->AddModule(neutronDetector);
+  //run->AddModule(neutronDetector);
 
   // -----   Create Magnet geometry -----------------------------------------
   FairModule* magnet = new ERTarget("magnet", 1, kTRUE);
   magnet->SetGeometryFileName(magnetGeoFileName);
-  run->AddModule(magnet);
+  //run->AddModule(magnet);
 
   // -----  QTelescope Setup ------------------------------------------------
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
-  setupQTelescope->SetXmlParametersFile(paramFileQTelescope);
+  setupQTelescope->SetXMLParametersFile(paramFileQTelescope);
+  setupQTelescope->SetGeoName("QTelescopeTmp");
   // ----- T1 parameters ----------------------------------------------------
-  TVector3 SD1Rotation(0., 27., 0.);
-  TVector3 SD2Rotation(0., -27., 0.);
   Double_t xPos, yPos, zPos;
-  TVector3* T1Translation;
-  // ----- T1.1--------------------------------------------------------------
-  setupQTelescope->AddSi("DoubleSi_SD1", TVector3( 9.07981,0., 17.8201), SD1Rotation,"X");
-  setupQTelescope->AddSi("DoubleSi_SD2", TVector3( -9.07981,0., 17.8201), SD2Rotation,"X");
-  // // ----- T1.2--------------------------------------------------------------
-  // setupQTelescope->AddSi("DoubleSi_SD1", TVector3( T1Side/2 - T1Aperture/2, 
-  //                                                 -T1Side/2 - T1Aperture/2,  
-  //                                                  T1PosZ + T1D1Thick/2), T1Rotation, "X");
-  // setupQTelescope->AddSi("DoubleSi_SD2", TVector3( T1Side/2 - T1Aperture/2, 
-  //                                                 -T1Side/2 - T1Aperture/2,  
-  //                                                  T1PosZ   + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
-  // // ----- T1.3 -------------------------------------------------------------
-  // setupQTelescope->AddSi("DoubleSi_SD1", TVector3(-T1Side/2 - T1Aperture/2, 
-  //                                                 -T1Side/2 + T1Aperture/2,  
-  //                                                  T1PosZ   + T1D1Thick/2), T1Rotation, "X");
-  // setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 - T1Aperture/2, 
-  //                                                 -T1Side/2 + T1Aperture/2,  
-  //                                                  T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
-  // // ----- T1.4--------------------------------------------------------------
-  // setupQTelescope->AddSi("DoubleSi_SD1", TVector3(-T1Side/2 + T1Aperture/2, 
-  //                                                  T1Side/2 + T1Aperture/2,  
-  //                                                  T1PosZ + T1D1Thick/2), T1Rotation, "X");
-  // setupQTelescope->AddSi("DoubleSi_SD2", TVector3(-T1Side/2 + T1Aperture/2, 
-  //                                                  T1Side/2 + T1Aperture/2,  
-  //                                                  T1PosZ + T1D1Thick +T1Dl + T1D2Thick/2), T1Rotation, "X");
+  Double_t radius = 23.;
+  TVector3 rotationT1(0., 12., 0.);
+  xPos = radius * TMath::Sin(rotationT1.Y() * TMath::DegToRad());
+  yPos = 0.;
+  zPos = radius * TMath::Cos(rotationT1.Y() * TMath::DegToRad());
+  ERGeoSubAssembly* assemblyT1 = new ERGeoSubAssembly("T1", TVector3(xPos, yPos, zPos), rotationT1);
+  ERQTelescopeGeoComponentSingleSi* thinT1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_1", 
+                                                                                  TVector3(0., 0., -5.36), TVector3(), "X");
+  ERQTelescopeGeoComponentDoubleSi* thickT1 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SD2", 
+                                                                                  TVector3(0, 0, 0.), TVector3(), "X");
+  ERQTelescopeGeoComponentCsI* csi1 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_1", TVector3(0, 0, 5.), TVector3());
+  assemblyT1->AddComponent(thinT1);
+  assemblyT1->AddComponent(thickT1);
+  assemblyT1->AddComponent(csi1);
 
-  // ----- D1 parameters ----------------------------------------------------
-  TVector3* D1Rotation = new TVector3(0., 5., 0);
-  setupQTelescope->AddSi("DoubleSi_D1", TVector3( 0, 
-                                                  0,  
-                                                  D1PosZ + D1Thick/2), *D1Rotation, "X");
+  setupQTelescope->AddSubAssembly(assemblyT1);
+  // ----- T2 parameters ----------------------------------------------------
+  radius = 29.;
+  TVector3 rotationT2(0., -8.27, 0.);
+  xPos = radius * TMath::Sin(rotationT2.Y() * TMath::DegToRad());
+  yPos = 0.;
+  zPos = radius * TMath::Cos(rotationT2.Y() * TMath::DegToRad());
+  ERGeoSubAssembly* assemblyT2 = new ERGeoSubAssembly("T2", TVector3(xPos, yPos, zPos), rotationT2);
+  /*ERQTelescopeGeoComponentSingleSi* thinT2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_1", 
+                                                                                  TVector3(0, 0, 0.), TVector3(), "X");*/
+  ERQTelescopeGeoComponentDoubleSi* thickT2 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SD2", 
+                                                                                  TVector3(0, 0, 0.), TVector3(), "X");
+  ERQTelescopeGeoComponentCsI* csi2 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_1", TVector3(0, 0, 5.), TVector3());
+  //assemblyT2->AddComponent(thinT2);
+  assemblyT2->AddComponent(thickT2);
+  assemblyT2->AddComponent(csi2);
 
+  setupQTelescope->AddSubAssembly(assemblyT2);
   // ------QTelescope -------------------------------------------------------
   ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE,verbose);
   run->AddModule(qtelescope);
@@ -174,9 +173,9 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   run->SetDecayer(decayer);
 
   // ------- Magnetic field -------------------------------------------------
-  ERFieldMap* magField = new ERFieldMap("exp1803Field","A"); //exp1803Field, testField
-  magField->SetVolume("magnet");
-  run->SetField(magField);
+  // ERFieldMap* magField = new ERFieldMap("exp1803Field","A"); //exp1803Field, testField
+  // magField->SetVolume("magnet");
+  // run->SetField(magField);
     // ------- QTelescope Digitizer -------------------------------------------
   ERQTelescopeDigitizer* qtelescopeDigitizer = new ERQTelescopeDigitizer(verbose);
   qtelescopeDigitizer->SetSiElossThreshold(0);
@@ -189,16 +188,19 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   run->AddTask(qtelescopeDigitizer);
   // ------  Gadast Digitizer -----------------------------------------------
   ERGadastDigitizer* gadastDigitizer = new ERGadastDigitizer(verbose);
-  run->AddTask(gadastDigitizer);
+  //run->AddTask(gadastDigitizer);
   // -----  BeamDet Digitizer ----------------------------------------------
   ERBeamDetDigitizer* beamDetDigitizer = new ERBeamDetDigitizer(verbose);
   // beamDetDigitizer->SetMWPCElossThreshold(0.006);
   // beamDetDigitizer->SetToFElossThreshold(0.006);
   // beamDetDigitizer->SetToFElossSigmaOverEloss(0);
   // beamDetDigitizer->SetToFTimeSigma(1e-10);
-  run->AddTask(beamDetDigitizer); 
+  run->AddTask(beamDetDigitizer);
+
+  ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
+  run->AddTask(trackFinder);
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kTRUE);
+  //run->SetStoreTraj(kTRUE);
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   // -----   Initialize simulation run   ------------------------------------
@@ -212,9 +214,10 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   rtdb->saveOutput();
   rtdb->print();
   //gMC->SetMaxNStep(nSteps);
+  run->CreateGeometryFile("setup.root");
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);
-  
+
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();

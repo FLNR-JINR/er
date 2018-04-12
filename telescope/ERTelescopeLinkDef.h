@@ -17,7 +17,7 @@
 
 #pragma link C++ class ERQTelescope+;
 #pragma link C++ class ERQTelescopeDigitizer+;
-#pragma link C++ class ERQTelescopeSetup;
+#pragma link C++ class ERQTelescopeSetup+;
 #pragma link C++ class ERQTelescopeTrackFinder+;
 #pragma link C++ class ERQTelescopePID;
 
@@ -29,6 +29,10 @@
 #pragma link C++ class ERQTelescopeParticle+;
 #pragma link C++ class AculRaw+;
 #pragma link C++ class ERRTelescopeRawConverter+;
+
+#pragma link C++ class ERQTelescopeGeoComponentDoubleSi+;
+#pragma link C++ class ERQTelescopeGeoComponentSingleSi+;
+#pragma link C++ class ERQTelescopeGeoComponentCsI+;
 
 #pragma link C++ class ERQTelescopeCalibrator+;
 #pragma link C++ class ERRTelescopeCalibrator+;

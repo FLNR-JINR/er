@@ -64,7 +64,7 @@ void exp1803_sim(Int_t nEvents = 100) {
   run->AddModule(target);
 
   ERBeamDetSetup* setupBeamDet = ERBeamDetSetup::Instance();
-  setupBeamDet->SetXmlParametersFile(paramFileBeamDet);
+  setupBeamDet->SetXMLParametersFile(paramFileBeamDet);
 
   // -----  BeamDet parameters ----------------------------------------------
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);       // 

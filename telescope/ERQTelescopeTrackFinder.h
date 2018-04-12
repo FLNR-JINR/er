@@ -41,8 +41,8 @@ public:
   ~ERQTelescopeTrackFinder();
 
   /* Modifiers */
-  void SetHitStation(TString stationID);
-  void SetHitStation(TString xStationID, TString yStationID2);
+  void SetHitStation(TString subassemblyName, TString componentIdX, TString componentIdY); 
+  void SetHitStation(TString subassemblyName, TString componentId);
   void SetStripEdepRange(Double_t edepMin, Double_t edepMax);
   void SetEdepMaxDiffXY(Double_t edepDiff) {fEdepDiffXY = edepDiff;}
   void SetTargetPoint(Double_t x, Double_t y, Double_t z);
@@ -71,8 +71,10 @@ protected:
   std::map<TString, TClonesArray*>    fQTelescopeDigi;
   TClonesArray                        *fBeamDetTrack;
   //Output arrays
-  std::map<TString, TClonesArray*>          fQTelescopeTrack;
-  std::map<TString, pair<TString, TString>> fSiHitStationsPair; 
+  std::map<TString, TClonesArray*>    fQTelescopeTrack;
+  
+  std::map<TString, map<TString, pair<TString, TString>>> fSiHitStationsPair; //// map<subassembly,map<component, pair<xBranch, yBranch>>> 
+
 
   Double_t fSiDigiEdepMin;
   Double_t fSiDigiEdepMax;

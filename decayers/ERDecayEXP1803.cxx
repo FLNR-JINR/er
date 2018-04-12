@@ -197,11 +197,13 @@ Bool_t ERDecayEXP1803::Stepping() {
 
       He6TrackNb = gMC->GetStack()->GetCurrentTrackNumber();
 
+      /*
       gMC->GetStack()->PushTrack(1, He6TrackNb, f5H->PdgCode(),
                                  fLv5H->Px(), fLv5H->Py(), fLv5H->Pz(),
                                  fLv5H->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, H5TrackNb, decay5HMass, 0);
+                                 kPDecay, H5TrackNb, decay5HMass, 0);*/
+
       gMC->GetStack()->PushTrack(1, He6TrackNb, f3He->PdgCode(),
                                  fLv3He->Px(), fLv3He->Py(), fLv3He->Pz(),
                                  fLv3He->E(), curPos.X(), curPos.Y(), curPos.Z(),

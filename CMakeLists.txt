@@ -53,7 +53,6 @@ ENDIF (FAIRROOTPATH)
 
 include(CheckCXX11Features)
 
-
 # Load some basic macros which are needed later on
 include(FairMacros)
 include(WriteConfigFile)

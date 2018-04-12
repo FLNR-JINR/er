@@ -65,7 +65,7 @@ ERQTelescopeSiPoint* ERQTelescope::AddSiPoint(TClonesArray& clref) {
     TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
     TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
     TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-    fTime, fLength, fEloss, fSiStationNb, fSiStripNb);
+    fTime, fLength, fEloss, fSiStationNb, fSiStripNb,fPDG);
 }
 //-------------------------------------------------------------------------------------------------
 ERQTelescopeCsIPoint* ERQTelescope::AddCsIPoint(TClonesArray& clref) {
@@ -75,12 +75,12 @@ ERQTelescopeCsIPoint* ERQTelescope::AddCsIPoint(TClonesArray& clref) {
     TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
     TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
     TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-    fTime, fLength, fEloss, fCsIStationNb, fCsIBoxNb);
+    fTime, fLength, fEloss, fCsIStationNb, fCsIBoxNb,fPDG);
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::ConstructGeometry() {
   fQTelescopeSetup->ConstructGeometry();
-  SetGeometryFileName("QTelescope.temp.root");
+  SetGeometryFileName(fQTelescopeSetup->GetGeoFileName());
   ConstructRootGeometry();
 }
 //-------------------------------------------------------------------------------------------------
@@ -95,6 +95,7 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
     fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     fMass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
+    fPDG = gMC->TrackPid();
     // gMC->CurrentVolID(sensor);
     // gMC->CurrentVolOffID(1, sector);
   }
@@ -132,8 +133,8 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
         AddSiPoint(*(fSingleSiPoints[fSiStationNb]));
       }
       if (volName.Contains("CsI")) {
-        gMC->CurrentVolID(fCsIBoxNb);
-        gMC->CurrentVolOffID(1, fCsIStationNb);
+        gMC->CurrentVolOffID(1, fCsIBoxNb);
+        gMC->CurrentVolOffID(2, fCsIStationNb);
         AddCsIPoint(*(fCsIPoints[fCsIStationNb]));
       }
     }
@@ -159,9 +160,9 @@ void ERQTelescope::Register() {
   Int_t iDoubleSi = 0; 
   Int_t iSingleSi = 0; 
   Int_t iCsI      = 0; 
-  vector<TString>* sensVolumes = fQTelescopeSetup->GetDetectorStations();
+  vector<TString>* sensVolumes = fQTelescopeSetup->GetComponentNames();
   for (Int_t i = 0; i < sensVolumes->size(); i++) {
-    if (sensVolumes->at(i).BeginsWith("DoubleSi")) {
+    if (sensVolumes->at(i).Contains("DoubleSi")) {
       fDoubleSiXPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
       fDoubleSiYPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
       branchName = "ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iDoubleSi, 10) + "_X";
@@ -169,12 +170,12 @@ void ERQTelescope::Register() {
       branchName = "ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iDoubleSi++, 10) + "_Y";
       ioman->Register(branchName, "QTelescope", fDoubleSiYPoints.back(), kTRUE);
     }
-    if (sensVolumes->at(i).BeginsWith("SingleSi")) {
+    if (sensVolumes->at(i).Contains("SingleSi")) {
       fSingleSiPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
       branchName = "ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iSingleSi++, 10);
       ioman->Register(branchName, "QTelescope", fSingleSiPoints.back(), kTRUE);
     }
-    if (sensVolumes->at(i).BeginsWith("CsI")) {
+    if (sensVolumes->at(i).Contains("CsI")) {
       fCsIPoints.push_back(new TClonesArray("ERQTelescopeCsIPoint"));
       branchName = "ERQTelescopeCsIPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iCsI++, 10);      
       ioman->Register(branchName, "QTelescope", fCsIPoints.back(), kTRUE);

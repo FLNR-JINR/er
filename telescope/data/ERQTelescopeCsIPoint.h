@@ -40,7 +40,7 @@ class ERQTelescopeCsIPoint : public FairMCPoint
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t wallNb ,Int_t blockNb);
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t wallNb ,Int_t blockNb,Int_t pdg);
 
 
   /** Copy constructor **/
@@ -97,6 +97,7 @@ class ERQTelescopeCsIPoint : public FairMCPoint
   Double32_t fPx_out, fPy_out, fPz_out;
   Int_t      fWallNb;     // СsI
   Int_t      fBlockNb;
+  Int_t      fPDG;
   ClassDef(ERQTelescopeCsIPoint,1)
 };
 #endif
