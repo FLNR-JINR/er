@@ -11,7 +11,7 @@ void analyse(Int_t index=0, TString dirName="output", TString fileNamePrefix="si
 		cerr << "Could not open file '" << simFilename << "'" << endl;
 		return;
 	} else {
-		cerr << "Succesfully opene input file '" << simFilename << "'" << endl;
+		cerr << "Successfully opened input file '" << simFilename << "'" << endl;
 	}
 
 
@@ -29,7 +29,7 @@ void analyse(Int_t index=0, TString dirName="output", TString fileNamePrefix="si
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	inTree->Draw("Gas_Layer_0_Det_12_Point.fELoss:Semi_Layer_0_Det_12_Point.fELoss", "");
+	inTree->Draw("Gas_Layer_0_Det_13_Point.fELoss:Semi_Layer_0_Det_13_Point.fELoss", "");
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

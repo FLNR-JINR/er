@@ -41,5 +41,14 @@ void merge_graphs()
 	TCanvas* canv = new TCanvas("canv", "canv");
 	canv->cd();
 	mg->Draw("AP");
+	mg->SetTitle("Gas Eloss vs. Semi Eloss; GeV; GeV");
 
+
+/////////////////////////////////////////////////////////////////
+	mg->GetXaxis()->SetLimits(0., 0.050); // Up to 50 MeV
+	mg->SetMinimum(0.);
+	mg->SetMaximum(0.010); // Up to 10 MeV;
+/////////////////////////////////////////////////////////////////
+
+	gPad->Modified();
 }

@@ -1,12 +1,12 @@
 void eventDisplay()
 {
-  TString inDir("output");
+  TString inDir("output_parallel");
   TString parFileName;
   TString simFileName;
   TString outFileName;
 
-  parFileName.Form("%s/par_0.root", inDir.Data());
-  simFileName.Form("%s/sim_0.root", inDir.Data());
+  parFileName.Form("%s/par_1.root", inDir.Data());
+  simFileName.Form("%s/sim_1.root", inDir.Data());
   outFileName.Form("%s/eventDisplay.root", inDir.Data());
 
   FairRunAna* fRun = new FairRunAna();

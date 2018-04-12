@@ -16,3 +16,5 @@ for FILE in ${OUTDIR}/${SIMPREFIX}*.root; do
 done
 
 #root -l "analyse.C(0, \"${OUTDIR}\", \"sim_\")"
+
+echo -e "\e[1m\e[32m========== Analysis finished ============== \e[0m"
