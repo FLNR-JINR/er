@@ -1,7 +1,8 @@
-void sim(Int_t nEvents = 100, Int_t index = 0)
+void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output")
 {
+  gRandom->SetSeed(index);
+
   //---------------------Files-----------------------------------------------
-  TString outDir("output");
   TString outFile;
   outFile.Form("%s/sim_%d.root", outDir.Data(), index);
   TString parFile;

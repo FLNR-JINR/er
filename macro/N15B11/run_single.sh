@@ -1,19 +1,24 @@
 #!/bin/bash
 
 OUTDIR=output
+NEVENTS=1000
 
-cd ../../../er_build/
+cd ../../../build/
 make -j4
 cd -
 
 echo -e "\e[1m\e[32m========== Compilation finished =========== \e[0m"
 
-cd ${OUTDIR}
-rm -fv *
-cd -
+if [ -d ${OUTDIR} ]; then
+	cd ${OUTDIR}
+	rm -fv *
+	cd -
+else
+	mkdir ${OUTDIR}
+fi
 
 echo -e "\e[1m\e[32m========== Cleanup finished =============== \e[0m"
 
-root -l -b -q "sim.C(1000000, 0)" > ${OUTDIR}/out.txt 2> ${OUTDIR}/err.txt
+root -l -b -q "sim.C(${NEVENTS}, 0, ${OUTDIR})" > ${OUTDIR}/out.txt 2> ${OUTDIR}/err.txt
 
 echo -e "\e[1m\e[32m========== Simulation finished ============ \e[0m"
