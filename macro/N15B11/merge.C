@@ -7,7 +7,6 @@ void merge(TString workDir="output_parallel")
 	ch.Add(inputFile);
 
 	TString outputFile;
-	outputFile.Form("%s/sim_merge.root", workDir.Data());
-
+	outputFile.Form("sim_merge.root");
 	ch.Merge(outputFile);
 }

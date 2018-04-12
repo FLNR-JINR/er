@@ -10,6 +10,8 @@ void analyse(Int_t index=0, TString dirName="output", TString fileNamePrefix="si
 	if (inFile->IsZombie()) {
 		cerr << "Could not open file '" << simFilename << "'" << endl;
 		return;
+	} else {
+		cerr << "Succesfully opene input file '" << simFilename << "'" << endl;
 	}
 
 
@@ -18,6 +20,8 @@ void analyse(Int_t index=0, TString dirName="output", TString fileNamePrefix="si
 	if (inTree == NULL) {
 		cerr << "Could not open tree 'er' in the input file '" << simFilename << "'" << endl;
 		return;
+	} else {
+		cerr << "Found tree 'er' in the input file '" << simFilename << "'" << endl;
 	}
 
 	TCanvas* canv1 = new TCanvas("canv1", "canv1");
@@ -33,10 +37,22 @@ void analyse(Int_t index=0, TString dirName="output", TString fileNamePrefix="si
 
 	TGraph* gr = new TGraph(inTree->GetSelectedRows(), inTree->GetV2(), inTree->GetV1());
 
+	cerr << gr->GetN() << " points in the output graph" << endl;
+
 	TCanvas* canv2 = new TCanvas("canv2", "canv2");
 	canv2->cd();
 	gr->Draw("AP");
 	gr->SetMarkerStyle(7);
 
-	//TODO close the file?
+	//TODO close the input file?
+	//inFile->Close();
+
+	// Write the output file ========================================================
+
+	TString outputFilename;
+	outputFilename.Form("%s/graph_%d.root", dirName.Data(), index);
+
+	TFile* outputFile = new TFile(outputFilename, "RECREATE");
+	gr->Write();
+	outputFile->Close();
 }
