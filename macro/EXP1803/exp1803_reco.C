@@ -8,7 +8,9 @@ void exp1803_reco(Int_t nEvents = 1000) {
   TStopwatch timer;
   timer.Start();  
   // -----   Digitization run   ---------------------------------------------
-  ERRunAna *run= new ERRunAna();
+  ERRunAna *run = new ERRunAna();
+  // run->SetUserCut("ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.003");
+
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -45,7 +47,7 @@ void exp1803_reco(Int_t nEvents = 1000) {
   // ------- QTelescope PID -------------------------------------------
   ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
 
-  //qtelescopePID->SetUserCut("CUTG && ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.003");
+  // qtelescopePID->SetUserCut("ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.009");
 
   qtelescopePID->SetStationParticle("T1_DoubleSi_SD2_XY_0",1000020030);
   qtelescopePID->SetStationParticle("T2_DoubleSi_SD2_XY_1",1000010030);

@@ -1,32 +1,45 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 #include "ERRunAna.h"
-
 
 #include <iostream>
 
 #include "TObjArray.h"
+#include "TG4RunConfiguration.h"
+#include "TGeant4.h"
 
 #include "G4EmCalculator.hh"
 #include "G4NistManager.hh"
 #include "G4Proton.hh"
 
-#include "TG4RunConfiguration.h"
-#include "TGeant4.h"
-
 #include "FairGeoLoader.h"
 #include "FairGeoInterface.h"
+#include "FairLogger.h"
+#include "FairEventHeader.h"
 
 #include "ERRecoMCApplication.h"
 
 using namespace std;
 
-ERRunAna::ERRunAna()
-:FairRunAna()
-{
-
+ERRunAna* ERRunAna::fInstance = NULL;
+TCut      ERRunAna::fUserCut = "";
+TH1I*     ERRunAna::fEventsForProcessing = NULL;
+//--------------------------------------------------------------------------------------------------
+ERRunAna* ERRunAna::Instance() {
+  return fInstance;
 }
-
-void ERRunAna::Init(){
-  
+//--------------------------------------------------------------------------------------------------
+ERRunAna::ERRunAna()
+: FairRunAna()
+{
+}
+//--------------------------------------------------------------------------------------------------
+void ERRunAna::Init(){ 
   FairGeoLoader* loader=new FairGeoLoader("TGeo", "Geo Loader");
   FairGeoInterface* GeoInterFace=loader->getGeoInterface();
   GeoInterFace->SetNoOfSets(0);
@@ -47,6 +60,29 @@ void ERRunAna::Init(){
   geant4->Init();
   geant4->ProcessRun(0);
 
+  // initialisation of FairRootManager for getting tree to implement
+  // user cuts for input data
+  FairRootManager* ioman = FairRootManager::Instance();
+  if ( ! ioman ) Fatal("Init", "No FairRootManager");
+
+  if (fUserCut != "") {
+    LOG(INFO) << "User cut " << fUserCut << " implementation" << FairLogger::endl;
+    TTree* tree = ioman->GetInTree();
+    fEventsForProcessing =  new TH1I ("hist", "Events for processing", tree->GetEntries(), 1, tree->GetEntries());
+    tree->Draw("MCEventHeader.GetEventID()>>hist",fUserCut,"goff");
+  } 
+}
+//--------------------------------------------------------------------------------------------------
+bool ERRunAna::ContentForAnalysis() {
+  Int_t mcEvent = FairRun::Instance()->GetEventHeader()->GetMCEntryNumber();
+  LOG(INFO) << "Event " << mcEvent <<" ERQTelescopePID: " << FairLogger::endl;
+  if (fUserCut != "") {
+    if (!fEventsForProcessing->GetBinContent(mcEvent)){
+      LOG(INFO) << "  Skip event with user cut"<< FairLogger::endl;
+      return kFALSE;
+    }
+  }
+  return kTRUE;
 }
 /*Example of energy deposit calculation
   
@@ -55,5 +91,6 @@ void ERRunAna::Init(){
   G4Material* mat = nist->FindOrBuildMaterial("BC408");
   cout << calc->GetDEDX(0.5, G4Proton::Definition(),mat) << endl;
 */
+//--------------------------------------------------------------------------------------------------
 ClassImp(ERRunAna)
 
