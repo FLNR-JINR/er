@@ -19,11 +19,15 @@
 using namespace std;
 
 struct ERQTelescopeStrip{
-  Double_t fX;
-  Double_t fY;
-  Double_t fZ;
-  ERQTelescopeStrip(Double_t x, Double_t y, Double_t z) {fX = x; fY = y; fZ = z;}
-  ERQTelescopeStrip(Double_t* trans) {fX = trans[0]; fY = trans[1]; fZ = trans[2];}
+  Double_t fGlobalX;
+  Double_t fGlobalY;
+  Double_t fGlobalZ;
+  Double_t fLocalX;
+  Double_t fLocalY;
+  Double_t fLocalZ;
+  ERQTelescopeStrip(Double_t globalX, Double_t globalY, Double_t globalZ,
+                    Double_t  localX, Double_t  localY, Double_t localZ);
+  ERQTelescopeStrip(Double_t* globTrans, Double_t* localTrans);
 };
 
 class ERQTelescopeSetup : public ERSetup {
@@ -34,10 +38,12 @@ public:
 
   /* Modifiers */
   /* Accessors */
-  Double_t GetStripX(TString componentBranchName, Int_t stripNb);
-  Double_t GetStripY(TString componentBranchName, Int_t stripNb);
-  Double_t GetStripZ(TString componentBranchName, Int_t stripNb);
-
+  Double_t GetStripGlobalX(TString componentBranchName, Int_t stripNb);
+  Double_t GetStripGlobalY(TString componentBranchName, Int_t stripNb);
+  Double_t GetStripGlobalZ(TString componentBranchName, Int_t stripNb);
+  Double_t GetStripLocalX (TString componentBranchName, Int_t stripNb);
+  Double_t GetStripLocalY (TString componentBranchName, Int_t stripNb);
+  Double_t GetStripLocalZ (TString componentBranchName, Int_t stripNb);
 public:
   virtual void ReadGeoParamsFromParContainer();
   // static void PrintDetectorParameters(void);

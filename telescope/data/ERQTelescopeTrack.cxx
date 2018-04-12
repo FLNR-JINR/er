@@ -11,15 +11,19 @@ ERQTelescopeTrack::ERQTelescopeTrack()
 {
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeTrack::ERQTelescopeTrack(Double_t targetX,   Double_t targetY,   Double_t targetZ, 
-                    				 Double_t telescopeX, Double_t telescopeY, Double_t telescopeZ,
-                    				 Double_t sumEdep)
+ERQTelescopeTrack::ERQTelescopeTrack(Double_t targetX, Double_t targetY, Double_t targetZ, 
+                    				         Double_t globalX, Double_t globalY, Double_t globalZ,
+                                     Double_t  localX, Double_t  localY, Double_t  localZ,
+                                     Double_t sumEdep)
 : fTargetX(targetX),
   fTargetY(targetY),
   fTargetZ(targetZ),
-  fTelescopeX(telescopeX),
-  fTelescopeY(telescopeY),
-  fTelescopeZ(telescopeZ),
+  fTelescopeGlobalX(globalX),
+  fTelescopeGlobalY(globalY),
+  fTelescopeGlobalZ(globalZ),
+  fTelescopeLocalX(localX),
+  fTelescopeLocalY(localY),
+  fTelescopeLocalZ(localZ),
   fSumEdep(sumEdep)
 {
 }
