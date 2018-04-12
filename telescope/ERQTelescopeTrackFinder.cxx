@@ -151,10 +151,15 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         Int_t xStripNb = xStrip->GetStripNb();
         Int_t yStripNb = yStrip->GetStripNb();
         LOG(DEBUG) << "  Strips pair " << itHitPoint.first << " " << itHitPoint.second << FairLogger::endl;
-        Double_t xQtelescopeHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripX(xDigiBranchName, xStripNb);
-        Double_t yQtelescopeHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripY(yDigiBranchName, yStripNb);
-        Double_t zQtelescopeHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripZ(xDigiBranchName, xStripNb) 
-                                +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripZ(yDigiBranchName, yStripNb)) / 2;
+        Double_t xQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalX(xDigiBranchName, xStripNb);
+        Double_t yQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalY(yDigiBranchName, yStripNb);
+        Double_t zQTeleGlobHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(xDigiBranchName, xStripNb) 
+                               +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(yDigiBranchName, yStripNb)) / 2;
+        
+        Double_t xQTeleLocalHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalX(xDigiBranchName, xStripNb);
+        Double_t yQTeleLocalHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalY(yDigiBranchName, yStripNb);
+        Double_t zQTeleLocalHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalZ(xDigiBranchName, xStripNb) 
+                                +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalZ(yDigiBranchName, yStripNb)) / 2;
         if (!fUserTargetPointIsSet) {
           ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
           if (!trackFromMWPC) {
@@ -172,9 +177,11 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
             return ;
         }
         Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep()) / 2.;
-        ERQTelescopeTrack *track = AddTrack(fTargetX, fTargetY, fTargetZ, xQtelescopeHit, yQtelescopeHit, zQtelescopeHit,
-                                           sumEdep,
-                                           itComponent.first);
+        ERQTelescopeTrack *track = AddTrack(fTargetX, fTargetY, fTargetZ, 
+                                            xQTeleGlobHit,  yQTeleGlobHit,  zQTeleGlobHit,                                            
+                                            xQTeleLocalHit, yQTeleLocalHit, zQTeleLocalHit,
+                                            sumEdep,
+                                            itComponent.first);
         track->AddLink(FairLink(xDigiBranchName,itHitPoint.first));
         track->AddLink(FairLink(yDigiBranchName,itHitPoint.second));
       }
@@ -194,16 +201,19 @@ void ERQTelescopeTrackFinder::Finish() {
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeTrack* ERQTelescopeTrackFinder::AddTrack(Double_t targetX, Double_t targetY,   
-                                                     Double_t targetZ, 
-                                                     Double_t telescopeX, Double_t telescopeY, 
-                                                     Double_t telescopeZ,
+                                                     Double_t targetZ,  
+                                                     Double_t globalX, Double_t globalY, 
+                                                     Double_t globalZ,
+                                                     Double_t localX,  Double_t  localY, 
+                                                     Double_t localZ,
                                                      Double_t sumEdep,
                                                      TString digiBranchName) 
 {
   ERQTelescopeTrack *track = new((*fQTelescopeTrack[digiBranchName])
                                                    [fQTelescopeTrack[digiBranchName]->GetEntriesFast()])
-                             ERQTelescopeTrack( targetX,    targetY,    targetZ, 
-                                                telescopeX, telescopeY, telescopeZ,
+                             ERQTelescopeTrack( targetX, targetY, targetZ, 
+                                                globalX, globalY, globalZ,
+                                                localX,  localY,  localZ,
                                                 sumEdep);
   return track;
 }
