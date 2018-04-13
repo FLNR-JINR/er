@@ -9,15 +9,13 @@
 #ifndef ERElasticScattering_H
 #define ERElasticScattering_H
 
-#include "TRandom3.h"
-#include "TString.h"
-#include "TParticlePDG.h"
-#include "TF1.h"
-#include "TGraph.h"
+#include <ERDecay.h> // mother class
 
-#include "FairIon.h"
+// ROOT
+#include <TString.h>
 
-#include "ERDecay.h" // mother class
+class TF1;
+class TParticlePDG;
 
 class ERElasticScattering : public ERDecay
 {
@@ -27,10 +25,10 @@ public:
 
   /*Modifiers*/
   void SetTargetIon(Int_t A, Int_t Z, Int_t Q);
-  void SetThetaCDF(TString fileName) {fThetaFileName = fileName;}
-  void SetTargetMass(Float_t mass) {fTargetMass = mass;}
-  void SetThetaRange(Float_t theta1, Float_t theta2) {fTheta1 = theta1; fTheta2 = theta2;}
-  void SetPhiRange(Float_t phi1, Float_t phi2) {fPhi1 = phi1; fPhi2 = phi2;}
+  void SetThetaCDF(TString fileName) { fThetaFileName = fileName; }
+  void SetTargetMass(Float_t mass) { fTargetMass = mass; }
+  void SetThetaRange(Float_t theta1, Float_t theta2) { fTheta1 = theta1; fTheta2 = theta2; }
+  void SetPhiRange(Float_t phi1, Float_t phi2) { fPhi1 = phi1; fPhi2 = phi2; }
 
 public:
   Bool_t Init();
@@ -50,7 +48,7 @@ private:
 
   Float_t ThetaGen();
 
-  ClassDef(ERElasticScattering,1);
+  ClassDef(ERElasticScattering, 1);
 };
 
 #endif // ERElasticScattering_H

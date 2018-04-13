@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OUTDIR=output
-NEVENTS=500000
+NEVENTS=100
 
 cd ../../../build/
 make -j4

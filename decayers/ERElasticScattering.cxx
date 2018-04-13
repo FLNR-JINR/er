@@ -8,19 +8,20 @@
 
 #include "ERElasticScattering.h"
 
+// STD
 #include <fstream>
 
-#include "TVirtualMC.h"
-#include "TLorentzVector.h"
-#include "TMCProcess.h"
-#include "TMath.h"
-#include "TVectorD.h"
+// ROOT
+#include <TGraph.h>
+#include <TF1.h>
+#include <TMath.h>
+#include <TVirtualMC.h>
+#include <TLorentzVector.h>
+#include <TVectorD.h>
 
-#include "FairRunSim.h"
-#include "FairLogger.h"
-
-#include "ERDecayMCEventHeader.h"
-#include "ERMCEventHeader.h"
+// FairRoot
+#include <FairRunSim.h>
+#include <FairLogger.h>
 
 using TMath::DegToRad;
 using TMath::RadToDeg;
@@ -43,7 +44,7 @@ Double_t ThetaInvCDF(Double_t *x, Double_t *par)
 ERElasticScattering::ERElasticScattering(TString name):
   ERDecay(name),
   fThetaFileName(""),
-  fTheta1(0), 
+  fTheta1(0),
   fTheta2(180.),
   fPhi1(0),
   fPhi2(360.),
@@ -68,9 +69,11 @@ void ERElasticScattering::SetTargetIon(Int_t A, Int_t Z, Int_t Q) {
 }
 
 //-------------------------------------------------------------------------------------------------
-Bool_t ERElasticScattering::Init() {
-  if (!ERDecay::Init())
+Bool_t ERElasticScattering::Init()
+{
+  if (!ERDecay::Init()) {
     return kFALSE;
+  }
 
   fTargetIonPDG = TDatabasePDG::Instance()->GetParticle(fTargetIonName);
   if ( ! fTargetIonPDG ) {
@@ -78,27 +81,27 @@ Bool_t ERElasticScattering::Init() {
     return kFALSE;
   }
 
-  if (fThetaFileName != ""){
-    LOG(INFO) << "ElasticScattering " << fName << " initialize from theta distribution file" << FairLogger::endl;   
-    
+  if (fThetaFileName != "") {
+    LOG(INFO) << "ElasticScattering " << fName << " initialize from theta distribution file" << FairLogger::endl;
+
     TString path = TString(gSystem->Getenv("VMCWORKDIR")) + "/input/" + fThetaFileName;
     std::ifstream f;
     f.open(path.Data());
     if (!f.is_open()) {
       LOG(FATAL) << "Can't open file " << path << FairLogger::endl;
-      return kFALSE;  
+      return kFALSE;
     }
 
-    Int_t nPoints = std::count(std::istreambuf_iterator<char>(f), 
+    Int_t nPoints = std::count(std::istreambuf_iterator<char>(f),
                                std::istreambuf_iterator<char>(), '\n');
     f.seekg(0, std::ios::beg);
     TVectorD tet(nPoints);
     TVectorD sigma(nPoints);
-    
+
     LOG(DEBUG2) << "nPoints = " << nPoints << FairLogger::endl;
 
     Int_t i = 0;
-    while(!f.eof()) {
+    while (!f.eof()) {
       // Костыль
       if (i == nPoints) break;
       f >> tet(i) >> sigma(i);
@@ -133,12 +136,12 @@ Bool_t ERElasticScattering::Stepping() {
       Float_t tM = fTargetIonPDG->Mass();
       Float_t iM2 = pow(iM,2);
       Float_t tM2 = pow(tM,2);
-      
+
       Float_t inputIonT = sqrt(pow(fInputIonV.P(),2)+iM2) - iM;
 
       LOG(DEBUG) << "ElasticScattering: " << fName << FairLogger::endl;
       LOG(DEBUG) << "  Input ion with Ekin = " << inputIonT
-                 << ", mass = " << iM 
+                 << ", mass = " << iM
                  << " mom = " << fInputIonV.Px() << "," << fInputIonV.Py() << "," << fInputIonV.Pz() << FairLogger::endl;
 
       Float_t invariant = pow((iM+tM),2)+2*tM*inputIonT;
@@ -146,7 +149,7 @@ Bool_t ERElasticScattering::Stepping() {
       Float_t Pcm = sqrt((shorty-4*iM2*tM2)/(4*invariant));
 
       LOG(DEBUG) << "  CM momentum: " << Pcm << FairLogger::endl;
-      LOG(DEBUG) << "  CM Ekin: " << sqrt(pow(Pcm,2)+iM2) - iM<< FairLogger::endl;
+      LOG(DEBUG) << "  CM Ekin: " << sqrt(pow(Pcm,2)+iM2) - iM << FairLogger::endl;
 
       Float_t theta = ThetaGen();
       Float_t phi = fRnd->Uniform(fPhi1*DegToRad(), fPhi2*DegToRad());
@@ -167,14 +170,14 @@ Bool_t ERElasticScattering::Stepping() {
                               sqrt(pow(Pcm,2) + tM2));
 
       LOG(DEBUG) << "  CM out1 state(px,py,pz,E) = "<<out1V.Px()<<","<<out1V.Py()<<","<<out1V.Pz()
-                 << "," << out1V.E() <<  FairLogger::endl;
+                 << "," << out1V.E() << FairLogger::endl;
       LOG(DEBUG) << "  CM out2 state(px,py,pz,E) = "<<out2V.Px()<<","<<out2V.Py()<<","<<out2V.Pz()
-                 << "," << out2V.E() <<  FairLogger::endl;
+                 << "," << out2V.E() << FairLogger::endl;
 
       LOG(DEBUG) << "  CM out1 Ekin = "<< sqrt(pow(out1V.P(),2)+iM2) - iM << FairLogger::endl;
       LOG(DEBUG) << "  CM out2 Ekin = "<< sqrt(pow(out2V.P(),2)+tM2) - tM << FairLogger::endl;
 
-      LOG(DEBUG) << "  Boosting with beta = " << fInputIonV.Beta() 
+      LOG(DEBUG) << "  Boosting with beta = " << fInputIonV.Beta()
                 << ", gamma = " << fInputIonV.Gamma() << FairLogger::endl;
 
       TLorentzVector targetV(0,0,0,tM);
@@ -183,7 +186,7 @@ Bool_t ERElasticScattering::Stepping() {
       out1V.Boost(cmV.BoostVector());
       out2V.Boost(cmV.BoostVector());
 
-      LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;      
+      LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;
       LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
       LOG(DEBUG) << "  Lab out2 T = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;
 
@@ -200,11 +203,12 @@ Bool_t ERElasticScattering::Stepping() {
   return kTRUE;
 }
 
+// in CM system
 Float_t ERElasticScattering::ThetaGen() {
   Float_t theta = 0.;
-  if (fThetaFileName == "")
+  if (fThetaFileName == "") {
     theta = acos(fRnd->Uniform(cos(fTheta1*DegToRad()), cos(fTheta2*DegToRad())));
-  else{
+  } else {
     theta = fThetaInvCDF->Eval(fRnd->Uniform(fCDFmin,fCDFmax))*DegToRad();
   }
   return theta;
