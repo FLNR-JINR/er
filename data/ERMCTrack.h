@@ -1,8 +1,10 @@
-
-// -------------------------------------------------------------------------
-// -----                      ERMCTrack header file                    -----
-// -----                  Created 11/05/15  by V. Schetinin            -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 /** ERMCTrack.h
  *@author V.Schetinin <sch_vitaliy@mail.ru>
@@ -13,8 +15,6 @@
  **
  **
  **/
-
-
 #ifndef ERMCTRACK_H_
 #define ERMCTRACK_H_
 
@@ -33,17 +33,13 @@ enum ExpertTrackingStatus{
     Stop
 };
 
-
 class TParticle;
 
 class ERMCTrack : public TObject
 {
-
- public:
-
+public:
   /**  Default constructor  **/
   ERMCTrack();
-
 
   /**  Standard constructor  **/
   ERMCTrack(Int_t pdgCode, Int_t motherID, Double_t px, Double_t py,
@@ -53,7 +49,6 @@ class ERMCTrack : public TObject
   /**  Copy constructor  **/
   ERMCTrack(const ERMCTrack& track);
 
-
   /**  Constructor from TParticle  **/
   ERMCTrack(TParticle* particle);
 
@@ -61,13 +56,11 @@ class ERMCTrack : public TObject
   /**  Destructor  **/
   virtual ~ERMCTrack();
 
-
   /**  Output to screen  **/
   void Print(Int_t iTrack=0) const;
 
   //Int_t AccNeuRad() const {return GetNPoints(kNEURAD);}
   /**  Accessors  **/
-
   Int_t    GetPdgCode()  const { return fPdgCode; }
   Int_t    GetMotherId() const { return fMotherId; }
   Double_t GetPx()       const { return fPx; }
@@ -128,28 +121,19 @@ private:
 
 };
 
-
-
-// ==========   Inline functions   ========================================
-
 inline Double_t ERMCTrack::GetEnergy() const {
   return fEnergy;
 }
-
 
 inline void ERMCTrack::GetMomentum(TVector3& momentum) const {
   momentum.SetXYZ(fPx,fPy,fPz);
 }
 
-
 inline void ERMCTrack::Get4Momentum(TLorentzVector& momentum) const {
   momentum.SetXYZT(fPx,fPy,fPz,fEnergy);
 }
 
-
 inline void ERMCTrack::GetStartVertex(TVector3& vertex) const {
   vertex.SetXYZ(fStartX,fStartY,fStartZ);
 }
-
-
 #endif /* ERMCTRACK_H_ */

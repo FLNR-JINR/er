@@ -1,9 +1,10 @@
-// -------------------------------------------------------------------------
-// -----                      ERMCTrack header file                    -----
-// -----                  Created 11/05/15  by V.Schetinin            -----
-// -------------------------------------------------------------------------
-
-
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 #include "ERMCTrack.h"
 
 #include<iostream>
@@ -17,7 +18,7 @@
 #endif
 #include "FairRunSim.h"
 
-// -----   Default constructor   -------------------------------------------
+//-------------------------------------------------------------------------------------------------
 ERMCTrack::ERMCTrack()
   : TObject(),
     fPdgCode(0),
@@ -32,9 +33,7 @@ ERMCTrack::ERMCTrack()
     fNPoints(0)
 {
 }
-// -------------------------------------------------------------------------
-
-// -----   Standard constructor   ------------------------------------------
+//-------------------------------------------------------------------------------------------------
 ERMCTrack::ERMCTrack(Int_t pdgCode, Int_t motherId, Double_t px,
            Double_t py, Double_t pz, Double_t x, Double_t y,
            Double_t z, Double_t t, Int_t nPoints = 0)
@@ -58,11 +57,7 @@ ERMCTrack::ERMCTrack(Int_t pdgCode, Int_t motherId, Double_t px,
   fMass = CalculateMass();
   fEnergy = CalculateEnergy();
 }
-// -------------------------------------------------------------------------
-
-
-
-// -----   Copy constructor   ----------------------------------------------
+//-------------------------------------------------------------------------------------------------
 ERMCTrack::ERMCTrack(const ERMCTrack& track)
   : TObject(track),
     fPdgCode(track.fPdgCode),
@@ -80,11 +75,7 @@ ERMCTrack::ERMCTrack(const ERMCTrack& track)
 {
   //  *this = track;
 }
-// -------------------------------------------------------------------------
-
-
-
-// -----   Constructor from TParticle   ------------------------------------
+//-------------------------------------------------------------------------------------------------
 ERMCTrack::ERMCTrack(TParticle* part)
   : TObject(),
     fPdgCode(part->GetPdgCode()),
@@ -100,37 +91,26 @@ ERMCTrack::ERMCTrack(TParticle* part)
     //@TODO выплить этот костыль
     fID(part->GetStatusCode())
 {
-    fMass = CalculateMass();
-    fEnergy = CalculateEnergy();
+  fMomentum.SetXYZT(fPx,fPy,fPz,fEnergy);
+  fMass   = CalculateMass();
+  fEnergy = CalculateEnergy();
+  fPhi    = fMomentum.Phi();
+  fTheta  = fMomentum.Theta();
 }
-// -------------------------------------------------------------------------
-
-
-
-// -----   Destructor   ----------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 ERMCTrack::~ERMCTrack() { }
-// -------------------------------------------------------------------------
-
-
-
-// -----   Public method Print   -------------------------------------------
+//-------------------------------------------------------------------------------------------------
 void ERMCTrack::Print(Int_t trackId) const {
   /*std::cout << "Track " << trackId << ", mother : " << fMotherId
        << ", Type " << fPdgCode << ", momentum (" << fPx << ", "
        << fPy << ", " << fPz << ") GeV" << std::endl;*/
   //std::cout << "       Ref " << GetNPoints(kREF) << std::endl;
 }
-// -------------------------------------------------------------------------
-
-
-
-// -----   Public method GetMass   -----------------------------------------
+//-------------------------------------------------------------------------------------------------
 Double_t ERMCTrack::GetMass() const {
   return fMass;
 }
-// -------------------------------------------------------------------------
-
-// -----   Public method GetCharge   ---------------------------------------
+//-------------------------------------------------------------------------------------------------
 Double_t ERMCTrack::GetCharge() const {
   if ( TDatabasePDG::Instance() ) {
     TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPdgCode);
@@ -139,20 +119,13 @@ Double_t ERMCTrack::GetCharge() const {
   }
   return 0.;
 }
-// -------------------------------------------------------------------------
-
-// -----   Public method GetRapidity   -------------------------------------
+//-------------------------------------------------------------------------------------------------
 Double_t ERMCTrack::GetRapidity() const {
   Double_t e = GetEnergy();
   Double_t y = 0.5 * TMath::Log( (e+fPz) / (e-fPz) );
   return y;
 }
-// -------------------------------------------------------------------------
-
-
-
-
-// -----   Public method GetNPoints   --------------------------------------
+//-------------------------------------------------------------------------------------------------
 Int_t ERMCTrack::GetNPoints(DetectorId detId) const {
  /* if      ( detId == kREF  ) return (  fNPoints &   1);
   else if ( detId == kMVD  ) return ( (fNPoints & ( 7 <<  1) ) >>  1);
@@ -170,11 +143,7 @@ Int_t ERMCTrack::GetNPoints(DetectorId detId) const {
     return 0;
   //}
 }
-// -------------------------------------------------------------------------
-
-
-
-// -----   Public method SetNPoints   --------------------------------------
+//-------------------------------------------------------------------------------------------------
 void ERMCTrack::SetNPoints(Int_t iDet, Int_t nPoints) {
 /*
   if ( iDet == kREF ) {
@@ -235,26 +204,24 @@ void ERMCTrack::SetNPoints(Int_t iDet, Int_t nPoints) {
       << iDet << std::endl;
 */
 }
-
-
+//-------------------------------------------------------------------------------------------------
 TLorentzVector ERMCTrack::GetVector(){
   fMomentum.SetXYZT(fPx,fPy,fPz,fEnergy);
   return fMomentum;
 }
-
+//-------------------------------------------------------------------------------------------------
 Double_t ERMCTrack::GetTheta(){
   fMomentum.SetXYZT(fPx,fPy,fPz,fEnergy);
   fTheta = fMomentum.Theta();
   return fTheta;
 }
-
+//-------------------------------------------------------------------------------------------------
 Double_t ERMCTrack::GetPhi(){
   fMomentum.SetXYZT(fPx,fPy,fPz,fEnergy);
   fPhi = fMomentum.Phi();
   return fPhi;
 }
-
-// -------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 Double_t ERMCTrack::CalculateMass() {
   if ( TDatabasePDG::Instance() ) {
     TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPdgCode);
@@ -272,10 +239,9 @@ Double_t ERMCTrack::CalculateMass() {
   }
   return 0.;
 }
-// -------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 Double_t ERMCTrack::CalculateEnergy() {
   return TMath::Sqrt(fMass*fMass + fPx*fPx + fPy*fPy + fPz*fPz );
 }
-
-
+//-------------------------------------------------------------------------------------------------
 ClassImp(ERMCTrack)
