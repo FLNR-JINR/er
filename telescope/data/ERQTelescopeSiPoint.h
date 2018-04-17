@@ -70,6 +70,7 @@ class ERQTelescopeSiPoint : public FairMCPoint
   Double_t GetPyOut()           const { return fPy_out; }
   Double_t GetPzOut()           const { return fPz_out; }
   Double_t GetMass()            const { return fMass; }
+  Int_t    GetPDG()             const { return fPDG; }
 
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }

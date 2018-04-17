@@ -14,7 +14,7 @@ ERQTelescopeParticle::ERQTelescopeParticle()
 ERQTelescopeParticle::ERQTelescopeParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget,Double_t deadEloss)
 : fDeadEloss(deadEloss),
   fLVTarget(lvTarget),
-  fLVTelescope(lvTarget)
+  fLVTelescope(lvTelescope)
 {
 }
 //--------------------------------------------------------------------------------------------------
