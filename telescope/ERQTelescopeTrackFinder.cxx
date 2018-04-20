@@ -150,16 +150,26 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
 
         Int_t xStripNb = xStrip->GetStripNb();
         Int_t yStripNb = yStrip->GetStripNb();
-        LOG(DEBUG) << "  Strips pair " << itHitPoint.first << " " << itHitPoint.second << FairLogger::endl;
+        // std::cout << "  Strips pair " << itHitPoint.first << " " << itHitPoint.second << FairLogger::endl;
+        // std::cout << "  CompName " << itComponent.first << " " << FairLogger::endl;
         Double_t xQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalX(xDigiBranchName, xStripNb);
         Double_t yQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalY(yDigiBranchName, yStripNb);
         Double_t zQTeleGlobHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(xDigiBranchName, xStripNb) 
                                +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(yDigiBranchName, yStripNb)) / 2;
-        
         Double_t xQTeleLocalHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalX(xDigiBranchName, xStripNb);
         Double_t yQTeleLocalHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalY(yDigiBranchName, yStripNb);
         Double_t zQTeleLocalHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalZ(xDigiBranchName, xStripNb) 
                                 +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalZ(yDigiBranchName, yStripNb)) / 2;
+        if (itComponent.first.Contains("DoubleSi")) {
+          if (itComponent.first.Contains("XY")) {
+            zQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(xDigiBranchName, xStripNb);
+          } else {            
+            zQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(xDigiBranchName, xStripNb);
+          }
+        } 
+
+        // std::cout << "Tele local hit X Y Z " << xQTeleLocalHit << " " << yQTeleLocalHit << " " << zQTeleLocalHit << endl;
+        // std::cout << "Tele global hit X Y Z " << xQTeleGlobHit << " " << yQTeleGlobHit << " " << zQTeleGlobHit << endl;
         if (!fUserTargetPointIsSet) {
           ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
           if (!trackFromMWPC) {
