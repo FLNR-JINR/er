@@ -19,7 +19,7 @@ set(LINK_DIRECTORIES
 ${BASE_LINK_DIRECTORIES}
 ${FAIRROOT_LIBRARY_DIR}
 ${GEANT4_LIB_DIR}
-) 
+)
 
 link_directories( ${LINK_DIRECTORIES})
 
@@ -28,6 +28,7 @@ set(SRCS
 	ERGammaGenerator.cxx
 	ERIonGenerator.cxx
 	ERIonMixGenerator.cxx
+	EREasFuncOfAnglesGenerator.cxx
 )
 
 # fill list of header files from list of source files
@@ -36,7 +37,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERGeneratorsLinkDef.h)
 Set(LIBRARY_NAME generators)
-Set(DEPENDENCIES ERBase ERData Base Core G4particles)
+Set(DEPENDENCIES ERBase ERData Base Core G4particles Gen)
 
 GENERATE_LIBRARY()
 
