@@ -80,15 +80,15 @@ InitStatus ERQTelescopePID::Init() {
       }
     }
   }
-
   fQTelescopeSetup = ERQTelescopeSetup::Instance();
   fQTelescopeSetup->ReadGeoParamsFromParContainer();
+
   return kSUCCESS;
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopePID::Exec(Option_t* opt) { 
   Reset();
-  
+
   if (!ERRunAna::Instance()->ContentForAnalysis()) {
     return;
   }

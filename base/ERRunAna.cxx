@@ -8,6 +8,7 @@
 #include "ERRunAna.h"
 
 #include <iostream>
+#include "signal.h"
 
 #include "TObjArray.h"
 #include "TG4RunConfiguration.h"
@@ -31,15 +32,20 @@ TCut      ERRunAna::fUserCut = "";
 TH1I*     ERRunAna::fEventsForProcessing = NULL;
 //--------------------------------------------------------------------------------------------------
 ERRunAna* ERRunAna::Instance() {
+  if (!fInstance) {
+    fInstance = new ERRunAna();
+  }
   return fInstance;
 }
 //--------------------------------------------------------------------------------------------------
 ERRunAna::ERRunAna()
 : FairRunAna()
 {
+  LOG(DEBUG) << "ERRunAna constructor" << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
 void ERRunAna::Init(){ 
+  
   FairGeoLoader* loader=new FairGeoLoader("TGeo", "Geo Loader");
   FairGeoInterface* GeoInterFace=loader->getGeoInterface();
   GeoInterFace->SetNoOfSets(0);
@@ -50,16 +56,6 @@ void ERRunAna::Init(){
   ERRecoMCApplication* fApp= new ERRecoMCApplication("Fair","The Fair VMC App",new TObjArray(), erPath+"/geometry/media.geo");
 
   FairRunAna::Init();
-
-  TG4RunConfiguration* runConfiguration
-             = new TG4RunConfiguration("geomRoot", "QGSP_BERT_HP", "specialCuts+stackPopper");
-
-  TGeant4* geant4 = new TGeant4("TGeant4", "The Geant4 Monte Carlo", runConfiguration);
-
-  geant4->ProcessGeantMacro(erPath+"/gconfig/g4config.in");
-  geant4->Init();
-  geant4->ProcessRun(0);
-
   // initialisation of FairRootManager for getting tree to implement
   // user cuts for input data
   FairRootManager* ioman = FairRootManager::Instance();
@@ -70,7 +66,24 @@ void ERRunAna::Init(){
     TTree* tree = ioman->GetInTree();
     fEventsForProcessing =  new TH1I ("hist", "Events for processing", tree->GetEntries(), 1, tree->GetEntries());
     tree->Draw("MCEventHeader.GetEventID()>>hist",fUserCut,"goff");
-  } 
+    if (!fEventsForProcessing->GetEntries()) {
+      LOG(INFO) << "ERRunAna: No data for analysis with defined user cut: "
+                << fUserCut << FairLogger::endl;
+      TerminateRun();   // finish tasks, write output
+      raise(SIGINT);    // generation of interruption signal to finish current run
+      return;
+    }
+  }
+
+  TG4RunConfiguration* runConfiguration
+             = new TG4RunConfiguration("geomRoot", "QGSP_BERT_HP", "specialCuts+stackPopper");
+
+  TGeant4* geant4 = new TGeant4("TGeant4", "The Geant4 Monte Carlo", runConfiguration);
+
+  geant4->ProcessGeantMacro(erPath+"/gconfig/g4config.in");
+  geant4->Init();
+  geant4->ProcessRun(0); 
+
 }
 //--------------------------------------------------------------------------------------------------
 bool ERRunAna::ContentForAnalysis() {

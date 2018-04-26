@@ -21,20 +21,20 @@ class ERRunAna : public FairRunAna
 public:
   static ERRunAna* Instance();
   virtual ~ERRunAna(){}
-  ERRunAna();
 
   /*Modifiers*/
   void SetUserCut(TCut cut) {fUserCut = cut;}
   /*Accessors*/
-
   void Init();
 public:
   bool ContentForAnalysis();
 private:
+  ERRunAna();
+  
   static ERRunAna* fInstance;
 
-  static TCut fUserCut;
-  static TH1I* fEventsForProcessing;
+  static TCut   fUserCut;
+  static TH1I*  fEventsForProcessing;
 
   ClassDef(ERRunAna ,1)
 };

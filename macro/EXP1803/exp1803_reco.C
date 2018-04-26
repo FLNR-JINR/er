@@ -8,7 +8,7 @@ void exp1803_reco(Int_t nEvents = 1000) {
   TStopwatch timer;
   timer.Start();  
   // -----   Digitization run   ---------------------------------------------
-  ERRunAna *run = new ERRunAna();
+  ERRunAna *run = ERRunAna::Instance();
   // run->SetUserCut("ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.003");
 
   run->SetInputFile(inFile);
