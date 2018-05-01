@@ -67,10 +67,8 @@ void ERRunAna::Init(){
     fEventsForProcessing =  new TH1I ("hist", "Events for processing", tree->GetEntries(), 1, tree->GetEntries());
     tree->Draw("MCEventHeader.GetEventID()>>hist",fUserCut,"goff");
     if (!fEventsForProcessing->GetEntries()) {
-      LOG(INFO) << "ERRunAna: No data for analysis with defined user cut: "
+      LOG(FATAL) << "ERRunAna: No data for analysis with defined user cut: "
                 << fUserCut << FairLogger::endl;
-      TerminateRun();   // finish tasks, write output
-      raise(SIGINT);    // generation of interruption signal to finish current run
       return;
     }
   }
