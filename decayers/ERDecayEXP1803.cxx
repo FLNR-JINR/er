@@ -119,16 +119,32 @@ Bool_t ERDecayEXP1803::Init() {
   } else {
     f5HMass = f5H->Mass(); // if user mass is not defined in ERDecayEXP1803::SetH5Mass() than get a GEANT mass
   }
+  // CalculateTargetParameters();
   return kTRUE;
 }
 
 //-------------------------------------------------------------------------------------------------
 Bool_t ERDecayEXP1803::Stepping() {
   if(!fDecayFinish && gMC->TrackPid() == 1000020060 && TString(gMC->CurrentVolName()).Contains(fVolumeName)){
+    if (!fIsInterationPointFound) {
+      if (!FindInteractionPoint()) {
+        std::cout << "[ERDecayEXP1803::Stepping]: interaction hasn't happend in current event" << FairLogger::endl;        
+        fDecayFinish = kTRUE;
+        return kFALSE;
+      // }
+      } else {
+        fDistanceFromEntrance = 0;
+      }
+    }
     gMC->SetMaxStep(fMinStep);
     TLorentzVector curPos;
     gMC->TrackPosition(curPos);
-    if (curPos.Z() > fTargetReactZ){
+    Double_t trackStep = gMC->TrackStep();
+    fDistanceFromEntrance += trackStep;
+    std::cout << "Track step: " << fDistanceFromEntrance << "; Diff " << (curPos.Vect() - fInputPoint).Mag() <<  endl;    
+    // if (curPos.Z() >= fInteractionPoint.Z()){
+    if ((curPos.Vect() - fInputPoint).Mag() > fStepToInteractPoint) {
+      std::cout << "Start reation in target. Defined pos: " << fInteractionPoint.Z() << /*", current pos: " << curPos.Z() <<*/ endl;
       // std::cout << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
       // 6He + 2H → 3He + 5H
       TLorentzVector lv6He;
@@ -247,6 +263,7 @@ Bool_t ERDecayEXP1803::Stepping() {
 //-------------------------------------------------------------------------------------------------
 void ERDecayEXP1803::BeginEvent() { 
   fDecayFinish = kFALSE;
+  fIsInterationPointFound = kFALSE;
   fTargetReactZ = fRnd->Uniform(-fTargetThickness / 2, fTargetThickness / 2);
   FairRunSim* run = FairRunSim::Instance();
 }

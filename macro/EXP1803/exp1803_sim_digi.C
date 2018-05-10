@@ -67,7 +67,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);                     //  BeamDet parts should be added in ascending order   
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);   //  of Z-coordinate of part.
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);                  // 
-  //setupBeamDet->SetSensitiveTarget();
+  // setupBeamDet->SetSensitiveTarget();
 
   // -----   Create target  -------------------------------------------------
   FairModule* target = new ERTarget("targetH2", kTRUE, 1);
@@ -149,9 +149,10 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   generator->SetPSigmaOverP(0);
   Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
   // generator->SetKinERange(0,kin_energy);
-  generator->SetThetaSigma(0, 0);
+  // generator->SetThetaSigma(0, 90);
+  generator->SetThetaRange(0, 90);
   generator->SetPhiRange(0, 360);
-  generator->SetBoxXYZ(0, 0, 0, 0, beamStartPosition);
+  generator->SetBoxXYZ(0, 0, 2., 2., beamStartPosition);
   generator->SpreadingOnTarget(); 
 
   primGen->AddGenerator(generator);
@@ -162,12 +163,15 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
 
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
+  targetDecay->SetInteractionVolumeName("boxCD");
+  targetDecay->SetNuclearInteractionLenght(30.);
   targetDecay->SetAngularDistribution("Cs_6He_d_3He_5H_35-25AMeV.txt");
   targetDecay->SetTargetVolumeName("boxCD"); // "tubeH2"
   targetDecay->SetTargetThickness(targetH2Thickness);
   targetDecay->SetH5Mass(massH5);
   targetDecay->SetH5Exitation(0.0004, 0.00002355, 1);
   targetDecay->SetH5Exitation(0.0012, 0.0002355, 1);
+  targetDecay->SetMinStep(0.5e-4);
 
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);
