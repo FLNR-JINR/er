@@ -15,46 +15,55 @@
 #include "TVector3.h"
 
 class ERDecay{
-protected:
-	TString fName;
 public:
-	ERDecay(TString name);
-	~ERDecay();
+  ERDecay(TString name);
+  ~ERDecay();
   /*Accessors*/
-	TString GetName() const {return fName;}
-  /*Modifiers*/
-  void SetInteractionVolumeName(TString name) {fInteractionVolumeName = name;}
-  void SetNuclearInteractionLenght(Double_t lambda) {fNuclearInteractionLenght = lambda;}
+  TString GetName() const {return fName;}
   
-  /** @brief Defines maximum path lenght for particles in the volume that is defined 
+  /*Modifiers*/
+  
+  /** @brief Defines name of volume where occures interaction of ion.
+   ** @param name  volume name
+  **/   
+  void SetInteractionVolumeName(TString name) {fInteractionVolumeName = name;}
+  
+  /** @brief Defines nuclear interaction length.
+   ** @param lambda  nuclear interaction length
+  **/ 
+  void SetNuclearInteractionLength(Double_t lambda) {fNuclearInteractionLength = lambda;}
+  
+  /** @brief Defines maximum path length for particles in the volume that is defined 
              in SetInteractionVolumeName().
-   ** @param pathLenght  maximum path lenght in target volume
+             In macro, method must be called after SetNuclearInteractionLength().
+   ** @param pathLength  maximum path length in target volume
   **/  
-  void SetMaxPathLenght(Double_t pathLenght);
+  void SetMaxPathLength(Double_t pathLength);
 
   virtual Bool_t Stepping() = 0;
-  virtual void BeginEvent() = 0;
-  virtual void FinishEvent() = 0;
+  virtual void   BeginEvent() = 0;
+  virtual void   FinishEvent() = 0;
   virtual Bool_t Init() = 0;
 
 protected:
+  /** @brief  
+   ** @param Method must be called in Stepping() when particle makes first step in
+             interaction volume;
+  **/  
   Bool_t FindInteractionPoint();
-  void   CalculateTargetParameters();
+  // void   CalculateTargetParameters();
   
+	TString  fName;
   Bool_t   fIsInterationPointFound;
-  TVector3 fInteractionPoint;
-  TVector3 fInputPoint;
-  Double_t fStepToInteractPoint;
+  Double_t fDistanceToInteractPoint;
   Double_t fDistanceFromEntrance;
 
 private:
   TString  fInteractionVolumeName;
-  Double_t fNuclearInteractionLenght;
+  Double_t fNuclearInteractionLength;
   Double_t fInteractionProbability;
-  Bool_t   fIsInteraction;
-  Double_t fTargetBoundBoxDiagonal;
+  // Double_t fTargetBoundBoxDiagonal;
   Double_t fNormalizingProbability;
-  Double_t fMaxPathLenght;
   TRandom3 *fRnd1;
   TRandom3 *fRnd2;
 

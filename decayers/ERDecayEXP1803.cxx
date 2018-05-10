@@ -128,10 +128,8 @@ Bool_t ERDecayEXP1803::Stepping() {
   if(!fDecayFinish && gMC->TrackPid() == 1000020060 && TString(gMC->CurrentVolName()).Contains(fVolumeName)){
     if (!fIsInterationPointFound) {
       if (!FindInteractionPoint()) {
-        std::cout << "[ERDecayEXP1803::Stepping]: interaction hasn't happend in current event" << FairLogger::endl;        
         fDecayFinish = kTRUE;
         return kFALSE;
-      // }
       } else {
         fDistanceFromEntrance = 0;
       }
@@ -141,11 +139,10 @@ Bool_t ERDecayEXP1803::Stepping() {
     gMC->TrackPosition(curPos);
     Double_t trackStep = gMC->TrackStep();
     fDistanceFromEntrance += trackStep;
-    std::cout << "Track step: " << fDistanceFromEntrance << "; Diff " << (curPos.Vect() - fInputPoint).Mag() <<  endl;    
-    // if (curPos.Z() >= fInteractionPoint.Z()){
-    if ((curPos.Vect() - fInputPoint).Mag() > fStepToInteractPoint) {
-      std::cout << "Start reation in target. Defined pos: " << fInteractionPoint.Z() << /*", current pos: " << curPos.Z() <<*/ endl;
-      // std::cout << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
+    // std::cout << "Track step: " << fDistanceFromEntrance << "; Diff " << (curPos.Vect() - fInputPoint).Mag() <<  endl;    
+    // std::cout << "Track step: " << fDistanceFromEntrance <<  endl;    
+    if (fDistanceFromEntrance > fDistanceToInteractPoint) {
+      // std::cout << "Start reation in target. Defined pos: " << fDistanceToInteractPoint << ", current pos: " << curPos.Z() << endl;
       // 6He + 2H → 3He + 5H
       TLorentzVector lv6He;
       gMC->TrackMomentum(lv6He);
@@ -153,7 +150,7 @@ Bool_t ERDecayEXP1803::Stepping() {
       if (lv6He.P() == 0) { // temporary fix of bug with zero kinetic energy
         return kTRUE;
       }
-      
+
       TLorentzVector lv2H(0., 0., 0., f2H->Mass());
       TLorentzVector lvReaction;
       lvReaction = lv6He + lv2H;
@@ -212,7 +209,7 @@ Bool_t ERDecayEXP1803::Stepping() {
       Int_t He6TrackNb, H5TrackNb, He3TrackNb, H3TrackNb, n1TrackNb, n2TrackNb;
 
       He6TrackNb = gMC->GetStack()->GetCurrentTrackNumber();
-
+      // std::cout << "He6TrackNb " << He6TrackNb << std::endl;
       /*
       gMC->GetStack()->PushTrack(1, He6TrackNb, f5H->PdgCode(),
                                  fLv5H->Px(), fLv5H->Py(), fLv5H->Pz(),

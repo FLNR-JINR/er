@@ -27,13 +27,10 @@
 ERDecay::ERDecay(TString name)
 : fName(name),
   fInteractionVolumeName(""),
-  fNuclearInteractionLenght(0.),
-  // fInteractionProbability(0.),
-  fIsInteraction(kFALSE),
-  fTargetBoundBoxDiagonal(0.),
+  fNuclearInteractionLength(0.),
+  // fInteractProbability(0.),
   fNormalizingProbability(0.),
-  fIsInterationPointFound(kFALSE),
-  fMaxPathLenght(0.)
+  fIsInterationPointFound(kFALSE)
 {
   fRnd1 = new TRandom3();
   // fRnd1->SetSeed();
@@ -45,55 +42,57 @@ ERDecay::~ERDecay(){
 
 }
 //--------------------------------------------------------------------------------------------------
-void ERDecay::SetMaxPathLenght(Double_t pathLenght) {
-  fNormalizingProbability = 1 - TMath::Exp(-fMaxPathLenght / fNuclearInteractionLenght); 
+void ERDecay::SetMaxPathLength(Double_t pathLength) {
+  fNormalizingProbability = 1 - TMath::Exp(-pathLength / fNuclearInteractionLength); 
 }
 //--------------------------------------------------------------------------------------------------
-void ERDecay::CalculateTargetParameters() {
-  if (fInteractionVolumeName != "") {
-    TGeoVolume* vol = gGeoManager->FindVolumeFast(fInteractionVolumeName);
-    TGeoBBox*   shape = (TGeoBBox*)vol->GetShape(); // we use conversion of shape type to TGeoBBox because all shape types in ROOT inherited from TGeoBBox;
-    Double_t    boundX = 2 * shape->GetDX();
-    Double_t    boundY = 2 * shape->GetDY();
-    Double_t    boundZ = 2 * shape->GetDZ();
-    std::cout << "ERDecay: bounding box x = " << boundX << "; y = " << boundY << "; z = " << boundZ << std::endl;
-    fTargetBoundBoxDiagonal = TMath::Sqrt(boundX*boundX + boundY*boundY + boundZ*boundZ);
-    fNormalizingProbability = 1 - TMath::Exp(-fTargetBoundBoxDiagonal / fNuclearInteractionLenght); 
-  }
-}
+// void ERDecay::CalculateTargetParameters() {
+//   if (fInteractionVolumeName != "") {
+//     TGeoVolume* vol = gGeoManager->FindVolumeFast(fInteractionVolumeName);
+//     TGeoBBox*   shape = (TGeoBBox*)vol->GetShape(); // we use conversion of shape type to TGeoBBox because all shape types in ROOT inherited from TGeoBBox;
+//     Double_t    boundX = 2 * shape->GetDX();
+//     Double_t    boundY = 2 * shape->GetDY();
+//     Double_t    boundZ = 2 * shape->GetDZ();
+//     LOG(DEBUG) << "ERDecay: bounding box x = " << boundX 
+//               << "; y = " << boundY 
+//               << "; z = " << boundZ << FairLogger::endl;
+//     fTargetBoundBoxDiagonal = TMath::Sqrt(boundX*boundX + boundY*boundY + boundZ*boundZ);
+//     fNormalizingProbability = 1 - TMath::Exp(-fTargetBoundBoxDiagonal / fNuclearInteractionLength); 
+//   }
+// }
 //--------------------------------------------------------------------------------------------------
 Bool_t ERDecay::FindInteractionPoint() {
   if (!fIsInterationPointFound) {
     gGeoManager->FindNextBoundary(); // find a step to a next boudary along current track direction
     Double_t  distToNextBoundary = gGeoManager->GetStep(); // get calculated step
-
-    Double_t interactionProbability = (1 - TMath::Exp(-distToNextBoundary / fNuclearInteractionLenght))
-                                    / fNormalizingProbability;  // the interaction probability in current direction in defined volume 
-    std::cout << "ERDecay::FindInteractionPoint interaction prob " << interactionProbability << std::endl;         
-    if (gRandom->Uniform(0, 1) > interactionProbability) {
-      std::cout << "[ERDecay::FindInteractionPoint]: interaction hasn't happened in current event" << FairLogger::endl;
+    LOG(DEBUG) << "[ERDecay::FindInteractionPoint] distance to a next boundary " 
+              << distToNextBoundary <<  FairLogger::endl;
+    Double_t interactProbability = (1 - TMath::Exp(-distToNextBoundary / fNuclearInteractionLength))
+                                    / fNormalizingProbability;  // the interaction probability in current direction in the defined volume 
+    if (interactProbability > 1) {
+      LOG(ERROR) << "[ERDecay::FindInteractionPoint] interaction probability " 
+                 << "in current direction more then 1, "
+                 << "incorrect normalizing respect to maximum path length in an interaction volume" 
+                 << FairLogger::endl;  
+    }
+    LOG(DEBUG) << "[ERDecay::FindInteractionPoint] interaction probability in current direction " 
+              << interactProbability 
+              << "; normalizing probability is " << fNormalizingProbability << FairLogger::endl;         
+    if (gRandom->Uniform(0, 1) > interactProbability) {
+      LOG(INFO) << "[ERDecay::FindInteractionPoint]: interaction hasn't happened in current event" 
+                << FairLogger::endl;
       return kFALSE;
     } else {
-      Double_t const *unitDirectVec = gGeoManager->GetCurrentDirection();
-      fStepToInteractPoint = fRnd2->Exp(1 / fNuclearInteractionLenght);
-      TVector3 stepVector(unitDirectVec[0], unitDirectVec[1], unitDirectVec[2]);
-      std::cout << "ERDecay::FindInteractionPoint step " << fStepToInteractPoint << std::endl;         
-      std::cout << "ERDecay::FindInteractionPoint start current point unit direction " 
-                << unitDirectVec[0] << " " << unitDirectVec[1] << " " <<  unitDirectVec[2]  << " "
-                << unitDirectVec[0]*unitDirectVec[0] + unitDirectVec[1]*unitDirectVec[1] + unitDirectVec[2]*unitDirectVec[2] 
-                << std::endl; 
-      std::cout << "ERDecay::FindInteractionPoint distToNextBoundary " << distToNextBoundary << std::endl; 
-      stepVector *= fStepToInteractPoint;
-      TLorentzVector curPosLorentz;
-      gMC->TrackPosition(curPosLorentz);
-      fInputPoint = curPosLorentz.Vect();
-      fInteractionPoint = fInputPoint + stepVector;
+      Double_t interactionProbNextBound = 1 - TMath::Exp(-distToNextBoundary / 
+                                                          fNuclearInteractionLength);
+      fDistanceToInteractPoint = -TMath::Log(1- gRandom->Uniform(0, interactionProbNextBound)) 
+                               / fNuclearInteractionLength;
+      LOG(DEBUG) << "[ERDecay::FindInteractionPoint] distance to an interaction point " 
+                << "in current direction " << fDistanceToInteractPoint << FairLogger::endl;         
       fIsInterationPointFound = kTRUE;
       return kTRUE;
     }
   }
-  // std::cout << "ERDecay::FindInteractionPoint curren point " 
-  //           << gGeoManager->GetCurrentPoint()[2] << std::endl; 
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERDecay)

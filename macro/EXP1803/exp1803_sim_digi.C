@@ -164,14 +164,15 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
   targetDecay->SetInteractionVolumeName("boxCD");
-  targetDecay->SetNuclearInteractionLenght(30.);
+  targetDecay->SetNuclearInteractionLength(30.);
   targetDecay->SetAngularDistribution("Cs_6He_d_3He_5H_35-25AMeV.txt");
   targetDecay->SetTargetVolumeName("boxCD"); // "tubeH2"
   targetDecay->SetTargetThickness(targetH2Thickness);
   targetDecay->SetH5Mass(massH5);
   targetDecay->SetH5Exitation(0.0004, 0.00002355, 1);
   targetDecay->SetH5Exitation(0.0012, 0.0002355, 1);
-  targetDecay->SetMinStep(0.5e-4);
+  targetDecay->SetMinStep(1e-6);
+  targetDecay->SetMaxPathLength(1e-3 * 10 * 1.1);
 
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);
@@ -204,7 +205,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
   run->AddTask(trackFinder);
   //-------Set visualisation flag to true------------------------------------
-  //run->SetStoreTraj(kTRUE);
+  run->SetStoreTraj(kTRUE);
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   // -----   Initialize simulation run   ------------------------------------
