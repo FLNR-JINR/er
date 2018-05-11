@@ -45,7 +45,7 @@ RUN export SIMPATH=/opt/fair_install/FairSoft/installation &&\
 	mkdir build &&\
 	cd build &&\
 	/opt/fair_install/FairSoft/installation/bin/cmake -DCMAKE_INSTALL_PREFIX="/opt/FairRoot/insttallation" .. &&\
-	make -j10 &&\
-	make install -j10
+	make -j4 &&\
+	make install -j4
 
 RUN export FAIRROOTPATH=/opt/fair_install/FairRoot/installation
