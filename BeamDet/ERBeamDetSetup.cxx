@@ -590,16 +590,27 @@ void ERBeamDetSetup::ConstructGeometry() {
 
   // ---------------- Target --------------------------------------------------
   if (fSensitiveTargetIsSet) {
+    FairGeoMedium* poli = geoMedia->getMedium("CD2_CH2");
+    if ( ! poli ) Fatal("Main", "FairMedium CD2_CH2 not found");
+    geoBuild->createMedium(poli);
+    TGeoMedium* pPoli = gGeoMan->GetMedium("CD2_CH2");
+    if ( ! pPoli ) Fatal("Main", "Medium CD2_CH2 not found");
+
     Double_t fTargetShellR = fTargetH2R + fTargetShellThicknessSide;
     Double_t fTargetShellZ = fTargetH2Z/2 + fTargetShellThicknessZ;
 
-    TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, fTargetH2R, fTargetH2Z/2);
-    TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, fTargetShellR, fTargetShellZ);
+    TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pPoli, 0, fTargetH2R, fTargetH2Z/2);
+    TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pMed0, 0, fTargetShellR, fTargetShellZ);
     
     targetShell->AddNode(targetH2, 1, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
     target->AddNode(targetShell, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation)); 
 
-    beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fZeroRotation));
+    TGeoRotation *targetRot = new TGeoRotation();
+    targetRot->RotateX(0.);
+    targetRot->RotateY(12.);
+    targetRot->RotateZ(0.);
+
+    beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, targetRot));
   }
   // ----------------- MWPC ---------------------------------------------------
   vector<TGeoVolume*> gasVol;
