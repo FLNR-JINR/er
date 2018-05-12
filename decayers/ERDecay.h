@@ -23,19 +23,19 @@ public:
   
   /*Modifiers*/
   
-  /** @brief Defines name of volume where occures interaction of ion.
+  /** @brief Defines the name of volume where occures interaction of ion.
    ** @param name  volume name
   **/   
   void SetInteractionVolumeName(TString name) {fInteractionVolumeName = name;}
   
-  /** @brief Defines nuclear interaction length.
+  /** @brief Defines the nuclear interaction length.
    ** @param lambda  nuclear interaction length
   **/ 
   void SetNuclearInteractionLength(Double_t lambda) {fNuclearInteractionLength = lambda;}
   
-  /** @brief Defines maximum path length for particles in the volume that is defined 
+  /** @brief Defines a maximum path length for particles in the volume that is defined 
              in SetInteractionVolumeName().
-             In macro, method must be called after SetNuclearInteractionLength().
+             In macro, the method must be called after SetNuclearInteractionLength().
    ** @param pathLength  maximum path length in target volume
   **/  
   void SetMaxPathLength(Double_t pathLength);
@@ -48,7 +48,7 @@ public:
 protected:
   /** @brief  
    ** @param Method must be called in Stepping() when particle makes first step in
-             interaction volume;
+             the interaction volume;
   **/  
   Bool_t FindInteractionPoint();
   // void   CalculateTargetParameters();
@@ -57,7 +57,11 @@ protected:
   Bool_t   fIsInterationPointFound;
   Double_t fDistanceToInteractPoint;
   Double_t fDistanceFromEntrance;
+  Double_t fDistToNextBoundary;
 
+  /*Tmp members*/
+  TVector3 fEnterDirection;
+  TVector3 fInputPoint;
 private:
   TString  fInteractionVolumeName;
   Double_t fNuclearInteractionLength;
@@ -66,6 +70,7 @@ private:
   Double_t fNormalizingProbability;
   TRandom3 *fRnd1;
   TRandom3 *fRnd2;
+  TRandom3 *fRnd3;
 
 	ClassDef(ERDecay,1)
 };

@@ -15,6 +15,7 @@ using namespace std;
 #include "TLorentzVector.h"
 #include "TMCProcess.h"
 #include "TRandom.h"
+#include "TGeoManager.h"
 
 #include "FairRunSim.h"
 #include "FairLogger.h"
@@ -251,6 +252,17 @@ Bool_t ERDecayEXP1803::Stepping() {
         header->AddOutputParticle(H3TrackNb);
         header->AddOutputParticle(n1TrackNb);
         header->AddOutputParticle(n2TrackNb);
+
+        /*Testing information*/
+        header->SetTrajectoryParams(fDistToNextBoundary, fDistanceToInteractPoint);
+
+        Double_t stepFromEntrance = (curPos.Vect() - fInputPoint).Mag();
+        Double_t stepAngle = (curPos.Vect() - fInputPoint).Angle(fEnterDirection);
+        header->SetDeviationFromTrajectory(stepFromEntrance * TMath::Sin(stepAngle));
+
+        Double_t const *unitDirectVec = gGeoManager->GetCurrentDirection();
+        TVector3 curDir(unitDirectVec[0], unitDirectVec[1], unitDirectVec[2]);
+        header->SetAngleDeviation(TMath::Abs(curDir.Angle(fEnterDirection) /** TMath::RadToDeg()*/));
       }
     }
   }

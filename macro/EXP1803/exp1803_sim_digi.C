@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 100) {
+void exp1803_sim_digi(Int_t nEvents = 1000) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -67,12 +67,12 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);                     //  BeamDet parts should be added in ascending order   
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);   //  of Z-coordinate of part.
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);                  // 
-  // setupBeamDet->SetSensitiveTarget();
+  setupBeamDet->SetSensitiveTarget();
 
   // -----   Create target  -------------------------------------------------
   FairModule* target = new ERTarget("targetH2", kTRUE, 1);
   target->SetGeometryFileName(targetGeoFileName);
-  run->AddModule(target);
+  // run->AddModule(target);
 
   // -----   Create Part of Gadast ------------------------------------------
   ERGadast* gadast = new ERGadast("PartofGadast", kTRUE, 1);
@@ -150,9 +150,9 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
   // generator->SetKinERange(0,kin_energy);
   // generator->SetThetaSigma(0, 90);
-  generator->SetThetaRange(0, 90);
-  generator->SetPhiRange(0, 360);
-  generator->SetBoxXYZ(0, 0, 2., 2., beamStartPosition);
+  generator->SetThetaRange(-45., -45.);
+  generator->SetPhiRange(0., 0.);
+  generator->SetBoxXYZ(0., 0., 0., 0., beamStartPosition);
   generator->SpreadingOnTarget(); 
 
   primGen->AddGenerator(generator);
@@ -163,16 +163,16 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
 
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
-  targetDecay->SetInteractionVolumeName("boxCD");
-  targetDecay->SetNuclearInteractionLength(30.);
   targetDecay->SetAngularDistribution("Cs_6He_d_3He_5H_35-25AMeV.txt");
-  targetDecay->SetTargetVolumeName("boxCD"); // "tubeH2"
+  targetDecay->SetTargetVolumeName("targetH2"); //"boxCD"  "tubeH2"
   targetDecay->SetTargetThickness(targetH2Thickness);
   targetDecay->SetH5Mass(massH5);
   targetDecay->SetH5Exitation(0.0004, 0.00002355, 1);
   targetDecay->SetH5Exitation(0.0012, 0.0002355, 1);
-  targetDecay->SetMinStep(1e-6);
-  targetDecay->SetMaxPathLength(1e-3 * 10 * 1.1);
+  targetDecay->SetMinStep(1e-2);
+  targetDecay->SetInteractionVolumeName("boxCD");
+  targetDecay->SetNuclearInteractionLength(0.2);
+  targetDecay->SetMaxPathLength(TMath::Sqrt(4. + 0.16) * 1.1);
 
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);

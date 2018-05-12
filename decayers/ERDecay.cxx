@@ -35,6 +35,7 @@ ERDecay::ERDecay(TString name)
   fRnd1 = new TRandom3();
   // fRnd1->SetSeed();
   fRnd2 = new TRandom3();
+  fRnd3 = new TRandom3();
   // fRnd2->SetSeed();
 }
 //--------------------------------------------------------------------------------------------------
@@ -53,9 +54,9 @@ void ERDecay::SetMaxPathLength(Double_t pathLength) {
 //     Double_t    boundX = 2 * shape->GetDX();
 //     Double_t    boundY = 2 * shape->GetDY();
 //     Double_t    boundZ = 2 * shape->GetDZ();
-//     LOG(DEBUG) << "ERDecay: bounding box x = " << boundX 
+//     std::cout << "ERDecay: bounding box x = " << boundX 
 //               << "; y = " << boundY 
-//               << "; z = " << boundZ << FairLogger::endl;
+//               << "; z = " << boundZ << std::endl;
 //     fTargetBoundBoxDiagonal = TMath::Sqrt(boundX*boundX + boundY*boundY + boundZ*boundZ);
 //     fNormalizingProbability = 1 - TMath::Exp(-fTargetBoundBoxDiagonal / fNuclearInteractionLength); 
 //   }
@@ -64,31 +65,37 @@ void ERDecay::SetMaxPathLength(Double_t pathLength) {
 Bool_t ERDecay::FindInteractionPoint() {
   if (!fIsInterationPointFound) {
     gGeoManager->FindNextBoundary(); // find a step to a next boudary along current track direction
-    Double_t  distToNextBoundary = gGeoManager->GetStep(); // get calculated step
-    LOG(DEBUG) << "[ERDecay::FindInteractionPoint] distance to a next boundary " 
-              << distToNextBoundary <<  FairLogger::endl;
-    Double_t interactProbability = (1 - TMath::Exp(-distToNextBoundary / fNuclearInteractionLength))
+    fDistToNextBoundary = gGeoManager->GetStep(); // get calculated step
+    std::cout << "[ERDecay::FindInteractionPoint] distance to a next boundary " 
+              << fDistToNextBoundary <<  std::endl;
+    Double_t interactProbability = (1 - TMath::Exp(-fDistToNextBoundary / fNuclearInteractionLength))
                                     / fNormalizingProbability;  // the interaction probability in current direction in the defined volume 
     if (interactProbability > 1) {
       LOG(ERROR) << "[ERDecay::FindInteractionPoint] interaction probability " 
                  << "in current direction more then 1, "
                  << "incorrect normalizing respect to maximum path length in an interaction volume" 
-                 << FairLogger::endl;  
+                 << std::endl;  
     }
-    LOG(DEBUG) << "[ERDecay::FindInteractionPoint] interaction probability in current direction " 
+    std::cout << "[ERDecay::FindInteractionPoint] interaction probability in current direction " 
               << interactProbability 
-              << "; normalizing probability is " << fNormalizingProbability << FairLogger::endl;         
+              << "; normalizing probability is " << fNormalizingProbability << std::endl;         
     if (gRandom->Uniform(0, 1) > interactProbability) {
       LOG(INFO) << "[ERDecay::FindInteractionPoint]: interaction hasn't happened in current event" 
-                << FairLogger::endl;
+                << std::endl;
       return kFALSE;
     } else {
-      Double_t interactionProbNextBound = 1 - TMath::Exp(-distToNextBoundary / 
+      Double_t const *unitDirectVec = gGeoManager->GetCurrentDirection();
+      Double_t interactionProbNextBound = 1 - TMath::Exp(-fDistToNextBoundary / 
                                                           fNuclearInteractionLength);
-      fDistanceToInteractPoint = -TMath::Log(1- gRandom->Uniform(0, interactionProbNextBound)) 
-                               / fNuclearInteractionLength;
-      LOG(DEBUG) << "[ERDecay::FindInteractionPoint] distance to an interaction point " 
-                << "in current direction " << fDistanceToInteractPoint << FairLogger::endl;         
+      fDistanceToInteractPoint = -TMath::Log(1- fRnd3->Uniform(0, interactionProbNextBound)) 
+                               * fNuclearInteractionLength;
+      fEnterDirection = TVector3(unitDirectVec[0], unitDirectVec[1], unitDirectVec[2]);
+      fEnterDirection *= fDistanceToInteractPoint;
+      TLorentzVector curPosLorentz;
+      gMC->TrackPosition(curPosLorentz);
+      fInputPoint = curPosLorentz.Vect();
+      std::cout << "[ERDecay::FindInteractionPoint] distance to an interaction point " 
+                << "in current direction " << fDistanceToInteractPoint << std::endl;         
       fIsInterationPointFound = kTRUE;
       return kTRUE;
     }
