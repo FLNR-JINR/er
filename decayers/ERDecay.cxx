@@ -33,9 +33,7 @@ ERDecay::ERDecay(TString name)
   fIsInterationPointFound(kFALSE)
 {
   fRnd1 = new TRandom3();
-  // fRnd1->SetSeed();
   fRnd2 = new TRandom3();
-  // fRnd2->SetSeed();
 }
 //--------------------------------------------------------------------------------------------------
 ERDecay::~ERDecay(){
@@ -78,15 +76,15 @@ Bool_t ERDecay::FindInteractionPoint() {
     LOG(DEBUG) << "[ERDecay::FindInteractionPoint] interaction probability in current direction " 
               << interactProbability 
               << "; normalizing probability is " << fNormalizingProbability << FairLogger::endl;         
-    if (gRandom->Uniform(0, 1) > interactProbability) {
+    if (fRnd1->Uniform(0, 1) > interactProbability) {
       LOG(INFO) << "[ERDecay::FindInteractionPoint]: interaction hasn't happened in current event" 
                 << FairLogger::endl;
       return kFALSE;
     } else {
       Double_t interactionProbNextBound = 1 - TMath::Exp(-distToNextBoundary / 
                                                           fNuclearInteractionLength);
-      fDistanceToInteractPoint = -TMath::Log(1- gRandom->Uniform(0, interactionProbNextBound)) 
-                               / fNuclearInteractionLength;
+      fDistanceToInteractPoint = -TMath::Log(1 - fRnd2->Uniform(0, interactionProbNextBound)) 
+                               * fNuclearInteractionLength;
       LOG(DEBUG) << "[ERDecay::FindInteractionPoint] distance to an interaction point " 
                 << "in current direction " << fDistanceToInteractPoint << FairLogger::endl;         
       fIsInterationPointFound = kTRUE;
