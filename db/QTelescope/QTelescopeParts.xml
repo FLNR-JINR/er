@@ -29,6 +29,33 @@
 				<stripCountY>32</stripCountY>
 				<doubleSiMedia>silicon</doubleSiMedia>
 			</doubleSi>
+			<doubleSi id="DoubleSi_SD2_calib">
+				<doubleSiSize doubleSiX="6.6" doubleSiY="6.6" doubleSiZ="0.9996"/>
+				<doubleSiSensAreaSize doubleSiSensX="6.4" doubleSiSensY="6.4" doubleSiSensZ="0.9996"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.005</deadLayerThicknessBackSide>
+				<stripCountX>32</stripCountX>
+				<stripCountY>32</stripCountY>
+				<doubleSiMedia>silicon</doubleSiMedia>
+			</doubleSi>
+			<doubleSi id="DoubleSi_SD2_calib_dead">
+				<doubleSiSize doubleSiX="6.6" doubleSiY="6.6" doubleSiZ="0.00004"/>
+				<doubleSiSensAreaSize doubleSiSensX="6.4" doubleSiSensY="6.4" doubleSiSensZ="0.00004"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
+				<stripCountX>32</stripCountX>
+				<stripCountY>32</stripCountY>
+				<doubleSiMedia>silicon</doubleSiMedia>
+			</doubleSi>
+			<doubleSi id="DoubleSi_SD2_calib_cover">
+				<doubleSiSize doubleSiX="6.6" doubleSiY="6.6" doubleSiZ="0.0004"/>
+				<doubleSiSensAreaSize doubleSiSensX="6.4" doubleSiSensY="6.4" doubleSiSensZ="0.0004"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
+				<stripCountX>32</stripCountX>
+				<stripCountY>32</stripCountY>
+				<doubleSiMedia>silicon</doubleSiMedia>
+			</doubleSi>
 		</doubleSiTypes>
 		<singleSiTypes>
 			<singleSi id="SingleSi_1">
@@ -47,6 +74,22 @@
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>	
+			<singleSi id="SingleSi_calib">
+				<singleSiSize singleSiX="6.4" singleSiY="6.4" singleSiZ="0.00003"/>
+				<singleSiSensAreaSize singleSiSensX="6.2" singleSiSensY="6.2" singleSiSensZ="0.00003"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
+				<stripCount>1</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>	
+			<singleSi id="SingleSi_calib_div10">
+				<singleSiSize singleSiX="6.4" singleSiY="6.4" singleSiZ="0.000015"/>
+				<singleSiSensAreaSize singleSiSensX="6.2" singleSiSensY="6.2" singleSiSensZ="0.000015"/>
+				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
+				<stripCount>1</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
 		</singleSiTypes>
 	</SiTypes>
 	<CsITypes>
