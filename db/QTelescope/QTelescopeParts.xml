@@ -30,8 +30,8 @@
 				<doubleSiMedia>silicon</doubleSiMedia>
 			</doubleSi>
 			<doubleSi id="DoubleSi_SD2_calib">
-				<doubleSiSize doubleSiX="6.6" doubleSiY="6.6" doubleSiZ="0.9996"/>
-				<doubleSiSensAreaSize doubleSiSensX="6.4" doubleSiSensY="6.4" doubleSiSensZ="0.9996"/>
+				<doubleSiSize doubleSiX="6.6" doubleSiY="6.6" doubleSiZ="0.0996"/>
+				<doubleSiSensAreaSize doubleSiSensX="6.4" doubleSiSensY="6.4" doubleSiSensZ="0.0996"/>
 				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
 				<deadLayerThicknessBackSide>0.005</deadLayerThicknessBackSide>
 				<stripCountX>32</stripCountX>
@@ -83,11 +83,11 @@
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>	
 			<singleSi id="SingleSi_calib_div10">
-				<singleSiSize singleSiX="6.4" singleSiY="6.4" singleSiZ="0.000015"/>
-				<singleSiSensAreaSize singleSiSensX="6.2" singleSiSensY="6.2" singleSiSensZ="0.000015"/>
-				<deadLayerThicknessFrontSide>0</deadLayerThicknessFrontSide>
+				<singleSiSize singleSiX="6.4" singleSiY="6.4" singleSiZ="0.15"/>
+				<singleSiSensAreaSize singleSiSensX="6.2" singleSiSensY="6.2" singleSiSensZ="0.15"/>
+				<deadLayerThicknessFrontSide>0.0003</deadLayerThicknessFrontSide>
 				<deadLayerThicknessBackSide>0</deadLayerThicknessBackSide>
-				<stripCount>1</stripCount>
+				<stripCount>32</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>
 		</singleSiTypes>

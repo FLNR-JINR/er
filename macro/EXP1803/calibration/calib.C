@@ -1,41 +1,25 @@
-void calib_first(Int_t runId, Double_t kinE_MevPerNucleon) {
-  Int_t nEvents = 1000;
-
-  // --------------- Telescope T1 -------------------------------------------
-  Double_t T1Dl = 0.5;         // [cm]      
-  Double_t T1PosZ = 10.;       // [cm] 
-  Double_t T1D1Thick = 0.002;  // [cm]  
-  Double_t T1D2Thick = 0.1;    // [cm] 
-  Double_t T1Side = 6.2;       // [cm] coincides with SD1 side length from /db/QTelescope/QTelescopeParts.xml
-  Double_t T1Aperture = 3.1;   // [cm]  
-  // --------------- Telescope D1 -------------------------------------------
-  Double_t D1PosZ = 20.;       // [cm]
-  Double_t D1Thick = 0.03;     // [cm]
-  // --------------- BeamDet ------------------------------------------------
-  Double_t BeamDetLToF = 1500.;     // [cm] 
-  Double_t BeamDetPosZToF = -50;  // [cm] 
-  Double_t BeamDetLMWPC = 32.;     // [cm]
-  Double_t BeamDetPosZMWPC = -8;  // [cm]  
+void calib(TString runId, 
+           Double_t kinE_MevPerNucleon, 
+           Double_t rotAngle = 0, 
+           Double_t sourcePos= -39, 
+           Int_t nEvents = 1000) 
+{
   // --------------- Beam start position ------------------------------------
-  Double_t beamStartPosition = -40.1;  // [cm]
-  // --------------- Target -------------------------------------------------
-  Double_t targetH2Thickness = 0.4;  // [cm] coincides with target thickness in /macro/geo/create..._geo.C
+  // Double_t sourcePos= -39;  // [cm]
+  Double_t deadFrontThicknessMax = 0.0004; // [cm]
+  Double_t detectorThickness = 0.1; // [cm]
+  Double_t deadLayerFragments = 10;
+  Double_t detSideSize = 6.4;
+  Double_t sourceCoverThck = 0.00003;
+  Double_t sourceCloudDiam = 0.3;
   //---------------------Files-----------------------------------------------
   TString outFile;
   TString parFile;
-  outFile.Form("sim_digi%d.root", runId);
-  parFile.Form("par%d.root", runId);
+  outFile.Form("sim_digi_calib_%s.root", runId.Data());
+  parFile.Form("par_calib_%s.root", runId.Data());
   TString workDirPath = gSystem->Getenv("VMCWORKDIR");
   TString paramFileQTelescope = workDirPath
                          + "/db/QTelescope/QTelescopeParts.xml";
-  TString paramFileBeamDet = workDirPath
-                         + "/db/BeamDet/BeamDetParts.xml";
-  TString targetGeoFileName = workDirPath + "/geometry/target_CD2_geo.root";
-  TString gadastGeoFileName = workDirPath + "/geometry/partOfGadast.v1.geo.root";
-  TString ndGeoFileName = workDirPath + "/geometry/ND.geo.root";
-  TString magnetGeoFileName = workDirPath + "/geometry/magnet.geo.root";
-  // ------------------------------------------------------------------------
-
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer; 
   timer.Start();
@@ -62,15 +46,13 @@ void calib_first(Int_t runId, Double_t kinE_MevPerNucleon) {
   run->AddModule(cave);
    
   Int_t verbose = 0;
-  // -----  BeamDet Setup ---------------------------------------------------
   // -----  QTelescope Setup ------------------------------------------------
+  Double_t detectorSensVolThickness = detectorThickness - deadFrontThicknessMax;
+  Double_t deadLayerFragmentsThickness = deadFrontThicknessMax / deadLayerFragments;
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
   setupQTelescope->SetXMLParametersFile(paramFileQTelescope);
   setupQTelescope->SetGeoName("QTelescopeCalib");
   // ----- CalibSi1 parameters ----------------------------------------------------
-  Double_t xPos, yPos, zPos;
-  Double_t radius = 0.;
-  TVector3 rotationT1(0., 0., 0.);
   ERGeoSubAssembly* telescpoeAss = new ERGeoSubAssembly("SiDet");
   ERGeoSubAssembly* sourceAss = new ERGeoSubAssembly("Source");
   ERQTelescopeGeoComponentDoubleSi* Q_L = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", 
@@ -81,25 +63,31 @@ void calib_first(Int_t runId, Double_t kinE_MevPerNucleon) {
   alphaSourceCover = new ERQTelescopeGeoComponentSingleSi("SingleSi", 
                                                           "SingleSi_calib", 
                                                           "X");
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < deadLayerFragments; i++) {
     deadQ_L.push_back(new ERQTelescopeGeoComponentDoubleSi("DoubleSi", 
                                                            "DoubleSi_SD2_calib_dead", 
                                                            "X"));
   }
 
-  int j = 1;
+  int j = 0;
   for (auto itDead : deadQ_L) {
-    telescpoeAss->AddComponent(itDead, TVector3(0., 0., - (0.9996/2) - j * 0.00004 + 0.00002), TVector3());
+    Double_t offsetZ = -(detectorThickness/2) 
+                     + j * deadLayerFragmentsThickness + deadLayerFragmentsThickness/2;
+    telescpoeAss->AddComponent(itDead, TVector3(0., 0., offsetZ), TVector3());
     j++;
+    cout << "deadLayerFragments offset " << offsetZ << "; n = " << j << endl;
   }
   sourceAss->AddComponent(alphaSourceCover, TVector3(0., 0., 0.), TVector3());
-  telescpoeAss->AddComponent(Q_L, TVector3(0., 0., 0.0002), TVector3());
+  telescpoeAss->AddComponent(Q_L, TVector3(0., 0., deadFrontThicknessMax), TVector3());
 
-  xPos = radius * TMath::Sin(rotationT1.Y() * TMath::DegToRad());
+  Double_t xPos, yPos, zPos;
+  Double_t radius = 0.;
+  TVector3 rotation1mm(0., rotAngle, 0.);
+  xPos = radius * TMath::Sin(rotation1mm.Y() * TMath::DegToRad());
   yPos = 0.;
-  zPos = radius * TMath::Cos(rotationT1.Y() * TMath::DegToRad());
-  setupQTelescope->AddSubAssembly(telescpoeAss, TVector3(xPos, yPos, zPos), rotationT1);
-  setupQTelescope->AddSubAssembly(sourceAss, TVector3(0., 0., -40), rotationT1);
+  zPos = radius * TMath::Cos(rotation1mm.Y() * TMath::DegToRad());
+  setupQTelescope->AddSubAssembly(telescpoeAss, TVector3(xPos, yPos, zPos), rotation1mm);
+  setupQTelescope->AddSubAssembly(sourceAss, TVector3(0., 0., sourcePos + sourceCoverThck/2), TVector3());
   // ------QTelescope -------------------------------------------------------
   ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE,verbose);
   run->AddModule(qtelescope);
@@ -117,10 +105,13 @@ void calib_first(Int_t runId, Double_t kinE_MevPerNucleon) {
   // generator->SetPSigmaOverP(0);
   sigmaTheta = 0.004*TMath::RadToDeg();
   generator->SetKinERange(kin_energy, kin_energy);
-  generator->SetThetaRange(0, 6.45483);
+  Double_t fronalCathesis = (detSideSize / 2) * sqrt(1 + pow(cos(abs(rotAngle * TMath::DegToRad())),2)) + (sqrt(2) * sourceCloudDiam / 2);
+  Double_t maxTheta = abs(atan(fronalCathesis / sourcePos));
+  cout << "Max theta " << maxTheta << endl;
+  generator->SetThetaRange(0, maxTheta * TMath::RadToDeg());
   generator->SetCosTheta();
   generator->SetPhiRange(0, 360);
-  generator->SetBoxXYZ(0, 0, 0, 0, beamStartPosition);
+  generator->SetBoxXYZ(-sourceCloudDiam/2, -sourceCloudDiam/2, sourceCloudDiam/2, sourceCloudDiam/2, sourcePos);
   // generator->SpreadingOnTarget(); 
 
   primGen->AddGenerator(generator);
@@ -137,7 +128,7 @@ void calib_first(Int_t runId, Double_t kinE_MevPerNucleon) {
   qtelescopeDigitizer->SetCsITimeSigma(0);
   run->AddTask(qtelescopeDigitizer);
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kTRUE);
+  // run->SetStoreTraj(kTRUE);
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   // -----   Initialize simulation run   ------------------------------------
