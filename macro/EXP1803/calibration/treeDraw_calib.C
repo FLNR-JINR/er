@@ -4,11 +4,25 @@ void treeDraw_calib() {
   TString rotateInFileName_1="sim_digi_rotate1.root";
   TString rotateInFileName_4="sim_digi_rotate4.root";
 
-  TFile* directInFile_1 = new TFile(directInFileName_1);
-  // cout << "File: " << directInFile_1->GetName() << endl;
+  std::vector<TString> files = {
+                                "sim_digi_calib_direct4.root",
+                                "sim_digi_calib_direct4.root"
+                                "sim_digi_calib_rot4.root"
+                                "sim_digi_calib_rot4.root"
+                               };
 
-  TTree* directTree_1 = (TTree*)directInFile_1->Get("er");
-  // cout << "Tree: " << t->GetName() << endl;
+
+  for (auto itFile : files) {
+    TFile* inFile = new TFile(itFile);
+    TTree* tree = (TTree*)directInFile_1->Get("er");
+  }
+
+
+  // TFile* directInFile_1 = new TFile(directInFileName_1);
+  // // cout << "File: " << directInFile_1->GetName() << endl;
+
+  // TTree* directTree_1 = (TTree*)directInFile_1->Get("er");
+  // // cout << "Tree: " << t->GetName() << endl;
 
   TCanvas* canvasMeanEdepByStrip = new TCanvas("MeanEdepByStrip");
   canvasMeanEdepByStrip->cd(1);

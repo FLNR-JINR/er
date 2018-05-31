@@ -105,10 +105,10 @@ void calib(TString runId,
   // generator->SetPSigmaOverP(0);
   sigmaTheta = 0.004*TMath::RadToDeg();
   generator->SetKinERange(kin_energy, kin_energy);
-  Double_t fronalCathesis = (detSideSize / 2) * sqrt(1 + pow(cos(abs(rotAngle * TMath::DegToRad())),2)) + (sqrt(2) * sourceCloudDiam / 2);
+  Double_t fronalCathesis = (detSideSize / 2) * sqrt(2/*1 + pow(cos(abs(rotAngle * TMath::DegToRad())),2)*/) + (sqrt(2) * sourceCloudDiam / 2);
   Double_t maxTheta = abs(atan(fronalCathesis / sourcePos));
   cout << "Max theta " << maxTheta << endl;
-  generator->SetThetaRange(0, maxTheta * TMath::RadToDeg());
+  generator->SetThetaRange(0, 10);
   generator->SetCosTheta();
   generator->SetPhiRange(0, 360);
   generator->SetBoxXYZ(-sourceCloudDiam/2, -sourceCloudDiam/2, sourceCloudDiam/2, sourceCloudDiam/2, sourcePos);
