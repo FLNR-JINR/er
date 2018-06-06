@@ -17,12 +17,12 @@
   Double_t maxMean = 0.00752245; //0.00729998
   Int_t    sensDeadCount = 10;
   Int_t    deadLayersLikeSensCount = 7; // 5; 6;
-  Int_t    thicknessDead = 12;
+  Int_t    thicknessDead = 24;
   Int_t calibrateStripCount = 32;
 
 
   Double_t a = 0.0211;
-  // for (Int_t d = deadLayersLikeSensCount; d >= 7; d--) {
+  for (Int_t d = deadLayersLikeSensCount; d >= 7; d--) {
     histsMeanEdepByStrip.clear();
     for (auto itFile : files) {
       TFile* inFile = new TFile(itFile);
@@ -40,7 +40,7 @@
 
       for (Int_t stripNb = 0; stripNb < calibrateStripCount; stripNb++) {  
         varExp = "ERQTelescopeSiDigi_SiDet_DoubleSi_SD2_calib_XY_10_X.fEdep";
-        for (Int_t deadLayerSensNb = 0; deadLayerSensNb < deadLayersLikeSensCount; deadLayerSensNb++) {
+        for (Int_t deadLayerSensNb = 0; deadLayerSensNb < d; deadLayerSensNb++) {
           TString tmpVarExp;
           tmpVarExp.Form(" + ERQTelescopeSiDigi_SiDet_DoubleSi_SD2_calib_dead_XY_%d_X.fEdep", sensDeadCount - deadLayerSensNb - 1);
           varExp += tmpVarExp;
@@ -60,87 +60,88 @@
       }
 
     }
-    // ifstream inFileDirect;
-    // ifstream inFileRotate;
-    // ofstream outFileWithB;
-    // TString  outFileWithBName;
-    // outFileWithBName.Form("/home/kmy/expertroot/er/macro/EXP1803/calibration/b_fix_a00214_d%d.txt", 4*(10-d));
-    // Double_t    N_0;
-    // Double_t    N_1;
-    // Double_t    N_2;
-    // Double_t    N_3;
-    // inFileDirect.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/aculInspired/channelsDirect.txt");
-    // inFileRotate.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/aculInspired/channelsRotate.txt");
-    // outFileWithB.open(outFileWithBName.Data());
-    // for (Int_t stripNb = 0; stripNb < calibrateStripCount; stripNb++) {
-    //   inFileDirect >> N_0; inFileDirect >> N_1;        
-    //   inFileRotate >> N_2; inFileRotate >> N_3;
-    //   cout << "N_0 = " << N_0 << "; N_1 = " << N_1 << "; N_2 = " << N_2 << "; N_3 = " << N_3 << endl; 
-    //   Double_t b0, b1, b2, b3;
-    //   b0 = histsMeanEdepByStrip[0]->GetBinContent(stripNb) - N_0 * a;       
-    //   b1 = histsMeanEdepByStrip[1]->GetBinContent(stripNb) - N_1 * a;       
-    //   b2 = histsMeanEdepByStrip[2]->GetBinContent(stripNb) - N_2 * a;       
-    //   b3 = histsMeanEdepByStrip[3]->GetBinContent(stripNb) - N_3 * a;   
-    //   outFileWithB << fixed << setprecision(10) << b0 << setw(20) << b1 << setw(20) << b2 << setw(20) << b3 << setw(20) << endl;    
-    // }
-    // inFileDirect.close();
-    // inFileRotate.close();
-    // outFileWithB.close();
-  // }
-
-  pair<Int_t, Int_t> calibSystems;
-  ifstream inFileDirect;
-  ifstream inFileRotate;
-  ofstream outFile;
-  Double_t    N_1;
-  Double_t    N_2;
-  TString outFileName;
-  ifstream outFile_1;
-  ifstream outFile_2;
-  ofstream outDiff;
-  vector<TString> outFiles;
-
-  calibSystems = {0,1};
-  outFileName.Form("abCoefs_%d_%d_%d.cal", thicknessDead, calibSystems.first, calibSystems.second);
-  // outFiles.push_back(outFileName);
-  outFile.open(outFileName.Data());
-  inFileDirect.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/aculInspired/channelsDirect.txt");
-  inFileRotate.open("channelsRotate.txt");
-  for (Int_t stripNb = 0; stripNb < calibrateStripCount; stripNb++) {
-    inFileDirect >> N_1;
-    inFileDirect >> N_2;
-    Double_t E_1 = histsMeanEdepByStrip[calibSystems.first]->GetBinContent(stripNb);
-    Double_t E_2 = histsMeanEdepByStrip[calibSystems.second]->GetBinContent(stripNb);
-    cout << "N_1 = " << N_1 << "; N_2 = " << N_2 << "; E_1 = " << E_1 << "; E_2 = " << E_2 << endl; 
-    Double_t a = (E_1 - E_2)
-               / (N_1 - N_2);
-    Double_t b = (N_1 * E_2 - N_2 * E_1) 
-               / (N_1 - N_2);
-    outFile << fixed << setprecision(10) << a << setw(20) << b << endl;
+    ifstream inFileDirect;
+    ifstream inFileRotate;
+    ofstream outFileWithB;
+    TString  outFileWithBName;
+    outFileWithBName.Form("/home/kmy/expertroot/er/macro/EXP1803/calibration/b_fix_a00214_d%d.txt", 4*(10-d));
+    Double_t    N_0;
+    Double_t    N_1;
+    Double_t    N_2;
+    Double_t    N_3;
+    inFileDirect.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/aculInspired/channelsDirect.txt");
+    inFileRotate.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/aculInspired/channelsRotate.txt");
+    outFileWithB.open(outFileWithBName.Data());
+    for (Int_t stripNb = 0; stripNb < calibrateStripCount; stripNb++) {
+      inFileDirect >> N_0; inFileDirect >> N_1;        
+      inFileRotate >> N_2; inFileRotate >> N_3;
+      cout << "N_0 = " << N_0 << "; N_1 = " << N_1 << "; N_2 = " << N_2 << "; N_3 = " << N_3 << endl; 
+      Double_t b0, b1, b2, b3;
+      b0 = histsMeanEdepByStrip[0]->GetBinContent(stripNb) - N_0 * a;       
+      b1 = histsMeanEdepByStrip[1]->GetBinContent(stripNb) - N_1 * a;       
+      b2 = histsMeanEdepByStrip[2]->GetBinContent(stripNb) - N_2 * a;       
+      b3 = histsMeanEdepByStrip[3]->GetBinContent(stripNb) - N_3 * a;   
+      outFileWithB << fixed << setprecision(10) << b0 << setw(20) << b1 << setw(20) << b2 << setw(20) << b3 << setw(20) << endl;    
+    }
+    inFileDirect.close();
+    inFileRotate.close();
+    outFileWithB.close();
   }
-  cout << endl;
-  inFileDirect.close(); 
-  outFile.close(); 
-  // }
-  calibSystems = {2,3};
-  outFileName.Form("abCoefs_%d_%d_%d.cal", thicknessDead,calibSystems.first, calibSystems.second);
-  outFile.open(outFileName.Data());
-  inFileDirect.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/aculInspired/channelsRotate.txt");
+  // vector<pair<Int_t, Int_t>> calibSystems = {{0,1}};
+  // for (auto itCalibSystems : calibSystems) {
+  // pair<Int_t, Int_t> calibSystems;
+  // ifstream inFileDirect;
+  // ifstream inFileRotate;
+  // ofstream outFile;
+  // Double_t    N_1;
+  // Double_t    N_2;
+  // TString outFileName;
+  // ifstream outFile_1;
+  // ifstream outFile_2;
+  // ofstream outDiff;
+  // vector<TString> outFiles;
+
+  // calibSystems = {0,1};
+  // outFileName.Form("abCoefs_%d_%d_%d.cal", thicknessDead, calibSystems.first, calibSystems.second);
+  // // outFiles.push_back(outFileName);
+  // outFile.open(outFileName.Data());
+  // inFileDirect.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/aculInspired/channelsDirect.txt");
   // inFileRotate.open("channelsRotate.txt");
-  for (Int_t stripNb = 0; stripNb < calibrateStripCount; stripNb++) {
-    inFileDirect >> N_1;
-    inFileDirect >> N_2;
-    Double_t E_1 = histsMeanEdepByStrip[calibSystems.first]->GetBinContent(stripNb);
-    Double_t E_2 = histsMeanEdepByStrip[calibSystems.second]->GetBinContent(stripNb);
-    cout << "N_1 = " << N_1 << "; N_2 = " << N_2 << "; E_1 = " << E_1 << "; E_2 = " << E_2 << endl; 
-    Double_t a = (E_1 - E_2)
-               / (N_1 - N_2);
-    Double_t b = (N_1 * E_2 - N_2 * E_1) 
-               / (N_1 - N_2);
-    outFile << fixed << setprecision(10) << a << setw(20) << b << endl;
-  }
-  inFileDirect.close(); 
-  outFile.close(); 
+  // for (Int_t stripNb = 0; stripNb < calibrateStripCount; stripNb++) {
+  //   inFileDirect >> N_1;
+  //   inFileDirect >> N_2;
+  //   Double_t E_1 = histsMeanEdepByStrip[calibSystems.first]->GetBinContent(stripNb);
+  //   Double_t E_2 = histsMeanEdepByStrip[calibSystems.second]->GetBinContent(stripNb);
+  //   cout << "N_1 = " << N_1 << "; N_2 = " << N_2 << "; E_1 = " << E_1 << "; E_2 = " << E_2 << endl; 
+  //   Double_t a = (E_1 - E_2)
+  //              / (N_1 - N_2);
+  //   Double_t b = (N_1 * E_2 - N_2 * E_1) 
+  //              / (N_1 - N_2);
+  //   outFile << fixed << setprecision(10) << a << setw(20) << b << endl;
+  // }
+  // cout << endl;
+  // inFileDirect.close(); 
+  // outFile.close(); 
+  // // }
+  // calibSystems = {2,3};
+  // outFileName.Form("abCoefs_%d_%d_%d.cal", thicknessDead,calibSystems.first, calibSystems.second);
+  // outFile.open(outFileName.Data());
+  // inFileDirect.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/aculInspired/channelsRotate.txt");
+  // // inFileRotate.open("channelsRotate.txt");
+  // for (Int_t stripNb = 0; stripNb < calibrateStripCount; stripNb++) {
+  //   inFileDirect >> N_1;
+  //   inFileDirect >> N_2;
+  //   Double_t E_1 = histsMeanEdepByStrip[calibSystems.first]->GetBinContent(stripNb);
+  //   Double_t E_2 = histsMeanEdepByStrip[calibSystems.second]->GetBinContent(stripNb);
+  //   cout << "N_1 = " << N_1 << "; N_2 = " << N_2 << "; E_1 = " << E_1 << "; E_2 = " << E_2 << endl; 
+  //   Double_t a = (E_1 - E_2)
+  //              / (N_1 - N_2);
+  //   Double_t b = (N_1 * E_2 - N_2 * E_1) 
+  //              / (N_1 - N_2);
+  //   outFile << fixed << setprecision(10) << a << setw(20) << b << endl;
+  // }
+  // inFileDirect.close(); 
+  // outFile.close(); 
 
 
   // calibSystems = {0,2};
@@ -191,19 +192,19 @@
   // inFileRotate.close(); 
   // outFile.close(); 
 
-  outFile_1.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/abCoefs_12_0_1.cal");
-  outFile_2.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/abCoefs_12_2_3.cal");
-  outDiff.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/calDiff_12_per_B");
-  outDiff << fixed << "diff_a" << setw(20) << "diff_b" << endl;
-  for (Int_t stripNb = 0; stripNb < calibrateStripCount; stripNb++) {
-    Double_t a1, a2;
-    Double_t b1, b2;
-    outFile_1 >> a1; outFile_1 >> b1;    
-    outFile_2 >> a2; outFile_2 >> b2;   
-    cout << "a1 = " << a1 << "; a2 = " << a2 << "; b1 = " << b1 << "; b2 = " << b2 << endl; 
-    outDiff << fixed << setprecision(10) << abs(a1 - a2) / abs(a1) * 1e2 << setw(20) << abs(b1 - b2) / abs(b1) * 1e2 << endl;
-  }
-  outFile_1.close();
-  outFile_2.close();
-  outDiff.close();
+  // outFile_1.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/abCoefs_24_0_2.cal");
+  // outFile_2.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/abCoefs_24_1_3.cal");
+  // outDiff.open("/home/kmy/expertroot/er/macro/EXP1803/calibration/calDiff_24_per_B");
+  // outDiff << fixed << "diff_a" << setw(20) << "diff_b" << endl;
+  // for (Int_t stripNb = 0; stripNb < calibrateStripCount; stripNb++) {
+  //   Double_t a1, a2;
+  //   Double_t b1, b2;
+  //   outFile_1 >> a1; outFile_1 >> b1;    
+  //   outFile_2 >> a2; outFile_2 >> b2;   
+  //   cout << "a1 = " << a1 << "; a2 = " << a2 << "; b1 = " << b1 << "; b2 = " << b2 << endl; 
+  //   outDiff << fixed << setprecision(10) << abs(a1 - a2) / abs(a1) * 1e2 << setw(20) << abs(b1 - b2) / abs(b1) * 1e2 << endl;
+  // }
+  // outFile_1.close();
+  // outFile_2.close();
+  // outDiff.close();
 }
