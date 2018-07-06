@@ -75,7 +75,7 @@ vector<TString>  ERBeamDetSetup::fGasMedia;
 vector<Double_t> ERBeamDetSetup::fPositionToF;
 vector<Double_t> ERBeamDetSetup::fPositionMWPC;
 // -------- fTarget parameters -----------------------------------------------
-Double_t ERBeamDetSetup::fTargetH2R = 2.;   //cm
+Double_t ERBeamDetSetup::fTargetH2R = 10.;   //cm
 Double_t ERBeamDetSetup::fTargetH2Z = 0.4;   //cm
 Double_t ERBeamDetSetup::fTargetShellThicknessSide = 20 * 1e-4;
 Double_t ERBeamDetSetup::fTargetShellThicknessZ = 6 * 1e-4;
@@ -501,6 +501,11 @@ void ERBeamDetSetup::ConstructGeometry() {
   f90XRotation->RotateY(0.);
   f90XRotation->RotateZ(0.);
 
+  TGeoRotation *fRotationY = new TGeoRotation();
+  fRotationY->RotateX(0.);
+  fRotationY->RotateY(30.);
+  fRotationY->RotateZ(0.);
+
   TGeoManager*   gGeoMan = NULL;
   // -------   Load media from media file   -----------------------------------
   FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
@@ -593,13 +598,13 @@ void ERBeamDetSetup::ConstructGeometry() {
     Double_t fTargetShellR = fTargetH2R + fTargetShellThicknessSide;
     Double_t fTargetShellZ = fTargetH2Z/2 + fTargetShellThicknessZ;
 
-    TGeoVolume *targetH2 = gGeoManager->MakeTube("targetH2", pH2, 0, fTargetH2R, fTargetH2Z/2);
+    TGeoVolume *targetH2 = gGeoManager->MakeTube("targetBodyH2", pH2, 0, fTargetH2R, fTargetH2Z/2);
     TGeoVolume *targetShell = gGeoManager->MakeTube("targetShell", pSteel, 0, fTargetShellR, fTargetShellZ);
     
     targetShell->AddNode(targetH2, 1, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
     target->AddNode(targetShell, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation)); 
 
-    beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fZeroRotation));
+    beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fRotationY));
   }
   // ----------------- MWPC ---------------------------------------------------
   vector<TGeoVolume*> gasVol;
