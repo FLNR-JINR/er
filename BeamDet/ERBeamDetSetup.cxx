@@ -595,6 +595,12 @@ void ERBeamDetSetup::ConstructGeometry() {
 
   // ---------------- Target --------------------------------------------------
   if (fSensitiveTargetIsSet) {
+    FairGeoMedium* poli = geoMedia->getMedium("CD2_CH2");
+    if ( ! poli ) Fatal("Main", "FairMedium CD2_CH2 not found");
+    geoBuild->createMedium(poli);
+    TGeoMedium* pPoli = gGeoMan->GetMedium("CD2_CH2");
+    if ( ! pPoli ) Fatal("Main", "Medium CD2_CH2 not found");
+
     Double_t fTargetShellR = fTargetH2R + fTargetShellThicknessSide;
     Double_t fTargetShellZ = fTargetH2Z/2 + fTargetShellThicknessZ;
 
@@ -604,7 +610,12 @@ void ERBeamDetSetup::ConstructGeometry() {
     targetShell->AddNode(targetH2, 1, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
     target->AddNode(targetShell, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation)); 
 
-    beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fRotationY));
+    TGeoRotation *targetRot = new TGeoRotation();
+    targetRot->RotateX(0.);
+    targetRot->RotateY(12.);
+    targetRot->RotateZ(0.);
+
+    beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, targetRot));
   }
   // ----------------- MWPC ---------------------------------------------------
   vector<TGeoVolume*> gasVol;

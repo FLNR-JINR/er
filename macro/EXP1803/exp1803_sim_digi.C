@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 100) {
+void exp1803_sim_digi(Int_t nEvents = 100000) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -149,7 +149,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   generator->SetPSigmaOverP(0);
   Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
   // generator->SetKinERange(0,kin_energy);
-  generator->SetThetaSigma(0, sigmaTheta);
+  generator->SetThetaSigma(0, 0);
   generator->SetPhiRange(0, 360);
   generator->SetBoxXYZ(0, 0, 0, 0, beamStartPosition);
   generator->SpreadingOnTarget(); 
@@ -163,11 +163,15 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
   targetDecay->SetAngularDistribution("Cs_6He_d_3He_5H_35-25AMeV.txt");
-  targetDecay->SetTargetVolumeName("boxCD"); // "tubeH2"
+  targetDecay->SetTargetVolumeName("targetBodyH2"); //"boxCD"  "tubeH2"
   targetDecay->SetTargetThickness(targetH2Thickness);
   targetDecay->SetH5Mass(massH5);
   targetDecay->SetH5Exitation(0.0004, 0.00002355, 1);
   targetDecay->SetH5Exitation(0.0012, 0.0002355, 1);
+  targetDecay->SetMinStep(1e-2);
+  targetDecay->SetInteractionVolumeName("boxCD");
+  targetDecay->SetNuclearInteractionLength(0.2);
+  targetDecay->SetMaxPathLength(TMath::Sqrt(4. + 0.16) * 1.1);
 
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);

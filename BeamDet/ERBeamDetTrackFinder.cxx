@@ -137,7 +137,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
                 << "; zCoord  = " << targetInputZ <<  std::endl;
 
       std::cout << "Next FindNextBoundary name1 " << node->GetName() << std::endl;
-      gGeoManager->Step();
+      // gGeoManager->Step();
       break;
     }
      
@@ -150,18 +150,27 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   node = gGeoManager->FindNextBoundary();
   // gGeoManager->Step();
   // node = gGeoManager->FindNextBoundary();
+  std::cout << "Node name" << node->GetVolume()->GetName() << std::endl;
   Double_t matThickness = gGeoManager->GetStep();
   std::cout << "Mat thickness " << matThickness << std::endl;
-  gGeoManager->SetStep(matThickness / 2);
+  gGeoManager->SetStep(matThickness / 2.);
   gGeoManager->Step();
  // if(TMath::Sqrt(xTarget*xTarget + yTarget*yTarget) <= fBeamDetSetup->TargetR()) {
   targetInputX = gGeoManager->GetCurrentPoint()[0];
   targetInputY = gGeoManager->GetCurrentPoint()[1];
   targetInputZ = gGeoManager->GetCurrentPoint()[2];
+  TGeoNode* momNode = gGeoManager->GetMother(2);
+
+  Double_t masterTarget[3] = {targetInputX, targetInputY, targetInputZ};
+  Double_t localTarget[3];
+
+  momNode->MasterToLocal(masterTarget, localTarget);
   std::cout << "In target half dist " << std::endl;
   std::cout << "    xCoord = " << targetInputX << "; yCoord = " << targetInputY 
             << "; zCoord  = " << targetInputZ <<  std::endl;
-  AddTrack(targetInputX, targetInputY, targetInputZ, vectorOnTarget.Unit());
+  std::cout << "    xLoc = " << localTarget[0] << "; yLoc = " << localTarget[1] 
+            << "; zLoc  = " << localTarget[2] <<  std::endl;
+  AddTrack(localTarget[0], localTarget[1], localTarget[2], vectorOnTarget.Unit());
   // gGeoManager->Step();
   // node = gGeoManager->FindNextBoundary();
   // std::cout << "Next FindNextBoundary name3 " << node->GetName() << std::endl;

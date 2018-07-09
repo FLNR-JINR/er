@@ -23,6 +23,15 @@ private:
   Int_t fInputTrackID;
   TArrayI fOutputTrackID;
   Int_t fOutputsTracksNb = 0;
+
+  /*Tmp members for validation*/
+  Double_t fTargetThickness;
+  Double_t fStepIntVol;
+  Double_t fDeviationFromTrajectory;
+  Double_t fAngleDeviation;
+  Double_t fLocalX;
+  Double_t fLocalY;
+  Double_t fLocalZ;
 public:
   ERDecayMCEventHeader();
   void SetDecayPos(TVector3 pos){fDecayPos = pos;}
@@ -32,6 +41,20 @@ public:
                                     fOutputTrackID[fOutputsTracksNb-1]=oID;}
   void Clear();
 
+  /*Tmp method for validation*/
+  void SetTrajectoryParams(Double_t thick, Double_t step) {
+    fTargetThickness = thick;
+    fStepIntVol = step;
+  }
+  void SetDeviationFromTrajectory(Double_t deviation) { fDeviationFromTrajectory = deviation;}
+  
+  void SetAngleDeviation(Double_t ang) {fAngleDeviation = ang;}
+
+  void SetLocalPos(Double_t x, Double_t y, Double_t z) {
+    fLocalX = x;
+    fLocalY = y;
+    fLocalZ = z;
+  }
   ClassDef(ERDecayMCEventHeader,1)
 };
 

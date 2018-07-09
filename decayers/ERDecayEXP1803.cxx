@@ -15,6 +15,7 @@ using namespace std;
 #include "TLorentzVector.h"
 #include "TMCProcess.h"
 #include "TRandom.h"
+#include "TGeoManager.h"
 
 #include "FairRunSim.h"
 #include "FairLogger.h"
@@ -119,17 +120,30 @@ Bool_t ERDecayEXP1803::Init() {
   } else {
     f5HMass = f5H->Mass(); // if user mass is not defined in ERDecayEXP1803::SetH5Mass() than get a GEANT mass
   }
+  // CalculateTargetParameters();
   return kTRUE;
 }
 
 //-------------------------------------------------------------------------------------------------
 Bool_t ERDecayEXP1803::Stepping() {
   if(!fDecayFinish && gMC->TrackPid() == 1000020060 && TString(gMC->CurrentVolName()).Contains(fVolumeName)){
+    if (!fIsInterationPointFound) {
+      if (!FindInteractionPoint()) {
+        fDecayFinish = kTRUE;
+        return kFALSE;
+      } else {
+        fDistanceFromEntrance = 0;
+      }
+    }
     gMC->SetMaxStep(fMinStep);
     TLorentzVector curPos;
     gMC->TrackPosition(curPos);
-    if (curPos.Z() > fTargetReactZ){
-      // std::cout << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
+    Double_t trackStep = gMC->TrackStep();
+    fDistanceFromEntrance += trackStep;
+    // std::cout << "Track step: " << fDistanceFromEntrance << "; Diff " << (curPos.Vect() - fInputPoint).Mag() <<  endl;    
+    // std::cout << "Track step: " << fDistanceFromEntrance <<  endl;    
+    if (fDistanceFromEntrance > fDistanceToInteractPoint) {
+      // std::cout << "Start reation in target. Defined pos: " << fDistanceToInteractPoint << ", current pos: " << curPos.Z() << endl;
       // 6He + 2H → 3He + 5H
       TLorentzVector lv6He;
       gMC->TrackMomentum(lv6He);
@@ -137,7 +151,7 @@ Bool_t ERDecayEXP1803::Stepping() {
       if (lv6He.P() == 0) { // temporary fix of bug with zero kinetic energy
         return kTRUE;
       }
-      
+
       TLorentzVector lv2H(0., 0., 0., f2H->Mass());
       TLorentzVector lvReaction;
       lvReaction = lv6He + lv2H;
@@ -196,7 +210,7 @@ Bool_t ERDecayEXP1803::Stepping() {
       Int_t He6TrackNb, H5TrackNb, He3TrackNb, H3TrackNb, n1TrackNb, n2TrackNb;
 
       He6TrackNb = gMC->GetStack()->GetCurrentTrackNumber();
-
+      // std::cout << "He6TrackNb " << He6TrackNb << std::endl;
       /*
       gMC->GetStack()->PushTrack(1, He6TrackNb, f5H->PdgCode(),
                                  fLv5H->Px(), fLv5H->Py(), fLv5H->Pz(),
@@ -238,6 +252,28 @@ Bool_t ERDecayEXP1803::Stepping() {
         header->AddOutputParticle(H3TrackNb);
         header->AddOutputParticle(n1TrackNb);
         header->AddOutputParticle(n2TrackNb);
+
+        /*Testing information*/
+        header->SetTrajectoryParams(fDistToNextBoundary, fDistanceToInteractPoint);
+
+        Double_t stepFromEntrance = (curPos.Vect() - fInputPoint).Mag();
+        Double_t stepAngle = (curPos.Vect() - fInputPoint).Angle(fEnterDirection);
+        header->SetDeviationFromTrajectory(stepFromEntrance * TMath::Sin(stepAngle));
+
+        Double_t const *unitDirectVec = gGeoManager->GetCurrentDirection();
+        TVector3 curDir(unitDirectVec[0], unitDirectVec[1], unitDirectVec[2]);
+        header->SetAngleDeviation(TMath::Abs(curDir.Angle(fEnterDirection) /** TMath::RadToDeg()*/));
+
+        Double_t globPos[3];
+        Double_t locPos[3];
+        globPos[0] = gGeoManager->GetCurrentPoint()[0];
+        globPos[1] = gGeoManager->GetCurrentPoint()[1];
+        globPos[2] = gGeoManager->GetCurrentPoint()[2];
+        TGeoNode* curNode = gGeoManager->GetMother(2);
+        curNode->MasterToLocal(globPos, locPos);
+        std::cout << "globPos " << globPos[0] << " " << globPos[1] << " " << globPos[2] << std::endl;
+        std::cout << "locPos " << locPos[0] << " " << locPos[1] << " " << locPos[2] << std::endl;
+        header->SetLocalPos(locPos[0], locPos[1], locPos[2]);
       }
     }
   }
@@ -247,6 +283,7 @@ Bool_t ERDecayEXP1803::Stepping() {
 //-------------------------------------------------------------------------------------------------
 void ERDecayEXP1803::BeginEvent() { 
   fDecayFinish = kFALSE;
+  fIsInterationPointFound = kFALSE;
   fTargetReactZ = fRnd->Uniform(-fTargetThickness / 2, fTargetThickness / 2);
   FairRunSim* run = FairRunSim::Instance();
 }
