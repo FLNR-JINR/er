@@ -1,49 +1,50 @@
-/*
- * AEvent.cpp
- *
- *  Created on: Dec 28, 2016
- *      Author: daria
- */
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
-#include "AEvent.h"
-
-AEvent::AEvent() : fNPoints(1024) {	//fNPoints is number of points in one event, 1024 or 1000
+#include "ERNeuRadAEvent.h"
+//--------------------------------------------------------------------------------------------------
+ERNeuRadAEvent::ERNeuRadAEvent() : fNPoints(1024) {	//fNPoints is number of points in one event, 1024 or 1000
 
 	Init();
 	Reset();
 
 }
-
-AEvent::AEvent(const Int_t npoints) : fNPoints(npoints) {
+//--------------------------------------------------------------------------------------------------
+ERNeuRadAEvent::ERNeuRadAEvent(const Int_t npoints) : fNPoints(npoints) {
 
 	Init();
 	Reset();
 }
-
-AEvent::~AEvent() {
+//--------------------------------------------------------------------------------------------------
+ERNeuRadAEvent::~ERNeuRadAEvent() {
 	// TODO Auto-generated destructor stub
 	delete fGraphSignal;
 	delete fGraphCFD;
 	delete fInputEvent;
 }
-
-
-void AEvent::ProcessEvent(Bool_t bSmooth) {
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::ProcessEvent(Bool_t bSmooth) {
 
 	if (fInputEvent == NULL) {
-		Warning("AEvent::ProcessEvent", "Input event wasn't set. Function won't be processed.");
+		Warning("ERNeuRadAEvent::ProcessEvent", "Input event wasn't set. Function won't be processed.");
 		return;
 	}
 
 	const Double_t *amp = fInputEvent->GetAmp();
 	const Double_t *time = fInputEvent->GetTime();
+	fEvent = fInputEvent->GetEvent();
 
 	for(Int_t j = 0; j < fNPoints; j++) {
 		fAmpPos[j] = amp[j]*(-1.);
 		fTime[j] = time[j];
 	}
 
-//	fZeroLevel = FindZeroLevel();
+	//fZeroLevel = FindZeroLevel();
 	fZeroLevel = 0.;
 	for(Int_t j = 0; j < fNPoints; j++) {
 		fAmpPos[j] = fAmpPos[j] - fZeroLevel;
@@ -62,8 +63,6 @@ void AEvent::ProcessEvent(Bool_t bSmooth) {
 		SetGraphs();
 	}
 
-
-
 	SetCFD();
 	SetChargeCFD();
 	SetChargeLED();
@@ -72,10 +71,9 @@ void AEvent::ProcessEvent(Bool_t bSmooth) {
 	ObtainPE();
 
 	return;
-
 }
-
-void AEvent::Reset() {
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::Reset() {
 
 	for (Int_t i = 0; i < fNPoints; i++) {
 		fAmpPos[i] = 0;
@@ -98,18 +96,21 @@ void AEvent::Reset() {
 	fChargeCFD = -10.;
 	fChargeLED = -10.;
 	fTimeFront = -100.;
+	fStartTime = 0;
+	fFinishTime = 0;
+	fPEAmps.Reset();
+	fPETimes.Reset();
 }
-
-void AEvent::SetInputEvent(RawEvent** event) {
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetInputEvent(ERNeuRadRawEvent** event) {
 
 	if (event == 0) {
-		Warning("AEvent::SetInputEvent", "Input event was set as 0.");
+		Warning("ERNeuRadAEvent::SetInputEvent", "Input event was set as 0.");
 	}
 	fInputEvent = *event;
-
 }
-
-void AEvent::Init() {
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::Init() {
 
 	fAmpPos.Set(fNPoints);
 	fTime.Set(fNPoints);
@@ -126,19 +127,18 @@ void AEvent::Init() {
 	fNoiseRangeMax = 1.;
 
 }
-
-void AEvent::SetGraphs() {
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetGraphs() { // creating TGraph from TArray 
 
 	fGraphSignal->Set(fNPoints);
 
 	for (Int_t i=0; i<fNPoints; i++) {
 		fGraphSignal->SetPoint(i, fTime[i], fAmpPos[i]);
 	}
-
 	return;
 }
-
-void AEvent::SmoothGraphs() {
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SmoothGraphs() { 
 
 	//smoothing graph
 	fGraphSignal->Set(fNPoints - fWinSize/2);
@@ -164,15 +164,11 @@ void AEvent::SmoothGraphs() {
 		//cout<<"mean amp "<<fAmpPos[i]<<endl;
 
     	fGraphSignal->SetPoint(i, meanTime, meanAmp);
-
 	}
-
-//	fGraphSignal->Clone
-
 	return;
 }
-
-void AEvent::SetCFD() {
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetCFD() { // CFD method 
 
 	Double_t time = 0;
 	Double_t mytime = fCFtimeDelay;
@@ -186,7 +182,7 @@ void AEvent::SetCFD() {
 	Int_t i = 0; //for graph 
  
 	//while goes by the graph with the step of timeStep
-	while( mytime < (200. - fCFtimeDelay) ) {
+	while( mytime < (100. - fCFtimeDelay) ) {
 
 		ampCFD = fGraphSignal->Eval(mytime)*fCFratio*(-1) + fGraphSignal->Eval(mytime - fCFtimeDelay);
 		fGraphCFD->SetPoint(i, mytime, ampCFD);
@@ -213,10 +209,10 @@ void AEvent::SetCFD() {
 		fTimeCFD = time;
 		time = time + timeStep;
 	}
-
+	return;
 }
-
-void AEvent::FindFrontProperties() {
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::FindFrontProperties() { 
 
 	//in percents
 	const Double_t minHeight = 0.1;
@@ -227,7 +223,7 @@ void AEvent::FindFrontProperties() {
 	Double_t mytime = 0.;
 
 	if (!fGraphSignal) {
-		Warning("AEvent::FindFrontProperties", "Graph was not set");
+		Warning("ERNeuRadAEvent::FindFrontProperties", "Graph was not set");
 		return;
 	}
 
@@ -261,12 +257,9 @@ void AEvent::FindFrontProperties() {
 	b = fit1->GetParameter(0);
 	line->SetParameter(0,b);
 	line->SetParameter(1,a);
-	//cout<<"par 0 "<<b<<endl;
-	//cout<<"par 1 "<<a<<endl;
 
 	if( a!= 0. && b!= 0. ) {	//in case of fit data is empty
-		while(line->Eval(mytime) <= 0 && mytime <= 200.) {
-			//cout<< "mytime "<<mytime<<endl;
+		while(line->Eval(mytime) <= 0 && mytime <= 100.) {
 			fTimeFront = mytime;
 			mytime = mytime + timeStep;
 		}
@@ -274,8 +267,8 @@ void AEvent::FindFrontProperties() {
 
 	delete fit1;
 }
-
-Double_t AEvent::FindZeroLevel() {
+//--------------------------------------------------------------------------------------------------
+Double_t ERNeuRadAEvent::FindZeroLevel() { 
 
 	SetGraphs();
 	Double_t correction = 0;
@@ -283,7 +276,7 @@ Double_t AEvent::FindZeroLevel() {
 	fit1->SetRange(fNoiseRangeMin,fNoiseRangeMax);
 
 	if (!fGraphSignal) {
-		Warning("AEvent::FindZeroLevel", "Graph was not set");
+		Warning("ERNeuRadAEvent::FindZeroLevel", "Graph was not set");
 		return 0;
 	}
 
@@ -293,8 +286,8 @@ Double_t AEvent::FindZeroLevel() {
 	delete fit1;
 	return correction;
 }
-
-void AEvent::SetChargeCFD(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetChargeCFD(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 	
 	Double_t integral = 0.;					//voltage
 	Double_t time_sig = 0;					//approximate signal duration in seconds
@@ -314,25 +307,18 @@ void AEvent::SetChargeCFD(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 	return;
 
 }
-
-void AEvent::SetChargeLED(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetChargeLED(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 	
 	Double_t integral = 0.;					//voltage
 	Double_t time_sig = 0;					//approximate signal duration in seconds
 	const Double_t res = 50.; 				//resistance 50 Om
 	time_sig = (double)(-tmin + tmax)*(1e-9);
 
-/*	for(Int_t i = 0; i < fNPoints; i++) {
-		if( fTime[i] > (fTimeLED + tmin) && fTime[i] < (fTimeLED + tmax) ) {
-			integral = integral + fAmpPos[i];
-		}
-	}*/
-
 	Int_t imin = 0, imax = 0;
 
 	Int_t i = 0;
 	while ( fTime[i] < (fTimeLED + tmin) && (i < (fGraphSignal->GetN()-1)) ) { imin = i; i++; }
-//	i = 0;
 	while ( fTime[i] < (fTimeLED + tmax) && (i < (fGraphSignal->GetN()-1)) ) { imax = i; i++; }
 
 	integral = fGraphSignal->Integral(imin, imax);
@@ -340,10 +326,9 @@ void AEvent::SetChargeLED(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 	fChargeLED = integral*time_sig/res;
 
 	return;
-
 }
-
-void AEvent::SetChargeTF(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetChargeTF(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 
 	Double_t integral = 0.;					//voltage
 	Double_t time_sig = 0;					//approximate signal duration in seconds
@@ -354,7 +339,6 @@ void AEvent::SetChargeTF(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 
 	Int_t i = 0;
 	while ( fTime[i] < (fTimeFront + tmin) && (i < (fGraphSignal->GetN()-1)) ) { imin = i; i++; }
-//	i = 0;
 	while ( fTime[i] < (fTimeFront + tmax) && (i < (fGraphSignal->GetN()-1)) ) { imax = i; i++; }
 
 	integral = fGraphSignal->Integral(imin, imax);
@@ -362,42 +346,42 @@ void AEvent::SetChargeTF(Int_t tmin, Int_t tmax) { // tmin = -3, tmax = 17
 	fChargeTF = integral*time_sig/res;
 
 	return;
-
 }
-
-Double_t AEvent::GetfCFD() {
-		return fTimeCFD;
+//--------------------------------------------------------------------------------------------------
+Double_t ERNeuRadAEvent::GetfCFD() {
+  return fTimeCFD;
 }
+//--------------------------------------------------------------------------------------------------
 
-Double_t AEvent::GetfLED() {
-		return fTimeLED;
+Double_t ERNeuRadAEvent::GetfLED() {
+  return fTimeLED;
 }
-
-Double_t AEvent::GetOnefTime(Int_t i) {
-		return fTime[i];
+//--------------------------------------------------------------------------------------------------
+Double_t ERNeuRadAEvent::GetOnefTime(Int_t i) {
+  return fTime[i];
 }
-
-Double_t AEvent::GetOnefAmpPos(Int_t i) {
-		return fAmpPos[i];
+//--------------------------------------------------------------------------------------------------
+Double_t ERNeuRadAEvent::GetOnefAmpPos(Int_t i) {
+  return fAmpPos[i];
 }
-
-Double_t AEvent::GetT_10() {
-		return fTime10;
+//--------------------------------------------------------------------------------------------------
+Double_t ERNeuRadAEvent::GetT_10() {
+  return fTime10;
 }
-
-Double_t AEvent::GetT_90() {
-		return fTime90;
+//--------------------------------------------------------------------------------------------------
+Double_t ERNeuRadAEvent::GetT_90() {
+  return fTime90;
 }
-
-Double_t AEvent::GetEdgeSlope() {
-		return fEdgeSlope;
+//--------------------------------------------------------------------------------------------------
+Double_t ERNeuRadAEvent::GetEdgeSlope() {
+  return fEdgeSlope;
 }
-
-Double_t AEvent::GetEdgeXi() {
-		return fEdgeXi;
+//--------------------------------------------------------------------------------------------------
+Double_t ERNeuRadAEvent::GetEdgeXi() {
+  return fEdgeXi;
 }
-
-void AEvent::SetMaxAmplitudes() {
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetMaxAmplitudes() {
 	Double_t maxAmp = 0.;
 	Double_t maxAmpT = 0.;
 
@@ -410,100 +394,59 @@ void AEvent::SetMaxAmplitudes() {
 	}
 	fAmpMax = maxAmp;
 	fTimeAmpMax = maxAmpT;
-
 }
-
-void AEvent::SetLED(Double_t threshold) {
-	
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetLED(Double_t threshold) {
 	Double_t time = 0;
 	const Double_t timeStep = 0.05;
 	while( time < fTimeAmpMax && fGraphSignal->Eval(time) <= threshold ) {
 		fTimeLED = time;
 		time = time + timeStep;
 	}
-
 }
-
-void AEvent::SetToT() {
-
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetToT() {
 	Double_t time = fTimeMid;
 	Double_t timeBack = 0;
 	const Double_t ns = 15.; //withing this interval signal should end for sure, in nanosec
 
 	const Double_t timeStep = 0.05;
 
-	//cout<<"fAmpMid "<<fAmpMid<<endl;
 	while( fGraphSignal->Eval(time) >= fAmpMid && time < fTimeMid + ns) {
-		//cout<<"timeback "<<timeBack<<endl;
-		//cout<<"fGraphSignal->Eval(time) "<<fGraphSignal->Eval(time)<<endl;
-		//cout<<endl;
-		//if(timeBack>150.) {return;}
 		timeBack = time;
 		time = time + timeStep;
 	}
-	//cout<<"timeback "<<timeBack<<endl;
-
 	fToT = timeBack - fTimeMid;
-	//cout<<"ftot "<<fToT<<endl;
-
+	return;
 }
-
-void AEvent::SetPEamp(Float_t a, Int_t i) {
-//      cout << fNPoints << endl;
-        if (i >= fPECount) {
-                Error("AEvent::SetAmp", "Array with raw amplitudes is overloaded!");
-                return;
-        }
-        fPEAmplitudes[i] = a;
-        return;
-}
-
-void AEvent::SetPEtime(Float_t a, Int_t i) {
-        if (i >= fPECount) {
-                Error("AEvent::SetAmp", "Array with raw amplitudes is overloaded!");
-                return;
-        }
-        fPEAnodeTimes[i] = a;
-        return;
-}
-
-void AEvent::SetPECount(Int_t i) {
-        fPECount = i;
-        return;
-}
-
-void AEvent::ObtainPE() {
-
-	SetPECount(fInputEvent->GetPECount());
-	SetStartTime(fInputEvent->GetStartTime());
-	for(Int_t i=0; i< fPECount;i++) {
-		SetPEamp(fInputEvent->GetPEamp(i),i);
-		SetPEtime(fInputEvent->GetPEtime(i),i);
-	}
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::ObtainPE() {
+	SetPETimes(fInputEvent->GetPETimes());
+	SetPEAmps(fInputEvent->GetPEAmps());
 	return;     
 }
-
-        Float_t AEvent::GetPEamp(Int_t i) {
-                return fPEAmplitudes[i];
-        }
-        Float_t AEvent::GetPEtime(Int_t i) {
-                return fPEAnodeTimes[i];
-        }
-        Int_t AEvent::GetPECount() {
-                return fPECount;
-        }
-	Double_t AEvent::GetStartTime() {
-		return fStartTime;
-	}
-	void AEvent::SetStartTime(Double_t t) {
-		fStartTime = t;
-		return;
-	}
-        Double_t AEvent::GetFinishTime() {
-                return fFinishTime;
-        }
-        void AEvent::SetFinishTime(Double_t t) {
-                fFinishTime = t;
-                return;
-        }
-
+//--------------------------------------------------------------------------------------------------
+Double_t ERNeuRadAEvent::GetStartTime() {
+  return fStartTime;
+}
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetStartTime(Double_t t) {
+  fStartTime = t;
+  return;
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERNeuRadAEvent::GetFinishTime() {
+  return fFinishTime;
+}
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetFinishTime(Double_t t) {
+  fFinishTime = t;
+  return;
+}
+//--------------------------------------------------------------------------------------------------
+void ERNeuRadAEvent::SetEvent(Int_t t) {
+    fEvent = t;
+    return;
+}
+//--------------------------------------------------------------------------------------------------
+ClassImp(ERNeuRadAEvent)
