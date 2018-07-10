@@ -1,32 +1,41 @@
-#include "ERDecay.h"
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+ #include "ERDecay.h"
+
+#include <iostream>
 
 #include "TVirtualMC.h"
 #include "TLorentzVector.h"
 #include "TMCProcess.h"
+#include "TGeoManager.h"
+#include "TGeoVolume.h"
+#include "TGeoBBox.h"
+#include "TRandom3.h"
 
 #include "FairRunSim.h"
 #include "FairLogger.h"
-#include<iostream>
-
-using namespace std;
 
 //#include "ERTarget.h"
 #include "ERMCEventHeader.h"      //for ERMCEventHeader
 
-ERDecay::ERDecay(TString name):
-fName(name),
-fRnd(new TRandom3()),
-fDecayPosZ(99999999.),
-fDecayFinish(kFALSE),
-fUniform(kFALSE),
-fExponential(kFALSE),
-fVolumeName(""),
-fStep(0.001),
-fTargetMass(-1)
+//--------------------------------------------------------------------------------------------------
+ERDecay::ERDecay(TString name)
+: fName(name),
+  fInteractionVolumeName(""),
+  fNuclearInteractionLength(0.),
+  // fInteractProbability(0.),
+  fNormalizingProbability(0.),
+  fIsInterationPointFound(kFALSE)
 {
-	fRnd = new TRandom3();
+  fRnd1 = new TRandom3();
+  fRnd2 = new TRandom3();
 }
-
+//--------------------------------------------------------------------------------------------------
 ERDecay::~ERDecay(){
 }
 
@@ -88,5 +97,57 @@ void ERDecay::AddParticleToStack(Int_t pdg, TLorentzVector pos, TLorentzVector s
 		 << "; pos=(" << pos.X() << "," << pos.Y() << "," << pos.Z() 
 		 << "); mom=(" << state.Px() << "," << state.Py() << "," << state.Pz() << ")" << FairLogger::endl;
 }
-
+//--------------------------------------------------------------------------------------------------
+void ERDecay::SetMaxPathLength(Double_t pathLength) {
+  fNormalizingProbability = 1 - TMath::Exp(-pathLength / fNuclearInteractionLength); 
+}
+//--------------------------------------------------------------------------------------------------
+// void ERDecay::CalculateTargetParameters() {
+//   if (fInteractionVolumeName != "") {
+//     TGeoVolume* vol = gGeoManager->FindVolumeFast(fInteractionVolumeName);
+//     TGeoBBox*   shape = (TGeoBBox*)vol->GetShape(); // we use conversion of shape type to TGeoBBox because all shape types in ROOT inherited from TGeoBBox;
+//     Double_t    boundX = 2 * shape->GetDX();
+//     Double_t    boundY = 2 * shape->GetDY();
+//     Double_t    boundZ = 2 * shape->GetDZ();
+//     LOG(DEBUG) << "ERDecay: bounding box x = " << boundX 
+//               << "; y = " << boundY 
+//               << "; z = " << boundZ << FairLogger::endl;
+//     fTargetBoundBoxDiagonal = TMath::Sqrt(boundX*boundX + boundY*boundY + boundZ*boundZ);
+//     fNormalizingProbability = 1 - TMath::Exp(-fTargetBoundBoxDiagonal / fNuclearInteractionLength); 
+//   }
+// }
+//--------------------------------------------------------------------------------------------------
+Bool_t ERDecay::FindInteractionPoint() {
+  if (!fIsInterationPointFound) {
+    gGeoManager->FindNextBoundary(); // find a step to a next boudary along current track direction
+    Double_t  distToNextBoundary = gGeoManager->GetStep(); // get calculated step
+    LOG(DEBUG) << "[ERDecay::FindInteractionPoint] distance to a next boundary " 
+              << distToNextBoundary <<  FairLogger::endl;
+    Double_t interactionProbNextBound = 1 - TMath::Exp(-distToNextBoundary / 
+                                                        fNuclearInteractionLength);
+    Double_t interactProbability = interactionProbNextBound / fNormalizingProbability;  // the interaction probability in current direction in the defined volume 
+    if (interactProbability > 1) {
+      LOG(ERROR) << "[ERDecay::FindInteractionPoint] interaction probability " 
+                 << "in current direction more then 1, "
+                 << "incorrect normalizing respect to maximum path length in an interaction volume" 
+                 << FairLogger::endl;  
+    }
+    LOG(DEBUG) << "[ERDecay::FindInteractionPoint] interaction probability in current direction " 
+              << interactProbability 
+              << "; normalizing probability is " << fNormalizingProbability << FairLogger::endl;         
+    if (fRnd1->Uniform(0, 1) > interactProbability) {
+      LOG(INFO) << "[ERDecay::FindInteractionPoint]: interaction hasn't happened in current event" 
+                << FairLogger::endl;
+      return kFALSE;
+    } else {
+      fDistanceToInteractPoint = -TMath::Log(1 - fRnd2->Uniform(0, interactionProbNextBound)) 
+                               * fNuclearInteractionLength;
+      LOG(DEBUG) << "[ERDecay::FindInteractionPoint] distance to an interaction point " 
+                << "in current direction " << fDistanceToInteractPoint << FairLogger::endl;         
+      fIsInterationPointFound = kTRUE;
+      return kTRUE;
+    }
+  }
+}
+//--------------------------------------------------------------------------------------------------
 ClassImp(ERDecay)

@@ -11,6 +11,11 @@ void create_target_CD2() {
   fZeroRotation->RotateY(0.);
   fZeroRotation->RotateZ(0.);
   
+  TGeoRotation *targetRotation = new TGeoRotation();
+  targetRotation->RotateX(0.);
+  targetRotation->RotateY(12.);
+  targetRotation->RotateZ(0.);
+
   TGeoManager*   gGeoMan = NULL;
 
   // -------   Load media from media file   -----------------------------------
@@ -80,7 +85,7 @@ void create_target_CD2() {
   target->AddNode(frameAL, 0, new TGeoCombiTrans(0.,0.,trans_Z, fZeroRotation));
   target->AddNode(frameAL, 0, new TGeoCombiTrans(0.,0.,-trans_Z, fZeroRotation));
   target->AddNode(boxCD, 0, new TGeoCombiTrans(0.,0.,0., fZeroRotation));
-  top->AddNode(target,0,new TGeoCombiTrans(.0,.0,.0, fZeroRotation));
+  top->AddNode(target,0,new TGeoCombiTrans(.0,.0,.0, targetRotation));
   // --------------------------------------------------------------------------
   gGeoMan->CloseGeometry();
   //gGeoMan->CheckOverlaps(0.001);

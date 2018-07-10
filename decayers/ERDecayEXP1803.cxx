@@ -119,17 +119,32 @@ Bool_t ERDecayEXP1803::Init() {
   } else {
     f5HMass = f5H->Mass(); // if user mass is not defined in ERDecayEXP1803::SetH5Mass() than get a GEANT mass
   }
+  // CalculateTargetParameters();
   return kTRUE;
 }
 
 //-------------------------------------------------------------------------------------------------
 Bool_t ERDecayEXP1803::Stepping() {
-  if(!fDecayFinish && gMC->TrackPid() == 1000020060 && TString(gMC->CurrentVolName()).Contains(fVolumeName)){
+  if(!fDecayFinish && gMC->TrackPid() == 1000020060 
+     && TString(gMC->CurrentVolName()).Contains(GetInteractionVolumeName()))
+  {
+    if (!fIsInterationPointFound) {
+      if (!FindInteractionPoint()) {
+        fDecayFinish = kTRUE;
+        return kFALSE;
+      } else {
+        fDistanceFromEntrance = 0;
+      }
+    }
     gMC->SetMaxStep(fMinStep);
     TLorentzVector curPos;
     gMC->TrackPosition(curPos);
-    if (curPos.Z() > fTargetReactZ){
-      // std::cout << "Start reation in target. Defined pos: " << fTargetReactZ << ", current pos: " << curPos.Z() << endl;
+    Double_t trackStep = gMC->TrackStep();
+    fDistanceFromEntrance += trackStep;
+    // std::cout << "Track step: " << fDistanceFromEntrance << "; Diff " << (curPos.Vect() - fInputPoint).Mag() <<  endl;    
+    // std::cout << "Track step: " << fDistanceFromEntrance <<  endl;    
+    if (fDistanceFromEntrance > fDistanceToInteractPoint) {
+      // std::cout << "Start reation in target. Defined pos: " << fDistanceToInteractPoint << ", current pos: " << curPos.Z() << endl;
       // 6He + 2H → 3He + 5H
       TLorentzVector lv6He;
       gMC->TrackMomentum(lv6He);
@@ -137,7 +152,7 @@ Bool_t ERDecayEXP1803::Stepping() {
       if (lv6He.P() == 0) { // temporary fix of bug with zero kinetic energy
         return kTRUE;
       }
-      
+
       TLorentzVector lv2H(0., 0., 0., f2H->Mass());
       TLorentzVector lvReaction;
       lvReaction = lv6He + lv2H;
@@ -196,7 +211,7 @@ Bool_t ERDecayEXP1803::Stepping() {
       Int_t He6TrackNb, H5TrackNb, He3TrackNb, H3TrackNb, n1TrackNb, n2TrackNb;
 
       He6TrackNb = gMC->GetStack()->GetCurrentTrackNumber();
-
+      // std::cout << "He6TrackNb " << He6TrackNb << std::endl;
       /*
       gMC->GetStack()->PushTrack(1, He6TrackNb, f5H->PdgCode(),
                                  fLv5H->Px(), fLv5H->Py(), fLv5H->Pz(),
@@ -247,6 +262,7 @@ Bool_t ERDecayEXP1803::Stepping() {
 //-------------------------------------------------------------------------------------------------
 void ERDecayEXP1803::BeginEvent() { 
   fDecayFinish = kFALSE;
+  fIsInterationPointFound = kFALSE;
   fTargetReactZ = fRnd->Uniform(-fTargetThickness / 2, fTargetThickness / 2);
   FairRunSim* run = FairRunSim::Instance();
 }

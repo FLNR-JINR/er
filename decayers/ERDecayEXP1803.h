@@ -27,7 +27,6 @@ public:
 
   /*Modifiers*/
   void SetMinStep(Double_t minStep) {fMinStep = minStep;}
-  void SetTargetVolumeName(TString volumeName) {fVolumeName = volumeName;}
   void SetTargetThickness(Double_t targetThickness) {fTargetThickness = targetThickness;}
   void SetH5Mass(Double_t mass) {f5HMass = mass; fIs5HUserMassSet = true;}
   void SetH5Exitation(Double_t excMean, Double_t fwhm, Double_t distibWeight);
@@ -70,7 +69,6 @@ private:
 
   TGenPhaseSpace  *fReactionPhaseSpace;
   TGenPhaseSpace  *fDecayPhaseSpace;
-  TString          fVolumeName;
   Double_t         fTargetReactZ;
   Double_t         fMinStep;
   Double_t         fTargetThickness;
