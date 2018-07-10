@@ -67,12 +67,12 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);                     //  BeamDet parts should be added in ascending order   
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);   //  of Z-coordinate of part.
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);                  // 
-  setupBeamDet->SetSensitiveTarget();
+  // setupBeamDet->SetSensitiveTarget();
 
   // -----   Create target  -------------------------------------------------
   FairModule* target = new ERTarget("targetH2", kTRUE, 1);
   target->SetGeometryFileName(targetGeoFileName);
-  // run->AddModule(target);
+  run->AddModule(target);
 
   // -----   Create Part of Gadast ------------------------------------------
   ERGadast* gadast = new ERGadast("PartofGadast", kTRUE, 1);
@@ -198,6 +198,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   run->AddTask(beamDetDigitizer);
 
   ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
+  trackFinder->SetTargetVolume("boxCD");
   run->AddTask(trackFinder);
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
