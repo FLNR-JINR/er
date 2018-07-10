@@ -29,9 +29,9 @@ private:
   Double_t fStepIntVol;
   Double_t fDeviationFromTrajectory;
   Double_t fAngleDeviation;
-  Double_t fLocalX;
-  Double_t fLocalY;
-  Double_t fLocalZ;
+  Double_t fGlobalXInTarget;
+  Double_t fGlobalYInTarget;
+  Double_t fGlobalZInTarget;
 public:
   ERDecayMCEventHeader();
   void SetDecayPos(TVector3 pos){fDecayPos = pos;}
@@ -50,10 +50,10 @@ public:
   
   void SetAngleDeviation(Double_t ang) {fAngleDeviation = ang;}
 
-  void SetLocalPos(Double_t x, Double_t y, Double_t z) {
-    fLocalX = x;
-    fLocalY = y;
-    fLocalZ = z;
+  void SetInteractionPos(Double_t x, Double_t y, Double_t z) {
+    fGlobalXInTarget = x;
+    fGlobalYInTarget = y;
+    fGlobalZInTarget = z;
   }
   ClassDef(ERDecayMCEventHeader,1)
 };

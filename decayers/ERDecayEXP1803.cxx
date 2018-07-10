@@ -264,16 +264,11 @@ Bool_t ERDecayEXP1803::Stepping() {
         TVector3 curDir(unitDirectVec[0], unitDirectVec[1], unitDirectVec[2]);
         header->SetAngleDeviation(TMath::Abs(curDir.Angle(fEnterDirection) /** TMath::RadToDeg()*/));
 
-        Double_t globPos[3];
-        Double_t locPos[3];
-        globPos[0] = gGeoManager->GetCurrentPoint()[0];
-        globPos[1] = gGeoManager->GetCurrentPoint()[1];
-        globPos[2] = gGeoManager->GetCurrentPoint()[2];
-        TGeoNode* curNode = gGeoManager->GetMother(2);
-        curNode->MasterToLocal(globPos, locPos);
-        std::cout << "globPos " << globPos[0] << " " << globPos[1] << " " << globPos[2] << std::endl;
-        std::cout << "locPos " << locPos[0] << " " << locPos[1] << " " << locPos[2] << std::endl;
-        header->SetLocalPos(locPos[0], locPos[1], locPos[2]);
+        Double_t globInteractPos[3];
+        globInteractPos[0] = gGeoManager->GetCurrentPoint()[0];
+        globInteractPos[1] = gGeoManager->GetCurrentPoint()[1];
+        globInteractPos[2] = gGeoManager->GetCurrentPoint()[2];
+        header->SetInteractionPos(globInteractPos[0], globInteractPos[1], globInteractPos[2]);
       }
     }
   }

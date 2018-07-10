@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 100000) {
+void exp1803_sim_digi(Int_t nEvents = 10000) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 

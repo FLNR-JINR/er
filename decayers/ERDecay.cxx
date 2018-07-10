@@ -66,8 +66,8 @@ Bool_t ERDecay::FindInteractionPoint() {
   if (!fIsInterationPointFound) {
     gGeoManager->FindNextBoundary(); // find a step to a next boudary along current track direction
     fDistToNextBoundary = gGeoManager->GetStep(); // get calculated step
-    std::cout << "[ERDecay::FindInteractionPoint] distance to a next boundary " 
-              << fDistToNextBoundary <<  std::endl;
+    // std::cout << "[ERDecay::FindInteractionPoint] distance to a next boundary " 
+    //           << fDistToNextBoundary <<  std::endl;
     Double_t interactProbability = (1 - TMath::Exp(-fDistToNextBoundary / fNuclearInteractionLength))
                                     / fNormalizingProbability;  // the interaction probability in current direction in the defined volume 
     if (interactProbability > 1) {
@@ -76,9 +76,9 @@ Bool_t ERDecay::FindInteractionPoint() {
                  << "incorrect normalizing respect to maximum path length in an interaction volume" 
                  << std::endl;  
     }
-    std::cout << "[ERDecay::FindInteractionPoint] interaction probability in current direction " 
-              << interactProbability 
-              << "; normalizing probability is " << fNormalizingProbability << std::endl;         
+    // std::cout << "[ERDecay::FindInteractionPoint] interaction probability in current direction " 
+    //           << interactProbability 
+    //           << "; normalizing probability is " << fNormalizingProbability << std::endl;         
     if (gRandom->Uniform(0, 1) > interactProbability) {
       LOG(INFO) << "[ERDecay::FindInteractionPoint]: interaction hasn't happened in current event" 
                 << std::endl;
@@ -94,8 +94,8 @@ Bool_t ERDecay::FindInteractionPoint() {
       TLorentzVector curPosLorentz;
       gMC->TrackPosition(curPosLorentz);
       fInputPoint = curPosLorentz.Vect();
-      std::cout << "[ERDecay::FindInteractionPoint] distance to an interaction point " 
-                << "in current direction " << fDistanceToInteractPoint << std::endl;         
+      // std::cout << "[ERDecay::FindInteractionPoint] distance to an interaction point " 
+      //           << "in current direction " << fDistanceToInteractPoint << std::endl;         
       fIsInterationPointFound = kTRUE;
       return kTRUE;
     }
