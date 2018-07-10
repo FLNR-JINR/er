@@ -43,7 +43,6 @@ public:
 
   /* Modifiers */
   void SetStationParticle(TString station, Int_t pdg) {fStationParticles[station].push_back(pdg);}
-  void SetUserCut(TCut cut){fUserCut = cut;}
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding.
@@ -71,10 +70,6 @@ protected:
   std::map<TString, std::map<Int_t,TClonesArray*> >    fQTelescopeParticle;
 
   std::map<TString, std::vector<Int_t>> fStationParticles;
-
-  TH1I* fEventsForProcessing;
-  TCut fUserCut;
-
 protected:
 
   Double_t CalcEloss(TString station, ERQTelescopeTrack* track, Int_t pdg, Double_t T);

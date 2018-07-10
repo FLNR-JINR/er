@@ -17,8 +17,8 @@
 #pragma link C++ class ERNXyterCalibrator+;
 #pragma link C++ class ERpmtPixelMap+;
 
-#pragma link C++ class RawEvent+;
-#pragma link C++ class AEvent+;
+#pragma link C++ class ERNeuRadRawEvent+;
+#pragma link C++ class ERNeuRadAEvent+;
 
 #pragma link C++ class TLiEvent+;
 #pragma link C++ class TGo4EventElement+;

@@ -1,12 +1,13 @@
-/*
- * AEvent.h
- *
- *  Created on: Dec 28, 2016
- *      Author: daria
- */
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
-#ifndef DATACLASSES_AEVENT_H_
-#define DATACLASSES_AEVENT_H_
+#ifndef ERNeuRadAEvent_H
+#define ERNeuRadAEvent_H
 
 #include <iostream>
 #include <fstream>
@@ -18,18 +19,26 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TF1.h"
-#include "TNamed.h"
-//#include "TMath.h"
 
-
-#include "RawEvent.h"
-
-//#define NCELLS 1024
+#include "ERNeuRadRawEvent.h"
 
 using std::cout;
 using std::endl;
 
-class AEvent : public TNamed {
+class TError;
+class TString;
+class TTree;
+class TFile;
+class TF1;
+
+class ERNeuRadRawEvent;
+
+/** @class ERNeuRadAEvent
+ ** @brief class for processing raw data and getting amp and time properties of signal
+ ** @author D.Kostyleva <kostyleva@jinr.ru>
+**/
+
+class ERNeuRadAEvent : public TNamed {
 
 private:
 
@@ -60,7 +69,7 @@ private:
 	TGraph *fGraphSignal;
 	TGraph *fGraphCFD;
 
-	RawEvent *fInputEvent;		//!
+	ERNeuRadRawEvent *fInputEvent;		//!
 
 	Double_t fCFratio;		//!
 	Double_t fCFtimeDelay;		//!
@@ -69,20 +78,26 @@ private:
 	Double_t fNoiseRangeMax;	//!
 	Int_t fWinSize;			//!
 
+	TArrayF fPEAmps;
+	TArrayF fPETimes;
+
+	TArrayF fPEAmp;
+	TArrayF fPETime;
 	 //Массив амплитуд фотоэлектронов сигнала
-        Float_t fPEAmplitudes[1000];
+        Float_t fPEAmplitudes[1024];
         //Массив времен прихоа на анод фотоэлектронов сигнала
-        Float_t fPEAnodeTimes[1000];
+        Float_t fPEAnodeTimes[1024];
         //Количество фотоэлектронов в сигнале
         Int_t fPECount;
 	// start time of the signal
 	Double_t fStartTime;
 	Double_t fFinishTime;
+	Int_t fEvent;
 public:
-	AEvent();
-	AEvent(const Int_t npoints);
-	virtual ~AEvent();
-	ClassDef(AEvent,1);
+	ERNeuRadAEvent();
+	ERNeuRadAEvent(const Int_t npoints);
+	virtual ~ERNeuRadAEvent();
+	ClassDef(ERNeuRadAEvent,1);
 	
 	Double_t GetT_10();
 	//returns time of 10% of rising edge amplitude in ns
@@ -104,7 +119,7 @@ public:
 	Double_t GetOnefAmpPos(Int_t i);
 
 	void ProcessEvent(Bool_t bSmooth = kFALSE);
-	void SetInputEvent(RawEvent** event);
+	void SetInputEvent(ERNeuRadRawEvent** event);
 
 	void SetCFratio(Double_t ratio) { fCFratio = ratio; };	
 	//CFD set attenuation coefficient
@@ -126,13 +141,11 @@ public:
 	 //Resets arrays to zeros
 
 	TGraph* GetGraphCFD() {
-
 		return fGraphCFD;
 	}
 	//draws CFD graphs
 
 	TGraph* GetGraphSignal() {
-
 		return fGraphSignal;
 	}
 	//draws signal shape graphs
@@ -157,22 +170,22 @@ public:
 
 	//void SetLED(Double_t threshold = 0.001);
 
-	void SetLED(Double_t threshold = 0.02);
+	void SetLED(Double_t threshold = 0.2);
 
 	//leading edge discriminator
 
-        void SetPEtime(Float_t a, Int_t i);
-        void SetPEamp(Float_t a, Int_t i);
-        void SetPECount(Int_t i);
-
-        Float_t GetPEamp(Int_t i);
-        Float_t GetPEtime(Int_t i);
-        Int_t GetPECount();             
+	TArrayF GetPEAmps() {return fPEAmps;}
+	TArrayF GetPETimes() {return fPETimes;}
+	void SetPETimes(TArrayF& fPETimesOLD) {fPETimesOLD.Copy(fPETimes);}
+	void SetPEAmps(TArrayF& fPEAmpsOLD) {fPEAmpsOLD.Copy(fPEAmps);}
+            
 	void ObtainPE();
 	Double_t GetStartTime();
 	void SetStartTime(Double_t t);
-        Double_t GetFinishTime();
-        void SetFinishTime(Double_t t);
+    Double_t GetFinishTime();
+    void SetFinishTime(Double_t t);
+    void SetEvent(Int_t t);
+    Int_t GetEvent() {return fEvent;}
 
 private:
 	void Init();
@@ -182,4 +195,4 @@ private:
 	void SetCFD(); 	//constant fraction discriminator method
 };
 
-#endif /* DATACLASSES_AEVENT_H_ */
+#endif /* ERNeuRadAEventT_H */

@@ -1,15 +1,29 @@
-// -------------------------------------------------------------------------
-// -----                  ERRawToAnalyzeConverter header file          -----
-// -----                  Created 03/16  by V.Schetinin                -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERRawToAnalyzeConverter_H
 #define ERRawToAnalyzeConverter_H
 
 #include "FairTask.h"
 
-#include "RawEvent.h"
-#include "AEvent.h"
+#include "ERNeuRadRawEvent.h"
+#include "ERNeuRadAEvent.h"
+
+class FairTask;
+
+class ERNeuRadRawEvent;
+class ERNeuRadAEvent;
+
+/** @class ERRawToAnalyzeConverter
+ ** @brief task for analyzing raw data
+ ** @author V.Chudoba <chudoba@jinr.ru>
+ ** @version 1.0
+**/
 
 class ERRawToAnalyzeConverter : public FairTask {
 
@@ -43,10 +57,10 @@ public:
 
 protected:
   //Input objects
-  RawEvent** fRawEvents;
+  ERNeuRadRawEvent** fRawEvents;
 
   //Output arrays
-  AEvent** fAEvents;
+  ERNeuRadAEvent** fAEvents;
 
   Int_t fNChanels;
   Int_t fNPoints;

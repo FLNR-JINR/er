@@ -1,9 +1,7 @@
-#include <iomanip>
-#include <iostream>
-#include "TGeoManager.h"
-#include "TMath.h"
-
-
+//#include <iomanip>
+//#include <iostream>
+//#include "TGeoManager.h"
+//#include "TMath.h"
 
 void create_collimator_geo()
 {
@@ -14,11 +12,12 @@ void create_collimator_geo()
   Double_t transY = 0.;
   Double_t transZ = 0.;
 
-  TGeoManager*   gGeoMan = NULL;
+  TGeoManager* gGeoMan = NULL;
 
   fZeroRotation->RotateX(0.);
   fZeroRotation->RotateY(0.);
   fZeroRotation->RotateZ(0.);
+
   // -------   Load media from media file   -----------------------------------
   FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
@@ -27,6 +26,7 @@ void create_collimator_geo()
   geoFace->setMediaFile(medFile);
   geoFace->readMedia();
   gGeoMan = gGeoManager;
+
   // --------------------------------------------------------------------------
   Double_t positionCollimator= -16.4;   //cm
   Double_t positionD1= -30.8;
@@ -52,12 +52,12 @@ void create_collimator_geo()
   TGeoMedium* pMed0 = gGeoMan->GetMedium("vacuum");
   if ( ! pMed0 ) Fatal("Main", "Medium vacuum not found");
 
-// ------ Create media for collimator -----------------------------------------------
-FairGeoMedium* maluminium   = geoMedia->getMedium("aluminium");
-if ( ! maluminium ) Fatal("Main", "FairMedium aluminium not found");
-geoBuild->createMedium(maluminium);
-TGeoMedium* pmaluminium = gGeoMan->GetMedium("aluminium");
-if ( ! pmaluminium ) Fatal("Main", "Medium aluminium not found");
+  // ------ Create media for collimator -----------------------------------------------
+  FairGeoMedium* maluminium   = geoMedia->getMedium("aluminium");
+  if ( ! maluminium ) Fatal("Main", "FairMedium aluminium not found");
+  geoBuild->createMedium(maluminium);
+  TGeoMedium* pmaluminium = gGeoMan->GetMedium("aluminium");
+  if ( ! pmaluminium ) Fatal("Main", "Medium aluminium not found");
   // --------------------------------------------------------------------------
   
   //------------------------- VOLUMES -----------------------------------------
@@ -96,13 +96,11 @@ TGeoVolume* D2= gGeoManager->MakeTube("D2", pmaluminium, D2Rmin,D2Rmax, D2Z/2);
   //------------------ STRUCTURE  -----------------------------------------
   TGeoVolume* CollimatorAss = new TGeoVolumeAssembly("Collimator");
 
-
-
-
-CollimatorAss->AddNode(D1, 1, new TGeoCombiTrans(transX, transY, positionD1, fZeroRotation));
-CollimatorAss ->AddNode(D1, 2, new TGeoCombiTrans(transX, transY, positionD1_2, fZeroRotation));
-CollimatorAss->AddNode(D2, 1, new TGeoCombiTrans(transX, transY, positionD2, fZeroRotation));
+  CollimatorAss->AddNode(D1, 1, new TGeoCombiTrans(transX, transY, positionD1, fZeroRotation));
+  CollimatorAss ->AddNode(D1, 2, new TGeoCombiTrans(transX, transY, positionD1_2, fZeroRotation));
+  CollimatorAss->AddNode(D2, 1, new TGeoCombiTrans(transX, transY, positionD2, fZeroRotation));
   CollimatorAss->AddNode(collimator, 1, new TGeoCombiTrans(transX, transY, positionCollimator, fZeroRotation));
+
   top->AddNode(CollimatorAss, 1, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
 
   // ---------------   Finish   -----------------------------------------------

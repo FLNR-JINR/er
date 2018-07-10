@@ -1,3 +1,11 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #ifndef ERDRS4Source_H
 #define ERDRS4Source_H
 
@@ -8,7 +16,20 @@
 #include "FairSource.h"
 #include "FairRootManager.h"
 
-#include "RawEvent.h"
+#include "ERNeuRadRawEvent.h"
+
+class TString;
+
+class FairSource;
+class FairRootManager;
+
+class ERNeuRadRawEvent;
+
+/** @class ERDRS4Source
+ ** @brief task for reading raw data from binary files
+ ** @author D.Kostyleva <kostyleva@jinr.ru>
+ ** @version 1.0
+**/
 
 typedef struct {
     char           tag[3];
@@ -95,7 +116,7 @@ class ERDRS4Source : public FairSource
     int ndt;
     double threshold, sumdt, sumdt2;
 
-    RawEvent** fRawEvents;
+    ERNeuRadRawEvent** fRawEvents;
     Int_t fNChanels;
     Int_t fNPoints;
 

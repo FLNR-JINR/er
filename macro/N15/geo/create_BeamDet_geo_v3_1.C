@@ -8,7 +8,7 @@ Double_t  rmax1= .5;
 Double_t   rmin2=0.;
 Double_t rmax2=1.5;
 
-Double_t  mylarZ= 0.0002;
+Double_t  mylarZ=0.0002;
 Double_t shell_Z=0.2;
 // --------------------------------------------------------------------------
 // ----SI parameters ----------------------------------------------------
@@ -22,14 +22,14 @@ Double_t SiZ = 0.4;
 
 // ------ Position of detector's parts relative to zero ---------------------
 
-Double_t positionSi = 22.5;
-Double_t positiongasCone = 19.3;
-Double_t positionshell=16.6; 
+Double_t positionSi =  27.2;    //27.15045;
+Double_t positiongasCone = 24.50045;
+Double_t positionshell=21.90035; 
 
-Double_t positionmylar1=16.7;
+Double_t positionmylar1=22.00045;
 
 
-void create_BeamDet_geo_v3_4()
+void create_BeamDet_geo_v3_1(Double_t p_angle=-78) //TODO
 {
   // Create a global translation
   Float_t global_X = 0.;
@@ -38,7 +38,7 @@ void create_BeamDet_geo_v3_4()
   //Create gloabal Rotation
   TGeoRotation *fGlobalRotation = new TGeoRotation();
   fGlobalRotation->RotateX(0.);
-  fGlobalRotation->RotateY(0.);
+  fGlobalRotation->RotateY(p_angle);
   fGlobalRotation->RotateZ(0.);
 
  
@@ -69,7 +69,7 @@ geoFace->readMedia();
 gGeoMan = gGeoManager;
 // --------------------------------------------------------------------------
 // -------   Geometry file name (output)   ----------------------------------
-TString geoFileName = geoPath + "/geometry/N15.base.geo_4.root";
+TString geoFileName = geoPath + "/geometry/N15.base.geo_1.root";
 // --------------------------------------------------------------------------
 // -----------------   Get and create the required media    -----------------
 FairGeoMedia*   geoMedia = geoFace->getMedia();
@@ -160,7 +160,7 @@ gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
 gGeoMan->SetName("DETgeom");
 TGeoVolume* top   = new TGeoVolumeAssembly("TOP");
 gGeoMan->SetTopVolume(top);
-TGeoVolume* beamdet = new TGeoVolumeAssembly("beamdet_3");
+TGeoVolume* beamdet = new TGeoVolumeAssembly("beamdet_1");
 // --------------------------------------------------------------------------
 //----------------collimator ---------------------
 
@@ -184,23 +184,18 @@ TGeoVolume* beamdet = new TGeoVolumeAssembly("beamdet_3");
 // --------------------------------------------------------------------------
 // ---------------- gasCone-----------------------------------------------------
 
- 
-TGeoVolume* gasCone = gGeoManager->MakeCone("gas2",pmisobutan003, dz/2, rmin1,rmax1, rmin2,rmax2);
-
+TGeoVolume* gasCone = gGeoManager->MakeCone("gas1",pmisobutan003, dz/2, rmin1,rmax1, rmin2,rmax2);
 TGeoVolume* gCone_shell = gGeoManager->MakeCone("gCone_shell",pmaluminium, dz/2, rmax1,rmax1+0.2, rmax2,rmax2+0.2);
 TGeoVolume *mylar1 = gGeoManager->MakeTube("mylar1", pmmylar, 0, rmax1, mylarZ/2);
-TGeoVolume *Shell_Z = gGeoManager->MakeTube("Shell_Z", pmaluminium, rmax1-0.0001, rmax1, shell_Z/2);
+TGeoVolume *Shell_Z = gGeoManager->MakeTube("Shell_Z", pmaluminium, 0.2, rmax1+0.2, shell_Z/2);
 
 // --------------------------------------------------------------------------
 
 // -----------------   (Si) ---------------------------------------------------
 
-
 //TGeoVolume* gasVol = gGeoManager->MakeBox("MWPCVol", pMedCF4, gasVolX, gasVolY, gasVolZ);
 
-TGeoVolume* Si = gGeoManager->MakeTube("plastic2", silicon_Si, 0,SiR, SiZ/2);
-
-
+TGeoVolume* Si = gGeoManager->MakeTube("plastic1", silicon_Si, 0,SiR, SiZ/2);
 
 //TGeoVolume* gas = gGeoManager->MakeBox("gas", pMedCF4, gasX, gasY, gasZ);
 
