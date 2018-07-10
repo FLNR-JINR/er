@@ -1,3 +1,11 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #include "ERNeuRadDigitizer.h"
 
 #include <iostream>
@@ -13,6 +21,7 @@ using namespace std;
 #include "TVector3.h"
 #include "TMath.h"
 #include "TRandom3.h"
+#include "TF1.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -20,7 +29,7 @@ using namespace std;
 
 #include "EREventHeader.h"
 
-const Double_t ERNeuRadDigitizer::cSciFiLightYield= 2000.; // [photons/MeV]
+const Double_t ERNeuRadDigitizer::cSciFiLightYield= 8000.; // [photons/MeV]
 const Double_t ERNeuRadDigitizer::cSpeedOfLight = 0.299792458e2;  //[cm/ns]
 const Double_t ERNeuRadDigitizer::cMaterialSpeedOfLight = ERNeuRadDigitizer::cSpeedOfLight/1.58;//[cm/ns]
 const Double_t ERNeuRadDigitizer::cLightFractionInTotalIntReflection = 0.04;
@@ -45,8 +54,11 @@ ERNeuRadDigitizer::ERNeuRadDigitizer()
   fSumAmplitudeB(0),
   fPECountF(0),
   fPECountB(0),
-  fUseCrosstalks(kTRUE)
+  fUseCrosstalks(kFALSE)
 {
+  fPEA = new TF1("fPEA", "ERNeuRadDigitizer::PeFunc", 0., 2000., 7);
+  fPEA->SetParameters(85.8656,30.6158,447.112,447.111,52.,433.,141.);	
+  //fPEA->SetParameters(3.2,30.6158,447.112,447.111,52.,433.,141.); 
 }
 // ----------------------------------------------------------------------------
 
@@ -66,8 +78,11 @@ ERNeuRadDigitizer::ERNeuRadDigitizer(Int_t verbose)
   fSumAmplitudeB(0),
   fPECountF(0),
   fPECountB(0),
-  fUseCrosstalks(kTRUE)
+  fUseCrosstalks(kFALSE)
 {
+  fPEA = new TF1("fPEA", ERNeuRadDigitizer::PeFunc, 0., 2000., 7);
+  fPEA->SetParameters(85.8656,30.6158,447.112,447.111,52.,433.,141.);	
+  //fPEA->SetParameters(3.2,30.6158,447.112,447.111,52.,433.,141.); 
 }
 // ----------------------------------------------------------------------------
 
@@ -222,11 +237,13 @@ void ERNeuRadDigitizer::PhotoElectronsCreating(Int_t iPoint, ERNeuRadPoint *poin
       //Амплиту одноэлектронного сигнала
       Double_t PixelGain = fNeuRadSetup->PixelGain(peModule,pePixel);
       Double_t PixelSigma = fNeuRadSetup->PixelSigma(peModule,pePixel);
-      Double_t peAmplitude = TMath::Abs(gRandom->Gaus(PixelGain, PixelSigma));
+      // Double_t peAmplitude = TMath::Abs(gRandom->Gaus(PixelGain, PixelSigma));
+      Double_t peAmplitude = TMath::Abs(fPEA->GetRandom());
       sumAmplitude+=peAmplitude;
       //Задержка динодной системы и джиттер
       Double_t peAnodeTime = peCathodeTime + (Double_t)gRandom->Gaus(fPixelDelay, fPixelJitter);
-      ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, pePhotonCount, peAmplitude);
+      // ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime - pointTime, peCathodeTime, peAnodeTime, pePhotonCount, peAmplitude);
+      ERNeuRadPhotoElectron* pe = AddPhotoElectron(iPoint, side, peLYTime, peCathodeTime, peAnodeTime, pePhotonCount, peAmplitude);
       peInPixels[peModule][pePixel].push_back(pe);
     }
     
@@ -338,5 +355,24 @@ Int_t ERNeuRadDigitizer::PixelSignalCount()   const {
   return fNeuRadPixelSignal->GetEntriesFast();
 }
 //----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+Double_t ERNeuRadDigitizer::PeFunc(Double_t *x, Double_t *par) {
+  Double_t fitval;
+  if (x[0]<63) {
+    fitval = 0;
+  }
+  if (x[0]>=63 && x[0]<par[0]) {
+    fitval = (x[0]-63) * (par[1]) / (par[0]-63) + par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
+  }
+  if (x[0]>=par[0]) {
+    fitval = par[1]*(x[0]-par[2])*(x[0]+par[2]-2*par[3])/((par[0]-par[2])*(par[0]+par[2]-2*par[3])) + par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
+  }
+  if (x[0]>=par[2]) {
+    fitval = par[4]*exp( -0.5*(x[0]-par[5])*(x[0]-par[5])/(par[6]*par[6]));
+  }
+
+  return fitval;
+}
 //-----------------------------------------------------------------------------
 ClassImp(ERNeuRadDigitizer)

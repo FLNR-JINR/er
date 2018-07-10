@@ -36,8 +36,8 @@ set(SRCS
 	ERpmtPixelMap.cxx
 	ERSimtoRaw.cxx
 
-	data/RawEvent.cxx
-	data/AEvent.cxx
+	data/ERNeuRadRawEvent.cxx
+	data/ERNeuRadAEvent.cxx
 
 	data/TGo4EventElement.cxx
 	data/TLiEvent.cxx

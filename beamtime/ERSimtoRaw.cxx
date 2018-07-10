@@ -1,11 +1,18 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #include "ERSimtoRaw.h"
+
 #include "FairRun.h"
 
-#include "TClonesArray.h"
+#include<iostream>
 
-#include <iostream>
-
-// ----------------------------------------------------------------------------
+using namespace std;
 
 // ----------------------------------------------------------------------------
 ERSimtoRaw::ERSimtoRaw(Int_t NEvents)
@@ -52,9 +59,9 @@ InitStatus ERSimtoRaw::Init()
 
 
   //Register output objects
-  fRawEvents = new RawEvent*[fNChanels];
+  fRawEvents = new ERNeuRadRawEvent*[fNChanels];
   for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
-    fRawEvents[iChanel] = new RawEvent(fNPoints);
+    fRawEvents[iChanel] = new ERNeuRadRawEvent(fNPoints);
     TString bName;
     bName.Form("ch%d.",iChanel+1);
     ioman->Register(bName,"Raw", fRawEvents[iChanel], kTRUE);
@@ -68,16 +75,17 @@ InitStatus ERSimtoRaw::Init()
 void ERSimtoRaw::Exec(Option_t* opt)
 {
   fEvent++;
-  if ( !(fEvent%100000) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
+  if ( !(fEvent%500) ) { std::cout << "####### EVENT " << fEvent << " #####" << std::endl; }
   Int_t simSize,side,counter,PEnum;
   Double_t maxAmp, StartTime, FinishTime;
+
+
   
   FairRun* run = FairRun::Instance();
   run->MarkFill(kFALSE);
   for (Int_t iSignal = 0; iSignal < fPixelSignals->GetEntriesFast(); iSignal++){
     ERNeuRadPixelSignal* signal = (ERNeuRadPixelSignal*)fPixelSignals->At(iSignal);
-    // if (signal->Side() !=1 || signal->PixelNb() != 25) continue;
-    if ( signal->PixelNb() != 136 ) continue;
+    if ( signal->PixelNb() != 136 ) continue; // for obtaining data from single chosen fiber
     TArrayF* result = signal->ResultSignal();
     maxAmp = 0;
     simSize = 0;
@@ -87,78 +95,46 @@ void ERSimtoRaw::Exec(Option_t* opt)
       for(Int_t i = 0; i<simSize; i++){
         if( maxAmp < result->GetAt(i) ) {maxAmp = result->GetAt(i);}
       }  //searching maxAmp
-//      cout << maxAmp << endl;
-      if(maxAmp > 30) {
-//        cout << " not NULL event found " << endl;
-        run->MarkFill(kTRUE);
-      }
+      // if(maxAmp > 100.) { // trigger in [mV]
+      run->MarkFill(kTRUE);
+      // }
     }
-    // std::cout << "####### AMP " << maxAmp << " #####" << std::endl;
-  // Int_t PixelNb() const {return fPixelNb;}
-  // Int_t Side() const {return fSide;}
+    StartTime = signal->GetStartTime();
+    FinishTime = signal->GetFinishTime();
 
-	StartTime = signal->GetStartTime();
-	FinishTime = signal->GetFinishTime();
-	PEnum = signal->GetPECount();
-    for(Int_t nPoint = 0; nPoint< fNPoints; nPoint++){
+    for(Int_t nPoint = 0; nPoint< fNPoints; nPoint++) {
 
       if( nPoint<=StartTime*10 || nPoint>=(FinishTime*10-1) ) {
         if(signal->Side() == 0) {fRawEvents[0]->SetAmp(0, nPoint);}
         if(signal->Side() == 1) {fRawEvents[1]->SetAmp(0, nPoint);}
       }
-      else{
-         if(signal->Side() == 0) {fRawEvents[0]->SetAmp(-result->GetAt(nPoint - StartTime*10), nPoint);} //fill the RawEvent
-         if(signal->Side() == 1) {fRawEvents[1]->SetAmp(-result->GetAt(nPoint - StartTime*10), nPoint);}
-        // fRawEvents[0]->SetAmp(0, nPoint); //fill the RawEvent
+      else {
+        if(signal->Side() == 0) {fRawEvents[0]->SetAmp(-result->GetAt(nPoint - StartTime*10), nPoint);} //fill the RawEvent
+        if(signal->Side() == 1) {fRawEvents[1]->SetAmp(-result->GetAt(nPoint - StartTime*10), nPoint);}
       }
       
       if(signal->Side() == 0) {fRawEvents[0]->SetTime(nPoint*0.1, nPoint);}
       if(signal->Side() == 1) {fRawEvents[1]->SetTime(nPoint*0.1, nPoint);}
     }
 
- 	if(signal->Side() == 0) fRawEvents[0]->SetStartTime(StartTime);
-        if(signal->Side() == 1) fRawEvents[1]->SetStartTime(StartTime);
-        if(signal->Side() == 0) fRawEvents[0]->SetFinishTime(FinishTime);
-        if(signal->Side() == 1) fRawEvents[1]->SetFinishTime(FinishTime);
-
-	for(Int_t PEn = 0; PEn < PEnum; PEn++) {
-		if(signal->Side() == 0) {
-			fRawEvents[0]->SetPEamp(signal->GetPEamp(PEn) , PEn);
-			fRawEvents[0]->SetPEtime(signal->GetPEtime(PEn) , PEn);
-			fRawEvents[0]->SetPECount(PEnum);
-		}
-
-                if(signal->Side() == 1) {
-                        fRawEvents[1]->SetPEamp(signal->GetPEamp(PEn) , PEn);
-                        fRawEvents[1]->SetPEtime(signal->GetPEtime(PEn) , PEn);
-                        fRawEvents[1]->SetPECount(PEnum);
-                }
-	}
+    if(signal->Side() == 0) fRawEvents[0]->SetStartTime(StartTime);
+    if(signal->Side() == 1) fRawEvents[1]->SetStartTime(StartTime);
+    if(signal->Side() == 0) fRawEvents[0]->SetFinishTime(FinishTime);
+    if(signal->Side() == 1) fRawEvents[1]->SetFinishTime(FinishTime);
 	
-
-
+    if(signal->Side() == 0) {
+      fRawEvents[0]->SetPETimes(signal->GetPETimes());
+      fRawEvents[0]->SetPEAmps(signal->GetPEAmps());
+      fRawEvents[0]->SetEvent(fEvent);
+    }
+    if(signal->Side() == 1) {
+      fRawEvents[1]->SetPETimes(signal->GetPETimes());
+      fRawEvents[1]->SetPEAmps(signal->GetPEAmps());
+      fRawEvents[1]->SetEvent(fEvent);
+    }
   }
-  //----------------------------------------------------------------------------
-    //cout << signal->Side() << "\t" << signal->PixelNb() << endl;
-    // Int_t count = (Int_t)(signal->FinishTime()-signal->StartTime())/signal->dT();
-    // Float_t* times = new Float_t[count];
-    // for (Int_t i = 0; i < count; i++){
-    //   times[i] = signal->StartTime() + signal->dT()*i; 
-    // }
-    // TGraph* gr = new TGraph(count,times,result->GetArray());
-    // TString title;
-    // title.Form("Pixel Signal, side %d,%d fiber, %d module, %d pe, %d", signal->Side(),
-    //                     signal->PixelNb(), signal->ModuleNb(), signal->PECount(),
-    //                     FairRunAna::Instance()->GetEventHeader()->GetMCEntryNumber());
-    // gr->SetTitle(title);
-    // if (signal->Side() == 0)
-    //   front->cd();
-    // else
-    //   back->cd();
-    // gr->Write();
-    // delete gr;
-    // delete [] times;
-  
+}// pixelsignal entries
+//----------------------------------------------------------------------------
 
 
   // for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
@@ -170,5 +146,4 @@ void ERSimtoRaw::Exec(Option_t* opt)
   //   }
   // }  
   
-}
 //----------------------------------------------------------------------------

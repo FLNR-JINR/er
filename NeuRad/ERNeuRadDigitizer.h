@@ -1,7 +1,10 @@
-// -------------------------------------------------------------------------
-// -----                  ERNeuRadDigitizer header file                -----
-// -----                  Created 03/15  by V.Schetinin                -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERNEURADDIGITIZER_H
 #define ERNEURADDIGITIZER_H
@@ -18,6 +21,18 @@
 #include "ERNeuRadSetup.h"
 
 class TObjectArray;
+class TF1;
+
+/** @class ERNeuRadDigitizer
+ ** @brief Class for the NeuRad digital response calculation
+ ** @author V.Schetinin <schetinin@jinr.ru> //base
+ ** @author I.Muzalevskij <ivanmuzalevskij@gmail.com> //One PE amplitude spectr
+ ** @version 1.0
+ **
+ ** The NeuRad digitiser task reads ERNeuRadPoint from the input and produces
+ ** objects of type ERNeuRadSignal. The NeuRadPoints are distributed to the
+ ** respective sensors, where the analog and digit response is calculated.
+**/
 
 class ERNeuRadDigitizer : public FairTask
 {
@@ -95,6 +110,8 @@ protected:
   Double_t fPixelSignalCreatingTime;
   Bool_t fUseCrosstalks;
 
+  TF1* fPEA;
+
 protected:
 
   ERNeuRadPhotoElectron* AddPhotoElectron(Int_t i_point, Int_t side,
@@ -111,6 +128,8 @@ protected:
                                     std::vector<ERNeuRadPhotoElectron* >** pePerPixels, Int_t side);
 
   Int_t Crosstalks(Int_t pointModule, Int_t pointPixel, Int_t& peModule, Int_t& pePixel);
+
+  static Double_t PeFunc(Double_t *x, Double_t *par);
 
 private:
 
