@@ -3,7 +3,6 @@
 #include "TGeoManager.h"
 #include "TMath.h"
 
-
 // Create a zero rotation
 TGeoRotation *fZeroRotation = new TGeoRotation();
 
@@ -11,13 +10,14 @@ Double_t transX = 0.;
 Double_t transY = 0.;
 Double_t transZ = 0.;
 
-TGeoManager*   gGeoMan = NULL;
+TGeoManager* gGeoMan = NULL;
 
 void create_target_geo()
 {
   fZeroRotation->RotateX(0.);
   fZeroRotation->RotateY(0.);
   fZeroRotation->RotateZ(0.);
+
   // -------   Load media from media file   -----------------------------------
   FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
@@ -46,7 +46,7 @@ void create_target_geo()
   if ( ! vacuum ) Fatal("Main", "FairMedium vacuum not found");
   geoBuild->createMedium(vacuum);
   TGeoMedium* pMed0 = gGeoMan->GetMedium("vacuum");
- // if ( ! pMed0 ) Fatal("Main", "Medium vacuum not found");
+  //if ( ! pMed0 ) Fatal("Main", "Medium vacuum not found");
   // --------------------------------------------------------------------------
 
 // ------ Create media for target -------------------------------------------
@@ -81,16 +81,15 @@ if ( ! pSteel ) Fatal("Main", "Medium vacuum not found");
   Double_t targetB11Z = 0.0007;   //cm 7 micron
   Double_t targetShellThickness=0.5;
 
-Double_t targetShellZ =0.002;
+  Double_t targetShellZ =0.002;
   //TGeoVolume *target = gGeoManager->MakeTube("target_vol", pBe, 0, target_R, target_Z);
 
+  Double_t targetShellRmin = targetB11R ;
+  Double_t targetShellRmax = targetB11R + targetShellThickness;
 
-Double_t targetShellRmin = targetB11R ;
-Double_t targetShellRmax = targetB11R + targetShellThickness;
+  TGeoVolume *targetB11 = gGeoManager->MakeTube("targetB11", pborum11, 0, targetB11R, targetB11Z/2);
 
-TGeoVolume *targetB11 = gGeoManager->MakeTube("targetB11", pborum11, 0, targetB11R, targetB11Z/2);
-
-TGeoVolume * targetShell = gGeoManager->MakeTube("targetShell", pSteel, targetShellRmin, targetShellRmax, targetShellZ/2);
+  TGeoVolume * targetShell = gGeoManager->MakeTube("targetShell", pSteel, targetShellRmin, targetShellRmax, targetShellZ/2);
   
   //------------------ STRUCTURE  -----------------------------------------
   TGeoVolume* targetAss = new TGeoVolumeAssembly("target");

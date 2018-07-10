@@ -109,21 +109,21 @@ class ERIonGenerator : public FairGenerator
      ** @param ymin    minimun rapidity. By default is -5.
      ** @param ymax    maximum rapidity. By default is 7. 
     **/
-    void SetYRange       (Double32_t ymin = -5   , Double32_t ymax = 7)
-    {fYMin=ymin; fYMax=ymax; fYRangeIsSet=kTRUE;};
+    void SetYRange(Double32_t ymin = -5., Double32_t ymax = 7.)
+    { fYMin=ymin; fYMax=ymax; fYRangeIsSet=kTRUE; }
 
     /** @brief Defines uniform distribution boundaries of ion polar angle in lab system [degree].
      ** @param thetamin    minimun polar angle. By default is 0 degrees.
      ** @param thetamax    maximum polar angle. By default is 90 degrees. 
     **/
-    void SetThetaRange   (Double32_t thetamin = 0, Double32_t thetamax = 90)
-    {fThetaMin=thetamin; fThetaMax=thetamax; fThetaRangeIsSet=kTRUE;};
+    void SetThetaRange(Double32_t thetamin = 0., Double32_t thetamax = 90.)
+    { fThetaMin=thetamin; fThetaMax=thetamax; fThetaRangeIsSet=kTRUE; }
 
     /** @brief Defines Gaussian distribution of ion polar angle in lab system [degree].
      ** @param theta       polar angle. By default is 0 degrees.
      ** @param sigmaTheta  standard deviation of polar angle. By default is 1. 
     **/
-    void SetThetaSigma(Double32_t theta = 0, Double32_t sigmaTheta = 1) 
+    void SetThetaSigma(Double32_t theta = 0., Double32_t sigmaTheta = 1.)
     {
       fGausTheta = theta;
       fSigmaTheta = sigmaTheta;
@@ -299,9 +299,8 @@ class ERIonGenerator : public FairGenerator
     ERIonGenerator(const ERIonGenerator&);
     ERIonGenerator& operator=(const ERIonGenerator&);
 
-    ClassDef(ERIonGenerator,1)
+    ClassDef(ERIonGenerator,1);
 };
 
-
-#endif
+#endif // ERIonGenerator_H
 

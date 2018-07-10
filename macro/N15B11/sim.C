@@ -1,7 +1,8 @@
-void sim(Int_t nEvents = 1000, Int_t index = 0)
+void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output")
 {
+  gRandom->SetSeed(index);
+
   //---------------------Files-----------------------------------------------
-  TString outDir("output");
   TString outFile;
   outFile.Form("%s/sim_%d.root", outDir.Data(), index);
   TString parFile;
@@ -40,20 +41,16 @@ void sim(Int_t nEvents = 1000, Int_t index = 0)
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
 
-  ERCollimator* collimator = new ERCollimator();
+  FairModule* collimator = new ERCollimator(); // "N15B11_collimator", "N15B11_collimator"
   collimator->SetGeometryFileName("N15.collimator.root");
   run->AddModule(collimator);
 
-  FairModule* target = new ERTarget("Target", kTRUE,1);
+  ERDetector* target = new ERTarget("N15B11_target", kTRUE, 1);
   target->SetGeometryFileName("N15.target.root");
   run->AddModule(target);
 
-  Int_t verbose = 0;
-
-  ERDetector* detector = new ERDetector("TestDetector1", kTRUE, verbose);
-  detector->SetGeometryFileName("all.det.geo.root");
-  detector->AddSensetive("vDetGasPart");
-  detector->AddSensetive("vSemi");
+  FairDetector* detector = new ERN15B11Detector("N15B11detector", kTRUE);
+  detector->SetGeometryFileName("N15B11_detector.geo.root");
   run->AddModule(detector);
 
   //------    ER Decayer   -------------------------------------------------
@@ -71,7 +68,7 @@ void sim(Int_t nEvents = 1000, Int_t index = 0)
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11");
-  scattering->SetThetaRange(23., 25.);
+  scattering->SetThetaRange(20., 21.); //TODO !!!!
   scattering->SetPhiRange(0., 0.);
 
   decayer->AddDecay(scattering);
@@ -102,33 +99,15 @@ void sim(Int_t nEvents = 1000, Int_t index = 0)
 
   primGen->AddGenerator(generator);
 
-/********************
-  Int_t pdgId = 2212;
-  Double32_t theta1 = 0.; // polar angle distribution
-  Double32_t theta2 = 0.;
-  //Double32_t momentum = 0.05; // GeV
-  Double32_t kin_energy = .05; // GeV
-  Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
-  Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); // GeV
-
-  FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
-  boxGen->SetThetaRange(theta1, theta2);
-  boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(0,360);
-  boxGen->SetXYZ(0.,0., -100.);
-
-  primGen->AddGenerator(boxGen);
-********************/
-
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
 
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kTRUE);
+  run->SetStoreTraj(kFALSE);
 
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
 
   //------- Initialize simulation run ---------------------------------------
   run->Init();

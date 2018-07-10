@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# COMPILE
+
+echo "===========================COMPILE======================="
+
+cd ../../../build/
+make -j4
+cd -
+
+# REMOVE PREVIOUS RESULTS
+
+echo "===========================REMOVE_PREVIOUS_RESULTS======="
+
+rm -fv output/*
+
+# RUN SIMULATION
+
+echo "===========================SIMULATION===================="
+
+INDEX=0
+OUTDIR=output
+
+root -l -b -q "sim.C(100, ${INDEX})" > ${OUTDIR}/sim_${INDEX}.out 2> ${OUTDIR}/sim_${INDEX}.err

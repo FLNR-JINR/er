@@ -18,18 +18,9 @@ using namespace std;
 #include "ERMCEventHeader.h"      //for ERMCEventHeader
 
 ERTextDecay::ERTextDecay(TString name):
-  ERDecay(name),
-  fRnd(new TRandom3()),
-  fInputIon(NULL),
-  fDecayPosZ(99999999.),
-  fDecayFinish(kFALSE),
-  fUniform(kFALSE),
-  fExponential(kFALSE),
-  fFileName(""),
-  fNOutputs(0),
-  fVolumeName(""),
-  fStep(0.001),
-  fTargetMass(-1)
+ERDecay(name),
+fFileName(""),
+fNOutputs(0)
 {
 }
 
@@ -37,19 +28,25 @@ ERTextDecay::~ERTextDecay(){
 
 }
 
-Bool_t ERTextDecay::Init(){
+void ERTextDecay::AddOutputIon(Int_t A, Int_t Z, Int_t Q){
+  FairRunSim* run = FairRunSim::Instance();
+  TString outputIonName = fName + TString("_OutputIon");
+  FairIon* ion = new FairIon(outputIonName,A,Z,Q);
+  fOutputIons.push_back(ion);
+  run->AddNewIon(ion);
+  fOutputs.push_back(ion);
+  fNOutputs++;
+}
 
-  if (fInputIon) {
-    fInputIonPDG = TDatabasePDG::Instance()->GetParticle(fInputIonName);
-    if ( ! fInputIonPDG ) {
-        std::cerr  << "ERTextDecay: Ion " << fInputIonName << " not found in database!"<< endl;
-        return kFALSE;
-    }
-  }
-  else{
-    std::cerr  << "Input ion not defined"<< endl;
+void ERTextDecay::AddOutputParticle(Int_t pdg){
+  fNOutputs++;
+  fOutputParticlesPDG.push_back(TDatabasePDG::Instance()->GetParticle(pdg));
+  fOutputs.push_back(TDatabasePDG::Instance()->GetParticle(pdg));
+}
+
+Bool_t ERTextDecay::Init(){
+  if (!ERDecay::Init())
     return kFALSE;
-  }
 
   for (Int_t iOut = 0; iOut < fOutputs.size(); iOut++){
     if (TString(fOutputs[iOut]->ClassName()).Contains("FairIon")){
@@ -181,53 +178,5 @@ void ERTextDecay::SaveToEventHeader(){
   */
 }
 
-void ERTextDecay::BeginEvent(){
-  fDecayFinish = kFALSE;
-  if (fUniform){
-    fDecayPosZ = fRnd->Uniform(fUniformA, fUniformB);
-  }
-  if (fExponential){
-    fDecayPosZ = fExponentialStart + fRnd->Exp(fExponentialTau);
-  }
-}
-
-void ERTextDecay::FinishEvent(){
-
-}
-
-void ERTextDecay::SetInputIon(Int_t A, Int_t Z, Int_t Q){
-  FairRunSim* run = FairRunSim::Instance();
-  fInputIonName = fName + TString("_InputIon");
-  fInputIon = new FairIon(fInputIonName,A,Z,Q);
-  run->AddNewIon(fInputIon);
-}
-
-void ERTextDecay::AddOutputIon(Int_t A, Int_t Z, Int_t Q){
-  FairRunSim* run = FairRunSim::Instance();
-  TString outputIonName = fName + TString("_OutputIon");
-  FairIon* ion = new FairIon(outputIonName,A,Z,Q);
-  fOutputIons.push_back(ion);
-  run->AddNewIon(ion);
-  fOutputs.push_back(ion);
-  fNOutputs++;
-}
-
-void ERTextDecay::AddOutputParticle(Int_t pdg){
-  fNOutputs++;
-  fOutputParticlesPDG.push_back(TDatabasePDG::Instance()->GetParticle(pdg));
-  fOutputs.push_back(TDatabasePDG::Instance()->GetParticle(pdg));
-}
-
-void ERTextDecay::SetUniformPos(Double_t a, Double_t b){
-  fUniform = kTRUE;
-  fUniformA = a;
-  fUniformB = b;
-}
-
-void ERTextDecay::SetExponentialPos(Double_t start, Double_t tau){
-  fExponential = kTRUE;
-  fExponentialStart = start;
-  fExponentialTau = tau;
-}
 
 ClassImp(ERTextDecay)
