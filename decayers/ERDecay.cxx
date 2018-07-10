@@ -79,7 +79,7 @@ Bool_t ERDecay::Init(){
 
   fInputIonPDG = TDatabasePDG::Instance()->GetParticle(fInputIonName);
   if ( ! fInputIonPDG ) {
-    LOG(FATAL) << "Input ion not found in pdg database!" << endl;
+    LOG(FATAL) << "Input ion not found in pdg database!" << FairLogger::endl;
     return kFALSE;
   }
 
