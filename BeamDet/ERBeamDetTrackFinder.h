@@ -46,6 +46,9 @@ public:
   /** @brief Destructor **/
   ~ERBeamDetTrackFinder();
 
+  /* Modifiers */
+  void SetTargetVolume(TString volName) {fTargetVolName = volName;}
+
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding.
@@ -81,6 +84,7 @@ protected:
   Int_t   fMultipicityMWPCX2;
   Int_t   fMultipicityMWPCY2;
 
+  TString fTargetVolName;
 private:
   /** @brief Initializes runtime database for getting parameters from .par file**/
   virtual void SetParContainers();

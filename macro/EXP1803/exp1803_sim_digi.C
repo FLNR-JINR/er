@@ -149,8 +149,7 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   generator->SetPSigmaOverP(0);
   Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
   // generator->SetKinERange(0,kin_energy);
-  // generator->SetThetaSigma(0, 90);
-  generator->SetThetaRange(0, 0);
+  generator->SetThetaSigma(0, sigmaTheta);
   generator->SetPhiRange(0, 360);
   generator->SetBoxXYZ(0, 0, 0., 0., beamStartPosition);
   generator->SpreadingOnTarget(); 
@@ -202,6 +201,7 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   run->AddTask(beamDetDigitizer);
 
   ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
+  trackFinder->SetTargetVolume("boxCD");
   run->AddTask(trackFinder);
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);

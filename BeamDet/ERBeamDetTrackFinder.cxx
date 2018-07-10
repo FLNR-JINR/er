@@ -10,6 +10,8 @@
 
 #include "TVector3.h"
 #include "TMath.h"
+#include "TGeoNode.h"
+#include "TGeoManager.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -20,12 +22,14 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::ERBeamDetTrackFinder()
-  : FairTask("ER BeamDet track finding scheme")
+  : FairTask("ER BeamDet track finding scheme"),
+  fTargetVolName("")
 {
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::ERBeamDetTrackFinder(Int_t verbose)
-  : FairTask("ER BeamDet track finding scheme ", verbose)
+  : FairTask("ER BeamDet track finding scheme ", verbose),
+  fTargetVolName("")
 {
 }
 //--------------------------------------------------------------------------------------------------
@@ -113,11 +117,37 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   LOG(DEBUG) << "xFar = " <<  xFar << "; yFar = " << yFar << "; zFar = " << zFar << FairLogger::endl
             << "xClose = " <<  xClose << "; yClose = " << yClose << "; zClose = " << zClose << FairLogger::endl;
 
- // if(TMath::Sqrt(xTarget*xTarget + yTarget*yTarget) <= fBeamDetSetup->TargetR()) {
-    AddTrack(xTarget, yTarget, 0, vectorOnTarget.Unit());
- // }
-  LOG(DEBUG) << "Point on target " << "(" << xTarget << ", " 
-                                         << yTarget << ") cm" << FairLogger::endl;
+  TGeoNode* node;
+  node = gGeoManager->InitTrack(xClose, yClose, zClose, vectorOnTarget.Unit().X(),
+                                                        vectorOnTarget.Unit().Y(),
+                                                        vectorOnTarget.Unit().Z());
+  Double_t targetMiddleThicknessX;
+  Double_t targetMiddleThicknessY;
+  Double_t targetMiddleThicknessZ;
+  while(!gGeoManager->IsOutside()){    
+    node = gGeoManager->FindNextBoundaryAndStep();
+    if ((TString(node->GetName()).Contains(fTargetVolName))) {
+      break;
+    }
+  }
+  node = gGeoManager->FindNextBoundary();
+
+  Double_t matThickness = gGeoManager->GetStep();
+  gGeoManager->SetStep(matThickness / 2.);
+  gGeoManager->Step();
+
+  targetMiddleThicknessX = gGeoManager->GetCurrentPoint()[0];
+  targetMiddleThicknessY = gGeoManager->GetCurrentPoint()[1];
+  targetMiddleThicknessZ = gGeoManager->GetCurrentPoint()[2];
+
+  AddTrack(targetMiddleThicknessX, 
+           targetMiddleThicknessY, 
+           targetMiddleThicknessZ, vectorOnTarget.Unit());
+
+  LOG(INFO) << "Point on target " << "(" << targetMiddleThicknessX << ", " 
+                                          << targetMiddleThicknessY << ", "
+                                          << targetMiddleThicknessZ << ") cm" 
+                                          << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetTrackFinder::Reset()
