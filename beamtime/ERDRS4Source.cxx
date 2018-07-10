@@ -1,23 +1,31 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #include "ERDRS4Source.h"
 
-#include "RawEvent.h"
+#include "ERNeuRadRawEvent.h"
 
 #include <iostream>
-
+using namespace std;
+//--------------------------------------------------------------------------------------------------
 ERDRS4Source::ERDRS4Source():
-    fNChanels(4),
-    fNPoints(1024)
+fNChanels(4),
+fNPoints(1024)
 {
 }
-
-ERDRS4Source::ERDRS4Source(const ERDRS4Source& source)
-{
+//--------------------------------------------------------------------------------------------------
+ERDRS4Source::ERDRS4Source(const ERDRS4Source& source){
 }
-
+//--------------------------------------------------------------------------------------------------
 ERDRS4Source::~ERDRS4Source(){
 
 }
-
+//--------------------------------------------------------------------------------------------------
 Bool_t ERDRS4Source::Init(){
 	std::cerr << "Init" << std::endl;
 	f = fopen(fPath.Data(), "r");
@@ -27,10 +35,10 @@ Bool_t ERDRS4Source::Init(){
 	}
 	
 	//Register new objects in output file
-	fRawEvents = new RawEvent*[fNChanels];
+	fRawEvents = new ERNeuRadRawEvent*[fNChanels];
 	FairRootManager* ioman = FairRootManager::Instance();
 	for (Int_t iChanel = 0; iChanel < fNChanels; iChanel++){
-		fRawEvents[iChanel] = new RawEvent(fNPoints);
+		fRawEvents[iChanel] = new ERNeuRadRawEvent(fNPoints);
 		TString bName;
 		bName.Form("ch%d.",iChanel+1);
 		ioman->Register(bName, "DSR4", fRawEvents[iChanel], kTRUE);

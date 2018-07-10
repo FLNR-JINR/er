@@ -49,6 +49,9 @@ protected:
     Int_t OnePETime(Double_t amplitude);
 
 public:
+	TArrayF& GetPEAmps() {return fPEAmplitudes;}
+	TArrayF& GetPETimes() {return fPEAnodeTimes;}
+	Int_t GetPECount() {return fPECount;}
 
     Double_t GetStartTime() const {return fStartTime;}
     Double_t GetFinishTime() const {return fFinishTime;}

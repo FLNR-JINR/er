@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 100) {
+void exp1803_sim_digi(Int_t nEvents = 1000) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -151,7 +151,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   // generator->SetKinERange(0,kin_energy);
   generator->SetThetaSigma(0, sigmaTheta);
   generator->SetPhiRange(0, 360);
-  generator->SetBoxXYZ(0, 0, 0, 0, beamStartPosition);
+  generator->SetBoxXYZ(0, 0, 0., 0., beamStartPosition);
   generator->SpreadingOnTarget(); 
 
   primGen->AddGenerator(generator);
@@ -162,12 +162,15 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
 
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1803* targetDecay = new ERDecayEXP1803();
+  targetDecay->SetInteractionVolumeName("boxCD");
+  targetDecay->SetNuclearInteractionLength(1e-3);
   targetDecay->SetAngularDistribution("Cs_6He_d_3He_5H_35-25AMeV.txt");
-  targetDecay->SetTargetVolumeName("boxCD"); // "tubeH2"
   targetDecay->SetTargetThickness(targetH2Thickness);
   targetDecay->SetH5Mass(massH5);
   targetDecay->SetH5Exitation(0.0004, 0.00002355, 1);
   targetDecay->SetH5Exitation(0.0012, 0.0002355, 1);
+  targetDecay->SetMinStep(1e-5);
+  targetDecay->SetMaxPathLength(2e-4 * 10 * 1.1);
 
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);
@@ -203,7 +206,7 @@ void exp1803_sim_digi(Int_t nEvents = 100) {
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
   //-------Set LOG verbosity  ----------------------------------------------- 
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
   Int_t nSteps = -15000;
