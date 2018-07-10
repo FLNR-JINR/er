@@ -40,6 +40,10 @@ public:
   **/  
   void SetMaxPathLength(Double_t pathLength);
 
+  /** @brief Method returns interaction volume name.
+  **/
+  TString GetInteractionVolumeName() {return fInteractionVolumeName;}
+
   virtual Bool_t Stepping() = 0;
   virtual void   BeginEvent() = 0;
   virtual void   FinishEvent() = 0;

@@ -65,8 +65,9 @@ Bool_t ERDecay::FindInteractionPoint() {
     Double_t  distToNextBoundary = gGeoManager->GetStep(); // get calculated step
     LOG(DEBUG) << "[ERDecay::FindInteractionPoint] distance to a next boundary " 
               << distToNextBoundary <<  FairLogger::endl;
-    Double_t interactProbability = (1 - TMath::Exp(-distToNextBoundary / fNuclearInteractionLength))
-                                    / fNormalizingProbability;  // the interaction probability in current direction in the defined volume 
+    Double_t interactionProbNextBound = 1 - TMath::Exp(-distToNextBoundary / 
+                                                        fNuclearInteractionLength);
+    Double_t interactProbability = interactionProbNextBound / fNormalizingProbability;  // the interaction probability in current direction in the defined volume 
     if (interactProbability > 1) {
       LOG(ERROR) << "[ERDecay::FindInteractionPoint] interaction probability " 
                  << "in current direction more then 1, "
@@ -81,8 +82,6 @@ Bool_t ERDecay::FindInteractionPoint() {
                 << FairLogger::endl;
       return kFALSE;
     } else {
-      Double_t interactionProbNextBound = 1 - TMath::Exp(-distToNextBoundary / 
-                                                          fNuclearInteractionLength);
       fDistanceToInteractPoint = -TMath::Log(1 - fRnd2->Uniform(0, interactionProbNextBound)) 
                                * fNuclearInteractionLength;
       LOG(DEBUG) << "[ERDecay::FindInteractionPoint] distance to an interaction point " 

@@ -125,7 +125,9 @@ Bool_t ERDecayEXP1803::Init() {
 
 //-------------------------------------------------------------------------------------------------
 Bool_t ERDecayEXP1803::Stepping() {
-  if(!fDecayFinish && gMC->TrackPid() == 1000020060 && TString(gMC->CurrentVolName()).Contains(fVolumeName)){
+  if(!fDecayFinish && gMC->TrackPid() == 1000020060 
+     && TString(gMC->CurrentVolName()).Contains(GetInteractionVolumeName()))
+  {
     if (!fIsInterationPointFound) {
       if (!FindInteractionPoint()) {
         fDecayFinish = kTRUE;
