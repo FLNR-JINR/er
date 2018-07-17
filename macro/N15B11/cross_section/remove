@@ -1,20 +1,28 @@
 #!/bin/bash
 
-cd input
+if [ -d input ]; then
+	cd input
 
-rm -fv out.txt
-rm -fv target_*
-rm -fv dPhi_info.txt*
-cd -
+	rm -fv out.txt
+	rm -fv target_*
+	rm -fv dPhi_info.txt*
+	cd -
+else
+	mkdir input
+fi
 
-cd result
+if [ -d result ]; then
+	cd result
+	rm -fv resul*
+	cd -
+else
+	mkdir result
+fi
 
-rm -fv resul*
-
-cd -
-
-cd output
-
-rm -fv *
-
-cd -
+if [ -d output ]; then
+	cd output
+	rm -fv *
+	cd -
+else
+	mkdir output
+fi
