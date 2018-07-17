@@ -1,0 +1,20 @@
+#!/bin/bash
+
+cd input
+
+rm -fv out.txt
+rm -fv target_*
+rm -fv dPhi_info.txt*
+cd -
+
+cd result
+
+rm -fv resul*
+
+cd -
+
+cd output
+
+rm -fv *
+
+cd -
