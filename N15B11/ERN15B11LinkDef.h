@@ -6,5 +6,6 @@
 
 #pragma link C++ class ERN15B11Detector+;
 #pragma link C++ class ERN15B11ElasticScattering+;
+#pragma link C++ class ERN15B11Digitizer+;
 
 #endif // __CINT__

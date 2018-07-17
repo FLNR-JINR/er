@@ -21,6 +21,7 @@ Link_Directories(${LINK_DIRECTORIES})
 Set(SRCS
 	ERN15B11Detector.cxx
 	ERN15B11ElasticScattering.cxx
+    ERN15B11Digitizer.cxx
 )
 
 Set(HEADERS )

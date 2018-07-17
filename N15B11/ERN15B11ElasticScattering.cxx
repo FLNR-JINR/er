@@ -250,7 +250,7 @@ Double_t ERN15B11ElasticScattering::ThetaGen()
         Double_t dLength = dF1+dF2;
 
         std::cout.precision(12);
-        std::cout << "summ="<< dF1+dF2 << std::endl;
+        std::cout << "summ: "<< dLength << std::endl;
         std::cout.precision(3);
 
         Double_t Rnd = fRnd->Uniform(0., 1.)*dLength;

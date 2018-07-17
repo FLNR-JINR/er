@@ -3,10 +3,10 @@
 OUTDIR=output_parallel
 
 # Number of events per thread
-NEVENTS=100000
+NEVENTS=10000
 
 # Number of threads
-NTHREADS=16
+NTHREADS=3
 
 cd ../../../build/
 make -j4
