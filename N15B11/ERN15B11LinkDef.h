@@ -5,5 +5,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class ERN15B11Detector+;
+#pragma link C++ class ERN15B11ElasticScattering+;
 
 #endif // __CINT__

@@ -5,6 +5,7 @@ Set(INCLUDE_DIRECTORIES
 	${CMAKE_SOURCE_DIR}/base
 	${CMAKE_SOURCE_DIR}/data
 	${CMAKE_SOURCE_DIR}/N15B11/
+	${CMAKE_SOURCE_DIR}/decayers/
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -19,6 +20,7 @@ Link_Directories(${LINK_DIRECTORIES})
 
 Set(SRCS
 	ERN15B11Detector.cxx
+	ERN15B11ElasticScattering.cxx
 )
 
 Set(HEADERS )
