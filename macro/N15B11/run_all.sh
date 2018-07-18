@@ -3,22 +3,26 @@
 # Directories
 SIMOUTDIR=output_parallel
 RESULTSDIR=result
-COMPILATIONDIR=../../../build
+COMPILATIONDIR=../../../fork_expertroot_build
 CALCOUTDIR=calc_output
 
 # Variables
-NEVENTS=10000
-MINANGEL=5
-MAXANGEL=45
-let ANGLESNUM=1+${MAXANGEL}-${MINANGEL}
-NTHREADS=16
-
+NEVENTS=1000
+MINANGEL=35
+MAXANGEL=35
+NTHREADS=3
 DIGIPREFIX=digi_
+
+#Calculate step and Iteratins nubers
+a=1
+b=10
+STEP=$(echo "$a/$b" | bc -l) #STEP=a/b
+ITNUMBER=$(echo "($MAXANGEL-$MINANGEL+1)/$STEP" | bc -l)
 
 # Compilation
 if [ -d ${COMPILATIONDIR} ]; then
 	cd ${COMPILATIONDIR}
-	make -j16
+	make -j3
 	cd -
 else
 	echo -e "\e[1m\e[32m========== You must set directory to build =========== \e[0m"
@@ -36,7 +40,10 @@ else
 fi
 date > ${RESULTSDIR}/out.txt
 
-for ANG in $(seq ${MINANGEL} ${MAXANGEL}); do
+ITNUMBER=2
+for IT in $(seq 1 ${ITNUMBER}); do
+
+	ANG=$(echo "$MINANGEL+($IT-1)*$STEP" | bc -l) #curent angle calculate
 
 	if [ -d ${SIMOUTDIR} ]; then
 		cd ${SIMOUTDIR}
@@ -138,6 +145,6 @@ cd cross_section
 #cp out.txt ../arhive
 #cd -
 wait
-root -l  "cross_section.C(${NEVENTS}, ${MINANGEL}, ${NTHREADS}, ${ANGLESNUM})"
+root -l  "cross_section.C(${NEVENTS}, ${MINANGEL}, ${NTHREADS}, ${ITNUMBER}, ${STEP})"
 wait
 exit

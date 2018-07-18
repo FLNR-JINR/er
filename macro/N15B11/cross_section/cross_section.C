@@ -11,7 +11,7 @@ Int_t* GetnEventsInTarget(Int_t anglesNumbers);
 Double_t* GetdPhiAr(Int_t anglesNumbers);
 
 //---------------------------------------------------------------------------------------------------------------------
-void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 3, Int_t anglesNumbers = 0,
+void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 3, Int_t anglesNumbers = 0, Double_t STEP=1.,
                    TString workDir = "output")
 {
     nEvents = nEvents*nThreads;
@@ -47,6 +47,12 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         return;
     }
 
+    ofstream fout("output/N15_cross_and_theta.txt");
+    if (!fout.is_open())
+    {
+        cerr << "Error: missing output directory\n";
+        return;
+    }
     Int_t i = 0;
     Double_t ratio = 1.3626837426849;
     TVectorD sigmaCMN15(anglesNumbers);
@@ -55,7 +61,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         nEvents = nEventsAr[i];
         long double Integrat = (long double)( nEvents/summAr[i] );
         long double crossSecLab = (long double)( nN15Ar[i]/Integrat );
-        double curAngle = ((double)i + begAng)*TMath::Pi()/180.;
+        double curAngle = ((double)i*STEP + begAng)*TMath::Pi()/180.;
         double iA = 1. + ratio*ratio*cos(2.*curAngle);
         double iB = 1. - ratio*ratio*sin(curAngle)*sin(curAngle);
         double iC = sqrt(iB)/iA;
@@ -64,6 +70,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         iB = cos(curAngle)*sqrt(1. - ratio*ratio*sin(curAngle)*sin(curAngle));
         iC = acos(-iA + iB);
         tetN15(i) = iC*180./TMath::Pi();
+        fout << 0.5*crossSecLab*iC << "\t" << tetN15(i) << endl;
     }
 
     TGraph* simN15Gr = new TGraph(tetN15, sigmaCMN15);
@@ -82,7 +89,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         nEvents = nEventsAr[i];
         long double Integrat = (long double)( nEvents/summAr[i] );
         long double crossSecLab = (long double)( nB11Ar[i]/Integrat);
-        double curAngle = ((double)i + begAng)*TMath::Pi()/180.;
+        double curAngle = ((double)i*STEP + begAng)*TMath::Pi()/180.;
         sigmaCMB11(i) = log10(0.25*crossSecLab/cos(curAngle));
         tetB11(i) = 180. - 2*curAngle*180./TMath::Pi();
     }
