@@ -48,13 +48,13 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     }
 
     Int_t i = 0;
-    Double_t ratio = 1.362493668;
+    Double_t ratio = 1.3626837426849;
     TVectorD sigmaCMN15(anglesNumbers);
     TVectorD tetN15(anglesNumbers);
     for (i = 0; i < anglesNumbers; i++) {
-        //nEvents = nEventsAr[i];
-        long double Integral = (long double)( nEvents/summAr[i] );
-        long double crossSecLab = (long double)( nN15Ar[i]/Integral );
+        nEvents = nEventsAr[i];
+        long double Integrat = (long double)( nEvents/summAr[i] );
+        long double crossSecLab = (long double)( nN15Ar[i]/Integrat );
         double curAngle = ((double)i + begAng)*TMath::Pi()/180.;
         double iA = 1. + ratio*ratio*cos(2.*curAngle);
         double iB = 1. - ratio*ratio*sin(curAngle)*sin(curAngle);
@@ -79,9 +79,9 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     TVectorD tetB11(anglesNumbers);
     Int_t memNEv = nEvents;
     for (i = 0; i < anglesNumbers; i++) {
-        //nEvents = nEventsAr[i];
-        long double Integral = (long double)( nEvents/summAr[i] );
-        long double crossSecLab = (long double)( nB11Ar[i]/Integral );
+        nEvents = nEventsAr[i];
+        long double Integrat = (long double)( nEvents/summAr[i] );
+        long double crossSecLab = (long double)( nB11Ar[i]/Integrat);
         double curAngle = ((double)i + begAng)*TMath::Pi()/180.;
         sigmaCMB11(i) = log10(0.25*crossSecLab/cos(curAngle));
         tetB11(i) = 180. - 2*curAngle*180./TMath::Pi();

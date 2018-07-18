@@ -151,14 +151,15 @@ Bool_t ERN15B11ElasticScattering::Stepping()
             if (!massTrueOrFalseTester)
             {
                 Double_t mcIonMass = fInputIonV.E() / fInputIonV.Gamma();
-                std::cout.precision(12);
-                std::cout << "PDG Input ion mass: " << fInputIonPDG->Mass() << " ";
-                std::cout << "Input Ion mcMass: " << mcIonMass << std::endl;
-                std::cout.precision(3);
+                //std::cout.precision(12);
+                //std::cout << "PDG Input ion mass: " << fInputIonPDG->Mass() << " ";
+                //std::cout << "Input Ion mcMass: " << mcIonMass << std::endl;
                 SetIonMass(mcIonMass);
                 iM = mcIonMass;
                 massTrueOrFalseTester=kTRUE;
                 RangeCalculate(iM, tM); // For angles drawing ranges calculate
+		//std::cout << "N15 mass: " << iM << ", B11 mass: " << tM << std::endl;
+		//std::cout.precision(3);
             }
 
             Double_t inputIonT = sqrt(pow(fInputIonV.P(),2)+iM2) - iM;
@@ -246,7 +247,7 @@ Double_t ERN15B11ElasticScattering::ThetaGen()
     else
     {
         Double_t dF1 = fabs(fCDFmax-fCDFmin);
-        Double_t dF2 = fabs(fCDFmaxB11-fCDFminB11);
+        Double_t dF2 = 0.*fabs(fCDFmaxB11-fCDFminB11);
         Double_t dLength = dF1+dF2;
 
         std::cout.precision(12);
@@ -297,9 +298,8 @@ void ERN15B11ElasticScattering::RangeCalculate(Double_t iM, Double_t tM)
     fTheta1B11 = thetaCMB11 - 0.521;
     fTheta2B11 = thetaCMB11 + 0.521;
 
-    Double_t dPhi = asin( 4./218./sin(radAngle) );
-    fPhi1 = -0.5*dPhi;
-    fPhi2 = 0.5*dPhi;
+    fPhi1 = -asin( 2./218./sin(radAngle) );
+    fPhi2 = asin( 2./218./sin(radAngle) );
 }
 
 

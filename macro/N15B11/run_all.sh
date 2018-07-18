@@ -3,22 +3,22 @@
 # Directories
 SIMOUTDIR=output_parallel
 RESULTSDIR=result
-COMPILATIONDIR=../../../fork_expertroot_build
+COMPILATIONDIR=../../../build
 CALCOUTDIR=calc_output
 
 # Variables
-NEVENTS=1000
-MINANGEL=29
-MAXANGEL=29
+NEVENTS=10000
+MINANGEL=5
+MAXANGEL=45
 let ANGLESNUM=1+${MAXANGEL}-${MINANGEL}
-NTHREADS=3
+NTHREADS=16
 
 DIGIPREFIX=digi_
 
 # Compilation
 if [ -d ${COMPILATIONDIR} ]; then
 	cd ${COMPILATIONDIR}
-	make -j3
+	make -j16
 	cd -
 else
 	echo -e "\e[1m\e[32m========== You must set directory to build =========== \e[0m"
