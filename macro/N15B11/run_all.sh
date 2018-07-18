@@ -3,7 +3,7 @@
 # Directories
 SIMOUTDIR=output_parallel
 RESULTSDIR=result
-COMPILATIONDIR=../../../fork_expertroot_build
+COMPILATIONDIR=../../../build
 CALCOUTDIR=calc_output
 
 # Variables
@@ -40,7 +40,6 @@ else
 fi
 date > ${RESULTSDIR}/out.txt
 
-ITNUMBER=2
 for IT in $(seq 1 ${ITNUMBER}); do
 
 	ANG=$(echo "$MINANGEL+($IT-1)*$STEP" | bc -l) #curent angle calculate
