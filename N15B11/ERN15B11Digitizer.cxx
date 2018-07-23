@@ -10,14 +10,16 @@ using std::endl;
 #include "ERDigi.h"
 #include "ERPoint.h"
 
-UInt_t iEvent = 0;
+//UInt_t iEvent = 0;
 ERN15B11Digitizer::ERN15B11Digitizer()
   : FairTask()
 {
+    //cout << "ERN15B11Digitizer::ERN15B11Digitizer()" << endl;
 }
 
 ERN15B11Digitizer::~ERN15B11Digitizer()
 {
+    //cout << "ERN15B11Digitizer::~ERN15B11Digitizer()" << endl;
 }
 
 InitStatus ERN15B11Digitizer::Init()
@@ -45,17 +47,7 @@ InitStatus ERN15B11Digitizer::Init()
             ioman->Register(curBranchName(0, curBranchName.Length()-5)+"Digi", curBranchName, fDigis[curBranchName], kTRUE);
         }
     }
-/*
-    // Input
-    fPoints = (TClonesArray*) ioman->GetObject("DetectorvDetGasPartPoint"); // input branch name
-    if (!fPoints) {
-        Fatal("Init", "Can't find input collection DetectorvDetGasPartPoint!");
-    }
 
-    // Output
-    fDigis = new TClonesArray("ERDigi"); // class name
-    ioman->Register("ERDigi", "", fDigis, kTRUE);
-*/
     return kSUCCESS;
 }
 
@@ -85,7 +77,7 @@ void ERN15B11Digitizer::Exec(Option_t* option)
         TClonesArray* curOutBra = fDigis[itPoints.first];
         AddOutputDigi(*curOutBra, curEdep, curTime);
     } // for end
-    iEvent++;
+    //iEvent++;
 }
 
 void ERN15B11Digitizer::AddOutputDigi(TClonesArray& clref, Double_t Edep, Double_t Time)

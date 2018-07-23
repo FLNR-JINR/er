@@ -3,21 +3,20 @@
 # Directories
 SIMOUTDIR=output_parallel
 RESULTSDIR=result
-COMPILATIONDIR=../../../build
+COMPILATIONDIR=../../../fork_expertroot_build
 CALCOUTDIR=calc_output
 
 # Variables
 NEVENTS=1000
-MINANGEL=35
-MAXANGEL=35
+MINANGEL=28
+MAXANGEL=28
 NTHREADS=3
-DIGIPREFIX=digi_
 
-#Calculate step and Iteratins nubers
+#Calculate step and Interaction numbers
 a=1
 b=10
 STEP=$(echo "$a/$b" | bc -l) #STEP=a/b
-ITNUMBER=$(echo "($MAXANGEL-$MINANGEL+1)/$STEP" | bc -l)
+ITNUMBER=$(echo "1+($MAXANGEL-$MINANGEL)/$STEP" | bc -l)
 
 # Compilation
 if [ -d ${COMPILATIONDIR} ]; then
@@ -40,6 +39,7 @@ else
 fi
 date > ${RESULTSDIR}/out.txt
 
+#ITNUMBER=3
 for IT in $(seq 1 ${ITNUMBER}); do
 
 	ANG=$(echo "$MINANGEL+($IT-1)*$STEP" | bc -l) #curent angle calculate
