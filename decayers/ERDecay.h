@@ -45,8 +45,8 @@ public:
   TString GetInteractionVolumeName() {return fInteractionVolumeName;}
 
   virtual Bool_t Stepping() = 0;
-  virtual void   BeginEvent() = 0;
-  virtual void   FinishEvent() = 0;
+  virtual void   BeginEvent();
+  virtual void   FinishEvent();
   virtual Bool_t Init() = 0;
 
 protected:
