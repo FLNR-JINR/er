@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Parameters
 NEVENTS=1000
 INDIR=../output_parallel
 OUTDIR=output_digi_parallel
@@ -7,6 +8,7 @@ GRAPHSOUTDIR=digi_graphs_parallel
 BUILDDIR=../../../../fork_expertroot_build
 NTHREADS=3
 
+# Compilation
 if [ -d ${BUILDDIR} ]; then
 	cd ${BUILDDIR}
 	make -j3
@@ -16,6 +18,7 @@ else
 	exit
 fi
 
+# Search directories
 if [ -d ${INDIR} ]; then
 	echo -e "\e[1m\e[32m========== ${INDIR} was found =========== \e[0m"
 else
@@ -23,6 +26,7 @@ else
 	exit
 fi
 
+# Cleanup
 if [ -d ${OUTDIR} ]; then
 	cd ${OUTDIR}
 	rm -fv *

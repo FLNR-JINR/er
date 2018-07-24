@@ -5,12 +5,32 @@ SIMOUTDIR=output_parallel
 RESULTSDIR=result
 COMPILATIONDIR=../../../fork_expertroot_build
 CALCOUTDIR=calc_output
+INDIR=../output_parallel
+OUTDIR=output_digi_parallel
+GRAPHSOUTDIR=digi_graphs_parallel
 
 # Variables
 NEVENTS=1000
 MINANGEL=28
-MAXANGEL=28
+MAXANGEL=29
 NTHREADS=3
+
+# Digitization add or no add
+TOADDDIGI='yes'
+echo -n "Enter 'yes' to add digitization: "
+read STRING
+if [[ $TOADDDIGI = $STRING ]]
+then
+    cd digi
+    if [ -d ${RESULTSDIR} ]; then
+        cd ${RESULTSDIR}
+        rm -fv *
+        cd -
+    else
+        mkdir ${RESULTSDIR}
+    fi
+    cd ../
+fi
 
 #Calculate step and Interaction numbers
 a=1
@@ -41,7 +61,7 @@ date > ${RESULTSDIR}/out.txt
 
 #ITNUMBER=3
 for IT in $(seq 1 ${ITNUMBER}); do
-
+    ####################################### Simulation #######################################
 	ANG=$(echo "$MINANGEL+($IT-1)*$STEP" | bc -l) #curent angle calculate
 
 	if [ -d ${SIMOUTDIR} ]; then
@@ -116,13 +136,49 @@ for IT in $(seq 1 ${ITNUMBER}); do
 	echo "======================================" >> ${RESULTSDIR}/dPhi_info.txt
 	echo -e "\e[1m\e[32m========== All calculation finished === Angle( ${ANG} ) ========= \e[0m"
 wait
+    ####################################### Digitization #######################################
+    if [[ $TOADDDIGI = $STRING ]]
+    then
+        cd digi
+        if [ -d ${OUTDIR} ]; then
+            cd ${OUTDIR}
+            rm -fv *
+            cd -
+        else
+            mkdir ${OUTDIR}
+        fi
+
+        if [ -d ${GRAPHSOUTDIR} ]; then
+            cd ${GRAPHSOUTDIR}
+            rm -fv *
+            cd -
+        else
+            mkdir ${GRAPHSOUTDIR}
+        fi
+        # Digi start
+        for TRH in $(seq 1 ${NTHREADS}); do
+            echo "digitization start in thread ${TRH}"
+            root -l -q -b "digi.C(${NEVENTS}, ${TRH}, \"${INDIR}\", \"${OUTDIR}\")" 2> ${OUTDIR}/err_${TRH}.txt > ${OUTDIR}/out_${TRH}.txt &
+        done
+    wait
+        echo -e "\e[1m\e[32m========== Digitization finished =========== \e[0m"
+
+        for TRH in $(seq 1 ${NTHREADS}); do
+            echo "graph form start in thread ${TRH}"
+            root -l -q -b "draw_graph.C(${TRH}, \"${OUTDIR}\", \"${GRAPHSOUTDIR}\")" &
+        done
+    wait
+        root -l -b -q "merge_graphs.C(\"${GRAPHSOUTDIR}\")"
+        cp ${GRAPHSOUTDIR}/eloss.pdf ${RESULTSDIR}/eloss_${ANG}.pdf
+        cd ../
+    fi
 done
 
 wait
-
+cat ${RESULTSDIR}/out.txt
 echo -e "\e[1m\e[32m========== FINISHED ========= \e[0m"
 
-cat ${RESULTSDIR}/out.txt
+####################################### Cross-section calculate #######################################
 wait
 
 if [ -d cross_section ]; then

@@ -51,4 +51,8 @@ void merge_graphs(TString outputDirectory = "digi_graphs")
 
 	gPad->SetGrid(2, 2);
 	gPad->Modified();
+
+	TString toSaveCanvDir;
+	toSaveCanvDir.Form("%s/eloss.pdf", outputDirectory.Data());
+	canv->SaveAs(toSaveCanvDir);
 }
