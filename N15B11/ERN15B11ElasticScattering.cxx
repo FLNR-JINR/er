@@ -7,6 +7,7 @@
 #include <TMath.h>
 #include <TLorentzVector.h>
 #include <TF1.h>
+#include <TLorentzRotation.h>
 #include <TVectorD.h>
 #include <TGraph.h>
 #include <TVirtualMC.h>
@@ -158,8 +159,8 @@ Bool_t ERN15B11ElasticScattering::Stepping()
                 iM = mcIonMass;
                 massTrueOrFalseTester=kTRUE;
                 RangeCalculate(iM, tM); // For angles drawing ranges calculate
-		//std::cout << "N15 mass: " << iM << ", B11 mass: " << tM << std::endl;
-		//std::cout.precision(3);
+                //std::cout << "N15 mass: " << iM << ", B11 mass: " << tM << std::endl;
+                //std::cout.precision(3);
             }
 
             Double_t inputIonT = sqrt(pow(fInputIonV.P(),2)+iM2) - iM;
@@ -214,6 +215,18 @@ Bool_t ERN15B11ElasticScattering::Stepping()
             out1V.Boost(cmV.BoostVector());
             out2V.Boost(cmV.BoostVector());
 
+/*
+            TLorentzRotation lab2cm; //trasformation from Lab to CM
+            lab2cm.Boost(cmV.BoostVector());
+            lab2cm.RotateZ(TMath::Pi()/2.-cmV.Phi());
+            lab2cm.RotateX(cmV.Theta());
+
+            TLorentzRotation cm2lab; //trasformation from CM to Lab
+            cm2lab = lab2cm.Inverse();
+
+            out1V = cm2lab.VectorMultiplication(out1V);
+            out2V = cm2lab.VectorMultiplication(out2V);
+*/
             LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;
             LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
             LOG(DEBUG) << "  Lab out2 T = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;

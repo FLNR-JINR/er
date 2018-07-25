@@ -3,7 +3,7 @@
 # Directories
 SIMOUTDIR=output_parallel
 RESULTSDIR=result
-COMPILATIONDIR=../../build
+COMPILATIONDIR=../../../fork_expertroot_build
 CALCOUTDIR=calc_output
 INDIR=../output_parallel
 OUTDIR=output_digi_parallel
@@ -12,7 +12,7 @@ GRAPHSOUTDIR=digi_graphs_parallel
 # Variables
 NEVENTS=1000
 MINANGEL=28
-MAXANGEL=29
+MAXANGEL=28
 NTHREADS=3
 
 # Digitization add or no add

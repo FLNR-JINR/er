@@ -17,6 +17,7 @@
 #include <TMath.h>
 #include <TVirtualMC.h>
 #include <TLorentzVector.h>
+#include <TLorentzRotation.h>
 #include <TVectorD.h>
 
 // FairRoot
@@ -183,8 +184,18 @@ Bool_t ERElasticScattering::Stepping() {
       TLorentzVector targetV(0,0,0,tM);
       TLorentzVector cmV = targetV + fInputIonV;
 
-      out1V.Boost(cmV.BoostVector());
-      out2V.Boost(cmV.BoostVector());
+      TLorentzRotation lab2cm; //trasformation from Lab to CM
+      lab2cm.Boost(cmV.BoostVector());
+      lab2cm.RotateZ(TMath::Pi()/2.-cmV.Phi());
+      lab2cm.RotateX(cmV.Theta());
+
+      TLorentzRotation cm2lab; //trasformation from CM to Lab
+      cm2lab = lab2cm.Inverse();
+
+      out1V = cm2lab.VectorMultiplication(out1V);
+      out2V = cm2lab.VectorMultiplication(out2V);
+      //out1V.Boost(cmV.BoostVector());
+      //out2V.Boost(cmV.BoostVector());
 
       LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;
       LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
@@ -202,7 +213,7 @@ Bool_t ERElasticScattering::Stepping() {
   }
   return kTRUE;
 }
-
+//-------------------------------------------------------------------------------------------------
 // in CM system
 Float_t ERElasticScattering::ThetaGen() {
   Float_t theta = 0.;

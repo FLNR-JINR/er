@@ -2,7 +2,7 @@
 
 OUTDIR=output
 NEVENTS=1000
-ANGEL=30
+ANGEL=35
 
 cd ../../../fork_expertroot_build
 make -j3
