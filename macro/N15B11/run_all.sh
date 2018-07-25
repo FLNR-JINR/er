@@ -3,7 +3,7 @@
 # Directories
 SIMOUTDIR=output_parallel
 RESULTSDIR=result
-COMPILATIONDIR=../../../fork_expertroot_build
+COMPILATIONDIR=../../build
 CALCOUTDIR=calc_output
 INDIR=../output_parallel
 OUTDIR=output_digi_parallel
@@ -44,7 +44,7 @@ if [ -d ${COMPILATIONDIR} ]; then
 	make -j3
 	cd -
 else
-	echo -e "\e[1m\e[32m========== You must set directory to build =========== \e[0m"
+	echo -e "\e[1m\e[32m========== You must set correct directory to compilation =========== \e[0m"
 	exit
 fi
 
