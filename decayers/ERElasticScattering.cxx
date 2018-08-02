@@ -183,7 +183,7 @@ Bool_t ERElasticScattering::Stepping() {
 
       TLorentzVector targetV(0,0,0,tM);
       TLorentzVector cmV = targetV + fInputIonV;
-
+      /*
       TLorentzRotation lab2cm; //trasformation from Lab to CM
       lab2cm.Boost(cmV.BoostVector());
       lab2cm.RotateZ(TMath::Pi()/2.-cmV.Phi());
@@ -194,8 +194,18 @@ Bool_t ERElasticScattering::Stepping() {
 
       out1V = cm2lab.VectorMultiplication(out1V);
       out2V = cm2lab.VectorMultiplication(out2V);
+      */
+
       //out1V.Boost(cmV.BoostVector());
       //out2V.Boost(cmV.BoostVector());
+
+      out1V.RotateX(cmV.Theta());
+      out1V.RotateZ(cmV.Phi());
+      out1V.Boost(cmV.BoostVector());
+
+      out2V.RotateX(cmV.Theta());
+      out2V.RotateZ(cmV.Phi());
+      out2V.Boost(cmV.BoostVector());
 
       LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;
       LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
