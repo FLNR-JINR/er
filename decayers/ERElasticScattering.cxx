@@ -183,7 +183,7 @@ Bool_t ERElasticScattering::Stepping() {
 
       TLorentzVector targetV(0,0,0,tM);
       TLorentzVector cmV = targetV + fInputIonV;
-      /*
+      /* fake
       TLorentzRotation lab2cm; //trasformation from Lab to CM
       lab2cm.Boost(cmV.BoostVector());
       lab2cm.RotateZ(TMath::Pi()/2.-cmV.Phi());
@@ -198,13 +198,59 @@ Bool_t ERElasticScattering::Stepping() {
 
       //out1V.Boost(cmV.BoostVector());
       //out2V.Boost(cmV.BoostVector());
+      
+      theta = cmV.Theta();
+      phi = cmV.Phi();
 
-      out1V.RotateX(cmV.Theta());
-      out1V.RotateZ(cmV.Phi());
+      LOG(DEBUG) << "   cmV = (" << cmV.X() << "," << cmV.Y() << "," << cmV.Z() << "," << cmV.E() <<  ")" << FairLogger::endl; 
+
+      // Two cases of LorentzRotation:
+      /*
+      LOG(DEBUG) << "   Case 1:" << FairLogger::endl;
+
+      TLorentzVector out1V1 = out1V;
+      TLorentzVector out2V1 = out2V;
+      TLorentzVector cmV1 = cmV;
+      cmV1.RotateZ(-phi);
+      cmV1.RotateY(-theta);
+
+      LOG(DEBUG) << "   cmV rotated = (" << cmV1.X() << "," << cmV1.Y() << "," << cmV1.Z() << "," << cmV1.E() <<  ")" << FairLogger::endl;
+
+      out1V1.Boost(cmV1.BoostVector());
+      out2V1.Boost(cmV1.BoostVector());
+
+      out1V1.RotateY(theta);
+      out1V1.RotateZ(phi);
+      
+      out2V1.RotateY(theta);
+      out2V1.RotateZ(phi);
+
+      LOG(DEBUG) << "   out1 in Lab = (" << out1V1.X() << "," << out1V1.Y() << "," << out1V1.Z() << "," << out1V1.E() <<  ")" << FairLogger::endl; 
+      LOG(DEBUG) << "   out2 in Lab = (" << out2V1.X() << "," << out2V1.Y() << "," << out2V1.Z() << "," << out2V1.E() <<  ")" << FairLogger::endl;
+
+      LOG(DEBUG) << "   Case 2:" << FairLogger::endl;
+      
+      TLorentzVector out1V2 = out1V;
+      TLorentzVector out2V2 = out2V;
+
+      out1V2.RotateY(theta);
+      out1V2.RotateZ(phi);
+      out1V2.Boost(cmV.BoostVector());
+
+      out2V2.RotateY(theta);
+      out2V2.RotateZ(phi);
+      out2V2.Boost(cmV.BoostVector());
+
+      LOG(DEBUG) << "   out1 in Lab = (" << out1V2.X() << "," << out1V2.Y() << "," << out1V2.Z() << "," << out1V2.E() <<  ")" << FairLogger::endl; 
+      LOG(DEBUG) << "   out2 in Lab = (" << out2V2.X() << "," << out2V2.Y() << "," << out2V2.Z() << "," << out2V2.E() <<  ")" << FairLogger::endl;
+      */
+      // we use second case
+      out1V.RotateY(theta);
+      out1V.RotateZ(phi);
       out1V.Boost(cmV.BoostVector());
 
-      out2V.RotateX(cmV.Theta());
-      out2V.RotateZ(cmV.Phi());
+      out2V.RotateY(theta);
+      out2V.RotateZ(phi);
       out2V.Boost(cmV.BoostVector());
 
       LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;
