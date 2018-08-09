@@ -89,8 +89,8 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   //Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
   //generator->SetThetaSigma(0., 0.);
 
-  generator->SetThetaRange(-2., 2.);
-  generator->SetPhiRange(0., 360.);
+  generator->SetThetaRange(-2., 2.); // -2 : 2
+  generator->SetPhiRange(0., 360.); // 0 : 360
 
   Double32_t distanceToTarget = 50.;
   Double32_t sigmaOnTarget = 0.;
@@ -107,11 +107,11 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // ------------------------------------------------------------------------
 
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kFALSE);
+  run->SetStoreTraj(kTRUE);
 
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
 
   //------- Initialize simulation run ---------------------------------------
   run->Init();

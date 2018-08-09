@@ -12,7 +12,7 @@ GRAPHSOUTDIR=digi_graphs_parallel
 # Variables
 NEVENTS=1000
 MINANGEL=28
-MAXANGEL=29
+MAXANGEL=28
 NTHREADS=3
 
 # Digitization add or no add
@@ -44,7 +44,7 @@ if [ -d ${COMPILATIONDIR} ]; then
 	make -j3
 	cd -
 else
-	echo -e "\e[1m\e[32m========== You must set directory to build =========== \e[0m"
+	echo -e "\e[1m\e[32m========== You must set correct directory to compilation =========== \e[0m"
 	exit
 fi
 
