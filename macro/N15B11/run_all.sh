@@ -5,14 +5,15 @@ SIMOUTDIR=output_parallel
 RESULTSDIR=result
 COMPILATIONDIR=
 CALCOUTDIR=calc_output
+COMPILATIONDIR=../../../fork_expertroot_build
 INDIR=../output_parallel
 OUTDIR=output_digi_parallel
 GRAPHSOUTDIR=digi_graphs_parallel
 
 # Variables
 NEVENTS=1000
-MINANGEL=28
-MAXANGEL=28
+MINANGLE=5
+MAXANGLE=35
 NTHREADS=3
 
 # Digitization add or no add
@@ -34,17 +35,18 @@ fi
 
 #Calculate step and Interaction numbers
 a=1
-b=10
+b=1
 STEP=$(echo "$a/$b" | bc -l) #STEP=a/b
-ITNUMBER=$(echo "1+($MAXANGEL-$MINANGEL)/$STEP" | bc -l)
+ITNUMBER=$(echo "1+($MAXANGLE-$MINANGLE)/$STEP" | bc -l)
 
 # Compilation
+echo ${COMPILATIONDIR:?You must set directory to compilation}
 if [ -d ${COMPILATIONDIR} ]; then
 	cd ${COMPILATIONDIR}
 	make -j3
 	cd -
 else
-	echo -e "\e[1m\e[32m========== You must set correct directory to compilation =========== \e[0m"
+	echo -e "Compilation directory: \e[1m\e[34m${COMPILATIONDIR}\e[0m was not found"
 	exit
 fi
 
@@ -62,7 +64,7 @@ date > ${RESULTSDIR}/out.txt
 #ITNUMBER=3
 for IT in $(seq 1 ${ITNUMBER}); do
     ####################################### Simulation #######################################
-	ANG=$(echo "$MINANGEL+($IT-1)*$STEP" | bc -l) #curent angle calculate
+	ANG=$(echo "$MINANGLE+($IT-1)*$STEP" | bc -l) #curent angle calculate
 
 	if [ -d ${SIMOUTDIR} ]; then
 		cd ${SIMOUTDIR}
@@ -200,6 +202,6 @@ cd cross_section
 #cp out.txt ../arhive
 #cd -
 wait
-root -l  "cross_section.C(${NEVENTS}, ${MINANGEL}, ${NTHREADS}, ${ITNUMBER}, ${STEP})"
+root -l  "cross_section.C(${NEVENTS}, ${MINANGLE}, ${NTHREADS}, ${ITNUMBER}, ${STEP})"
 wait
 exit
