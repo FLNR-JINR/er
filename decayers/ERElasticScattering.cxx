@@ -213,7 +213,7 @@ Bool_t ERElasticScattering::Stepping() {
   }
   return kTRUE;
 }
-//-------------------------------------------------------------------------------------------------
+
 // in CM system
 Float_t ERElasticScattering::ThetaGen() {
   Float_t theta = 0.;

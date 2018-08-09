@@ -221,24 +221,9 @@ Bool_t ERN15B11ElasticScattering::Stepping()
             out2V.RotateZ(cmV.Phi());
             out2V.Boost(cmV.BoostVector());
 
-<<<<<<< HEAD
             //out1V.Boost(cmV.BoostVector());
             //out2V.Boost(cmV.BoostVector());
 
-=======
-/*
-            TLorentzRotation lab2cm; //trasformation from Lab to CM
-            lab2cm.Boost(cmV.BoostVector());
-            lab2cm.RotateZ(TMath::Pi()/2.-cmV.Phi());
-            lab2cm.RotateX(cmV.Theta());
-
-            TLorentzRotation cm2lab; //trasformation from CM to Lab
-            cm2lab = lab2cm.Inverse();
-
-            out1V = cm2lab.VectorMultiplication(out1V);
-            out2V = cm2lab.VectorMultiplication(out2V);
-*/
->>>>>>> b39026e9b71a2c252d4aaa7b0e14c8b4c90e70a7
             LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;
             LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
             LOG(DEBUG) << "  Lab out2 T = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;

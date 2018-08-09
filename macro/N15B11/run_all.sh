@@ -3,7 +3,7 @@
 # Directories
 SIMOUTDIR=output_parallel
 RESULTSDIR=result
-COMPILATIONDIR=../../../fork_expertroot_build
+COMPILATIONDIR=
 CALCOUTDIR=calc_output
 INDIR=../output_parallel
 OUTDIR=output_digi_parallel
