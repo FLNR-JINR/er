@@ -101,11 +101,7 @@ Bool_t ERN15B11ElasticScattering::Stepping()
         gMC->SetMaxStep(fStep);
         TLorentzVector curPos;
         gMC->TrackPosition(curPos);
-<<<<<<< HEAD
         //fDecayPosZ = -0.0007/2.;
-=======
-        fDecayPosZ = -0.0007/2.;
->>>>>>> working_branch
         if (curPos.Z() > fDecayPosZ)
         {
             TLorentzVector fInputIonV;
@@ -179,33 +175,6 @@ Bool_t ERN15B11ElasticScattering::Stepping()
 
             TLorentzVector targetV(0.,0.,0.,tM);
             TLorentzVector cmV = targetV + fInputIonV;
-<<<<<<< HEAD
-	    
-	    // we use second case
-            out1V.RotateY(cmV.Theta());
-            out1V.RotateZ(cmV.Phi());
-            out1V.Boost(cmV.BoostVector());
-
-            out2V.RotateY(cmV.Theta());
-            out2V.RotateZ(cmV.Phi());
-            out2V.Boost(cmV.BoostVector());
-
-            //out1V.Boost(cmV.BoostVector());
-            //out2V.Boost(cmV.BoostVector());
-=======
-            LOG(INFO) << "InfoInputIon: theta = " << fInputIonV.Theta() << ", phi = " << fInputIonV.Phi() << FairLogger::endl;
-
-            //out1V.Boost(cmV.BoostVector());
-            //out2V.Boost(cmV.BoostVector());
-            //out1V.SetTheta(out1V.Theta()+fInputIonV.Theta());
-            //out2V.SetTheta(out2V.Theta()+fInputIonV.Theta());
-/*
-            TLorentzRotation labV;
-            labV.Boost(cmV.BoostVector());
-            labV.RotateX(fInputIonV.Theta());
-            out1V = labV.VectorMultiplication(out1V);
-            out2V = labV.VectorMultiplication(out2V);
-*/
 
             // we use second case
             out1V.RotateY(cmV.Theta());
@@ -215,14 +184,19 @@ Bool_t ERN15B11ElasticScattering::Stepping()
             out2V.RotateY(cmV.Theta());
             out2V.RotateZ(cmV.Phi());
             out2V.Boost(cmV.BoostVector());
->>>>>>> working_branch
+
+            //out1V.Boost(cmV.BoostVector());
+            //out2V.Boost(cmV.BoostVector());
+
+            LOG(INFO) << "InfoInputIon: theta = " << fInputIonV.Theta() << ", phi = " << fInputIonV.Phi() << FairLogger::endl;
+
 
             LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;
             LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
             LOG(DEBUG) << "  Lab out2 T = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;
             LOG(DEBUG) << "  Lab theta B11 = " << out2V.Theta()*RadToDeg() << FairLogger::endl;
 
-            curPos[2] += 0.0007; //TODO
+            //curPos[2] += 0.0007; //TODO
 
             AddParticleToStack(fInputIonPDG->PdgCode(),curPos,out1V);
             AddParticleToStack(fTargetIonPDG->PdgCode(),curPos,out2V);
