@@ -137,7 +137,7 @@ Bool_t ERN15B11ElasticScattering::Stepping()
         gMC->SetMaxStep(fStep);
         TLorentzVector curPos;
         gMC->TrackPosition(curPos);
-        //fDecayPosZ = -0.0007;
+        //fDecayPosZ = -0.0007/2.;
         if (curPos.Z() > fDecayPosZ)
         {
             TLorentzVector fInputIonV;
@@ -210,9 +210,18 @@ Bool_t ERN15B11ElasticScattering::Stepping()
 
             TLorentzVector targetV(0,0,0,tM);
             TLorentzVector cmV = targetV + fInputIonV;
-
+	    
+	    // we use second case
+            out1V.RotateY(cmV.Theta());
+            out1V.RotateZ(cmV.Phi());
             out1V.Boost(cmV.BoostVector());
+
+            out2V.RotateY(cmV.Theta());
+            out2V.RotateZ(cmV.Phi());
             out2V.Boost(cmV.BoostVector());
+
+            //out1V.Boost(cmV.BoostVector());
+            //out2V.Boost(cmV.BoostVector());
 
             LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;
             LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
@@ -298,8 +307,8 @@ void ERN15B11ElasticScattering::RangeCalculate(Double_t iM, Double_t tM)
     fTheta1B11 = thetaCMB11 - 0.521;
     fTheta2B11 = thetaCMB11 + 0.521;
 
-    fPhi1 = -asin( 2./218./sin(radAngle) );
-    fPhi2 = asin( 2./218./sin(radAngle) );
+    fPhi1 = -0.1055/*-asin( 2./218./sin(radAngle) )*/;
+    fPhi2 = 0.1055/*asin( 2./218./sin(radAngle) )*/;
 }
 
 

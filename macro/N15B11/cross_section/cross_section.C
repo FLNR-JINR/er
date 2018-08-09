@@ -54,13 +54,13 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         return;
     }
     Int_t i = 0;
-    Double_t ratio = 1.3626837426849;
+    Double_t ratio = 1.3626837426803;
     TVectorD sigmaCMN15(anglesNumbers);
     TVectorD tetN15(anglesNumbers);
     for (i = 0; i < anglesNumbers; i++) {
         nEvents = nEventsAr[i];
         long double Integrat = (long double)( nEvents/summAr[i] );
-        long double crossSecLab = (long double)( nN15Ar[i]/Integrat );
+        long double crossSecLab = (long double)( nN15Ar[i]*TMath::Pi()/dPhiAr[i]/Integrat );
         double curAngle = ((double)i*STEP + begAng)*TMath::Pi()/180.;
         double iA = 1. + ratio*ratio*cos(2.*curAngle);
         double iB = 1. - ratio*ratio*sin(curAngle)*sin(curAngle);
@@ -88,7 +88,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     for (i = 0; i < anglesNumbers; i++) {
         nEvents = nEventsAr[i];
         long double Integrat = (long double)( nEvents/summAr[i] );
-        long double crossSecLab = (long double)( nB11Ar[i]/Integrat);
+        long double crossSecLab = (long double)( nB11Ar[i]*TMath::Pi()/dPhiAr[i]/Integrat);
         double curAngle = ((double)i*STEP + begAng)*TMath::Pi()/180.;
         sigmaCMB11(i) = log10(0.25*crossSecLab/cos(curAngle));
         tetB11(i) = 180. - 2*curAngle*180./TMath::Pi();
@@ -150,7 +150,7 @@ bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg)
     TF1* sigmaFun = new TF1("Cross-Section", Sigma, 4.5, 180., 0);
     sigmaFun->Draw("C");
     sigmaFun->GetXaxis()->SetTitle("theta");
-    sigmaFun->GetYaxis()->SetTitle("cross-section");
+    sigmaFun->GetYaxis()->SetTitle("lg(cross-section)");
     sigmaFun->SetLineWidth(4);
     sigmaFun->SetMarkerStyle(8);
     leg->AddEntry(sigmaFun, "Theory", "l");
