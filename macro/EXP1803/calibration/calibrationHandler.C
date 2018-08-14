@@ -310,12 +310,9 @@ void SystemSolverNewton (Int_t stripNb, Double_t eps) {
   cout << endl;
   // cout << "D1 = " << 
 }
-
 void EquationSolverNewton (Int_t stripNb, Double_t eps, Int_t iterLimit) {
   Double_t eta_1  = fn[1] - fn[0];
-  Double_t eta_2  = fn[3] - fn[2];
   Double_t mu_1   = fm[1] - fm[0];
-  Double_t mu_2   = fm[3] - fm[2];
   Double_t nu_1  = fChannels[0][stripNb].first - fChannels[0][stripNb].second;
   Double_t nu_2  = fChannels[1][stripNb].first - fChannels[1][stripNb].second;
   Double_t epsE = fCalibEnergies[0] - fCalibEnergies[1];
@@ -324,10 +321,8 @@ void EquationSolverNewton (Int_t stripNb, Double_t eps, Int_t iterLimit) {
   cout << endl;
   cout << eta_1 << " " << mu_1 << " " << nu_1 << " " << nu_2 << " " << epsE << endl;
   
-  Double_t a1 = fmax((epsE - eta_1*eta_1/4/mu_1) / nu_2, (epsE - eta_1*eta_1/4/mu_1) / nu_1);
-  Double_t a2 = fmax((epsE - eta_2*eta_2/4/mu_2) / nu_2, (epsE - eta_2*eta_2/4/mu_2) / nu_2);
-  Double_t a = fmax(a1, a2) + 1e-7;
-  cout << "Начальное приближение " << a << endl;
+  Double_t a = fmax(epsE / nu_2, epsE / nu_1);//fmax((epsE - eta_1*eta_1/4/mu_1) / nu_2, (epsE - eta_1*eta_1/4/mu_1) / nu_1) + 1e-7;
+  cout << "Начальное приближение " << a << endl; //", либо " << fmax(epsE / nu_2, epsE / nu_1) + 1e-7 << endl;
   Double_t aPrev = eps + 1 + a;
 
   int iterCount = 0;
@@ -341,39 +336,40 @@ void EquationSolverNewton (Int_t stripNb, Double_t eps, Int_t iterLimit) {
     
     Double_t F;
     Double_t f;
-    // cout << "preF " << fm[0]/2/pow(mu, 2) * (2*mu*(nu2-nu1)*a + eta*(sqrt(eta*eta-4*mu*(epsE-nu2*a)) - sqrt(eta*eta-4*mu*(epsE-nu1*a)))) << endl;
+    // cout << "preF " << fm[0]/2/pow(mu_1, 2) * (2*mu_1*(nu_2-nu_1)*a + eta_1*(sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*a)) - sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a)))) << endl;
     
-    // F = fm[0]/2/pow(mu, 2) * (2*mu*(nu2-nu1)*a + eta*(sqrt(eta*eta-4*mu*(epsE-nu2*a)) - sqrt(eta*eta-4*mu*(epsE-nu1*a))))
-    //   + fn[0]/2/mu * (sqrt(eta*eta-4*mu*(epsE-nu1*a)) - sqrt(eta*eta-4*mu*(epsE-nu2*a)))
+    F = fm[0]/2/pow(mu_1, 2) * (2*mu_1*(nu_2-nu_1)*a + eta_1*(sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*a)) - sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a))))
+      + fn[0]/2/mu_1 * (sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a)) - sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*a)))
+      - (fChannels[0][stripNb].first - fChannels[1][stripNb].first) * a;
+
+    // F = fm[2]/2/pow(mu_1, 2) * (eta_1 + eta_1*(sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*a)) - 2*mu_1*(epsE - nu_2*a)))
+    //   - fn[2]/2/mu_1 * (eta_1 + (sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*a))))
+    //   - fm[0]/2/pow(mu_1, 2) * (eta_1 + eta_1*(sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a)) - 2*mu_1*(epsE - nu_1*a)))
+    //   + fn[0]/2/mu_1 * (eta_1 + (sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a))))
     //   - (fChannels[0][stripNb].first - fChannels[1][stripNb].first) * a;
     
-    F = fm[2]/2/pow(mu_2, 2) * (eta_2 + eta_2*(sqrt(eta_2*eta_2-4*mu_2*(epsE-nu_2*a)) - 2*mu_2*(epsE - nu_2*a)))
-      - fn[2]/2/mu_2 * (eta_2 + (sqrt(eta_2*eta_2-4*mu_2*(epsE-nu_2*a))))
-      - fm[0]/2/pow(mu_1, 2) * (eta_1 + eta_1*(sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a)) - 2*mu_1*(epsE - nu_1*a)))
-      + fn[0]/2/mu_1 * (eta_1 + (sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a))))
-      - (fChannels[0][stripNb].first - fChannels[1][stripNb].first) * a;
     // cout << "F1 = " << F << "; f = " << f << endl;
     // a += 1e-5;
-    // F = fm[0]/2/pow(mu, 2) * (2*mu*(nu2-nu1)*a + eta*(sqrt(eta*eta-4*mu*(epsE-nu2*a)) - sqrt(eta*eta-4*mu*(epsE-nu1*a))))
-    //   + fn[0]/2/mu * (sqrt(eta*eta-4*mu*(epsE-nu1*a)) - sqrt(eta*eta-4*mu*(epsE-nu2*a)))
+    // F = fm[0]/2/pow(mu_1, 2) * (2*mu_1*(nu_2-nu_1)*a + eta_1*(sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*a)) - sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a))))
+    //   + fn[0]/2/mu_1 * (sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a)) - sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*a)))
     //   - (fChannels[0][stripNb].first - fChannels[1][stripNb].first) * a;
     cout << "Fdf = " << F << "; f = " << f << endl;
 
-    // f = fm[0]/mu*(nu2-nu1 + eta * (nu2/sqrt(eta*eta-4*mu*(epsE-nu2*a)) - nu1/sqrt(eta*eta-4*mu*(epsE-nu1*a))))
-    //   + fn[0] * (nu1/sqrt(eta*eta-4*mu*(epsE-nu1*a)) - nu2/sqrt(eta*eta-4*mu*(epsE-nu2*a))) 
-    //   - (fChannels[0][stripNb].first - fChannels[1][stripNb].first);
-
-    f = fm[2]*nu_2/mu_2 * (eta_2/sqrt(eta_2*eta_2-4*mu_2*(epsE-nu_2*a)) - 1)
-      + nu_2*fn[2]*(1/sqrt(eta_2*eta_2-4*mu_2*(epsE-nu_2*a)))
-      - fm[0]*nu_1/mu_1 * (eta_1/sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a)) - 1)
-      - nu_1*fn[0]*(1/sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a)))
+    f = fm[0]/mu_1*(nu_2-nu_1 + eta_1 * (nu_2/sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*a)) - nu_1/sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a))))
+      + fn[0] * (nu_1/sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a)) - nu_2/sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*a))) 
       - (fChannels[0][stripNb].first - fChannels[1][stripNb].first);
+
+    // f = fm[2]*nu_1/mu_1 * (eta_1/sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*a)) - 1)
+    //   + nu_1*fn[2]*(1/sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*a)))
+    //   - fm[0]*nu_1/mu_1 * (eta_1/sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a)) - 1)
+    //   - nu_1*fn[0]*(1/sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*a)))
+    //   - (fChannels[0][stripNb].first - fChannels[1][stripNb].first);
 
     a -= F / f;
     cout << "a = " << a << endl;
   }
   Double_t d1 = (-eta_1 - sqrt(pow(eta_1, 2) - 4*mu_1*(epsE - nu_1*a))) / 2 / (mu_1);
-  Double_t d2 = (-eta_2 - sqrt(pow(eta_2, 2) - 4*mu_2*(epsE - nu_2*a))) / 2 / (mu_2);
+  Double_t d2 = (-eta_1 - sqrt(pow(eta_1, 2) - 4*mu_1*(epsE - nu_2*a))) / 2 / (mu_1);
   Double_t b = fCalibEnergies[0] - fm[0] * pow(d1, 2) - fn[0] * d1 - a * fChannels[0][stripNb].first;
 
   cout << "Strip " << stripNb << ": " << setw(4) 
@@ -396,8 +392,8 @@ void EquationSolverNewton (Int_t stripNb, Double_t eps, Int_t iterLimit) {
   //   Double_t grA = 1.89e-05, grB = 0.00246391, grD1 = -0.00128995, grD2 = -0.00114981;
   //   Double_t numclA = 1.92371e-05, numclB = 0.0020608, numclD1 = -0.000988766, numclD2 = -0.000890227;
   //   cout << "Graph disparity " << "\t {";
-  //   cout << fm[0]/2/pow(mu, 2) * (2*mu*(nu2-nu1)*grA + eta*(sqrt(eta*eta-4*mu*(epsE-nu2*grA)) - sqrt(eta*eta-4*mu*(epsE-nu1*grA))))
-  //         + fn[0]/2/mu * (sqrt(eta*eta-4*mu*(epsE-nu1*grA)) - sqrt(eta*eta-4*mu*(epsE-nu2*grA)))
+  //   cout << fm[0]/2/pow(mu_1, 2) * (2*mu_1*(nu_2-nu_1)*grA + eta_1*(sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*grA)) - sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*grA))))
+  //         + fn[0]/2/mu_1 * (sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*grA)) - sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*grA)))
   //         - (fChannels[0][stripNb].first - fChannels[1][stripNb].first) * grA << "}" << endl;
   //   // cout << (grA * fChannels[0][stripNb].first  + grB + fm[0] * pow(grD1, 2) + fn[0] * grD1 + fk[0] - fCalibEnergies[0]) << ", ";
   //   // cout << (grA * fChannels[0][stripNb].second + grB + fm[1] * pow(grD1, 2) + fn[1] * grD1 + fk[1] - fCalibEnergies[1]) << ", ";
@@ -409,8 +405,8 @@ void EquationSolverNewton (Int_t stripNb, Double_t eps, Int_t iterLimit) {
   //   // cout << (numclA * fChannels[0][stripNb].second + numclB + fm[1] * pow(numclD1, 2) + fn[1] * numclD1 + fk[1] - fCalibEnergies[1]) << ", ";
   //   // cout << (numclA * fChannels[1][stripNb].first  + numclB + fm[0] * pow(numclD2, 2) + fn[0] * numclD2 + fk[0] - fCalibEnergies[0]) << ", ";
   //   // cout << (numclA * fChannels[1][stripNb].second + numclB + fm[1] * pow(numclD2, 2) + fn[1] * numclD2 + fk[1] - fCalibEnergies[1]) << "}" << endl;
-  //   cout << fm[0]/2/pow(mu, 2) * (2*mu*(nu2-nu1)*numclA + eta*(sqrt(eta*eta-4*mu*(epsE-nu2*numclA)) - sqrt(eta*eta-4*mu*(epsE-nu1*numclA))))
-  //         + fn[0]/2/mu * (sqrt(eta*eta-4*mu*(epsE-nu1*numclA)) - sqrt(eta*eta-4*mu*(epsE-nu2*numclA)))
+  //   cout << fm[0]/2/pow(mu_1, 2) * (2*mu_1*(nu_2-nu_1)*numclA + eta_1*(sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*numclA)) - sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*numclA))))
+  //         + fn[0]/2/mu_1 * (sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_1*numclA)) - sqrt(eta_1*eta_1-4*mu_1*(epsE-nu_2*numclA)))
   //         - (fChannels[0][stripNb].first - fChannels[1][stripNb].first) * numclA << "}" << endl;
   // }
 }
@@ -574,7 +570,11 @@ void MonteCarloEdep (Int_t energyInd, Int_t sensDeadCount,  Double_t maxDeadThic
   gr_dVect.back()->SetMarkerSize(1.1);
   gr_dVect.back()->SetMarkerStyle(21);
   gr_dVect.back()->SetName(fileNameMC);
-
+  TFitResultPtr fitRes = gr_dVect.back()->Fit("pol1","S");
+  cout << "Fit params " << fitRes->Parameter(0) << ", " << fitRes->Parameter(1) / 2. << endl;
+  fm[energyInd] = fitRes->Parameter(1) / 2.;
+  fn[energyInd] = fitRes->Parameter(0);
+  fk[energyInd] = 0;
   if (energyInd > 2) {
     cout << "Ratio maxLen " << gr_dVect[2]->GetXaxis()->GetXmax() / gr_dVect[0]->GetXaxis()->GetXmax() << endl;
   }
@@ -593,33 +593,33 @@ void calibrationHandler () {
   // gSystem->Load("/home/komyour/soft/go4egor/build/src/libUserAnalysis.so");
 
   Double_t maxDeadThickness = 0.0004; // maximal value of dead layer thickness from simulation
-  for (Int_t i = 0; i < 4; i++) {
+  for (Int_t i = 0; i < 2; i++) {
     MonteCarloEdep(i, 10, maxDeadThickness, fMCDataFiles[i]);
   }
   cout << "M " << fm[0] << " " << fm[1] << " " << fm[2] << " " << fm[3] << endl;
   cout << "N " << fn[0] << " " << fn[1] << " " << fn[2] << " " << fn[3] << endl;
   cout << "K " << fk[0] << " " << fk[1] << " " << fk[2] << " " << fk[3] << endl;
-  // for (int i = 0; i < 2; i++) {
-  //   FindThresholdBin(fUpperSubAddress_X, fExpRootFile[i]);
-  //   SearchChanels(fUpperSubAddress_X, fUpperSubAddress_Y, fExpRootFile[i], i);
-  // }
-  // // Int_t upperSubAddress_X, Int_t upperSubAddress_Y, TString rootFileName, Int_t fileInd
-  // cout << "Before Newton solver" << endl;
-  // fNumclCoefsFile.open("numclSolCoeffs.txt", ios::trunc);
-  // fNumclCoefsFile << setw(7) << "a" << setw(12) << "b" << setw(12) << "d1" << setw(12) << "d2"
-  //                 << setw(14) << "| " << "N_1" << setw(8) << "N2" << setw(8) << "N1*" << setw(8) << "N2*"
-  //                 << setw(8) << "N1-N2" << setw(8) << "N1*-N2*"
-  //                 << setw(8) << "N1*-N1" << setw(8) << "N2*-N2" << endl; 
-  // for (int i = 0; i < fUpperSubAddress_X; i++) {
-  //   // SystemSolverNewton(i, 1e-5);
-  //   EquationSolverNewton(i, 1e-10, 10);
-  // }
-  // ofstream outFile;
-  // outFile.open("channels.txt", ios::trunc);
-  // for (int i = 0; i < fUpperSubAddress_X; i++) {
-  //   outFile << "\t" << fChannels[0][i].first << " " << fChannels[0][i].second << " | " 
-  //        << fChannels[1][i].first << " " << fChannels[1][i].second << endl; 
-  // }
+  for (int i = 0; i < 2; i++) {
+    FindThresholdBin(fUpperSubAddress_X, fExpRootFile[i]);
+    SearchChanels(fUpperSubAddress_X, fUpperSubAddress_Y, fExpRootFile[i], i);
+  }
+  // Int_t upperSubAddress_X, Int_t upperSubAddress_Y, TString rootFileName, Int_t fileInd
+  cout << "Before Newton solver" << endl;
+  fNumclCoefsFile.open("numclSolCoeffs.txt", ios::trunc);
+  fNumclCoefsFile << setw(7) << "a" << setw(12) << "b" << setw(12) << "d1" << setw(12) << "d2"
+                  << setw(14) << "| " << "N_1" << setw(8) << "N2" << setw(8) << "N1*" << setw(8) << "N2*"
+                  << setw(8) << "N1-N2" << setw(8) << "N1*-N2*"
+                  << setw(8) << "N1*-N1" << setw(8) << "N2*-N2" << endl; 
+  for (int i = 0; i < fUpperSubAddress_X; i++) {
+    // SystemSolverNewton(i, 1e-5);
+    EquationSolverNewton(i, 1e-10, 10);
+  }
+  ofstream outFile;
+  outFile.open("channels.txt", ios::trunc);
+  for (int i = 0; i < fUpperSubAddress_X; i++) {
+    outFile << "\t" << fChannels[0][i].first << " " << fChannels[0][i].second << " | " 
+         << fChannels[1][i].first << " " << fChannels[1][i].second << endl; 
+  }
 
 
 
