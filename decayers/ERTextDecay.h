@@ -36,7 +36,7 @@ public:
 
 	Bool_t Stepping();
 	Bool_t Init();
-
+  
   void AddOutputIon(Int_t A, Int_t Z, Int_t Q);
   void AddOutputParticle(Int_t pdg);
   void SetFileName(TString name){fFileName = name;}

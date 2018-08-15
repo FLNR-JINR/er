@@ -34,6 +34,7 @@ ERDecay::ERDecay(TString name)
 {
   fRnd1 = new TRandom3();
   fRnd2 = new TRandom3();
+  fRnd = new TRandom3();
 }
 //--------------------------------------------------------------------------------------------------
 ERDecay::~ERDecay(){
