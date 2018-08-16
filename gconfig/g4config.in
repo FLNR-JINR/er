@@ -33,7 +33,7 @@
 #/mcVerbose/geometryManager 1
 /mcVerbose/regionsManager 2
 #/mcVerbose/physicsList 2
-/tracking/verbose 0
+/tracking/verbose 2
 
 #/control/manual   
 #/control/createHTML  
