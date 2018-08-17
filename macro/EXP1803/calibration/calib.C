@@ -2,7 +2,7 @@ void calib(TString runId,
            Double_t kinE_MevPerNucleon, 
            Double_t rotAngle = 0, 
            Double_t sourcePos= -39, 
-           Int_t nEvents = 1000) 
+           Int_t nEvents = 10000) 
 {
   // --------------- Beam start position ------------------------------------
   // Double_t sourcePos= -39;  // [cm]
@@ -103,12 +103,13 @@ void calib(TString runId,
   Double_t kin_energy = kinE_MevPerNucleon * 1e-3 * A; //GeV
   // generator->SetKinE(kin_energy);
   // generator->SetPSigmaOverP(0);
-  sigmaTheta = 0.004*TMath::RadToDeg();
-  generator->SetKinERange(kin_energy, kin_energy);
+  Double_t sigmaTheta = 0.004*TMath::RadToDeg();
+  // generator->SetKinERange(kin_energy, kin_energy);
+  generator->SetKinESigma(kin_energy, 30 * 1e-6);
   Double_t fronalCathesis = (detSideSize / 2) * sqrt(2/*1 + pow(cos(abs(rotAngle * TMath::DegToRad())),2)*/) + (sqrt(2) * sourceCloudDiam / 2);
   Double_t maxTheta = abs(atan(fronalCathesis / sourcePos));
   cout << "Max theta " << maxTheta << endl;
-  generator->SetThetaRange(0, 10);
+  generator->SetThetaRange(0, maxTheta * TMath::RadToDeg());
   generator->SetCosTheta();
   generator->SetPhiRange(0, 360);
   generator->SetBoxXYZ(-sourceCloudDiam/2, -sourceCloudDiam/2, sourceCloudDiam/2, sourceCloudDiam/2, sourcePos);

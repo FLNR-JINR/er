@@ -599,27 +599,27 @@ void calibrationHandler () {
   cout << "M " << fm[0] << " " << fm[1] << " " << fm[2] << " " << fm[3] << endl;
   cout << "N " << fn[0] << " " << fn[1] << " " << fn[2] << " " << fn[3] << endl;
   cout << "K " << fk[0] << " " << fk[1] << " " << fk[2] << " " << fk[3] << endl;
-  for (int i = 0; i < 2; i++) {
-    FindThresholdBin(fUpperSubAddress_X, fExpRootFile[i]);
-    SearchChanels(fUpperSubAddress_X, fUpperSubAddress_Y, fExpRootFile[i], i);
-  }
-  // Int_t upperSubAddress_X, Int_t upperSubAddress_Y, TString rootFileName, Int_t fileInd
-  cout << "Before Newton solver" << endl;
-  fNumclCoefsFile.open("numclSolCoeffs.txt", ios::trunc);
-  fNumclCoefsFile << setw(7) << "a" << setw(12) << "b" << setw(12) << "d1" << setw(12) << "d2"
-                  << setw(14) << "| " << "N_1" << setw(8) << "N2" << setw(8) << "N1*" << setw(8) << "N2*"
-                  << setw(8) << "N1-N2" << setw(8) << "N1*-N2*"
-                  << setw(8) << "N1*-N1" << setw(8) << "N2*-N2" << endl; 
-  for (int i = 0; i < fUpperSubAddress_X; i++) {
-    // SystemSolverNewton(i, 1e-5);
-    EquationSolverNewton(i, 1e-10, 10);
-  }
-  ofstream outFile;
-  outFile.open("channels.txt", ios::trunc);
-  for (int i = 0; i < fUpperSubAddress_X; i++) {
-    outFile << "\t" << fChannels[0][i].first << " " << fChannels[0][i].second << " | " 
-         << fChannels[1][i].first << " " << fChannels[1][i].second << endl; 
-  }
+  // for (int i = 0; i < 2; i++) {
+  //   FindThresholdBin(fUpperSubAddress_X, fExpRootFile[i]);
+  //   SearchChanels(fUpperSubAddress_X, fUpperSubAddress_Y, fExpRootFile[i], i);
+  // }
+  // // Int_t upperSubAddress_X, Int_t upperSubAddress_Y, TString rootFileName, Int_t fileInd
+  // cout << "Before Newton solver" << endl;
+  // fNumclCoefsFile.open("numclSolCoeffs.txt", ios::trunc);
+  // fNumclCoefsFile << setw(7) << "a" << setw(12) << "b" << setw(12) << "d1" << setw(12) << "d2"
+  //                 << setw(14) << "| " << "N_1" << setw(8) << "N2" << setw(8) << "N1*" << setw(8) << "N2*"
+  //                 << setw(8) << "N1-N2" << setw(8) << "N1*-N2*"
+  //                 << setw(8) << "N1*-N1" << setw(8) << "N2*-N2" << endl; 
+  // for (int i = 0; i < fUpperSubAddress_X; i++) {
+  //   // SystemSolverNewton(i, 1e-5);
+  //   EquationSolverNewton(i, 1e-10, 10);
+  // }
+  // ofstream outFile;
+  // outFile.open("channels.txt", ios::trunc);
+  // for (int i = 0; i < fUpperSubAddress_X; i++) {
+  //   outFile << "\t" << fChannels[0][i].first << " " << fChannels[0][i].second << " | " 
+  //        << fChannels[1][i].first << " " << fChannels[1][i].second << endl; 
+  // }
 
 
 
