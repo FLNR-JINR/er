@@ -29,5 +29,8 @@
 #pragma link C++ class WCalHit+;
 #pragma link C++ class WCalEvent+;
 
+#ifdef ACCULINNA_GO4
+#pragma link C++ class ERDigibuilder+;
+#endif
 
 #endif
