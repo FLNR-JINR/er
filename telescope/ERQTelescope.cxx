@@ -106,9 +106,9 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
 	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
 	    gMC->IsTrackDisappeared())
 	{
-    Double_t a =  1 /0.0002;
-    Double_t b = 1 / 0.002;
-    fEloss = fEloss * a + b;
+    Double_t a =  0.00003;
+    Double_t b = 0.0002;
+    fEloss = (fEloss - b) / a;
     gMC->TrackPosition(fPosOut);
     gMC->TrackMomentum(fMomOut);
     TString volName = gMC->CurrentVolName();

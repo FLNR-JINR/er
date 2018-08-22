@@ -47,7 +47,7 @@ TString fTmpHistParams;
 
 
 // cout << "vect " << fLowEnergyThresholdChannel[5] << endl;
-Double_t  fFitMinSigma = 6;       //pouziva se, private
+Double_t  fFitMinSigma = 1.8;       //pouziva se, private
 Double_t  fFitPeakThreshold = 0.3;
 
 ofstream fNumclCoefsFile;
@@ -537,12 +537,12 @@ void MonteCarloEdep (Int_t energyInd, Int_t sensDeadCount,  Double_t maxDeadThic
     x[sensDead] = maxDeadThickness / sensDeadCount * sensDead;
     y[sensDead] = meanValue;
     if (sensDead != sensDeadCount) {
-      d_x[sensDead + 1] = maxDeadThickness * lengthMul / sensDeadCount * (sensDead + 1) - 0.00002 * lengthMul;
+      d_x[sensDead + 1] = maxDeadThickness * lengthMul / sensDeadCount * (sensDead + 1) - 0.00004 * lengthMul;
       d_y[sensDead + 1] = (y[sensDead + 1] - y[sensDead]) / (4e-5 * lengthMul);
     }
     histsMeanEdepByStrip.back()->SetBinContent(sensDead, meanValue);
   }
-  d_x[1] = x[1] - 0.00002 * lengthMul;
+  d_x[1] = x[1] - 0.00004 * lengthMul;
   d_y[1] = y[1] / (4e-5 * lengthMul);
 
   // Quadratic approximation coeffs of an eloss function 
@@ -599,10 +599,10 @@ void calibrationHandler () {
   cout << "M " << fm[0] << " " << fm[1] << " " << fm[2] << " " << fm[3] << endl;
   cout << "N " << fn[0] << " " << fn[1] << " " << fn[2] << " " << fn[3] << endl;
   cout << "K " << fk[0] << " " << fk[1] << " " << fk[2] << " " << fk[3] << endl;
-  // for (int i = 0; i < 2; i++) {
-  //   FindThresholdBin(fUpperSubAddress_X, fExpRootFile[i]);
-  //   SearchChanels(fUpperSubAddress_X, fUpperSubAddress_Y, fExpRootFile[i], i);
-  // }
+  for (int i = 0; i < 2; i++) {
+    FindThresholdBin(fUpperSubAddress_X, fExpRootFile[i]);
+    SearchChanels(fUpperSubAddress_X, fUpperSubAddress_Y, fExpRootFile[i], i);
+  }
   // // Int_t upperSubAddress_X, Int_t upperSubAddress_Y, TString rootFileName, Int_t fileInd
   // cout << "Before Newton solver" << endl;
   // fNumclCoefsFile.open("numclSolCoeffs.txt", ios::trunc);
