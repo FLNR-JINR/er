@@ -45,10 +45,6 @@ set(SRCS
 	data/WCalEvent.cxx
 )
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
-
 Set(LINKDEF ERBeamtimeLinkDef.h)
 Set(LIBRARY_NAME ERBeamTime)
 Set(DEPENDENCIES ERBase ERData Base Core)
@@ -57,10 +53,19 @@ if (ACCULINNA_GO4)
 	add_definitions( -DACCULINA_GO4)
 	list(APPEND SRCS ERDigibuilder.cxx)
 	list(APPEND INCLUDE_DIRECTORIES ${ACCULINNA_GO4}/include/)
+	list(APPEND INCLUDE_DIRECTORIES ${ACCULINNA_GO4}/include/reader)
+	list(APPEND INCLUDE_DIRECTORIES ${ACCULINNA_GO4}/include/data)
 	message(STATUS ${ACCULINNA_GO4}/lib/)
 	list(APPEND LINK_DIRECTORIES ${ACCULINNA_GO4}/lib/)
 	list(APPEND DEPENDENCIES Data)
+	list(APPEND DEPENDENCIES Reader)
 endif()
+
+# fill list of header files from list of source files
+# by exchanging the file extension
+CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
+
+
 
 include_directories( ${INCLUDE_DIRECTORIES})
 link_directories( ${LINK_DIRECTORIES})

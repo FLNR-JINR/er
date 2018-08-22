@@ -9,6 +9,8 @@
 
 #include "FairSource.h"
 
+#include "Reader.h"
+
 #include "ERRawEvent.h"
 
 class ERDigibuilder : public FairSource
@@ -34,16 +36,20 @@ class ERDigibuilder : public FairSource
 
     virtual Bool_t ReInitUnpackers(){return kTRUE;}
 
-    void SetFile(TString path, TString treeName, TString branchName);
+    void SetConfigurationFile(TString name){fSetupFile = name;}
     void AddFile(TString path){fPath.push_back(path);}
   private:
+    // Вектор lmd файлов для обработки.
     std::vector<TString> fPath;
+    // Индекс текущего файла в fPath.
     Int_t fCurFile;
+    // Количество событий обработанных в предыдущих файлах
     Int_t fOldEvents;
-    TString fTreeName;
-    TString fBranchName;
-    TFile* fFile;
-    TTree* fTree;
+
+    TString fSetupFile;
+    Reader* fReader;
+
+    Int_t OpenNextFile();
   public:
     ClassDef(ERDigibuilder, 1)
 };
