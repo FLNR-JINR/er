@@ -12,6 +12,7 @@ ${CMAKE_SOURCE_DIR}/beamtime/
 ${CMAKE_SOURCE_DIR}/NeuRad/data/
 ${CMAKE_SOURCE_DIR}/data/data/
 ${CMAKE_SOURCE_DIR}/beamtime/data/
+${CMAKE_SOURCE_DIR}/BeamDet/data/
 )
 
 set(LINK_DIRECTORIES
@@ -35,7 +36,6 @@ set(SRCS
 	data/ERNeuRadRawEvent.cxx
 	data/ERNeuRadAEvent.cxx
 
-	data/TGo4EventElement.cxx
 	data/TLiEvent.cxx
 
 	data/cls_RootHit.cxx
@@ -55,6 +55,8 @@ if (ACCULINNA_GO4)
 	list(APPEND INCLUDE_DIRECTORIES ${ACCULINNA_GO4}/include/)
 	list(APPEND INCLUDE_DIRECTORIES ${ACCULINNA_GO4}/include/reader)
 	list(APPEND INCLUDE_DIRECTORIES ${ACCULINNA_GO4}/include/data)
+	list(APPEND INCLUDE_DIRECTORIES ${ACCULINNA_GO4}/include/go4pieces)
+	list(APPEND INCLUDE_DIRECTORIES ${ACCULINNA_GO4}/include/setupconfigcppwrapper)
 	message(STATUS ${ACCULINNA_GO4}/lib/)
 	list(APPEND LINK_DIRECTORIES ${ACCULINNA_GO4}/lib/)
 	list(APPEND DEPENDENCIES Data)

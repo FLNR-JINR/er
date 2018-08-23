@@ -2,6 +2,7 @@
 #define ERDigibuilder_H
 
 #include <vector>
+#include <map>
 
 #include "TString.h"
 #include "TFile.h"
@@ -10,6 +11,8 @@
 #include "FairSource.h"
 
 #include "Reader.h"
+#include "SetupConfiguration.h"
+#include "DetEventDetector.h"
 
 #include "ERRawEvent.h"
 
@@ -47,7 +50,18 @@ class ERDigibuilder : public FairSource
     Int_t fOldEvents;
 
     TString fSetupFile;
+    SetupConfiguration* fSetupConfiguration;
     Reader* fReader;
+
+    std::map<TString,TClonesArray*> fDigiCollections;
+
+    void UnpackBeamDetTof(DetEventDetector* detEvent);
+    void UnpackBeamDetMwpc(DetEventDetector* detEvent);
+    void UnpackTofStation(DetEventDetector* detEvent,TString ampStation, TString timeStation);
+    void UnpackMWPCStation(DetEventDetector* detEvent, TString ampStation,Int_t mwpcNb, Int_t planeNb);
+    void AddToFDigi(Float_t edep, Double_t time, Int_t tofNb);
+    void AddMWPCDigi(Float_t edep, Double_t time, 
+                            Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
 
     Int_t OpenNextFile();
   public:

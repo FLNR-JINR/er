@@ -21,7 +21,7 @@
 #pragma link C++ class ERNeuRadAEvent+;
 
 #pragma link C++ class TLiEvent+;
-#pragma link C++ class TGo4EventElement+;
+//#pragma link C++ class TGo4EventElement+;
 
 #pragma link C++ class cls_RootHit+;
 #pragma link C++ class cls_RootEvent+;
