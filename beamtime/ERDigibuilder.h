@@ -14,7 +14,7 @@
 #include "SetupConfiguration.h"
 #include "DetEventDetector.h"
 
-#include "ERRawEvent.h"
+#include "ERUnpack.h"
 
 class ERDigibuilder : public FairSource
 {
@@ -35,13 +35,17 @@ class ERDigibuilder : public FairSource
 
     virtual void SetParUnpackers(){}
 
-    virtual Bool_t InitUnpackers(){return kTRUE;}
+    virtual Bool_t InitUnpackers();
 
     virtual Bool_t ReInitUnpackers(){return kTRUE;}
+
+    void AddUnpack(ERUnpack* unpack){ fUnpacks[unpack->GetName()] = unpack; }
 
     void SetConfigurationFile(TString name){fSetupFile = name;}
     void AddFile(TString path){fPath.push_back(path);}
   private:
+    std::map<TString, ERUnpack*> fUnpacks;
+
     // Вектор lmd файлов для обработки.
     std::vector<TString> fPath;
     // Индекс текущего файла в fPath.
@@ -52,16 +56,6 @@ class ERDigibuilder : public FairSource
     TString fSetupFile;
     SetupConfiguration* fSetupConfiguration;
     Reader* fReader;
-
-    std::map<TString,TClonesArray*> fDigiCollections;
-
-    void UnpackBeamDetTof(DetEventDetector* detEvent);
-    void UnpackBeamDetMwpc(DetEventDetector* detEvent);
-    void UnpackTofStation(DetEventDetector* detEvent,TString ampStation, TString timeStation);
-    void UnpackMWPCStation(DetEventDetector* detEvent, TString ampStation,Int_t mwpcNb, Int_t planeNb);
-    void AddToFDigi(Float_t edep, Double_t time, Int_t tofNb);
-    void AddMWPCDigi(Float_t edep, Double_t time, 
-                            Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
 
     Int_t OpenNextFile();
   public:

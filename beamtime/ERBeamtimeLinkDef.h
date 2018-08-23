@@ -31,6 +31,8 @@
 
 //#ifdef ACCULINNA_GO4
 #pragma link C++ class ERDigibuilder+;
+#pragma link C++ class ERUnpack+;
+#pragma link C++ class ERBeamDetUnpack+;
 //#endif
 
 #endif
