@@ -35,6 +35,7 @@ TString   fChannelFileNames = "channelsDirect.txt";
 std::vector<TString> fMCDataFiles = {
                                      "sim_digi_calib_direct1.root",
                                      "sim_digi_calib_direct4.root",
+                                     "sim_digi_calib_direct3.root",
                                      "sim_digi_calib_rot1.root",
                                      "sim_digi_calib_rot4.root"
                                     };
@@ -47,8 +48,8 @@ TString fTmpHistParams;
 
 
 // cout << "vect " << fLowEnergyThresholdChannel[5] << endl;
-Double_t  fFitMinSigma = 1.8;       //pouziva se, private
-Double_t  fFitPeakThreshold = 0.3;
+Double_t  fFitMinSigma = 3.;       //pouziva se, private
+Double_t  fFitPeakThreshold = 0.5;
 
 ofstream fNumclCoefsFile;
 
@@ -196,16 +197,19 @@ void SearchChanels (Int_t upperSubAddress_X, Int_t upperSubAddress_Y, TString ro
     cout << "\t peakPos ";
     for (int i = 0; i < peaksCount; i++) {
       cout << peaksChannels->at(i) << " ";
+      chFile << peaksChannels->at(i) << " ";
     }
     cout <<  endl;
+    chFile << endl;
     if (!peaksCount) {
-      chFile << 100 << "\t" << 100 << endl;
+      // chFile << 100 << "\t" << 100 << endl;
       fChannels[fileInd].push_back(pair<Double_t, Double_t>(100, 100));
       continue;
     }
-    chFile << peaksChannels->front() << "\t" << peaksChannels->back() << endl;
+    // chFile << peaksChannels->front() << "\t" << peaksChannels->back() << endl;
     fChannels[fileInd].push_back(pair<Double_t, Double_t>(peaksChannels->front(), peaksChannels->back()));
     spectrumCanvas->SaveAs(canvasName + ".root");
+    delete spectrumCanvas;
     // }    
   }
 }
@@ -593,13 +597,13 @@ void calibrationHandler () {
   // gSystem->Load("/home/komyour/soft/go4egor/build/src/libUserAnalysis.so");
 
   Double_t maxDeadThickness = 0.0004; // maximal value of dead layer thickness from simulation
-  for (Int_t i = 0; i < 2; i++) {
-    MonteCarloEdep(i, 10, maxDeadThickness, fMCDataFiles[i]);
-  }
+  // for (Int_t i = 0; i < 3; i++) {
+  //   MonteCarloEdep(i, 10, maxDeadThickness, fMCDataFiles[i]);
+  // }
   cout << "M " << fm[0] << " " << fm[1] << " " << fm[2] << " " << fm[3] << endl;
   cout << "N " << fn[0] << " " << fn[1] << " " << fn[2] << " " << fn[3] << endl;
   cout << "K " << fk[0] << " " << fk[1] << " " << fk[2] << " " << fk[3] << endl;
-  for (int i = 0; i < 2; i++) {
+  for (int i = 1; i < 2; i++) {
     FindThresholdBin(fUpperSubAddress_X, fExpRootFile[i]);
     SearchChanels(fUpperSubAddress_X, fUpperSubAddress_Y, fExpRootFile[i], i);
   }

@@ -63,20 +63,20 @@ void calib(TString runId,
   alphaSourceCover = new ERQTelescopeGeoComponentSingleSi("SingleSi", 
                                                           "SingleSi_calib", 
                                                           "X");
-  // for (int i = 0; i < deadLayerFragments; i++) {
-  //   deadQ_L.push_back(new ERQTelescopeGeoComponentDoubleSi("DoubleSi", 
-  //                                                          "DoubleSi_SD2_calib_dead", 
-  //                                                          "X"));
-  // }
+  for (int i = 0; i < deadLayerFragments; i++) {
+    deadQ_L.push_back(new ERQTelescopeGeoComponentDoubleSi("DoubleSi", 
+                                                           "DoubleSi_SD2_calib_dead", 
+                                                           "X"));
+  }
 
-  // int j = 0;
-  // for (auto itDead : deadQ_L) {
-  //   Double_t offsetZ = -(detectorThickness/2) 
-  //                    + j * deadLayerFragmentsThickness + deadLayerFragmentsThickness/2;
-  //   telescpoeAss->AddComponent(itDead, TVector3(0., 0., offsetZ), TVector3());
-  //   j++;
-  //   cout << "deadLayerFragments offset " << offsetZ << "; n = " << j << endl;
-  // }
+  int j = 0;
+  for (auto itDead : deadQ_L) {
+    Double_t offsetZ = -(detectorThickness/2) 
+                     + j * deadLayerFragmentsThickness + deadLayerFragmentsThickness/2;
+    telescpoeAss->AddComponent(itDead, TVector3(0., 0., offsetZ), TVector3());
+    j++;
+    cout << "deadLayerFragments offset " << offsetZ << "; n = " << j << endl;
+  }
   // sourceAss->AddComponent(alphaSourceCover, TVector3(0., 0., 0.), TVector3());
   telescpoeAss->AddComponent(Q_L, TVector3(0., 0., deadFrontThicknessMax), TVector3());
 

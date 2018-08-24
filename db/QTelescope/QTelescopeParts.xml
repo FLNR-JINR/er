@@ -32,7 +32,7 @@
 			<doubleSi id="DoubleSi_SD2_calib">
 				<doubleSiSize doubleSiX="6.6" doubleSiY="6.6" doubleSiZ="0.0996"/>
 				<doubleSiSensAreaSize doubleSiSensX="6.4" doubleSiSensY="6.4" doubleSiSensZ="0.0996"/>
-				<deadLayerThicknessFrontSide>0.0003</deadLayerThicknessFrontSide>
+				<deadLayerThicknessFrontSide>0.</deadLayerThicknessFrontSide>
 				<deadLayerThicknessBackSide>0.005</deadLayerThicknessBackSide>
 				<stripCountX>32</stripCountX>
 				<stripCountY>32</stripCountY>

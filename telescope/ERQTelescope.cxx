@@ -108,7 +108,7 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
 	{
     Double_t a =  0.00003;
     Double_t b = 0.0002;
-    fEloss = (fEloss - b) / a;
+    // fEloss = (fEloss - b) / a;
     gMC->TrackPosition(fPosOut);
     gMC->TrackMomentum(fMomOut);
     TString volName = gMC->CurrentVolName();
