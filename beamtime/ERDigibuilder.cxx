@@ -69,11 +69,11 @@ Bool_t ERDigibuilder::InitUnpackers(){
 }
 //--------------------------------------------------------------------------------------------------
 Int_t ERDigibuilder::ReadEvent(UInt_t id){
+	Reset();
 	FairRootManager* ioman = FairRootManager::Instance();
   	if ( ! ioman ) Fatal("Init", "No FairRootManager");
 
   	Int_t curEventInCurFile = ioman->GetEntryNr()-fOldEvents;
-
 	//Проверяем есть ли еще события для обработки
 	if (fReader->GetNEventsTotal() == curEventInCurFile){
 		//файл закончился
@@ -83,6 +83,7 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
 			return 1;
 	}
 
+  	cerr << "!!!!!!!!!!!!!!!" << curEventInCurFile << "!!!!!!!!!!!!!!!!!!!" << endl; 
 	DetEventFull* event = new DetEventFull("DetEventFull1");
 	fReader->ReadEvent(curEventInCurFile,event);
 
@@ -90,11 +91,28 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
 		if (itUnpack.second->IsInited()){
 			if (event->GetChild(itUnpack.first)){
 				itUnpack.second->DoUnpack((Int_t*)event,0);
+
+				//
+				DetEventDetector* det= (DetEventDetector*)event->GetChild(itUnpack.first);
+				cerr << "! " << det->GetName() << endl;
+				for (Int_t iSt(0); iSt<det->getMaxIndex(); iSt++){
+					if (det->getEventElement(iSt)){
+						DetEventStation* st = (DetEventStation*)det->getEventElement(iSt);
+						cerr << "! \t" <<  st->GetName() << endl;
+						TClonesArray* timeMessages = st->GetDetMessages();
+						for (Int_t iTimeMessage(0); iTimeMessage < timeMessages->GetEntriesFast(); ++iTimeMessage){
+							DetMessage* curTimeMes = (DetMessage*)timeMessages->At(iTimeMessage);
+							cerr << "! \t\t" << curTimeMes->fStChannel << " " <<  curTimeMes->fValue << endl;
+						}
+					}
+				}
+				//
 			}
 			else
 				cerr << "Event element for detector " << itUnpack.first << " not found in event!";
 		}
 	}
+
 	return 0;
 }
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +120,8 @@ void ERDigibuilder::Close(){
 }
 //--------------------------------------------------------------------------------------------------
 void ERDigibuilder::Reset(){
-
+	for (auto itUnpack : fUnpacks)
+		itUnpack.second->Reset();
 }
 //--------------------------------------------------------------------------------------------------
 Int_t ERDigibuilder::OpenNextFile(){

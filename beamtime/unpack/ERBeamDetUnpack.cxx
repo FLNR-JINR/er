@@ -101,10 +101,6 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 	return kTRUE;
 }
 //--------------------------------------------------------------------------------------------------
-void ERBeamDetUnpack::Reset(){
-	fUnpacked = kFALSE;
-}
-//--------------------------------------------------------------------------------------------------
 void ERBeamDetUnpack::UnpackTofStation(DetEventDetector* detEvent, TString ampStation, TString timeStation){
 	const std::map<TString, unsigned short> stList = fSetupConfiguration->GetStationList(fDetName);
 	Double_t time = 0.,amp = 0.;
@@ -116,8 +112,10 @@ void ERBeamDetUnpack::UnpackTofStation(DetEventDetector* detEvent, TString ampSt
 		DetEventStation* stationEvent = (DetEventStation*)detEvent->GetChild(ampEventElement);
 		if (stationEvent){
 			TClonesArray* messages = stationEvent->GetDetMessages();
-			DetMessage* mes = (DetMessage*)messages->At(0);
-			amp = mes->fValue;
+			if (messages->GetEntriesFast() > 0){
+				DetMessage* mes = (DetMessage*)messages->At(0);
+				amp = mes->fValue;
+			}
 		}
 		else{
 			cerr << "Could not find event element for " << ampEventElement << endl;
@@ -127,8 +125,10 @@ void ERBeamDetUnpack::UnpackTofStation(DetEventDetector* detEvent, TString ampSt
 		DetEventStation* stationEvent = (DetEventStation*)detEvent->GetChild(timeEventElement);
 		if (stationEvent){
 			TClonesArray* messages = stationEvent->GetDetMessages();
-			DetMessage* mes = (DetMessage*)messages->At(0);
-			time = mes->fValue;
+			if (messages->GetEntriesFast() > 0){
+				DetMessage* mes = (DetMessage*)messages->At(0);
+				time = mes->fValue;
+			}
 		}
 		else{
 			cerr << "Could not find event element for " << timeEventElement << endl;

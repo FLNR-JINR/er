@@ -105,7 +105,7 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
                                                                                   TVector3(0., 0., -5.36), TVector3(), "X");
   ERQTelescopeGeoComponentDoubleSi* thickT1 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SQ_L", 
                                                                                   TVector3(0, 0, 0.), TVector3(), "X");
-  ERQTelescopeGeoComponentCsI* csi1 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_1", TVector3(0, 0, 5.), TVector3());
+  ERQTelescopeGeoComponentCsI* csi1 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_L", TVector3(0, 0, 5.), TVector3());
   assemblyT1->AddComponent(thinT1);
   assemblyT1->AddComponent(thickT1);
   assemblyT1->AddComponent(csi1);
@@ -122,7 +122,7 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
                                                                                   TVector3(0, 0, 0.), TVector3(), "X");*/
   ERQTelescopeGeoComponentDoubleSi* thickT2 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SQ_R", 
                                                                                   TVector3(0, 0, 0.), TVector3(), "X");
-  ERQTelescopeGeoComponentCsI* csi2 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_1", TVector3(0, 0, 5.), TVector3());
+  ERQTelescopeGeoComponentCsI* csi2 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_R", TVector3(0, 0, 5.), TVector3());
   //assemblyT2->AddComponent(thinT2);
   assemblyT2->AddComponent(thickT2);
   assemblyT2->AddComponent(csi2);

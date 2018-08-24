@@ -15,7 +15,6 @@ class ERBeamDetUnpack : public ERUnpack
 
     virtual Bool_t Init(SetupConfiguration* setupConf);
     virtual Bool_t DoUnpack(Int_t* data, Int_t size);
-    virtual void   Reset();
 
   protected:
     void UnpackTofStation(DetEventDetector* detEvent,TString ampStation, TString timeStation);

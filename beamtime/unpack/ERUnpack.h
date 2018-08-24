@@ -19,7 +19,7 @@ class ERUnpack : public FairUnpack
     virtual Bool_t Init(){return kTRUE;}
     virtual Bool_t Init(SetupConfiguration* setupConf) { fSetupConfiguration = setupConf; return kTRUE;}
     virtual Bool_t DoUnpack(Int_t* data, Int_t size) = 0;
-    virtual void   Reset() = 0;
+    virtual void   Reset();
     TString GetDetName(){return fDetName;}
     Bool_t IsInited(){return fInited;}
   protected:

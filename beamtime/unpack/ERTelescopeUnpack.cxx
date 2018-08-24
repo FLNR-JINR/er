@@ -40,13 +40,22 @@ Bool_t ERTelescopeUnpack::Init(SetupConfiguration* setupConf){
 
 	fSetupConfiguration = setupConf;
 
+	fBnames["SQX_R"] = FormBranchName("Si",2, "SQ_R", "XY","X");
+	fBnames["SQY_R"] = FormBranchName("Si",2, "SQ_R", "XY","Y");
+	fBnames["SQX_L"] = FormBranchName("Si",2, "SQ_L", "XY","X");
+	fBnames["SQY_L"] = FormBranchName("Si",2, "SQ_L", "XY","Y");
+
+	fSiAmpTimeStations["SQX_R"] = "tSQX_R";
+	fSiAmpTimeStations["SQY_R"] = "tSQY_R";
+	fSiAmpTimeStations["SQX_L"] = "tSQX_L";
+	fSiAmpTimeStations["SQY_L"] = "tSQY_L";
+
 	const std::map<TString, unsigned short> stList = fSetupConfiguration->GetStationList(fDetName);
 	for (auto itSt : stList){
 		cerr <<  itSt.first << endl;
-		if (itSt.first == TString("SQX_R")){
-			fDigiCollections["ERQTelescopeSiDigi_Right_telescope_DoubleSi_SD2_XY_1_X"] = new TClonesArray("ERQTelescopeSiDigi",1000);
-			ioman->Register("ERQTelescopeSiDigi_Right_telescope_DoubleSi_SD2_XY_1_X",
-				 "Right_telescope", fDigiCollections["ERQTelescopeSiDigi_Right_telescope_DoubleSi_SD2_XY_1_X"], kTRUE);
+		if (fSiAmpTimeStations.find(itSt.first) != fSiAmpTimeStations.end()){
+			fDigiCollections[fBnames[itSt.first]] = new TClonesArray("ERQTelescopeSiDigi",1000);
+			ioman->Register(fBnames[itSt.first],fDetName, fDigiCollections[fBnames[itSt.first]], kTRUE);
 		}
 	}
 
@@ -63,8 +72,11 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
 
 	DetEventDetector* detEvent = (DetEventDetector* )event->GetChild(fDetName);
 	const std::map<TString, unsigned short> stList = fSetupConfiguration->GetStationList(fDetName);
-	if (stList.find("SQX_R") != stList.end() &&  stList.find("tSQX_R") != stList.end())
-		UnpackSiStation(detEvent,"SQX_R","tSQX_R");
+	for (auto itSt : stList){
+		if (fSiAmpTimeStations.find(itSt.first) != fSiAmpTimeStations.end()){
+			UnpackSiStation(detEvent,itSt.first,fSiAmpTimeStations[itSt.first]);
+		}
+	}
 
 	return kTRUE;
 }
@@ -79,8 +91,10 @@ void ERTelescopeUnpack::UnpackSiStation(DetEventDetector* detEvent, TString ampS
 
 	DetEventStation* ampStationEvent = (DetEventStation*)detEvent->GetChild(ampEventElement);
 	DetEventStation* timeStationEvent = (DetEventStation*)detEvent->GetChild(timeEventElement);
-	if (!ampStationEvent || timeStationEvent)
+	if (!ampStationEvent || !timeStationEvent){
 		cerr << "Amplitude event element or time event element not found for " << ampStation << endl;
+		return;
+	}
 
 	TClonesArray* ampMessages = ampStationEvent->GetDetMessages();
 	TClonesArray* timeMessages = timeStationEvent->GetDetMessages();
@@ -100,10 +114,7 @@ void ERTelescopeUnpack::UnpackSiStation(DetEventDetector* detEvent, TString ampS
 			}
 		}
 		if (found){
-			TString digiBranchName = "";
-			if (ampStation == "SQX_R")
-				digiBranchName = "ERQTelescopeSiDigi_Right_telescope_DoubleSi_SD2_XY_1_X";	
-			AddSiDigi(amp,time,0,channel,digiBranchName);
+			AddSiDigi(amp,time,0,channel,fBnames[ampStation]);
 		}
 		else
 			cerr << "Time channel for amplitude channel not found" << endl;
@@ -121,8 +132,14 @@ void ERTelescopeUnpack::AddSiDigi(Float_t edep, Double_t time, Int_t stationNb,
                                                                                      stripNb);
 }
 //--------------------------------------------------------------------------------------------------
-void ERTelescopeUnpack::Reset(){
-	fUnpacked = kFALSE;
+TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString stName, TString XY, TString XYside){
+	TString bName;
+	if (type == TString("Si"))
+		if (sideCount == 1)
+			bName.Form("ERQTelescopeSiDigi_%s_SingleSi_%s_%s_0",fDetName.Data(),stName.Data(),XYside.Data());
+		else
+			bName.Form("ERQTelescopeSiDigi_%s_DoubleSi_%s_%s_0_%s",fDetName.Data(),stName.Data(),XY.Data(),XYside.Data());
+	return bName;
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERTelescopeUnpack)

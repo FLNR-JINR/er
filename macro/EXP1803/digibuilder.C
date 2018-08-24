@@ -17,8 +17,10 @@ void digibuilder(Int_t nEvents = 20)
 
   ERBeamDetUnpack* beamDetUnpack = new ERBeamDetUnpack("Beam_detector");
   ERTelescopeUnpack* rtUnpack = new ERTelescopeUnpack("Right_telescope");
+  ERTelescopeUnpack* ltUnpack = new ERTelescopeUnpack("Left_telescope");
   builder->AddUnpack(beamDetUnpack);
   builder->AddUnpack(rtUnpack);
+  builder->AddUnpack(ltUnpack);
   // --- Run
   FairRunOnline *run = new FairRunOnline(builder);
   run->SetOutputFile(outFile);
@@ -28,7 +30,7 @@ void digibuilder(Int_t nEvents = 20)
   timer.Start();
   std::cout << ">>> Starting run..." << std::endl;
   run->Init();
-  run->Run(0,1);
+  run->Run(0,2);
 
   timer.Stop();
   

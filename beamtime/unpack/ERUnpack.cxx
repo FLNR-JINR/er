@@ -13,4 +13,10 @@ ERUnpack::~ERUnpack(){
 
 }
 
+void ERUnpack::Reset(){
+	fUnpacked = kFALSE;
+	for (auto itCol : fDigiCollections)
+		itCol.second->Clear();
+}
+
 ClassImp(ERUnpack)
