@@ -46,17 +46,23 @@ Bool_t ERDigibuilder::Init(){
 	OpenNextFile();
 	fSetupConfiguration = new SetupConfiguration(fSetupFile);
 
+	InitUnpackers();
+	
 	return kTRUE;
 }
 //--------------------------------------------------------------------------------------------------
 Bool_t ERDigibuilder::InitUnpackers(){
 	const std::map<TString, unsigned short> detList = fSetupConfiguration->GetDetectorList();
 	for (auto itDet : detList){
-		if (itDet.first == TString("Beam_detector_ToF") || itDet.first == TString("Beam_detector_MWPC"))
-			if (fUnpacks.find("BeamDet") != fUnpacks.end())
-				fUnpacks["BeamDet"]->Init(fSetupConfiguration);
-			else
-				cerr << "Beam_detector_ToF is defined in setup file, but unpacker is not added!" << endl;
+		if (fUnpacks.find(itDet.first) != fUnpacks.end())
+			fUnpacks[itDet.first]->Init(fSetupConfiguration);
+		else
+			cerr << itDet.first << " is defined in setup file, but unpacker is not added!" << endl;
+	}
+
+	for (auto itUnpack : fUnpacks){
+		if (!itUnpack.second->IsInited())
+			cerr << "Detector " << itUnpack.first << " not found in setup file. Unpacker has not inited!" << endl;
 	}
 
 	return kTRUE;
@@ -80,10 +86,15 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
 	DetEventFull* event = new DetEventFull("DetEventFull1");
 	fReader->ReadEvent(curEventInCurFile,event);
 
-	if (event->GetChild("Beam_detector_ToF") || event->GetChild("Beam_detector_MWPC"))
-		if (fUnpacks.find("BeamDet") != fUnpacks.end())
-			fUnpacks["BeamDet"]->DoUnpack((Int_t*)event,0);
-
+	for (auto itUnpack : fUnpacks){
+		if (itUnpack.second->IsInited()){
+			if (event->GetChild(itUnpack.first)){
+				itUnpack.second->DoUnpack((Int_t*)event,0);
+			}
+			else
+				cerr << "Event element for detector " << itUnpack.first << " not found in event!";
+		}
+	}
 	return 0;
 }
 //--------------------------------------------------------------------------------------------------

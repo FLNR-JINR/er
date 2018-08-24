@@ -10,7 +10,7 @@
 class ERBeamDetUnpack : public ERUnpack
 {
   public:
-    ERBeamDetUnpack();
+    ERBeamDetUnpack(TString detName);
     virtual ~ERBeamDetUnpack();
 
     virtual Bool_t Init(SetupConfiguration* setupConf);
@@ -18,8 +18,6 @@ class ERBeamDetUnpack : public ERUnpack
     virtual void   Reset();
 
   protected:
-    void UnpackBeamDetTof(DetEventDetector* detEvent);
-    void UnpackBeamDetMwpc(DetEventDetector* detEvent);
     void UnpackTofStation(DetEventDetector* detEvent,TString ampStation, TString timeStation);
     void UnpackMWPCStation(DetEventDetector* detEvent, TString ampStation,Int_t mwpcNb, Int_t planeNb);
     void AddToFDigi(Float_t edep, Double_t time, Int_t tofNb);

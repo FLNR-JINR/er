@@ -1,8 +1,8 @@
 #include "ERUnpack.h"
 
-ERUnpack::ERUnpack(TString name):
+ERUnpack::ERUnpack(TString detName):
 FairUnpack(0,0,0,0,0),
-fName(name),
+fDetName(detName),
 fInited(kFALSE),
 fUnpacked(kFALSE)
 {

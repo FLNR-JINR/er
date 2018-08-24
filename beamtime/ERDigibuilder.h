@@ -39,7 +39,7 @@ class ERDigibuilder : public FairSource
 
     virtual Bool_t ReInitUnpackers(){return kTRUE;}
 
-    void AddUnpack(ERUnpack* unpack){ fUnpacks[unpack->GetName()] = unpack; }
+    void AddUnpack(ERUnpack* unpack){ fUnpacks[unpack->GetDetName()] = unpack; }
 
     void SetConfigurationFile(TString name){fSetupFile = name;}
     void AddFile(TString path){fPath.push_back(path);}

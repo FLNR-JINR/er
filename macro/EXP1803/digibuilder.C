@@ -14,6 +14,9 @@ void digibuilder(Int_t nEvents = 20)
   ERDigibuilder* builder = new ERDigibuilder();
   builder->SetConfigurationFile(confFile);
   builder->AddFile(inFile);
+
+  ERBeamDetUnpack* beamDetUnpack = new ERBeamDetUnpack("Beam_detector");
+  builder->AddUnpack(beamDetUnpack);
   // --- Run
   FairRunOnline *run = new FairRunOnline(builder);
   run->SetOutputFile(outFile);

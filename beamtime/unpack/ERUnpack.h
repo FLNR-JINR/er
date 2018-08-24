@@ -13,21 +13,22 @@
 class ERUnpack : public FairUnpack
 {
   public:
-    ERUnpack(TString name);
+    ERUnpack(TString detName);
     virtual ~ERUnpack();
 
     virtual Bool_t Init(){return kTRUE;}
     virtual Bool_t Init(SetupConfiguration* setupConf) { fSetupConfiguration = setupConf; return kTRUE;}
     virtual Bool_t DoUnpack(Int_t* data, Int_t size) = 0;
     virtual void   Reset() = 0;
-    const char* GetName(){return fName.Data();}
+    TString GetDetName(){return fDetName;}
+    Bool_t IsInited(){return fInited;}
   protected:
     virtual void Register(){};
 
     SetupConfiguration* fSetupConfiguration;
     Bool_t fInited;
     Bool_t fUnpacked;
-    TString fName;
+    TString fDetName;
 
     std::map<TString,TClonesArray*> fDigiCollections;
 
