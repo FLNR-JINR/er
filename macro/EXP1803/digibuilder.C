@@ -16,7 +16,9 @@ void digibuilder(Int_t nEvents = 20)
   builder->AddFile(inFile);
 
   ERBeamDetUnpack* beamDetUnpack = new ERBeamDetUnpack("Beam_detector");
+  ERTelescopeUnpack* rtUnpack = new ERTelescopeUnpack("Right_telescope");
   builder->AddUnpack(beamDetUnpack);
+  builder->AddUnpack(rtUnpack);
   // --- Run
   FairRunOnline *run = new FairRunOnline(builder);
   run->SetOutputFile(outFile);

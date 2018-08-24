@@ -79,10 +79,10 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 
 	DetEventDetector* detEvent = (DetEventDetector* )event->GetChild(fDetName);
 	const std::map<TString, unsigned short> stList = fSetupConfiguration->GetStationList(fDetName);
-	if (stList.find("F3") != stList.end() || stList.find("tF3") != stList.end()){
+	if (stList.find("F3") != stList.end() && stList.find("tF3") != stList.end()){
 		UnpackTofStation(detEvent,"F3","tF3");
 	}
-	if (stList.find("F5") != stList.end() || stList.find("F5") != stList.end()){
+	if (stList.find("F5") != stList.end() && stList.find("tF5") != stList.end()){
 		UnpackTofStation(detEvent,"F5","tF5");
 	}
 	if (stList.find("MWPC1") != stList.end()){
