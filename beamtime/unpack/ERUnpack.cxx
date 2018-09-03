@@ -45,7 +45,7 @@ Bool_t ERUnpack::DoUnpack(Int_t* data, Int_t size){
 void ERUnpack::Reset(){
 	fUnpacked = kFALSE;
 	for (auto itCol : fDigiCollections)
-		itCol.second->Clear();
+		itCol.second->Delete();
 }
 //--------------------------------------------------------------------------------------------------
 void ERUnpack::UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,

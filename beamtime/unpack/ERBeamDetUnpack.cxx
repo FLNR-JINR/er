@@ -17,7 +17,8 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERBeamDetUnpack::ERBeamDetUnpack(TString detName):
-ERUnpack(detName)
+ ERUnpack(detName),
+ fToFCalConst(0.125)
 {
 
 }
@@ -80,15 +81,25 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 		std::vector<Double_t> ampV, timeV;
 		std::vector<Int_t> channelV;
 		UnpackAmpTimeStation(detEvent, "F3","tF3",ampV, timeV, channelV);
-		if (channelV.size() > 0)
-			AddToFDigi(ampV[0],timeV[0],1);
+		if (channelV.size() == 4){
+			Double_t time = (timeV[0] + timeV[1] + timeV[2] + timeV[3])*0.25*fToFCalConst;
+			Double_t amp  = (ampV[0] +  ampV[1] +  ampV[2]  + ampV[3]);
+			AddToFDigi(amp,time,1);
+		}
+		else
+			cerr << "Wrong PMT number in ToF!" << endl;
 	}
 	if (stList.find("F5") != stList.end() && stList.find("tF5") != stList.end()){
 		std::vector<Double_t> ampV, timeV;
 		std::vector<Int_t> channelV;
 		UnpackAmpTimeStation(detEvent, "F5","tF5",ampV, timeV, channelV);
-		if (channelV.size() > 0)
-			AddToFDigi(ampV[0],timeV[0],2);
+		if (channelV.size() == 4){
+			Double_t time = (timeV[0] + timeV[1] + timeV[2] + timeV[3])*0.25*fToFCalConst;
+			Double_t amp  = (ampV[0] +  ampV[1] +  ampV[2]  + ampV[3]);
+			AddToFDigi(amp,time,2);
+		}
+		else
+			cerr << "Wrong PMT number in ToF!" << endl;
 	}
 	// MWPC
 	std::map<Int_t, Double_t> mwpcTime;
