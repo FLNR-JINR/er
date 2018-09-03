@@ -1,4 +1,4 @@
-void digibuilder(Int_t nEvents = 20)
+void digibuilder(Int_t nEvents = 1000000)
 {
   TString workdir = gSystem->Getenv("VMCWORKDIR");
 	TString inFile = workdir + "/input/run13_0037.lmd.root";
@@ -30,7 +30,7 @@ void digibuilder(Int_t nEvents = 20)
   timer.Start();
   std::cout << ">>> Starting run..." << std::endl;
   run->Init();
-  run->Run(0,2);
+  run->Run(0,nEvents);
 
   timer.Stop();
   

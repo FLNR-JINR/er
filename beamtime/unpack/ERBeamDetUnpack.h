@@ -17,11 +17,11 @@ class ERBeamDetUnpack : public ERUnpack
     virtual Bool_t DoUnpack(Int_t* data, Int_t size);
 
   protected:
-    void UnpackTofStation(DetEventDetector* detEvent,TString ampStation, TString timeStation);
-    void UnpackMWPCStation(DetEventDetector* detEvent, TString ampStation,Int_t mwpcNb, Int_t planeNb);
     void AddToFDigi(Float_t edep, Double_t time, Int_t tofNb);
     void AddMWPCDigi(Float_t edep, Double_t time, 
-                            Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
+                            TString mwpcSt, Int_t wireNb);
+    std::map<TString,Int_t> fMwpcAmpTimeStations;
+    std::map<TString,TString> fMwpcBnames;
 
   public:
     ClassDef(ERBeamDetUnpack, 0)

@@ -1,4 +1,3 @@
-
 #include "ERDigibuilder.h"
 
 #include <iostream>
@@ -83,7 +82,6 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
 			return 1;
 	}
 
-  	cerr << "!!!!!!!!!!!!!!!" << curEventInCurFile << "!!!!!!!!!!!!!!!!!!!" << endl; 
 	DetEventFull* event = new DetEventFull("DetEventFull1");
 	fReader->ReadEvent(curEventInCurFile,event);
 
@@ -112,6 +110,8 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
 				cerr << "Event element for detector " << itUnpack.first << " not found in event!";
 		}
 	}
+
+	delete event;
 
 	return 0;
 }
