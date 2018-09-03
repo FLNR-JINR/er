@@ -2,7 +2,6 @@
 #define ERN15B11ElasticScattering_H
 
 #include <ERDecay.h> // mother class
-#include <TGraph.h> // for CDF form functions
 
 // ROOT
 #include <TString.h>
@@ -21,15 +20,14 @@ public:
     void SetPhiRange(Double_t phi1, Double_t phi2) { fPhi1 = phi1; fPhi2 = phi2; }
 
     void SetDetAngle(Double_t angle) { fDetPos = angle; }
-    void SetIonMass(Double_t mass)  { fIonMass = mass; }
+    void SetIonMass(Double_t mass) { fIonMass = mass; }
     void SetTargetMass(Double_t mass) { fTargetMass = mass; }
 
-    Double_t GetIonMass()           const { return fIonMass; }
-    Double_t GetTargetMass()        const { return fTargetMass; }
-    Double_t GetdPhi()              const { return fPhi2 - fPhi1; }
-    Double_t GetProbab()            const { return fProbab; }
+    Double_t GetIonMass() const { return fIonMass; }
+    Double_t GetTargetMass() const { return fTargetMass; }
+    Double_t GetdPhi() const {return fPhi2 - fPhi1; }
 
-    Int_t GetInteractNumInTarget()  const { return fInteractNumInTarget; }
+    Int_t GetInteractNumInTarget() const { return fInteractNumInTarget; }
 
 public:
     Bool_t Init();
@@ -55,20 +53,12 @@ protected:
     Double_t        fDetPos;
     Double_t        fIonMass;
     Double_t        fTargetMass;
-    Double_t        fProbab;
 
-    Int_t           fInteractNumInTarget; // interactions number in target counter
+    Int_t           fInteractNumInTarget;
 
     Double_t ThetaGen();
+    Double_t PhiGen(Double_t theta);
     void RangeCalculate(Double_t iM, Double_t tM);
-
-    // CDF form data and methods
-    static TGraph* fThetaCDFGr;
-    static TGraph* fThetaInvCDFGr;
-
-    static Double_t ThetaCDF(Double_t *x, Double_t *par);
-
-    static Double_t ThetaInvCDF(Double_t *x, Double_t *par);
 
     ClassDef(ERN15B11ElasticScattering, 1);
 };
