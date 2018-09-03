@@ -39,6 +39,7 @@ Bool_t ERTelescopeUnpack::Init(SetupConfiguration* setupConf){
     fBnames["SQY_R"] = FormBranchName("Si",2, "SQ_R", "XY","Y");
     fBnames["SQX_L"] = FormBranchName("Si",2, "SQ_L", "XY","X");
     fBnames["SQY_L"] = FormBranchName("Si",2, "SQ_L", "XY","Y");
+    fBnames["SQ300"] = FormBranchName("Si",1, "SQ300_L", "XY","X");
     fBnames["CsI_R"] = FormBranchName("CsI",-1,"CsI_R","","");
     fBnames["CsI_L"] = FormBranchName("CsI",-1,"CsI_L","","");
 
@@ -46,6 +47,7 @@ Bool_t ERTelescopeUnpack::Init(SetupConfiguration* setupConf){
     fSiAmpTimeStations["SQY_R"] = "tSQY_R";
     fSiAmpTimeStations["SQX_L"] = "tSQX_L";
     fSiAmpTimeStations["SQY_L"] = "tSQY_L";
+    fSiAmpTimeStations["SQ300"] = "tSQ300";
 
     fCsIStations.push_back("CsI_R");
     fCsIStations.push_back("CsI_L");
