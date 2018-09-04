@@ -1,8 +1,10 @@
 void digibuilder(Int_t nEvents = 1000000)
 {
-  TString workdir = gSystem->Getenv("VMCWORKDIR");
-	TString inFile = workdir + "/input/run13_0037.lmd.root";
-  TString confFile = workdir + "/input/setup2_exp201803.xml";
+  TString inputdir = gSystem->Getenv("VMCWORKDIR");
+  inputdir = inputdir + "/input/";
+
+	TString inFile = inputdir + "run13_0037.lmd.root";
+  TString confFile = inputdir + "setup2_exp201803.xml";
 
 	// --- Specify output file name (this is just an example)
 	TString outFile = "run13_0037.root";
@@ -16,8 +18,28 @@ void digibuilder(Int_t nEvents = 1000000)
   builder->AddFile(inFile);
 
   ERBeamDetUnpack* beamDetUnpack = new ERBeamDetUnpack("Beam_detector");
+  
   ERTelescopeUnpack* rtUnpack = new ERTelescopeUnpack("Right_telescope");
+  rtUnpack->AddDoubleSiStation("SQ_R",
+                               "SQX_R","tSQX_R",
+                               "SQY_R","tSQY_R",
+                               inputdir + "SQX_R.cal", inputdir + "SQY_R.cal",
+                               "XY");
+  rtUnpack->AddCsIStation("CsI_R","CsI_R","");
+
   ERTelescopeUnpack* ltUnpack = new ERTelescopeUnpack("Left_telescope");
+  ltUnpack->AddDoubleSiStation("SQ_L",
+                               "SQX_L","tSQX_L",
+                               "SQY_L","tSQY_L",
+                               inputdir + "SQX_L.cal", inputdir + "SQY_L.cal",
+                               "XY");
+  ltUnpack->AddSingleSiStation("SQ300",
+                               "SQ300","tSQ300",
+                               inputdir + "SQ20.cal",
+                               "X");
+  ltUnpack->AddCsIStation("CsI_L","CsI_L","");
+  
+
   builder->AddUnpack(beamDetUnpack);
   builder->AddUnpack(rtUnpack);
   builder->AddUnpack(ltUnpack);

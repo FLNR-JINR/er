@@ -21,7 +21,8 @@ fCurFile(0),
 fOldEvents(0),
 fSetupFile(""),
 fReader(NULL),
-fSetupConfiguration(NULL)
+fSetupConfiguration(NULL),
+fEvent(NULL)
 {
 }
 //--------------------------------------------------------------------------------------------------
@@ -44,6 +45,8 @@ Bool_t ERDigibuilder::Init(){
 
 	OpenNextFile();
 	fSetupConfiguration = new SetupConfiguration(fSetupFile);
+
+	fEvent = new DetEventFull("DetEventFull1");
 
 	InitUnpackers();
 	
@@ -82,16 +85,15 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
 			return 1;
 	}
 
-	DetEventFull* event = new DetEventFull("DetEventFull1");
-	fReader->ReadEvent(curEventInCurFile,event);
+	fReader->ReadEvent(curEventInCurFile,fEvent);
 
 	for (auto itUnpack : fUnpacks){
 		if (itUnpack.second->IsInited()){
-			if (event->GetChild(itUnpack.first)){
-				itUnpack.second->DoUnpack((Int_t*)event,0);
+			if (fEvent->GetChild(itUnpack.first)){
+				itUnpack.second->DoUnpack((Int_t*)fEvent,0);
 
 				//
-				DetEventDetector* det= (DetEventDetector*)event->GetChild(itUnpack.first);
+				DetEventDetector* det= (DetEventDetector*)fEvent->GetChild(itUnpack.first);
 				cerr << "! " << det->GetName() << endl;
 				for (Int_t iSt(0); iSt<det->getMaxIndex(); iSt++){
 					if (det->getEventElement(iSt)){
@@ -110,8 +112,6 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
 				cerr << "Event element for detector " << itUnpack.first << " not found in event!";
 		}
 	}
-
-	delete event;
 
 	return 0;
 }

@@ -56,6 +56,7 @@ class ERDigibuilder : public FairSource
     TString fSetupFile;
     SetupConfiguration* fSetupConfiguration;
     Reader* fReader;
+    DetEventFull* fEvent;
 
     Int_t OpenNextFile();
   public:
