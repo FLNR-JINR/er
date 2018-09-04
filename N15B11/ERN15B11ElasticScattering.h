@@ -56,8 +56,9 @@ protected:
 
     Int_t           fInteractNumInTarget;
 
+    Bool_t ionMassTrueOrFalseTester;
+
     Double_t ThetaGen();
-    Double_t PhiGen(Double_t theta);
     void RangeCalculate(Double_t iM, Double_t tM);
 
     ClassDef(ERN15B11ElasticScattering, 1);
