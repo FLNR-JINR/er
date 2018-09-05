@@ -79,6 +79,7 @@ void ERUnpack::UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStati
 			if (curTimeMes->fStChannel == channel){
 				found = kTRUE;
 				timeMes = curTimeMes;
+				time = timeMes->fValue;
 			}
 		}
 		if (found){

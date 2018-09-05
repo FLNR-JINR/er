@@ -62,6 +62,9 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
             std::map<Int_t, std::pair<Double_t, Double_t> > valueMap;
             UnpackAmpTimeStation(detEvent,itStation.second->ampStName,itStation.second->timeStName,
                                  valueMap);
+            if (!ApplyCalibration(itStation.second->calTable,valueMap)){
+                cerr << "calibration error on station " << itStation.first << endl;
+            }
             for (auto itValue : valueMap){
                 Int_t channel = itValue.first;
                 Double_t amp = itValue.second.first;
@@ -72,6 +75,9 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
                 valueMap.clear();
                 UnpackAmpTimeStation(detEvent,itStation.second->ampStName2,itStation.second->timeStName2,
                                      valueMap);
+                if (!ApplyCalibration(itStation.second->calTable2,valueMap)){
+                    cerr << "calibration error on station " << itStation.first << endl;
+                }
                 for (auto itValue : valueMap){
                     Int_t channel = itValue.first;
                     Double_t amp = itValue.second.first;
@@ -276,6 +282,19 @@ TMatrixD* ERTelescopeUnpack::ReadCalFile(TString fileName){
     }
 
     return calTable;
+}
+//--------------------------------------------------------------------------------------------------
+Bool_t ERTelescopeUnpack::ApplyCalibration(TMatrixD* calTable, std::map<Int_t, std::pair<Double_t, Double_t> >& valueMap){
+    for (auto& itValue : valueMap){
+        if (itValue.first >= calTable->GetNrows()){
+            cerr << "channel number not found in calibration table" << endl;
+            return kFALSE;
+        }
+        itValue.second.first = itValue.second.first*(*calTable)[itValue.first][1] + (*calTable)[itValue.first][0];
+        cerr << itValue.second.first << endl;
+    }
+
+    return kTRUE;
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERTelescopeUnpack)
