@@ -1,8 +1,8 @@
 #!/bin/bash
-NEVENTS=1000
-STARTANG=5
+NEVENTS=10000
+STARTANG=30
 NTHREADS=16
-ANGNUM=3
+ANGNUM=31
 if [ -d result ]; then
 	cd result
         rm -fv resultGr.pdf 

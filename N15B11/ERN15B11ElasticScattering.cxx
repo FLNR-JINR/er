@@ -263,7 +263,7 @@ Double_t ERN15B11ElasticScattering::ThetaGen()
     }
     else
     {
-        Double_t dF1 = 0.*fabs(fCDFmax-fCDFmin);
+        Double_t dF1 = fabs(fCDFmax-fCDFmin);
         Double_t dF2 = fabs(fCDFmaxB11-fCDFminB11);
         Double_t dLength = dF1+dF2;
 
