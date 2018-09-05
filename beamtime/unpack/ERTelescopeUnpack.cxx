@@ -1,6 +1,7 @@
 #include "ERTelescopeUnpack.h"
 
 #include <iostream>
+#include <fstream>
 
 #include "TClonesArray.h"
 
@@ -38,6 +39,10 @@ Bool_t ERTelescopeUnpack::Init(SetupConfiguration* setupConf){
 
     // TODO check setup conf and fStations
     FormAllBranches();
+
+    if (!ReadCalFiles())
+        Fatal("Init", "Problem in ReadCalFiles!");
+
     DumpStationsInfo();
     
     return kTRUE;
@@ -185,12 +190,20 @@ void ERTelescopeUnpack::DumpStationsInfo(){
                 "\t\ttimeStName : " << itStation.second->timeStName << endl << 
                 "\t\tampStName2 : " << itStation.second->ampStName2 << endl << 
                 "\t\ttimeStName2 : " << itStation.second->timeStName2 << endl <<
-                "\t\tcalFile : " << itStation.second->calFile << endl <<
-                "\t\tcalFile2 : " << itStation.second->calFile2 << endl <<
                 "\t\tXY : " << itStation.second->XY << endl <<
                 "\t\tXYside : " << itStation.second->XYside << endl <<
                 "\t\tbName : " << itStation.second->bName << endl <<
                 "\t\tbName2 : " << itStation.second->bName2 << endl;
+        if (itStation.second->calTable){
+            cerr << "\t\tcalFile : " << itStation.second->calFile << endl;
+            cerr << "\t\tcalTable : " << endl;
+            itStation.second->calTable->Print();
+        }
+        if (itStation.second->calTable2){
+            cerr << "\t\tcalFile2 : " << itStation.second->calFile2 << endl;
+            cerr << "\t\tcalTable2 : " << endl;
+            itStation.second->calTable2->Print();
+        }
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -212,6 +225,52 @@ ERTelescopeStation::ERTelescopeStation(TString _type, Int_t _sideCount, TString 
     bName(""),
     bName2("")
 {
+}
+//--------------------------------------------------------------------------------------------------
+Bool_t ERTelescopeUnpack::ReadCalFiles(){
+    for (auto itStation : fStations){
+        if (itStation.second->type == "CsI")
+            continue;
+
+        itStation.second->calTable = ReadCalFile(itStation.second->calFile);
+        if (!itStation.second->calTable)
+            return kFALSE;
+
+        if (itStation.second->sideCount == 2)
+            itStation.second->calTable2 = ReadCalFile(itStation.second->calFile2);
+    }
+    return kTRUE;
+}
+//--------------------------------------------------------------------------------------------------
+TMatrixD* ERTelescopeUnpack::ReadCalFile(TString fileName){
+    ifstream in;
+    in.open(fileName);
+    if (!in.is_open()){
+        cerr << "Can`t read calibration file " << fileName << endl;
+        return NULL;
+    }
+
+    Int_t nRows = -1, nCols = -1;
+    in >> nCols;
+    in >> nRows;
+    if (nCols <= 0 || nRows <= 0){
+        cerr << "Can`t read rows or cols from calibration file " << fileName << endl;
+        return NULL;
+    }
+
+    TMatrixD* calTable = new TMatrixD(nRows,nCols);
+    Int_t i = 0;
+
+    while (!in.eof()){
+        if (i >= nRows){
+            cerr << "Wrong file format in " << fileName << endl;
+            return NULL;
+        }
+        in >> (*calTable)[i][0] >> (*calTable)[i][1];
+        i++;
+    }
+
+    return calTable;
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERTelescopeUnpack)

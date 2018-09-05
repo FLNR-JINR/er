@@ -53,6 +53,8 @@ class ERTelescopeUnpack : public ERUnpack
     void AddCsIDigi(Float_t edep, Double_t time, Int_t wallNb, Int_t blockNb, TString digiBranchName);
     TString FormBranchName(TString type, Int_t sideCount, TString stName, TString XY, TString XYside);
     void FormAllBranches();
+    Bool_t ReadCalFiles();
+    TMatrixD* ReadCalFile(TString fileName);
     void DumpStationsInfo();
 
     std::map<TString,ERTelescopeStation*> fStations;
