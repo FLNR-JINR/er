@@ -28,8 +28,8 @@ class ERUnpack : public FairUnpack
     virtual void Register(){};
 
     void UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,
-                                 std::vector<Double_t>& ampV, std::vector<Double_t>& timeV, std::vector<Int_t>& channelV);
-    void UnpackStation(DetEventDetector* detEvent, TString station, std::map<Int_t,Double_t>& valueV);
+                                 std::map<Int_t, std::pair<Double_t, Double_t> >& valueMap);
+    void UnpackStation(DetEventDetector* detEvent, TString station, std::map<Int_t,Double_t>& valueMap);
 
     SetupConfiguration* fSetupConfiguration;
     Bool_t fInited;

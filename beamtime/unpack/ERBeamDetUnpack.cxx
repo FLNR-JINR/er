@@ -78,25 +78,31 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 	const std::map<TString, unsigned short> stList = fSetupConfiguration->GetStationList(fDetName);
 	//ToF
 	if (stList.find("F3") != stList.end() && stList.find("tF3") != stList.end()){
-		std::vector<Double_t> ampV, timeV;
-		std::vector<Int_t> channelV;
-		UnpackAmpTimeStation(detEvent, "F3","tF3",ampV, timeV, channelV);
-		if (channelV.size() == 4){
-			Double_t time = (timeV[0] + timeV[1] + timeV[2] + timeV[3])*0.25*fToFCalConst;
-			Double_t amp  = (ampV[0] +  ampV[1] +  ampV[2]  + ampV[3]);
+		std::map<Int_t, std::pair<Double_t, Double_t> > valueMap;
+		UnpackAmpTimeStation(detEvent, "F3","tF3",valueMap);
+		if (valueMap.size() == 4){
+			Double_t time = 0., amp = 0.;
+			for (auto itValue : valueMap){
+				amp += itValue.second.first;
+				time += itValue.second.second;
+			}
+			time*0.25*fToFCalConst;
 			AddToFDigi(amp,time,1);
 		}
 		else
 			cerr << "Wrong PMT number in ToF!" << endl;
 	}
 	if (stList.find("F5") != stList.end() && stList.find("tF5") != stList.end()){
-		std::vector<Double_t> ampV, timeV;
-		std::vector<Int_t> channelV;
-		UnpackAmpTimeStation(detEvent, "F5","tF5",ampV, timeV, channelV);
-		if (channelV.size() == 4){
-			Double_t time = (timeV[0] + timeV[1] + timeV[2] + timeV[3])*0.25*fToFCalConst;
-			Double_t amp  = (ampV[0] +  ampV[1] +  ampV[2]  + ampV[3]);
-			AddToFDigi(amp,time,2);
+		std::map<Int_t, std::pair<Double_t, Double_t> > valueMap;
+		UnpackAmpTimeStation(detEvent, "F5","tF5",valueMap);
+		if (valueMap.size() == 4){
+			Double_t time = 0., amp = 0.;
+			for (auto itValue : valueMap){
+				amp += itValue.second.first;
+				time += itValue.second.second;
+			}
+			time*0.25*fToFCalConst;
+			AddToFDigi(amp,time,1);
 		}
 		else
 			cerr << "Wrong PMT number in ToF!" << endl;

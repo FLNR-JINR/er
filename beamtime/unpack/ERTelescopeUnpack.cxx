@@ -59,21 +59,26 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
 
     for (auto itStation : fStations){
         if (itStation.second->type == "Si"){
-            std::vector<Double_t> ampV, timeV;
-            std::vector<Int_t> channelV;
+            std::map<Int_t, std::pair<Double_t, Double_t> > valueMap;
             UnpackAmpTimeStation(detEvent,itStation.second->ampStName,itStation.second->timeStName,
-                                 ampV, timeV, channelV);
-            for (Int_t iChannel = 0; iChannel < channelV.size(); iChannel++)
-                AddSiDigi(ampV[iChannel],timeV[iChannel],0,channelV[iChannel],itStation.second->bName);
+                                 valueMap);
+            for (auto itValue : valueMap){
+                Int_t channel = itValue.first;
+                Double_t amp = itValue.second.first;
+                Double_t time = itValue.second.second;
+                AddSiDigi(amp,time,0,channel,itStation.second->bName);
+            }
             if (itStation.second->sideCount == 2){
-                ampV.clear();
-                timeV.clear();
-                channelV.clear();
+                valueMap.clear();
                 UnpackAmpTimeStation(detEvent,itStation.second->ampStName2,itStation.second->timeStName2,
-                                 ampV, timeV, channelV);
-                for (Int_t iChannel = 0; iChannel < channelV.size(); iChannel++)
-                    AddSiDigi(ampV[iChannel],timeV[iChannel],0,channelV[iChannel],itStation.second->bName2);
+                                     valueMap);
+                for (auto itValue : valueMap){
+                    Int_t channel = itValue.first;
+                    Double_t amp = itValue.second.first;
+                    Double_t time = itValue.second.second;
+                    AddSiDigi(amp,time,0,channel,itStation.second->bName2);
                 }
+            }
         }
         if (itStation.second->type == "CsI"){
             map<Int_t,Double_t> csiAmp;

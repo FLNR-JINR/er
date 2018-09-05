@@ -49,7 +49,7 @@ void ERUnpack::Reset(){
 }
 //--------------------------------------------------------------------------------------------------
 void ERUnpack::UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,
-                        std::vector<Double_t>& ampV, std::vector<Double_t>& timeV,std::vector<Int_t>& channelV){
+                        			std::map<Int_t, std::pair<Double_t, Double_t> >& valueMap){
 	const std::map<TString, unsigned short> stList = fSetupConfiguration->GetStationList(fDetName);
 	Double_t time = 0.,amp = 0.;
 	Int_t channel = -1;
@@ -82,9 +82,7 @@ void ERUnpack::UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStati
 			}
 		}
 		if (found){
-			ampV.push_back(amp);
-			timeV.push_back(time);
-			channelV.push_back(channel);
+			valueMap[channel] = std::make_pair(amp,time);
 		}
 		else
 			cerr << "Time channel for amplitude channel not found" << endl;
