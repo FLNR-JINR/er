@@ -57,6 +57,7 @@ class ERTelescopeUnpack : public ERUnpack
     TMatrixD* ReadCalFile(TString fileName);
     void DumpStationsInfo();
     Bool_t ApplyCalibration(TMatrixD* calTable, std::map<Int_t, std::pair<Double_t, Double_t> >& valueMap);
+    Bool_t CheckSetup();
 
     std::map<TString,ERTelescopeStation*> fStations;
   public:

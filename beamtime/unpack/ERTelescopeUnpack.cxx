@@ -24,7 +24,10 @@ ERUnpack(detName)
 }
 //--------------------------------------------------------------------------------------------------
 ERTelescopeUnpack::~ERTelescopeUnpack(){
-
+    for (auto itStation : fStations){
+        if (itStation.second)
+            delete itStation.second;
+    }
 }
 //--------------------------------------------------------------------------------------------------
 Bool_t ERTelescopeUnpack::Init(SetupConfiguration* setupConf){
@@ -37,8 +40,8 @@ Bool_t ERTelescopeUnpack::Init(SetupConfiguration* setupConf){
 
     fSetupConfiguration = setupConf;
 
-    // TODO check setup conf and fStations
-    CheckSetup();
+    if (!CheckSetup())
+        Fatal("Init", "Error in ERTelescopeUnpack setup checking !");
 
     FormAllBranches();
 
@@ -57,7 +60,6 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
     DetEventFull* event = (DetEventFull*)data;
 
     DetEventDetector* detEvent = (DetEventDetector* )event->GetChild(fDetName);
-    const std::map<TString, unsigned short> stList = fSetupConfiguration->GetStationList(fDetName);
 
     for (auto itStation : fStations){
         if (itStation.second->type == "Si"){
@@ -294,6 +296,51 @@ Bool_t ERTelescopeUnpack::ApplyCalibration(TMatrixD* calTable, std::map<Int_t, s
         }
         itValue.second.first = itValue.second.first*(*calTable)[itValue.first][1] + (*calTable)[itValue.first][0];
         cerr << itValue.second.first << endl;
+    }
+
+    return kTRUE;
+}
+//--------------------------------------------------------------------------------------------------
+Bool_t ERTelescopeUnpack::CheckSetup() {
+
+    const std::map<TString, unsigned short> stationsInConfig = fSetupConfiguration->GetStationList(fDetName);
+    for (auto itStation : fStations){
+        ERTelescopeStation* station = itStation.second;
+        if (stationsInConfig.find(station->ampStName) == stationsInConfig.end()){
+            cerr << "Amplitude station " << station->ampStName << " not found in setup configuration file!" << endl;
+            return kFALSE;
+        }
+        if (station->timeStName != ""){
+            if (stationsInConfig.find(station->timeStName) == stationsInConfig.end()){
+                cerr << "Time station " << station->timeStName << " not found in setup configuration file!" << endl;
+                return kFALSE;
+            }
+        }
+        if (station->sideCount == 2){
+            if (stationsInConfig.find(station->ampStName2) == stationsInConfig.end()){
+            cerr << "Amplitude station " << station->ampStName2 << " not found in setup configuration file!" << endl;
+            return kFALSE;
+            }
+            if (station->timeStName2 != ""){
+                if (stationsInConfig.find(station->timeStName2) == stationsInConfig.end()){
+                    cerr << "Time station " << station->timeStName2 << " not found in setup configuration file!" << endl;
+                    return kFALSE;
+                }
+            }
+        }
+    }
+
+    for (auto itConfSt : stationsInConfig){
+        TString stationName = itConfSt.first;
+        Bool_t found = kFALSE;
+        for (auto itStation : fStations){
+            ERTelescopeStation* station = itStation.second;
+            if (station->ampStName == stationName ||
+                station->timeStName == stationName || 
+                station->ampStName2 == stationName || 
+                station->timeStName2 == stationName)
+            cerr << "Station " << stationName << " in setup file, but not defined to unpack!" << endl; 
+        }
     }
 
     return kTRUE;
