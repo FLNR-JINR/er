@@ -152,9 +152,27 @@ void ERBeamDetUnpack::AddMWPCDigi(Float_t edep, Double_t time,
                                             TString mwpcSt, Int_t wireNb) {
   ERBeamDetMWPCDigi *digi;
   TString bName = fMwpcBnames[mwpcSt];
+  Int_t mwpcNb = -1;
+  Int_t planeNb = -1;
+  if (mwpcSt == "MWPC1"){
+  	mwpcNb = 1;
+  	planeNb = 1;
+  }
+  if (mwpcSt == "MWPC2"){
+  	mwpcNb = 1;
+  	planeNb = 2;
+  }
+  if (mwpcSt == "MWPC3"){
+  	mwpcNb = 2;
+  	planeNb = 1;
+  }
+  if (mwpcSt == "MWPC4"){
+  	mwpcNb = 2;
+  	planeNb = 2;
+  }
   digi = new((*fDigiCollections[bName])[fDigiCollections[bName]->GetEntriesFast()])
               ERBeamDetMWPCDigi(fDigiCollections[bName]->GetEntriesFast(), edep, time, 
-                                -1, -1, wireNb);
+                                mwpcNb, planeNb, wireNb+1);
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetUnpack)

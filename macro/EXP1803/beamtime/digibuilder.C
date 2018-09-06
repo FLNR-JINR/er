@@ -7,7 +7,7 @@ void digibuilder(Int_t nEvents = 1000000)
   TString confFile = inputdir + "setup2_exp201803.xml";
 
 	// --- Specify output file name (this is just an example)
-	TString outFile = "run13_0037.root";
+	TString outFile = "digi.root";
 
   std::cout << ">>> input file is " << inFile  << std::endl;
   std::cout << ">>> output file is " << outFile << std::endl;
