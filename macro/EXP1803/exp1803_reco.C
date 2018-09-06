@@ -20,6 +20,7 @@ void exp1803_reco(Int_t nEvents = 1000) {
   // ------------------------BeamDetTrackFinger--------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
+  trackFinder->SetTargetVolume("boxCD");
   run->AddTask(trackFinder);
   // -----------------------BeamDetTrackPID----------------------------------
   Int_t Z = 2, A = 6, Q = 2;

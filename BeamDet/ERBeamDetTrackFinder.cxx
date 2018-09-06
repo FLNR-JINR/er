@@ -42,6 +42,9 @@ InitStatus ERBeamDetTrackFinder::Init()
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
+
+  if (fTargetVolName == "") 
+    Fatal("Init", "TragetVolumeName for ERBeamDetTrackFinder not defined! ");
   
   fBeamDetMWPCDigiX1 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiX1");
   fBeamDetMWPCDigiX2 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiX2");
@@ -124,12 +127,22 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   Double_t targetMiddleThicknessX;
   Double_t targetMiddleThicknessY;
   Double_t targetMiddleThicknessZ;
+
+  Bool_t targetAffected = kFALSE;
   while(!gGeoManager->IsOutside()){    
     node = gGeoManager->FindNextBoundaryAndStep();
+    if (!node)
+      break;
     if ((TString(node->GetName()).Contains(fTargetVolName))) {
+      targetAffected = kTRUE;
       break;
     }
   }
+  if (!targetAffected){
+    LOG(WARNING) << "Tatget is not affected" << FairLogger::endl;
+    return;
+  }
+
   node = gGeoManager->FindNextBoundary();
 
   Double_t matThickness = gGeoManager->GetStep();
