@@ -38,6 +38,8 @@ Bool_t ERTelescopeUnpack::Init(SetupConfiguration* setupConf){
     fSetupConfiguration = setupConf;
 
     // TODO check setup conf and fStations
+    CheckSetup();
+
     FormAllBranches();
 
     if (!ReadCalFiles())

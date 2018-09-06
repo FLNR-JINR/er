@@ -25,7 +25,7 @@ set(SRCS
 	ERTektronixSource.cxx
 	ERRawToAnalyzeConverter.cxx
 
-	ERLiCalibrator.cxx
+	#ERLiCalibrator.cxx
 	ERRootSource.cxx
 	ERRootSourceOld.cxx
 	ERNXyterTreeSource.cxx
@@ -36,7 +36,7 @@ set(SRCS
 	data/ERNeuRadRawEvent.cxx
 	data/ERNeuRadAEvent.cxx
 
-	data/TLiEvent.cxx
+	#data/TLiEvent.cxx
 
 	data/cls_RootHit.cxx
 	data/cls_RootEvent.cxx
@@ -64,8 +64,8 @@ if (ACCULINNA_GO4)
 	list(APPEND INCLUDE_DIRECTORIES ${ACCULINNA_GO4}/include/setupconfigcppwrapper)
 	message(STATUS ${ACCULINNA_GO4}/lib/)
 	list(APPEND LINK_DIRECTORIES ${ACCULINNA_GO4}/lib/)
-	list(APPEND DEPENDENCIES Data)
-	list(APPEND DEPENDENCIES Reader)
+	list(APPEND DEPENDENCIES AcGo4Data)
+	list(APPEND DEPENDENCIES AcGo4Reader)
 endif()
 
 # fill list of header files from list of source files

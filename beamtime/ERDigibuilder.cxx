@@ -21,8 +21,7 @@ fCurFile(0),
 fOldEvents(0),
 fSetupFile(""),
 fReader(NULL),
-fSetupConfiguration(NULL),
-fEvent(NULL)
+fSetupConfiguration(NULL)
 {
 }
 //--------------------------------------------------------------------------------------------------
@@ -45,8 +44,6 @@ Bool_t ERDigibuilder::Init(){
 
 	OpenNextFile();
 	fSetupConfiguration = new SetupConfiguration(fSetupFile);
-
-	fEvent = new DetEventFull("DetEventFull1");
 
 	InitUnpackers();
 	
@@ -85,15 +82,15 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
 			return 1;
 	}
 
-	fReader->ReadEvent(curEventInCurFile,fEvent);
+	DetEventFull* event = fReader->ReadEvent(curEventInCurFile);
 
 	for (auto itUnpack : fUnpacks){
 		if (itUnpack.second->IsInited()){
-			if (fEvent->GetChild(itUnpack.first)){
-				itUnpack.second->DoUnpack((Int_t*)fEvent,0);
+			if (event->GetChild(itUnpack.first)){
+				itUnpack.second->DoUnpack((Int_t*)event,0);
 
 				//
-				DetEventDetector* det= (DetEventDetector*)fEvent->GetChild(itUnpack.first);
+				DetEventDetector* det= (DetEventDetector*)event->GetChild(itUnpack.first);
 				cerr << "! " << det->GetName() << endl;
 				for (Int_t iSt(0); iSt<det->getMaxIndex(); iSt++){
 					if (det->getEventElement(iSt)){
@@ -102,7 +99,7 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
 						TClonesArray* timeMessages = st->GetDetMessages();
 						for (Int_t iTimeMessage(0); iTimeMessage < timeMessages->GetEntriesFast(); ++iTimeMessage){
 							DetMessage* curTimeMes = (DetMessage*)timeMessages->At(iTimeMessage);
-							cerr << "! \t\t" << curTimeMes->fStChannel << " " <<  curTimeMes->fValue << endl;
+							cerr << "! \t\t" << curTimeMes->GetStChannel() << " " <<  curTimeMes->GetValue() << endl;
 						}
 					}
 				}

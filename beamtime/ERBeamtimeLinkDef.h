@@ -9,7 +9,7 @@
 #pragma link C++ class ERRawToAnalyzeConverter+;
 #pragma link C++ class ERSimtoRaw+;
 
-#pragma link C++ class ERLiCalibrator+;
+//#pragma link C++ class ERLiCalibrator+;
 #pragma link C++ class ERRootSource+;
 #pragma link C++ class ERRootSourceOld+;
 
@@ -20,7 +20,7 @@
 #pragma link C++ class ERNeuRadRawEvent+;
 #pragma link C++ class ERNeuRadAEvent+;
 
-#pragma link C++ class TLiEvent+;
+//#pragma link C++ class TLiEvent+;
 //#pragma link C++ class TGo4EventElement+;
 
 #pragma link C++ class cls_RootHit+;

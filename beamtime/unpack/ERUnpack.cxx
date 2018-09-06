@@ -69,17 +69,17 @@ void ERUnpack::UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStati
 
 	for (Int_t iAmpMassage(0); iAmpMassage < ampMessages->GetEntriesFast(); ++iAmpMassage){
 		DetMessage* ampMes = (DetMessage*)ampMessages->At(iAmpMassage);
-		amp = ampMes->fValue;
-		channel = ampMes->fStChannel;
+		amp = ampMes->GetValue();
+		channel = ampMes->GetStChannel();
 		Bool_t found = kFALSE;
 		DetMessage* timeMes = NULL;
 		//finding corresponding time message by channel
 		for (Int_t iTimeMessage(0); iTimeMessage < timeMessages->GetEntriesFast(); ++iTimeMessage){
 			DetMessage* curTimeMes = (DetMessage*)timeMessages->At(iTimeMessage);
-			if (curTimeMes->fStChannel == channel){
+			if (curTimeMes->GetStChannel() == channel){
 				found = kTRUE;
 				timeMes = curTimeMes;
-				time = timeMes->fValue;
+				time = timeMes->GetValue();
 			}
 		}
 		if (found){
@@ -108,8 +108,8 @@ void ERUnpack::UnpackStation(DetEventDetector* detEvent, TString station, std::m
 
 	for (Int_t iAmpMassage(0); iAmpMassage < ampMessages->GetEntriesFast(); ++iAmpMassage){
 		DetMessage* ampMes = (DetMessage*)ampMessages->At(iAmpMassage);
-		amp = ampMes->fValue;
-		channel = ampMes->fStChannel;
+		amp = ampMes->GetValue();
+		channel = ampMes->GetStChannel();
 		valueMap[channel] = amp;
 	}
 }
