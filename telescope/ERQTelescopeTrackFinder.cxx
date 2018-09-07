@@ -26,6 +26,7 @@ ERQTelescopeTrackFinder::ERQTelescopeTrackFinder()
   : FairTask("ER qtelescope track finding scheme"),
     fUserTargetPointIsSet(kFALSE),
     fBeamDetTrack(NULL)
+    //@Todo инициализация всех переменных
 {
   fQTelescopeSetup = ERQTelescopeSetup::Instance();
 }
@@ -102,6 +103,8 @@ InitStatus ERQTelescopeTrackFinder::Init() {
   }
 
   fQTelescopeSetup->ERQTelescopeSetup::ReadGeoParamsFromParContainer();
+
+  //@TODO check setup and digi branch names
   
   return kSUCCESS;
 }
@@ -120,7 +123,11 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
       TClonesArray *yDigi = fQTelescopeDigi[yDigiBranchName];
       if ( !xDigi || !yDigi) {
         continue;
-      } 
+      }
+       
+      if (xDigi->GetEntriesFast() == 0 || yDigi->GetEntriesFast()==0)
+        continue;
+
       for (Int_t iXDigi  = 0; iXDigi < xDigi->GetEntriesFast(); iXDigi++) {
         Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(iXDigi))->GetEdep();
         if (xStripEdep > fSiDigiEdepMin && xStripEdep < fSiDigiEdepMax) {
@@ -143,7 +150,8 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         }
       }
       LOG(DEBUG) << "Strips array pair " << itComponent.second.first << " " 
-                                         << itComponent.second.second << FairLogger::endl; 
+                                         << itComponent.second.second << FairLogger::endl;
+      LOG(DEBUG) << "Hits count on pair " << hitTelescopePoint.size() << FairLogger::endl;
       for (auto &itHitPoint : hitTelescopePoint) {
         ERQTelescopeSiDigi* xStrip = ((ERQTelescopeSiDigi*)xDigi->At(itHitPoint.first));
         ERQTelescopeSiDigi* yStrip = ((ERQTelescopeSiDigi*)yDigi->At(itHitPoint.second));
@@ -152,6 +160,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         Int_t yStripNb = yStrip->GetStripNb();
         // std::cout << "  Strips pair " << itHitPoint.first << " " << itHitPoint.second << FairLogger::endl;
         // std::cout << "  CompName " << itComponent.first << " " << FairLogger::endl;
+        LOG(DEBUG) << xDigiBranchName << FairLogger::endl;
         Double_t xQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalX(xDigiBranchName, xStripNb);
         Double_t yQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalY(yDigiBranchName, yStripNb);
         Double_t zQTeleGlobHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(xDigiBranchName, xStripNb) 

@@ -71,7 +71,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
             }
             for (auto itValue : valueMap){
                 Int_t channel = itValue.first;
-                Double_t amp = itValue.second.first;
+                Double_t amp = itValue.second.first /1000.; //to GeV
                 Double_t time = itValue.second.second;
                 AddSiDigi(amp,time,0,channel,itStation.second->bName);
             }
@@ -84,7 +84,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
                 }
                 for (auto itValue : valueMap){
                     Int_t channel = itValue.first;
-                    Double_t amp = itValue.second.first;
+                    Double_t amp = itValue.second.first /1000.; //to GeV
                     Double_t time = itValue.second.second;
                     AddSiDigi(amp,time,0,channel,itStation.second->bName2);
                 }
@@ -94,7 +94,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
             map<Int_t,Double_t> csiAmp;
             UnpackStation(detEvent,itStation.second->ampStName,csiAmp);
             for (auto itChannel : csiAmp){
-                AddCsIDigi(itChannel.second,0.,-1,itChannel.first,itStation.second->bName);
+                AddCsIDigi(itChannel.second / 1000.,0.,-1,itChannel.first,itStation.second->bName);
             }
         } 
     }
@@ -125,12 +125,17 @@ void ERTelescopeUnpack::AddCsIDigi(Float_t edep, Double_t time, Int_t wallNb,
 }
 //--------------------------------------------------------------------------------------------------
 TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString stName, TString XY, TString XYside){
+    //@todo убрать это по возможности
+    Int_t stNumber = 0;
+    if (fDetName.Contains("Right"))
+        stNumber = 1;
+
     TString bName = "";
     if (type == TString("Si"))
         if (sideCount == 1)
             bName.Form("ERQTelescopeSiDigi_%s_SingleSi_%s_%s_0",fDetName.Data(),stName.Data(),XYside.Data());
         else
-            bName.Form("ERQTelescopeSiDigi_%s_DoubleSi_%s_%s_0_%s",fDetName.Data(),stName.Data(),XY.Data(),XYside.Data());
+            bName.Form("ERQTelescopeSiDigi_%s_DoubleSi_%s_%s_%d_%s",fDetName.Data(),stName.Data(),XY.Data(),stNumber,XYside.Data());
     if (type == TString("CsI"))
         bName.Form("ERQTelescopeCsIDigi_%s_%s_0",fDetName.Data(),stName.Data());
     return bName;

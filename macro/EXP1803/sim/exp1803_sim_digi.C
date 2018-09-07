@@ -10,7 +10,7 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   Double_t D1PosZ = 20.;       // [cm]
   Double_t D1Thick = 0.03;     // [cm]
   // --------------- BeamDet ------------------------------------------------
-  Double_t BeamDetLToF = 1500.;     // [cm] 
+  Double_t BeamDetLToF = 1234.8;     // [cm] 12348
   Double_t BeamDetPosZToF = -50;  // [cm] 
   Double_t BeamDetLMWPC = 32.;     // [cm]
   Double_t BeamDetPosZMWPC = -8;  // [cm]  

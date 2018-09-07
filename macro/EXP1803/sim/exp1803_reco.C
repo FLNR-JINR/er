@@ -35,8 +35,8 @@ void exp1803_reco(Int_t nEvents = 1000) {
   // ------- QTelescope TrackFinder -------------------------------------------
   ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
 
-  qtelescopeTrackFinder->SetHitStation("T1", "T1_DoubleSi_SD2_XY_0");
-  qtelescopeTrackFinder->SetHitStation("T2", "T2_DoubleSi_SD2_XY_1");
+  qtelescopeTrackFinder->SetHitStation("Left_telescope", "Left_telescope_DoubleSi_SQ_L_XY_0");
+  qtelescopeTrackFinder->SetHitStation("Right_telescope","Right_telescope_DoubleSi_SQ_R_XY_1");
 
   qtelescopeTrackFinder->SetStripEdepRange(0., 100.);          // [GeV]
   //qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
@@ -50,8 +50,8 @@ void exp1803_reco(Int_t nEvents = 1000) {
 
   // qtelescopePID->SetUserCut("ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.009");
 
-  qtelescopePID->SetStationParticle("T1_DoubleSi_SD2_XY_0",1000020030);
-  qtelescopePID->SetStationParticle("T2_DoubleSi_SD2_XY_1",1000010030);
+  qtelescopePID->SetStationParticle("Left_telescope_DoubleSi_SQ_L_XY_0",1000020030);
+  qtelescopePID->SetStationParticle("Right_telescope_DoubleSi_SQ_R_XY_1",1000010030);
   run->AddTask(qtelescopePID); 
 
   // -----------Runtime DataBase info ---------------------------------------
@@ -60,7 +60,7 @@ void exp1803_reco(Int_t nEvents = 1000) {
   parInput->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parInput);
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
   
   run->Init();
   run->Run(0, nEvents);

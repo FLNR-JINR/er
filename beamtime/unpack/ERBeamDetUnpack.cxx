@@ -88,7 +88,7 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 				amp += itValue.second.first;
 				time += itValue.second.second;
 			}
-			time*0.25*fToFCalConst;
+			time = time*0.25*fToFCalConst;
 			AddToFDigi(amp,time,1);
 		}
 		else
@@ -103,7 +103,7 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 				amp += itValue.second.first;
 				time += itValue.second.second;
 			}
-			time*0.25*fToFCalConst;
+			time = time*0.25*fToFCalConst;
 			AddToFDigi(amp,time,2);
 		}
 		else
