@@ -20,6 +20,16 @@ void reco(Int_t nEvents = 1000){
   ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
   trackFinder->SetTargetVolume("boxCD");
   run->AddTask(trackFinder);
+  // -----------------------BeamDetTrackPID----------------------------------
+  Int_t Z = 2, A = 6, Q = 2;
+  TString ionName = "6He";
+  ERBeamDetPID* pid = new ERBeamDetPID(verbose);
+  pid->SetBoxPID(0., 1000., 0., 1000.);
+  pid->SetOffsetToF(0.);
+  pid->SetProbabilityThreshold(0);
+  pid->SetIonMass(5.60554);
+  pid->SetPID(1000020060);
+  run->AddTask(pid);  
 
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();

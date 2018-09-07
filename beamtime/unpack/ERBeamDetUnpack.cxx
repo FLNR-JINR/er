@@ -36,6 +36,8 @@ Bool_t ERBeamDetUnpack::Init(SetupConfiguration* setupConf){
 
 	fSetupConfiguration = setupConf;
 
+	//@TODO check setup
+
 	fMwpcAmpTimeStations["MWPC1"] = 0;
 	fMwpcAmpTimeStations["MWPC2"] = 1;
 	fMwpcAmpTimeStations["MWPC3"] = 2;
@@ -102,7 +104,7 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 				time += itValue.second.second;
 			}
 			time*0.25*fToFCalConst;
-			AddToFDigi(amp,time,1);
+			AddToFDigi(amp,time,2);
 		}
 		else
 			cerr << "Wrong PMT number in ToF!" << endl;
