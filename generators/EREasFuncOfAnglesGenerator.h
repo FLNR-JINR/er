@@ -34,17 +34,19 @@ public:
       fPointVtxIsSet=kTRUE;
     }
 
-    void SetBoxXYZ (Double32_t x1=0, Double32_t y1=0, Double32_t x2=0, Double32_t y2=0, Double32_t z=0) {
+    void SetBoxXYZ (Double32_t x1=0, Double32_t y1=0, Double32_t z1=0, Double32_t x2=0, Double32_t y2=0, Double32_t z2=0) {
       fX1=x1;
       fY1=y1;
       fX2=x2;
       fY2=y2;
-      fZ=z;
+      fZ1=z1;
+      fZ2=z2;
       fBoxVtxIsSet=kTRUE;
     }
 
-    void SetUserParameters(Double_t ma, Double_t mb, Double_t mB, Double_t Ta, Double_t Q) {
+    void SetUserParameters(Double_t mA, Double_t ma, Double_t mb, Double_t mB, Double_t Ta, Double_t Q) {
       fma = ma;
+      fmA = mA;
       fmb = mb;
       fmB = mB;
       fTa = Ta;
@@ -63,13 +65,14 @@ private:
     Bool_t     fCosThetaIsSet;       // True if uniform distribution in
 
     Double32_t fX, fY, fZ;           // Point vertex coordinates [cm]
-    Double32_t fX1, fY1, fX2, fY2;   // Box vertex coords (x1,y1)->(x2,y2)
+    Double32_t fX1, fY1, fX2, fY2, fZ1, fZ2;   // Box vertex coords (x1,y1)->(x2,y2)
 
     Bool_t     fPointVtxIsSet;       // True if point vertex is set
     Bool_t     fBoxVtxIsSet;         // True if box vertex is set
 
     // User parameters for the function Tb = f(theta)
     Double_t fma;
+    Double_t fmA;
     Double_t fmb;
     Double_t fmB;
     Double_t fTa;

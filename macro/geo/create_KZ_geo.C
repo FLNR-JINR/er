@@ -134,7 +134,7 @@ TGeoManager*   gGeoMan = NULL;
   chamber->AddNode(helium, 0, new TGeoCombiTrans(0., 0., 0., fZeroRotation));
 
 
-  ND->AddNode(housing, 0, new TGeoCombiTrans(.0,.0,27.7, fZeroRotation)); 
+  ND->AddNode(housing, 0, new TGeoCombiTrans(.0,.0,28.95, fZeroRotation)); 
   ND->AddNode(chamber, 0, new TGeoCombiTrans(.0,.0,0.0, fZeroRotation));
 
   top->AddNode(ND, 0, new TGeoCombiTrans(.0,.0,0., fZeroRotation));

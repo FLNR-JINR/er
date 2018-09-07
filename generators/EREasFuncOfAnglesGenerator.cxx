@@ -22,7 +22,7 @@ EREasFuncOfAnglesGenerator::EREasFuncOfAnglesGenerator() :
   fThetaRangeIsSet(kFALSE),
   fCosThetaIsSet(kFALSE),
   fX(0.), fY(0.), fZ(0.),
-  fX1(0.), fY1(0.), fX2(0.), fY2(0.),
+  fX1(0.), fY1(0.), fZ1(0.), fX2(0.), fY2(0.), fZ2(0.),
   fPointVtxIsSet(kFALSE),
   fBoxVtxIsSet(kFALSE)
 {
@@ -40,7 +40,7 @@ EREasFuncOfAnglesGenerator::EREasFuncOfAnglesGenerator(Int_t pdgid, Int_t mult) 
   fThetaRangeIsSet(kFALSE),
   fCosThetaIsSet(kFALSE),
   fX(0.), fY(0.), fZ(0.),
-  fX1(0.), fY1(0.), fX2(0.), fY2(0.),
+  fX1(0.), fY1(0.), fZ1(0.), fX2(0.), fY2(0.), fZ2(0.),
   fPointVtxIsSet(kFALSE),
   fBoxVtxIsSet(kFALSE)
 {
@@ -89,8 +89,8 @@ Bool_t EREasFuncOfAnglesGenerator::ReadEvent(FairPrimaryGenerator* primGen)
   // Generate particles
   for (Int_t k = 0; k < fMult; k++)
   {
-    phi = gRandom->Uniform(fPhiMin, fPhiMax) * TMath::DegToRad();
 
+    
     if (fThetaRangeIsSet) {
       if (fCosThetaIsSet)
         theta = acos(gRandom->Uniform(TMath::Cos(fThetaMin* TMath::DegToRad()),
@@ -100,19 +100,56 @@ Bool_t EREasFuncOfAnglesGenerator::ReadEvent(FairPrimaryGenerator* primGen)
       }
     }
 
+    
+
+
     if (fBoxVtxIsSet) {
       fX = gRandom->Uniform(fX1,fX2);
       fY = gRandom->Uniform(fY1,fY2);
+      fZ = gRandom->Uniform(fZ1,fZ2);
+    }
+//______________________________________________________________________ 
+
+    Double_t  E, Tb, TB, A13, A14, A23, A24; // condition : m3 < m4
+    Double_t A;
+
+    E = fQ + fTa;
+    A = (fma+fmA)*(fmb+fmB);
+
+    A13 = fmA*fmb*fTa/(A*E);
+    A14 = fmA*fmB*fTa/(A*E);
+    A23 = fma*fmb*(1+(fmA/fma)*(fQ/E))/A;
+    A24 = fma*fmB*(1+(fmA/fma)*(fQ/E))/A;
+
+
+    if (A13>A24){
+
+      theta = TMath::ASin(TMath::Sqrt(A24/A13));
+      Tb = A13*E*TMath::Power((TMath::Cos(theta)-TMath::Sqrt((A24/A13)-TMath::Power(TMath::Sin(theta),2))),2);
+
     }
 
-    Double_t A = fma*fmb*fTa / ((fmb+fmB)*(fmb+fmB));
-    //LOG(DEBUG) << "A = " << A << FairLogger::endl;
-    Double_t C = (fmb+fmB) * ((fmB-fma)*fTa+fmB*fQ) / (fma*fmb*fTa);
-    //LOG(DEBUG) << "C = " << C << FairLogger::endl;
-    Double_t B = TMath::Cos(theta) + TMath::Sqrt(TMath::Cos(theta)*TMath::Cos(theta) + C);
-    //LOG(DEBUG) << "B2 = " << B2 << FairLogger::endl;
-    Double_t Tb = A * B * B;
+    else {
+
+      Tb = A13*E*TMath::Power((TMath::Cos(theta)+TMath::Sqrt((A24/A13)-TMath::Power(TMath::Sin(theta),2))),2);
+    }
+
+    TB = (E - Tb)/fmB; // Kinetic energy / A 
     LOG(DEBUG) << "Tb = " << Tb << FairLogger::endl;
+
+  //__________________________________________________________________
+
+
+    
+
+//    phi = gRandom->Uniform(fPhiMin, fPhiMax) * TMath::DegToRad();
+    phi = TMath::ASin(TMath::Sin(theta)*TMath::Sqrt((fmb/fmB)*(Tb/TB)));
+    LOG(DEBUG) << "theta = " << theta << FairLogger::endl;
+    LOG(DEBUG) << "phi = " << phi << FairLogger::endl;
+
+
+
+
 
     Double_t pabs = TMath::Sqrt(Tb*Tb + 2.*Tb*fPDGMass);
 
