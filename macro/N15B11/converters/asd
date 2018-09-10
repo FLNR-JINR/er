@@ -1,0 +1,28 @@
+#!/bin/bash
+INDIR=files_to_convert
+OUTDIR=output
+FILENAME=kz43_0
+
+if [ -d ${OUTDIR} ]; then
+	cd ${OUTDIR}
+	rm -rv *
+	cd -
+else 
+	mkdir ${OUTDIR}
+fi
+
+#rm -fv out.txt err.txt
+#rm -fv new_kz43_0.root
+#rm -fv tree1.root
+#rm -fv new_tree.root
+
+#root -l -b -q converter.C > ${OUTDIR}/out.txt 2> ${OUTDIR}/err.txt
+
+root -l -b -q "alter_converter.C(\"${FILENAME}\", \"${INDIR}\", \"${OUTDIR}\")" > ${OUTDIR}/alt_out.txt 2> ${OUTDIR}/alt_err.txt
+
+#root -l -b -q "alter_converter_with_calib.C(\"${FILENAME}\", \"${INDIR}\", \"${OUTDIR}\")" > ${OUTDIR}/alt_out.txt 2> ${OUTDIR}/alt_err.txt
+
+# root -l -b -q "alter_converter_with_histo.C(\"${FILENAME}\", \"${INDIR}\", \"${OUTDIR}\")" > ${OUTDIR}/alt_out.txt 2> ${OUTDIR}/alt_err.txt
+
+
+
