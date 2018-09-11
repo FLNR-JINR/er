@@ -11,9 +11,9 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   Double_t D1Thick = 0.03;     // [cm]
   // --------------- BeamDet ------------------------------------------------
   Double_t BeamDetLToF = 1234.8;     // [cm] 12348
-  Double_t BeamDetPosZToF = -50;  // [cm] 
-  Double_t BeamDetLMWPC = 32.;     // [cm]
-  Double_t BeamDetPosZMWPC = -8;  // [cm]  
+  Double_t BeamDetPosZToF = -95.3;  // [cm] 
+  Double_t BeamDetPosZ1MWPC = -81.6;     // [cm]
+  Double_t BeamDetPosZ2MWPC = -27.;  // [cm]  
   // --------------- Beam start position ------------------------------------
   Double_t beamStartPosition = -1600;  // [cm]
   // --------------- Target -------------------------------------------------
@@ -65,8 +65,8 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   // -----  BeamDet parameters ----------------------------------------------
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);       // 
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);                     //  BeamDet parts should be added in ascending order   
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);   //  of Z-coordinate of part.
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);                  // 
+  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ1MWPC);   //  of Z-coordinate of part.
+  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ2MWPC);                  // 
   // setupBeamDet->SetSensitiveTarget();
 
   // -----   Create target  -------------------------------------------------
