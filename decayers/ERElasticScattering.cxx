@@ -49,7 +49,7 @@ ERElasticScattering::ERElasticScattering(TString name):
   fTheta2(180.),
   fPhi1(0),
   fPhi2(360.),
-  fTargetIonName(""),
+  fTargetIon(NULL),
   fTargetIonPDG(NULL),
   fThetaInvCDF(NULL),
   fCDFmin(0.),
@@ -64,9 +64,10 @@ ERElasticScattering::~ERElasticScattering() {
 //-------------------------------------------------------------------------------------------------
 void ERElasticScattering::SetTargetIon(Int_t A, Int_t Z, Int_t Q) {
   FairRunSim* run = FairRunSim::Instance();
-  fTargetIonName = fName + TString("_TargetIon");
-  FairIon* ion = new FairIon(fTargetIonName,A,Z,Q);
-  run->AddNewIon(ion);
+  TString targetIonName = fName + TString("_TargetIon");
+  fTargetIon = new FairIon(targetIonName,A,Z,Q);
+  run->AddNewIon(fTargetIon);
+  LOG(DEBUG) << "Target ion with name " << targetIonName << " inited!" << FairLogger::endl;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -76,9 +77,14 @@ Bool_t ERElasticScattering::Init()
     return kFALSE;
   }
 
-  fTargetIonPDG = TDatabasePDG::Instance()->GetParticle(fTargetIonName);
+  fTargetIonPDG = TDatabasePDG::Instance()->GetParticle(fTargetIon->GetName());
   if ( ! fTargetIonPDG ) {
     LOG(FATAL) << "Target ion not found in pdg database!" << FairLogger::endl;
+    return kFALSE;
+  }
+
+  if ( fVolumeName == ""){
+    LOG(FATAL) << "Decay volume not defined!" << FairLogger::endl;
     return kFALSE;
   }
 

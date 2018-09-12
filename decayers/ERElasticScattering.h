@@ -14,6 +14,9 @@
 // ROOT
 #include <TString.h>
 
+// FairRoot
+#include "FairIon.h"
+
 class TF1;
 class TParticlePDG;
 
@@ -41,7 +44,7 @@ private:
   Float_t        fCDFmin,fCDFmax;
   Float_t        fPhi1, fPhi2;
 
-  TString        fTargetIonName;
+  FairIon*       fTargetIon;
   TParticlePDG*  fTargetIonPDG;
 
   TF1* fThetaInvCDF;
