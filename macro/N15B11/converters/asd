@@ -3,11 +3,19 @@ INDIR=files_to_convert
 OUTDIR=output
 FILENAME=kz43_0
 
+if [ -d ${INDIR} ]; then
+	echo directory ${INDIR} was found
+else
+    echo directory ${INDIR} was not found
+    exit
+fi
+
+
 if [ -d ${OUTDIR} ]; then
 	cd ${OUTDIR}
 	rm -rv *
 	cd -
-else 
+else
 	mkdir ${OUTDIR}
 fi
 

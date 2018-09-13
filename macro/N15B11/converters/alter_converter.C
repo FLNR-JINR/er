@@ -40,45 +40,43 @@ struct data_t
 };
 data_t* data = new data_t;
 
-TFile *hfile=0;
-TTree *tree=0;
+TFile *hfile = 0;
+TTree *tree = 0;
 
 int read(TString fname)
 {
     cerr << "Read begin\n";
     ifstream in;
-    int idet[13]; // local var
+    in.open(fname, ios::in|ios::binary);
+    if(!in) {cerr << "Open error\n"; cerr << "fname=" << fname << endl;}
+    else {cerr << "Open OK\n";}
+    //int idet[13]; // local var
 
-    int h,i,j,x,y;
     unsigned char inbuf[0x10000];
-    unsigned char *buf; // begin of buffer
-    unsigned char *bufe; // end of buffer
-    unsigned short *ev, evlen;
 
     union {unsigned short d; unsigned char id[2];} idu;
 
-    int count=0, nbuf=0;
-    in.open(fname, ios::in|ios::binary);
-    if(!in) {cerr<<"Open error\n"; cerr<<"fname="<<fname<<endl;}
-    else {cerr<<"Open OK\n";}
-
-    j = 0;
+    unsigned char *buf; // begin of buffer
+    unsigned char *bufe; // end of buffer
+    int count = 0, nbuf = 0;
+    int j = 0;
     int while_counter = 0;
-    while(1)
+    while(true)
     {
-        cerr << "while(" << while_counter++ << ")\n";
+        //cerr << "while(" << while_counter++ << ")\n";
         buf = &inbuf[0];
-        memset(buf, 0, 24);
-        in.read((char *) &inbuf[0], (int)0x10000);
+        //memset(buf, 0, 24);
+        in.read((char *)&inbuf[0], (int)0x10000);
         if(in)
         {
             nbuf++;
-            cerr << "buffer number: " << nbuf << endl;
+            //cerr << "buffer number: " << nbuf << endl;
         }
         else
         {
-            j = 3;
-            cerr << "j = 3, in file reads error\n";
+            if (!in.eof())
+                cerr << "j = 3, in file reads error\n";
+            cerr << fname << " read successful\n";
             break;
         }
 
@@ -92,6 +90,7 @@ int read(TString fname)
         buf = &inbuf[0];
         bufe = buf + 0x10000;
         buf += 24;
+        unsigned short *ev, evlen;
         while(buf < bufe)
         {
             ev = (unsigned short *)buf;
@@ -111,7 +110,7 @@ int read(TString fname)
             evlen = swapbw(evlen);
             if(evlen == 0)
             {
-                cerr << "j = 0, evlen = 0\n";
+                //cerr << "j = 0, evlen = 0\n";
                 j = 0;
                 break;
             }
@@ -126,56 +125,55 @@ int read(TString fname)
 
             if( (*ev==0xF81F)&&(*(ev+2)==0xF82F) && (evlen>0xC) )
             {
-                    unsigned short n, d, ch;
-                    unsigned short *ip;
-                    int i, nch,tmpid;
+                unsigned short n, d, ch;
+                unsigned short *ip;
+                int i, nch,tmpid;
 
-                    n = (evlen - 0xc)/4; ip = ev + 4; // n-number of inputs
+                n = (evlen - 0xc)/4; ip = ev + 4; // n-number of inputs
 
-                    tmpid = nch = 0;
-                    for(i=0; i < n; i++)
+                tmpid = nch = 0;
+                for(i=0; i < n; i++)
+                {
+                    idu.d = *ip++;
+                    ch = 0x1fff&swapbw(*ip++);
+                    //d = 4*(idu.id[1] - 0xb) + idu.id[0] - 1;
+                    if((idu.id[1]&0xff) != tmpid)
                     {
-                        idu.d = *ip++;
-                        ch = 0x1fff&swapbw(*ip++);
-                        d = 4*(idu.id[1] - 0xb) + idu.id[0] - 1;
-                        if((idu.id[1]&0xff) != tmpid)
-                        {
-                            tmpid=idu.id[1]&0xff;
-                            nch++;
-                        }
-
-                        if((idu.id[1]==0x0c)&&(idu.id[0]==2)) data->m16=ch; //idet[0]=ch; m16
-                        if((idu.id[1]==0x0d)&&(idu.id[0]==2)) data->m15=ch; //idet[1]=ch; m15
-                        if((idu.id[1]==0x2f)&&(idu.id[0]==2)) data->m24=ch; //idet[2]=ch; m24
-                        if((idu.id[1]==0x11)&&(idu.id[0]==4)) data->t104gas=ch; //idet[3]=ch; t104gas
-                        if((idu.id[1]==0x11)&&(idu.id[0]==2)) data->t104si=ch; //idet[4]=ch; t104si
-                        if((idu.id[1]==0x12)&&(idu.id[0]==4)) data->t108gas=ch; //idet[5]=ch; t108gas
-                        if((idu.id[1]==0x12)&&(idu.id[0]==2)) data->t108si=ch; //idet[6]=ch; t108si
-                        if((idu.id[1]==0x17)&&(idu.id[0]==4)) data->t109gas=ch; //idet[7]=ch; t109gas
-                        if((idu.id[1]==0x17)&&(idu.id[0]==2)) data->t109si=ch; //idet[8]=ch; t109si
-                        if((idu.id[1]==0x18)&&(idu.id[0]==4)) data->t110gas=ch; //idet[9]=ch; t110gas
-                        if((idu.id[1]==0x18)&&(idu.id[0]==2)) data->t110si=ch; //idet[10]=ch; t110si
-                        if((idu.id[1]==0x1d)&&(idu.id[0]==2)) data->beamint=ch; //idet[11]=ch; beamint
-                        if((idu.id[1]==0x2f)&&(idu.id[0]==2)) data->cyctime=ch; //idet[12]=ch; cyctime
+                        tmpid = idu.id[1]&0xff;
+                        nch++;
                     }
 
-                    data->evType=nch; // Event type
-                    tree->Fill();
+                    if((idu.id[1]==0x0c)&&(idu.id[0]==2)) data->m16=ch; //idet[0]=ch; m16
+                    if((idu.id[1]==0x0d)&&(idu.id[0]==2)) data->m15=ch; //idet[1]=ch; m15
+                    if((idu.id[1]==0x2f)&&(idu.id[0]==2)) data->m24=ch; //idet[2]=ch; m24
+                    if((idu.id[1]==0x11)&&(idu.id[0]==4)) data->t104gas=ch; //idet[3]=ch; t104gas
+                    if((idu.id[1]==0x11)&&(idu.id[0]==2)) data->t104si=ch; //idet[4]=ch; t104si
+                    if((idu.id[1]==0x12)&&(idu.id[0]==4)) data->t108gas=ch; //idet[5]=ch; t108gas
+                    if((idu.id[1]==0x12)&&(idu.id[0]==2)) data->t108si=ch; //idet[6]=ch; t108si
+                    if((idu.id[1]==0x17)&&(idu.id[0]==4)) data->t109gas=ch; //idet[7]=ch; t109gas
+                    if((idu.id[1]==0x17)&&(idu.id[0]==2)) data->t109si=ch; //idet[8]=ch; t109si
+                    if((idu.id[1]==0x18)&&(idu.id[0]==4)) data->t110gas=ch; //idet[9]=ch; t110gas
+                    if((idu.id[1]==0x18)&&(idu.id[0]==2)) data->t110si=ch; //idet[10]=ch; t110si
+                    if((idu.id[1]==0x1d)&&(idu.id[0]==2)) data->beamint=ch; //idet[11]=ch; beamint
+                    if((idu.id[1]==0x2f)&&(idu.id[0]==2)) data->cyctime=ch; //idet[12]=ch; cyctime
                 }
 
-                count++;
-                buf += evlen;
+                data->evType=nch; // Event type
+                tree->Fill();
             }
 
-        if(j)
-        {
-            cerr << "j = -j\n";
-            printf("nb: %d count %d\n", nbuf, count);
-            printf("%p %p\n", buf, bufe);
-            return -j;
+            count++;
+            buf += evlen;
         }
-    }
 
+    }
+    if(j)
+    {
+        cerr << "j = " << j << endl;
+        fprintf(stderr, "nb: %d count %d\n", nbuf, count);
+        fprintf(stderr, "%p %p\n", buf, bufe);
+        return -j;
+    }
     printf("nb: %d count %d\n", nbuf, count);
     return 0;
 }
@@ -204,7 +202,7 @@ void alter_converter(TString inFile = "kz43_0", TString inputDir = "files_to_con
 
     gBenchmark->Show("beamdata");
 
-    tree->Print();
+    //tree->Print();
     tree->Write();
     hfile->Close();
 }
