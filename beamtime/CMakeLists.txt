@@ -64,8 +64,8 @@ if (ACCULINNA_GO4)
 	list(APPEND INCLUDE_DIRECTORIES ${ACCULINNA_GO4}/include/setupconfigcppwrapper)
 	message(STATUS ${ACCULINNA_GO4}/lib/)
 	list(APPEND LINK_DIRECTORIES ${ACCULINNA_GO4}/lib/)
-	list(APPEND DEPENDENCIES AcGo4Data)
-	list(APPEND DEPENDENCIES AcGo4Reader)
+	list(APPEND DEPENDENCIES AccDaqData)
+	list(APPEND DEPENDENCIES AccDaqReader)
 endif()
 
 # fill list of header files from list of source files
