@@ -5,6 +5,7 @@ struct SArrays
     Double_t* NAr;
 };
 
+bool Draw_Experimental_Points(TCanvas* cn, TLegend* leg);
 bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg);
 SArrays* Fill_Arrays(Int_t anglesNumbers);
 Int_t* GetnEventsInTarget(Int_t anglesNumbers);
@@ -21,6 +22,12 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
 
     if ( !Draw_Base_Cross_Section(canv, leg) ) {
         cerr << "Draw_Cross_Section() Error " << endl;
+        return;
+    }
+
+    if ( !Draw_Experimental_Points(canv, leg) )
+    {
+        cerr << "Draw_Experimental_Points error\n";
         return;
     }
 
@@ -108,7 +115,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     leg->Draw();
 
     gPad->SetGrid(4, 4);
-    canv->SaveAs("result/resultGr.pdf");
+    //canv->SaveAs("result/resultGr.pdf");
 }
 //------------------------------------------------------------------------------------------------------------------
 
@@ -137,7 +144,8 @@ bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg)
     TVectorD sigma(anglesNumbers);
 
     Int_t i = 0;
-    while (!f.eof()) {
+    while (!f.eof())
+    {
       if (i == anglesNumbers) break;
       f >> tet(i) >> sigma(i);
       sigma(i) = log10(sigma(i));
@@ -158,6 +166,72 @@ bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg)
     return kTRUE;
 }
 
+bool Draw_Experimental_Points(TCanvas* canv, TLegend* leg)
+{
+    ifstream fin("input/N15_experimental_cs.txt");
+    if (!fin.is_open())
+    {
+        cerr << "input/N15_experimental_cs.txt read error\n";
+        return kFALSE;
+    }
+
+    Int_t N15_Points = 35;
+    Int_t B11_Points = 32;
+    Int_t i;
+
+    TVectorD sigN15(N15_Points);
+    TVectorD thetaN15(N15_Points);
+    for (i = 0; i < N15_Points; i++)
+    {
+        Double_t cs;
+        Double_t theta;
+        fin >> cs;
+        fin >> theta;
+        sigN15(i) = log10(cs);
+        thetaN15(i) = theta;
+        //cout << cs << ", " << theta << endl;
+    }
+
+    TGraph* N15Pgr = new TGraph(thetaN15, sigN15);
+    canv->cd();
+    N15Pgr->Draw("P");
+    N15Pgr->SetMarkerStyle(8);
+    N15Pgr->SetMarkerColor(6);
+    leg->AddEntry(N15Pgr, "N15 experimental Points", "p");
+
+    fin.clear();
+    fin.close();
+    fin.open("input/B11_experimental_cs.txt");
+    if (!fin.is_open())
+    {
+        cerr << "input/B11_experimental_cs.txt read error\n";
+        return kFALSE;
+    }
+
+    TVectorD sigB11(B11_Points);
+    TVectorD thetaB11(B11_Points);
+    for (i = 0; i < B11_Points; i++)
+    {
+        Double_t cs;
+        Double_t theta;
+        fin >> cs;
+        fin >> theta;
+        sigB11(i) = log10(cs);
+        thetaB11(i) = theta;
+        //cout << cs << ", " << theta << endl;
+    }
+
+    TGraph* B11Pgr = new TGraph(thetaB11, sigB11);
+    canv->cd();
+    B11Pgr->Draw("P");
+    B11Pgr->SetMarkerStyle(21);
+    B11Pgr->SetMarkerColor(6);
+    leg->AddEntry(B11Pgr, "B11 experimental Points", "p");
+
+    fin.clear();
+    fin.close();
+    return kTRUE;
+}
 SArrays* Fill_Arrays(Int_t n)
 {
     ifstream fin("input/out.txt");
