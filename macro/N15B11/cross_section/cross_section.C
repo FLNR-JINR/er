@@ -115,7 +115,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     leg->Draw();
 
     gPad->SetGrid(4, 4);
-    //canv->SaveAs("result/resultGr.pdf");
+    canv->SaveAs("result/resultGr.pdf");
 }
 //------------------------------------------------------------------------------------------------------------------
 
