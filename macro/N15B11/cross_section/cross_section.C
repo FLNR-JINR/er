@@ -195,8 +195,8 @@ bool Draw_Experimental_Points(TCanvas* canv, TLegend* leg)
     TGraph* N15Pgr = new TGraph(thetaN15, sigN15);
     canv->cd();
     N15Pgr->Draw("P");
-    N15Pgr->SetMarkerStyle(8);
-    N15Pgr->SetMarkerColor(6);
+    N15Pgr->SetMarkerStyle(22);
+    N15Pgr->SetMarkerColor(8);
     leg->AddEntry(N15Pgr, "N15 experimental Points", "p");
 
     fin.clear();
@@ -224,8 +224,8 @@ bool Draw_Experimental_Points(TCanvas* canv, TLegend* leg)
     TGraph* B11Pgr = new TGraph(thetaB11, sigB11);
     canv->cd();
     B11Pgr->Draw("P");
-    B11Pgr->SetMarkerStyle(21);
-    B11Pgr->SetMarkerColor(6);
+    B11Pgr->SetMarkerStyle(23);
+    B11Pgr->SetMarkerColor(8);
     leg->AddEntry(B11Pgr, "B11 experimental Points", "p");
 
     fin.clear();
