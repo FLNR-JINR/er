@@ -210,19 +210,32 @@ Bool_t ERN15B11ElasticScattering::Stepping()
 
             TLorentzVector targetV(0,0,0,tM);
             TLorentzVector cmV = targetV + fInputIonV;
-
+            LOG(DEBUG) << "cmV components: (" << cmV.Px() << ", " << cmV.Py() << ", " << cmV.Pz() << ", " << cmV.E() << ")" << FairLogger::endl;
+            TVector3 cmvBoost = cmV.BoostVector();
+            LOG(DEBUG) << "cmV.BoostVector() components: (" << cmvBoost.Px() << ", " << cmvBoost.Py() << ", " << cmvBoost.Pz() << ")" << FairLogger::endl;
             theta = cmV.Theta();
             phi = cmV.Phi();
             LOG(DEBUG) << "  Rotation angles: theta = " << theta*RadToDeg() << ", Phi = " << phi*RadToDeg() << FairLogger::endl;
 
             //out1V.Boost(cmV.BoostVector());
             //out2V.Boost(cmV.BoostVector());
-
+/*
             // we use second case
             out1V.RotateY(theta);
             out1V.RotateZ(phi);
             out1V.Boost(cmV.BoostVector());
 
+            out2V.RotateY(theta);
+            out2V.RotateZ(phi);
+            out2V.Boost(cmV.BoostVector());
+*/
+            // third case
+            out1V.RotateZ(-phi);
+            out1V.RotateY(theta);
+            out1V.RotateZ(phi);
+            out1V.Boost(cmV.BoostVector());
+
+            out2V.RotateZ(-phi);
             out2V.RotateY(theta);
             out2V.RotateZ(phi);
             out2V.Boost(cmV.BoostVector());
