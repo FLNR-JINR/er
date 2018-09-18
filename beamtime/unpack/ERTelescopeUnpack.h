@@ -46,7 +46,7 @@ class ERTelescopeUnpack : public ERUnpack
     void AddDoubleSiStation(TString name, TString ampStName, TString timeStName,
                             TString ampStName2, TString timeStName2, TString calFile, TString calFile2,
                             TString XY);
-    void AddCsIStation(TString name,TString ampStName,TString calFile);
+    void AddCsIStation(TString name,TString ampStName, TString timeStName, TString calFile);
 
   protected:
     void AddSiDigi(Float_t edep, Double_t time, Int_t stationNb, Int_t stripNb, TString digiBranchName);

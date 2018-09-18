@@ -93,10 +93,14 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
             }
         }
         if (itStation.second->type == "CsI"){
-            map<Int_t,Double_t> csiAmp;
-            UnpackStation(detEvent,itStation.second->ampStName,csiAmp);
-            for (auto itChannel : csiAmp){
-                AddCsIDigi(itChannel.second / 1000.,0.,-1,itChannel.first,itStation.second->bName);
+            std::map<Int_t, std::pair<Double_t, Double_t> > valueMap;
+            UnpackAmpTimeStation(detEvent,itStation.second->ampStName,itStation.second->timeStName,
+                                     valueMap);
+            for (auto itValue : valueMap){
+                Int_t channel = itValue.first;
+                Double_t amp = itValue.second.first;
+                Double_t time = itValue.second.second;
+                AddCsIDigi(amp, time,-1,channel,itStation.second->bName);
             }
         } 
     }
@@ -155,8 +159,8 @@ void ERTelescopeUnpack::AddDoubleSiStation(TString name, TString ampStName, TStr
     fStations[name] = st;
 }
 //--------------------------------------------------------------------------------------------------
-void ERTelescopeUnpack::AddCsIStation(TString name,TString ampStName,TString calFile){
-    ERTelescopeStation* st = new ERTelescopeStation( "CsI", -1, ampStName, "", "", "", calFile, "", "", "");
+void ERTelescopeUnpack::AddCsIStation(TString name,TString ampStName, TString timeStName, TString calFile){
+    ERTelescopeStation* st = new ERTelescopeStation( "CsI", -1, ampStName, timeStName, "", "", calFile, "", "", "");
     fStations[name] = st;
 }
 //--------------------------------------------------------------------------------------------------
