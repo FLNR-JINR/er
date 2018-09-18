@@ -366,9 +366,9 @@ Double_t ERQTelescopePID::FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg
           LOG(DEBUG) << " [FindCsIEdepByTrack]      CsI Branch found " << branch.first << FairLogger::endl;
           for (Int_t iDigi = 0; iDigi < branch.second->GetEntriesFast(); iDigi++){
             ERQTelescopeCsIDigi* digi = (ERQTelescopeCsIDigi*)branch.second->At(iDigi);
-            if (digi->BlockNb() == CsInb){
-              LOG(DEBUG) << " [FindCsIEdepByTrack]      Found CsI with edep " << digi->Edep() << FairLogger::endl;
-              edep = digi->Edep();
+            if (digi->GetBlockNb() == CsInb){
+              LOG(DEBUG) << " [FindCsIEdepByTrack]      Found CsI with edep " << digi->GetEdep() << FairLogger::endl;
+              edep = digi->GetEdep();
             }
           }
         }

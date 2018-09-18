@@ -35,7 +35,7 @@ class ERBeamDetTOFDigi : public FairMultiLinkedData
 
   /* Accessors */
   Int_t    ID () const {return fID;}
-  Float_t  Edep() const {return fEdep;}
+  Float_t  GetEdep() const {return fEdep;}
   Double_t GetTime() const {return fTime;}
   Int_t    GetToFNb() const {return fToFNb;}
   
