@@ -68,9 +68,10 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
             std::map<Int_t, std::pair<Double_t, Double_t> > valueMap;
             UnpackAmpTimeStation(detEvent,itStation.second->ampStName,itStation.second->timeStName,
                                  valueMap);
-            if (!ApplyCalibration(itStation.second->calTable,valueMap)){
-                LOG(FATAL) << "calibration error on station " << itStation.first << FairLogger::endl;
-            }
+            if (itStation.second->calFile != "")
+                if (!ApplyCalibration(itStation.second->calTable,valueMap)){
+                    LOG(FATAL) << "calibration error on station " << itStation.first << FairLogger::endl;
+                }
             for (auto itValue : valueMap){
                 Int_t channel = itValue.first;
                 Double_t amp = itValue.second.first /1000.; //to GeV
@@ -81,9 +82,10 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
                 valueMap.clear();
                 UnpackAmpTimeStation(detEvent,itStation.second->ampStName2,itStation.second->timeStName2,
                                      valueMap);
-                if (!ApplyCalibration(itStation.second->calTable2,valueMap)){
-                    LOG(FATAL) << "calibration error on station " << itStation.first << FairLogger::endl;
-                }
+                if (itStation.second->calFile2 != "")
+                    if (!ApplyCalibration(itStation.second->calTable2,valueMap)){
+                        LOG(FATAL) << "calibration error on station " << itStation.first << FairLogger::endl;
+                    }
                 for (auto itValue : valueMap){
                     Int_t channel = itValue.first;
                     Double_t amp = itValue.second.first /1000.; //to GeV
@@ -96,6 +98,10 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
             std::map<Int_t, std::pair<Double_t, Double_t> > valueMap;
             UnpackAmpTimeStation(detEvent,itStation.second->ampStName,itStation.second->timeStName,
                                      valueMap);
+            if (itStation.second->calFile != "")
+                if (!ApplyCalibration(itStation.second->calTable,valueMap)){
+                    LOG(FATAL) << "calibration error on station " << itStation.first << FairLogger::endl;
+                }
             for (auto itValue : valueMap){
                 Int_t channel = itValue.first;
                 Double_t amp = itValue.second.first;
@@ -254,15 +260,18 @@ ERTelescopeStation::ERTelescopeStation(TString _type, Int_t _sideCount, TString 
 //--------------------------------------------------------------------------------------------------
 Bool_t ERTelescopeUnpack::ReadCalFiles(){
     for (auto itStation : fStations){
-        if (itStation.second->type == "CsI")
-            continue;
-
-        itStation.second->calTable = ReadCalFile(itStation.second->calFile);
-        if (!itStation.second->calTable)
-            return kFALSE;
-
-        if (itStation.second->sideCount == 2)
+        if (itStation.second->calFile != ""){
+            itStation.second->calTable = ReadCalFile(itStation.second->calFile);
+            if (!itStation.second->calTable)
+                return kFALSE;
+        }
+              
+        if (itStation.second->sideCount == 2 && itStation.second->calFile2 != ""){
             itStation.second->calTable2 = ReadCalFile(itStation.second->calFile2);
+            if (!itStation.second->calTable2)
+                return kFALSE;
+        }
+
     }
     return kTRUE;
 }
@@ -271,7 +280,7 @@ TMatrixD* ERTelescopeUnpack::ReadCalFile(TString fileName){
     ifstream in;
     in.open(fileName);
     if (!in.is_open()){
-        LOG(FATAL) << "Can`t read calibration file " << fileName << FairLogger::FairLogger::endl;
+        LOG(FATAL) << "Can`t open calibration file " << fileName << FairLogger::FairLogger::endl;
         return NULL;
     }
 

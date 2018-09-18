@@ -25,7 +25,7 @@ void digibuilder(Int_t nEvents = 1000000)
                                "SQY_R","tSQY_R",
                                inputdir + "SQX_R.cal", inputdir + "SQY_R.cal",
                                "XY");
-  rtUnpack->AddCsIStation("CsI_R","CsI_R","tCsI_R","");
+  rtUnpack->AddCsIStation("CsI_R","CsI_R","tCsI_R",inputdir + "csi_r_ec.clb");
 
   ERTelescopeUnpack* ltUnpack = new ERTelescopeUnpack("Left_telescope");
   ltUnpack->AddDoubleSiStation("SQ_L",
