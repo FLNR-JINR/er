@@ -44,6 +44,7 @@ void sim(Int_t nEvents = 1)
   ERDetector* detector = new ERDetector("Si_detector", kTRUE);
   detector->SetGeometryFileName("astana_Si_detector_geo.root");
   detector->AddSensetive("station");
+  detector->SetStep(0.001);
   run->AddModule(detector);
 
   // 1 - only standard log print, 2 - print digi information 

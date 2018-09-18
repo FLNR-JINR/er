@@ -19,7 +19,8 @@
 #include "ERDetectorGeoPar.h"
 //-------------------------------------------------------------------------------------------------
 ERDetector::ERDetector()
-: FairDetector("ERDetector", kTRUE, -1)
+: FairDetector("ERDetector", kTRUE, -1),
+  fStep(-1.)
 {
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
@@ -27,7 +28,8 @@ ERDetector::ERDetector()
 }
 //-------------------------------------------------------------------------------------------------
 ERDetector::ERDetector(const char* Name, Bool_t Active, Int_t DetId/*=0*/)
-: FairDetector(Name, Active, DetId)
+: FairDetector(Name, Active, DetId),
+  fStep(-1.)
 {
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
@@ -95,6 +97,8 @@ Bool_t ERDetector::ProcessHits(FairVolume* vol) {
   
   if (gMC->IsTrackEntering()) { // Return true if this is the first step of the track in the current volume
     StartNewPoint();
+    if (fStep > 0.)
+      gMC->SetMaxStep(fStep);
   }
   
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
@@ -123,6 +127,9 @@ Bool_t ERDetector::ProcessHits(FairVolume* vol) {
       gMC->IsTrackDisappeared()) { 
     FinishNewPoint();
   }
+
+  if (gMC->IsTrackExiting())
+    gMC->SetMaxStep(10000.);
   
   return kTRUE;
 }

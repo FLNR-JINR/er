@@ -65,6 +65,10 @@ public:
      ** Create new points collection
     **/
 	void AddSensetive(TString name);
+
+    /** @brief Set maximum Geant transport step in sensetive volume
+    **/
+    void SetStep(Double_t step) {fStep = step;}
 public:
     /** @brief Initialisation
      ** class method FairDetector::Initialize() is called.
@@ -159,6 +163,8 @@ protected:
     Int_t          fVolNb;          ///< number of fiber in pixel
     ExpertTrackingStatus fTrackStatus; ///< curren track stutus (transport, stop, disappeared, ...) 
     TArrayI  fProcessesID;            ///< VMC prcess IDs in step
+
+    Double_t fStep;                    ///< Maximum Geat transport step
 
     ClassDef(ERDetector,1)
 };
