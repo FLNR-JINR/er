@@ -93,7 +93,7 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 			AddToFDigi(amp,time,1);
 		}
 		else
-			cerr << "Wrong PMT number in ToF!" << endl;
+			LOG(DEBUG) << "Wrong PMT number in ToF!" << FairLogger::endl;
 	}
 	if (stList.find("F5") != stList.end() && stList.find("tF5") != stList.end()){
 		std::map<Int_t, std::pair<Double_t, Double_t> > valueMap;
@@ -108,7 +108,7 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 			AddToFDigi(amp,time,2);
 		}
 		else
-			cerr << "Wrong PMT number in ToF!" << endl;
+			LOG(DEBUG) << "Wrong PMT number in ToF!" << FairLogger::endl;
 	}
 	// MWPC
 	std::map<Int_t, Double_t> mwpcTime;

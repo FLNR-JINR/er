@@ -50,6 +50,9 @@ void digibuilder(Int_t nEvents = 1000000)
   ERBeamTimeEventHeader* header = new ERBeamTimeEventHeader();
   run->SetEventHeader(header);
 
+  // -----   Logger settings --------------------------------------------
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+
   // --- Start run
   TStopwatch timer;
   timer.Start();

@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "FairLogger.h"
+
 #include "DetEventStation.h"
 #include "DetMessage.h"
 
@@ -60,7 +62,7 @@ void ERUnpack::UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStati
 	DetEventStation* ampStationEvent = (DetEventStation*)detEvent->GetChild(ampEventElement);
 	DetEventStation* timeStationEvent = (DetEventStation*)detEvent->GetChild(timeEventElement);
 	if (!ampStationEvent || !timeStationEvent){
-		cerr << "Amplitude event element or time event element not found for " << ampStation << endl;
+		LOG(FATAL) << "Amplitude event element or time event element not found for " << ampStation << FairLogger::endl;
 		return;
 	}
 
@@ -86,7 +88,7 @@ void ERUnpack::UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStati
 			valueMap[channel] = std::make_pair(amp,time);
 		}
 		else
-			cerr << "Time channel for amplitude channel not found" << endl;
+			LOG(DEBUG) << "Time channel for amplitude channel not found" << FairLogger::endl;
 	}
 }
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +102,7 @@ void ERUnpack::UnpackStation(DetEventDetector* detEvent, TString station, std::m
 	DetEventStation* stationEvent = (DetEventStation*)detEvent->GetChild(eventElementName);
 
 	if (!stationEvent){
-		cerr << "Event element not found for " << station << endl;
+		LOG(FATAL) << "Event element not found for " << station << FairLogger::endl;
 		return;
 	}
 

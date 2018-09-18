@@ -6,6 +6,7 @@
 
 #include "FairRootManager.h"
 #include "FairRun.h"
+#include "FairLogger.h"
 
 #include "DetEventFull.h"
 #include "DetEventDetector.h"
@@ -58,12 +59,12 @@ Bool_t ERDigibuilder::InitUnpackers(){
 		if (fUnpacks.find(itDet.first) != fUnpacks.end())
 			fUnpacks[itDet.first]->Init(fSetupConfiguration);
 		else
-			cerr << itDet.first << " is defined in setup file, but unpacker is not added!" << endl;
+			LOG(WARNING) << itDet.first << " is defined in setup file, but unpacker is not added!" << FairLogger::endl;
 	}
 
 	for (auto itUnpack : fUnpacks){
 		if (!itUnpack.second->IsInited())
-			cerr << "Detector " << itUnpack.first << " not found in setup file. Unpacker has not inited!" << endl;
+			LOG(WARNING) << "Detector " << itUnpack.first << " not found in setup file. Unpacker has not inited!" << FairLogger::endl;
 	}
 
 	return kTRUE;
@@ -88,7 +89,7 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
 	
 	DetEventCommon* common  = (DetEventCommon*)event->GetChild("DetEventCommon");
 	if (!common){
-		cerr << "DetEventCommon event element not found!" << endl;
+		LOG(FATAL) << "DetEventCommon event element not found!" << FairLogger::endl;
 		return 1;
 	}
 	FairRun* run = FairRun::Instance();
@@ -98,26 +99,12 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
 	for (auto itUnpack : fUnpacks){
 		if (itUnpack.second->IsInited()){
 			if (event->GetChild(itUnpack.first)){
+				DumpRawToScreen((DetEventDetector*)event->GetChild(itUnpack.first));
 				itUnpack.second->DoUnpack((Int_t*)event,0);
-
-				//
-				DetEventDetector* det= (DetEventDetector*)event->GetChild(itUnpack.first);
-				cerr << "! " << det->GetName() << endl;
-				for (Int_t iSt(0); iSt<det->getMaxIndex(); iSt++){
-					if (det->getEventElement(iSt)){
-						DetEventStation* st = (DetEventStation*)det->getEventElement(iSt);
-						cerr << "! \t" <<  st->GetName() << endl;
-						TClonesArray* timeMessages = st->GetDetMessages();
-						for (Int_t iTimeMessage(0); iTimeMessage < timeMessages->GetEntriesFast(); ++iTimeMessage){
-							DetMessage* curTimeMes = (DetMessage*)timeMessages->At(iTimeMessage);
-							cerr << "! \t\t" << curTimeMes->GetStChannel() << " " <<  curTimeMes->GetValue() << endl;
-						}
-					}
-				}
-				//
 			}
 			else
-				cerr << "Event element for detector " << itUnpack.first << " not found in event!";
+				LOG(WARNING) << "Event element for detector " << itUnpack.first 
+									<< " not found in event!" << FairLogger::endl;
 		}
 	}
 
@@ -139,6 +126,21 @@ Int_t ERDigibuilder::OpenNextFile(){
 		return 1;
 	fReader = new Reader(fPath[fCurFile++],fSetupFile);
 	return 0;
+}
+//--------------------------------------------------------------------------------------------------
+void ERDigibuilder::DumpRawToScreen(DetEventDetector* det){
+	LOG(DEBUG) << "Dump raw of " << det->GetName() << FairLogger::endl;
+	for (Int_t iSt(0); iSt<det->getMaxIndex(); iSt++){
+		if (det->getEventElement(iSt)){
+			DetEventStation* st = (DetEventStation*)det->getEventElement(iSt);
+			LOG(DEBUG) << "\t" <<  st->GetName() << FairLogger::endl;
+			TClonesArray* timeMessages = st->GetDetMessages();
+			for (Int_t iTimeMessage(0); iTimeMessage < timeMessages->GetEntriesFast(); ++iTimeMessage){
+				DetMessage* curTimeMes = (DetMessage*)timeMessages->At(iTimeMessage);
+				LOG(DEBUG) << "\t\t" << curTimeMes->GetStChannel() << " " <<  curTimeMes->GetValue() << FairLogger::endl;
+			}
+		}
+	}
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERDigibuilder)

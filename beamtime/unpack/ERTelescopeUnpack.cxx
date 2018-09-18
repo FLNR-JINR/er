@@ -6,6 +6,7 @@
 #include "TClonesArray.h"
 
 #include "FairRootManager.h"
+#include "FairLogger.h"
 
 #include "DetEventFull.h"
 #include "DetEventStation.h"
@@ -68,7 +69,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
             UnpackAmpTimeStation(detEvent,itStation.second->ampStName,itStation.second->timeStName,
                                  valueMap);
             if (!ApplyCalibration(itStation.second->calTable,valueMap)){
-                cerr << "calibration error on station " << itStation.first << endl;
+                LOG(FATAL) << "calibration error on station " << itStation.first << FairLogger::endl;
             }
             for (auto itValue : valueMap){
                 Int_t channel = itValue.first;
@@ -81,7 +82,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
                 UnpackAmpTimeStation(detEvent,itStation.second->ampStName2,itStation.second->timeStName2,
                                      valueMap);
                 if (!ApplyCalibration(itStation.second->calTable2,valueMap)){
-                    cerr << "calibration error on station " << itStation.first << endl;
+                    LOG(FATAL) << "calibration error on station " << itStation.first << FairLogger::endl;
                 }
                 for (auto itValue : valueMap){
                     Int_t channel = itValue.first;
@@ -117,7 +118,6 @@ void ERTelescopeUnpack::AddCsIDigi(Float_t edep, Double_t time, Int_t wallNb,
                                                                     Int_t blockNb,
                                                                     TString digiBranchName)
 {
-  cerr << digiBranchName << endl;
   ERQTelescopeCsIDigi *digi = new((*fDigiCollections[digiBranchName])
                                                    [fDigiCollections[digiBranchName]->GetEntriesFast()])
               ERQTelescopeCsIDigi(fDigiCollections[digiBranchName]->GetEntriesFast(), edep, time, 
@@ -202,27 +202,27 @@ void ERTelescopeUnpack::FormAllBranches(){
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopeUnpack::DumpStationsInfo(){
-    cerr << "!!! Stations info: " << endl; 
+    LOG(INFO) << "!!! Stations info: " << FairLogger::endl; 
     for (auto itStation : fStations){
-        cerr << "\t" << itStation.first << endl;
-        cerr << "\t\ttype : " << itStation.second->type << endl <<
-                "\t\tsideCount : " << itStation.second->sideCount << endl <<
-                "\t\tampStName : " << itStation.second->ampStName << endl << 
-                "\t\ttimeStName : " << itStation.second->timeStName << endl << 
-                "\t\tampStName2 : " << itStation.second->ampStName2 << endl << 
-                "\t\ttimeStName2 : " << itStation.second->timeStName2 << endl <<
-                "\t\tXY : " << itStation.second->XY << endl <<
-                "\t\tXYside : " << itStation.second->XYside << endl <<
-                "\t\tbName : " << itStation.second->bName << endl <<
-                "\t\tbName2 : " << itStation.second->bName2 << endl;
+        LOG(INFO) << "\t" << itStation.first << FairLogger::endl;
+        LOG(INFO) << "\t\ttype : " << itStation.second->type << FairLogger::endl <<
+                "\t\tsideCount : " << itStation.second->sideCount << FairLogger::endl <<
+                "\t\tampStName : " << itStation.second->ampStName << FairLogger::endl << 
+                "\t\ttimeStName : " << itStation.second->timeStName << FairLogger::endl << 
+                "\t\tampStName2 : " << itStation.second->ampStName2 << FairLogger::endl << 
+                "\t\ttimeStName2 : " << itStation.second->timeStName2 << FairLogger::endl <<
+                "\t\tXY : " << itStation.second->XY << FairLogger::endl <<
+                "\t\tXYside : " << itStation.second->XYside << FairLogger::endl <<
+                "\t\tbName : " << itStation.second->bName << FairLogger::endl <<
+                "\t\tbName2 : " << itStation.second->bName2 << FairLogger::endl;
         if (itStation.second->calTable){
-            cerr << "\t\tcalFile : " << itStation.second->calFile << endl;
-            cerr << "\t\tcalTable : " << endl;
+            LOG(INFO) << "\t\tcalFile : " << itStation.second->calFile << FairLogger::endl;
+            LOG(INFO) << "\t\tcalTable : " << FairLogger::endl;
             itStation.second->calTable->Print();
         }
         if (itStation.second->calTable2){
-            cerr << "\t\tcalFile2 : " << itStation.second->calFile2 << endl;
-            cerr << "\t\tcalTable2 : " << endl;
+            LOG(INFO) << "\t\tcalFile2 : " << itStation.second->calFile2 << FairLogger::endl;
+            LOG(INFO) << "\t\tcalTable2 : " << FairLogger::endl;
             itStation.second->calTable2->Print();
         }
     }
@@ -267,7 +267,7 @@ TMatrixD* ERTelescopeUnpack::ReadCalFile(TString fileName){
     ifstream in;
     in.open(fileName);
     if (!in.is_open()){
-        cerr << "Can`t read calibration file " << fileName << endl;
+        LOG(FATAL) << "Can`t read calibration file " << fileName << FairLogger::FairLogger::endl;
         return NULL;
     }
 
@@ -275,7 +275,7 @@ TMatrixD* ERTelescopeUnpack::ReadCalFile(TString fileName){
     in >> nCols;
     in >> nRows;
     if (nCols <= 0 || nRows <= 0){
-        cerr << "Can`t read rows or cols from calibration file " << fileName << endl;
+        LOG(FATAL) << "Can`t read rows or cols from calibration file " << fileName << FairLogger::FairLogger::endl;
         return NULL;
     }
 
@@ -284,7 +284,7 @@ TMatrixD* ERTelescopeUnpack::ReadCalFile(TString fileName){
 
     while (!in.eof()){
         if (i >= nRows){
-            cerr << "Wrong file format in " << fileName << endl;
+            LOG(FATAL) << "Wrong file format in " << fileName << FairLogger::FairLogger::endl;
             return NULL;
         }
         in >> (*calTable)[i][0] >> (*calTable)[i][1];
@@ -297,7 +297,7 @@ TMatrixD* ERTelescopeUnpack::ReadCalFile(TString fileName){
 Bool_t ERTelescopeUnpack::ApplyCalibration(TMatrixD* calTable, std::map<Int_t, std::pair<Double_t, Double_t> >& valueMap){
     for (auto& itValue : valueMap){
         if (itValue.first >= calTable->GetNrows()){
-            cerr << "channel number not found in calibration table" << endl;
+            LOG(FATAL) << "channel number not found in calibration table" << FairLogger::FairLogger::endl;
             return kFALSE;
         }
         itValue.second.first = itValue.second.first*(*calTable)[itValue.first][1] + (*calTable)[itValue.first][0];
@@ -313,23 +313,23 @@ Bool_t ERTelescopeUnpack::CheckSetup() {
     for (auto itStation : fStations){
         ERTelescopeStation* station = itStation.second;
         if (stationsInConfig.find(station->ampStName) == stationsInConfig.end()){
-            cerr << "Amplitude station " << station->ampStName << " not found in setup configuration file!" << endl;
+            LOG(FATAL) << "Amplitude station " << station->ampStName << " not found in setup configuration file!" << FairLogger::FairLogger::endl;
             return kFALSE;
         }
         if (station->timeStName != ""){
             if (stationsInConfig.find(station->timeStName) == stationsInConfig.end()){
-                cerr << "Time station " << station->timeStName << " not found in setup configuration file!" << endl;
+                LOG(FATAL) << "Time station " << station->timeStName << " not found in setup configuration file!" << FairLogger::FairLogger::endl;
                 return kFALSE;
             }
         }
         if (station->sideCount == 2){
             if (stationsInConfig.find(station->ampStName2) == stationsInConfig.end()){
-            cerr << "Amplitude station " << station->ampStName2 << " not found in setup configuration file!" << endl;
+            LOG(FATAL) << "Amplitude station " << station->ampStName2 << " not found in setup configuration file!" << FairLogger::FairLogger::endl;
             return kFALSE;
             }
             if (station->timeStName2 != ""){
                 if (stationsInConfig.find(station->timeStName2) == stationsInConfig.end()){
-                    cerr << "Time station " << station->timeStName2 << " not found in setup configuration file!" << endl;
+                    LOG(FATAL) << "Time station " << station->timeStName2 << " not found in setup configuration file!" << FairLogger::FairLogger::endl;
                     return kFALSE;
                 }
             }
@@ -345,7 +345,7 @@ Bool_t ERTelescopeUnpack::CheckSetup() {
                 station->timeStName == stationName || 
                 station->ampStName2 == stationName || 
                 station->timeStName2 == stationName)
-            cerr << "Station " << stationName << " in setup file, but not defined to unpack!" << endl; 
+            LOG(WARNING) << "Station " << stationName << " in setup file, but not defined to unpack!" << FairLogger::FairLogger::endl; 
         }
     }
 

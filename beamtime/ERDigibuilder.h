@@ -57,6 +57,7 @@ class ERDigibuilder : public FairSource
     SetupConfiguration* fSetupConfiguration;
     Reader* fReader;
 
+    void DumpRawToScreen(DetEventDetector* det);
     Int_t OpenNextFile();
   public:
     ClassDef(ERDigibuilder, 1)
