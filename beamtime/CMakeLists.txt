@@ -43,6 +43,8 @@ set(SRCS
 
 	data/WCalHit.cxx
 	data/WCalEvent.cxx
+
+	data/ERBeamTimeEventHeader.cxx
 )
 
 Set(LINKDEF ERBeamtimeLinkDef.h)

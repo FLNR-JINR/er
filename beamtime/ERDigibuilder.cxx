@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "TObjArray.h"
+
 #include "FairRootManager.h"
 #include "FairRun.h"
 
@@ -9,10 +11,11 @@
 #include "DetEventDetector.h"
 #include "DetEventStation.h"
 #include "DetMessage.h"
-
-
+#include "DetEventCommon.h"
 #include "TGo4EventElement.h"
-#include "TObjArray.h"
+
+
+#include "ERBeamTimeEventHeader.h"
 
 using namespace std;
 
@@ -38,7 +41,6 @@ Bool_t ERDigibuilder::Init(){
 		Fatal("ERDigibuilder", "No files for source ERDigibuilder");
 
 	if (fSetupFile == "")
-		Fatal("ERDigibuilder", "No SetupFile for ERDigibuilder");
 
 	FairRun* run = FairRun::Instance();
 
@@ -83,6 +85,15 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
 	}
 
 	DetEventFull* event = fReader->ReadEvent(curEventInCurFile);
+	
+	DetEventCommon* common  = (DetEventCommon*)event->GetChild("DetEventCommon");
+	if (!common){
+		cerr << "DetEventCommon event element not found!" << endl;
+		return 1;
+	}
+	FairRun* run = FairRun::Instance();
+	ERBeamTimeEventHeader* header = (ERBeamTimeEventHeader*) run->GetEventHeader();
+	header->SetTrigger(common->trigger);
 
 	for (auto itUnpack : fUnpacks){
 		if (itUnpack.second->IsInited()){

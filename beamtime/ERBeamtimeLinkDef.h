@@ -29,6 +29,8 @@
 #pragma link C++ class WCalHit+;
 #pragma link C++ class WCalEvent+;
 
+#pragma link C++ class ERBeamTimeEventHeader+;
+
 //#ifdef ACCULINNA_GO4
 #pragma link C++ class ERDigibuilder+;
 #pragma link C++ class ERUnpack+;

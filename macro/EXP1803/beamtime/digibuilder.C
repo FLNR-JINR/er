@@ -47,6 +47,9 @@ void digibuilder(Int_t nEvents = 1000000)
   FairRunOnline *run = new FairRunOnline(builder);
   run->SetOutputFile(outFile);
 
+  ERBeamTimeEventHeader* header = new ERBeamTimeEventHeader();
+  run->SetEventHeader(header);
+
   // --- Start run
   TStopwatch timer;
   timer.Start();
