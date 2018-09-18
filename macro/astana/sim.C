@@ -61,7 +61,8 @@ void sim(Int_t nEvents = 1)
   ERElasticScattering* scattering = new ERElasticScattering("13Cto13C2H");
 
   scattering->SetInputIon(Z,A,Q);
-  scattering->SetTargetIon(1,2,1);
+  //scattering->SetTargetIon(1,2,1);
+  scattering->SetTargetParticle(2212);
   //scattering->SetThetaCDF("cos_tetta_cross.txt");
   scattering->SetUniformPos(-0.0005,-0.0005);
   scattering->SetStep(0.00001); //0.1 micron

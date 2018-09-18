@@ -28,6 +28,7 @@ public:
 
   /*Modifiers*/
   void SetTargetIon(Int_t A, Int_t Z, Int_t Q);
+  void SetTargetParticle(Int_t pdg);
   void SetThetaCDF(TString fileName) { fThetaFileName = fileName; }
   void SetTargetMass(Float_t mass) { fTargetMass = mass; }
   void SetThetaRange(Float_t theta1, Float_t theta2) { fTheta1 = theta1; fTheta2 = theta2; }

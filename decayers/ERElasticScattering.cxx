@@ -69,6 +69,13 @@ void ERElasticScattering::SetTargetIon(Int_t A, Int_t Z, Int_t Q) {
   run->AddNewIon(fTargetIon);
   LOG(DEBUG) << "Target ion with name " << targetIonName << " inited!" << FairLogger::endl;
 }
+//-------------------------------------------------------------------------------------------------
+void ERElasticScattering::SetTargetParticle(Int_t pdg){
+  fTargetIonPDG = TDatabasePDG::Instance()->GetParticle(pdg);
+  if (!fTargetIonPDG){
+    LOG(FATAL) << "Particle with pdg " << pdg << " not found in TDatabasePDG!" << FairLogger::endl;
+  }
+}
 
 //-------------------------------------------------------------------------------------------------
 Bool_t ERElasticScattering::Init()
@@ -76,8 +83,12 @@ Bool_t ERElasticScattering::Init()
   if (!ERDecay::Init()) {
     return kFALSE;
   }
-
-  fTargetIonPDG = TDatabasePDG::Instance()->GetParticle(fTargetIon->GetName());
+  if (!fTargetIonPDG) // SetTargetIon
+    if (fTargetIon)
+      fTargetIonPDG = TDatabasePDG::Instance()->GetParticle(fTargetIon->GetName());
+    else {
+      LOG(FATAL) << "Traget ion or particle not defined!" << FairLogger::endl;
+    }
   if ( ! fTargetIonPDG ) {
     LOG(FATAL) << "Target ion not found in pdg database!" << FairLogger::endl;
     return kFALSE;

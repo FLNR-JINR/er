@@ -32,7 +32,7 @@
 /mcDet/setIsLocalMagField true
 #/mcVerbose/geometryManager 1
 /mcVerbose/regionsManager 2
-#/mcVerbose/physicsList 2
+/mcVerbose/physicsList 2
 /tracking/verbose 0
 
 #/control/manual
