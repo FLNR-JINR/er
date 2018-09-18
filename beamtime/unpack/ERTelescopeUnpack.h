@@ -60,6 +60,8 @@ class ERTelescopeUnpack : public ERUnpack
     Bool_t CheckSetup();
 
     std::map<TString,ERTelescopeStation*> fStations;
+
+    Double_t fTimeCalConst;
   public:
     ClassDef(ERTelescopeUnpack, 0)
 };

@@ -18,7 +18,8 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERTelescopeUnpack::ERTelescopeUnpack(TString detName):
-ERUnpack(detName)
+ ERUnpack(detName),
+ fTimeCalConst(0.3)
 {
 
 }
@@ -300,7 +301,7 @@ Bool_t ERTelescopeUnpack::ApplyCalibration(TMatrixD* calTable, std::map<Int_t, s
             return kFALSE;
         }
         itValue.second.first = itValue.second.first*(*calTable)[itValue.first][1] + (*calTable)[itValue.first][0];
-        cerr << itValue.second.first << endl;
+        itValue.second.second *= fTimeCalConst;
     }
 
     return kTRUE;

@@ -5,6 +5,7 @@
 #include "TClonesArray.h"
 
 #include "FairRootManager.h"
+#include "FairLogger.h"
 
 #include "DetEventFull.h"
 #include "DetEventStation.h"
@@ -18,7 +19,7 @@ using namespace std;
 //--------------------------------------------------------------------------------------------------
 ERBeamDetUnpack::ERBeamDetUnpack(TString detName):
  ERUnpack(detName),
- fToFCalConst(0.125)
+ fTimeCalConst(0.125)
 {
 
 }
@@ -88,7 +89,7 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 				amp += itValue.second.first;
 				time += itValue.second.second;
 			}
-			time = time*0.25*fToFCalConst;
+			time = time*0.25*fTimeCalConst;
 			AddToFDigi(amp,time,1);
 		}
 		else
@@ -103,7 +104,7 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 				amp += itValue.second.first;
 				time += itValue.second.second;
 			}
-			time = time*0.25*fToFCalConst;
+			time = time*0.25*fTimeCalConst;
 			AddToFDigi(amp,time,2);
 		}
 		else
@@ -123,14 +124,11 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 			UnpackStation(detEvent, mwpcAmpSt, mwpcAmp);
 			if (mwpcTime.find(mwpcTimeSt) != mwpcTime.end()){
 				for (auto itChanel : mwpcAmp){
-					AddMWPCDigi(itChanel.second, mwpcTime[mwpcTimeSt], mwpcAmpSt, itChanel.first);
+					AddMWPCDigi(itChanel.second, mwpcTime[mwpcTimeSt]*fTimeCalConst, mwpcAmpSt, itChanel.first);
 				}
 			}
 			else{
-				cerr << "Could not find mwpc time station " << mwpcTimeSt << endl;
-				for (auto itChanel : mwpcAmp){
-					AddMWPCDigi(itChanel.second,0., mwpcAmpSt, itChanel.first);
-				}
+				LOG(DEBUG) << "MWPC time signal not found for amplitude" << FairLogger::endl;
 			}
 		}
 	}

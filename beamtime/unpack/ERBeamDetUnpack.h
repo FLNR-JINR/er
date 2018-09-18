@@ -23,7 +23,7 @@ class ERBeamDetUnpack : public ERUnpack
     std::map<TString,Int_t> fMwpcAmpTimeStations;
     std::map<TString,TString> fMwpcBnames;
 
-    Double_t fToFCalConst;
+    Double_t fTimeCalConst;
 
   public:
     ClassDef(ERBeamDetUnpack, 0)
