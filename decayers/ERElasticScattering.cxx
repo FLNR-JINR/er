@@ -38,7 +38,7 @@ ERElasticScattering::ERElasticScattering(TString name):
     ERDecay(name),
     fThetaFileName(""),
     fTheta1(0.),
-    fTheta2(180.),
+    fTheta2(0.),
     fPhi1(0),
     fPhi2(360.),
     fTargetIonName(""),
