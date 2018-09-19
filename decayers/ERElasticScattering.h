@@ -22,21 +22,12 @@ public:
 
     void SetDetAngle(Double_t angle)  { fDetPos = angle; }
     void SetIonMass(Double_t mass)    { fIonMass = mass; }
-<<<<<<< HEAD
-    void SetTargetMass(Double_t mass) { fTargetMass = mass; }
-
-    Double_t GetIonMass()          const { return fIonMass; }
-    Double_t GetTargetMass()       const { return fTargetMass; }
-    Double_t GetdPhi()             const { return (fPhi2 - fPhi1); }
-    Double_t GetCDFRangesSumm()    const { return fCDFRangesSumm; }
-=======
     void SetTargetIonMass(Double_t mass) { fTargetIonMass = mass; }
 
     Double_t GetIonMass()          const { return fIonMass; }
     Double_t GetTargetIonMass()    const { return fTargetIonMass; }
     Double_t GetdPhi()             const { return (fPhi2 - fPhi1); }
-    Double_t GetCDFRangesSum()    const { return fCDFRangesSum; }
->>>>>>> work_branch
+    Double_t GetCDFRangesSum()     const { return fCDFRangesSum; }
 
     Int_t GetInteractNumInTarget() const { return fInteractNumInTarget; }
 
@@ -57,16 +48,6 @@ protected:
     TF1*            fThetaInvCDF;
 
 protected:
-<<<<<<< HEAD
-    Double_t        fThetaTargetIon1;
-    Double_t        fThetaTargetIon2;
-    Double_t        fCDFminTargetIon;
-    Double_t        fCDFmaxTargetIon;
-    Double_t        fDetPos;              // Detector position in Lab
-    Double_t        fIonMass;
-    Double_t        fTargetMass;
-    Double_t        fCDFRangesSumm;       // The CDF ranges summ of the primary ion and target ion
-=======
     Double_t        fThetaTargetIon1;     // theta min for target ion
     Double_t        fThetaTargetIon2;     // theta max for target ion
     Double_t        fCDFminTargetIon;     // = thetaCDF(fThetaTargetIon1)
@@ -75,7 +56,6 @@ protected:
     Double_t        fIonMass;
     Double_t        fTargetIonMass;
     Double_t        fCDFRangesSum;        // The CDF ranges summ of the primary ion and target ion
->>>>>>> work_branch
 
     Int_t           fInteractNumInTarget; // Interaction counter for target
 

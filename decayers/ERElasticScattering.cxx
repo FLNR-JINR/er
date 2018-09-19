@@ -53,11 +53,7 @@ ERElasticScattering::ERElasticScattering(TString name):
     fDetPos(0.),
     fIonMass(0.),
     fInteractNumInTarget(0),
-<<<<<<< HEAD
-    fCDFRangesSumm(0.),
-=======
     fCDFRangesSum(0.),
->>>>>>> work_branch
     ionMassTrueOrFalseTester(kFALSE)
 {
 }
@@ -89,11 +85,8 @@ Bool_t ERElasticScattering::Init()
     }
 
     SetIonMass(fInputIonPDG->Mass());
-<<<<<<< HEAD
-    SetTargetMass(fTargetIonPDG->Mass());
-=======
     SetTargetIonMass(fTargetIonPDG->Mass());
->>>>>>> work_branch
+
     if (fTheta1 != 0. && fTheta2 != 0.)
         ionMassTrueOrFalseTester = kTRUE;
     else
@@ -156,11 +149,7 @@ Bool_t ERElasticScattering::Stepping()
             TLorentzVector fInputIonV;
             gMC->TrackMomentum(fInputIonV);
             Double_t iM = GetIonMass();
-<<<<<<< HEAD
-            Double_t tM = GetTargetMass();
-=======
             Double_t tM = GetTargetIonMass();
->>>>>>> work_branch
             Double_t iM2 = pow(iM,2);
             Double_t tM2 = pow(tM,2);
 
@@ -304,13 +293,9 @@ Double_t ERElasticScattering::ThetaGen()
         std::cout << "summ: "<< dLength << std::endl;
         std::cout.precision(3);
 */
-<<<<<<< HEAD
-        if (fCDFRangesSumm == 0.)
-            fCDFRangesSumm = dLength;
-=======
+
         if (fCDFRangesSum == 0.)
             fCDFRangesSum = dLength;
->>>>>>> work_branch
 
         Double_t Rnd = fRnd->Uniform(0., 1.)*dLength;
         Double_t curCDF;
