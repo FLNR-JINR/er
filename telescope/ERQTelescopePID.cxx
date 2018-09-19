@@ -88,10 +88,6 @@ InitStatus ERQTelescopePID::Init() {
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopePID::Exec(Option_t* opt) { 
   Reset();
-
-  if (!ERRunAna::Instance()->ContentForAnalysis()) {
-    return;
-  }
   
   for (const auto itTrackBranches : fQTelescopeTrack) {
 

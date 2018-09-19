@@ -9,7 +9,7 @@ void reco(Int_t nEvents = 1000){
   timer.Start();  
   // -----   Digitization run   ---------------------------------------------
   ERRunAna *run = ERRunAna::Instance();
-  //run->SetUserCut("ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.003");
+  run->SetUserCut("EventHeader.fTrigger==1");
 
   run->SetGeomFile(geoFile);
   run->SetInputFile(inFile);
