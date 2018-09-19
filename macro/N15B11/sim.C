@@ -60,7 +60,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   Int_t Q = 3;
 
   ERDecayer* decayer = new ERDecayer();
-  ERN15B11ElasticScattering* scattering = new ERN15B11ElasticScattering("15Nto15N11B");
+  ERElasticScattering* scattering = new ERElasticScattering("15Nto15N11B");
 
   scattering->SetInputIon(Z,A,Q);
   scattering->SetTargetIon(5,11,5);
@@ -141,4 +141,6 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // cout << "Energy " << momentum << "; mass " << mass << endl;
   cout << "Interactions number in target: " << scattering->GetInteractNumInTarget() << endl;
   cout << "dPhi range: " << scattering->GetdPhi() << endl;
+  cout.precision(12);
+  cout << "summ: "<< scattering->GetCDFRangesSumm() << endl;
 }
