@@ -7,13 +7,13 @@ struct SArrays
 
 bool Draw_Experimental_Points(TCanvas* cn, TLegend* leg);
 bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg);
-SArrays* Fill_Arrays(Int_t anglesNumbers);
-Int_t* GetnEventsInTarget(Int_t anglesNumbers);
+SArrays* Fill_Arrays(Int_t anglesNumbers, Bool_t N15_B11_draw);
+Int_t* GetnEventsInTarget(Int_t anglesNumbers, Bool_t N15_B11_draw);
 Double_t* GetdPhiAr(Int_t anglesNumbers);
 
 //---------------------------------------------------------------------------------------------------------------------
 void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 3, Int_t anglesNumbers = 0, Double_t STEP=1.,
-                   TString workDir = "output")
+                   TString workDir = "output", Bool_t N15_B11_draw = kFALSE)
 {
     nEvents = nEvents*nThreads;
 
@@ -31,7 +31,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         return;
     }
 
-    SArrays* Ar = Fill_Arrays(anglesNumbers);
+    SArrays* Ar = Fill_Arrays(anglesNumbers, N15_B11_draw);
     if (!Ar)
     {
         cerr << "Fill_Arrays Error " << endl;
@@ -41,19 +41,20 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     Double_t* nB11Ar = Ar->BAr;
     Double_t* nN15Ar = Ar->NAr;
 
-    Int_t* nEventsAr = GetnEventsInTarget(anglesNumbers);// Identify events number in target for all curent angles
+    Int_t* nEventsAr = GetnEventsInTarget(anglesNumbers, N15_B11_draw);// Identify events number in target for all curent angles
     if (!nEventsAr)
     {
         cerr << "GetnEventsInTarget Error " << endl;
         return;
     }
+/*
     Double_t* dPhiAr = GetdPhiAr(anglesNumbers); // Get dPhi ranges array
     if (!dPhiAr)
     {
         cerr << "GetdPhiAr Error " << endl;
         return;
     }
-
+*/
     ofstream fout("output/N15_cross_and_theta.txt");
     if (!fout.is_open())
     {
@@ -66,12 +67,12 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     TVectorD tetN15(anglesNumbers);
     for (i = 0; i < anglesNumbers; i++) {
         nEvents = nEventsAr[i];
-        double Integrat = ( (double)nEvents/summAr[i] );
-        double crossSecLab = ( (double)nN15Ar[i]*2.*TMath::Pi()/dPhiAr[i]/Integrat );
-        double curAngle = ((double)i*STEP + begAng)*TMath::Pi()/180.;
-        double iA = 1. + ratio*ratio*cos(2.*curAngle);
-        double iB = 1. - ratio*ratio*sin(curAngle)*sin(curAngle);
-        double iC = sqrt(iB)/iA;
+        Double_t Integrat = ( (Double_t)nEvents/summAr[i] );
+        Double_t crossSecLab = ( (Double_t)nN15Ar[i]/Integrat );
+        Double_t curAngle = ((Double_t)i*STEP + begAng)*TMath::Pi()/180.;
+        Double_t iA = 1. + ratio*ratio*cos(2.*curAngle);
+        Double_t iB = 1. - ratio*ratio*sin(curAngle)*sin(curAngle);
+        Double_t iC = sqrt(iB)/iA;
         sigmaCMN15(i) = log10(0.5*crossSecLab*iC);
         iA = ratio*sin(curAngle)*sin(curAngle);
         iB = cos(curAngle)*sqrt(1. - ratio*ratio*sin(curAngle)*sin(curAngle));
@@ -89,14 +90,32 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
 
     leg->AddEntry(simN15Gr, "N15 Points", "p");
 
+    //N15_B11_draw = kTRUE;
+    if (N15_B11_draw)
+    {
+        Ar = Fill_Arrays(anglesNumbers, N15_B11_draw);
+        if (!Ar)
+        {
+            cerr << "Fill_Arrays Error " << endl;
+            return;
+        }
+        delete []summAr;
+        delete []nB11Ar;
+        delete []nN15Ar;
+        summAr = Ar->sAr;
+        nB11Ar = Ar->BAr;
+        nN15Ar = Ar->NAr;
+
+        nEventsAr = GetnEventsInTarget(anglesNumbers, N15_B11_draw);
+    }
     TVectorD sigmaCMB11(anglesNumbers);
     TVectorD tetB11(anglesNumbers);
     Int_t memNEv = nEvents;
     for (i = 0; i < anglesNumbers; i++) {
         nEvents = nEventsAr[i];
-        double Integrat = ( (double)nEvents/summAr[i] );
-        double crossSecLab = ( (double)nB11Ar[i]*2.*TMath::Pi()/dPhiAr[i]/Integrat);
-        double curAngle = ((double)i*STEP + begAng)*TMath::Pi()/180.;
+        Double_t Integrat = ( (Double_t)nEvents/summAr[i] );
+        Double_t crossSecLab = ( (Double_t)nB11Ar[i]/Integrat);
+        Double_t curAngle = ((Double_t)i*STEP + begAng)*TMath::Pi()/180.;
         sigmaCMB11(i) = log10(0.25*crossSecLab/cos(curAngle));
         tetB11(i) = 180. - 2*curAngle*180./TMath::Pi();
     }
@@ -168,73 +187,47 @@ bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg)
 
 bool Draw_Experimental_Points(TCanvas* canv, TLegend* leg)
 {
-    ifstream fin("input/N15_experimental_cs.txt");
+    ifstream fin("input/CS_15N_11B.txt");
     if (!fin.is_open())
     {
-        cerr << "input/N15_experimental_cs.txt read error\n";
+        cerr << "input/CS_15N_11B.txt read error\n";
         return kFALSE;
     }
 
-    Int_t N15_Points = 35;
-    Int_t B11_Points = 32;
+    Int_t N15_B11_Points = 66;
     Int_t i;
 
-    TVectorD sigN15(N15_Points);
-    TVectorD thetaN15(N15_Points);
-    for (i = 0; i < N15_Points; i++)
+    TVectorD sigN15_B11(N15_B11_Points);
+    TVectorD thetaN15_B11(N15_B11_Points);
+    for (i = 0; i < N15_B11_Points; i++)
     {
-        Double_t cs;
         Double_t theta;
-        fin >> cs;
+        Double_t cs;
         fin >> theta;
-        sigN15(i) = log10(cs);
-        thetaN15(i) = theta;
+        fin >> cs;
+        thetaN15_B11(i) = theta;
+        sigN15_B11(i) = log10(cs);
         //cout << cs << ", " << theta << endl;
     }
 
-    TGraph* N15Pgr = new TGraph(thetaN15, sigN15);
+    TGraph* N15_B11_Pgr = new TGraph(thetaN15_B11, sigN15_B11);
     canv->cd();
-    N15Pgr->Draw("P");
-    N15Pgr->SetMarkerStyle(22);
-    N15Pgr->SetMarkerColor(8);
-    leg->AddEntry(N15Pgr, "N15 experimental Points", "p");
-
-    fin.clear();
-    fin.close();
-    fin.open("input/B11_experimental_cs.txt");
-    if (!fin.is_open())
-    {
-        cerr << "input/B11_experimental_cs.txt read error\n";
-        return kFALSE;
-    }
-
-    TVectorD sigB11(B11_Points);
-    TVectorD thetaB11(B11_Points);
-    for (i = 0; i < B11_Points; i++)
-    {
-        Double_t cs;
-        Double_t theta;
-        fin >> cs;
-        fin >> theta;
-        sigB11(i) = log10(cs);
-        thetaB11(i) = theta;
-        //cout << cs << ", " << theta << endl;
-    }
-
-    TGraph* B11Pgr = new TGraph(thetaB11, sigB11);
-    canv->cd();
-    B11Pgr->Draw("P");
-    B11Pgr->SetMarkerStyle(23);
-    B11Pgr->SetMarkerColor(8);
-    leg->AddEntry(B11Pgr, "B11 experimental Points", "p");
+    N15_B11_Pgr->Draw("P");
+    N15_B11_Pgr->SetMarkerStyle(22);
+    N15_B11_Pgr->SetMarkerColor(8);
+    leg->AddEntry(N15_B11_Pgr, "Experimental Points", "p");
 
     fin.clear();
     fin.close();
     return kTRUE;
 }
-SArrays* Fill_Arrays(Int_t n)
+SArrays* Fill_Arrays(Int_t n, Bool_t N15_B11_draw)
 {
-    ifstream fin("input/out.txt");
+    ifstream fin;
+    if (!N15_B11_draw)
+        fin.open("input/out.txt");
+    else
+        fin.open("input/outB11.txt");
     if (!fin.is_open())
     {
         cerr << "out.txt file was not found\n";
@@ -287,9 +280,13 @@ SArrays* Fill_Arrays(Int_t n)
     return ar;
 }
 
-Int_t* GetnEventsInTarget(Int_t anglesNumbers)
+Int_t* GetnEventsInTarget(Int_t anglesNumbers, Bool_t N15_B11_draw)
 {
-    TString fileName = "input/target_int_num.txt";
+    TString fileName;
+    if (!N15_B11_draw)
+        fileName = "input/target_int_num.txt";
+    else
+        fileName = "input/target_int_numB11.txt";
     std::ifstream fin(fileName);
     if (!fin.is_open()) {
         cerr << "Can't open file " << fileName << endl;
