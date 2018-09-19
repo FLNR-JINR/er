@@ -7,6 +7,8 @@
 #include "TString.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TCut.h"
+#include "TH1I.h"
 
 #include "FairSource.h"
 
@@ -43,6 +45,7 @@ class ERDigibuilder : public FairSource
 
     void SetConfigurationFile(TString name){fSetupFile = name;}
     void AddFile(TString path){fPath.push_back(path);}
+    void SetUserCut(TCut cut) {fUserCut = cut;}
   private:
     std::map<TString, ERUnpack*> fUnpacks;
 
@@ -56,6 +59,9 @@ class ERDigibuilder : public FairSource
     TString fSetupFile;
     SetupConfiguration* fSetupConfiguration;
     Reader* fReader;
+
+    TCut fUserCut;
+    TH1I* fEventsForProcessing;
 
     void DumpRawToScreen(DetEventDetector* det);
     Int_t OpenNextFile();
