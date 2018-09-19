@@ -29,7 +29,7 @@ public:
   /**Run from event number NStart to event number NStop */
   void Run(Int_t NStart=0 ,Int_t NStop=0);
 public:
-  bool ContentForAnalysis();
+  bool ContentForAnalysis(Int_t iEvent);
 private:
   ERRunAna();
   

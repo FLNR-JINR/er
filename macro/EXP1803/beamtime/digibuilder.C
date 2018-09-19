@@ -15,7 +15,9 @@ void digibuilder(Int_t nEvents = 1000000)
   // --- Source task
   ERDigibuilder* builder = new ERDigibuilder();
   builder->SetConfigurationFile(confFile);
+  builder->SetUserCut("Beam_detector_F3.@fDetMessages.GetEntriesFast() == 4");
   builder->AddFile(inFile);
+
 
   ERBeamDetUnpack* beamDetUnpack = new ERBeamDetUnpack("Beam_detector");
   

@@ -75,7 +75,7 @@ void ERRunAna::Init(){
       return;
     }
   }
-
+  
   TG4RunConfiguration* runConfiguration
              = new TG4RunConfiguration("geomRoot", "QGSP_BERT_HP", "specialCuts+stackPopper");
 
@@ -141,7 +141,7 @@ void ERRunAna::Run(Int_t Ev_start, Int_t Ev_end)
 
     for (int i=Ev_start; i< Ev_end || MaxAllowed==-1 ; i++) {
 
-      if (!ContentForAnalysis()) {
+      if (!ContentForAnalysis(i)) {
         continue;
       }
 
@@ -191,10 +191,9 @@ void ERRunAna::Run(Int_t Ev_start, Int_t Ev_end)
   }
 }
 //--------------------------------------------------------------------------------------------------
-bool ERRunAna::ContentForAnalysis() {
-  Int_t mcEvent = FairRun::Instance()->GetEventHeader()->GetMCEntryNumber();
+bool ERRunAna::ContentForAnalysis(Int_t iEvent) {
   if (fUserCut != "") {
-    if (!fEventsForProcessing->GetBinContent(mcEvent)){
+    if (!fEventsForProcessing->GetBinContent(iEvent)){
       LOG(INFO) << "  Skip event with user cut"<< FairLogger::endl;
       return kFALSE;
     }
