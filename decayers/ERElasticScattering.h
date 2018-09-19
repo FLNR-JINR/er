@@ -1,11 +1,3 @@
-/********************************************************************************
- *              Copyright (C) Joint Institute for Nuclear Research              *
- *                                                                              *
- *              This software is distributed under the terms of the             *
- *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
- *                  copied verbatim in the file "LICENSE"                       *
- ********************************************************************************/
-
 #ifndef ERElasticScattering_H
 #define ERElasticScattering_H
 
@@ -20,35 +12,60 @@ class TParticlePDG;
 class ERElasticScattering : public ERDecay
 {
 public:
-  ERElasticScattering(TString name);
-  ~ERElasticScattering();
+    ERElasticScattering(TString name);
+    ~ERElasticScattering();
 
-  /*Modifiers*/
-  void SetTargetIon(Int_t A, Int_t Z, Int_t Q);
-  void SetThetaCDF(TString fileName) { fThetaFileName = fileName; }
-  void SetTargetMass(Float_t mass) { fTargetMass = mass; }
-  void SetThetaRange(Float_t theta1, Float_t theta2) { fTheta1 = theta1; fTheta2 = theta2; }
-  void SetPhiRange(Float_t phi1, Float_t phi2) { fPhi1 = phi1; fPhi2 = phi2; }
+    void SetTargetIon(Int_t A, Int_t Z, Int_t Q);
+    void SetThetaCDF(TString fileName) { fThetaFileName = fileName; }
+    void SetThetaRange(Double_t th1, Double_t th2) { fTheta1 = th1; fTheta2 = th2; }
+    void SetPhiRange(Double_t phi1, Double_t phi2) { fPhi1 = phi1; fPhi2 = phi2; }
+
+    void SetDetAngle(Double_t angle)  { fDetPos = angle; }
+    void SetIonMass(Double_t mass)    { fIonMass = mass; }
+    void SetTargetIonMass(Double_t mass) { fTargetIonMass = mass; }
+
+    Double_t GetIonMass()          const { return fIonMass; }
+    Double_t GetTargetIonMass()    const { return fTargetIonMass; }
+    Double_t GetdPhi()             const { return (fPhi2 - fPhi1); }
+    Double_t GetCDFRangesSum()     const { return fCDFRangesSum; }
+
+    Int_t GetInteractNumInTarget() const { return fInteractNumInTarget; }
 
 public:
-  Bool_t Init();
-  Bool_t Stepping();
+    Bool_t Init();
+    Bool_t Stepping();
 
-private:
-  TString        fThetaFileName;
-  Float_t        fTargetMass;
-  Float_t        fTheta1,fTheta2;
-  Float_t        fCDFmin,fCDFmax;
-  Float_t        fPhi1, fPhi2;
+protected:
+    TString         fThetaFileName;
+    Double_t        fTheta1,fTheta2;
+    Double_t        fCDFmin,fCDFmax;
+    Double_t        fPhi1, fPhi2;
 
-  TString        fTargetIonName;
-  TParticlePDG*  fTargetIonPDG;
+    TString         fTargetIonName;
+    TParticlePDG*   fTargetIonPDG;
 
-  TF1* fThetaInvCDF;
+    TF1*            fThetaCDF;
+    TF1*            fThetaInvCDF;
 
-  Float_t ThetaGen();
+protected:
+    Double_t        fThetaTargetIon1;     // theta min for target ion
+    Double_t        fThetaTargetIon2;     // theta max for target ion
+    Double_t        fCDFminTargetIon;     // = thetaCDF(fThetaTargetIon1)
+    Double_t        fCDFmaxTargetIon;     // = thetaCDF(fThetaTargetIon2)
+    Double_t        fDetPos;              // Detector position in Lab
+    Double_t        fIonMass;
+    Double_t        fTargetIonMass;
+    Double_t        fCDFRangesSum;        // The CDF ranges summ of the primary ion and target ion
 
-  ClassDef(ERElasticScattering, 1);
+    Int_t           fInteractNumInTarget; // Interaction counter for target
+
+    Bool_t ionMassTrueOrFalseTester;      // It's to identify a difference between the PDG and Monte-Carlo ion mass
+
+    Double_t ThetaGen();
+    // The method is to calculate range for It's drawing of the ion scattering angle
+    void RangesCalculate(Double_t iM, Double_t tM);
+
+    ClassDef(ERElasticScattering, 1);
 };
 
 #endif // ERElasticScattering_H
