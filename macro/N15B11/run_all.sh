@@ -5,7 +5,7 @@ SIMOUTDIR=output_parallel
 RESULTSDIR=result
 COMPILATIONDIR=
 CALCOUTDIR=calc_output
-COMPILATIONDIR=../../../fork_expertroot_build
+COMPILATIONDIR=../../../build
 INDIR=../output_parallel
 OUTDIR=output_digi_parallel
 GRAPHSOUTDIR=digi_graphs_parallel
@@ -14,7 +14,7 @@ GRAPHSOUTDIR=digi_graphs_parallel
 NEVENTS=10000
 MINANGLE=30
 MAXANGLE=30
-NTHREADS=3
+NTHREADS=16
 
 # Digitization add or no add
 TOADDDIGI='yes'
