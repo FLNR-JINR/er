@@ -1,4 +1,4 @@
-void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output")
+void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t angle = 20.)
 {
   gRandom->SetSeed(index);
 
@@ -68,8 +68,9 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output")
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11");
-  scattering->SetThetaRange(20., 21.); //TODO !!!!
-  scattering->SetPhiRange(0., 0.);
+  scattering->SetDetAngle(angle); // argumetn is an angle of detector position in Lab
+  //scattering->SetThetaRange(18.4, 19.4);
+  //scattering->SetPhiRange(0., 0.);
 
   decayer->AddDecay(scattering);
   run->SetDecayer(decayer);
@@ -78,19 +79,22 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output")
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
   ERIonMixGenerator* generator = new ERIonMixGenerator("15N", Z, A, Q, 1);
-  Double32_t kin_energy = 0.043; // GeV
+  //Double32_t kin_energy = 0.043; // GeV
   //generator->SetPSigma(6.7835, 6.7835*0.003);
-  generator->SetKinESigma(kin_energy, 0.);
-  generator->SpreadingOnTarget();
+  //generator->SetKinESigma(kin_energy, 0.);
+  generator->SetKinERange(0.0427094, 0.0436017);
+  //generator->SpreadingOnTarget();
 
   //Double32_t theta = 0.;
   //Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
-  generator->SetThetaSigma(0., 0.);
-  generator->SetPhiRange(0., 360.);
+  //generator->SetThetaSigma(0., 0.);
 
-  Double32_t distanceToTarget = 200.;
+  generator->SetThetaRange(-2., 2.); // -2 : 2
+  generator->SetPhiRange(0., 360.); // 0 : 360
+
+  Double32_t distanceToTarget = 50.;
   Double32_t sigmaOnTarget = 0.;
-  generator->SetSigmaXYZ(0., 0., -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
+  //generator->SetSigmaXYZ(0., 0., -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
   generator->SetBoxXYZ(0.,0., 0.,0., -distanceToTarget); // Xmin, Xmax, Ymin, Ymax, Z
 
   //generator->AddBackgroundIon("26P", 15, 26, 15, 0.25);
@@ -103,11 +107,11 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output")
   // ------------------------------------------------------------------------
 
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kFALSE);
+  run->SetStoreTraj(kTRUE);
 
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
 
   //------- Initialize simulation run ---------------------------------------
   run->Init();
@@ -135,4 +139,8 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output")
   cout << "Real time " << rtime << " s, CPU time " << ctime
                   << "s" << endl << endl;
   // cout << "Energy " << momentum << "; mass " << mass << endl;
+  cout << "Interactions number in target: " << scattering->GetInteractNumInTarget() << endl;
+  cout << "dPhi range: " << scattering->GetdPhi() << endl;
+  cout.precision(12);
+  cout << "summ: "<< scattering->GetCDFRangesSum() << endl;
 }

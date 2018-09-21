@@ -1,7 +1,7 @@
-void merge_graphs()
+void merge_graphs(TString outputDirectory = "digi_graphs")
 {
 	TString pwd(gSystem->pwd());
-	TString workDir = pwd + "/output_parallel";
+	TString workDir = pwd + "/" + outputDirectory;
 
 	TSystemDirectory dire(workDir, workDir);
 	TList *files = dire.GetListOfFiles();
@@ -43,12 +43,16 @@ void merge_graphs()
 	mg->Draw("AP");
 	mg->SetTitle("Gas Eloss vs. Semi Eloss; GeV; GeV");
 
-
 /////////////////////////////////////////////////////////////////
 	mg->GetXaxis()->SetLimits(0., 0.050); // Up to 50 MeV
 	mg->SetMinimum(0.);
 	mg->SetMaximum(0.010); // Up to 10 MeV;
 /////////////////////////////////////////////////////////////////
 
+	gPad->SetGrid(2, 2);
 	gPad->Modified();
+
+	TString toSaveCanvDir;
+	toSaveCanvDir.Form("%s/eloss.pdf", outputDirectory.Data());
+	canv->SaveAs(toSaveCanvDir);
 }
