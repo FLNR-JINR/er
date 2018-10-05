@@ -340,14 +340,15 @@ void ERElasticScattering::RangesCalculate(Double_t iM, Double_t tM)
 
     Double_t thetaCMTargetIon;
     thetaCMTargetIon = 180. - 2*fDetPos;
-    fTheta1 = thetaCMIon*RadToDeg() - 0.652;
-    fTheta2 = thetaCMIon*RadToDeg() + 0.652;
+    fTheta1 = thetaCMIon*RadToDeg() - 2.;
+    fTheta2 = thetaCMIon*RadToDeg() + 2.;
 
-    fThetaTargetIon1 = thetaCMTargetIon - 0.521;
-    fThetaTargetIon2 = thetaCMTargetIon + 0.521;
-
-    fPhi1 = -0.1055/*-asin( 2./218./sin(radAngle) )*/;
-    fPhi2 = 0.1055/*asin( 2./218./sin(radAngle) )*/;
+    fThetaTargetIon1 = thetaCMTargetIon - 2.;
+    fThetaTargetIon2 = thetaCMTargetIon + 2.;
+    
+    Double_t dPhi = 4.*180./TMath::Pi()/( 218.*sin(fDetPos*DegToRad()) - 1. );
+    fPhi1 = /*-6.*DegToRad()*/ -0.5*dPhi*DegToRad();
+    fPhi2 = /*6.*DegToRad()*/ 0.5*dPhi*DegToRad();
 }
 
 
