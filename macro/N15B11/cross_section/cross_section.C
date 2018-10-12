@@ -18,6 +18,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     nEvents = nEvents*nThreads;
 
     TCanvas* canv = new TCanvas("canv", "canv", 1000, 800);
+    canv->SetLogy();
     TLegend* leg = new TLegend(1., 1., 0.80, 0.80);
 
     if ( !Draw_Base_Cross_Section(canv, leg) ) {
@@ -73,7 +74,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         Double_t iA = 1. + ratio*ratio*cos(2.*curAngle);
         Double_t iB = 1. - ratio*ratio*sin(curAngle)*sin(curAngle);
         Double_t iC = sqrt(iB)/iA;
-        sigmaCMN15(i) = log10(0.5*crossSecLab*iC);
+        sigmaCMN15(i) = 0.5*crossSecLab*iC;
         iA = ratio*sin(curAngle)*sin(curAngle);
         iB = cos(curAngle)*sqrt(1. - ratio*ratio*sin(curAngle)*sin(curAngle));
         iC = acos(-iA + iB);
@@ -116,7 +117,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         Double_t Integrat = ( (Double_t)nEvents/summAr[i] );
         Double_t crossSecLab = ( (Double_t)nB11Ar[i]/Integrat);
         Double_t curAngle = ((Double_t)i*STEP + begAng)*TMath::Pi()/180.;
-        sigmaCMB11(i) = log10(0.25*crossSecLab/cos(curAngle));
+        sigmaCMB11(i) = 0.25*crossSecLab/cos(curAngle);
         tetB11(i) = 180. - 2*curAngle*180./TMath::Pi();
     }
 
@@ -167,7 +168,6 @@ bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg)
     {
       if (i == anglesNumbers) break;
       f >> tet(i) >> sigma(i);
-      sigma(i) = log10(sigma(i));
       i++;
     }
 
@@ -206,7 +206,7 @@ bool Draw_Experimental_Points(TCanvas* canv, TLegend* leg)
         fin >> theta;
         fin >> cs;
         thetaN15_B11(i) = theta;
-        sigN15_B11(i) = log10(cs);
+        sigN15_B11(i) = cs;
         //cout << cs << ", " << theta << endl;
     }
 
