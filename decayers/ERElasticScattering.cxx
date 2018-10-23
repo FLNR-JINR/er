@@ -193,7 +193,7 @@ Bool_t ERElasticScattering::Stepping()
 
 
             Double_t theta = ThetaGen();
-            Double_t phi = fRnd->Uniform(fPhi1, fPhi2);
+            Double_t phi = fRnd->Uniform(fPhi1*DegToRad(), fPhi2*DegToRad());
 
             // In case of target ion registration
             if (theta > fTheta2*DegToRad() || theta < fTheta1*DegToRad())
@@ -345,10 +345,11 @@ void ERElasticScattering::RangesCalculate(Double_t iM, Double_t tM)
 
     fThetaTargetIon1 = thetaCMTargetIon - 2.;
     fThetaTargetIon2 = thetaCMTargetIon + 2.;
-    
-    Double_t dPhi = 4.*180./TMath::Pi()/( 218.*sin(fDetPos*DegToRad()) - 1. );
-    fPhi1 = /*-6.*DegToRad()*/ -0.5*dPhi*DegToRad();
-    fPhi2 = /*6.*DegToRad()*/ 0.5*dPhi*DegToRad();
+
+    //Double_t dPhi = 4.*180./TMath::Pi()/( 218.*sin(fDetPos*DegToRad()) - 1. );
+    //fPhi1 = /*-6.*DegToRad()*/ -0.5*dPhi*DegToRad();
+    //fPhi2 = /*6.*DegToRad()*/ 0.5*dPhi*DegToRad();
+
 }
 
 

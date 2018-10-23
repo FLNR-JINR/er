@@ -70,7 +70,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   scattering->SetDecayVolume("targetB11");
   scattering->SetDetAngle(angle); // argumetn is an angle of detector position in Lab
   //scattering->SetThetaRange(18.4, 19.4);
-  //scattering->SetPhiRange(0., 0.);
+  scattering->SetPhiRange(-6., 6.);
 
   decayer->AddDecay(scattering);
   run->SetDecayer(decayer);
