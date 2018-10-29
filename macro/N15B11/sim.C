@@ -49,7 +49,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   target->SetGeometryFileName("N15.target.root");
   run->AddModule(target);
 
-  FairDetector* detector = new ERN15B11Detector("N15B11detector", kTRUE);
+  FairDetector* detector = new ERN15B11Detector("N15B11detector", kTRUE, 1, index);
   detector->SetGeometryFileName("N15B11_detector.geo.root");
   run->AddModule(detector);
 
@@ -60,17 +60,17 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   Int_t Q = 3;
 
   ERDecayer* decayer = new ERDecayer();
-  ERElasticScattering* scattering = new ERElasticScattering("15Nto15N11B");
+  ERElasticScattering* scattering = new ERElasticScattering("15Nto15N11B", index);
 
   scattering->SetInputIon(Z,A,Q);
   scattering->SetTargetIon(5,11,5);
   scattering->SetThetaCDF("cos_tetta_cross.txt");
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
-  scattering->SetDecayVolume("targetB11");
+  scattering->SetDecayVolume("targetB11"); //targetB11
   scattering->SetDetAngle(angle); // argumetn is an angle of detector position in Lab
   //scattering->SetThetaRange(18.4, 19.4);
-  scattering->SetPhiRange(-6., 6.);
+  //scattering->SetPhiRange(0., 0.);
 
   decayer->AddDecay(scattering);
   run->SetDecayer(decayer);
@@ -82,20 +82,20 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   //Double32_t kin_energy = 0.043; // GeV
   //generator->SetPSigma(6.7835, 6.7835*0.003);
   //generator->SetKinESigma(kin_energy, 0.);
-  generator->SetKinERange(0.0427094, 0.0436017);
+  generator->SetKinERange(0.0427094, 0.0436017); // 0.0427094 : 0.0436017
   //generator->SpreadingOnTarget();
 
-  //Double32_t theta = 0.;
-  //Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
-  //generator->SetThetaSigma(0., 0.);
+  Double32_t theta = 0.;
+  Double32_t sigmaTheta = 5e-3*TMath::RadToDeg();
+  generator->SetThetaSigma(theta, sigmaTheta); // theta = 0., sigma = 5 mrad
 
-  generator->SetThetaRange(-2., 2.); // -2 : 2
-  generator->SetPhiRange(0., 360.); // 0 : 360
+  //generator->SetThetaRange(0., 0.); // -2 : 2
+  generator->SetPhiRange(0., 180.); // 0 : 180
 
-  Double32_t distanceToTarget = 50.;
+  Double32_t distanceToTarget = 50.; // work: 50 cm, test 0.5 micron: 0.00005+0.00035
   Double32_t sigmaOnTarget = 0.;
   //generator->SetSigmaXYZ(0., 0., -distanceToTarget, sigmaOnTarget, sigmaOnTarget);
-  generator->SetBoxXYZ(0.,0., 0.,0., -distanceToTarget); // Xmin, Xmax, Ymin, Ymax, Z
+  generator->SetBoxXYZ(-0.5, -0.5, 0.5, 0.5, -distanceToTarget); // Xmin = -0.5, Ymin = -0.5, Xmax = 0.5, , Ymax = 0.5, Z
 
   //generator->AddBackgroundIon("26P", 15, 26, 15, 0.25);
   //generator->AddBackgroundIon("26S", 16, 26, 16, 0.25);
@@ -107,11 +107,11 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // ------------------------------------------------------------------------
 
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kTRUE);
+  run->SetStoreTraj(kFALSE); // kFALSE
 
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
 
   //------- Initialize simulation run ---------------------------------------
   run->Init();
