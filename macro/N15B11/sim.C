@@ -49,7 +49,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   target->SetGeometryFileName("N15.target.root");
   run->AddModule(target);
 
-  FairDetector* detector = new ERN15B11Detector("N15B11detector", kTRUE, 1, index);
+  FairDetector* detector = new ERN15B11Detector("N15B11detector", kTRUE, 1);
   detector->SetGeometryFileName("N15B11_detector.geo.root");
   run->AddModule(detector);
 
@@ -60,7 +60,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   Int_t Q = 3;
 
   ERDecayer* decayer = new ERDecayer();
-  ERElasticScattering* scattering = new ERElasticScattering("15Nto15N11B", index);
+  ERElasticScattering* scattering = new ERElasticScattering("15Nto15N11B");
 
   scattering->SetInputIon(Z,A,Q);
   scattering->SetTargetIon(5,11,5);
@@ -107,7 +107,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // ------------------------------------------------------------------------
 
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kFALSE); // kFALSE
+  run->SetStoreTraj(kTRUE); // kFALSE
 
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
