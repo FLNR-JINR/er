@@ -13,10 +13,13 @@ Double_t* GetdPhiAr(Int_t anglesNumbers);
 
 //---------------------------------------------------------------------------------------------------------------------
 void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 3, Int_t anglesNumbers = 0, Double_t STEP=1.,
-                   TString workDir = "output", Bool_t N15_B11_draw = kFALSE)
+
+                  Int_t case_n = 0, TString workDir = "output", Bool_t N15_B11_draw = kFALSE)
 {
     nEvents = nEvents*nThreads;
-
+    Double_t dTheta = 2.*TMath::DegToRad();
+    Double_t Radius = 21.8;
+    Double_t detH = 0.4;
     TCanvas* canv = new TCanvas("canv", "canv", 1000, 800);
     canv->SetLogy();
     TLegend* leg = new TLegend(1., 1., 0.80, 0.80);
@@ -25,17 +28,17 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         cerr << "Draw_Cross_Section() Error " << endl;
         return;
     }
-
+/*
     if ( !Draw_Experimental_Points(canv, leg) )
     {
         cerr << "Draw_Experimental_Points error\n";
         return;
     }
-
+*/
     SArrays* Ar = Fill_Arrays(anglesNumbers, N15_B11_draw);
     if (!Ar)
     {
-        cerr << "Fill_Arrays Error " << endl;
+        cerr << "Fill_Arrays Error N15" << endl;
         return;
     }
     Double_t* summAr = Ar->sAr;
@@ -48,14 +51,14 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         cerr << "GetnEventsInTarget Error " << endl;
         return;
     }
-/*
+
     Double_t* dPhiAr = GetdPhiAr(anglesNumbers); // Get dPhi ranges array
     if (!dPhiAr)
     {
         cerr << "GetdPhiAr Error " << endl;
         return;
     }
-*/
+
     ofstream fout("output/N15_cross_and_theta.txt");
     if (!fout.is_open())
     {
@@ -67,21 +70,24 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     TVectorD sigmaCMN15(anglesNumbers);
     TVectorD tetN15(anglesNumbers);
     for (i = 0; i < anglesNumbers; i++) {
-        nEvents = nEventsAr[i];
-        Double_t Integrat = ( (Double_t)nEvents/summAr[i] );
-        Double_t crossSecLab = ( (Double_t)nN15Ar[i]/Integrat );
         Double_t curAngle = ((Double_t)i*STEP + begAng)*TMath::Pi()/180.;
-        Double_t iA = 1. + ratio*ratio*cos(2.*curAngle);
-        Double_t iB = 1. - ratio*ratio*sin(curAngle)*sin(curAngle);
-        Double_t iC = sqrt(iB)/iA;
-        sigmaCMN15(i) = 0.5*crossSecLab*iC;
-        iA = ratio*sin(curAngle)*sin(curAngle);
-        iB = cos(curAngle)*sqrt(1. - ratio*ratio*sin(curAngle)*sin(curAngle));
-        iC = acos(-iA + iB);
+        Double_t iA = ratio*sin(curAngle)*sin(curAngle);
+        Double_t iB = cos(curAngle)*sqrt(1. - ratio*ratio*sin(curAngle)*sin(curAngle));
+        Double_t iC = acos(-iA + iB);
         tetN15(i) = iC*180./TMath::Pi();
-        fout << 0.5*crossSecLab*iC << "\t" << tetN15(i) << endl;
+        nEvents = nEventsAr[i];
+        Double_t dPhi = detH*180./(TMath::Pi()*Radius*sin(curAngle));
+        Double_t Omega = dPhi*(cos(iC-dTheta) - cos(iC+dTheta));
+        Double_t Integrat = (Double_t)nEvents*2.*TMath::Pi()*Omega/summAr[i];
+        Double_t crossSecLab = (Double_t)nN15Ar[i]*dPhiAr[i]*TMath::DegToRad()/Integrat ;
+        iA = 1. + ratio*ratio*cos(2.*curAngle);
+        iB = 1. - ratio*ratio*sin(curAngle)*sin(curAngle);
+        iC = sqrt(iB)/iA;
+        sigmaCMN15(i) = 0.5*crossSecLab*iC;
+        fout << tetN15(i) << "\t" << sigmaCMN15(i) << endl;
     }
-
+    fout.clear();
+    fout.close();
     TGraph* simN15Gr = new TGraph(tetN15, sigmaCMN15);
 
     canv->cd();
@@ -97,7 +103,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         Ar = Fill_Arrays(anglesNumbers, N15_B11_draw);
         if (!Ar)
         {
-            cerr << "Fill_Arrays Error " << endl;
+            cerr << "Fill_Arrays Error B11" << endl;
             return;
         }
         delete []summAr;
@@ -109,17 +115,27 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
 
         nEventsAr = GetnEventsInTarget(anglesNumbers, N15_B11_draw);
     }
+
+    fout.open("output/B11_cross_and_theta.txt");
+    if (!fout.is_open())
+    {
+        cerr << "Error: missing output directory" << endl;
+        return;
+    }
     TVectorD sigmaCMB11(anglesNumbers);
     TVectorD tetB11(anglesNumbers);
     Int_t memNEv = nEvents;
     for (i = 0; i < anglesNumbers; i++) {
         nEvents = nEventsAr[i];
-        Double_t Integrat = ( (Double_t)nEvents/summAr[i] );
-        Double_t crossSecLab = ( (Double_t)nB11Ar[i]/Integrat);
+        Double_t Integrat = (Double_t)nEvents/summAr[i];
+        Double_t crossSecLab = (Double_t)nB11Ar[i]/Integrat;
         Double_t curAngle = ((Double_t)i*STEP + begAng)*TMath::Pi()/180.;
         sigmaCMB11(i) = 0.25*crossSecLab/cos(curAngle);
         tetB11(i) = 180. - 2*curAngle*180./TMath::Pi();
+        fout << tetB11(i) << "\t" << sigmaCMB11(i) << endl;
     }
+    fout.clear();
+    fout.close();
 
     TGraph* simB11Gr = new TGraph(tetB11, sigmaCMB11);
 
@@ -131,7 +147,9 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     leg->AddEntry(simB11Gr, "B11 Points", "p");
 
     canv->cd();
-    leg->SetHeader("Result Graphs");
+    TString headerStr;
+    headerStr.Form("Log scale, case %d", case_n);
+    leg->SetHeader(headerStr);
     leg->Draw();
 
     gPad->SetGrid(4, 4);
@@ -177,9 +195,10 @@ bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg)
     TF1* sigmaFun = new TF1("Cross-Section", Sigma, 4.5, 180., 0);
     sigmaFun->Draw("C");
     sigmaFun->GetXaxis()->SetTitle("theta");
-    sigmaFun->GetYaxis()->SetTitle("lg(cross-section)");
+    sigmaFun->GetYaxis()->SetTitle("cross-section");
     sigmaFun->SetLineWidth(4);
     sigmaFun->SetMarkerStyle(8);
+    sigmaFun->SetMinimum(1.0e-11);
     leg->AddEntry(sigmaFun, "Theory", "l");
     f.close();
     return kTRUE;
