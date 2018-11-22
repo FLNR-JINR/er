@@ -326,23 +326,31 @@ Bool_t ERTelescopeUnpack::CheckSetup() {
     for (auto itStation : fStations){
         ERTelescopeStation* station = itStation.second;
         if (stationsInConfig.find(station->ampStName) == stationsInConfig.end()){
-            LOG(FATAL) << "Amplitude station " << station->ampStName << " not found in setup configuration file!" << FairLogger::FairLogger::endl;
+            LOG(FATAL) << "Amplitude station " << station->ampStName <<
+                          " of telescope " << fDetName << 
+                          " not found in setup configuration file" << FairLogger::endl;
             return kFALSE;
         }
         if (station->timeStName != ""){
             if (stationsInConfig.find(station->timeStName) == stationsInConfig.end()){
-                LOG(FATAL) << "Time station " << station->timeStName << " not found in setup configuration file!" << FairLogger::FairLogger::endl;
+                LOG(FATAL) << "Time station " << station->timeStName <<
+                            " of telescope " << fDetName << 
+                            " not found in setup configuration file" << FairLogger::endl;
                 return kFALSE;
             }
         }
         if (station->sideCount == 2){
             if (stationsInConfig.find(station->ampStName2) == stationsInConfig.end()){
-            LOG(FATAL) << "Amplitude station " << station->ampStName2 << " not found in setup configuration file!" << FairLogger::FairLogger::endl;
+            LOG(FATAL) << "Amplitude station " << station->ampStName2 <<
+                            " of telescope " << fDetName << 
+                            " not found in setup configuration file" << FairLogger::endl;
             return kFALSE;
             }
             if (station->timeStName2 != ""){
                 if (stationsInConfig.find(station->timeStName2) == stationsInConfig.end()){
-                    LOG(FATAL) << "Time station " << station->timeStName2 << " not found in setup configuration file!" << FairLogger::FairLogger::endl;
+                    LOG(FATAL) << "Time station " << station->timeStName2 <<
+                            " of telescope " << fDetName << 
+                            " not found in setup configuration file" << FairLogger::endl;
                     return kFALSE;
                 }
             }
