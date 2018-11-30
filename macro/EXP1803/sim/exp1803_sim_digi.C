@@ -28,7 +28,7 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
                          + "/db/BeamDet/BeamDetParts.xml";
   TString targetGeoFileName = workDirPath + "/geometry/target_CD2_geo.root";
   TString gadastGeoFileName = workDirPath + "/geometry/partOfGadast.v1.geo.root";
-  TString ndGeoFileName = workDirPath + "/geometry/ND.geo.root";
+  TString ndGeoFileName     = workDirPath + "/geometry/ND.geo.root";
   TString magnetGeoFileName = workDirPath + "/geometry/magnet.geo.root";
   // ------------------------------------------------------------------------
 
