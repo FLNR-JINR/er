@@ -19,8 +19,7 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERTelescopeUnpack::ERTelescopeUnpack(TString detName):
- ERUnpack(detName),
- fTimeCalConst(0.3)
+ ERUnpack(detName)
 {
 
 }
@@ -68,47 +67,70 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
             std::map<Int_t, std::pair<Double_t, Double_t> > valueMap;
             UnpackAmpTimeStation(detEvent,itStation.second->ampStName,itStation.second->timeStName,
                                  valueMap);
-            if (itStation.second->calFile != "")
-                if (!ApplyCalibration(itStation.second->calTable,valueMap)){
+
+            if ((itStation.second->ampCalFile != "") || (itStation.second->timeCalFile != "")){
+                if (!ApplyCalibration(itStation.second->ampCalTable,itStation.second->timeCalTable,valueMap)){
                     LOG(FATAL) << "calibration error on station " << itStation.first << FairLogger::endl;
                 }
+            }
+            else
+                LOG(DEBUG) << "Calibration file for station " << itStation.second->ampStName << 
+                    " or " << itStation.second->timeStName << " has not defined!" 
+                    " No calibration for this detrctor station "<< FairLogger::endl;
+
             for (auto itValue : valueMap){
                 Int_t channel = itValue.first;
                 Double_t amp = itValue.second.first /1000.; //to GeV
                 Double_t time = itValue.second.second;
                 AddSiDigi(amp,time,0,channel,itStation.second->bName);
             }
+
             if (itStation.second->sideCount == 2){
                 valueMap.clear();
-                UnpackAmpTimeStation(detEvent,itStation.second->ampStName2,itStation.second->timeStName2,
-                                     valueMap);
-                if (itStation.second->calFile2 != "")
-                    if (!ApplyCalibration(itStation.second->calTable2,valueMap)){
+                UnpackAmpTimeStation(detEvent,itStation.second->ampStName2,
+                                     itStation.second->timeStName2, valueMap);
+
+                if ((itStation.second->ampCalFile2 != "") || (itStation.second->timeCalFile2 != "")){
+                    if (!ApplyCalibration(itStation.second->ampCalTable2,itStation.second->timeCalTable2,valueMap)){
                         LOG(FATAL) << "calibration error on station " << itStation.first << FairLogger::endl;
                     }
+                }
+                else
+                    LOG(DEBUG) << "Calibration file for station " << itStation.second->ampStName2 << 
+                        " or " << itStation.second->timeStName2 << " has not defined!" 
+                        " No calibration for this detrctor station "<< FairLogger::endl;
+
                 for (auto itValue : valueMap){
                     Int_t channel = itValue.first;
                     Double_t amp = itValue.second.first /1000.; //to GeV
                     Double_t time = itValue.second.second;
-                    AddSiDigi(amp,time,0,channel,itStation.second->bName2);
+                    AddSiDigi(amp, time, 0, channel, itStation.second->bName2);
                 }
             }
         }
+
         if (itStation.second->type == "CsI"){
             std::map<Int_t, std::pair<Double_t, Double_t> > valueMap;
             UnpackAmpTimeStation(detEvent,itStation.second->ampStName,itStation.second->timeStName,
                                      valueMap);
-            if (itStation.second->calFile != "")
-                if (!ApplyCalibration(itStation.second->calTable,valueMap)){
+
+            if ((itStation.second->ampCalFile != "") || (itStation.second->timeCalFile != ""))
+                if (!ApplyCalibration(itStation.second->ampCalTable,itStation.second->timeCalTable, valueMap)){
                     LOG(FATAL) << "calibration error on station " << itStation.first << FairLogger::endl;
                 }
+            else
+                LOG(DEBUG) << "Calibration file for station " << itStation.second->ampStName << 
+                    " or " << itStation.second->timeStName << " has not defined!" 
+                    " No calibration for this detrctor station "<< FairLogger::endl;
+
             for (auto itValue : valueMap){
                 Int_t channel = itValue.first;
                 Double_t amp = itValue.second.first;
                 Double_t time = itValue.second.second;
-                AddCsIDigi(amp, time,-1,channel,itStation.second->bName);
+                AddCsIDigi(amp, time, -1, channel, itStation.second->bName);
             }
         } 
+
     }
     return kTRUE;
 }
@@ -153,20 +175,21 @@ TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopeUnpack::AddSingleSiStation(TString name, TString ampStName, TString timeStName,
-                                           TString calFile, TString XYside){
-    ERTelescopeStation* st = new ERTelescopeStation( "Si", 1, ampStName, timeStName, "", "", calFile, "","", XYside);
+                                           TString ampCalFile, TString timeCalFile, TString XYside){
+    ERTelescopeStation* st = new ERTelescopeStation( "Si", 1, ampStName, timeStName, "", "", ampCalFile, timeCalFile, "", "","", XYside);
     fStations[name] = st;
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopeUnpack::AddDoubleSiStation(TString name, TString ampStName, TString timeStName,
-                                           TString ampStName2, TString timeStName2, TString calFile,
-                                           TString calFile2, TString XY){
-    ERTelescopeStation* st = new ERTelescopeStation( "Si", 2, ampStName, timeStName, ampStName2, timeStName2, calFile, calFile2, XY, "");
+                                           TString ampStName2, TString timeStName2, TString ampCalFile, TString timeCalFile,
+                                           TString ampCalFile2, TString timeCalFile2, TString XY){
+    ERTelescopeStation* st = new ERTelescopeStation( "Si", 2, ampStName, timeStName, ampStName2, timeStName2, ampCalFile, timeCalFile,
+                            ampCalFile2, timeCalFile2, XY, "");
     fStations[name] = st;
 }
 //--------------------------------------------------------------------------------------------------
-void ERTelescopeUnpack::AddCsIStation(TString name,TString ampStName, TString timeStName, TString calFile){
-    ERTelescopeStation* st = new ERTelescopeStation( "CsI", -1, ampStName, timeStName, "", "", calFile, "", "", "");
+void ERTelescopeUnpack::AddCsIStation(TString name,TString ampStName, TString timeStName, TString ampCalFile, TString timeCalFile){
+    ERTelescopeStation* st = new ERTelescopeStation( "CsI", -1, ampStName, timeStName, "", "", ampCalFile, timeCalFile, "", "", "", "");
     fStations[name] = st;
 }
 //--------------------------------------------------------------------------------------------------
@@ -225,34 +248,48 @@ void ERTelescopeUnpack::DumpStationsInfo(){
                 "\t\tXYside : " << itStation.second->XYside << FairLogger::endl <<
                 "\t\tbName : " << itStation.second->bName << FairLogger::endl <<
                 "\t\tbName2 : " << itStation.second->bName2 << FairLogger::endl;
-        if (itStation.second->calTable){
-            LOG(INFO) << "\t\tcalFile : " << itStation.second->calFile << FairLogger::endl;
-            LOG(INFO) << "\t\tcalTable : " << FairLogger::endl;
-            itStation.second->calTable->Print();
+        if (itStation.second->ampCalTable){
+            LOG(INFO) << "\t\tampCalFile : " << itStation.second->ampCalFile << FairLogger::endl;
+            LOG(INFO) << "\t\tampCalTable : " << FairLogger::endl;
+            itStation.second->ampCalTable->Print();
         }
-        if (itStation.second->calTable2){
-            LOG(INFO) << "\t\tcalFile2 : " << itStation.second->calFile2 << FairLogger::endl;
-            LOG(INFO) << "\t\tcalTable2 : " << FairLogger::endl;
-            itStation.second->calTable2->Print();
+        if (itStation.second->timeCalTable){
+            LOG(INFO) << "\t\ttimeCalFile : " << itStation.second->timeCalFile << FairLogger::endl;
+            LOG(INFO) << "\t\ttimeCalTable : " << FairLogger::endl;
+            itStation.second->timeCalTable->Print();
+        }
+        if (itStation.second->ampCalTable2){
+            LOG(INFO) << "\t\tampCalFile2 : " << itStation.second->ampCalFile2 << FairLogger::endl;
+            LOG(INFO) << "\t\tampCalTable2 : " << FairLogger::endl;
+            itStation.second->ampCalTable2->Print();
+        }
+        if (itStation.second->timeCalTable2){
+            LOG(INFO) << "\t\ttimeCalFile2 : " << itStation.second->timeCalFile2 << FairLogger::endl;
+            LOG(INFO) << "\t\ttimeCalTable2 : " << FairLogger::endl;
+            itStation.second->timeCalTable2->Print();
         }
     }
 }
 //--------------------------------------------------------------------------------------------------
 ERTelescopeStation::ERTelescopeStation(TString _type, Int_t _sideCount, TString _ampStName, TString _timeStName,
-                                       TString _ampStName2, TString _timeStName2, TString _calFile, TString _calFile2,
-                                       TString _XY, TString _XYside):
+                                       TString _ampStName2, TString _timeStName2, TString _ampCalFile, TString _timeCalFile,
+                                       TString _ampCalFile2, TString _timeCalFile2, TString _XY, TString _XYside):
     type(_type),
     sideCount(_sideCount),
     ampStName(_ampStName),
     timeStName(_timeStName),
     ampStName2(_ampStName2),
     timeStName2(_timeStName2),
-    calFile(_calFile),
-    calFile2(_calFile2),
+    ampCalFile(_ampCalFile),
+    timeCalFile(_timeCalFile),
+    ampCalFile2(_ampCalFile2),
+    timeCalFile2(_timeCalFile2),
     XY(_XY),
     XYside(_XYside),
-    calTable(NULL),
-    calTable2(NULL),
+    ampCalTable(NULL),
+    timeCalTable(NULL),
+    ampCalTable2(NULL),
+    timeCalTable2(NULL),
     bName(""),
     bName2("")
 {
@@ -260,15 +297,28 @@ ERTelescopeStation::ERTelescopeStation(TString _type, Int_t _sideCount, TString 
 //--------------------------------------------------------------------------------------------------
 Bool_t ERTelescopeUnpack::ReadCalFiles(){
     for (auto itStation : fStations){
-        if (itStation.second->calFile != ""){
-            itStation.second->calTable = ReadCalFile(itStation.second->calFile);
-            if (!itStation.second->calTable)
+        
+        if (itStation.second->ampCalFile != ""){
+            itStation.second->ampCalTable = ReadCalFile(itStation.second->ampCalFile);
+            if (!itStation.second->ampCalTable)
+                return kFALSE;
+        }
+
+        if (itStation.second->timeCalFile != ""){
+            itStation.second->timeCalTable = ReadCalFile(itStation.second->timeCalFile);
+            if (!itStation.second->timeCalTable)
                 return kFALSE;
         }
               
-        if (itStation.second->sideCount == 2 && itStation.second->calFile2 != ""){
-            itStation.second->calTable2 = ReadCalFile(itStation.second->calFile2);
-            if (!itStation.second->calTable2)
+        if (itStation.second->sideCount == 2 && itStation.second->ampCalFile2 != ""){
+            itStation.second->ampCalTable2 = ReadCalFile(itStation.second->ampCalFile2);
+            if (!itStation.second->ampCalTable2)
+                return kFALSE;
+        }
+
+        if (itStation.second->sideCount == 2 && itStation.second->timeCalFile2 != ""){
+            itStation.second->timeCalTable2 = ReadCalFile(itStation.second->timeCalFile2);
+            if (!itStation.second->timeCalTable2)
                 return kFALSE;
         }
 
@@ -307,14 +357,30 @@ TMatrixD* ERTelescopeUnpack::ReadCalFile(TString fileName){
     return calTable;
 }
 //--------------------------------------------------------------------------------------------------
-Bool_t ERTelescopeUnpack::ApplyCalibration(TMatrixD* calTable, std::map<Int_t, std::pair<Double_t, Double_t> >& valueMap){
+Bool_t ERTelescopeUnpack::ApplyCalibration(TMatrixD* ampCalTable, TMatrixD* timeCalTable, 
+                            std::map<Int_t, std::pair<Double_t, Double_t> >& valueMap){
+
     for (auto& itValue : valueMap){
-        if (itValue.first >= calTable->GetNrows()){
-            LOG(FATAL) << "channel number not found in calibration table" << FairLogger::FairLogger::endl;
-            return kFALSE;
+
+        //Amplitude calibration
+        if (ampCalTable){
+            if (itValue.first >= ampCalTable->GetNrows()){
+                LOG(FATAL) << "Channel " << itValue.first << " not found in amplitude calibration table of detector " 
+                           << fDetName << FairLogger::endl;
+                return kFALSE;
+            }
+            itValue.second.first = itValue.second.first*(*ampCalTable)[itValue.first][1] + (*ampCalTable)[itValue.first][0];
         }
-        itValue.second.first = itValue.second.first*(*calTable)[itValue.first][1] + (*calTable)[itValue.first][0];
-        itValue.second.second *= fTimeCalConst;
+        
+        //Time calibration
+        if (timeCalTable){
+            if (itValue.first >= timeCalTable->GetNrows()){
+                LOG(FATAL) << "Channel " << itValue.first << " not found in time calibration table of detector " 
+                           << fDetName << FairLogger::endl;
+                return kFALSE;
+            }
+            itValue.second.second = itValue.second.second*(*timeCalTable)[itValue.first][1] + (*timeCalTable)[itValue.first][0];
+        }
     }
 
     return kTRUE;

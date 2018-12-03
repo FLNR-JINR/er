@@ -25,21 +25,23 @@ void digibuilder(Int_t nEvents = 1000000)
   rtUnpack->AddDoubleSiStation("SQ_R",
                                "SQX_R","tSQX_R",
                                "SQY_R","tSQY_R",
-                               inputdir + "SQX_R.cal", inputdir + "SQY_R.cal",
+                               inputdir + "SQX_R.cal",inputdir + "tSQX_R.cal",
+                               inputdir + "SQY_R.cal",inputdir + "tSQY_R.cal",
                                "XY");
-  rtUnpack->AddCsIStation("CsI_R","CsI_R","tCsI_R",inputdir + "csi_r_ec.clb");
+  rtUnpack->AddCsIStation("CsI_R","CsI_R","tCsI_R",inputdir + "csi_r_ec.clb","");
 
   ERTelescopeUnpack* ltUnpack = new ERTelescopeUnpack("Left_telescope");
   ltUnpack->AddDoubleSiStation("SQ_L",
                                "SQX_L","tSQX_L",
                                "SQY_L","tSQY_L",
-                               inputdir + "SQX_L.cal", inputdir + "SQY_L.cal",
+                               inputdir + "SQX_L.cal", inputdir + "tSQX_L.cal",
+                               inputdir + "SQY_L.cal", inputdir + "tSQY_L.cal",
                                "XY");
   ltUnpack->AddSingleSiStation("SQ300",
                                "SQ300","tSQ300",
-                               inputdir + "SQ20.cal",
+                               inputdir + "SQ20.cal", inputdir + "tSQ20.cal",
                                "X");
-  ltUnpack->AddCsIStation("CsI_L","CsI_L","tCsI_L","");
+  ltUnpack->AddCsIStation("CsI_L","CsI_L","tCsI_L","","");
   
 
   builder->AddUnpack(beamDetUnpack);

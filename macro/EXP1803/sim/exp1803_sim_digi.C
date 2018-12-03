@@ -102,7 +102,7 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   zPos = radius * TMath::Cos(rotationT1.Y() * TMath::DegToRad());
   ERGeoSubAssembly* assemblyT1 = new ERGeoSubAssembly("Left_telescope", TVector3(xPos, yPos, zPos), rotationT1);
   ERQTelescopeGeoComponentSingleSi* thinT1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SQ300", 
-                                                                                  TVector3(0., 0., -5.36), TVector3(), "X");
+                                                                                  TVector3(0., 0., -5.36), TVector3(), "Y");
   ERQTelescopeGeoComponentDoubleSi* thickT1 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SQ_L", 
                                                                                   TVector3(0, 0, 0.), TVector3(), "X");
   ERQTelescopeGeoComponentCsI* csi1 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_L", TVector3(0, 0, 5.), TVector3());
