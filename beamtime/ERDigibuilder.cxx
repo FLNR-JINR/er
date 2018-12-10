@@ -90,9 +90,13 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
             return 1;
     }
 
+    FairRun* run = FairRun::Instance();
+    ERBeamTimeEventHeader* header = (ERBeamTimeEventHeader*) run->GetEventHeader();
+
     if (fUserCut != "") {
         if (!fEventsForProcessing->GetBinContent(curEventInCurFile)){
             LOG(DEBUG) << "  Skip event with user cut" << FairLogger::endl;
+            header->SetTrigger(-1);
             return 0;
         }
     }
@@ -104,8 +108,7 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
         LOG(FATAL) << "DetEventCommon event element not found!" << FairLogger::endl;
         return 1;
     }
-    FairRun* run = FairRun::Instance();
-    ERBeamTimeEventHeader* header = (ERBeamTimeEventHeader*) run->GetEventHeader();
+
     header->SetTrigger(common->trigger);
 
     for (auto itUnpack : fUnpacks){
