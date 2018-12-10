@@ -45,7 +45,7 @@ class ERDigibuilder : public FairSource
 
     void SetConfigurationFile(TString name){fSetupFile = name;}
     void AddFile(TString path){fPath.push_back(path);}
-    void SetUserCut(TCut cut) {fUserCut = cut;}
+    void SetUserCut(TCut cut,Bool_t fillSkippedEvents=kTRUE);
   private:
     std::map<TString, ERUnpack*> fUnpacks;
 
@@ -61,6 +61,7 @@ class ERDigibuilder : public FairSource
     Reader* fReader;
 
     TCut fUserCut;
+    Bool_t fFillSkippedEvents;
     TH1I* fEventsForProcessing;
 
     void DumpRawToScreen(DetEventDetector* det);
@@ -68,6 +69,5 @@ class ERDigibuilder : public FairSource
   public:
     ClassDef(ERDigibuilder, 1)
 };
-
 
 #endif

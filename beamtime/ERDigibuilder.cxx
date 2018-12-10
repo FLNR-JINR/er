@@ -28,6 +28,7 @@ fSetupFile(""),
 fReader(NULL),
 fSetupConfiguration(NULL),
 fUserCut(""),
+fFillSkippedEvents(kTRUE),
 fEventsForProcessing(NULL)
 {
 }
@@ -97,6 +98,8 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
         if (!fEventsForProcessing->GetBinContent(curEventInCurFile)){
             LOG(DEBUG) << "  Skip event with user cut" << FairLogger::endl;
             header->SetTrigger(-1);
+            if (!fFillSkippedEvents)
+                run->MarkFill(kFALSE);
             return 0;
         }
     }
@@ -175,6 +178,11 @@ void ERDigibuilder::DumpRawToScreen(DetEventDetector* det){
             }
         }
     }
+}
+//--------------------------------------------------------------------------------------------------
+void ERDigibuilder::SetUserCut(TCut cut,Bool_t fillSkippedEvents/*=kTRUE*/){
+    fUserCut = cut;
+    fFillSkippedEvents=fillSkippedEvents;
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERDigibuilder)
