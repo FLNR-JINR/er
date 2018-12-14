@@ -1,6 +1,6 @@
 #!/bin/bash
-NEVENTS=10000
-STARTANG=30
+NEVENTS=100
+STARTANG=5
 NTHREADS=16
 ANGNUM=31
 if [ -d result ]; then

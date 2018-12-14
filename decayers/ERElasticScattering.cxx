@@ -59,6 +59,7 @@ ERElasticScattering::ERElasticScattering(TString name):
     fCDFminTargetIon(0.),
     fCDFmaxTargetIon(0.),
     fDetPos(0.),
+    fDetThetaWidth(0.),
     fIonMass(0.),
     fInteractNumInTarget(0),
     fCDFRangesSum(0.),
@@ -148,11 +149,11 @@ Bool_t ERElasticScattering::Stepping()
 {
     if (!fDecayFinish && gMC->TrackPid() == fInputIonPDG->PdgCode() && TString(gMC->CurrentVolName()).Contains(fVolumeName))
     {
-        gMC->SetMaxStep(fStep);
+        //gMC->SetMaxStep(fStep);
         TLorentzVector curPos;
         gMC->TrackPosition(curPos);
-        //fDecayPosZ = -0.0007;
-        if (curPos.Z() > fDecayPosZ)
+        fDecayPosZ = 0.;
+        if (curPos.Z() >= fDecayPosZ)
         {
             TLorentzVector fInputIonV;
             gMC->TrackMomentum(fInputIonV);
@@ -294,7 +295,7 @@ Double_t ERElasticScattering::ThetaGen()
     else
     {
         Double_t dF1 = fabs(fCDFmax-fCDFmin);
-        Double_t dF2 = fabs(fCDFmaxTargetIon-fCDFminTargetIon);
+        Double_t dF2 = 0.*fabs(fCDFmaxTargetIon-fCDFminTargetIon);
         Double_t dLength = dF1 + dF2;
 /*
         std::cout.precision(12);
@@ -324,31 +325,35 @@ Double_t ERElasticScattering::ThetaGen()
 void ERElasticScattering::RangesCalculate(Double_t iM, Double_t tM)
 {
     LOG(DEBUG) << "ERElasticScattering::RangesCalculate(" << iM << ", " << tM << ")" << FairLogger::endl;
-    Double_t radAngle = fDetPos*DegToRad();
+    Double_t rAng = fDetPos*DegToRad();
     Double_t ratio = iM/tM;
     Double_t ratio2 = ratio*ratio;
-    Double_t sin_theta = sin(radAngle);
-    Double_t sin2_theta = sin_theta*sin_theta;
-    Double_t cos_theta = cos(radAngle);
-    //Double_t cos2_theta = cos_theta*cos_theta;
-
-    Double_t thetaCMIon;
+    Double_t dThetaDet = fDetThetaWidth*TMath::DegToRad(); // Detectors dThetaDet
+    Double_t Radius = 218.;
+    // Primary Ion
     if (iM != tM)
-        thetaCMIon = acos( -ratio*sin2_theta + cos_theta*sqrt(1 - ratio2*sin2_theta));
+    {
+        fTheta1 = TMath::RadToDeg()*acos( -ratio*sin(rAng-dThetaDet)*sin(rAng-dThetaDet)
+                    + cos(rAng-dThetaDet)*sqrt(1.-ratio2*sin(rAng-dThetaDet)*sin(rAng-dThetaDet)) );
+        fTheta2 = TMath::RadToDeg()*acos( -ratio*sin(rAng+dThetaDet)*sin(rAng+dThetaDet)
+                    + cos(rAng+dThetaDet)*sqrt(1.-ratio2*sin(rAng+dThetaDet)*sin(rAng+dThetaDet)) );
+    }
     else
-        thetaCMIon = 2.*radAngle;
+    {
+        fTheta1 = TMath::RadToDeg()*(2.*rAng - dThetaDet);
+        fTheta2 = TMath::RadToDeg()*(2.*rAng + dThetaDet);
+    }
+    LOG(DEBUG) << "  N15: CMTheta1: " << fTheta1 << ", CMTheta2: " << fTheta2
+                << ", average value: " << 0.5*(fTheta2-fTheta1) + fTheta1 << FairLogger::endl;
 
-    Double_t thetaCMTargetIon;
-    thetaCMTargetIon = 180. - 2*fDetPos;
-    fTheta1 = thetaCMIon*RadToDeg() - 2.;
-    fTheta2 = thetaCMIon*RadToDeg() + 2.;
-
-    fThetaTargetIon1 = thetaCMTargetIon - 2.;
-    fThetaTargetIon2 = thetaCMTargetIon + 2.;
-
-    //Double_t dPhi = 4.*180./TMath::Pi()/( 218.*sin(fDetPos*DegToRad()) - 1. );
-    //fPhi1 = /*-6.*DegToRad()*/ -0.5*dPhi*DegToRad();
-    //fPhi2 = /*6.*DegToRad()*/ 0.5*dPhi*DegToRad();
+    // Target Ion
+    fThetaTargetIon1 = 180. - 2.*fDetPos - TMath::RadToDeg()*dThetaDet;
+    fThetaTargetIon2 = 180. - 2.*fDetPos + TMath::RadToDeg()*dThetaDet;
+    LOG(DEBUG) << "  B11: CMTheta1: " << fThetaTargetIon1 << ", CMTheta2: " << fThetaTargetIon2
+                << ", average value: " << 0.5*(fThetaTargetIon2-fThetaTargetIon1) + fThetaTargetIon1 << FairLogger::endl;
+    Double_t dPhi = 4.*180. / (TMath::Pi()*Radius*sin(TMath::DegToRad()*fDetPos));
+    fPhi1 = /*-6.*DegToRad()*/ -0.5*dPhi*DegToRad();
+    fPhi2 = /*6.*DegToRad()*/ 0.5*dPhi*DegToRad();
 
 }
 

@@ -16,10 +16,11 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
 
                   Int_t case_n = 0, TString workDir = "output", Bool_t N15_B11_draw = kFALSE)
 {
+    Double_t norm = 0.23;
     nEvents = nEvents*nThreads;
-    Double_t dTheta = 2.*TMath::DegToRad();
-    Double_t Radius = 21.8;
-    Double_t detH = 0.4;
+    Double_t dTheta = 0.262822833*TMath::DegToRad();
+    Double_t Radius = 218.; // mm
+    Double_t detH = 4.; // mm
     TCanvas* canv = new TCanvas("canv", "canv", 1000, 800);
     canv->SetLogy();
     TLegend* leg = new TLegend(1., 1., 0.80, 0.80);
@@ -59,6 +60,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         return;
     }
 
+    // Output file
     ofstream fout("output/N15_cross_and_theta.txt");
     if (!fout.is_open())
     {
@@ -70,20 +72,29 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     TVectorD sigmaCMN15(anglesNumbers);
     TVectorD tetN15(anglesNumbers);
     for (i = 0; i < anglesNumbers; i++) {
-        Double_t curAngle = ((Double_t)i*STEP + begAng)*TMath::Pi()/180.;
-        Double_t iA = ratio*sin(curAngle)*sin(curAngle);
-        Double_t iB = cos(curAngle)*sqrt(1. - ratio*ratio*sin(curAngle)*sin(curAngle));
+        // Curent theta for N15 calculate
+        Double_t curAngle = TMath::DegToRad()*((Double_t)i*STEP + begAng);
+        Double_t iA = ratio*sin(curAngle-dTheta)*sin(curAngle-dTheta);
+        Double_t iB = cos(curAngle-dTheta)*sqrt(1. - ratio*ratio*sin(curAngle-dTheta)*sin(curAngle-dTheta));
         Double_t iC = acos(-iA + iB);
-        tetN15(i) = iC*180./TMath::Pi();
+        Double_t theta1 = TMath::RadToDeg()*iC;
+        iA = ratio*sin(curAngle+dTheta)*sin(curAngle+dTheta);
+        iB = cos(curAngle+dTheta)*sqrt(1. - ratio*ratio*sin(curAngle+dTheta)*sin(curAngle+dTheta));
+        iC = acos(-iA + iB);
+        Double_t theta2 = TMath::RadToDeg()*iC;
+        tetN15(i) = 0.5*(theta2-theta1) + theta1;
+
+        // Curent cross-section calculate
         nEvents = nEventsAr[i];
-        Double_t dPhi = detH*180./(TMath::Pi()*Radius*sin(curAngle));
-        Double_t Omega = dPhi*(cos(iC-dTheta) - cos(iC+dTheta));
+        Double_t dPhi = TMath::DegToRad()*detH*180./(Radius*sin(curAngle)*TMath::Pi());
+        Double_t Omega = dPhi*(cos(TMath::DegToRad()*theta1) - cos(TMath::DegToRad()*theta2))/4./TMath::Pi();
         Double_t Integrat = (Double_t)nEvents*2.*TMath::Pi()*Omega/summAr[i];
-        Double_t crossSecLab = (Double_t)nN15Ar[i]*dPhiAr[i]*TMath::DegToRad()/Integrat ;
+        dPhi = TMath::DegToRad()*dPhiAr[i]/2./TMath::Pi();
+        Double_t crossSecLab = (Double_t)nN15Ar[i]*dPhi/Integrat ;
         iA = 1. + ratio*ratio*cos(2.*curAngle);
         iB = 1. - ratio*ratio*sin(curAngle)*sin(curAngle);
         iC = sqrt(iB)/iA;
-        sigmaCMN15(i) = 0.5*crossSecLab*iC;
+        sigmaCMN15(i) = norm*0.5*crossSecLab*iC;
         fout << tetN15(i) << "\t" << sigmaCMN15(i) << endl;
     }
     fout.clear();
@@ -126,12 +137,20 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     TVectorD tetB11(anglesNumbers);
     Int_t memNEv = nEvents;
     for (i = 0; i < anglesNumbers; i++) {
+        // Curent theta for B11 calculate
+        Double_t curAngle = TMath::DegToRad()*((Double_t)i*STEP + begAng);
+        Double_t theta1 = 180. - 2.*TMath::RadToDeg()*(curAngle-dTheta);
+        Double_t theta2 = 180. - 2.*TMath::RadToDeg()*(curAngle+dTheta);
+        tetB11(i) = 0.5*(theta2-theta1) + theta1;
+
+        // Curent cross-section for B11 calculate
         nEvents = nEventsAr[i];
-        Double_t Integrat = (Double_t)nEvents/summAr[i];
-        Double_t crossSecLab = (Double_t)nB11Ar[i]/Integrat;
-        Double_t curAngle = ((Double_t)i*STEP + begAng)*TMath::Pi()/180.;
-        sigmaCMB11(i) = 0.25*crossSecLab/cos(curAngle);
-        tetB11(i) = 180. - 2*curAngle*180./TMath::Pi();
+        Double_t dPhi = TMath::DegToRad()*detH*180./(Radius*sin(curAngle)*TMath::Pi());
+        Double_t Omega = dPhi*(cos(TMath::DegToRad()*theta2) - cos(TMath::DegToRad()*theta1))/4./TMath::Pi();
+        Double_t Integrat = (Double_t)nEvents*2.*TMath::Pi()*Omega/summAr[i];
+        dPhi = TMath::DegToRad()*dPhiAr[i]/2./TMath::Pi();
+        Double_t crossSecLab = (Double_t)nB11Ar[i]*dPhi/Integrat;
+        sigmaCMB11(i) = norm*0.25*crossSecLab/cos(curAngle);
         fout << tetB11(i) << "\t" << sigmaCMB11(i) << endl;
     }
     fout.clear();

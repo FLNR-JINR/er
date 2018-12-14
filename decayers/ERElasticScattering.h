@@ -59,6 +59,11 @@ public:
     **/
     void SetDetAngle(Double_t angle)  { fDetPos = angle; }
 
+    /** @brief Defines theta width for detector in Lab.
+     ** @param  dTheta theta width for detector in Lab.
+    **/
+    void SetDetThetaWidth(Double_t dTheta) { fDetThetaWidth = dTheta; }
+
     /** @brief Defines primary ion mass.
      ** @param mass Primary ion mass.
     **/
@@ -108,6 +113,7 @@ private:
     Double_t        fCDFminTargetIon;           ///< ThetaCDF(fThetaTargetIon1) minimum
     Double_t        fCDFmaxTargetIon;           ///< ThetaCDF(fThetaTargetIon2) maximum
     Double_t        fDetPos;                    ///< Detector position in Lab [Deg]
+    Double_t        fDetThetaWidth;             ///< Detector Theta Width in Lab [Deg]
     Double_t        fIonMass;                   ///< Primary ion mass
     Double_t        fTargetIonMass;             ///< Target ion mass
     Double_t        fCDFRangesSum;              ///< The CDF ranges sum of the primary ion and target ion
