@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 1000) {
+void exp1803_sim_digi(Int_t nEvents = 1) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -65,8 +65,14 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   // -----  BeamDet parameters ----------------------------------------------
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);       // 
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);                     //  BeamDet parts should be added in ascending order   
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ1MWPC);   //  of Z-coordinate of part.
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ2MWPC);                  // 
+                                                                    //  of Z-coordinate of part.
+  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ1MWPC);         
+  // The inverse order of numbering it is the order when wire number increase while coordinate of wires decreasing.
+  // Methods must be called after the proper MWPC station if direct numbering order should be inversed.
+  setupBeamDet->SetMWPCnumberingInvOrderY();                       // Set the inverse order of wires numbering in Y plane. 
+  setupBeamDet->SetMWPCnumberingInvOrderX();                       // Set the inverse order of wires numbering in X plane.
+  
+  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ2MWPC);
   // setupBeamDet->SetSensitiveTarget();
 
   // -----   Create target  -------------------------------------------------
