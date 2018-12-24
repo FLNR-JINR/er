@@ -108,7 +108,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // ------------------------------------------------------------------------
 
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kTRUE); // kFALSE
+  run->SetStoreTraj(kFALSE); // kFALSE
 
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
@@ -142,6 +142,8 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // cout << "Energy " << momentum << "; mass " << mass << endl;
   cout << "Interactions number in target: " << scattering->GetInteractNumInTarget() << endl;
   cout << "dPhi range: " << scattering->GetdPhi() << endl;
+  cout << "ThetaCM Mean for N15: " << scattering->GetThetaCMMeanPri() << endl;
+  cout << "ThetaCM Mean for B11: " << scattering->GetThetaCMMeanTar() << endl;
   cout.precision(12);
   cout << "summ: "<< scattering->GetCDFRangesSum() << endl;
 }

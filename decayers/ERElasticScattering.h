@@ -86,6 +86,12 @@ public:
     /** @brief Returns sum of CDF ranges values of primary and target ion. **/
     Double_t GetCDFRangesSum()     const { return fCDFRangesSum; }
 
+    /** @brief Returns ThetaCM mean for primary Ion. **/
+    Double_t GetThetaCMMeanPri()      const { return fThetaCMSumPri/fNumOfPriIons; }
+
+    /** @brief Returns ThetaCM mean for target Ion. **/
+    Double_t GetThetaCMMeanTar()      const { return fThetaCMSumTar/fNumOfTarIons; }
+
     /** @brief Returns number of interactions on target. **/
     Int_t GetInteractNumInTarget() const { return fInteractNumInTarget; }
 
@@ -117,10 +123,14 @@ private:
     Double_t        fIonMass;                   ///< Primary ion mass
     Double_t        fTargetIonMass;             ///< Target ion mass
     Double_t        fCDFRangesSum;              ///< The CDF ranges sum of the primary ion and target ion
+    Double_t        fThetaCMSumPri;             ///< Sum of Thetas CM for primary Ion hit to the target
+    Double_t        fThetaCMSumTar;             ///< Sum of Thetas CM for target Ion hit to the target
 
     Int_t           fInteractNumInTarget;       ///< Interactions counter in target
-
+    Int_t           fNumOfPriIons;              ///< Interactions counter of primary ions in target
+    Int_t           fNumOfTarIons;              ///< Interactions counter of target ions in target
     Bool_t          ionMassTrueOrFalseTester;   ///< Identify a difference between the PDG and Monte-Carlo ion mass
+    Bool_t          fIonTester;                 ///< kTRUE if target ion kFLASE if primary ionfIonTester
 
     /** @brief The private method is to generate theta value. **/
     Double_t ThetaGen();

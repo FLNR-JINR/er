@@ -6,6 +6,7 @@ if [ -d input ]; then
 	rm -fv out.txt
 	rm -fv target_*
 	rm -fv dPhi_info.txt*
+	rm -fv thetaCM*
 	cd -
 else
 	mkdir input

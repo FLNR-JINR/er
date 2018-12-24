@@ -10,13 +10,14 @@ bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg);
 SArrays* Fill_Arrays(Int_t anglesNumbers, Bool_t N15_B11_draw);
 Int_t* GetnEventsInTarget(Int_t anglesNumbers, Bool_t N15_B11_draw);
 Double_t* GetdPhiAr(Int_t anglesNumbers);
+Double_t* GetThetaCMAr(Int_t anglesNumbers, Bool_t N15_or_B11); // N15_or_B11 kTRUE for N15 kFALSE for B11
 
 //---------------------------------------------------------------------------------------------------------------------
 void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 3, Int_t anglesNumbers = 0, Double_t STEP=1.,
 
                   Int_t case_n = 0, TString workDir = "output", Bool_t N15_B11_draw = kFALSE)
 {
-    Double_t norm = 0.23;
+    Double_t norm = 1.;
     nEvents = nEvents*nThreads;
     Double_t dTheta = 0.262822833*TMath::DegToRad();
     Double_t Radius = 218.; // mm
@@ -67,6 +68,11 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         cerr << "Error: missing output directory\n";
         return;
     }
+
+    // Get thetaCM values for N15
+    Bool_t N15_or_B11 = kTRUE;
+    Double_t* ThetaCMAr = GetThetaCMAr(anglesNumbers, N15_or_B11);
+
     Int_t i = 0;
     Double_t ratio = 1.3626837426803;
     TVectorD sigmaCMN15(anglesNumbers);
@@ -83,6 +89,8 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         iC = acos(-iA + iB);
         Double_t theta2 = TMath::RadToDeg()*iC;
         tetN15(i) = 0.5*(theta2-theta1) + theta1;
+        cout << "N15: old Theta: " << tetN15(i) << ", new Theta: " << ThetaCMAr[i] << endl;
+        tetN15(i) = ThetaCMAr[i];
 
         // Curent cross-section calculate
         nEvents = nEventsAr[i];
@@ -127,6 +135,10 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         nEventsAr = GetnEventsInTarget(anglesNumbers, N15_B11_draw);
     }
 
+    // Fill thetaCM array for B11
+    N15_or_B11 = kFALSE;
+    delete []ThetaCMAr;
+    ThetaCMAr = GetThetaCMAr(anglesNumbers, N15_B11_draw);
     fout.open("output/B11_cross_and_theta.txt");
     if (!fout.is_open())
     {
@@ -142,6 +154,8 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         Double_t theta1 = 180. - 2.*TMath::RadToDeg()*(curAngle-dTheta);
         Double_t theta2 = 180. - 2.*TMath::RadToDeg()*(curAngle+dTheta);
         tetB11(i) = 0.5*(theta2-theta1) + theta1;
+        cout << "B11: old Theta: " << tetB11(i) << ", new Theta: " << ThetaCMAr[i] << endl;
+        tetB11(i) = ThetaCMAr[i];
 
         // Curent cross-section for B11 calculate
         nEvents = nEventsAr[i];
@@ -327,7 +341,7 @@ Int_t* GetnEventsInTarget(Int_t anglesNumbers, Bool_t N15_B11_draw)
         fileName = "input/target_int_numB11.txt";
     std::ifstream fin(fileName);
     if (!fin.is_open()) {
-        cerr << "Can't open file " << fileName << endl;
+        cerr << "Can't open file for events number in target" << fileName << endl;
         return NULL;
     }
     Int_t* nEventsAr = new Int_t [anglesNumbers];
@@ -357,6 +371,8 @@ Int_t* GetnEventsInTarget(Int_t anglesNumbers, Bool_t N15_B11_draw)
             activ = kTRUE;
         }
     }
+    fin.clear();
+    fin.close();
     return nEventsAr;
 }
 
@@ -364,7 +380,8 @@ Double_t* GetdPhiAr(Int_t anglesNumbers)
 {
     TString dPhiFileName = "input/dPhi_info.txt";
     std::ifstream finDPhi(dPhiFileName.Data());
-    if (!finDPhi.is_open()) {
+    if (!finDPhi.is_open())
+    {
         cerr << "Can't open file " << dPhiFileName << endl;
         return NULL;
     }
@@ -383,5 +400,32 @@ Double_t* GetdPhiAr(Int_t anglesNumbers)
             if (nAngles > anglesNumbers) break;
         }
     }
+    finDPhi.clear();
+    finDPhi.close();
     return dPhiAr;
+}
+
+Double_t* GetThetaCMAr(Int_t anglesNumbers, Bool_t N15_or_B11)
+{
+    std::ifstream fin;
+    if (N15_or_B11)
+        fin.open("input/thetaCMN15.txt");
+    else
+        fin.open("input/thetaCMB11.txt");
+    if (!fin.is_open())
+    {
+        cerr << "Can't open file for thetaCM" << endl;
+        return NULL;
+    }
+    Double_t* ThetaCMAr = new Double_t [anglesNumbers];
+    Int_t nAngles = 0;
+    while (!fin.eof())
+    {
+        fin >> ThetaCMAr[nAngles];
+        nAngles++;
+        if (nAngles > anglesNumbers) break;
+    }
+    fin.clear();
+    fin.close();
+    return ThetaCMAr;
 }

@@ -11,9 +11,9 @@ OUTDIR=output_digi_parallel
 GRAPHSOUTDIR=digi_graphs_parallel
 
 # Variables
-NEVENTS=10000
-MINANGLE=30
-MAXANGLE=30
+NEVENTS=100
+MINANGLE=5
+MAXANGLE=5
 NTHREADS=16
 
 # Digitization add or no add
@@ -138,6 +138,11 @@ for IT in $(seq 1 ${ITNUMBER}); do
 	echo "======================================" >> ${RESULTSDIR}/dPhi_info.txt
 	echo -e "\e[1m\e[32m========== All calculation finished === Angle( ${ANG} ) ========= \e[0m"
 wait
+    ####################################### ThetaCM write ######################################
+    cd ${SIMOUTDIR}
+    grep "ThetaCM Mean for N15:" out_1.txt | cut -f5 -d " " >> ../${RESULTSDIR}/thetaCMN15.txt
+    grep "ThetaCM Mean for B11:" out_1.txt | cut -f5 -d " " >> ../${RESULTSDIR}/thetaCMB11.txt
+    cd -
     ####################################### Digitization #######################################
     if [[ $TOADDDIGI = $STRING ]]
     then
@@ -197,6 +202,7 @@ grep "nB11Gas:" ${RESULTSDIR}/out.txt >> cross_section/input/out.txt
 grep "nN15Gas:" ${RESULTSDIR}/out.txt >> cross_section/input/out.txt
 cp ${RESULTSDIR}/target_* cross_section/input/
 cp ${RESULTSDIR}/dPhi_info.txt cross_section/input/
+cp ${RESULTSDIR}/thetaCM* cross_section/input/
 cd cross_section
 #cd input/
 #cp out.txt ../arhive
