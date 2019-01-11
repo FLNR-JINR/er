@@ -16,6 +16,9 @@ class ERBeamDetUnpack : public ERUnpack
     virtual Bool_t Init(SetupConfiguration* setupConf);
     virtual Bool_t DoUnpack(Int_t* data, Int_t size);
 
+    /* accessors */
+
+    void SetTimeCalibrationConst( Double_t timeCalConst) {fTimeCalConst = timeCalConst;} 
   protected:
     void AddToFDigi(Float_t edep, Double_t time, Int_t tofNb);
     void AddMWPCDigi(Float_t edep, Double_t time, 
