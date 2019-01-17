@@ -101,9 +101,10 @@ private:
 
   /** @brief Calculates an arithmetic average value in array of consequent wires.
    ** @param digiArray   collection of digies
-   ** @param coordType   type of coordinate (can take values 'X', 'Y' or 'Z')
+   ** @param coordType   type of coordinate. May take values 1, 2 or 3 which 
+                         correspond to X, Y and Z respectively 
   **/
-  Double_t CalcCoordinateAvg (TClonesArray* digiArray, char coordType);
+  Double_t CalcCoordinateAvg (TClonesArray* digiArray, int coordType);
 
 
   ClassDef(ERBeamDetTrackFinder,1)
