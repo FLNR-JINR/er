@@ -156,18 +156,18 @@ Float_t GetPosition(Float_t wire, Float_t wireStep,
 
 void MWPCprojection(TClonesArray *dataX1, TClonesArray *dataY1, TClonesArray *dataX2, TClonesArray *dataY2) {
 
-	// if (GetClusterMult(dataX1)!= 1 || GetClusterMult(dataY1)!=1 || GetClusterMult(dataX2)!=1 || GetClusterMult(dataY2)!=1) {
-	// 	fFill = false;
-	// 	return;
-	// }
-	if (dataX1->GetEntriesFast() !=1 // multiplicity not equals unit
-	    || dataY1->GetEntriesFast()!=1 
-	    || dataX2->GetEntriesFast() !=1 
-	    || dataY2->GetEntriesFast()!=1)
-	{
+	if (GetClusterMult(dataX1)!= 1 || GetClusterMult(dataY1)!=1 || GetClusterMult(dataX2)!=1 || GetClusterMult(dataY2)!=1) {
 		fFill = false;
 		return;
 	}
+	// if (dataX1->GetEntriesFast() !=1 // multiplicity not equals unit
+	//     || dataY1->GetEntriesFast()!=1 
+	//     || dataX2->GetEntriesFast() !=1 
+	//     || dataY2->GetEntriesFast()!=1)
+	// {
+	// 	fFill = false;
+	// 	return;
+	// }
 
 	const Float_t fMWPCwireStepX1 = -1.25;
 	const Float_t fMWPCwireStepY1 =  1.25;		//step between two wires

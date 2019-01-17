@@ -119,10 +119,10 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   Reset();
   LOG(DEBUG) << FairLogger::endl;
 
-  if(fBeamDetMWPCDigiX1->GetEntriesFast() != 1 ||
-     fBeamDetMWPCDigiX2->GetEntriesFast() != 1 ||
-     fBeamDetMWPCDigiY1->GetEntriesFast() != 1 || 
-     fBeamDetMWPCDigiY2->GetEntriesFast() != 1 ) {
+  if(fBeamDetMWPCDigiX1->GetEntriesFast() < 1 ||
+     fBeamDetMWPCDigiX2->GetEntriesFast() < 1 ||
+     fBeamDetMWPCDigiY1->GetEntriesFast() < 1 || 
+     fBeamDetMWPCDigiY2->GetEntriesFast() < 1 ) {
     LOG(DEBUG) << "Multiplicity less doesn't equal one" << FairLogger::endl;
     FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
