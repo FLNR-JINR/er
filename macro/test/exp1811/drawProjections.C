@@ -15,9 +15,9 @@ void drawProjections() {
 	tree->Draw("BeamDetTrack.fYt:BeamDetTrack.fXt>>hist","","col&text");
 // ------------------------------------------------------------------------------------------------	
 	canv->cd(0);
-	TLatex *l = new TLatex(0.45, 0.492, "Clusters: on; target: embedded in BeamDet");
+	TLatex *l = new TLatex(0.45, 0.492, "Clusters: on; target: D2");
     l->SetTextSize(0.02);
     l->Draw();
-    canv->SaveAs("canv_compERReco_withClusters_BeamDetTarget.png");
-    canv->SaveAs("canv_compERReco_withClusters_BeamDetTarget.root");
+    canv->SaveAs("canv_compERReco_withClusters_D2Target.png");
+    canv->SaveAs("canv_compERReco_withClusters_D2Target.root");
 }

@@ -25,7 +25,7 @@ void reco_he8_exp1811(){
   // ------------------------BeamDetTrackFinger--------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
-  trackFinder->SetTargetVolume("targetBodyH2"); // targetBodyH2 - embedded BeamDet target volume, tubeD2 - D2 taget volume
+  trackFinder->SetTargetVolume("tubeD2"); // targetBodyH2 - embedded BeamDet target volume, tubeD2 - D2 taget volume
   run->AddTask(trackFinder);
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();

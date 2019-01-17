@@ -13,10 +13,10 @@ void exp1811_sim (Int_t nEvents = 2) {
   TString parFile= "par_1811.root";
   TString workDirPath = gSystem->Getenv("VMCWORKDIR");
   TString paramFileQTelescope = workDirPath
-                         + "/db/QTelescope/QTelescopePartsExp1811.xml";
+                         + "/db/QTelescope/QTelescopeParts2.xml";
   TString paramFileBeamDet = workDirPath
                          + "/db/BeamDet/BeamDetParts.xml";
-  // TString targetGeoFileName = workDirPath + "/geometry/target.D2.gas.root";  
+  TString targetGeoFileName = workDirPath + "/geometry/target.D2.gas.root";  
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer; 
   timer.Start();
@@ -56,11 +56,11 @@ void exp1811_sim (Int_t nEvents = 2) {
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ2MWPC);    
   setupBeamDet->SetMWPCnumberingInvOrderX(); 
 
-  setupBeamDet->SetSensitiveTarget();
+  // setupBeamDet->SetSensitiveTarget();
   // -----   Create target  -------------------------------------------------
-  // FairModule* target = new ERTarget("target", kTRUE, 1);
-  // target->SetGeometryFileName(targetGeoFileName);
-  // run->AddModule(target);
+  FairModule* target = new ERTarget("target", kTRUE, 1);
+  target->SetGeometryFileName(targetGeoFileName);
+  run->AddModule(target);
 
   // -----  QTelescope Setup ------------------------------------------------
   ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
