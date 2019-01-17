@@ -119,11 +119,11 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
   Reset();
   LOG(DEBUG) << FairLogger::endl;
 
-  if(fBeamDetMWPCDigiX1->GetEntriesFast() < 1 ||
-     fBeamDetMWPCDigiX2->GetEntriesFast() < 1 ||
-     fBeamDetMWPCDigiY1->GetEntriesFast() < 1 || 
-     fBeamDetMWPCDigiY2->GetEntriesFast() < 1 ) {
-    LOG(DEBUG) << "Multiplicity less than one" << FairLogger::endl;
+  if(fBeamDetMWPCDigiX1->GetEntriesFast() != 1 ||
+     fBeamDetMWPCDigiX2->GetEntriesFast() != 1 ||
+     fBeamDetMWPCDigiY1->GetEntriesFast() != 1 || 
+     fBeamDetMWPCDigiY2->GetEntriesFast() != 1 ) {
+    LOG(DEBUG) << "Multiplicity less doesn't equal one" << FairLogger::endl;
     FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
     return ;
@@ -225,7 +225,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     }
   }
   if (!targetAffected){
-    LOG(WARNING) << "Tatget is not affected" << FairLogger::endl;
+    LOG(WARNING) << "Target is not affected" << FairLogger::endl;
     return;
   }
 
