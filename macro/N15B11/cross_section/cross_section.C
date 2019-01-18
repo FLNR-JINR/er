@@ -95,9 +95,9 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         // Curent cross-section calculate
         nEvents = nEventsAr[i];
         Double_t dPhi = TMath::DegToRad()*detH*180./(Radius*sin(curAngle)*TMath::Pi());
-        Double_t Omega = dPhi*(cos(TMath::DegToRad()*theta1) - cos(TMath::DegToRad()*theta2))/4./TMath::Pi();
+        Double_t Omega = 0.5;//dPhi*(cos(TMath::DegToRad()*theta1) - cos(TMath::DegToRad()*theta2))/4./TMath::Pi();
         Double_t Integrat = (Double_t)nEvents*2.*TMath::Pi()*Omega/summAr[i];
-        dPhi = TMath::DegToRad()*dPhiAr[i]/2./TMath::Pi();
+        dPhi = 1.;//TMath::DegToRad()*dPhiAr[i]/2./TMath::Pi();
         Double_t crossSecLab = (Double_t)nN15Ar[i]*dPhi/Integrat ;
         iA = 1. + ratio*ratio*cos(2.*curAngle);
         iB = 1. - ratio*ratio*sin(curAngle)*sin(curAngle);
@@ -160,9 +160,9 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         // Curent cross-section for B11 calculate
         nEvents = nEventsAr[i];
         Double_t dPhi = TMath::DegToRad()*detH*180./(Radius*sin(curAngle)*TMath::Pi());
-        Double_t Omega = dPhi*(cos(TMath::DegToRad()*theta2) - cos(TMath::DegToRad()*theta1))/4./TMath::Pi();
+        Double_t Omega = 0.5;//dPhi*(cos(TMath::DegToRad()*theta2) - cos(TMath::DegToRad()*theta1))/4./TMath::Pi();
         Double_t Integrat = (Double_t)nEvents*2.*TMath::Pi()*Omega/summAr[i];
-        dPhi = TMath::DegToRad()*dPhiAr[i]/2./TMath::Pi();
+        dPhi = 1.;//TMath::DegToRad()*dPhiAr[i]/2./TMath::Pi();
         Double_t crossSecLab = (Double_t)nB11Ar[i]*dPhi/Integrat;
         sigmaCMB11(i) = norm*0.25*crossSecLab/cos(curAngle);
         fout << tetB11(i) << "\t" << sigmaCMB11(i) << endl;
