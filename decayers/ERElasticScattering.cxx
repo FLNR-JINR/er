@@ -198,7 +198,7 @@ Bool_t ERElasticScattering::Stepping()
 
 
             Double_t theta = ThetaGen();
-            Double_t phi = fRnd->Uniform(fPhi1*DegToRad(), fPhi2*DegToRad());
+            Double_t phi = 0.*fRnd->Uniform(fPhi1*DegToRad(), fPhi2*DegToRad());
 
             // In case of target ion registration
             if (fIonTester)
@@ -365,8 +365,8 @@ void ERElasticScattering::RangesCalculate(Double_t iM, Double_t tM)
     LOG(DEBUG) << "  B11: CMTheta1: " << fThetaTargetIon1 << ", CMTheta2: " << fThetaTargetIon2
                 << ", average value: " << 0.5*(fThetaTargetIon2-fThetaTargetIon1) + fThetaTargetIon1 << FairLogger::endl;
     Double_t dPhi = 4.*180. / (TMath::Pi()*Radius*sin(TMath::DegToRad()*fDetPos));
-    fPhi1 = /*-6.*DegToRad()*/ -0.5*dPhi*DegToRad();
-    fPhi2 = /*6.*DegToRad()*/ 0.5*dPhi*DegToRad();
+    fPhi1 = /*-6.*DegToRad()*/ -0.5*dPhi;
+    fPhi2 = /*6.*DegToRad()*/ 0.5*dPhi;
 
 }
 

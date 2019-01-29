@@ -17,11 +17,11 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
 
                   Int_t case_n = 0, TString workDir = "output", Bool_t N15_B11_draw = kFALSE)
 {
-    Double_t norm = 1.;
+    //Double_t norm = 1.;
     nEvents = nEvents*nThreads;
     Double_t dTheta = 0.262822833*TMath::DegToRad();
     Double_t Radius = 218.; // mm
-    Double_t detH = 4.; // mm
+    //Double_t detH = 4.; // mm
     TCanvas* canv = new TCanvas("canv", "canv", 1000, 800);
     canv->SetLogy();
     TLegend* leg = new TLegend(1., 1., 0.80, 0.80);
@@ -88,12 +88,13 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         iB = cos(curAngle+dTheta)*sqrt(1. - ratio*ratio*sin(curAngle+dTheta)*sin(curAngle+dTheta));
         iC = acos(-iA + iB);
         Double_t theta2 = TMath::RadToDeg()*iC;
-        tetN15(i) = 0.5*(theta2-theta1) + theta1;
-        cout << "N15: old Theta: " << tetN15(i) << ", new Theta: " << ThetaCMAr[i] << endl;
+        //tetN15(i) = 0.5*(theta2-theta1) + theta1;
+        //cout << "N15: old Theta: " << tetN15(i) << ", new Theta: " << ThetaCMAr[i] << endl;
         tetN15(i) = ThetaCMAr[i];
 
         // Curent cross-section calculate
         nEvents = nEventsAr[i];
+/*
         Double_t dPhi = TMath::DegToRad()*detH*180./(Radius*sin(curAngle)*TMath::Pi());
         Double_t Omega = 0.5;//dPhi*(cos(TMath::DegToRad()*theta1) - cos(TMath::DegToRad()*theta2))/4./TMath::Pi();
         Double_t Integrat = (Double_t)nEvents*2.*TMath::Pi()*Omega/summAr[i];
@@ -102,7 +103,10 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         iA = 1. + ratio*ratio*cos(2.*curAngle);
         iB = 1. - ratio*ratio*sin(curAngle)*sin(curAngle);
         iC = sqrt(iB)/iA;
-        sigmaCMN15(i) = norm*0.5*crossSecLab*iC;
+*/
+        Double_t dPhiDet = 4.*180. / (TMath::Pi()*Radius*TMath::Sin(curAngle));
+        Double_t dphi = dPhiAr[i]/dPhiDet;
+        sigmaCMN15(i) = (Double_t)nN15Ar[i]*summAr[i]*dphi / (nEvents*2.*TMath::Pi()*TMath::Sin(TMath::DegToRad()*tetN15(i))*(theta2-theta1));
         fout << tetN15(i) << "\t" << sigmaCMN15(i) << endl;
     }
     fout.clear();
@@ -138,7 +142,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     // Fill thetaCM array for B11
     N15_or_B11 = kFALSE;
     delete []ThetaCMAr;
-    ThetaCMAr = GetThetaCMAr(anglesNumbers, N15_B11_draw);
+    ThetaCMAr = GetThetaCMAr(anglesNumbers, kFALSE);
     fout.open("output/B11_cross_and_theta.txt");
     if (!fout.is_open())
     {
@@ -154,17 +158,21 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         Double_t theta1 = 180. - 2.*TMath::RadToDeg()*(curAngle-dTheta);
         Double_t theta2 = 180. - 2.*TMath::RadToDeg()*(curAngle+dTheta);
         tetB11(i) = 0.5*(theta2-theta1) + theta1;
-        cout << "B11: old Theta: " << tetB11(i) << ", new Theta: " << ThetaCMAr[i] << endl;
+        //cout << "B11: old Theta: " << tetB11(i) << ", new Theta: " << ThetaCMAr[i] << endl;
         tetB11(i) = ThetaCMAr[i];
-
         // Curent cross-section for B11 calculate
         nEvents = nEventsAr[i];
+/*
         Double_t dPhi = TMath::DegToRad()*detH*180./(Radius*sin(curAngle)*TMath::Pi());
         Double_t Omega = 0.5;//dPhi*(cos(TMath::DegToRad()*theta2) - cos(TMath::DegToRad()*theta1))/4./TMath::Pi();
         Double_t Integrat = (Double_t)nEvents*2.*TMath::Pi()*Omega/summAr[i];
         dPhi = 1.;//TMath::DegToRad()*dPhiAr[i]/2./TMath::Pi();
         Double_t crossSecLab = (Double_t)nB11Ar[i]*dPhi/Integrat;
-        sigmaCMB11(i) = norm*0.25*crossSecLab/cos(curAngle);
+*/
+        Double_t dPhiDet = 4.*180. / (TMath::Pi()*Radius*TMath::Sin(curAngle));
+        Double_t dphi = dPhiAr[i]/dPhiDet;
+        cout << dPhiAr[i] << " / " << dPhiDet << " = " << dphi << endl;
+        sigmaCMB11(i) = (Double_t)nB11Ar[i]*summAr[i]*dphi / (nEvents*TMath::Pi()*TMath::Sin(TMath::DegToRad()*tetB11(i))*(-theta2+theta1));
         fout << tetB11(i) << "\t" << sigmaCMB11(i) << endl;
     }
     fout.clear();
