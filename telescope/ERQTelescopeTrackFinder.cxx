@@ -55,7 +55,8 @@ void ERQTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString com
 {
   fSiHitStationsPair[subassemblyName].emplace(make_pair(componentIdX + componentIdY, 
                                               pair<TString, TString>(componentIdX, componentIdX)));
-}//--------------------------------------------------------------------------------------------------
+}
+//--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::SetStripEdepRange(Double_t edepMin, Double_t edepMax) {
   fSiDigiEdepMin = edepMin; 
   fSiDigiEdepMax = edepMax;
@@ -121,13 +122,13 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
       TString yDigiBranchName = itComponent.second.second;  
       TClonesArray *xDigi = fQTelescopeDigi[xDigiBranchName];
       TClonesArray *yDigi = fQTelescopeDigi[yDigiBranchName];
+      LOG(DEBUG) << "[ERQTelescopeTrackFinder] branch name " << xDigiBranchName << FairLogger::endl;
       if ( !xDigi || !yDigi) {
         continue;
       }
        
       if (xDigi->GetEntriesFast() == 0 || yDigi->GetEntriesFast()==0)
         continue;
-
       for (Int_t iXDigi  = 0; iXDigi < xDigi->GetEntriesFast(); iXDigi++) {
         Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(iXDigi))->GetEdep();
         if (xStripEdep > fSiDigiEdepMin && xStripEdep < fSiDigiEdepMax) {

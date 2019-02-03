@@ -110,17 +110,20 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
   TGeoNode* qtelescopeComponent = NULL;
   for (Int_t iNode = 0; iNode < cave->GetNdaughters(); iNode++) { // cycle by volumes in TOP
     TString moduleName = cave->GetDaughter(iNode)->GetName();
+    LOG(DEBUG) << "[ERQTelescopeSetup] moduleName " << moduleName << FairLogger::endl;
     if ( moduleName.Contains("QTelescope", TString::kIgnoreCase) ) {
       qtelescope = cave->GetDaughter(iNode);    
       for (Int_t iSubassembly = 0; iSubassembly < qtelescope->GetNdaughters(); iSubassembly++) { // cycle by subassemblies in QTelescope
         qtelescopeSubassembly = qtelescope->GetDaughter(iSubassembly);
         TString subassemblyName = qtelescopeSubassembly->GetName();
+        LOG(DEBUG) << "[ERQTelescopeSetup] subassemblyName " << subassemblyName << FairLogger::endl;
         for (Int_t iComponent = 0; iComponent < qtelescopeSubassembly->GetNdaughters(); iComponent++) { // cycle by components in subassembly
           qtelescopeComponent = qtelescopeSubassembly->GetDaughter(iComponent);
           TString qtelescopeComponentName = qtelescopeComponent->GetName();
           Double_t stripInComponentTrans[3];
           Double_t stripInSubAssemblyTrans[3];
           Double_t stripGlobTrans[3];
+          LOG(DEBUG) << "[ERQTelescopeSetup] qtelescopeComponentName " << qtelescopeComponentName << FairLogger::endl;
           if (qtelescopeComponentName.Contains("DoubleSi", TString::kIgnoreCase) ) {
             TGeoNode* doubleSiStrip;
             TString   firstStripArrayName = (qtelescopeComponentName.Contains("XY")) ? qtelescopeComponentName + "_X"

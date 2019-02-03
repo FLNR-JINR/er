@@ -36,6 +36,16 @@ void digibuilder_exp1811(Int_t nEvents = 1443710)
                                inputdir + "SSD_R.cal", "", //inputdir + "tSSD_R.cal",
                                "Y");
 // -------------------------------------------------------------------------------------
+  ERTelescopeUnpack* ctUnpack = new ERTelescopeUnpack("Central_telescope");
+  ctUnpack->AddDoubleSiStation("DSD_C",
+                               "DSDX_C","tDSDX_C",
+                               "DSDY_C","tDSDY_C",
+                               inputdir + "DSDX_C.cal", "", //inputdir + "tDSDX_C.cal",
+                               inputdir + "DSDY_C.cal", "", //inputdir + "tDSDY_C.cal",
+                               "XY");
+
+  ctUnpack->AddCsIStation("CsI","CsI","tCsI",inputdir + "CsI.cal","");
+// -------------------------------------------------------------------------------------
   ERTelescopeUnpack* ltUnpack = new ERTelescopeUnpack("Left_telescope");
   ltUnpack->AddSingleSiStation("SSD20_L",
                                "SSD20_L","tSSD20_L",
@@ -54,16 +64,6 @@ void digibuilder_exp1811(Int_t nEvents = 1443710)
                                inputdir + "SSD_L.cal", "", //inputdir + "tSSD_L.cal",
                                "X");
   
-// -------------------------------------------------------------------------------------
-  ERTelescopeUnpack* ctUnpack = new ERTelescopeUnpack("Central_telescope");
-  ctUnpack->AddDoubleSiStation("DSD_C",
-                               "DSDX_C","tDSDX_C",
-                               "DSDY_C","tDSDY_C",
-                               inputdir + "DSDX_C.cal", "", //inputdir + "tDSDX_C.cal",
-                               inputdir + "DSDY_C.cal", "", //inputdir + "tDSDY_C.cal",
-                               "XY");
-
-  ctUnpack->AddCsIStation("CsI","CsI","tCsI",inputdir + "CsI.cal","");
 // -------------------------------------------------------------------------------------  
   builder->AddUnpack(beamDetUnpack);
   builder->AddUnpack(rtUnpack);

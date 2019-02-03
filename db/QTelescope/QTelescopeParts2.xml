@@ -53,7 +53,15 @@
 				<deadLayerThicknessBackSide>0.0003</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
-				</singleSi>	
+			</singleSi>	
+			<singleSi id="SingleSi_SSDY_R">
+				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
+				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
+				<deadLayerThicknessFrontSide>0.00015</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0003</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>	
 		</singleSiTypes>
 	</SiTypes>
 	<CsITypes>

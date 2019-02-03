@@ -67,9 +67,25 @@ void exp1811_sim (Int_t nEvents = 2) {
   setupQTelescope->SetXMLParametersFile(paramFileQTelescope);
   setupQTelescope->SetGeoName("QTelescopeTmp");
 
-  // ----- LEFT parameters ----------------------------------------------------
+  // ----- CENTRAL parameters ----------------------------------------------------
   Double_t xPos, yPos, zPos;
-  Double_t radius = 18.;
+  Double_t radius = 28.;
+  TVector3 rotationC(0., 0., 0.);
+  xPos = radius * TMath::Sin(rotationC.Y() * TMath::DegToRad());
+  yPos = 0.;
+  zPos = radius * TMath::Cos(rotationC.Y() * TMath::DegToRad());
+  ERGeoSubAssembly* assembly_Central= new ERGeoSubAssembly("Central_telescope", TVector3(xPos, yPos, zPos), rotationC);
+  
+  ERQTelescopeGeoComponentDoubleSi* thick_Central = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_DSD_C", 
+                                                                                  TVector3(0., 0., -2.9), TVector3(), "X");
+  ERQTelescopeGeoComponentCsI* csi = new ERQTelescopeGeoComponentCsI("CsI", "CsI_C", TVector3(0., 0., 0.), TVector3());
+
+  assembly_Central->AddComponent(thick_Central);
+  assembly_Central->AddComponent(csi);
+
+  setupQTelescope->AddSubAssembly(assembly_Central);
+  // ----- LEFT parameters ----------------------------------------------------
+  radius = 18.;
   
   TVector3 rotationL(0., 17., 0.);
   xPos = radius * TMath::Sin(rotationL.Y() * TMath::DegToRad());
@@ -88,22 +104,6 @@ void exp1811_sim (Int_t nEvents = 2) {
 
   setupQTelescope->AddSubAssembly(assembly_Left);
 
-  // ----- CENTRAL parameters ----------------------------------------------------
-  radius = 28.;
-  TVector3 rotationC(0., 0., 0.);
-  xPos = radius * TMath::Sin(rotationC.Y() * TMath::DegToRad());
-  yPos = 0.;
-  zPos = radius * TMath::Cos(rotationC.Y() * TMath::DegToRad());
-  ERGeoSubAssembly* assembly_Central= new ERGeoSubAssembly("Central_telescope", TVector3(xPos, yPos, zPos), rotationC);
-  
-  ERQTelescopeGeoComponentDoubleSi* thick_Central = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_DSD_C", 
-                                                                                  TVector3(0., 0., -2.9), TVector3(), "X");
-  ERQTelescopeGeoComponentCsI* csi = new ERQTelescopeGeoComponentCsI("CsI", "CsI_C", TVector3(0., 0., 0.), TVector3());
-
-  assembly_Central->AddComponent(thick_Central);
-  assembly_Central->AddComponent(csi);
-
-  setupQTelescope->AddSubAssembly(assembly_Central);
 
   // ----- RIGHT parameters ----------------------------------------------------
   radius = 18.;
@@ -114,7 +114,7 @@ void exp1811_sim (Int_t nEvents = 2) {
   ERGeoSubAssembly* assembly_Right = new ERGeoSubAssembly("Right_telescope", TVector3(xPos, yPos, zPos), rotationR);
   ERQTelescopeGeoComponentSingleSi* thin_Right = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_R", 
                                                                                   TVector3(0., 0.,-1.4), TVector3(), "X");
-  ERQTelescopeGeoComponentSingleSi* thick1_Right = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_R", 
+  ERQTelescopeGeoComponentSingleSi* thick1_Right = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSDY_R", 
                                                                                   TVector3(0., 0., 0.), TVector3(), "Y");
   ERQTelescopeGeoComponentSingleSi* thick2_Right = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_R", 
                                                                                   TVector3(0., 0., 1.0), TVector3(), "Y");

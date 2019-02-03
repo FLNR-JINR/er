@@ -157,7 +157,7 @@ void ERTelescopeUnpack::AddCsIDigi(Float_t edep, Double_t time, Int_t wallNb,
                                                                                     blockNb);
 }
 //--------------------------------------------------------------------------------------------------
-TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString stName, TString XY, TString XYside){
+TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString stName, TString XY, TString XYside, Int_t volNb){
     //@todo убрать это по возможности
     Int_t stNumber = 0;
     if (fDetName.Contains("Right"))
@@ -166,11 +166,11 @@ TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString
     TString bName = "";
     if (type == TString("Si"))
         if (sideCount == 1)
-            bName.Form("ERQTelescopeSiDigi_%s_SingleSi_%s_%s_0",fDetName.Data(),stName.Data(),XYside.Data());
+            bName.Form("ERQTelescopeSiDigi_%s_SingleSi_%s_%s_%d",fDetName.Data(),stName.Data(),XYside.Data(), volNb);
         else
-            bName.Form("ERQTelescopeSiDigi_%s_DoubleSi_%s_%s_%d_%s",fDetName.Data(),stName.Data(),XY.Data(),stNumber,XYside.Data());
+            bName.Form("ERQTelescopeSiDigi_%s_DoubleSi_%s_%s_%d_%s",fDetName.Data(),stName.Data(),XY.Data(),volNb,XYside.Data());
     if (type == TString("CsI"))
-        bName.Form("ERQTelescopeCsIDigi_%s_%s_0",fDetName.Data(),stName.Data());
+        bName.Form("ERQTelescopeCsIDigi_%s_%s_%d",fDetName.Data(),stName.Data(), volNb);
     return bName;
 }
 //--------------------------------------------------------------------------------------------------
@@ -197,23 +197,34 @@ void ERTelescopeUnpack::FormAllBranches(){
 
     FairRootManager* ioman = FairRootManager::Instance();
     if ( ! ioman ) Fatal("Init", "No FairRootManager");
-
+    static Int_t doubleSiCnt = 0;
+    static Int_t singleSiCnt = 0;
+    static Int_t csiCnt = 0;
     for (auto itStation : fStations){
         if( itStation.second->sideCount == 2){
             if (itStation.second->XY == "XY"){
-                itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","X");
-                itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","Y");
+                itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","X", doubleSiCnt);
+                itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","Y", doubleSiCnt);
             }
             else{
-                itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","Y");
-                itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","X");
+                itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","Y", doubleSiCnt);
+                itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","X", doubleSiCnt);
             }
+            doubleSiCnt++;
         }
-        else
+        else {
+            int volTypeNb;
+            if (itStation.second->type.Contains("CsI")) {
+                volTypeNb = csiCnt++;
+            } else {
+                volTypeNb = singleSiCnt++;                
+            }
             itStation.second->bName = FormBranchName(itStation.second->type,
                                                     itStation.second->sideCount,
                                                     itStation.first,"",
-                                                    itStation.second->XYside);
+                                                    itStation.second->XYside,
+                                                    volTypeNb);
+        }
     }
 
     for (auto itStation : fStations){
