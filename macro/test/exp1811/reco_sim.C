@@ -1,7 +1,8 @@
 int fTriggerNum = 2;
-void reco_he8_exp1811(){
+void reco_sim(){
   //---------------------Files-----------------------------------------------
-  TString inFile = "./he8_10_0010.Digi.root";
+  // TString inFile = "./he8_10_0010.Digi.root";
+  TString inFile = "./sim_digi_1811.root";
   auto file = TFile::Open(inFile.Data());
   auto tree = (TTree*)file->Get("er");
   Int_t nEvents = tree->GetEntriesFast();//1443710
@@ -9,6 +10,8 @@ void reco_he8_exp1811(){
   // nEvents = /*1;*/ 14437;
   TString parFile = "par_1811.root";
   TString geoFile = "setup_exp1811.root";
+// sim_digi_1811.root
+// par_1811.root
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();  
@@ -16,9 +19,9 @@ void reco_he8_exp1811(){
   ERRunAna *run = ERRunAna::Instance();
   TString userCut;
   TString outFile;
-  userCut.Form("EventHeader.fTrigger==%d", fTriggerNum);
-  outFile.Form("he8_10_0010.trigger%d.reco.root", fTriggerNum);
-  run->SetUserCut(userCut.Data());
+  // userCut.Form("EventHeader.fTrigger==%d", fTriggerNum);
+  outFile.Form("reco_sim_data.root");
+  // run->SetUserCut(userCut.Data());
 
   run->SetGeomFile(geoFile);
   run->SetInputFile(inFile);
@@ -43,20 +46,20 @@ void reco_he8_exp1811(){
   // ------- QTelescope TrackFinder -------------------------------------------
  ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
 
-  qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_CsI_0");
+  // qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_CsI_0");
   // qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_DoubleSi_DSD_C_XY_0_Y");
   qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_DoubleSi_DSD_C_XY_0_X", 
                                                             "Central_telescope_DoubleSi_DSD_C_XY_0_Y");
 
-  qtelescopeTrackFinder->SetHitStation("Left_telescope", "Left_telescope_DoubleSi_DSD_L_XY_1_X",
-                                                         "Left_telescope_DoubleSi_DSD_L_XY_1_Y");
+  // qtelescopeTrackFinder->SetHitStation("Left_telescope", "Left_telescope_DoubleSi_DSD_L_XY_1_X",
+  //                                                        "Left_telescope_DoubleSi_DSD_L_XY_1_Y");
   // qtelescopeTrackFinder->SetHitStation("Left_telescope", "Left_telescope_DoubleSi_DSD_L_XY_1_Y");
   // qtelescopeTrackFinder->SetHitStation("Left_telescope", "Left_telescope_SingleSi_SSD20_L_X_0");
   // qtelescopeTrackFinder->SetHitStation("Left_telescope", "Left_telescope_SingleSi_SSD_L_X_1");
 
 
-  qtelescopeTrackFinder->SetHitStation("Right_telescope","Right_telescope_SingleSi_SSD20_R_X_2",
-                                                         "Right_telescope_SingleSi_SSDY_R_Y_3");
+  // qtelescopeTrackFinder->SetHitStation("Right_telescope","Right_telescope_SingleSi_SSD20_R_X_2",
+  //                                                        "Right_telescope_SingleSi_SSDY_R_Y_3");
   // qtelescopeTrackFinder->SetHitStation("Right_telescope","Right_telescope_SingleSi_SSDY_R_Y_3");
   // qtelescopeTrackFinder->SetHitStation("Right_telescope","Right_telescope_SingleSi_SSD_R_Y_4");
 
@@ -83,7 +86,7 @@ void reco_he8_exp1811(){
   qtelescopePID->SetStationParticle("Right_telescope_SingleSi_SSDY_R_Y_0",1000020030);
   qtelescopePID->SetStationParticle("Right_telescope_SingleSi_SSD_R_Y_0",1000020030);
 
-  run->AddTask(qtelescopePID); 
+  // run->AddTask(qtelescopePID); 
 
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();

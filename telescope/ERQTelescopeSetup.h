@@ -44,6 +44,8 @@ public:
   Double_t GetStripLocalX (TString componentBranchName, Int_t stripNb);
   Double_t GetStripLocalY (TString componentBranchName, Int_t stripNb);
   Double_t GetStripLocalZ (TString componentBranchName, Int_t stripNb);
+  void GetTransInMotherNode (TGeoNode const* node, Double_t b[3]);
+
 public:
   virtual void ReadGeoParamsFromParContainer();
   // static void PrintDetectorParameters(void);

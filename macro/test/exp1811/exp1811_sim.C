@@ -1,4 +1,4 @@
-void exp1811_sim (Int_t nEvents = 2) {
+void exp1811_sim (Int_t nEvents = 10000) {
 //----------------------------------
   Double_t BeamDetLToF = 1232.0;     // [cm] 12348
   Double_t BeamDetPosZToF = -95.3;  // [cm] 
@@ -150,7 +150,7 @@ void exp1811_sim (Int_t nEvents = 2) {
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kTRUE);
+  // run->SetStoreTraj(kTRUE);
 
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogScreenLevel("INFO");
