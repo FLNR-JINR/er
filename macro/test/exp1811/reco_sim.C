@@ -23,7 +23,7 @@ void reco_sim(){
   outFile.Form("reco_sim_data.root");
   // run->SetUserCut(userCut.Data());
 
-  run->SetGeomFile(geoFile);
+  //run->SetGeomFile(geoFile);
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
 
@@ -92,6 +92,7 @@ void reco_sim(){
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   FairParRootFileIo*  parIO = new FairParRootFileIo();
   parIO->open(parFile.Data(), "UPDATE");
+  rtdb->setFirstInput(parIO);
 
   // -----   Intialise and run   --------------------------------------------
   FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");

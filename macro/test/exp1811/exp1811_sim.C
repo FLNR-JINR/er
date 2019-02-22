@@ -1,4 +1,4 @@
-void exp1811_sim (Int_t nEvents = 10000) {
+void exp1811_sim (Int_t nEvents = 1) {
 //----------------------------------
   Double_t BeamDetLToF = 1232.0;     // [cm] 12348
   Double_t BeamDetPosZToF = -95.3;  // [cm] 
@@ -152,6 +152,24 @@ void exp1811_sim (Int_t nEvents = 10000) {
   //-------Set visualisation flag to true------------------------------------
   // run->SetStoreTraj(kTRUE);
 
+  ERQTelescopeDigitizer* qtelescopeDigitizer = new ERQTelescopeDigitizer(verbose);
+  qtelescopeDigitizer->SetSiElossThreshold(0);
+  qtelescopeDigitizer->SetSiElossSigma(0);
+  qtelescopeDigitizer->SetSiTimeSigma(0);
+
+  qtelescopeDigitizer->SetCsIElossThreshold(0);
+  qtelescopeDigitizer->SetCsIElossSigma(0);
+  qtelescopeDigitizer->SetCsITimeSigma(0);
+  run->AddTask(qtelescopeDigitizer);
+  // -----  BeamDet Digitizer ----------------------------------------------
+  ERBeamDetDigitizer* beamDetDigitizer = new ERBeamDetDigitizer(verbose);
+  // beamDetDigitizer->SetMWPCElossThreshold(0.006);
+  // beamDetDigitizer->SetToFElossThreshold(0.006);
+  // beamDetDigitizer->SetToFElossSigmaOverEloss(0);
+  // beamDetDigitizer->SetToFTimeSigma(1e-10);
+  run->AddTask(beamDetDigitizer);
+
+
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogScreenLevel("INFO");
 
@@ -167,7 +185,7 @@ void exp1811_sim (Int_t nEvents = 10000) {
   rtdb->saveOutput();
   rtdb->print();
 
-  run->CreateGeometryFile("setup_exp1811.root");
+  //run->CreateGeometryFile("setup_exp1811.root");
 
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);
