@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 1000) {
+void exp1803_sim_digi(Int_t nEvents = 1) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -10,10 +10,10 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   Double_t D1PosZ = 20.;       // [cm]
   Double_t D1Thick = 0.03;     // [cm]
   // --------------- BeamDet ------------------------------------------------
-  Double_t BeamDetLToF = 1500.;     // [cm] 
-  Double_t BeamDetPosZToF = -50;  // [cm] 
-  Double_t BeamDetLMWPC = 32.;     // [cm]
-  Double_t BeamDetPosZMWPC = -8;  // [cm]  
+  Double_t BeamDetLToF = 1234.8;     // [cm] 12348
+  Double_t BeamDetPosZToF = -95.3;  // [cm] 
+  Double_t BeamDetPosZ1MWPC = -81.6;     // [cm]
+  Double_t BeamDetPosZ2MWPC = -27.;  // [cm]  
   // --------------- Beam start position ------------------------------------
   Double_t beamStartPosition = -1600;  // [cm]
   // --------------- Target -------------------------------------------------
@@ -28,7 +28,7 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
                          + "/db/BeamDet/BeamDetParts.xml";
   TString targetGeoFileName = workDirPath + "/geometry/target_CD2_geo.root";
   TString gadastGeoFileName = workDirPath + "/geometry/partOfGadast.v1.geo.root";
-  TString ndGeoFileName = workDirPath + "/geometry/ND.geo.root";
+  TString ndGeoFileName     = workDirPath + "/geometry/ND.geo.root";
   TString magnetGeoFileName = workDirPath + "/geometry/magnet.geo.root";
   // ------------------------------------------------------------------------
 
@@ -65,8 +65,14 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   // -----  BeamDet parameters ----------------------------------------------
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);       // 
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);                     //  BeamDet parts should be added in ascending order   
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);   //  of Z-coordinate of part.
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);                  // 
+                                                                    //  of Z-coordinate of part.
+  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ1MWPC);         
+  // The inverse order of numbering it is the order when wire number increase while coordinate of wires decreasing.
+  // Methods must be called after the proper MWPC station if direct numbering order should be inversed.
+  setupBeamDet->SetMWPCnumberingInvOrderY();                       // Set the inverse order of wires numbering in Y plane. 
+  setupBeamDet->SetMWPCnumberingInvOrderX();                       // Set the inverse order of wires numbering in X plane.
+  
+  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ2MWPC);
   // setupBeamDet->SetSensitiveTarget();
 
   // -----   Create target  -------------------------------------------------
@@ -100,12 +106,12 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   xPos = radius * TMath::Sin(rotationT1.Y() * TMath::DegToRad());
   yPos = 0.;
   zPos = radius * TMath::Cos(rotationT1.Y() * TMath::DegToRad());
-  ERGeoSubAssembly* assemblyT1 = new ERGeoSubAssembly("T1", TVector3(xPos, yPos, zPos), rotationT1);
-  ERQTelescopeGeoComponentSingleSi* thinT1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_1", 
-                                                                                  TVector3(0., 0., -5.36), TVector3(), "X");
-  ERQTelescopeGeoComponentDoubleSi* thickT1 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SD2", 
+  ERGeoSubAssembly* assemblyT1 = new ERGeoSubAssembly("Left_telescope", TVector3(xPos, yPos, zPos), rotationT1);
+  ERQTelescopeGeoComponentSingleSi* thinT1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SQ300", 
+                                                                                  TVector3(0., 0., -5.36), TVector3(), "Y");
+  ERQTelescopeGeoComponentDoubleSi* thickT1 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SQ_L", 
                                                                                   TVector3(0, 0, 0.), TVector3(), "X");
-  ERQTelescopeGeoComponentCsI* csi1 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_1", TVector3(0, 0, 5.), TVector3());
+  ERQTelescopeGeoComponentCsI* csi1 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_L", TVector3(0, 0, 5.), TVector3());
   assemblyT1->AddComponent(thinT1);
   assemblyT1->AddComponent(thickT1);
   assemblyT1->AddComponent(csi1);
@@ -117,12 +123,12 @@ void exp1803_sim_digi(Int_t nEvents = 1000) {
   xPos = radius * TMath::Sin(rotationT2.Y() * TMath::DegToRad());
   yPos = 0.;
   zPos = radius * TMath::Cos(rotationT2.Y() * TMath::DegToRad());
-  ERGeoSubAssembly* assemblyT2 = new ERGeoSubAssembly("T2", TVector3(xPos, yPos, zPos), rotationT2);
+  ERGeoSubAssembly* assemblyT2 = new ERGeoSubAssembly("Right_telescope", TVector3(xPos, yPos, zPos), rotationT2);
   /*ERQTelescopeGeoComponentSingleSi* thinT2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_1", 
                                                                                   TVector3(0, 0, 0.), TVector3(), "X");*/
-  ERQTelescopeGeoComponentDoubleSi* thickT2 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SD2", 
+  ERQTelescopeGeoComponentDoubleSi* thickT2 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SQ_R", 
                                                                                   TVector3(0, 0, 0.), TVector3(), "X");
-  ERQTelescopeGeoComponentCsI* csi2 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_1", TVector3(0, 0, 5.), TVector3());
+  ERQTelescopeGeoComponentCsI* csi2 = new ERQTelescopeGeoComponentCsI("CsI", "CsI_R", TVector3(0, 0, 5.), TVector3());
   //assemblyT2->AddComponent(thinT2);
   assemblyT2->AddComponent(thickT2);
   assemblyT2->AddComponent(csi2);

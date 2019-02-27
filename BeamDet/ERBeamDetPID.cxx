@@ -75,11 +75,11 @@ void ERBeamDetPID::Exec(Option_t* opt) {
 
   digi = (ERBeamDetTOFDigi*)fBeamDetToFDigi1->At(0);
   ToF1 = digi->GetTime();
-  dE1 = digi->Edep();
+  dE1 = digi->GetEdep();
   LOG(DEBUG) << "dE1 = " << dE1 << " ToF1 = " << ToF1 << FairLogger::endl;
   digi = (ERBeamDetTOFDigi*)fBeamDetToFDigi2->At(0);
   ToF2 = digi->GetTime();
-  dE2 = digi->Edep();
+  dE2 = digi->GetEdep();
   LOG(DEBUG) << "dE2 = " << dE2 << " ToF2 = " << ToF2 << FairLogger::endl;
 
   dE = dE1 + dE2;

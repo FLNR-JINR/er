@@ -48,6 +48,14 @@ public:
   static void AddMWPC(TString type, Double_t position); 
   static void AddToF(TString type, Double_t position);
 
+  // Set the inverse order of wires numbering in X plane.
+  // The inverse order of numbering it is the order when wire number increase while coordinate of wires decrease.
+  static void SetMWPCnumberingInvOrderX();
+  
+  // Set the inverse order of wires numbering in Y plane.
+  // The inverse order of numbering it is the order when wire number increase while coordinate of wires decrease.
+  static void SetMWPCnumberingInvOrderY();
+
   static Int_t    GetToFCount()  {return fToFCount;}
   static Double_t GetToFThickness(Int_t tofInd)  {return fPlasticZ[tofInd - 1];}
   static void     GetGeoParamsFromParContainer();
@@ -89,6 +97,8 @@ private:
   static vector<TString>  fCathodeMedia;
   static vector<TString>  fAnodeWireMedia;
   static vector<TString>  fGasMedia;
+  static vector<TString>  fMWPCnumberingOrderX;
+  static vector<TString>  fMWPCnumberingOrderY;
   // ------ fPosition of detector's parts relative to zero ---------------------
   static vector<Double_t> fPositionToF;
   static vector<Double_t> fPositionMWPC;

@@ -70,6 +70,8 @@ vector<TString>  ERBeamDetSetup::fKaptonWindowMedia;
 vector<TString>  ERBeamDetSetup::fCathodeMedia;
 vector<TString>  ERBeamDetSetup::fAnodeWireMedia;
 vector<TString>  ERBeamDetSetup::fGasMedia;
+vector<TString>  ERBeamDetSetup::fMWPCnumberingOrderX;
+vector<TString>  ERBeamDetSetup::fMWPCnumberingOrderY;
 // --------------------------------------------------------------------------
 // ------ fPosition of detector's parts relative to zero ---------------------
 vector<Double_t> ERBeamDetSetup::fPositionToF;
@@ -89,7 +91,7 @@ Bool_t           ERBeamDetSetup::fGeoFromContainerIsRead = kFALSE;
 
 
 ERBeamDetSetup::ERBeamDetSetup() {
-  std::cout << "ERBeamDetSetup initialized! "<< std::endl;
+  LOG(DEBUG) << "ERBeamDetSetup initialized! "<< FairLogger::endl;
 }
 //-------------------------------------------------------------------------
 ERBeamDetSetup::~ERBeamDetSetup() {
@@ -98,12 +100,23 @@ ERBeamDetSetup::~ERBeamDetSetup() {
 void ERBeamDetSetup::AddMWPC(TString type, Double_t position) {
   fPositionMWPC.push_back(position);
   fMWPCType.push_back(type);
+  fMWPCnumberingOrderX.push_back("dir");
+  fMWPCnumberingOrderY.push_back("dir");
   fMWPCCount++;
 }
+//-------------------------------------------------------------------------
 void ERBeamDetSetup::AddToF(TString type, Double_t position) {
   fPositionToF.push_back(position);
   fToFType.push_back(type);
   fToFCount++;
+}
+//-------------------------------------------------------------------------
+void ERBeamDetSetup::SetMWPCnumberingInvOrderX() {
+  fMWPCnumberingOrderX.back() = "inv";
+}
+//-------------------------------------------------------------------------
+void ERBeamDetSetup::SetMWPCnumberingInvOrderY() {
+  fMWPCnumberingOrderY.back() = "inv";  
 }
 //-------------------------------------------------------------------------
 void ERBeamDetSetup::GetGeoParamsFromParContainer() {
@@ -112,7 +125,7 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
   }
   // --- Catch absence of TGeoManager
   if ( ! gGeoManager ) {
-    std::cerr << "ERBeamDetSetup: cannot initialise without TGeoManager!"<< std::endl;
+    LOG(FATAL) << "ERBeamDetSetup: cannot initialise without TGeoManager!"<< FairLogger::endl;
   }
  
   gGeoManager->CdTop();
@@ -148,16 +161,38 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
       //--------------------------------------------------------------------
       for (Int_t planeNb = 0; planeNb < mwpcStation->GetNdaughters(); planeNb++) {
         plane = mwpcStation->GetDaughter(planeNb);
-
         for (Int_t wireNb = 0; wireNb < plane->GetNdaughters(); wireNb++) {
           wire = plane->GetDaughter(wireNb);
           Double_t x = wire->GetMatrix()->GetTranslation()[0];
           Double_t y = wire->GetMatrix()->GetTranslation()[1];
-          (planeNb == 0) ? fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(x, y, mwpcStationZ)))
-                         : fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(y, x, mwpcStationZ)));
-          std::cout << "Wire " << wireNb << " fPosition (" << fWires[mwpcNb][planeNb][wireNb]->fX << ", " 
-                                                          << fWires[mwpcNb][planeNb][wireNb]->fY << ", " 
-                                                          << mwpcStationZ << ") cm" << endl;
+          Double_t z = wire->GetMatrix()->GetTranslation()[2];
+          Double_t localCoords[3];
+          Double_t inPlaneCoords[3];
+          Double_t inStationCoords[3];
+          Double_t globalCoords[3];
+          localCoords[0] = x;
+          localCoords[1] = y;
+          localCoords[2] = z;
+          plane->LocalToMaster(localCoords, inPlaneCoords);
+          mwpcStation->LocalToMaster(inPlaneCoords, inStationCoords);
+          mwpc->LocalToMaster(inStationCoords, globalCoords);
+          TString wirePlaneOrient;
+          if (planeNb == 0) {
+            wirePlaneOrient = "X";
+            fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(globalCoords[0], 
+                                                                                    globalCoords[1], 
+                                                                                    globalCoords[2])));
+          } else {
+            wirePlaneOrient = "Y";
+            fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(globalCoords[0], 
+                                                                                    globalCoords[1], 
+                                                                                    globalCoords[2])));
+          }
+          
+          LOG(DEBUG) << "Wire" << wirePlaneOrient << " " << wireNb 
+                     << " position (" << fWires[mwpcNb][planeNb][wireNb]->fX << ", " 
+                     << fWires[mwpcNb][planeNb][wireNb]->fY << ", " 
+                     << fWires[mwpcNb][planeNb][wireNb]->fZ << ") cm" << FairLogger::endl;
         }
       } 
       mwpcNb++;
@@ -165,7 +200,7 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
   }
   // Stations located simmetrically relative to local center
   fDistanceBetweenMWPC = TMath::Abs(mwpcStationZ1 - mwpcStationZ2);
-  cout << "The distance between MWPC stations: " << fDistanceBetweenMWPC << " cm;" << endl;
+  LOG(DEBUG) << "The distance between MWPC stations: " << fDistanceBetweenMWPC << " cm;" << FairLogger::endl;
   //-----------------------------------------------------------------------
   // ---- Getting tofPlastic geometry parameters ---------------------------------
   TGeoNode* tofPlastic = NULL;
@@ -179,7 +214,7 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
   }
   fToFCount = fPositionToF.size();
   fDistanceBetweenToF = TMath::Abs(fPositionToF[0] - fPositionToF[GetToFCount() - 1]);
-  std::cout<< "The distance between plastics: " << fDistanceBetweenToF << " cm;" << std::endl;
+  LOG(DEBUG)<< "The distance between plastics: " << fDistanceBetweenToF << " cm;" << FairLogger::endl;
   //-----------------------------------------------------------------------
   // ---- Getting fTarget geometry parameters ------------------------------
   TGeoNode* fTarget = NULL;
@@ -191,12 +226,12 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
       TGeoNode* h2 = shell->GetDaughter(0);
       TGeoTube* h2Tube = (TGeoTube*)h2->GetVolume()->GetShape();
       fTargetR = h2Tube->GetRmax();
-      std::cout<< "Target radius " << fTargetR << " cm;" << std::endl;
+      LOG(DEBUG)<< "Target radius " << fTargetR << " cm;" << FairLogger::endl;
       break;
     }
   } 
   fGeoFromContainerIsRead = kTRUE;  
-  std::cout << "ERBeamDetSetup: read parameters from parContainer! "<< std::endl; 
+  LOG(DEBUG) << "ERBeamDetSetup: read parameters from parContainer! "<< FairLogger::endl; 
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetSetup* ERBeamDetSetup::Instance(){
@@ -233,7 +268,7 @@ void ERBeamDetSetup::GetToFParameters(TXMLNode *node) {
   for(Int_t i = 0; i < fToFCount; i++) {
     TXMLNode* curNode = node;
     for(; curNode; curNode = curNode->GetNextNode()) {
-      cout << "Pasrsing ToF " << curNode->GetNodeName() << endl;
+      LOG(DEBUG) << "Pasrsing ToF " << curNode->GetNodeName() << FairLogger::endl;
       TList *attrList;
       TXMLAttr *attr = 0;
       if (curNode->HasAttributes()){
@@ -248,9 +283,9 @@ void ERBeamDetSetup::GetToFParameters(TXMLNode *node) {
       else {
         continue;
       }
-      cout << "ToF type " << fToFType[i] << " " << attr->GetValue() << endl;
+      LOG(DEBUG) << "ToF type " << fToFType[i] << " " << attr->GetValue() << FairLogger::endl;
       if(!strcasecmp(fToFType[i], attr->GetValue())) {
-        cout << "Tof value " << attr->GetValue() << endl;
+        LOG(DEBUG) << "Tof value " << attr->GetValue() << FairLogger::endl;
         TXMLNode* curNode2 = curNode->GetChildren();
         for(; curNode2; curNode2 = curNode2->GetNextNode()) {
           if(!strcasecmp(curNode2->GetNodeName(), "plasticGeometry")) {
@@ -283,7 +318,7 @@ void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
   for(Int_t i = 0; i < fMWPCCount; i++) {
     TXMLNode* curNode = node;
     for(; curNode; curNode = curNode->GetNextNode()) {
-      //cout << "Pasrsing ToF " << node->GetNodeName() << endl;
+      //LOG(DEBUG) << "Pasrsing ToF " << node->GetNodeName() << FairLogger::endl;
       TList *attrList;
       TXMLAttr *attr = 0;
       if (curNode->HasAttributes()){
@@ -298,7 +333,7 @@ void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
       else {
         continue;
       }
-      //cout << "Pasrsing MWPC " << node->GetNodeName() << endl;
+      //LOG(DEBUG) << "Pasrsing MWPC " << node->GetNodeName() << FairLogger::endl;
       if(!strcasecmp(fMWPCType[i], attr->GetValue())) {
         TXMLNode* curNode2 = curNode->GetChildren();
         for(; curNode2; curNode2 = curNode2->GetNextNode()) {
@@ -369,22 +404,22 @@ Double_t ERBeamDetSetup::GetDistanceBetweenToF(Int_t tof1Ind, Int_t tof2Ind) {
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetSetup::PrintDetectorParameters(void) {
-  cout << "------------------------------------------------" << "\r\n";
-  cout << "Detector's parameters from " << fParamsXmlFileName << "\r\n";
-  cout << "------------------------------------------------" << "\r\n";
-  cout << "ToFs parameters:" << "\r\n";
+  LOG(DEBUG) << "------------------------------------------------" << "\r\n";
+  LOG(DEBUG) << "Detector's parameters from " << fParamsXmlFileName << "\r\n";
+  LOG(DEBUG) << "------------------------------------------------" << "\r\n";
+  LOG(DEBUG) << "ToFs parameters:" << "\r\n";
   for(Int_t i = 0; i < fToFCount; i++) {
-    cout << "ToF_"+TString::Itoa(i+1, 10) << " is " << fToFType[i] << " with parameters:" << "\r\n"
+    LOG(DEBUG) << "ToF_"+TString::Itoa(i+1, 10) << " is " << fToFType[i] << " with parameters:" << "\r\n"
          << "\tpositionZ = " << fPositionToF[i] << "\r\n"
          << "\tX = " << fPlasticX[i]
          << "; Y = " << fPlasticY[i] 
          << "; Z = " << fPlasticZ[i] << "\r\n"
          << "\tplasticMedia = " << fPlasticMedia[i] << "\r\n" << "\r\n";
   }
-  cout << "------------------------------------------------" << "\r\n";
-  cout << "MWPCs parameters:" << "\r\n";
+  LOG(DEBUG) << "------------------------------------------------" << "\r\n";
+  LOG(DEBUG) << "MWPCs parameters:" << "\r\n";
   for(Int_t i = 0; i < fMWPCCount; i++) {
-    cout << "MWPC_"+TString::Itoa(i+1, 10) << " is " << fMWPCType[i] << " with parameters: " << "\r\n"
+    LOG(DEBUG) << "MWPC_"+TString::Itoa(i+1, 10) << " is " << fMWPCType[i] << " with parameters: " << "\r\n"
          << "\tpositionZ = " << fPositionMWPC[i] << "\r\n"
          << "\tGasVolX = " << fGasVolX[i]
          << "; GasVolY = " << fGasVolY[i] 
@@ -447,21 +482,21 @@ void ERBeamDetSetup::ParseXmlParameters() {
   domParser->SetValidate(false); // do not validate with DTD
   Int_t parsecode = domParser->ParseFile(fParamsXmlFileName);
   if (parsecode < 0) {
-     cerr << domParser->GetParseCodeMessage(parsecode) << endl;
+     cerr << domParser->GetParseCodeMessage(parsecode) << FairLogger::endl;
  //    return -1;
   }
   TXMLNode *rootNode = domParser->GetXMLDocument()->GetRootNode();
   TXMLNode *detPartNode = rootNode->GetChildren()->GetNextNode();//->GetChildren();
   TXMLNode *curNode;
-        cout << "Cmp ToF "  << endl;
+        LOG(DEBUG) << "Cmp ToF "  << FairLogger::endl;
 
   for ( ; detPartNode; detPartNode = detPartNode->GetNextNode()) { // detector's part
     if(!strcasecmp(detPartNode->GetNodeName(), "ToFTypes")) {
-      cout << "Cmp ToF " << detPartNode->GetNodeName() << endl;
+      LOG(DEBUG) << "Cmp ToF " << detPartNode->GetNodeName() << FairLogger::endl;
       GetToFParameters(detPartNode->GetChildren());
     }
     if(!strcasecmp(detPartNode->GetNodeName(), "MWPCTypes")) {
-     // cout << "Cmp MWPC " << detPartNode->GetNodeName() << endl;
+     // LOG(DEBUG) << "Cmp MWPC " << detPartNode->GetNodeName() << FairLogger::endl;
       GetMWPCParameters(detPartNode->GetChildren());
     }
   }
@@ -495,6 +530,16 @@ void ERBeamDetSetup::ConstructGeometry() {
   f90ZRotation->RotateX(0.);
   f90ZRotation->RotateY(0.);
   f90ZRotation->RotateZ(90.);
+  // Create a 270 degree rotation around Z axis
+  TGeoRotation *f270ZRotation = new TGeoRotation();
+  f270ZRotation->RotateX(0.);
+  f270ZRotation->RotateY(0.);
+  f270ZRotation->RotateZ(270.);
+  // Create a 180 degree rotation around Z axis
+  TGeoRotation *f180ZRotation = new TGeoRotation();
+  f180ZRotation->RotateX(0.);
+  f180ZRotation->RotateY(0.);
+  f180ZRotation->RotateZ(180.);
   // Create a 90 degree rotation around X axis
   TGeoRotation *f90XRotation = new TGeoRotation();
   f90XRotation->RotateX(90.);
@@ -646,9 +691,16 @@ void ERBeamDetSetup::ConstructGeometry() {
       gasPlane[i]->AddNode(gasStrip[i], i_gas, new TGeoCombiTrans(gasPosX, 0, 0, fZeroRotation));
     }
 
-    gasVol[i]->AddNode(gasPlane[i], 1, new TGeoCombiTrans(0, 0, -fDistBetweenXandY[i] / 2, fZeroRotation));
-    gasVol[i]->AddNode(gasPlane[i], 2, new TGeoCombiTrans(0, 0, fDistBetweenXandY[i] / 2, f90ZRotation));
-
+    if (fMWPCnumberingOrderX[i].Contains("inv", TString::kIgnoreCase)) {
+      gasVol[i]->AddNode(gasPlane[i], 1, new TGeoCombiTrans(0, 0, -fDistBetweenXandY[i] / 2, fZeroRotation));
+    } else {
+      gasVol[i]->AddNode(gasPlane[i], 1, new TGeoCombiTrans(0, 0, -fDistBetweenXandY[i] / 2, f180ZRotation));
+    }
+    if (fMWPCnumberingOrderY[i].Contains("inv", TString::kIgnoreCase)) {
+      gasVol[i]->AddNode(gasPlane[i], 2, new TGeoCombiTrans(0, 0, fDistBetweenXandY[i] / 2, f90ZRotation));
+    } else {
+      gasVol[i]->AddNode(gasPlane[i], 2, new TGeoCombiTrans(0, 0, fDistBetweenXandY[i] / 2, f270ZRotation));
+    }
     MWPC[i]->AddNode(gasVol[i], 1, new TGeoCombiTrans(0, 0, 0, fZeroRotation));
     beamdet->AddNode(MWPC[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionMWPC[i], fGlobalRotation));
   }
@@ -684,7 +736,7 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
   
   FairRun* run = FairRun::Instance();
   if (!TString(run->ClassName()).Contains("ERRunAna")){
-    LOG(FATAL) << "Use ERRunAna for ERBeamDetSetup::CalcEloss!!!" << FairLogger::endl;
+    LOG(FATAL) << "Use ERRunAna for ERBeamDetSetup::CalcEloss!!!" << FairLogger::FairLogger::endl;
     return 0;
   }
 
@@ -692,13 +744,13 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
   TVector3 targetVertex = track.GetTargetVertex();
   LOG(DEBUG) << " [CalcEloss] Eloss calculation with target vertex = (" << targetVertex.X() << ","
             << targetVertex.Y() << "," << targetVertex.Z() << "), direction on target = ("
-            << track.GetVector().X() << "," << track.GetVector().Y() << "," << track.GetVector().Z() << ")" << FairLogger::endl;
+            << track.GetVector().X() << "," << track.GetVector().Y() << "," << track.GetVector().Z() << ")" << FairLogger::FairLogger::endl;
   
   Float_t zStart = -3000.;//@TODO change to BeamDet start position
   Float_t xStart = targetVertex.X() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Cos(track.GetVector().Phi());
   Float_t yStart = targetVertex.Y() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Sin(track.GetVector().Phi());
 
-  LOG(DEBUG) << " [CalcEloss] Eloss calculation start vertex = (" << xStart << "," << yStart << "," << zStart << ")" << FairLogger::endl; 
+  LOG(DEBUG) << " [CalcEloss] Eloss calculation start vertex = (" << xStart << "," << yStart << "," << zStart << ")" << FairLogger::FairLogger::endl; 
 
   G4IonTable* ionTable = G4IonTable::GetIonTable();
   G4ParticleDefinition* ion =  ionTable->GetIon(pid);
@@ -730,11 +782,11 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
 
     node = gGeoManager->GetCurrentNode();
     
-    LOG(DEBUG) <<" [CalcEloss] Kinetic Energy  = " << T << FairLogger::endl;
-    LOG(DEBUG) <<" [CalcEloss] path  = " <<  gGeoManager->GetPath() << FairLogger::endl;
-    LOG(DEBUG) <<" [CalcEloss] medium " << matName << FairLogger::endl;
-    LOG(DEBUG) <<" [CalcEloss] range  = " << range << FairLogger::endl;
-    LOG(DEBUG) <<" [CalcEloss] edep = " << edep << FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] Kinetic Energy  = " << T << FairLogger::FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] path  = " <<  gGeoManager->GetPath() << FairLogger::FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] medium " << matName << FairLogger::FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] range  = " << range << FairLogger::FairLogger::endl;
+    LOG(DEBUG) <<" [CalcEloss] edep = " << edep << FairLogger::FairLogger::endl;
 
     if (TString(gGeoManager->GetPath()).Contains("target"))
       inTarget = kTRUE;
@@ -750,8 +802,8 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
   T += tarEdep/2.;
   sumLoss -= tarEdep/2.;
   
-  LOG(DEBUG) <<" [CalcEloss] Target Eloss = " <<  tarEdep << FairLogger::endl;
-  LOG(DEBUG) <<" [CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::endl;
+  LOG(DEBUG) <<" [CalcEloss] Target Eloss = " <<  tarEdep << FairLogger::FairLogger::endl;
+  LOG(DEBUG) <<" [CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::FairLogger::endl;
   return T;
 }
 //--------------------------------------------------------------------------------------------------

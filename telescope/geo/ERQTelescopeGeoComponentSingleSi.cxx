@@ -99,7 +99,7 @@ void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
                         - fDeadLayerThicknessBackSide)/2.;
     fVolume->AddNode(singleSiStrip, iStrip, new TGeoCombiTrans(transX, 0., transZ, new TGeoRotation()));
   }
-  if (fOrientAroundZ == "Y") {
+  if (fOrientAroundZ.Contains("Y")) {
     fRotation->RotateZ(90.);
   }
 }

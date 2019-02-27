@@ -40,6 +40,7 @@ class ERQTelescopeSiDigi : public FairMultiLinkedData
   Int_t ID () const {return fID;}
   Double_t GetEdep() const {return fEdep;}
   Double_t GetStripNb() const {return fStripNb;}
+  Double_t GetTime() const {return fTime;}
   
  protected:
   Int_t     fID;

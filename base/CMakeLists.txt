@@ -47,7 +47,7 @@ CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
 Set(LINKDEF ERBaseLinkDef.h)
 Set(LIBRARY_NAME ERBase)
-Set(DEPENDENCIES Base Core ERDecayers G4processes G4run G4physicslists geant4vmc)
+Set(DEPENDENCIES Core ERDecayers G4processes G4run G4physicslists geant4vmc)
 
 GENERATE_LIBRARY()
 

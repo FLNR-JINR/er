@@ -22,14 +22,16 @@
  ** @author M.Kozlov <kozlov.m.your@yandex.ru>
  ** @version 1.0
  **
- ** The ERBeamDetTrackFinder reconsructs ion coordinate and momentum direction 
- ** on target by means of the digitization output data and ERBeamDetSetup class.
- ** It is assumed that we have events with a multiplicity equal to four after the
- ** digitization stage. In this way, we have a signal from only one wire for each 
- ** cordinate in MWPC stations. Through number of wire we get MWPC coordinates 
- ** (\f$X_1, Y_1, X_2, Y_2\f$) by means of global geo manager in ERBeamDetSetup.
- ** Ion track approximated by straight line passing through (\f$X_1, Y_1\f$) and
- ** (\f$X_2, Y_2\f$) points.
+ ** The ERBeamDetTrackFinder reconsructs the ion coordinate and momentum direction 
+ ** on the target by means of the digitization output data and ERBeamDetSetup class.
+ ** It is assumed that we have events with a multiplicity more than one after the
+ ** digitization stage in each array of wires. In this way, we can calculate an
+ ** arithmetic average for each cordinate in MWPC stations where all activated wires 
+ ** are neigbours between each other. Through number of wires we get coordinates 
+ ** (\f$X_1, Y_1, X_2, Y_2\f$) for each wire by means of global geo manager in ERBeamDetSetup.
+ ** After that calculate arithmetic averages (\f$<X_1>, <Y_1>, <X_2>, <Y_2>\f$) .
+ ** Ion track approximated by straight line passing through (\f$<X_1>,<Y_1>\f$) and
+ ** (\f$<X_2>, <Y_2>\f$) points.
 **/
 
 class ERBeamDetTrackFinder : public FairTask {
@@ -91,6 +93,18 @@ private:
 
   /** @brief Adds a ERBeamDetTrack to the output Collection **/
   ERBeamDetTrack* AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
+
+  /** @brief Checks if the collection of digies contatains only neigbour wires.
+   ** @param digiArray   collection of digies.
+  **/
+  Bool_t   IsCluster (TClonesArray* digiArray);
+
+  /** @brief Calculates an arithmetic average value in array of consequent wires.
+   ** @param digiArray   collection of digies
+   ** @param coordType   type of coordinate (can take values 'X', 'Y' or 'Z')
+  **/
+  Double_t CalcCoordinateAvg (TClonesArray* digiArray, char coordType);
+
 
   ClassDef(ERBeamDetTrackFinder,1)
 };

@@ -10,6 +10,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.1 FATAL_ERROR)
 # after check of cmake version
 project(EXPERTROOT)
 
+
+# Options
+set (ACCULINNA_GO4 ""
+     CACHE STRING "Compile with digibuilder using ACCULINNA_go4_user_library")
+
 # Check if the FairRoot is still in source, since Jan 2014 FairRoot
 # should be installed separately
 

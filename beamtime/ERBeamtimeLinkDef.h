@@ -9,7 +9,7 @@
 #pragma link C++ class ERRawToAnalyzeConverter+;
 #pragma link C++ class ERSimtoRaw+;
 
-#pragma link C++ class ERLiCalibrator+;
+//#pragma link C++ class ERLiCalibrator+;
 #pragma link C++ class ERRootSource+;
 #pragma link C++ class ERRootSourceOld+;
 
@@ -20,8 +20,8 @@
 #pragma link C++ class ERNeuRadRawEvent+;
 #pragma link C++ class ERNeuRadAEvent+;
 
-#pragma link C++ class TLiEvent+;
-#pragma link C++ class TGo4EventElement+;
+//#pragma link C++ class TLiEvent+;
+//#pragma link C++ class TGo4EventElement+;
 
 #pragma link C++ class cls_RootHit+;
 #pragma link C++ class cls_RootEvent+;
@@ -29,5 +29,13 @@
 #pragma link C++ class WCalHit+;
 #pragma link C++ class WCalEvent+;
 
+#pragma link C++ class ERBeamTimeEventHeader+;
+
+//#ifdef ACCULINNA_GO4
+#pragma link C++ class ERDigibuilder+;
+#pragma link C++ class ERUnpack+;
+#pragma link C++ class ERBeamDetUnpack+;
+#pragma link C++ class ERTelescopeUnpack+;
+//#endif
 
 #endif
