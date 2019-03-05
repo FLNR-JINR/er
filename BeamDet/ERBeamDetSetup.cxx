@@ -16,6 +16,7 @@
 #include "TGeoMatrix.h"
 #include "TGeoCompositeShape.h"
 #include "TGeoSphere.h"
+#include "TGeoNode.h"
 #include "TROOT.h"
 #include <Riostream.h>
 #include <TDOMParser.h>
@@ -62,6 +63,8 @@ vector<Double_t> ERBeamDetSetup::fGasVolZ;
 vector<Double_t> ERBeamDetSetup::fGasStripX;
 vector<Double_t> ERBeamDetSetup::fGasStripY;
 vector<Double_t> ERBeamDetSetup::fGasStripZ; //cm
+vector<Double_t> ERBeamDetSetup::fGasPlaneXOffset;
+vector<Double_t> ERBeamDetSetup::fGasPlaneYOffset;
 vector<Double_t> ERBeamDetSetup::fDistBetweenXandY;
 vector<Double_t> ERBeamDetSetup::fCathodeThickness;
 vector<Double_t> ERBeamDetSetup::fKaptonWindowThickness;
@@ -119,6 +122,10 @@ void ERBeamDetSetup::SetMWPCnumberingInvOrderY() {
   fMWPCnumberingOrderY.back() = "inv";  
 }
 //-------------------------------------------------------------------------
+void ERBeamDetSetup::GetTransInMotherNode (TGeoNode const* node, Double_t trans[3]) {
+  memcpy(trans, node->GetMatrix()->GetTranslation(), sizeof(double)*3);
+}
+//-------------------------------------------------------------------------
 void ERBeamDetSetup::GetGeoParamsFromParContainer() {
   if (fGeoFromContainerIsRead) {
     return ;
@@ -138,7 +145,6 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
       break;
     }
   }
-
   // ---- Getting MWPC geometry parameters---------------------------------
   TGeoNode*   mwpc = NULL;
   TGeoNode*   mwpcStation = NULL;
@@ -163,36 +169,31 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
         plane = mwpcStation->GetDaughter(planeNb);
         for (Int_t wireNb = 0; wireNb < plane->GetNdaughters(); wireNb++) {
           wire = plane->GetDaughter(wireNb);
-          Double_t x = wire->GetMatrix()->GetTranslation()[0];
-          Double_t y = wire->GetMatrix()->GetTranslation()[1];
-          Double_t z = wire->GetMatrix()->GetTranslation()[2];
-          Double_t localCoords[3];
-          Double_t inPlaneCoords[3];
-          Double_t inStationCoords[3];
-          Double_t globalCoords[3];
-          localCoords[0] = x;
-          localCoords[1] = y;
-          localCoords[2] = z;
-          plane->LocalToMaster(localCoords, inPlaneCoords);
-          mwpcStation->LocalToMaster(inPlaneCoords, inStationCoords);
-          mwpc->LocalToMaster(inStationCoords, globalCoords);
+          Double_t wireCoordInPlane[3];
+          Double_t wireCoordInStation[3];
+          Double_t wireCoordInDetector[3];
+          Double_t wireCoordGlob[3];
+          GetTransInMotherNode(wire, wireCoordInPlane);
+          mwpcStation->LocalToMaster(wireCoordInPlane, wireCoordInStation);
+          mwpc->LocalToMaster(wireCoordInStation, wireCoordInDetector);
+          cave->LocalToMaster(wireCoordInDetector, wireCoordGlob);
           TString wirePlaneOrient;
           if (planeNb == 0) {
             wirePlaneOrient = "X";
-            fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(globalCoords[0], 
-                                                                                    globalCoords[1], 
-                                                                                    globalCoords[2])));
+            fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(wireCoordGlob[0], 
+                                                                                    wireCoordGlob[1], 
+                                                                                    wireCoordGlob[2])));
           } else {
             wirePlaneOrient = "Y";
-            fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(globalCoords[0], 
-                                                                                    globalCoords[1], 
-                                                                                    globalCoords[2])));
+            fWires[mwpcNb][planeNb].insert(std::make_pair(wireNb, new ERBeamDetWire(wireCoordGlob[0], 
+                                                                                    wireCoordGlob[1], 
+                                                                                    wireCoordGlob[2])));
           }
           
           LOG(DEBUG) << "Wire" << wirePlaneOrient << " " << wireNb 
-                     << " position (" << fWires[mwpcNb][planeNb][wireNb]->fX << ", " 
-                     << fWires[mwpcNb][planeNb][wireNb]->fY << ", " 
-                     << fWires[mwpcNb][planeNb][wireNb]->fZ << ") cm" << FairLogger::endl;
+                     << " position (" << fWires[mwpcNb][planeNb][wireNb]->fGlobX << ", " 
+                     << fWires[mwpcNb][planeNb][wireNb]->fGlobY << ", " 
+                     << fWires[mwpcNb][planeNb][wireNb]->fGlobZ << ") cm" << FairLogger::endl;
         }
       } 
       mwpcNb++;
@@ -251,16 +252,16 @@ Int_t ERBeamDetSetup::SetParContainers(){
 
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERBeamDetSetup::WireX(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
-  return fWires[mwpcNb][planeNb][wireNb]->fX;
+Double_t ERBeamDetSetup::GetWireGlobX(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
+  return fWires[mwpcNb][planeNb][wireNb]->fGlobX;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERBeamDetSetup::WireY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
-  return fWires[mwpcNb][planeNb][wireNb]->fY;
+Double_t ERBeamDetSetup::GetWireGlobY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
+  return fWires[mwpcNb][planeNb][wireNb]->fGlobY;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERBeamDetSetup::WireZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
-  return fWires[mwpcNb][planeNb][wireNb]->fZ;
+Double_t ERBeamDetSetup::GetWireGlobZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
+  return fWires[mwpcNb][planeNb][wireNb]->fGlobZ;
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetSetup::GetToFParameters(TXMLNode *node) {
@@ -366,6 +367,19 @@ void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
               }
               if (!strcasecmp("Z", attr->GetName())) {
                 fGasStripZ.push_back(atof(attr->GetValue()));
+              }
+            }
+          }
+          if(!strcasecmp(curNode2->GetNodeName(), "gasPlanesOffset")) {
+            attrList = curNode2->GetAttributes();
+            attr = 0;
+            TIter nextGasStripAttr(attrList);
+            while ((attr=(TXMLAttr*)nextGasStripAttr())) {
+              if (!strcasecmp("X", attr->GetName())) {
+                fGasPlaneXOffset.push_back(atof(attr->GetValue()));
+              }
+              if (!strcasecmp("Y", attr->GetName())) {
+                fGasPlaneYOffset.push_back(atof(attr->GetValue()));
               }
             }
           }
@@ -659,9 +673,13 @@ void ERBeamDetSetup::ConstructGeometry() {
   vector<TGeoVolume*> anodeWire;
   for(Int_t i = 0; i < fMWPCCount; i++) {
     gasVol.push_back(gGeoManager->MakeBox("MWPCVol_" + fMWPCType[i], pMedCF4[i], 
-                                          fGasVolX[i]/2, fGasVolY[i]/2, fGasVolZ[i]/2));
+                                          fGasVolX[i]/2 + abs(fGasPlaneXOffset[i]), 
+                                          fGasVolY[i]/2 + abs(fGasPlaneYOffset[i]), 
+                                          fGasVolZ[i]/2));
     MWPC.push_back(gGeoManager->MakeBox("MWPC_" + fMWPCType[i], pMedKaptonWindow[i], 
-                                        fGasVolX[i]/2, fGasVolY[i]/2, fGasVolZ[i]/2 + fKaptonWindowThickness[i]));
+                                        fGasVolX[i]/2 + abs(fGasPlaneXOffset[i]), 
+                                        fGasVolY[i]/2 + abs(fGasPlaneYOffset[i]), 
+                                        fGasVolZ[i]/2 + fKaptonWindowThickness[i]));
     gasStrip.push_back(gGeoManager->MakeBox("gasStrip_" + fMWPCType[i], pMedCF4[i], 
                                             fGasStripX[i]/2, fGasStripY[i]/2, fGasStripZ[i]/2));
     gasPlane.push_back(gGeoManager->MakeBox("gasPlane_" + fMWPCType[i], pMedCathode[i], 
@@ -692,14 +710,30 @@ void ERBeamDetSetup::ConstructGeometry() {
     }
 
     if (fMWPCnumberingOrderX[i].Contains("inv", TString::kIgnoreCase)) {
-      gasVol[i]->AddNode(gasPlane[i], 1, new TGeoCombiTrans(0, 0, -fDistBetweenXandY[i] / 2, fZeroRotation));
+      // X-plane insert
+      gasVol[i]->AddNode(gasPlane[i], 1, new TGeoCombiTrans(fGasPlaneXOffset[i], 
+                                                            0, 
+                                                            -fDistBetweenXandY[i] / 2, 
+                                                            fZeroRotation));
     } else {
-      gasVol[i]->AddNode(gasPlane[i], 1, new TGeoCombiTrans(0, 0, -fDistBetweenXandY[i] / 2, f180ZRotation));
+      // X-plane insert
+      gasVol[i]->AddNode(gasPlane[i], 1, new TGeoCombiTrans(fGasPlaneXOffset[i], 
+                                                            0, 
+                                                            -fDistBetweenXandY[i] / 2, 
+                                                            f180ZRotation));
     }
     if (fMWPCnumberingOrderY[i].Contains("inv", TString::kIgnoreCase)) {
-      gasVol[i]->AddNode(gasPlane[i], 2, new TGeoCombiTrans(0, 0, fDistBetweenXandY[i] / 2, f90ZRotation));
+      // Y-plane insert
+      gasVol[i]->AddNode(gasPlane[i], 2, new TGeoCombiTrans(0, 
+                                                            fGasPlaneYOffset[i], 
+                                                            fDistBetweenXandY[i] / 2, 
+                                                            f90ZRotation));
     } else {
-      gasVol[i]->AddNode(gasPlane[i], 2, new TGeoCombiTrans(0, 0, fDistBetweenXandY[i] / 2, f270ZRotation));
+      // Y-plane insert
+      gasVol[i]->AddNode(gasPlane[i], 2, new TGeoCombiTrans(0, 
+                                                            fGasPlaneYOffset[i], 
+                                                            fDistBetweenXandY[i] / 2, 
+                                                            f270ZRotation));
     }
     MWPC[i]->AddNode(gasVol[i], 1, new TGeoCombiTrans(0, 0, 0, fZeroRotation));
     beamdet->AddNode(MWPC[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionMWPC[i], fGlobalRotation));
