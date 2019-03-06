@@ -73,8 +73,8 @@ vector<TString>  ERBeamDetSetup::fKaptonWindowMedia;
 vector<TString>  ERBeamDetSetup::fCathodeMedia;
 vector<TString>  ERBeamDetSetup::fAnodeWireMedia;
 vector<TString>  ERBeamDetSetup::fGasMedia;
-vector<TString>  ERBeamDetSetup::fMWPCnumberingOrderX;
-vector<TString>  ERBeamDetSetup::fMWPCnumberingOrderY;
+vector<TString>  ERBeamDetSetup::fMWPCInvNumberingOrderX;
+vector<TString>  ERBeamDetSetup::fMWPCInvNumberingOrderY;
 // --------------------------------------------------------------------------
 // ------ fPosition of detector's parts relative to zero ---------------------
 vector<Double_t> ERBeamDetSetup::fPositionToF;
@@ -103,8 +103,8 @@ ERBeamDetSetup::~ERBeamDetSetup() {
 void ERBeamDetSetup::AddMWPC(TString type, Double_t position) {
   fPositionMWPC.push_back(position);
   fMWPCType.push_back(type);
-  fMWPCnumberingOrderX.push_back("dir");
-  fMWPCnumberingOrderY.push_back("dir");
+  fMWPCInvNumberingOrderX.push_back(false);
+  fMWPCInvNumberingOrderY.push_back(false);
   fMWPCCount++;
 }
 //-------------------------------------------------------------------------
@@ -115,11 +115,11 @@ void ERBeamDetSetup::AddToF(TString type, Double_t position) {
 }
 //-------------------------------------------------------------------------
 void ERBeamDetSetup::SetMWPCnumberingInvOrderX() {
-  fMWPCnumberingOrderX.back() = "inv";
+  fMWPCInvNumberingOrderX.back() = true;
 }
 //-------------------------------------------------------------------------
 void ERBeamDetSetup::SetMWPCnumberingInvOrderY() {
-  fMWPCnumberingOrderY.back() = "inv";  
+  fMWPCInvNumberingOrderY.back() = true;  
 }
 //-------------------------------------------------------------------------
 void ERBeamDetSetup::GetTransInMotherNode (TGeoNode const* node, Double_t trans[3]) {
@@ -174,9 +174,9 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
           Double_t wireCoordInDetector[3];
           Double_t wireCoordGlob[3];
           GetTransInMotherNode(wire, wireCoordInPlane);
-          mwpcStation->LocalToMaster(wireCoordInPlane, wireCoordInStation);
-          mwpc->LocalToMaster(wireCoordInStation, wireCoordInDetector);
-          cave->LocalToMaster(wireCoordInDetector, wireCoordGlob);
+          plane->LocalToMaster(wireCoordInPlane, wireCoordInStation);
+          mwpcStation->LocalToMaster(wireCoordInStation, wireCoordInDetector);
+          mwpc->LocalToMaster(wireCoordInDetector, wireCoordGlob);
           TString wirePlaneOrient;
           if (planeNb == 0) {
             wirePlaneOrient = "X";
@@ -709,7 +709,7 @@ void ERBeamDetSetup::ConstructGeometry() {
       gasPlane[i]->AddNode(gasStrip[i], i_gas, new TGeoCombiTrans(gasPosX, 0, 0, fZeroRotation));
     }
 
-    if (fMWPCnumberingOrderX[i].Contains("inv", TString::kIgnoreCase)) {
+    if (fMWPCInvNumberingOrderX[i]) {
       // X-plane insert
       gasVol[i]->AddNode(gasPlane[i], 1, new TGeoCombiTrans(fGasPlaneXOffset[i], 
                                                             0, 
@@ -722,7 +722,7 @@ void ERBeamDetSetup::ConstructGeometry() {
                                                             -fDistBetweenXandY[i] / 2, 
                                                             f180ZRotation));
     }
-    if (fMWPCnumberingOrderY[i].Contains("inv", TString::kIgnoreCase)) {
+    if (fMWPCInvNumberingOrderY[i]) {
       // Y-plane insert
       gasVol[i]->AddNode(gasPlane[i], 2, new TGeoCombiTrans(0, 
                                                             fGasPlaneYOffset[i], 

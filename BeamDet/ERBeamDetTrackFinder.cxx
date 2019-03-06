@@ -44,7 +44,7 @@ InitStatus ERBeamDetTrackFinder::Init()
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
 
   if (fTargetVolName == "") 
-    Fatal("Init", "TragetVolumeName for ERBeamDetTrackFinder not defined! ");
+    Fatal("Init", "TargetVolumeName for ERBeamDetTrackFinder not defined! ");
   
   fBeamDetMWPCDigiX1 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiX1");
   fBeamDetMWPCDigiX2 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiX2");
