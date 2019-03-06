@@ -14,16 +14,18 @@
 #include "TString.h"
 #include <TXMLNode.h>
 #include "Rtypes.h"
+#include <TGeoNode.h>
 
 using namespace std;
 
 #include "ERBeamDetTrack.h"
 
 struct ERBeamDetWire{
-  Float_t fX;
-  Float_t fY;
-  Float_t fZ;
-  ERBeamDetWire(Float_t x, Float_t y, Float_t z){fX = x; fY = y; fZ = z;}
+  Float_t fGlobX;
+  Float_t fGlobY;
+  Float_t fGlobZ;
+  ERBeamDetWire(Float_t xGlob, Float_t yGlob, Float_t zGlob) :
+    fGlobX(xGlob), fGlobY(yGlob), fGlobZ(zGlob) {}
 };
 
 class ERBeamDetSetup {
@@ -33,9 +35,9 @@ public:
   static ERBeamDetSetup* Instance();
 
   /* Accessors */
-  static Double_t WireX(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
-  static Double_t WireY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
-  static Double_t WireZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
+  static Double_t GetWireGlobX(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
+  static Double_t GetWireGlobY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
+  static Double_t GetWireGlobZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
   static Bool_t   CheckIfTargetIsSet(void) {return fSensitiveTargetIsSet;}
   static Double_t DistanceBetweenMWPC() {return fDistanceBetweenMWPC;}
   static Double_t TargetR() {return fTargetR;}
@@ -48,13 +50,16 @@ public:
   static void AddMWPC(TString type, Double_t position); 
   static void AddToF(TString type, Double_t position);
 
-  // Set the inverse order of wires numbering in X plane.
-  // The inverse order of numbering it is the order when wire number increase while coordinate of wires decrease.
+  /** @brief Sets the inverse order of wires numbering in an X plane.
+   ** The inverse order of numbering it is the order when wire number increase while coordinate of wires decrease.
+  **/
   static void SetMWPCnumberingInvOrderX();
   
-  // Set the inverse order of wires numbering in Y plane.
-  // The inverse order of numbering it is the order when wire number increase while coordinate of wires decrease.
+  /** @brief Sets the inverse order of wires numbering in an Y plane.
+   ** The inverse order of numbering it is the order when wire number increase while coordinate of wires decrease.
+  **/
   static void SetMWPCnumberingInvOrderY();
+
 
   static Int_t    GetToFCount()  {return fToFCount;}
   static Double_t GetToFThickness(Int_t tofInd)  {return fPlasticZ[tofInd - 1];}
@@ -64,6 +69,13 @@ public:
   static Int_t    SetParContainers();
 
   static Double_t CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom, Float_t mass);
+  
+protected:
+  /** @brief Returns translation \f$(X,Y,Z)\f$ of the certain node in a mother node frame
+   ** @param node  node for which translation is obtained
+   ** @param trans[3]  translation
+  **/
+  static void GetTransInMotherNode(TGeoNode const* node, Double_t trans[3]);
 private:
   static void ParseXmlParameters();
   static void GetToFParameters(TXMLNode *node);
@@ -89,6 +101,8 @@ private:
   static vector<Double_t> fGasStripX;
   static vector<Double_t> fGasStripY;
   static vector<Double_t> fGasStripZ; //cm
+  static vector<Double_t> fGasPlaneXOffset;
+  static vector<Double_t> fGasPlaneYOffset;
   static vector<Double_t> fDistBetweenXandY;
   static vector<Double_t> fCathodeThickness;
   static vector<Double_t> fKaptonWindowThickness;
@@ -97,8 +111,8 @@ private:
   static vector<TString>  fCathodeMedia;
   static vector<TString>  fAnodeWireMedia;
   static vector<TString>  fGasMedia;
-  static vector<TString>  fMWPCnumberingOrderX;
-  static vector<TString>  fMWPCnumberingOrderY;
+  static vector<TString>  fMWPCInvNumberingOrderX;
+  static vector<TString>  fMWPCInvNumberingOrderY;
   // ------ fPosition of detector's parts relative to zero ---------------------
   static vector<Double_t> fPositionToF;
   static vector<Double_t> fPositionMWPC;

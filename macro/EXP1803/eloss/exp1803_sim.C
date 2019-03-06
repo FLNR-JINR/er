@@ -1,4 +1,4 @@
-void exp1803_sim(Int_t nEvents = 100) {
+void exp1803_sim(Int_t nEvents = 1000) {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -64,18 +64,24 @@ void exp1803_sim(Int_t nEvents = 100) {
   run->AddModule(target);
 
   ERBeamDetSetup* setupBeamDet = ERBeamDetSetup::Instance();
-  setupBeamDet->SetXMLParametersFile(paramFileBeamDet);
+  setupBeamDet->SetXmlParametersFile(paramFileBeamDet);
 
   // -----  BeamDet parameters ----------------------------------------------
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);       // 
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);                     //  BeamDet parts should be added in ascending order   
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC - BeamDetLMWPC);   //  of Z-coordinate of part.
-  setupBeamDet->AddMWPC("MWPC1", BeamDetPosZMWPC);                  // 
- // //setupBeamDet->SetSensitiveTarget();
+  setupBeamDet->SetMWPCnumberingInvOrderY();
+  setupBeamDet->AddMWPC("MWPC2", BeamDetPosZMWPC);                  // 
+  setupBeamDet->SetMWPCnumberingInvOrderY();
+  setupBeamDet->SetSensitiveTarget();
 
   // ------BeamDet ----------------------------------------------------------
   ERBeamDet* beamdet= new ERBeamDet("ERBeamDet", kTRUE,1);
   run->AddModule(beamdet);
+  // ------BeamDet digitizer-------------------------------------------------
+  ERBeamDetDigitizer* beamDetDigitizer = new ERBeamDetDigitizer(1);
+  run->AddTask(beamDetDigitizer);
+
   // -----   Create PrimaryGenerator   --------------------------------------
 
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
@@ -99,7 +105,7 @@ void exp1803_sim(Int_t nEvents = 100) {
   primGen->AddGenerator(generator);
   run->SetGenerator(primGen);
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kTRUE);
+  // run->SetStoreTraj(kTRUE);
     
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");

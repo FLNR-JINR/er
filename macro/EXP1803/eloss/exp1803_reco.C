@@ -1,4 +1,4 @@
-void exp1803_reco(Int_t nEvents = 100) {
+void exp1803_reco(Int_t nEvents = 1) {
   //---------------------Files-----------------------------------------------
   TString inFile = "sim.root";
   TString outFile = "reco.root";
@@ -8,26 +8,18 @@ void exp1803_reco(Int_t nEvents = 100) {
   TStopwatch timer;
   timer.Start();  
   // -----   Digitization run   ---------------------------------------------
-  ERRunAna *run= new ERRunAna();
+  ERRunAna *run = ERRunAna::Instance();
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
   //-------- Set MC event header --------------------------------------------
   EREventHeader* header = new EREventHeader();
   run->SetEventHeader(header);
-  
-
-   ERBeamDetDigitizer* beamDetDigitizer = new ERBeamDetDigitizer(1);
-  // beamDetDigitizer->SetMWPCElossThreshold(0.006);
-  // beamDetDigitizer->SetToFElossThreshold(0.006);
-  // beamDetDigitizer->SetToFElossSigmaOverEloss(0);
-  // beamDetDigitizer->SetToFTimeSigma(1e-10);
-  run->AddTask(beamDetDigitizer);
-
 
   // ------------------------BeamDetDigitizer--------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
+  trackFinder->SetTargetVolume("targetBodyH2");
   run->AddTask(trackFinder);
   // -----------------------BeamDetTrackPID----------------------------------
   Int_t Z = 2, A = 6, Q = 2;
