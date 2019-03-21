@@ -16,6 +16,14 @@ ERBeamDetTrack::ERBeamDetTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v
 	fVectorOnTarget = v;
 }
 
+ERBeamDetTrack::ERBeamDetTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v, Int_t pdg) {
+    fXt = xt;
+    fYt = yt;
+    fZt = zt;
+    fVectorOnTarget = v;
+    fPdg = pdg;    
+}
+
 void ERBeamDetTrack::AddParameters(Double_t xt, Double_t yt, Double_t zt, TVector3 v)
 {
 	fXt = xt;
