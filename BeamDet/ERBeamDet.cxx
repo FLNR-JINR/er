@@ -7,6 +7,7 @@
  ********************************************************************************/
 
 #include "TClonesArray.h"
+#include "TGeoManager.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
@@ -32,7 +33,8 @@ ERBeamDet::ERBeamDet() :
   if (fSensitiveTargetIsSet) {
     fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
     fBeamDetMCProjectile = new ERBeamDetParticle(); 
-    fBeamDetMCTrack      = new ERBeamDetTrack();
+    // fBeamDetMCTrack      = new ERBeamDetTrack();
+    fBeamDetMCTrack = new TClonesArray("ERBeamDetTrack");
   }
   //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
@@ -53,7 +55,8 @@ ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
   if (fSensitiveTargetIsSet) {
     fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
     fBeamDetMCProjectile = new ERBeamDetParticle(); 
-    fBeamDetMCTrack      = new ERBeamDetTrack();
+    // fBeamDetMCTrack      = new ERBeamDetTrack();
+    fBeamDetMCTrack = new TClonesArray("ERBeamDetTrack");
   }
   fBeamDetSetup = ERBeamDetSetup::Instance();
  //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
@@ -78,6 +81,7 @@ ERBeamDet::~ERBeamDet() {
       delete fTargetPoints;
     }
     if(fBeamDetMCTrack) {
+      fBeamDetMCTrack->Delete();
       delete fBeamDetMCTrack;
     }   
     if(fBeamDetMCProjectile) {
@@ -109,7 +113,7 @@ void ERBeamDet::Register() {
   if (fSensitiveTargetIsSet) {
     ioman->Register("BeamDetTargetPoint","BeamDet", fTargetPoints, kTRUE);
     ioman->Register("BeamDetMCParticle.", "BeamDet MC Particle", fBeamDetMCProjectile, kTRUE);
-    ioman->Register("BeamDetMCTrack.", "BeamDet MC track", fBeamDetMCTrack, kTRUE);
+    ioman->Register("BeamDetMCTrack", "BeamDet MC track", fBeamDetMCTrack, kTRUE);
   }
 }
 //-------------------------------------------------------------------------------------------------
@@ -153,6 +157,7 @@ void ERBeamDet::Reset() {
   fToFPoints->Clear();
   fMWPCPoints->Clear();
   fTargetPoints->Clear();
+  fBeamDetMCTrack->Clear();
 }
 //-------------------------------------------------------------------------------------------------
 void ERBeamDet::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
@@ -178,6 +183,12 @@ ERBeamDetTargetPoint* ERBeamDet::AddTargetPoint() {
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
               fTime,fLength,fELoss, fLightYield);
+}
+//-------------------------------------------------------------------------------------------------
+ERBeamDetTrack* ERBeamDet::AddMCTrack() {
+  TClonesArray& clref = *fBeamDetMCTrack;
+  Int_t size = clref.GetEntriesFast();
+  return new(clref[size]) ERBeamDetTrack(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect(), fPID);
 }
 //-------------------------------------------------------------------------------------------------
 ERBeamDetMWPCPoint* ERBeamDet::AddMWPCPoint() {
@@ -211,7 +222,7 @@ Bool_t ERBeamDet::CheckIfSensitive(std::string name) {
   if(volName.Contains("plastic")) {
     return kTRUE;
   }
-  if(fSensitiveTargetIsSet && volName.Contains("targetH2")) {
+  if(fSensitiveTargetIsSet && volName.Contains("targetBodyH2")) {
     return kTRUE;
   }
   return kFALSE;
@@ -249,16 +260,15 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
     fPID = gMC->TrackPid();
 
     TString volName = gMC->CurrentVolName();
-    /*if(volName.Contains("targetH2")) {
-      fBeamDetMCProjectile->AddParameters(fPID, fMomIn, 1);
-      fBeamDetMCTrack->AddParameters(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect());   
-    }*/
+    if(volName.Contains("targetBodyH2")) {
+      // fBeamDetMCProjectile->AddParameters(fPID, fMomIn, 1);
+      // Double_t range = gGeoManager->GetStep();
+      // fBeamDetMCTrack->AddParameters(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect());   
+      // AddMCTrack();
+    }
   }
-
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
-
   Double_t		  curLightYield = 0;
-
   // Correction for all charge states
   if (gMC->TrackCharge()!=0) { // Return the charge of the track currently transported
     Double_t BirkC1Mod = 0;
@@ -275,7 +285,6 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
       fLightYield+=curLightYield;
     }
   }
-
   if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume
       gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
       gMC->IsTrackDisappeared()) 
@@ -308,8 +317,9 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
         AddMWPCPoint();
       }
       if (fSensitiveTargetIsSet) {
-        if(volName.Contains("targetH2")) {
+        if(volName.Contains("targetBodyH2")) {
           AddTargetPoint();
+          AddMCTrack();
         }
       }
     }

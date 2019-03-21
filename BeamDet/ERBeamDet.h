@@ -129,6 +129,9 @@ class ERBeamDet : public ERDetector
     /** @brief Adds a ERBeamDetTargetPoint to the TargetPoints Collection **/
     ERBeamDetTargetPoint* AddTargetPoint();
 
+    /** @brief Adds a ERBeamDetTargetPoint to the TargetPoints Collection **/
+    ERBeamDetTrack* AddMCTrack();
+
   private:
     ERBeamDetSetup    *fBeamDetSetup;     ///< Object for assignment geometry parameters by ERBeamDetSetup class methods
 
@@ -137,7 +140,7 @@ class ERBeamDet : public ERDetector
     TClonesArray*     fTargetPoints;      ///< The TargetPoint collection
 
     ERBeamDetParticle *fBeamDetMCProjectile; ///< Projectile object on target
-    ERBeamDetTrack    *fBeamDetMCTrack;      ///< Track object on target 
+    TClonesArray*     fBeamDetMCTrack;      ///< Track object on target 
 
     Int_t             fEventID;           ///< event index
     Int_t             fTrackID;           ///< track index
