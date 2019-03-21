@@ -80,8 +80,8 @@ vector<TString>  ERBeamDetSetup::fMWPCInvNumberingOrderY;
 vector<Double_t> ERBeamDetSetup::fPositionToF;
 vector<Double_t> ERBeamDetSetup::fPositionMWPC;
 // -------- fTarget parameters -----------------------------------------------
-Double_t ERBeamDetSetup::fTargetH2R = 10.;   //cm
-Double_t ERBeamDetSetup::fTargetH2Z = 0.4;   //cm
+Double_t ERBeamDetSetup::fTargetH2R = 3.;   //cm
+Double_t ERBeamDetSetup::fTargetH2Z = 1e-5;   //cm
 Double_t ERBeamDetSetup::fTargetShellThicknessSide = 20 * 1e-4;
 Double_t ERBeamDetSetup::fTargetShellThicknessZ = 6 * 1e-4;
 Bool_t   ERBeamDetSetup::fSensitiveTargetIsSet = false;
@@ -671,6 +671,23 @@ void ERBeamDetSetup::ConstructGeometry() {
   vector<TGeoVolume*> gasStrip;
   vector<TGeoVolume*> gasPlane;
   vector<TGeoVolume*> anodeWire;
+//   for(Int_t i = 0; i < fMWPCCount; i++) {
+//     gasVol.push_back(gGeoManager->MakeBox("MWPCVol_" + fMWPCType[i], pMed0, 
+//                                           fGasVolX[i]/2 + abs(fGasPlaneXOffset[i]), 
+//                                           fGasVolY[i]/2 + abs(fGasPlaneYOffset[i]), 
+//                                           fGasVolZ[i]/2));
+//     MWPC.push_back(gGeoManager->MakeBox("MWPC_" + fMWPCType[i], pMed0, 
+//                                         fGasVolX[i]/2 + abs(fGasPlaneXOffset[i]), 
+//                                         fGasVolY[i]/2 + abs(fGasPlaneYOffset[i]), 
+//                                         fGasVolZ[i]/2 + fKaptonWindowThickness[i]));
+//     gasStrip.push_back(gGeoManager->MakeBox("gasStrip_" + fMWPCType[i], pMedCF4[i], 
+//                                             fGasStripX[i]/2, fGasStripY[i]/2, fGasStripZ[i]/2));
+//     gasPlane.push_back(gGeoManager->MakeBox("gasPlane_" + fMWPCType[i], pMed0, 
+//                                             fGasVolX[i]/2, fGasVolY[i]/2, fGasStripZ[i]/2 + fCathodeThickness[i]));
+//     anodeWire.push_back(gGeoManager->MakeTube("anodeWire_" + fMWPCType[i], pMed0, 
+//                                               0, fAnodeWireDiameter[i] / 2, fGasStripY[i]/2));
+//   }
+
   for(Int_t i = 0; i < fMWPCCount; i++) {
     gasVol.push_back(gGeoManager->MakeBox("MWPCVol_" + fMWPCType[i], pMedCF4[i], 
                                           fGasVolX[i]/2 + abs(fGasPlaneXOffset[i]), 
