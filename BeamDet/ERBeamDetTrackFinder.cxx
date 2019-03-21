@@ -12,6 +12,7 @@
 #include "TMath.h"
 #include "TGeoNode.h"
 #include "TGeoManager.h"
+#include "TRandom.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -59,7 +60,9 @@ InitStatus ERBeamDetTrackFinder::Init()
   fBeamDetSetup = ERBeamDetSetup::Instance();
   fBeamDetSetup->SetParContainers();
   fBeamDetSetup->GetGeoParamsFromParContainer();
-   
+
+  fRand = new TRandom3();
+
   return kSUCCESS;
 }
 //--------------------------------------------------------------------------------------------------
@@ -71,7 +74,6 @@ Bool_t ERBeamDetTrackFinder::IsCluster (TClonesArray* digiArray) {
     if((digiNeigborWire->GetWireNb() - digi->GetWireNb()) != 1){;
       isCluster = kFALSE;
       FairRun* run = FairRun::Instance();
-      run->MarkFill(kFALSE);
       break;
     }
   }
@@ -112,6 +114,13 @@ Double_t ERBeamDetTrackFinder::CalcCoordinateAvg (TClonesArray* digiArray, char 
   return coordAvg;  
 }
 
+
+double ERBeamDetTrackFinder::spreadCoord(double coord) { 
+  std::cout << "in " << coord << std::endl;
+  double out = coord + fRand->Uniform(-0.5, 0.5)*0.125;
+  std::cout << "out " << out << std::endl;
+  return out;
+}
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetTrackFinder::Exec(Option_t* opt)
 { 
@@ -124,14 +133,13 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
      fBeamDetMWPCDigiY2->GetEntriesFast() < 1 ) {
     LOG(DEBUG) << "Multiplicity less than one" << FairLogger::endl;
     FairRun* run = FairRun::Instance();
-    run->MarkFill(kFALSE);
+    // run->MarkFill(kFALSE);
     return ;
   }
 
   Double_t xFar, yFar, zFar; 
   Double_t xClose, yClose, zClose;
   Double_t coordinate;
-
 
   Bool_t cluster;
   ERBeamDetMWPCDigi* digi;
@@ -141,6 +149,9 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     if(cluster) {
       xFar = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiX1, 'X'); // calculate average coordinate of wires
       zFar = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiX1, 'Z');
+    } else {
+      // run->MarkFill(kFALSE);
+      return;
     }
   } else {  // only one wire in array
     digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiX1->At(0); 
@@ -153,6 +164,9 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     cluster = IsCluster (fBeamDetMWPCDigiX2);    // check that all wires in array have are neigbours
     if(cluster) {
       xClose = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiX2, 'X'); // calculate average coordinate of wires
+    } else {
+      // run->MarkFill(kFALSE);
+      return;
     }
   } else {  // only one wire in array
     digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiX2->At(0);
@@ -163,6 +177,9 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     cluster = IsCluster (fBeamDetMWPCDigiY1);     // check that all wires in array have are neigbours
     if(cluster) {
       yFar = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiY1, 'Y'); // calculate average coordinate of wires
+    } else {
+      // run->MarkFill(kFALSE);
+      return;
     }
   } else {  // only one wire in array
     digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiY1->At(0);
@@ -174,15 +191,21 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     if(cluster) {
       yClose = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiY2, 'Y'); // calculate average coordinate of wires
       zClose = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiY2, 'Z'); 
+    } else {
+      // run->MarkFill(kFALSE);
+      return;
     }
   } else { // only one wire in array
     digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiY2->At(0);
     yClose = fBeamDetSetup->GetWireGlobY(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
     zClose = fBeamDetSetup->GetWireGlobZ(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
   }
-
-  TVector3 hitFar(xFar, yFar, zFar);
-  TVector3 hitClose(xClose, yClose, zClose);
+  LOG(DEBUG) << "xFar = " <<  xFar << "; yFar = " << yFar << "; zFar = " << zFar << FairLogger::endl
+            << "xClose = " <<  xClose << "; yClose = " << yClose << "; zClose = " << zClose << FairLogger::endl;
+  TVector3 hitFar(spreadCoord(xFar), spreadCoord(yFar), spreadCoord(zFar));
+  TVector3 hitClose(spreadCoord(xClose), spreadCoord(yClose), spreadCoord(zClose));
+  // TVector3 hitFar(xFar, yFar, zFar);
+  // TVector3 hitClose(xClose, yClose, zClose);
   TVector3 vectorOnTarget = hitClose - hitFar;
 
   LOG(DEBUG) << "Theta = " << vectorOnTarget.Theta() << "; Phi = " << vectorOnTarget.Phi() << FairLogger::endl;
