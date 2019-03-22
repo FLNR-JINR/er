@@ -20,7 +20,7 @@ FairSoft installation
 	# 6) No (without python)
 	# path: ~/fair_install/FairSoftInst
 
-BRANCH_NAME=mar17
+BRANCH_NAME=oct17p4
 
 In case the installation is stopped due to missing packages, check "~ / fair_install / FairSoft / DEPENDENCIES" and follow the instructions from it.
 
@@ -42,7 +42,7 @@ FairRoot installation
 	make
 	make install
 
-BRANCH_NAME=v-17.03a
+BRANCH_NAME=v-17.10
 
 ExpertRoot installation
 -----------------------
@@ -62,6 +62,14 @@ ExpertRoot installation
 	make
 
 * BRANCH_NAME=dev
+
+
+CMake options
+~~~~~~~~~~~~~
+
+This will list the cmake options that affect the build process.
+
+To use _ERDigibuilder_ to read experimental data obtained with _ACCULINNA\_go4\_user\_library_, use the _-DACCULINNA\_GO4 = acculina\_go4\_install\_path_ flag, which should indicate directory the library was installed.
 
 ExpertRoot initialization
 -------------------------

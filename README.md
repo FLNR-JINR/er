@@ -19,7 +19,7 @@ git checkout BRANCHE_NAME
 # 6) No (without python)
 # path: ~/fair_install/FairSoftInst
 ```
-BRANCH_NAME=may16p1
+BRANCH_NAME=oct17p4
 
 ### 2. Install [FairRoot] (https://github.com/FairRootGroup/FairRoot)
 
@@ -37,7 +37,7 @@ cmake -DCMAKE_INSTALL_PREFIX="~/fair_install/FairRootInst" ..
 make
 make install
 ```
-BRANCH_NAME=v-16.06
+BRANCH_NAME=v-17.10
 
 ### 3. Install [ExpertRoot] (#)
 
