@@ -69,7 +69,6 @@ public:
   /** @brief Defines actions in the end of track finding. **/
   virtual void Finish();
 
-  double spreadCoord(double coord);  
 protected:
   //Paramaters
   ERBeamDetSetup *fBeamDetSetup;      ///< access to ERBeamDetSetup class instance
@@ -97,8 +96,6 @@ private:
 
   /** @brief Adds a ERBeamDetTrack to the output Collection **/
   ERBeamDetTrack* AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
-  /** @brief Adds a ERBeamDetTrack to the output Collection **/
-  ERBeamDetTrack* AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v, Double_t pxpz);
 
   /** @brief Checks if the collection of digies contatains only neigbour wires.
    ** @param digiArray   collection of digies.

@@ -23,18 +23,11 @@ ERBeamDetTargetPoint::ERBeamDetTargetPoint(Int_t eventID, Int_t trackID,
   : FairMCPoint(trackID, -1., posIn, momIn, tof, length, eLoss),
     fEventID(eventID),
     fPid(pid),
+    fX_in(posIn.X()), fY_in(posIn.Y()), fZ_in(posIn.Z()),
+    fPx_in(momIn.X()), fPy_in(momIn.Y()), fPz_in(momIn.Z()),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
     fLightYield(lightYield)
-{
-}
-// -------------------------------------------------------------------------
-ERBeamDetTargetPoint::ERBeamDetTargetPoint(const ERBeamDetTargetPoint& right)
-  : FairMCPoint(right),
-    fPid(right.fPid),
-    fX_out(right.fX_out), fY_out(right.fY_out), fZ_out(right.fZ_out),
-    fPx_out(right.fPx_out), fPy_out(right.fPy_out), fPz_out(right.fPz_out),
-    fLightYield(right.fLightYield)
 {
 }
 // -------------------------------------------------------------------------
@@ -60,7 +53,6 @@ Double_t ERBeamDetTargetPoint::GetX(Double_t z) const
   return ( fX + (z-fZ) / dz * (fX_out-fX) );
 }
 // -------------------------------------------------------------------------
-
 // -----   Point y coordinate from linear extrapolation   ------------------
 Double_t ERBeamDetTargetPoint::GetY(Double_t z) const
 {

@@ -129,18 +129,12 @@ class ERBeamDet : public ERDetector
     /** @brief Adds a ERBeamDetTargetPoint to the TargetPoints Collection **/
     ERBeamDetTargetPoint* AddTargetPoint();
 
-    /** @brief Adds a ERBeamDetTargetPoint to the TargetPoints Collection **/
-    ERBeamDetTrack* AddMCTrack();
-
   private:
     ERBeamDetSetup    *fBeamDetSetup;     ///< Object for assignment geometry parameters by ERBeamDetSetup class methods
 
     TClonesArray*     fToFPoints;         ///< The ToFPoint collection
     TClonesArray*     fMWPCPoints;        ///< The MWPCPoint collection
     TClonesArray*     fTargetPoints;      ///< The TargetPoint collection
-
-    ERBeamDetParticle *fBeamDetMCProjectile; ///< Projectile object on target
-    TClonesArray*     fBeamDetMCTrack;      ///< Track object on target 
 
     Int_t             fEventID;           ///< event index
     Int_t             fTrackID;           ///< track index
@@ -158,7 +152,6 @@ class ERBeamDet : public ERDetector
     Int_t             fMWPCNb;            ///< MWPC station number
     Int_t             fMWPCPlaneNb;       ///< gas strip array number in MWPC station
     Int_t             fMWPCWireNb;        ///< wire number in gas strip array
-    Double_t          fPxPz;              ///< Px / Pz on target input
 
     Bool_t            fSensitiveTargetIsSet;
     TString           fIonName;

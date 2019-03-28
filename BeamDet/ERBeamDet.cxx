@@ -7,7 +7,6 @@
  ********************************************************************************/
 
 #include "TClonesArray.h"
-#include "TGeoManager.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
@@ -32,9 +31,6 @@ ERBeamDet::ERBeamDet() :
 
   if (fSensitiveTargetIsSet) {
     fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
-    fBeamDetMCProjectile = new ERBeamDetParticle(); 
-    // fBeamDetMCTrack      = new ERBeamDetTrack();
-    fBeamDetMCTrack = new TClonesArray("ERBeamDetTrack");
   }
   //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
@@ -54,9 +50,6 @@ ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
   
   if (fSensitiveTargetIsSet) {
     fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
-    fBeamDetMCProjectile = new ERBeamDetParticle(); 
-    // fBeamDetMCTrack      = new ERBeamDetTrack();
-    fBeamDetMCTrack = new TClonesArray("ERBeamDetTrack");
   }
   fBeamDetSetup = ERBeamDetSetup::Instance();
  //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
@@ -79,13 +72,6 @@ ERBeamDet::~ERBeamDet() {
     if (fTargetPoints) {
       fTargetPoints->Delete();
       delete fTargetPoints;
-    }
-    if(fBeamDetMCTrack) {
-      fBeamDetMCTrack->Delete();
-      delete fBeamDetMCTrack;
-    }   
-    if(fBeamDetMCProjectile) {
-      delete fBeamDetMCProjectile;
     }
   }
 }
@@ -112,8 +98,6 @@ void ERBeamDet::Register() {
 
   if (fSensitiveTargetIsSet) {
     ioman->Register("BeamDetTargetPoint","BeamDet", fTargetPoints, kTRUE);
-    ioman->Register("BeamDetMCParticle.", "BeamDet MC Particle", fBeamDetMCProjectile, kTRUE);
-    ioman->Register("BeamDetMCTrack", "BeamDet MC track", fBeamDetMCTrack, kTRUE);
   }
 }
 //-------------------------------------------------------------------------------------------------
@@ -157,7 +141,6 @@ void ERBeamDet::Reset() {
   fToFPoints->Clear();
   fMWPCPoints->Clear();
   fTargetPoints->Clear();
-  fBeamDetMCTrack->Clear();
 }
 //-------------------------------------------------------------------------------------------------
 void ERBeamDet::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
@@ -183,12 +166,6 @@ ERBeamDetTargetPoint* ERBeamDet::AddTargetPoint() {
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
               fTime,fLength,fELoss, fLightYield);
-}
-//-------------------------------------------------------------------------------------------------
-ERBeamDetTrack* ERBeamDet::AddMCTrack() {
-  TClonesArray& clref = *fBeamDetMCTrack;
-  Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERBeamDetTrack(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect(), fPxPz);
 }
 //-------------------------------------------------------------------------------------------------
 ERBeamDetMWPCPoint* ERBeamDet::AddMWPCPoint() {
@@ -234,7 +211,7 @@ void ERBeamDet::ConstructGeometry() {
   ConstructRootGeometry();
   fSensitiveTargetIsSet = fBeamDetSetup->CheckIfTargetIsSet();
 
-  //  calculation of distance between a first ToF's back side and a last ToF's front side
+  //  calculation of the distance between the first ToF's back side and the last ToF's front side
   Double_t distBtwToFCenters = fBeamDetSetup->GetDistanceBetweenToF(0, fBeamDetSetup->GetToFCount() - 1);
   Double_t halfThicknessFirstToF = fBeamDetSetup->GetToFThickness(1) / 2;                     
   Double_t halfThicknessLastToF  = fBeamDetSetup->GetToFThickness(fBeamDetSetup->GetToFCount()) / 2;                     
@@ -260,15 +237,6 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
     fPID = gMC->TrackPid();
 
     TString volName = gMC->CurrentVolName();
-    if(volName.Contains("targetBodyH2")) {
-      // fBeamDetMCProjectile->AddParameters(fPID, fMomIn, 1);
-      // Double_t range = gGeoManager->GetStep();
-      // fBeamDetMCTrack->AddParameters(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect());   
-      // AddMCTrack();
-      fPxPz = fMomIn.X() / fMomIn.Z();
-      std::cout << "fPxPz " << fPxPz << "; " << fMomIn.X() << " " << fMomIn.Z() << std::endl;
-      std::cout << "fPosZ; " << " " << fPosIn.Z() << std::endl;
-    }
   }
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
   Double_t		  curLightYield = 0;
@@ -322,7 +290,6 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
       if (fSensitiveTargetIsSet) {
         if(volName.Contains("targetBodyH2")) {
           AddTargetPoint();
-          AddMCTrack();
         }
       }
     }

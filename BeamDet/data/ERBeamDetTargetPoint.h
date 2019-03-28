@@ -25,7 +25,6 @@ class ERBeamDetTargetPoint : public FairMCPoint
   /** Default constructor **/
   ERBeamDetTargetPoint();
 
-
   /** Constructor with arguments
    *@param EventID  Index of Event
    *@param trackID  Index of MCTrack
@@ -47,31 +46,27 @@ class ERBeamDetTargetPoint : public FairMCPoint
                   TVector3 posOut, TVector3 momIn, TVector3 momOut,
                   Double_t tof, Double_t length, Double_t eLoss, Double_t lightYield);
 
-
-  /** Copy constructor **/
-  ERBeamDetTargetPoint(const ERBeamDetTargetPoint&);
-
-
   /** Destructor **/
   virtual ~ERBeamDetTargetPoint();
 
-
   ERBeamDetTargetPoint& operator=(const ERBeamDetTargetPoint&) { return *this; }
 
-
   /** Accessors **/
-  Int_t    GetEventID()         const { return fEventID; }
-  Int_t    GetMot0TrackID()     const { return fMot0TrackID; }
-  Double_t GetXIn()             const { return fX; }
-  Double_t GetYIn()             const { return fY; }
-  Double_t GetZIn()             const { return fZ; }
-  Double_t GetXOut()            const { return fX_out; }
-  Double_t GetYOut()            const { return fY_out; }
-  Double_t GetZOut()            const { return fZ_out; }
-  Double_t GetPxOut()           const { return fPx_out; }
-  Double_t GetPyOut()           const { return fPy_out; }
-  Double_t GetPzOut()           const { return fPz_out; }
-  Int_t    GetPID()             const { return fPid; }
+  Int_t    GetEventID()     const { return fEventID; }
+  Int_t    GetMot0TrackID() const { return fMot0TrackID; }
+  Double_t GetXIn() const { return fX; }
+  Double_t GetYIn() const { return fY; }
+  Double_t GetZIn() const { return fZ; }
+  Double_t GetXOut() const { return fX_out; }
+  Double_t GetYOut() const { return fY_out; }
+  Double_t GetZOut() const { return fZ_out; }
+  Double_t GetPxIn() const { return fPx_in; }
+  Double_t GetPyIn() const { return fPy_in; }
+  Double_t GetPzIn() const { return fPz_in; }
+  Double_t GetPxOut() const { return fPx_out; }
+  Double_t GetPyOut() const { return fPy_out; }
+  Double_t GetPzOut() const { return fPz_out; }
+  Int_t    GetPID()  const { return fPid; }
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
@@ -82,7 +77,6 @@ class ERBeamDetTargetPoint : public FairMCPoint
   /** Point coordinates at given z from linear extrapolation **/
   Double_t GetX(Double_t z) const;
   Double_t GetY(Double_t z) const;
-
 
   /** Check for distance between in and out **/
   Bool_t IsUsable() const;
@@ -95,7 +89,9 @@ class ERBeamDetTargetPoint : public FairMCPoint
   Int_t       fMot0TrackID;
   Int_t       fPid;
   Double32_t  fX_out,  fY_out,  fZ_out;
+  Double32_t  fX_in,  fY_in,  fZ_in;
   Double32_t  fPx_out, fPy_out, fPz_out;
+  Double32_t  fPx_in, fPy_in, fPz_in;
   Double_t    fLightYield;
 
   ClassDef(ERBeamDetTargetPoint,1)
