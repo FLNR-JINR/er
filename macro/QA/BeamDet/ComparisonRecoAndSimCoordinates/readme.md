@@ -58,7 +58,7 @@ Bool_t   ERBeamDetSetup::fSensitiveTargetIsSet = false;
 	</MWPCTypes>
 ```
 
-![](https://github.com/ExpertRootGroup/er/tree/dev/macro/QA/BeamDet/ComparisonRecoAndSimCoordinates/compareCanvas.png  "BeamDetReconstructionQuality")
+![](https://github.com/ExpertRootGroup/er/tree/278_BeamDetTrackFindingQAcoordAndAng/macro/QA/BeamDet/ComparisonRecoAndSimCoordinates/compareCanvas.png  "BeamDetReconstructionQuality")
 *X-coordinate difference [cm] (on the left pad) and Px/Pz on the right one*
 
 
