@@ -81,7 +81,7 @@ vector<Double_t> ERBeamDetSetup::fPositionToF;
 vector<Double_t> ERBeamDetSetup::fPositionMWPC;
 // -------- fTarget parameters -----------------------------------------------
 Double_t ERBeamDetSetup::fTargetH2R = 3.;   //cm
-Double_t ERBeamDetSetup::fTargetH2Z = 1e-5;   //cm
+Double_t ERBeamDetSetup::fTargetH2Z = 1e-1;   //cm
 Double_t ERBeamDetSetup::fTargetShellThicknessSide = 20 * 1e-4;
 Double_t ERBeamDetSetup::fTargetShellThicknessZ = 6 * 1e-4;
 Bool_t   ERBeamDetSetup::fSensitiveTargetIsSet = false;
@@ -663,7 +663,7 @@ void ERBeamDetSetup::ConstructGeometry() {
     targetShell->AddNode(targetH2, 1, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
     target->AddNode(targetShell, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation)); 
 
-    beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fRotationY));
+    beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fZeroRotation));
   }
   // ----------------- MWPC ---------------------------------------------------
   vector<TGeoVolume*> gasVol;

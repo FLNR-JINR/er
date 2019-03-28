@@ -22,6 +22,9 @@ void compareResultsBeamDetReco (TString fileInd = "") {
   int histLeftBoundCoords = -2;
   int histRightBoundCoords = 2;
   int histBinCountCoords = 120*4;
+  int histLeftBoundAng = -2;
+  int histRightBoundAng = 2;
+  int histBinCountAng = 120*50;
   int halfOfBinCoords = ((double)(histRightBoundCoords - histLeftBoundCoords))/histBinCountCoords/2.;
 
   auto randGen = new TRandom3();
@@ -31,11 +34,11 @@ void compareResultsBeamDetReco (TString fileInd = "") {
                                                               histRightBoundCoords);
   hist_diffX->GetXaxis()->SetTitle("X_reco-X_sim, [cm]");
   hist_diffX->GetYaxis()->SetTitle("Counts");
-  auto hist_diffY = new TH1D ("Y_reco-Y_sim", "Y_reco-Y_sim", histBinCountCoords, 
-                                                              histLeftBoundCoords, 
-                                                              histRightBoundCoords);
-  hist_diffY->GetXaxis()->SetTitle("Y_reco-Y_sim, [cm]");
-  hist_diffY->GetYaxis()->SetTitle("Counts");
+  auto hist_diffPxPz = new TH1D ("PxPz_reco-PxPz_sim", "PxPz_reco-PxPz_sim", histBinCountAng, 
+                                                              histLeftBoundAng, 
+                                                              histRightBoundAng);
+  hist_diffPxPz->GetXaxis()->SetTitle("PxPz_reco-PxPz_sim, [1]");
+  hist_diffPxPz->GetYaxis()->SetTitle("Counts");
   auto hist_diffX_Spread = new TH1D ("X_reco-X_sim, spread", "X_reco-X_sim, spread", 
                                                               histBinCountCoords, 
                                                               histLeftBoundCoords, 
@@ -48,9 +51,6 @@ void compareResultsBeamDetReco (TString fileInd = "") {
                                                               histRightBoundCoords);
   hist_diffY_Spread->GetXaxis()->SetTitle("Y_reco+U(-0.5, 0.5)*WireStep-Y_sim, [cm]");
   hist_diffY_Spread->GetYaxis()->SetTitle("Counts");
-  int histLeftBoundAng = -2;
-  int histRightBoundAng = 2;
-  int histBinCountAng = 120*4;
   double stripWidth = 0.125;
   int halfOfBinAng = ((double)(histRightBoundAng - histLeftBoundAng))/histBinCountAng/2.;
   auto hist_diffTheta = new TH1D ("Theta_reco-Theta_sim", "Theta_reco-Theta_sim", histBinCountAng, 
@@ -79,10 +79,10 @@ void compareResultsBeamDetReco (TString fileInd = "") {
       int binNb = hist_diffX->GetXaxis()->FindBin(diffX + halfOfBinCoords);
       hist_diffX->AddBinContent(binNb);
 
-      double diffY = ((ERBeamDetTrack*)track_sim->At(0))->GetTargetY() 
-                  - ((ERBeamDetTrack*)track_reco->At(0))->GetTargetY();
-      binNb = hist_diffY->GetXaxis()->FindBin(diffY + halfOfBinCoords);
-      hist_diffY->AddBinContent(binNb);
+      double diffPxPz = ((ERBeamDetTrack*)track_sim->At(0))->GetTargetPxPz() 
+                  - ((ERBeamDetTrack*)track_reco->At(0))->GetTargetPxPz();
+      binNb = hist_diffPxPz->GetXaxis()->FindBin(diffPxPz + halfOfBinCoords);
+      hist_diffPxPz->AddBinContent(binNb);
 
       double diffX_Spread = ((ERBeamDetTrack*)track_sim->At(0))->GetTargetX() 
                   - ((ERBeamDetTrack*)track_reco->At(0))->GetTargetX() 
@@ -113,37 +113,40 @@ void compareResultsBeamDetReco (TString fileInd = "") {
   gROOT->ForceStyle();
   gStyle->SetOptStat(1001101);  
   auto canv = new TCanvas();
-  canv->Divide(2, 2);
+  canv->Divide(2, 1);
   canv->cd(1);
   hist_diffX->GetXaxis()->SetRange(hist_diffX->GetXaxis()->FindBin(-1.9), 
                                    hist_diffX->GetXaxis()->FindBin(1.9));
   hist_diffX->SaveAs(TString("hist_") + hist_diffX->GetName() + ".root");
   hist_diffX->Draw("");
+
   canv->cd(2);
-  hist_diffY->GetXaxis()->SetRange(hist_diffY->GetXaxis()->FindBin(-1.9), 
-                                   hist_diffY->GetXaxis()->FindBin(1.9));
-  hist_diffY->Draw("");
-  canv->cd(3);
-  hist_diffTheta->GetXaxis()->SetRange(hist_diffTheta->GetXaxis()->FindBin(-1.9), 
-                                   hist_diffTheta->GetXaxis()->FindBin(1.9));
-  hist_diffTheta->Draw("");
-  canv->cd(4);
-  hist_diffPhi->GetXaxis()->SetRange(hist_diffPhi->GetXaxis()->FindBin(-1.9), 
-                                   hist_diffPhi->GetXaxis()->FindBin(1.9));
-  hist_diffPhi->Draw("");
+  hist_diffPxPz->GetXaxis()->SetRange(hist_diffPxPz->GetXaxis()->FindBin(-0.2), 
+                                   hist_diffPxPz->GetXaxis()->FindBin(0.2));
+  hist_diffPxPz->SaveAs(TString("hist_") + hist_diffPxPz->GetName() + ".root");
+  hist_diffPxPz->Draw("");
+
+  // canv->cd(3);
+  // hist_diffTheta->GetXaxis()->SetRange(hist_diffTheta->GetXaxis()->FindBin(-1.9), 
+  //                                  hist_diffTheta->GetXaxis()->FindBin(1.9));
+  // hist_diffTheta->Draw("");
+  // canv->cd(4);
+  // hist_diffPhi->GetXaxis()->SetRange(hist_diffPhi->GetXaxis()->FindBin(-1.9), 
+  //                                  hist_diffPhi->GetXaxis()->FindBin(1.9));
+  // hist_diffPhi->Draw("");
 
   // canv->SaveAs(TString("compareCanvas") + fileInd + ".png");
-   canv->SetCanvasSize(1920, 1080);
+   canv->SetCanvasSize(1860, 986);
    TImage *img = TImage::Create();
    img->FromPad(canv);
-   img->Scale(1920, 1080);
+   img->Scale(1860, 986);
    img->WriteImage(TString("compareCanvas") + fileInd + ".png");
   // auto canv_spread = new TCanvas();
   // canv_spread->Divide(2, 2);
   // canv_spread->cd(1);
   // hist_diffX->Draw("");
   // canv_spread->cd(2);
-  // hist_diffY->Draw("");
+  // hist_diffPxPz->Draw("");
   // canv_spread->cd(3);
   // hist_diffX_Spread->GetXaxis()->SetRange(0, histBinCountCoords);
   // hist_diffX_Spread->Draw("");

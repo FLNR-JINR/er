@@ -97,6 +97,8 @@ private:
 
   /** @brief Adds a ERBeamDetTrack to the output Collection **/
   ERBeamDetTrack* AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
+  /** @brief Adds a ERBeamDetTrack to the output Collection **/
+  ERBeamDetTrack* AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v, Double_t pxpz);
 
   /** @brief Checks if the collection of digies contatains only neigbour wires.
    ** @param digiArray   collection of digies.

@@ -12,13 +12,15 @@
 
 class ERBeamDetTrack : public TNamed{
 private:
-  Double_t  fXt, fYt, fZt;          // point coordinates on target
-  TVector3  fVectorOnTarget;
+  Double_t fXt, fYt, fZt;          // point coordinates on target
+  TVector3 fVectorOnTarget;
+  Double_t fPxPz;
   Int_t fPdg;
 public:
   ERBeamDetTrack();
   ERBeamDetTrack(TString name);
   ERBeamDetTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
+  ERBeamDetTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v, Double_t pxpz);
   ERBeamDetTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v, Int_t pdg);
   void AddParameters(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
 
@@ -26,6 +28,7 @@ public:
   Double_t GetTargetX(void) const {return fXt;}
   Double_t GetTargetY(void) const {return fYt;}
   Double_t GetTargetZ(void) const {return fZt;}
+  Double_t GetTargetPxPz(void) const {return fPxPz;}
   TVector3 GetTargetVertex() const {return TVector3(fXt,fYt,fZt);}
 	ClassDef(ERBeamDetTrack, 1)
 };

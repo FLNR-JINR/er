@@ -188,7 +188,7 @@ ERBeamDetTargetPoint* ERBeamDet::AddTargetPoint() {
 ERBeamDetTrack* ERBeamDet::AddMCTrack() {
   TClonesArray& clref = *fBeamDetMCTrack;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERBeamDetTrack(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect(), fPID);
+  return new(clref[size]) ERBeamDetTrack(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect(), fPxPz);
 }
 //-------------------------------------------------------------------------------------------------
 ERBeamDetMWPCPoint* ERBeamDet::AddMWPCPoint() {
@@ -265,6 +265,9 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
       // Double_t range = gGeoManager->GetStep();
       // fBeamDetMCTrack->AddParameters(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect());   
       // AddMCTrack();
+      fPxPz = fMomIn.X() / fMomIn.Z();
+      std::cout << "fPxPz " << fPxPz << "; " << fMomIn.X() << " " << fMomIn.Z() << std::endl;
+      std::cout << "fPosZ; " << " " << fPosIn.Z() << std::endl;
     }
   }
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step

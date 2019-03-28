@@ -158,6 +158,7 @@ class ERBeamDet : public ERDetector
     Int_t             fMWPCNb;            ///< MWPC station number
     Int_t             fMWPCPlaneNb;       ///< gas strip array number in MWPC station
     Int_t             fMWPCWireNb;        ///< wire number in gas strip array
+    Double_t          fPxPz;              ///< Px / Pz on target input
 
     Bool_t            fSensitiveTargetIsSet;
     TString           fIonName;
