@@ -80,13 +80,13 @@ vector<TString>  ERBeamDetSetup::fMWPCInvNumberingOrderY;
 vector<Double_t> ERBeamDetSetup::fPositionToF;
 vector<Double_t> ERBeamDetSetup::fPositionMWPC;
 // -------- fTarget parameters -----------------------------------------------
-Double_t ERBeamDetSetup::fTargetH2R = 10.;   //cm
-Double_t ERBeamDetSetup::fTargetH2Z = 0.4;   //cm
-Double_t ERBeamDetSetup::fTargetShellThicknessSide = 20 * 1e-4;
-Double_t ERBeamDetSetup::fTargetShellThicknessZ = 6 * 1e-4;
+Double_t ERBeamDetSetup::fTargetH2R = 3.;   //cm
+Double_t ERBeamDetSetup::fTargetH2Z = 1e-3;   //cm
+Double_t ERBeamDetSetup::fTargetShellThicknessSide = 1e-5;
+Double_t ERBeamDetSetup::fTargetShellThicknessZ = 1e-5;
 Bool_t   ERBeamDetSetup::fSensitiveTargetIsSet = false;
 
-TString  ERBeamDetSetup::fParamsXmlFileName = "equip.xml";
+TString  ERBeamDetSetup::fParamsXmlFileName = "";
 vector<TString>  ERBeamDetSetup::fToFType;
 vector<TString>  ERBeamDetSetup::fMWPCType;
 Bool_t           ERBeamDetSetup::fGeoFromContainerIsRead = kFALSE;
@@ -663,7 +663,7 @@ void ERBeamDetSetup::ConstructGeometry() {
     targetShell->AddNode(targetH2, 1, new TGeoCombiTrans(.0, .0, .0, fZeroRotation));
     target->AddNode(targetShell, 1, new TGeoCombiTrans(.0,.0,.0, fZeroRotation)); 
 
-    beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fRotationY));
+    beamdet->AddNode(target, 1, new TGeoCombiTrans(transTargetX, transTargetY, transTargetZ, fZeroRotation));
   }
   // ----------------- MWPC ---------------------------------------------------
   vector<TGeoVolume*> gasVol;
@@ -671,6 +671,7 @@ void ERBeamDetSetup::ConstructGeometry() {
   vector<TGeoVolume*> gasStrip;
   vector<TGeoVolume*> gasPlane;
   vector<TGeoVolume*> anodeWire;
+
   for(Int_t i = 0; i < fMWPCCount; i++) {
     gasVol.push_back(gGeoManager->MakeBox("MWPCVol_" + fMWPCType[i], pMedCF4[i], 
                                           fGasVolX[i]/2 + abs(fGasPlaneXOffset[i]), 

@@ -10,6 +10,7 @@
 #define ERBeamDetTrackFinder_H
 
 #include "TClonesArray.h"
+#include "TRandom3.h"
 
 #include "FairTask.h"
 
@@ -67,7 +68,7 @@ public:
 
   /** @brief Defines actions in the end of track finding. **/
   virtual void Finish();
-  
+
 protected:
   //Paramaters
   ERBeamDetSetup *fBeamDetSetup;      ///< access to ERBeamDetSetup class instance
@@ -85,6 +86,8 @@ protected:
   Int_t   fMultipicityMWPCY1;
   Int_t   fMultipicityMWPCX2;
   Int_t   fMultipicityMWPCY2;
+
+  TRandom3 *fRand;
 
   TString fTargetVolName;
 private:

@@ -12,6 +12,7 @@
 #include "TMath.h"
 #include "TGeoNode.h"
 #include "TGeoManager.h"
+#include "TRandom.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -19,26 +20,21 @@
 #include "FairLogger.h"
 
 using namespace std;
-
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::ERBeamDetTrackFinder()
   : FairTask("ER BeamDet track finding scheme"),
-  fTargetVolName("")
-{
+  fTargetVolName("") {
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::ERBeamDetTrackFinder(Int_t verbose)
   : FairTask("ER BeamDet track finding scheme ", verbose),
-  fTargetVolName("")
-{
+  fTargetVolName("") {
 }
 //--------------------------------------------------------------------------------------------------
-ERBeamDetTrackFinder::~ERBeamDetTrackFinder()
-{
+ERBeamDetTrackFinder::~ERBeamDetTrackFinder() {
 }
 //--------------------------------------------------------------------------------------------------
-InitStatus ERBeamDetTrackFinder::Init()
-{
+InitStatus ERBeamDetTrackFinder::Init() {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
@@ -59,7 +55,9 @@ InitStatus ERBeamDetTrackFinder::Init()
   fBeamDetSetup = ERBeamDetSetup::Instance();
   fBeamDetSetup->SetParContainers();
   fBeamDetSetup->GetGeoParamsFromParContainer();
-   
+
+  fRand = new TRandom3();
+
   return kSUCCESS;
 }
 //--------------------------------------------------------------------------------------------------
@@ -71,7 +69,6 @@ Bool_t ERBeamDetTrackFinder::IsCluster (TClonesArray* digiArray) {
     if((digiNeigborWire->GetWireNb() - digi->GetWireNb()) != 1){;
       isCluster = kFALSE;
       FairRun* run = FairRun::Instance();
-      run->MarkFill(kFALSE);
       break;
     }
   }
@@ -90,6 +87,7 @@ Double_t ERBeamDetTrackFinder::CalcCoordinateAvg (TClonesArray* digiArray, char 
                                 fBeamDetSetup->GetWireGlobX(digiLastInCluster->GetMWPCNb()-1, 
                                                      digiLastInCluster->GetPlaneNb()-1, 
                                                      digiLastInCluster->GetWireNb()-1));  
+                break;
 
     case 'Y' :  coordAvg = 0.5*(fBeamDetSetup->GetWireGlobY(digiFirstInCluster->GetMWPCNb()-1, 
                                                      digiFirstInCluster->GetPlaneNb()-1, 
@@ -98,7 +96,7 @@ Double_t ERBeamDetTrackFinder::CalcCoordinateAvg (TClonesArray* digiArray, char 
                                 fBeamDetSetup->GetWireGlobY(digiLastInCluster->GetMWPCNb()-1, 
                                                      digiLastInCluster->GetPlaneNb()-1, 
                                                      digiLastInCluster->GetWireNb()-1)); 
-
+                break;
     case 'Z' :  coordAvg = 0.5*(fBeamDetSetup->GetWireGlobZ(digiFirstInCluster->GetMWPCNb()-1, 
                                                      digiFirstInCluster->GetPlaneNb()-1, 
                                                      digiFirstInCluster->GetWireNb()-1) 
@@ -106,15 +104,14 @@ Double_t ERBeamDetTrackFinder::CalcCoordinateAvg (TClonesArray* digiArray, char 
                                 fBeamDetSetup->GetWireGlobZ(digiLastInCluster->GetMWPCNb()-1, 
                                                      digiLastInCluster->GetPlaneNb()-1, 
                                                      digiLastInCluster->GetWireNb()-1)); 
+                break;
     default:  LOG(DEBUG) << "ERBeamDetTrackFinder::CalcCoordinateAvg: Unknown coordinate type " 
                          << FairLogger::endl;
   }
   return coordAvg;  
 }
-
 //--------------------------------------------------------------------------------------------------
-void ERBeamDetTrackFinder::Exec(Option_t* opt)
-{ 
+void ERBeamDetTrackFinder::Exec(Option_t* opt) { 
   Reset();
   LOG(DEBUG) << FairLogger::endl;
 
@@ -124,14 +121,13 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
      fBeamDetMWPCDigiY2->GetEntriesFast() < 1 ) {
     LOG(DEBUG) << "Multiplicity less than one" << FairLogger::endl;
     FairRun* run = FairRun::Instance();
-    run->MarkFill(kFALSE);
+    // run->MarkFill(kFALSE);
     return ;
   }
 
   Double_t xFar, yFar, zFar; 
   Double_t xClose, yClose, zClose;
   Double_t coordinate;
-
 
   Bool_t cluster;
   ERBeamDetMWPCDigi* digi;
@@ -141,6 +137,9 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     if(cluster) {
       xFar = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiX1, 'X'); // calculate average coordinate of wires
       zFar = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiX1, 'Z');
+    } else {
+      // run->MarkFill(kFALSE);
+      return;
     }
   } else {  // only one wire in array
     digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiX1->At(0); 
@@ -153,6 +152,9 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     cluster = IsCluster (fBeamDetMWPCDigiX2);    // check that all wires in array have are neigbours
     if(cluster) {
       xClose = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiX2, 'X'); // calculate average coordinate of wires
+    } else {
+      // run->MarkFill(kFALSE);
+      return;
     }
   } else {  // only one wire in array
     digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiX2->At(0);
@@ -163,6 +165,9 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     cluster = IsCluster (fBeamDetMWPCDigiY1);     // check that all wires in array have are neigbours
     if(cluster) {
       yFar = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiY1, 'Y'); // calculate average coordinate of wires
+    } else {
+      // run->MarkFill(kFALSE);
+      return;
     }
   } else {  // only one wire in array
     digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiY1->At(0);
@@ -174,21 +179,20 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
     if(cluster) {
       yClose = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiY2, 'Y'); // calculate average coordinate of wires
       zClose = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiY2, 'Z'); 
+    } else {
+      // run->MarkFill(kFALSE);
+      return;
     }
   } else { // only one wire in array
     digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiY2->At(0);
     yClose = fBeamDetSetup->GetWireGlobY(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
     zClose = fBeamDetSetup->GetWireGlobZ(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
   }
-
   TVector3 hitFar(xFar, yFar, zFar);
   TVector3 hitClose(xClose, yClose, zClose);
   TVector3 vectorOnTarget = hitClose - hitFar;
 
   LOG(DEBUG) << "Theta = " << vectorOnTarget.Theta() << "; Phi = " << vectorOnTarget.Phi() << FairLogger::endl;
-
-  Double_t xTarget = xClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Cos(vectorOnTarget.Phi());
-  Double_t yTarget = yClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Sin(vectorOnTarget.Phi());
 
   LOG(DEBUG) << "xFar = " <<  xFar << "; yFar = " << yFar << "; zFar = " << zFar << FairLogger::endl
             << "xClose = " <<  xClose << "; yClose = " << yClose << "; zClose = " << zClose << FairLogger::endl;
@@ -236,16 +240,13 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt)
                                           << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
-void ERBeamDetTrackFinder::Reset()
-{
+void ERBeamDetTrackFinder::Reset() {
   if (fBeamDetTrack) {
     fBeamDetTrack->Clear();
   }
 }
 //--------------------------------------------------------------------------------------------------
-void ERBeamDetTrackFinder::Finish()
-{   
-  
+void ERBeamDetTrackFinder::Finish() {   
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrack* ERBeamDetTrackFinder::AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v)
@@ -254,9 +255,7 @@ ERBeamDetTrack* ERBeamDetTrackFinder::AddTrack(Double_t xt, Double_t yt, Double_
               ERBeamDetTrack(xt, yt, zt, v);
 }
 //--------------------------------------------------------------------------------------------------
-void ERBeamDetTrackFinder::SetParContainers()
-{
-
+void ERBeamDetTrackFinder::SetParContainers() {
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetTrackFinder)

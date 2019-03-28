@@ -31,8 +31,6 @@ ERBeamDet::ERBeamDet() :
 
   if (fSensitiveTargetIsSet) {
     fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
-    fBeamDetMCProjectile = new ERBeamDetParticle(); 
-    fBeamDetMCTrack      = new ERBeamDetTrack();
   }
   //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
@@ -52,8 +50,6 @@ ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
   
   if (fSensitiveTargetIsSet) {
     fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
-    fBeamDetMCProjectile = new ERBeamDetParticle(); 
-    fBeamDetMCTrack      = new ERBeamDetTrack();
   }
   fBeamDetSetup = ERBeamDetSetup::Instance();
  //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
@@ -76,12 +72,6 @@ ERBeamDet::~ERBeamDet() {
     if (fTargetPoints) {
       fTargetPoints->Delete();
       delete fTargetPoints;
-    }
-    if(fBeamDetMCTrack) {
-      delete fBeamDetMCTrack;
-    }   
-    if(fBeamDetMCProjectile) {
-      delete fBeamDetMCProjectile;
     }
   }
 }
@@ -108,8 +98,6 @@ void ERBeamDet::Register() {
 
   if (fSensitiveTargetIsSet) {
     ioman->Register("BeamDetTargetPoint","BeamDet", fTargetPoints, kTRUE);
-    ioman->Register("BeamDetMCParticle.", "BeamDet MC Particle", fBeamDetMCProjectile, kTRUE);
-    ioman->Register("BeamDetMCTrack.", "BeamDet MC track", fBeamDetMCTrack, kTRUE);
   }
 }
 //-------------------------------------------------------------------------------------------------
@@ -211,7 +199,7 @@ Bool_t ERBeamDet::CheckIfSensitive(std::string name) {
   if(volName.Contains("plastic")) {
     return kTRUE;
   }
-  if(fSensitiveTargetIsSet && volName.Contains("targetH2")) {
+  if(fSensitiveTargetIsSet && volName.Contains("targetBodyH2")) {
     return kTRUE;
   }
   return kFALSE;
@@ -223,7 +211,7 @@ void ERBeamDet::ConstructGeometry() {
   ConstructRootGeometry();
   fSensitiveTargetIsSet = fBeamDetSetup->CheckIfTargetIsSet();
 
-  //  calculation of distance between a first ToF's back side and a last ToF's front side
+  //  calculation of the distance between the first ToF's back side and the last ToF's front side
   Double_t distBtwToFCenters = fBeamDetSetup->GetDistanceBetweenToF(0, fBeamDetSetup->GetToFCount() - 1);
   Double_t halfThicknessFirstToF = fBeamDetSetup->GetToFThickness(1) / 2;                     
   Double_t halfThicknessLastToF  = fBeamDetSetup->GetToFThickness(fBeamDetSetup->GetToFCount()) / 2;                     
@@ -249,16 +237,9 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
     fPID = gMC->TrackPid();
 
     TString volName = gMC->CurrentVolName();
-    /*if(volName.Contains("targetH2")) {
-      fBeamDetMCProjectile->AddParameters(fPID, fMomIn, 1);
-      fBeamDetMCTrack->AddParameters(fPosIn.X(), fPosIn.Y(), fPosIn.Z(), fPosIn.Vect());   
-    }*/
   }
-
   fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
-
   Double_t		  curLightYield = 0;
-
   // Correction for all charge states
   if (gMC->TrackCharge()!=0) { // Return the charge of the track currently transported
     Double_t BirkC1Mod = 0;
@@ -275,7 +256,6 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
       fLightYield+=curLightYield;
     }
   }
-
   if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume
       gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
       gMC->IsTrackDisappeared()) 
@@ -308,7 +288,7 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
         AddMWPCPoint();
       }
       if (fSensitiveTargetIsSet) {
-        if(volName.Contains("targetH2")) {
+        if(volName.Contains("targetBodyH2")) {
           AddTargetPoint();
         }
       }

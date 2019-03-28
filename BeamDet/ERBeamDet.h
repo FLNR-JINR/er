@@ -136,9 +136,6 @@ class ERBeamDet : public ERDetector
     TClonesArray*     fMWPCPoints;        ///< The MWPCPoint collection
     TClonesArray*     fTargetPoints;      ///< The TargetPoint collection
 
-    ERBeamDetParticle *fBeamDetMCProjectile; ///< Projectile object on target
-    ERBeamDetTrack    *fBeamDetMCTrack;      ///< Track object on target 
-
     Int_t             fEventID;           ///< event index
     Int_t             fTrackID;           ///< track index
     Int_t             fMot0TrackID;       ///< mother track index
