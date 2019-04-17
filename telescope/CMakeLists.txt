@@ -40,6 +40,7 @@ data/ERRTelescopeSiDigi.cxx
 data/ERRTelescopeHit.cxx
 
 geo/ERQTelescopeGeoComponentDoubleSi.cxx
+geo/ERQTelescopeGeoPseudoDoubleSi.cxx
 geo/ERQTelescopeGeoComponentSingleSi.cxx
 geo/ERQTelescopeGeoComponentCsI.cxx
 
