@@ -83,6 +83,9 @@ private:
   ERQTelescopeParticle* AddParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget, 
                                       Double_t deadEloss, TClonesArray* col);
 
+  ERQTelescopeParticle* AddParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget, 
+                                      Double_t deadEloss, TClonesArray* col, Double_t T);
+
   ClassDef(ERQTelescopePID,1)
 };
 #endif

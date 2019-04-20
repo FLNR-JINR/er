@@ -150,6 +150,24 @@ class ERIonGenerator : public FairGenerator
       fPointVtxIsSet=kTRUE;
     }
 
+    /** @brief Defines fixed start position of ion beam in Cartesian coordinates 
+     ** relative to the global cave сoordinate system .
+     ** @param x  x-coordinate [cm]. By default is 0.
+     ** @param y  y-coordinate [cm]. By default is 0.
+     ** @param z  z-coordinate [cm]. By default is 0.
+    **/
+    void SetRoundXY (Double32_t rho = 0, 
+                     Double32_t centerX = 0, 
+                     Double32_t centerY = 0,
+                     Double32_t centerZ = 0) 
+    {
+      fRho = rho;
+      fCenterX = centerX;
+      fCenterY = centerY;
+      fZ = centerZ;
+      fRoundXYIsSet=kTRUE;
+    }
+
     /** @brief Defines uniform distribution boundaries of ion start position on X and Y axis 
      ** and fixed poition on Z axie in Cartesian coordinates relative to the
      ** global cave сoordinate system .
@@ -280,20 +298,22 @@ class ERIonGenerator : public FairGenerator
     Double32_t fGausTheta;           ///< Amplitude value of theta angle in Gauss distibution [degree]
     Double32_t fSigmaTheta;          ///< Theta angle normal deviation [degree]
     Double32_t fKinE;                ///< Kinetic energy [GeV]
+    Double32_t fRho, fCenterX, fCenterY;
 
-    Bool_t     fEtaRangeIsSet;       ///< True if eta range is set
-    Bool_t     fYRangeIsSet;         ///< True if rapidity range is set
-    Bool_t     fThetaRangeIsSet;     ///< True if theta range is set
-    Bool_t     fCosThetaIsSet;       ///< True if uniform distribution in cos(theta) is set (default -> not set)
-    Bool_t     fPtRangeIsSet;        ///< True if transverse momentum range is set
-    Bool_t     fPRangeIsSet;         ///< True if abs momentum range is set
-    Bool_t     fPointVtxIsSet;       ///< True if point vertex is set
-    Bool_t     fBoxVtxIsSet;         ///< True if box vertex is set
-    Bool_t     fBoxSigmaIsSet;       ///< True if Gauss distribution for coordinates is set
-    Bool_t     fSigmaPIsSet;         ///< True if Gauss distribution for momentum is set
-    Bool_t     fDebug;               ///< Debug switch
-    Bool_t     fSpreadingOnTarget;   ///< True if parameters are spreaded on target and reconstructed to beam start position.
-    Bool_t     fSigmaThetaIsSet;     ///< True if Gauss distribution for theta angle is set
+    Bool_t fEtaRangeIsSet;       ///< True if eta range is set
+    Bool_t fYRangeIsSet;         ///< True if rapidity range is set
+    Bool_t fThetaRangeIsSet;     ///< True if theta range is set
+    Bool_t fCosThetaIsSet;       ///< True if uniform distribution in cos(theta) is set (default -> not set)
+    Bool_t fPtRangeIsSet;        ///< True if transverse momentum range is set
+    Bool_t fPRangeIsSet;         ///< True if abs momentum range is set
+    Bool_t fPointVtxIsSet;       ///< True if point vertex is set
+    Bool_t fBoxVtxIsSet;         ///< True if box vertex is set
+    Bool_t fBoxSigmaIsSet;       ///< True if Gauss distribution for coordinates is set
+    Bool_t fSigmaPIsSet;         ///< True if Gauss distribution for momentum is set
+    Bool_t fDebug;               ///< Debug switch
+    Bool_t fSpreadingOnTarget;   ///< True if parameters are spreaded on target and reconstructed to beam start position.
+    Bool_t fSigmaThetaIsSet;     ///< True if Gauss distribution for theta angle is set
+    Bool_t fRoundXYIsSet;
 
  private:
     ERIonGenerator(const ERIonGenerator&);

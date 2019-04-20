@@ -127,7 +127,8 @@ void ERQTelescopePID::Exec(Option_t* opt) {
                                     P*cos(direction.Theta()),
                                     sqrt(pow(P,2)+pow(mass,2)));
 
-        AddParticle(lvTelescope, lvTarget, deadEloss,itParticesBranches.second);
+        // AddParticle(lvTelescope, lvTarget, deadEloss,itParticesBranches.second);
+        AddParticle(lvTelescope, lvTarget, deadEloss,itParticesBranches.second, T);
 
       }
 
@@ -154,6 +155,17 @@ ERQTelescopeParticle* ERQTelescopePID::AddParticle(TLorentzVector lvTelescope, T
   ERQTelescopeParticle *particle = new((*col)
                                         [col->GetEntriesFast()])
                                         ERQTelescopeParticle(lvTelescope,lvTarget,deadEloss);
+  return particle;
+}
+//------------------------------------------------------------------------------------s--------------
+ERQTelescopeParticle* ERQTelescopePID::AddParticle(TLorentzVector lvTelescope, 
+                                                   TLorentzVector lvTarget, 
+                                                   Double_t deadEloss, TClonesArray* col,
+                                                   Double_t T) 
+{
+  ERQTelescopeParticle *particle = new((*col)
+                                        [col->GetEntriesFast()])
+                                        ERQTelescopeParticle(lvTelescope,lvTarget,deadEloss,T);
   return particle;
 }
 //------------------------------------------------------------------------------------s--------------
@@ -197,8 +209,6 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
                                 direction.X(),direction.Y(),direction.Z());
   
   Float_t sumLoss = 0.;
-  
-
   Bool_t inTarget = kFALSE;
   Float_t tarEdep = 0.;
   Bool_t firstSens = kTRUE;
@@ -266,10 +276,20 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(TGeoNode* node){
 
   TString brNamePrefix = node->GetMotherVolume()->GetName();
   LOG(DEBUG) <<" [CalcEloss]    Branch name prefix " << brNamePrefix << FairLogger::endl;
-  
+  if (brNamePrefix.Contains("pseudo")) {
+    TString path = gGeoManager->GetPath();
+    path.Remove(path.Last('/'), path.Length());
+    path.Remove(path.Last('/'), path.Length());
+    path.Remove(0, path.Last('/') + 1);
+    path.Remove(path.Length()-2, path.Length());
+    // std::cout << "debug path " << path << std::endl;
+    brNamePrefix = path;
+  }
   TString brName = "";
   for (auto digiBranch : fQTelescopeDigi){
     TString currentBrNamePrefix(digiBranch.first(0,digiBranch.first.Last('_')));
+    // std::cout << "currentBrNamePrefix " << currentBrNamePrefix << std::endl;
+    // std::cout << "currentBrNamePrefix " << currentBrNamePrefix << std::endl;
     if (currentBrNamePrefix == brNamePrefix)
       brName = digiBranch.first;
   }

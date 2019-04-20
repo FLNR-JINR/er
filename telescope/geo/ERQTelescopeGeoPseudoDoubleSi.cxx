@@ -9,6 +9,8 @@
 #include "ERQTelescopeGeoPseudoDoubleSi.h"
 
 #include "TH2D.h"
+#include "TGeoBBox.h"
+#include "TGeoCompositeShape.h"
 
 #include "FairLogger.h"
 
@@ -28,10 +30,11 @@ ERQTelescopeGeoPseudoDoubleSi::ERQTelescopeGeoPseudoDoubleSi(TString typeFromXML
                                                              TString pathInhomogenMap,
                                                              TString pathFrontDeadMap,
                                                              TString pathBackDeadMap)
-: ERGeoComponent(typeFromXML1+"_"+typeFromXML2,TString("Pseudo_") + id1+"_"+id2)
+: ERGeoComponent(typeFromXML1/*+"_"+typeFromXML2*/,/*TString("Pseudo_") + */id1/*+"_"+id2*/)
 {
   fComponentId1 = id1;
   fComponentId2 = id2;
+  fVolumeName += "_X"; // first implementation is for X-strips only
   fPathInhomogenMap = pathInhomogenMap;
   fPathFrontDeadMap = pathFrontDeadMap;
   fPathBackDeadMap = pathBackDeadMap;
@@ -89,8 +92,10 @@ void ERQTelescopeGeoPseudoDoubleSi::ConstructGeometryVolume(void) {
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   // ----------------- DoubleSi -----------------------------------------------
   // fVolume = new TGeoVolumeAssembly(fName);
+  vector<TGeoVolume*> stripAss;
   vector<TGeoVolume*> strip;
-  vector<TGeoVolume*> boxSens;
+  // vector<TGeoVolume*> boxSens;
+  vector<TGeoBBox*> boxSens;
   vector<TGeoVolume*> boxDeadFront;
   vector<TGeoVolume*> boxDeadBack;
   fVolume = new TGeoVolumeAssembly(this->GetVolumeName());
@@ -111,8 +116,11 @@ void ERQTelescopeGeoPseudoDoubleSi::ConstructGeometryVolume(void) {
   auto histFrontDead = (TH2D*)file->Get(file->GetListOfKeys()->At(0)->GetName());
   file = TFile::Open(fPathBackDeadMap.Data());
   auto histBackDead = (TH2D*)file->Get(file->GetListOfKeys()->At(0)->GetName());
+// TGeoTranslation *t1 = new TGeoTranslation("t1",0,0,-20);
+// TGeoTranslation *t2 = new TGeoTranslation("t2",0,0, 20);
+
   for (Int_t iStripX = 0; iStripX < fStripCountX; iStripX++) {
-    strip.push_back(new TGeoVolumeAssembly("pseudoSiStrip" + fOrientAroundZ + "_" 
+    stripAss.push_back(new TGeoVolumeAssembly("pseudoSiStrip" + fOrientAroundZ + "_" 
                                             + TString::Itoa(iStripX, 10)));
     for (Int_t iStripY = 0; iStripY < fStripCountY; iStripY++) {
       Double_t sensThckss = histInhom->GetBinContent(iStripX + 1, iStripY + 1);
@@ -122,14 +130,16 @@ void ERQTelescopeGeoPseudoDoubleSi::ConstructGeometryVolume(void) {
       cout << "ERQTelescopeGeoPseudoDoubleSi::deadFrontThckss " << deadFrontThckss << endl;
       cout << "ERQTelescopeGeoPseudoDoubleSi::deadBackThckss " << deadBackThckss << endl;
       // cout << "ERQTelescopeGeoPseudoDoubleSi:: " <<  << endl;
-      boxSens.push_back(gGeoManager->MakeBox("SensitivePixelSiBox_" 
-                                             + fOrientAroundZ + "_X" 
-                                             + TString::Itoa(iStripX, 10) + "_Y" 
-                                             + TString::Itoa(iStripY, 10), 
-                                             pMed, 
-                                             boxX / 2, 
-                                             boxY / 2, 
-                                             sensThckss / 2));
+      // boxSens.push_back(gGeoManager->MakeBox("SensitivePixelSiBox_" 
+      //                                        + fOrientAroundZ + "_X" 
+      //                                        + TString::Itoa(iStripX, 10) + "_Y" 
+      //                                        + TString::Itoa(iStripY, 10), 
+      //                                        pMed, 
+      //                                        boxX / 2, 
+      //                                        boxY / 2, 
+      //                                        sensThckss / 2));
+      TString sensBoxId = TString::Itoa(iStripY, 10);
+      boxSens.push_back(new TGeoBBox(sensBoxId + "SensitivePixelSiBox", boxX / 2, boxY / 2, sensThckss / 2));
       boxDeadFront.push_back(gGeoManager->MakeBox("DeadFrontPixelSiBox_" 
                                                   + fOrientAroundZ + "_X" 
                                                   + TString::Itoa(iStripX, 10) + "_Y" 
@@ -147,7 +157,32 @@ void ERQTelescopeGeoPseudoDoubleSi::ConstructGeometryVolume(void) {
                                                  boxY / 2, 
                                                  deadBackThckss / 2));
     }
+    TString sumVolsStrip = "";
+    vector<TGeoTranslation*> sensBoxTrans;
+    for (Int_t iStripY = 0; iStripY < fStripCountY; iStripY++) {
+      Double_t transY = (fSensY / 2) - boxY / 2 - boxY * iStripY;
+      TString transName = "tr_" + TString::Itoa(iStripY, 10);
+      auto trans = new TGeoTranslation(transName, 0., transY, 0.);
+      trans->RegisterYourself();
+      sensBoxTrans.push_back(trans);
+      sumVolsStrip = sumVolsStrip + boxSens[iStripY]->GetName()
+                   + ":" + transName + "+";
+    }
+    sumVolsStrip.Remove(sumVolsStrip.Length() - 1);
+    std::cout << "sumVolsStrip.Data() " <<  sumVolsStrip.Data() << std::endl;
+    TString stripName = "SensitiveSingleSiStrip" 
+                      + fOrientAroundZ + "_" 
+                      + TString::Itoa(iStripX, 10);
+    TGeoCompositeShape *stripBool = new TGeoCompositeShape("stripX", sumVolsStrip.Data());
+    strip.push_back(new TGeoVolume(stripName, stripBool, pMed));
+
   }
+  // TGeoBBox box1 = TGeoBBox("box1", box_X, box_Y, box_Z);
+  // TGeoBBox box2 = TGeoBBox("box2", box_X - 1./2., box_Y - 1./2., box_Z);
+
+  // TGeoCompositeShape *frame = new TGeoCompositeShape("frame", "box1 - box2");
+  // TGeoVolume* frameAL = new TGeoVolume("frameAL", frame, pAlumin);
+
   //------------------ Silicon box   -----------------------------------------
   // box = gGeoManager->MakeBox("SensitivePixelSiBox"+fOrientAroundZ, pMed, boxX / 2, 
   //                                                                        boxY / 2, 
@@ -165,19 +200,19 @@ void ERQTelescopeGeoPseudoDoubleSi::ConstructGeometryVolume(void) {
                           - boxY / 2 - boxY * iStripY;
       Double_t transFrontDeadZ = - (deadFrontThckss + sensThckss) / 2;
       Double_t transBackDeadZ = (deadBackThckss + sensThckss) / 2;
-      strip[iStripX]->AddNode(boxSens[boxNb], boxNb, 
-                              new TGeoCombiTrans(0, translateY, 0, fZeroRotation));
-      strip[iStripX]->AddNode(boxDeadFront[boxNb], boxNb, 
+      stripAss[iStripX]->AddNode(boxDeadFront[boxNb], boxNb, 
                               new TGeoCombiTrans(0, translateY, transFrontDeadZ, fZeroRotation));
       // gasVol[i]->AddNode(gasPlane[i], 1, new TGeoCombiTrans(0, 0, -fDistBetweenXandY[i] / 2, fZeroRotation));
-      strip[iStripX]->AddNode(boxDeadBack[boxNb], boxNb, 
+      stripAss[iStripX]->AddNode(boxDeadBack[boxNb], boxNb, 
                               new TGeoCombiTrans(0, translateY, transBackDeadZ, fZeroRotation));
     }
+    stripAss[iStripX]->AddNode(strip[iStripX], iStripX, 
+                               new TGeoCombiTrans(0., 0., 0, fZeroRotation));
   }
   for (Int_t iStripX = 0; iStripX < fStripCountX; iStripX++) {
     Double_t translateX = fSensX / 2 
                         - boxX *(iStripX)-(boxX / 2);
-    fVolume->AddNode(strip[iStripX], iStripX, new TGeoCombiTrans(translateX, 0, 0, fZeroRotation));
+    fVolume->AddNode(stripAss[iStripX], iStripX, new TGeoCombiTrans(translateX, 0, 0, fZeroRotation));
   }
   if (fOrientAroundZ.Contains("Y")) {
     fRotation->RotateZ(90.);

@@ -27,11 +27,13 @@ public:
    ** @param deadEloss - eloss in passive detector volumes;
   **/
   ERQTelescopeParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget,Double_t deadEloss);
+  ERQTelescopeParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget,Double_t deadEloss, Double_t T);
 
 private:
   TLorentzVector fLVTarget;
   TLorentzVector fLVTelescope;
   Double_t  fDeadEloss;
+  Double_t  fT;
 
   ClassDef(ERQTelescopeParticle, 1)
 };
