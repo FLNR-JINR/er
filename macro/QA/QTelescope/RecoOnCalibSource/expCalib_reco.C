@@ -4,12 +4,13 @@ void expCalib_reco(){
   TString inFile = "calibEXP1803.Digi.root";
   auto file = TFile::Open(inFile.Data());
   auto tree = (TTree*)file->Get("er");
-  // Int_t nEvents = tree->GetEntriesFast();//1443710
-  Int_t nEvents = 1;//1443710
+  Int_t nEvents = tree->GetEntriesFast();//1443710
+  // nEvents /= 4;//1443710
+  // nEvents = 1000000;//1443710
 
   // nEvents = /*1;*/ 14437;
-  TString parFile = "par_Calib.root.root";
-  TString geoFile = "setup_exp1811.root";
+  TString parFile = "par_Calib.root";
+  TString geoFile = "geo_expCalib.root";
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();  
@@ -19,21 +20,22 @@ void expCalib_reco(){
   TString outFile;
   // userCut.Form("EventHeader.fTrigger==%d", fTriggerNum);
   // outFile.Form("he8_10_0010.trigger%d.reco.root", fTriggerNum);
-  outFile.Form("expCalir_reco.root");
+  outFile.Form("expCalib_reco.root");
   run->SetUserCut(userCut.Data());
 
-  // run->SetGeomFile(geoFile);
+  run->SetGeomFile("geo_expCalib.root");
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
   Int_t verbose = 1;
   // ------- QTelescope TrackFinder -------------------------------------------
   ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
   qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
-  qtelescopeTrackFinder->SetHitStation("Left_telescope", "Left_telescope_DoubleSi_DSD_L_XY_1_X",
-                                                         "Left_telescope_DoubleSi_DSD_L_XY_1_Y");
+  qtelescopeTrackFinder->SetHitStation("Left_telescope", "Left_telescope_SingleSi_SSD20_L_X_0",
+                                                         "Left_telescope_DoubleSi_DSD_L_XY_0_Y");
   // qtelescopeTrackFinder->SetHitPseudoStation("Left_telescope", 
   //                                            "Left_telescope_SingleSi_SSD20_L_X_0",
-  //                                            "Left_telescope_DoubleSi_DSD_L_XY_0_Y");
+  //                                            "Left_telescope_DoubleSi_DSD_L_XY_0_Y",
+  //                                            "Left_telescope_Pseudo_SingleSi_SSD20_L_DoubleSi_DSD_L_0");
 
   qtelescopeTrackFinder->SetStripEdepRange(0., 1000.);          // [GeV]
   //qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
@@ -46,20 +48,23 @@ void expCalib_reco(){
   ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
 
   // qtelescopePID->SetUserCut("ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.009");
+  // qtelescopePID->SetUserCut("1");
 
-  qtelescopePID->SetStationParticle("Left_telescope_SingleSi_SSD20_L_X_0",1000020030);
-  // qtelescopePID->SetPseudoStationParticle("Left_telescope_DoubleSi_DSD_L_XY_0",1000020030);
+  // qtelescopePID->SetStationParticle("Left_telescope_SingleSi_SSD20_L_X_0",1000020040);
+  // qtelescopePID->SetStationParticle("Left_telescope_DoubleSi_DSD_L_XY_0_Y",1000020040);
+  qtelescopePID->SetStationParticle("Left_telescope_SingleSi_SSD20_L_X_0Left_telescope_DoubleSi_DSD_L_XY_0_Y", 1000020040);
+
   // qtelescopePID->SetStationParticle("Left_telescope_SingleSi_SSD_L_X_0",1000020030);
 
-  // run->AddTask(qtelescopePID); 
+  run->AddTask(qtelescopePID); 
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   FairParRootFileIo*  parInput = new FairParRootFileIo();
   parInput->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parInput);
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
-  
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
   run->Init();
   run->Run(0, nEvents);
 

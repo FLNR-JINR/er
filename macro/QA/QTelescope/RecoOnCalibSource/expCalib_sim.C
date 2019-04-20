@@ -29,6 +29,11 @@ void expCalib_sim (Int_t nEvents = 0) {
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
+
+  FairModule* target = new ERTarget("Target", kTRUE,1);
+  target->SetGeometryFileName("target.SiSource.geo.root");
+  // target->SetGeometryFileName("target_CD2_geo.root");
+  run->AddModule(target);
    
   Int_t verbose = 0;
   // -----  QTelescope Setup ------------------------------------------------
@@ -109,7 +114,7 @@ void expCalib_sim (Int_t nEvents = 0) {
   rtdb->saveOutput();
   rtdb->print();
 
-  //run->CreateGeometryFile("setup_expCalib.root");
+  run->CreateGeometryFile("geo_expCalib.root");
 
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);
@@ -125,6 +130,3 @@ void expCalib_sim (Int_t nEvents = 0) {
   cout << "Real time " << rtime << " s, CPU time " << ctime
           << "s" << endl << endl;
 }
-
- 
- 

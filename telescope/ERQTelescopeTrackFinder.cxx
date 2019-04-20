@@ -194,7 +194,6 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
           fTargetY = trackFromMWPC->GetTargetY();
           fTargetZ = trackFromMWPC->GetTargetZ();
         }
-
         Double_t sumEdep = yStrip->GetEdep();        
         ERQTelescopeTrack *track = AddTrack(fTargetX, fTargetY, fTargetZ, 
                                             xQTeleGlobHit,  yQTeleGlobHit,  zQTeleGlobHit,                                            

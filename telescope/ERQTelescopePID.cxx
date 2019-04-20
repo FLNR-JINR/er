@@ -134,7 +134,6 @@ void ERQTelescopePID::Exec(Option_t* opt) {
 
         // AddParticle(lvTelescope, lvTarget, deadEloss,itParticesBranches.second);
         AddParticle(lvTelescope, lvTarget, deadEloss, itParticesBranches.second, fT);
-
       }
 
     }
@@ -173,14 +172,12 @@ ERQTelescopeParticle* ERQTelescopePID::AddParticle(TLorentzVector lvTelescope,
                                         ERQTelescopeParticle(lvTelescope,lvTarget,deadEloss,T);
   return particle;
 }
-
 Double_t CalcElossIntegralVolStep (Double_t T, G4ParticleDefinition* ion, 
                                    G4Material* mat, Double_t range) 
 { 
   Double_t integralEloss = 0.;
   Double_t intStep = range / 5.;
   Double_t curStep = 0.;
-
   G4EmCalculator* calc = new G4EmCalculator();
   while (curStep <= range) {
     Double_t eloss = calc->GetDEDX(T*1e3,ion,mat)*intStep*10*1e-3;

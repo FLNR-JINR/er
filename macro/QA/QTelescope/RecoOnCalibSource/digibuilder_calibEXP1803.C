@@ -1,11 +1,15 @@
 void digibuilder_calibEXP1803(Int_t nEvents = 1443710)
 {
+
   TString inputdir = gSystem->Getenv("VMCWORKDIR");
   // inputdir = "~/soft/expertroot/macro/calibration/si_calibration/input/";
   inputdir = "./input/";
 
 	TString inFile = inputdir + "dsd_20_l_03.lmd.root";
   TString confFile = "setup_exp1811.xml"; // check where is setup file is really stored
+  auto file = TFile::Open(inFile.Data());
+  auto tree = (TTree*)file->Get("stepRepackingxTree");
+  nEvents = tree->GetEntriesFast();//1443710
 
 	// --- Specify output file name (this is just an example)
 	TString outFile = "calibEXP1803.Digi.root";
@@ -22,7 +26,7 @@ void digibuilder_calibEXP1803(Int_t nEvents = 1443710)
   // for the thin detector it nessesary to implement new mappin for pixelwise coefficients
   ltUnpack->AddSingleSiStation("SSD20_L",
                                "SSD20_L","tSSD20_L",
-                               inputdir + "SSD20_L.cal", "", //inputdir + "tSSD20_L.cal",
+                               inputdir + "SSD20_L_geant.cal", "", //inputdir + "tSSD20_L.cal",
                                "X");
   ltUnpack->AddDoubleSiStation("DSD_L",
                                "DSDX_L","tDSDX_L",
