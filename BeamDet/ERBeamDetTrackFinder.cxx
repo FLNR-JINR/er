@@ -12,7 +12,6 @@
 #include "TMath.h"
 #include "TGeoNode.h"
 #include "TGeoManager.h"
-#include "TRandom.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -20,6 +19,7 @@
 #include "FairLogger.h"
 
 using namespace std;
+
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::ERBeamDetTrackFinder()
   : FairTask("ER BeamDet track finding scheme"),
@@ -193,6 +193,9 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
   TVector3 vectorOnTarget = hitClose - hitFar;
 
   LOG(DEBUG) << "Theta = " << vectorOnTarget.Theta() << "; Phi = " << vectorOnTarget.Phi() << FairLogger::endl;
+
+  Double_t xTarget = xClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Cos(vectorOnTarget.Phi());
+  Double_t yTarget = yClose - zClose*TMath::Tan(vectorOnTarget.Theta())*TMath::Sin(vectorOnTarget.Phi());
 
   LOG(DEBUG) << "xFar = " <<  xFar << "; yFar = " << yFar << "; zFar = " << zFar << FairLogger::endl
             << "xClose = " <<  xClose << "; yClose = " << yClose << "; zClose = " << zClose << FairLogger::endl;

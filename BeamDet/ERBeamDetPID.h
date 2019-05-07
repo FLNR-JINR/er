@@ -74,7 +74,7 @@ public:
   **/
   void SetPID(Int_t pdg) {fPID = pdg;}
 
-  /** @brief Sets selection box area. 
+  /** @brief Sets selection box area on the ToF/dE scatter plot. 
    ** @param tof1  time value low boundary [ns]
    ** @param tof2  time value high boundary [ns] .
    ** @param dE1   summary energy deposit low boundary [GeV]

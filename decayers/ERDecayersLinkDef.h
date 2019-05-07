@@ -13,6 +13,7 @@
 #pragma link C++ class ERDecay30Arto28S2p+;
 #pragma link C++ class ERDecayLi9DetoLi10_Li9n_p+;
 #pragma link C++ class ERDecayEXP1803+;
+#pragma link C++ class ERDecayEXP1811+;
 #pragma link C++ class ERElasticScattering+;
 
 #endif

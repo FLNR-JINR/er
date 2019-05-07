@@ -55,7 +55,7 @@ protected:
              interaction volume;
   **/  
   Bool_t FindInteractionPoint();
-  // void   CalculateTargetParameters();
+  void   CalculateTargetParameters();
   
   Bool_t   fIsInterationPointFound;
   Double_t fDistanceToInteractPoint;
@@ -109,7 +109,7 @@ public:
   TString GetName() {return fName;}
   // ------------------------------------------------------------------------------
 
-	ClassDef(ERDecay,1)
+  ClassDef(ERDecay,1)
 };
 
 #endif
