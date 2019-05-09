@@ -30,6 +30,7 @@ ERDecay31Arto30Ar.cxx
 ERDecay30Arto28S2p.cxx
 ERDecayLi9DetoLi10_Li9n_p.cxx
 ERDecayEXP1803.cxx
+ERDecayEXP1811.cxx
 ERElasticScattering.cxx
 )
 

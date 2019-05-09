@@ -132,7 +132,7 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
   }
   // --- Catch absence of TGeoManager
   if ( ! gGeoManager ) {
-    LOG(FATAL) << "ERBeamDetSetup: cannot initialise without TGeoManager!"<< FairLogger::endl;
+    std::cerr << "ERBeamDetSetup: cannot initialise without TGeoManager!"<< std::endl;
   }
  
   gGeoManager->CdTop();
@@ -145,6 +145,7 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
       break;
     }
   }
+
   // ---- Getting MWPC geometry parameters---------------------------------
   TGeoNode*   mwpc = NULL;
   TGeoNode*   mwpcStation = NULL;
@@ -167,6 +168,7 @@ void ERBeamDetSetup::GetGeoParamsFromParContainer() {
       //--------------------------------------------------------------------
       for (Int_t planeNb = 0; planeNb < mwpcStation->GetNdaughters(); planeNb++) {
         plane = mwpcStation->GetDaughter(planeNb);
+
         for (Int_t wireNb = 0; wireNb < plane->GetNdaughters(); wireNb++) {
           wire = plane->GetDaughter(wireNb);
           Double_t wireCoordInPlane[3];
@@ -319,7 +321,7 @@ void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
   for(Int_t i = 0; i < fMWPCCount; i++) {
     TXMLNode* curNode = node;
     for(; curNode; curNode = curNode->GetNextNode()) {
-      //LOG(DEBUG) << "Pasrsing ToF " << node->GetNodeName() << FairLogger::endl;
+      //cout << "Pasrsing ToF " << node->GetNodeName() << endl;
       TList *attrList;
       TXMLAttr *attr = 0;
       if (curNode->HasAttributes()){

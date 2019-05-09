@@ -110,6 +110,7 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
     std::cerr << "ERQTelescopeSetup: cannot initialise without TGeoManager!"<< std::endl;
   }
   gGeoManager->CdTop();
+
   TGeoNode* cave = gGeoManager->GetCurrentNode();
   TGeoNode* qtelescope  = NULL;
   TGeoNode* qtelescopeDetector = NULL;
@@ -153,6 +154,7 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
               Int_t iDoubleSiBox = 0;
               if (!flagFirstStripReaded) {
                 for (; iDoubleSiBox < doubleSiStrip->GetNdaughters(); iDoubleSiBox++) {
+                  Double_t siBoxLocalTrans[3];
                   doubleSiBox = doubleSiStrip->GetDaughter(iDoubleSiBox);
                   TString siBoxName = doubleSiBox->GetName();
                   GetTransInMotherNode(doubleSiBox, boxInStripTrans);

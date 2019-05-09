@@ -12,9 +12,8 @@
 	</ToFTypes>
 	<MWPCTypes>
 		<MWPC id="MWPC1">
-			<gasVolGeometry X="5" Y="5" Z="8.2"/>
-			<gasStripGeometry X="0.125" Y="5" Z="0.6"/>
-			<gasPlanesOffset X="0." Y="0."/>
+			<gasVolGeometry X="4" Y="4" Z="8.2"/>
+			<gasStripGeometry X="0.125" Y="4" Z="0.6"/>
 			<distBetweenXandYStrips>1</distBetweenXandYStrips>
 			<cathodeThickness>0.0005</cathodeThickness>
 			<kaptonWindowThickness>0.00125</kaptonWindowThickness>
