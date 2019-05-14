@@ -11,10 +11,10 @@ OUTDIR=output_digi_parallel
 GRAPHSOUTDIR=digi_graphs_parallel
 
 # Variables
-NEVENTS=100
+NEVENTS=1000
 MINANGLE=5
 MAXANGLE=5
-NTHREADS=16
+NTHREADS=3
 
 # Digitization add or no add
 TOADDDIGI='yes'
