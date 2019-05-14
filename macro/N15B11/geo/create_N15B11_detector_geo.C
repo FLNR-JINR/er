@@ -1,7 +1,7 @@
-void create_N15B11_detector_geo()
+void create_N15B11_detector_geo(Double_t angle = 20.)
 {
     // Create a zero rotation
-    TGeoRotation *ggZeroRotation = new TGeoRotation("ggZeroRotation");
+    TGeoRotation* ggZeroRotation = new TGeoRotation("ggZeroRotation");
 
     // -------   Load media from media file   -----------------------------------
     FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
@@ -91,12 +91,12 @@ void create_N15B11_detector_geo()
     vDetContainer->AddNode(vDetGasPart, 1, tGasAndCase);
     vDetContainer->AddNode(vSemi, 1, tSemi);
 
-    const Int_t detNum = 23; // detectors number
+    const Int_t detNum = 1; // detectors number
 
     Double_t angles[23] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
                            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
     Double_t angleStep = 8.;
-    Double_t startAngle = 90. - angleStep * (Double_t)((detNum-1)/2);
+    Double_t startAngle = 90. + angle  - angleStep * (Double_t)((detNum-1)/2);
 
     for (UInt_t i=0; i<detNum; i++) {
         angles[i] = i*angleStep;

@@ -5,5 +5,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class ERN15B11Detector+;
+#pragma link C++ class ERN15B11Digitizer+;
 
 #endif // __CINT__
