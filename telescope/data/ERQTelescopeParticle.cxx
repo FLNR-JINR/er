@@ -18,4 +18,13 @@ ERQTelescopeParticle::ERQTelescopeParticle(TLorentzVector lvTelescope, TLorentzV
 {
 }
 //--------------------------------------------------------------------------------------------------
+ERQTelescopeParticle::ERQTelescopeParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget,Double_t deadEloss, Double_t T)
+: fDeadEloss(deadEloss),
+  fLVTarget(lvTarget),
+  fLVTelescope(lvTelescope),
+  fT(T)
+{
+  fT_noCorrections = fT - fDeadEloss;
+}
+//--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeParticle)
