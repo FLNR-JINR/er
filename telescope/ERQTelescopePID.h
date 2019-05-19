@@ -70,6 +70,7 @@ protected:
   std::map<TString, std::map<Int_t,TClonesArray*> >    fQTelescopeParticle;
 
   std::map<TString, std::vector<Int_t>> fStationParticles;
+  double fT;
 protected:
 
   Double_t CalcEloss(TString station, ERQTelescopeTrack* track, Int_t pdg, Double_t T);
@@ -82,6 +83,9 @@ private:
   /** @brief Adds a ERQTelescopeParticles to the output Collection **/
   ERQTelescopeParticle* AddParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget, 
                                       Double_t deadEloss, TClonesArray* col);
+
+  ERQTelescopeParticle* AddParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget, 
+                                      Double_t deadEloss, TClonesArray* col, Double_t T);
 
   ClassDef(ERQTelescopePID,1)
 };
