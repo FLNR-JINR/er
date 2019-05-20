@@ -96,19 +96,20 @@
    
 #. **Полуширину** щели детектора dtheta по \theta в лабороторной системе координат, которую нужно задать::
     
-    scattering->SetDetThetaWidth(0.262822833); // Detectors theta width
-    
+      scattering->SetDetThetaWidth(0.262822833); // Detectors theta width
+      
+   .. attention:: Важно выбирать данную велечину с запасом!
+
    .. figure:: _static/fig3.png
        :height: 50px
        :width: 100 px
        :align: left
        
-       dtheta на рисунке соответвует ширине щели детектора
- Важно выбирать данную велечину с запасом!
-
+    
+  
 #. Координата theta *Lab* центра щели детектора::
 
-    scattering->SetDetTheta(theta); 
+        scattering->SetDetTheta(theta); 
     
     Кумулятивная функция - это функция от theta в системе центра масс.
     Дипозон розыгрыша theta *CM* углов по кумулятивной функции, вычисляется по следующим формулам:
@@ -118,4 +119,9 @@
       :width: 100 px
       :align: left
       
-#. 
+#. Пользователь может выбрать диапозон розыгрыша углов theta *CM* явным образом::
+
+        scattering->SetThetaRange(18.4, 19.4);
+    
+  .. danger:: 
+        Данный путнк не совместим с пунктами  5 и 6!
