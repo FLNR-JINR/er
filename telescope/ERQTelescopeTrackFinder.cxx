@@ -54,7 +54,7 @@ void ERQTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString com
                                                                      TString componentIdY) 
 {
   fSiHitStationsPair[subassemblyName].emplace(make_pair(componentIdX + componentIdY, 
-                                              pair<TString, TString>(componentIdX, componentIdX)));
+                                              pair<TString, TString>(componentIdX, componentIdY)));
 }//--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::SetStripEdepRange(Double_t edepMin, Double_t edepMax) {
   fSiDigiEdepMin = edepMin; 
@@ -190,12 +190,13 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
           fTargetY = trackFromMWPC->GetTargetY();
           fTargetZ = trackFromMWPC->GetTargetZ();
         }
-        if (!fBeamDetTrack) {
-          FairRun* run = FairRun::Instance();
-            // run->MarkFill(kFALSE);
-            return ;
-        }
-        Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep()) / 2.;
+        // if (!fBeamDetTrack) {
+        //   FairRun* run = FairRun::Instance();
+        //     // run->MarkFill(kFALSE);
+        //     return ;
+        // }
+        // Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep());
+        Double_t sumEdep = yStrip->GetEdep();        
         ERQTelescopeTrack *track = AddTrack(fTargetX, fTargetY, fTargetZ, 
                                             xQTeleGlobHit,  yQTeleGlobHit,  zQTeleGlobHit,                                            
                                             xQTeleLocalHit, yQTeleLocalHit, zQTeleLocalHit,

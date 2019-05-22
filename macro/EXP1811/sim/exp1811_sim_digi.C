@@ -1,5 +1,5 @@
 
-void exp1811_sim_digi (Int_t nEvents = 10000000) {
+void exp1811_sim_digi (Int_t nEvents = 1000) {
 //----------------------------------
   Double_t BeamDetLToF = 1232.0;     // [cm] 12348
   Double_t BeamDetPosZToF = -95.3;  // [cm] 
@@ -53,10 +53,10 @@ void exp1811_sim_digi (Int_t nEvents = 10000000) {
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);     
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);    //  BeamDet parts should be added in ascending order   
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ1MWPC);   //  of Z-coordinate of part.
-  setupBeamDet->SetMWPCnumberingInvOrderX(); 
+  // setupBeamDet->SetMWPCnumberingInvOrderX(); 
 
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ2MWPC);    
-  setupBeamDet->SetMWPCnumberingInvOrderX(); 
+  // setupBeamDet->SetMWPCnumberingInvOrderX(); 
 
   //setupBeamDet->SetSensitiveTarget();
 

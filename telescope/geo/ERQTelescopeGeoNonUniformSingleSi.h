@@ -54,7 +54,7 @@ public:
    ** @param pathBackDeadMap  path to the thin detector back dead layer thicknes map
   **/
   ERQTelescopeGeoNonUniformSingleSi(TString xmlTypeSingleSi, TString id1,
-                                    TString xmlTypeSecondSt, TString id2, TString plane2,
+                                    TString xmlTypeSecondSt2, TString id2, TString plane2,
                                     TString pathFullMap,
                                     TString pathFrontDeadMap,
                                     TString pathBackDeadMap); 

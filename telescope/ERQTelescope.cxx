@@ -102,14 +102,14 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
 
   fEloss += gMC->Edep(); // GeV //Return the energy lost in the current step
 
-	if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume
-	    gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
-	    gMC->IsTrackDisappeared())
-	{
+  if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume
+      gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
+      gMC->IsTrackDisappeared())
+  {
     gMC->TrackPosition(fPosOut);
     gMC->TrackMomentum(fMomOut);
     TString volName = gMC->CurrentVolName();
-	  if (fEloss > 0.){
+    if (fEloss > 0.){
       if (volName.Contains("DoubleSi")) {
         Int_t xStripNb;
         Int_t yStripNb;
@@ -128,8 +128,13 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
         AddSiPoint(*(fDoubleSiYPoints[fSiStationNb]));
       }
       if (volName.Contains("SingleSi")) {
-        gMC->CurrentVolOffID(0, fSiStripNb) ;
-        gMC->CurrentVolOffID(1, fSiStationNb);
+        if (volName.Contains("NonUniform")) {
+          gMC->CurrentVolOffID(1, fSiStripNb) ;
+          gMC->CurrentVolOffID(2, fSiStationNb);
+        } else {
+          gMC->CurrentVolOffID(0, fSiStripNb) ;
+          gMC->CurrentVolOffID(1, fSiStationNb);
+        }
         AddSiPoint(*(fSingleSiPoints[fSiStationNb]));
       }
       if (volName.Contains("CsI")) {

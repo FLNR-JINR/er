@@ -1,10 +1,10 @@
-void expCalib_sim (Int_t nEvents = 0) {
+void expCalib_sim (Int_t nEvents = 5000) {
   //---------------------Files-----------------------------------------------
-  TString outFile = "sim_digi_Calib.root";
-  TString parFile = "par_Calib.root";
+  TString outFile = "sim_digi.root";
+  TString parFile = "par.root";
   TString workDirPath = gSystem->Getenv("VMCWORKDIR");
   TString paramFileQTelescope = workDirPath
-                         + "/db/QTelescope/QTelescopeParts_exp1810.xml";
+                         + "/db/QTelescope/QTelescopeParts2.xml";
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer; 
   timer.Start();
@@ -53,12 +53,11 @@ void expCalib_sim (Int_t nEvents = 0) {
   //                                                                                 TVector3(0., 0., -1.4), TVector3(), "X");
   ERQTelescopeGeoComponentDoubleSi* thick_Left = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_DSD_L", 
                                                                                   TVector3(0., 0., 0.), TVector3(), "X");
-  ERQTelescopeGeoPseudoDoubleSi* thin_Left = new ERQTelescopeGeoPseudoDoubleSi("SingleSi", "SingleSi_SSD20_L",
-                                                                               "DoubleSi", "DoubleSi_DSD_L",
+  ERQTelescopeGeoNonUniformSingleSi* thin_Left = new ERQTelescopeGeoNonUniformSingleSi("SingleSi", "SingleSi_SSD20_L",
+                                                                               "DoubleSi", "DoubleSi_DSD_L", "Y",
                                                                                "./input/map_sens.root",
                                                                                "./input/map_deadFront.root",
                                                                                "./input/map_deadBack.root"); 
-
   assembly_Left->AddComponent(thick_Left);
   assembly_Left->AddComponent(thin_Left, TVector3(0, 0, -1.4), TVector3(0, 0, 0));
 
@@ -68,31 +67,43 @@ void expCalib_sim (Int_t nEvents = 0) {
   ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE, verbose);
   run->AddModule(qtelescope);
 
-  // FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+  Int_t Z = 2, A = 4, Q = 2;
+  TString ionName = "4He"; 
+//  
+  ERIonMixGenerator* generator = new ERIonMixGenerator(ionName, Z, A, Q, 1);
+  Double_t kin_energy = 6.0024 * 1e-3; //GeV
+  // Double_t kin_energy = 7.6869 * 1e-3; //GeV
+  generator->SetKinERange(kin_energy, kin_energy);
+  Double_t fronalCathesis = (5.8 / 2);
+  Double_t maxTheta = abs(atan(fronalCathesis / zPos));
+  generator->SetThetaRange(0, maxTheta*TMath::RadToDeg());
+  generator->SetCosTheta();
+  generator->SetPhiRange(0, 360);
+  generator->SetBoxXYZ(-0., -0., 0., 0., 0.);
+  primGen->AddGenerator(generator);
 
-  // Double_t  kinE_MevPerNucleon = 40.;
 
-  // Int_t Z = 2, A = 8, Q = 2;
-  // TString ionName = "8He";
-  // ERIonMixGenerator* generator = new ERIonMixGenerator(ionName, Z, A, Q, 1);
-  // Double32_t kin_energy = kinE_MevPerNucleon * 1e-3 * A; //GeV
-  // generator->SetKinE(kin_energy);
-  // generator->SetPSigmaOverP(0);
-  // Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
+  // ERIonMixGenerator* generator_high = new ERIonMixGenerator(ionName + "_high", Z, A, Q, 1);
+  // kin_energy = 7.6869 * 1e-3 * A; //GeV
+  // generator_high->SetKinERange(kin_energy, kin_energy);
+  // fronalCathesis = (5. / 2);
+  // maxTheta = abs(atan(fronalCathesis / zPos));
+  // generator_high->SetThetaRange(0, maxTheta*TMath::RadToDeg());
+  // generator_high->SetCosTheta();
+  // generator_high->SetPhiRange(0, 360);
+  // generator_high->SetRoundXY(0., 0., 0., 0.);
+  // primGen->AddGenerator(generator_high);
 
-  // generator->SetThetaSigma(0, sigmaTheta);
-  // generator->SetPhiRange(0, 360);
-  // generator->SetBoxXYZ(0, 0, 0., 0., beamStartPosition);
-  // generator->SpreadingOnTarget(); 
 
-  // primGen->AddGenerator(generator);
-  // run->SetGenerator(primGen);
+  run->SetGenerator(primGen);
   //-------Set visualisation flag to true------------------------------------
-  // run->SetStoreTraj(kTRUE);
-
+  run->SetStoreTraj(kTRUE);
   ERQTelescopeDigitizer* qtelescopeDigitizer = new ERQTelescopeDigitizer(verbose);
   qtelescopeDigitizer->SetSiElossThreshold(0);
-  qtelescopeDigitizer->SetSiElossSigma(0);
+  qtelescopeDigitizer->SetSiElossSigma(20e-6);
+  // qtelescopeDigitizer->SetSiElossSigma(0.);
+  // qtelescopeDigitizer->SetSiElossSigma(20e-3);
   qtelescopeDigitizer->SetSiTimeSigma(0);
 
   qtelescopeDigitizer->SetCsIElossThreshold(0);
@@ -114,7 +125,7 @@ void expCalib_sim (Int_t nEvents = 0) {
   rtdb->saveOutput();
   rtdb->print();
 
-  run->CreateGeometryFile("geo_expCalib.root");
+  // run->CreateGeometryFile("geo_exp.root");
 
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);

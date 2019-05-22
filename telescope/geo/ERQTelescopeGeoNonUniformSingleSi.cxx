@@ -24,7 +24,7 @@ ERQTelescopeGeoNonUniformSingleSi::ERQTelescopeGeoNonUniformSingleSi() {
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeGeoNonUniformSingleSi::ERQTelescopeGeoNonUniformSingleSi(TString xmlTypeSingleSi, 
                                                                      TString id1,
-                                                                     TString xmlTypeSecondSt, 
+                                                                     TString xmlTypeSecondSt2, 
                                                                      TString id2, TString plane2,
                                                                      TString pathFullMap,
                                                                      TString pathFrontDeadMap,
