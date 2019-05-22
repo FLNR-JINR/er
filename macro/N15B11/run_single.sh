@@ -1,11 +1,11 @@
 #!/bin/bash
 
 OUTDIR=output
-NEVENTS=1000
+NEVENTS=100
 ANGEL=35
 
 cd ../../../build
-make -j16
+make -j3
 cd -
 
 echo -e "\e[1m\e[32m========== Compilation finished =========== \e[0m"

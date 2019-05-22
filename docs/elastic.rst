@@ -73,60 +73,123 @@
     Текстовый файл с данными о кумулятивной функции должен лежать в директории **er/input** .
 
 #. Толщину мишени.
-    Это можно задать двумя способами:
+    Это можно задать двумя способами:    if (!ERDecay::Init())
+    {
+        return kFALSE;
+    }
+
+    fTargetIonPDG = TDatabasePDG::Instance()->GetParticle(fTargetIonName);
+    if ( ! fTargetIonPDG )
+    {
+        LOG(FATAL) << "Target ion not found in pdg database!" << FairLogger::endl;
+        return kFALSE;
+    }
     
     * Для изотропного розыгрыша координаты взаимодействия внутри объёма мишени. Задать переднюю координату мишени и заднюю относительно глобальной оси **z**: ::
 
         scattering->SetUniformPos(-0.00035,0.00035); // target width 7 micron
-
+        
+      .. tip:: Использовать в случае **тонкой** мишени.
+      
     .. figure:: _static/fig2.png
         :height: 50px
         :width: 100 px
         :align: center
 
-        Обычно мишень располагается в начале глобальной системы координат, данный рисунок иллюстрирует этот случай.
-    
+        Обычно мишень располагается в начале глобальной системы координат, данный рисунок иллюстрирует этот случай. 
+         
     * Для экспоненциального розыгрыша координаты взаимодействия, используйте метод::
 
         SetExponentialPos(Double_t start, Double_t tau);
+       
+      .. tip:: Использовать в случае **толстой** мишени.
    
 #. Желательный шаг транспорта первичного иона внутри объёма мишени.
    Здать его нужно следующим образом::
    
     scattering->SetStep(0.00001); //0.1 micron
+
+#. Пользователь может выбрать необходимый диапозон розыгрыша углов theta *CM* двумя способами:   
+    #. Диапозон розыгрыша расчитывается на основании следующих величин: 
+        * **Полуширина** щели детектора dtheta по \theta в лабороторной системе координат, которую нужно задать::
+    
+                scattering->SetDetThetaWidth(0.262822833); // Detectors theta width
    
-#. **Полуширину** щели детектора dtheta по \theta в лабороторной системе координат, которую нужно задать::
-    
-      scattering->SetDetThetaWidth(0.262822833); // Detectors theta width
-      
-   .. attention:: Важно выбирать данную велечину с запасом!
+          .. attention:: Важно выбирать данную велечину с запасом!
 
-   .. figure:: _static/fig3.png
-       :height: 50px
-       :width: 100 px
-       :align: left
-       
-    
+          .. figure:: _static/fig3.png
+              :height: 50px
+              :width: 100 px
+              :align: left  
   
-#. Координата theta *Lab* центра щели детектора::
+        * Координата theta *Lab* центра щели детектора::
 
-        scattering->SetDetTheta(theta); 
-    
-    Кумулятивная функция - это функция от theta в системе центра масс.
-    Дипозон розыгрыша theta *CM* углов по кумулятивной функции, вычисляется по следующим формулам:
+            scattering->SetDetTheta(theta); 
 
-   .. figure:: _static/formulas.png
-      :height: 50px
-      :width: 100 px
-      :align: left
+            Дипозон розыгрыша theta *CM* (fTheta1 - певая координата по theta, fTheta2 - вторая) углов по кумулятивной функции, вычисляется по следующим формулам:
+
+          .. figure:: _static/formulas.png
+              :height: 50px
+              :width: 100 px
+              :align: left
       
-#. Пользователь может выбрать диапозон розыгрыша углов theta *CM* явным образом::
-
-        scattering->SetThetaRange(18.4, 19.4);
+    #. Пользователь может выбрать диапозон розыгрыша углов theta *CM* явным образом::
     
-  .. danger:: 
-       Пункт 7 не совместим с пунктами  5 и 6!
-       
+            scattering->SetThetaRange(18.4, 19.4);
+                 
+  .. tip::
+       Предпочтительнее использовать первый способ! 
+              
 Механизм работы класса
 ----------------------
+
+Добавляем упругое рассеяние в коллекцию распадов::
+
+  decayer->AddDecay(scattering);  
+
+Ниже опишем что будет происходить поле этого.
+
+Класс ElasticScattering содержит два основных метода: Intit(), Stepping().
+
+Bool_t ElasticScattering::Init()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Данный метод вызывается в самом начале симуляции, на этапе инициализации. 
+Здесь проверяется ::
+
+    if (!ERDecay::Init())
+    {
+        return kFALSE;
+    }
+
+    fTargetIonPDG = TDatabasePDG::Instance()->GetParticle(fTargetIonName);
+    if ( ! fTargetIonPDG )
+    {
+        LOG(FATAL) << "Target ion not found in pdg database!" << FairLogger::endl;
+        return kFALSE;
+    }
+    
+Расчитывается диапозон розыгрыша углов theta *CM* - вызовом метода::
+    
+    ERElasticScattering::RangesCalculate(Double_t iM, Double_t tM)
+    
+где iM - масса налетающего иона, а tM - иона мишени.
+
+.. note:: В случае явного определения диапозона розыгрыша theta *CM*, метод описанный выше не вызывается! 
+
+Так же здесь формируется кумулятивная функция. Из диапозона theta *CM* вычисляется соотвесвующий диапозон внутри кумулятивной функции. 
+
+Bool_t ElasticScattering::Steping()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Вызывается на каждом шаге траспорта налетающего иона внутри обьема мишени.
+
+Здесь разыгрываются углы вылета для ионов - налетающего и мишени, следующим образом::
+    
+    // Generate random angles theta and phi
+    Double_t theta = ThetaGen();
+    Double_t phi = fRnd->Uniform(fPhi1*DegToRad(), fPhi2*DegToRad());
+    
+Связь лабороторной и цетра масс систем
+--------------------------------------
 

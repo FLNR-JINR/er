@@ -129,7 +129,6 @@ private:
     Int_t           fInteractNumInTarget;       ///< Interactions counter in target
     Int_t           fNumOfPriIons;              ///< Interactions counter of primary ions in target
     Int_t           fNumOfTarIons;              ///< Interactions counter of target ions in target
-    Bool_t          ionMassTrueOrFalseTester;   ///< Identify a difference between the PDG and Monte-Carlo ion mass
     Bool_t          fIonTester;                 ///< kTRUE if target ion kFLASE if primary ionfIonTester
 
     /** @brief The private method is to generate theta value. **/

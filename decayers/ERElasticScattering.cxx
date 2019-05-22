@@ -66,8 +66,7 @@ ERElasticScattering::ERElasticScattering(TString name):
     fThetaCMSumPri(0.),
     fThetaCMSumTar(0.),
     fNumOfPriIons(0),
-    fNumOfTarIons(0),
-    ionMassTrueOrFalseTester(kFALSE)
+    fNumOfTarIons(0)
 {
 }
 
@@ -100,9 +99,7 @@ Bool_t ERElasticScattering::Init()
     SetIonMass(fInputIonPDG->Mass());
     SetTargetIonMass(fTargetIonPDG->Mass());
 
-    if (fTheta1 != 0. && fTheta2 != 0.)
-        ionMassTrueOrFalseTester = kTRUE;
-    else
+    if (fTheta1 == 0. && fTheta2 == 0.)
         RangesCalculate (fInputIonPDG->Mass(), fTargetIonPDG->Mass());
 
     if (fThetaFileName != "")
@@ -153,52 +150,35 @@ Bool_t ERElasticScattering::Stepping()
 {
     if (!fDecayFinish && gMC->TrackPid() == fInputIonPDG->PdgCode() && TString(gMC->CurrentVolName()).Contains(fVolumeName))
     {
-        //gMC->SetMaxStep(fStep);
         TLorentzVector curPos;
         gMC->TrackPosition(curPos);
-        fDecayPosZ = 0.;
         if (curPos.Z() >= fDecayPosZ)
         {
+            gMC->SetMaxStep(fStep);
             TLorentzVector fInputIonV;
             gMC->TrackMomentum(fInputIonV);
             Double_t iM = GetIonMass();
             Double_t tM = GetTargetIonMass();
-            Double_t iM2 = pow(iM,2);
-            Double_t tM2 = pow(tM,2);
+            Double_t iM2 = pow(iM, 2);
+            Double_t tM2 = pow(tM, 2);
 
-            // Input MC ion mass identify
-            if (!ionMassTrueOrFalseTester)
-            {
-                Double_t mcIonMass = fInputIonV.E() / fInputIonV.Gamma();
-                //std::cout.precision(12);
-                //std::cout << "PDG Input ion mass: " << fInputIonPDG->Mass() << " ";
-                //std::cout << "Input Ion mcMass: " << mcIonMass << std::endl;
-                SetIonMass(mcIonMass);
-                iM = mcIonMass;
-                ionMassTrueOrFalseTester=kTRUE;
-                RangesCalculate(iM, tM); // For the angles are drawing the ranges
-                //std::cout << "primary ion mass: " << iM << ", target ion mass: " << tM << std::endl;
-                //std::cout.precision(3);
-            }
-
-            Double_t inputIonT = sqrt(pow(fInputIonV.P(),2)+iM2) - iM;
+            Double_t inputIonT = sqrt(pow(fInputIonV.P(), 2)+iM2) - iM;
 
             LOG(DEBUG) << "ElasticScattering: " << fName << FairLogger::endl;
             LOG(DEBUG) << "  Input ion with Ekin = " << inputIonT
                         << ", mass = " << iM
                         << " mom = (" << fInputIonV.Px() << "," << fInputIonV.Py() << "," << fInputIonV.Pz() << ")" << FairLogger::endl;
 
-            Double_t invariant = pow((iM+tM),2)+2*tM*inputIonT;
-            Double_t shorty = pow(invariant-iM2-tM2,2);
-            Double_t Pcm = sqrt((shorty-4*iM2*tM2)/(4*invariant));
+            Double_t invariant = pow((iM+tM), 2) + 2*tM*inputIonT;
+            Double_t shorty = pow(invariant-iM2-tM2, 2);
+            Double_t Pcm = sqrt( (shorty-4*iM2*tM2) / (4*invariant) );
 
             LOG(DEBUG) << "  CM momentum: " << Pcm << FairLogger::endl;
             LOG(DEBUG) << "  CM Ekin: " << sqrt(pow(Pcm,2)+iM2) - iM << FairLogger::endl;
 
-
-
+            // Generate random angles theta and phi
             Double_t theta = ThetaGen();
-            Double_t phi = 0.*fRnd->Uniform(fPhi1*DegToRad(), fPhi2*DegToRad());
+            Double_t phi = fRnd->Uniform(fPhi1*DegToRad(), fPhi2*DegToRad());
 
             // In case of target ion registration
             if (fIonTester)
@@ -241,24 +221,11 @@ Bool_t ERElasticScattering::Stepping()
                         << ", gamma = " << cmV.Gamma() << FairLogger::endl;
             LOG(DEBUG) << "  Module of cmV.BoostVector: " << sqrt(cmVBoost.Px()*cmVBoost.Px() + cmVBoost.Py()*cmVBoost.Py() + cmVBoost.Pz()*cmVBoost.Pz()) << FairLogger::endl;
             LOG(DEBUG) << "  cmV.BoostVector components: (" << cmVBoost.Px() << ", " << cmVBoost.Py() << ", " << cmVBoost.Pz() << ")" << FairLogger::endl;
+
             theta = cmV.Theta();
             phi = cmV.Phi();
             LOG(DEBUG) << "  Rotation angles: theta = " << theta*RadToDeg() << ", Phi = " << phi*RadToDeg() << FairLogger::endl;
 
-            //out1V.Boost(cmV.BoostVector());
-            //out2V.Boost(cmV.BoostVector());
-/*
-            // we use second case
-            out1V.RotateY(theta);
-            out1V.RotateZ(phi);
-            out1V.Boost(cmV.BoostVector());
-
-            out2V.RotateY(theta);
-            out2V.RotateZ(phi);
-            out2V.Boost(cmV.BoostVector());
-*/
-
-            // third case
             out1V.RotateZ(-phi);
             out1V.RotateY(theta);
             out1V.RotateZ(phi);
@@ -279,7 +246,6 @@ Bool_t ERElasticScattering::Stepping()
             LOG(DEBUG) << "  Lab out2 state(px,py,pz,E) = "<<out2V.Px()<<","<<out2V.Py()<<","<<out2V.Pz()
                         << "," << out2V.E() << FairLogger::endl;
 
-            //curPos[2] += 0.0007; //TODO
 
             AddParticleToStack(fInputIonPDG->PdgCode(),curPos,out1V);
             AddParticleToStack(fTargetIonPDG->PdgCode(),curPos,out2V);
@@ -306,13 +272,8 @@ Double_t ERElasticScattering::ThetaGen()
     else
     {
         Double_t dF1 = fabs(fCDFmax-fCDFmin);
-        Double_t dF2 = 0.*fabs(fCDFmaxTargetIon-fCDFminTargetIon);
+        Double_t dF2 = fabs(fCDFmaxTargetIon-fCDFminTargetIon);
         Double_t dLength = dF1 + dF2;
-/*
-        std::cout.precision(12);
-        std::cout << "summ: "<< dLength << std::endl;
-        std::cout.precision(3);
-*/
 
         if (fCDFRangesSum == 0.)
             fCDFRangesSum = dLength;
@@ -364,10 +325,6 @@ void ERElasticScattering::RangesCalculate(Double_t iM, Double_t tM)
     fThetaTargetIon2 = 180. - 2.*fDetPos + TMath::RadToDeg()*dThetaDet;
     LOG(DEBUG) << "  B11: CMTheta1: " << fThetaTargetIon1 << ", CMTheta2: " << fThetaTargetIon2
                 << ", average value: " << 0.5*(fThetaTargetIon2-fThetaTargetIon1) + fThetaTargetIon1 << FairLogger::endl;
-    Double_t dPhi = 4.*180. / (TMath::Pi()*Radius*sin(TMath::DegToRad()*fDetPos));
-    fPhi1 = /*-6.*DegToRad()*/ -0.5*dPhi;
-    fPhi2 = /*6.*DegToRad()*/ 0.5*dPhi;
-
 }
 
 
