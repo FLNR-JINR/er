@@ -1,5 +1,5 @@
 
-void exp1811_sim_digi (Int_t nEvents = 10000000) {
+void exp1811_sim_digi (Int_t nEvents = 1000) {
 //----------------------------------
   Double_t BeamDetLToF = 1232.0;     // [cm] 12348
   Double_t BeamDetPosZToF = -95.3;  // [cm] 
@@ -53,10 +53,10 @@ void exp1811_sim_digi (Int_t nEvents = 10000000) {
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);     
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);    //  BeamDet parts should be added in ascending order   
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ1MWPC);   //  of Z-coordinate of part.
-  setupBeamDet->SetMWPCnumberingInvOrderX(); 
+  // setupBeamDet->SetMWPCnumberingInvOrderX(); 
 
   setupBeamDet->AddMWPC("MWPC1", BeamDetPosZ2MWPC);    
-  setupBeamDet->SetMWPCnumberingInvOrderX(); 
+  // setupBeamDet->SetMWPCnumberingInvOrderX(); 
 
   //setupBeamDet->SetSensitiveTarget();
 
@@ -79,13 +79,20 @@ void exp1811_sim_digi (Int_t nEvents = 10000000) {
   yPos = 0.;
   zPos = radius * TMath::Cos(rotationL.Y() * TMath::DegToRad());
   ERGeoSubAssembly* assembly_Left = new ERGeoSubAssembly("Left_telescope", TVector3(xPos, yPos, zPos), rotationL);
-  ERQTelescopeGeoComponentSingleSi* thin_Left = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_L", 
-                                                                                  TVector3(0., 0., -1.4), TVector3(), "X");
+  // ERQTelescopeGeoComponentSingleSi* thin_Left = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_L", 
+  //                                                                                 TVector3(0., 0., -1.4), TVector3(), "X");
+  ERQTelescopeGeoNonUniformSingleSi* thin_Left = new ERQTelescopeGeoNonUniformSingleSi("SingleSi", "SingleSi_SSD20_L",
+                                                                               "DoubleSi", "DoubleSi_DSD_L", "Y",
+                                                                               "./input/map_sens.root",
+                                                                               "./input/map_deadFront.root",
+                                                                               "./input/map_deadBack.root"); 
   ERQTelescopeGeoComponentDoubleSi* thick1_Left = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_DSD_L", 
                                                                                   TVector3(0., 0., 0.), TVector3(), "X");
   ERQTelescopeGeoComponentSingleSi* thick2_Left = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_L", 
                                                                                   TVector3(0., 0., 1.0), TVector3(), "X");
-  assembly_Left->AddComponent(thin_Left);
+
+
+  assembly_Left->AddComponent(thin_Left, TVector3(0, 0, -1.4), TVector3(0, 0, 0));
   assembly_Left->AddComponent(thick1_Left);
   assembly_Left->AddComponent(thick2_Left);
 

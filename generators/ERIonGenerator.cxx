@@ -73,7 +73,9 @@ ERIonGenerator::ERIonGenerator(TString name, Int_t z, Int_t a, Int_t q, Int_t mu
   fPointVtxIsSet(0),fBoxVtxIsSet(0),fIon(NULL), fName(name), 
   fBoxSigmaIsSet(0), fSpreadingOnTarget(0),
   fGausTheta(0), fSigmaTheta(0), fSigmaThetaIsSet(0),
-  fKinE(0)
+  fKinE(0),
+  fRoundXYIsSet(0),
+  fRho(0), fCenterX(0), fCenterY(0)
 {
   SetPhiRange();
   fIon= new FairIon(fName, z, a, q);
@@ -199,7 +201,18 @@ void ERIonGenerator::SpreadingParameters()
     fX = gRandom->Uniform(fX1,fX2);
     fY = gRandom->Uniform(fY1,fY2);
   }
-
+  if (fRoundXYIsSet) {
+    Bool_t isInCircle = kFALSE;
+    while (!isInCircle) {
+      fX = gRandom->Uniform(0, fRho);
+      fY = gRandom->Uniform(0, fRho);
+      if (sqrt(pow(fX, 2) + pow(fY, 2)) < fRho) {
+        isInCircle = kTRUE;
+      }
+    }
+    fX += fCenterX;
+    fY += fCenterY;
+  }
   if (fBoxSigmaIsSet) {
     fX = gRandom->Gaus(fGausX,fSigmaX);
     fY = gRandom->Gaus(fGausY,fSigmaY);

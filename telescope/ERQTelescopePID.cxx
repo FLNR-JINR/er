@@ -120,14 +120,15 @@ void ERQTelescopePID::Exec(Option_t* opt) {
                                     P*cos(direction.Theta()),
                                     sqrt(pow(P,2)+pow(mass,2)));
         //LorentVector on target
-        T -= deadEloss;
-        P = sqrt(pow(T,2) + 2*mass*T);
+        T += deadEloss;
+        P = sqrt(pow(fT,2) + 2*mass*fT);
         TLorentzVector lvTarget (P*sin(direction.Theta())*cos(direction.Phi()),
                                     P*sin(direction.Theta())*sin(direction.Phi()),
                                     P*cos(direction.Theta()),
                                     sqrt(pow(P,2)+pow(mass,2)));
 
-        AddParticle(lvTelescope, lvTarget, deadEloss,itParticesBranches.second);
+        // AddParticle(lvTelescope, lvTarget, deadEloss,itParticesBranches.second);
+        AddParticle(lvTelescope, lvTarget, deadEloss, itParticesBranches.second, fT);
 
       }
 
@@ -154,6 +155,17 @@ ERQTelescopeParticle* ERQTelescopePID::AddParticle(TLorentzVector lvTelescope, T
   ERQTelescopeParticle *particle = new((*col)
                                         [col->GetEntriesFast()])
                                         ERQTelescopeParticle(lvTelescope,lvTarget,deadEloss);
+  return particle;
+}
+//------------------------------------------------------------------------------------s--------------
+ERQTelescopeParticle* ERQTelescopePID::AddParticle(TLorentzVector lvTelescope, 
+                                                   TLorentzVector lvTarget, 
+                                                   Double_t deadEloss, TClonesArray* col,
+                                                   Double_t T) 
+{
+  ERQTelescopeParticle *particle = new((*col)
+                                        [col->GetEntriesFast()])
+                                        ERQTelescopeParticle(lvTelescope,lvTarget,deadEloss,T);
   return particle;
 }
 //------------------------------------------------------------------------------------s--------------
@@ -197,8 +209,6 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
                                 direction.X(),direction.Y(),direction.Z());
   
   Float_t sumLoss = 0.;
-  
-
   Bool_t inTarget = kFALSE;
   Float_t tarEdep = 0.;
   Bool_t firstSens = kTRUE;
@@ -252,7 +262,7 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
   
   T += tarEdep/2.;
   sumLoss -= tarEdep/2.;
-  
+  fT = T;
   LOG(DEBUG) <<" [CalcEloss] Target Eloss = " <<  tarEdep << FairLogger::endl;
   LOG(DEBUG) <<" [CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::endl;
   LOG(DEBUG) <<" [CalcEloss] Ekin on target = " <<  T << FairLogger::endl;
@@ -266,10 +276,20 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(TGeoNode* node){
 
   TString brNamePrefix = node->GetMotherVolume()->GetName();
   LOG(DEBUG) <<" [CalcEloss]    Branch name prefix " << brNamePrefix << FairLogger::endl;
-  
+  if (brNamePrefix.Contains("pseudo")) {
+    TString path = gGeoManager->GetPath();
+    path.Remove(path.Last('/'), path.Length());
+    path.Remove(path.Last('/'), path.Length());
+    path.Remove(0, path.Last('/') + 1);
+    path.Remove(path.Length()-2, path.Length());
+    // std::cout << "debug path " << path << std::endl;
+    brNamePrefix = path;
+  }
   TString brName = "";
   for (auto digiBranch : fQTelescopeDigi){
     TString currentBrNamePrefix(digiBranch.first(0,digiBranch.first.Last('_')));
+    // std::cout << "currentBrNamePrefix " << currentBrNamePrefix << std::endl;
+    // std::cout << "currentBrNamePrefix " << currentBrNamePrefix << std::endl;
     if (currentBrNamePrefix == brNamePrefix)
       brName = digiBranch.first;
   }
@@ -290,6 +310,9 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(TGeoNode* node){
         found = kTRUE;
         LOG(DEBUG) << " [CalcEloss]   Found digi with edep " << digi->GetEdep() << FairLogger::endl;
         edep = digi->GetEdep();
+        if (stripNb == 6) {
+          // std::cout << "brName, stripNb, edep: " << brName << " " << stripNb << " " << edep << std::endl;
+        }
         break;
       }
     }
@@ -310,8 +333,8 @@ Double_t ERQTelescopePID::FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg
   direction.SetMag(1.);
 
   TGeoNode* node;
-  node = gGeoManager->InitTrack(telescopeVertex.X(),telescopeVertex.Y(),telescopeVertex.Z(),
-                                direction.X(),direction.Y(),direction.Z());
+  node = gGeoManager->InitTrack(telescopeVertex.X(), telescopeVertex.Y(), telescopeVertex.Z(),
+                                direction.X(), direction.Y(), direction.Z());
 
   G4IonTable* ionTable = G4IonTable::GetIonTable();
   G4ParticleDefinition* ion =  ionTable->GetIon(pdg);
