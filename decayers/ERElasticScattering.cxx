@@ -247,8 +247,8 @@ Bool_t ERElasticScattering::Stepping()
                         << "," << out2V.E() << FairLogger::endl;
 
 
-            AddParticleToStack(fInputIonPDG->PdgCode(),curPos,out1V);
-            AddParticleToStack(fTargetIonPDG->PdgCode(),curPos,out2V);
+            AddParticleToStack(fInputIonPDG->PdgCode(), curPos,out1V);
+            AddParticleToStack(fTargetIonPDG->PdgCode(), curPos,out2V);
 
             fDecayFinish = kTRUE;
             gMC->StopTrack();
