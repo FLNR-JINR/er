@@ -9,5 +9,5 @@ build:
   script:
     - mkdir build
     - cd build
-    - /home/schetinin/fs_inst/cmake ../
+    - /home/schetinin/fs_inst/bin/cmake ../
     - make
