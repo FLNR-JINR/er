@@ -3,5 +3,11 @@ stages:
 
 build:
   stage: build
+  variables:
+    SIMPATH:/home/schetinin/fs_inst
+    FAIRROOTPATH:/home/schetinin/fr_inst
   script:
-    - echo "Hello world"
+    - mkdir build
+    - cd build
+    - /home/schetinin/fs_inst/cmake ../
+    - make
