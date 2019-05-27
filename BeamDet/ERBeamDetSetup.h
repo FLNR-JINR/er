@@ -111,8 +111,8 @@ private:
   static vector<TString>  fCathodeMedia;
   static vector<TString>  fAnodeWireMedia;
   static vector<TString>  fGasMedia;
-  static vector<TString>  fMWPCInvNumberingOrderX;
-  static vector<TString>  fMWPCInvNumberingOrderY;
+  static vector<Bool_t>  fMWPCInvNumberingOrderX;
+  static vector<Bool_t>  fMWPCInvNumberingOrderY;
   // ------ fPosition of detector's parts relative to zero ---------------------
   static vector<Double_t> fPositionToF;
   static vector<Double_t> fPositionMWPC;
