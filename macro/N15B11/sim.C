@@ -68,8 +68,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("cave"); //targetB11
-  scattering->SetDetAngle(angle); // argumetn is an angle of detector position in Lab
-  scattering->SetDetThetaWidth(4.*0.262822833); // Detectors theta width
+  scattering->SetDetectorsSlot(angle, 4.*0.262822833);
   scattering->SetPhiRange(-20., 20.);
 
   decayer->AddDecay(scattering);
@@ -96,7 +95,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // ------------------------------------------------------------------------
 
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kFALSE); // kFALSE
+  run->SetStoreTraj(kTRUE); // kFALSE
 
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");

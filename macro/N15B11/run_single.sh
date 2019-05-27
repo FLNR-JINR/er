@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OUTDIR=output
-NEVENTS=100
+NEVENTS=1000
 ANGEL=35
 
 cd ../../../build

@@ -46,7 +46,7 @@ ERElasticScattering::ERElasticScattering(TString name):
     ERDecay(name),
     fThetaFileName(""),
     fTheta1(0.),
-    fTheta2(0.),
+    fTheta2(180.),
     fPhi1(0),
     fPhi2(360.),
     fTargetIonName(""),
@@ -58,8 +58,9 @@ ERElasticScattering::ERElasticScattering(TString name):
     fThetaTargetIon2(0.),
     fCDFminTargetIon(0.),
     fCDFmaxTargetIon(0.),
-    fDetPos(0.),
-    fDetThetaWidth(0.),
+    fDetThetaCenter(0.),
+    fDetdTheta(0.),
+    fDetSlotIsSet(kFALSE),
     fIonMass(0.),
     fInteractNumInTarget(0),
     fCDFRangesSum(0.),
@@ -99,7 +100,7 @@ Bool_t ERElasticScattering::Init()
     SetIonMass(fInputIonPDG->Mass());
     SetTargetIonMass(fTargetIonPDG->Mass());
 
-    if (fTheta1 == 0. && fTheta2 == 0.)
+    if (fDetSlotIsSet)
         RangesCalculate (fInputIonPDG->Mass(), fTargetIonPDG->Mass());
 
     if (fThetaFileName != "")
@@ -299,10 +300,10 @@ Double_t ERElasticScattering::ThetaGen()
 void ERElasticScattering::RangesCalculate(Double_t iM, Double_t tM)
 {
     LOG(DEBUG) << "ERElasticScattering::RangesCalculate(" << iM << ", " << tM << ")" << FairLogger::endl;
-    Double_t rAng = fDetPos*DegToRad();
+    Double_t rAng = fDetThetaCenter*DegToRad();
     Double_t ratio = iM/tM;
     Double_t ratio2 = ratio*ratio;
-    Double_t dThetaDet = fDetThetaWidth*TMath::DegToRad(); // Detectors dThetaDet
+    Double_t dThetaDet = fDetdTheta*TMath::DegToRad(); // Detectors dThetaDet
     Double_t Radius = 218.;
     // Primary Ion
     if (iM != tM)
@@ -321,8 +322,8 @@ void ERElasticScattering::RangesCalculate(Double_t iM, Double_t tM)
                 << ", average value: " << 0.5*(fTheta2-fTheta1) + fTheta1 << FairLogger::endl;
 
     // Target Ion
-    fThetaTargetIon1 = 180. - 2.*fDetPos - TMath::RadToDeg()*dThetaDet;
-    fThetaTargetIon2 = 180. - 2.*fDetPos + TMath::RadToDeg()*dThetaDet;
+    fThetaTargetIon1 = 180. - 2.*fDetThetaCenter - TMath::RadToDeg()*dThetaDet;
+    fThetaTargetIon2 = 180. - 2.*fDetThetaCenter + TMath::RadToDeg()*dThetaDet;
     LOG(DEBUG) << "  B11: CMTheta1: " << fThetaTargetIon1 << ", CMTheta2: " << fThetaTargetIon2
                 << ", average value: " << 0.5*(fThetaTargetIon2-fThetaTargetIon1) + fThetaTargetIon1 << FairLogger::endl;
 }

@@ -54,15 +54,15 @@ public:
     **/
     void SetPhiRange(Double_t phi1, Double_t phi2) { fPhi1 = phi1; fPhi2 = phi2; }
 
-    /** @brief Defines theta position for detector in Lab.
-     ** @param angle theta position for detector in Lab.
+    /** @brief Defines theta position for detector slot center in Lab.
+     ** @param ThetaCenter theta position for detector center in Lab.
+     ** @param dTheta half of the theta range of the detector slit.
     **/
-    void SetDetAngle(Double_t angle)  { fDetPos = angle; }
-
-    /** @brief Defines theta width for detector in Lab.
-     ** @param  dTheta theta width for detector in Lab.
-    **/
-    void SetDetThetaWidth(Double_t dTheta) { fDetThetaWidth = dTheta; }
+    void SetDetectorsSlot(Double_t ThetaCenter, Double_t dTheta)
+    {
+        fDetThetaCenter = ThetaCenter; fDetdTheta = dTheta;
+        fDetSlotIsSet = kTRUE;
+    }
 
     /** @brief Defines primary ion mass.
      ** @param mass Primary ion mass.
@@ -118,8 +118,8 @@ private:
     Double_t        fThetaTargetIon2;           ///< Theta maximum for target ion in CM [Deg]
     Double_t        fCDFminTargetIon;           ///< ThetaCDF(fThetaTargetIon1) minimum
     Double_t        fCDFmaxTargetIon;           ///< ThetaCDF(fThetaTargetIon2) maximum
-    Double_t        fDetPos;                    ///< Detector position in Lab [Deg]
-    Double_t        fDetThetaWidth;             ///< Detector Theta Width in Lab [Deg]
+    Double_t        fDetThetaCenter;            ///< Detector position in Lab [Deg]
+    Double_t        fDetdTheta;                 ///< Detector Theta Width in Lab [Deg]
     Double_t        fIonMass;                   ///< Primary ion mass
     Double_t        fTargetIonMass;             ///< Target ion mass
     Double_t        fCDFRangesSum;              ///< The CDF ranges sum of the primary ion and target ion
@@ -130,6 +130,7 @@ private:
     Int_t           fNumOfPriIons;              ///< Interactions counter of primary ions in target
     Int_t           fNumOfTarIons;              ///< Interactions counter of target ions in target
     Bool_t          fIonTester;                 ///< kTRUE if target ion kFLASE if primary ionfIonTester
+    Bool_t          fDetSlotIsSet;              ///< kTRUE if ERElasticScattering::SetDetectorsSlot  is called kFALSE by default
 
     /** @brief The private method is to generate theta value. **/
     Double_t ThetaGen();
