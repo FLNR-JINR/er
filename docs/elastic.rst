@@ -7,12 +7,12 @@
 Постановка задачи упругого рассеяния
 ------------------------------------
 
-Ион **А** с энергией \ :sup: A \ **E**\ :sub: 0 , импульсом \ :sup: A \ **P**\ :sub: 0 \(**P**\ :sub: x , **P**\ :sub: y , **P**\ :sub: z ),
-начальными пространственными координатами \ :sup: A \ **r**\ :sub: 0 \(**x**\ :sub: 0 , **y**\ :sub: 0 , **z**\ :sub: 0 ) налетает на покоящуюся мишень
+Ион **А** с энергией \ :sup:`A` \ **E**\ :sub:`0` , импульсом \ :sup:`A` \ **P**\ :sub:`0` \(**P**\ :sub:`x` , **P**\ :sub:`y` , **P**\ :sub:`z` ),
+начальными пространственными координатами \ :sup:`A` \ **r**\ :sub:`0` \(**x**\ :sub:`0` , **y**\ :sub:`0` , **z**\ :sub:`0` ) налетает на покоящуюся мишень
 состоящую из атомов **B**.
 Ион **A** многократно рассеивается внутри объёма мишени, на некотором шаге выбивает ион **B**, и далее уже оба иона многократно рассеиваются пока не покинут объем мишени.
-В результате - новые характеристики \ :sup: A \ **E**\, \ :sup: A \ **P(P**\ :sub: x , **P**\ :sub: y , **P**\ :sub: z ), \ :sup: A \ **r(x**, **y**, **z**)- для иона **А**,
-и следующие для иона **B**: \ :sup: B \ **E**\, \ :sup: B \ **P(P**\ :sub: x , **P**\ :sub: y , **P**\ :sub: z ), \ :sup: B \ **r(x**, **y**, **z**).
+В результате - новые характеристики \ :sup:`A` \ **E**\, \ :sup:`A` \ **P(P**\ :sub:`x` , **P**\ :sub:`y` , **P**\ :sub:`z` ), \ :sup:`A` \ **r(x**, **y**, **z**)- для иона **А**,
+и следующие для иона **B**: \ :sup:`B` \ **E**\, \ :sup:`B` \ **P(P**\ :sub:`x` , **P**\ :sub:`y` , **P**\ :sub:`z` ), \ :sup:`B` \ **r(x**, **y**, **z**).
 
     .. figure:: _static/fig1.png
         :height: 600px
@@ -32,15 +32,16 @@
 Пользователь должен знать:
 
 #. Следующие характеристики ионов:
-* A - атомная масса
-* Z - число протонов
-* Q - заряд
 
-Для налетающего иона, например для \ :sup: 15 \N, данные характеристике задаются так::
+    * A - атомная масса
+    * Z - число протонов
+    * Q - заряд
+
+Для налетающего иона, например для \ :sup:`1`5 \N, данные характеристике задаются так::
 
     scattering->SetInputIon(7,15,3); // Z = 7, A = 15, Q = 3
 
-А для иона мишени, например \ :sup: 11 \B так::
+А для иона мишени, например \ :sup:`1`1 \B так::
 
     scattering->SetTargetIon(5,11,5); // Z = 5, A = 11, Q = 5
 
@@ -106,14 +107,14 @@
 
         scattering->SetStep(0.00001); //0.1 micron
 
-#. Способ выбора диапазона розыгрыша углов |theta|\ :sub: CM  и |phi|\ :sub: CM .
+#. Способ выбора диапазона розыгрыша углов |theta|\ :sub:`CM`  и |phi|\ :sub:`CM` .
 
-    По умолчанию |theta|\ :sub: CM  разыгрывается внутри диапазона от 0\ :sup: 0  до 180\ :sup: 0 ,а  |phi|\ :sub: CM  от 0\ :sup: 0  до 360\ :sup: 0 .
+    По умолчанию |theta|\ :sub:`CM`  разыгрывается внутри диапазона от 0\ :sup:`0`  до 180\ :sup:`0` ,а  |phi|\ :sub:`CM`  от 0\ :sup:`0`  до 360\ :sup:`0` .
     Часто, пользователю не нужен весь диапазон розыгрыша углов для продуктов реакции, и он может выбрать только часть диапазона.
 
     Тогда продукты реакций будут рассеиваться под углами из выбранного диапазона, что уменьшит время вычисления и повысит статистику.
 
-    * Выбрать диапазон розыгрыша для |theta|\ :sub: CM  можно:
+    * Выбрать диапазон розыгрыша для |theta|\ :sub:`CM`  можно:
 
         #. Явным образом::
 
@@ -122,7 +123,7 @@
 
         #. Через следующие величины:
 
-            * Координату |theta|\ :sub: Lab \  центра щели детектора
+            * Координату |theta|\ :sub:`Lab` \  центра щели детектора
 
             * *Полуширину* выбираемого диапазона 0.5*d |theta| в лабораторной системе координат::
 
@@ -130,16 +131,16 @@
 
             .. attention:: Важно выбирать полуширину с запасом
 
-        Далее по формулам, которые приведены ниже рассчитываются: |theta|\ :sub: CM1  и |theta|\ :sub: CM2 ,
-        где |theta|\ :sub: CM1  и |theta|\ :sub: CM2  крайние значения расчитываемого диапозона.
+        Далее по формулам, которые приведены ниже рассчитываются: |theta|\ :sub:`CM1`  и |theta|\ :sub:`CM2` ,
+        где |theta|\ :sub:`CM1`  и |theta|\ :sub:`CM2`  крайние значения расчитываемого диапозона.
 
-        Когда M\ :sub: 1 \< M\ :sub: 2 \
+        Когда M\ :sub:`1` \< M\ :sub:`2` \
 
         .. math::
-        
+
             0 \leqslant \theta_1 \leqslant \pi\ ,\\
 
-            а когда  M\ :sub: 1 \ > M\ :sub: 2 \
+            а когда  M\ :sub:`1` \ > M\ :sub:`2` \
 
         .. math::
 
@@ -153,7 +154,7 @@
 
             \theta_{cm2} = \arccos\left [  -\frac{M_1}{M_2} + sin 2(\theta_1+d\theta) + cos(\theta_1+d\theta)\sqrt{1 - \frac{M_1 2}{M_2 2}sin 2(\theta_1+d\theta)} \right ]\ .
 
-            Когда M\ :sub: 1 \ = M\ :sub: 2 \
+            Когда M\ :sub:`1` \ = M\ :sub:`2` \
 
         .. math::
 
@@ -174,18 +175,18 @@
 
             \theta_{cm2} = \pi - 2(\theta_2+d\theta) .
 
-        M\ :sub: 1  - масса налетающей частицы,
+        M\ :sub:`1`  - масса налетающей частицы,
 
-        M\ :sub: 2  - масса покоящейся частицы,
+        M\ :sub:`2`  - масса покоящейся частицы,
 
-        |theta|\ :sub: 1  - угол рассеяния налетающей частицы (Лаб. Сит.),
+        |theta|\ :sub:`1`  - угол рассеяния налетающей частицы (Лаб. Сит.),
 
-        |theta|\ :sub: 2  - угол вылета покоящейся частицы (Лаб. Сит.).
+        |theta|\ :sub:`2`  - угол вылета покоящейся частицы (Лаб. Сит.).
 
         d |theta| - полуширина выбираемого диапазона (Лаб. Сит.).
 
     .. tip::
-        Задавать диапазон розыгрыша через координату |theta|\ :sub: Lab \  центра щели детектора и
+        Задавать диапазон розыгрыша через координату |theta|\ :sub:`Lab` \  центра щели детектора и
         полуширину выбираемого диапазона d |theta| предпочтительнее т.к оба параметра в Лаб. Сист!
 
     * Диапазон розыгрыша для |phi| выбирается явно::
@@ -221,15 +222,15 @@ Bool_t ElasticScattering::Init()
         return kFALSE;
     }
 
-Считается диапазон розыгрыша углов |theta|\ :sub: CM \  - вызовом метода::
+Считается диапазон розыгрыша углов |theta|\ :sub:`CM` \  - вызовом метода::
 
     ERElasticScattering::RangesCalculate(Doubleр_t iM, Double_t tM)
 
 где iM - масса налетающего иона, а tM - иона мишени.
 
-.. note:: В случае явного определения диапазона розыгрыша |theta|\ :sub: CM \ , метод описанный выше не вызывается!
+.. note:: В случае явного определения диапазона розыгрыша |theta|\ :sub:`CM` \ , метод описанный выше не вызывается!
 
-Так же здесь формируется кумулятивная функция. Из диапазона |theta|\ :sub: CM \  вычисляется соответствующий диапазон внутри кумулятивной функции.
+Так же здесь формируется кумулятивная функция. Из диапазона |theta|\ :sub:`CM` \  вычисляется соответствующий диапазон внутри кумулятивной функции.
 
 Bool_t ElasticScattering::Steping()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -239,7 +240,7 @@ Bool_t ElasticScattering::Steping()
 Здесь разыгрываются углы вылета для ионов - налетающего и мишени, следующим образом::
 
     // Generate random angles theta and phi
-    Double_t theta = ThetaGen();    
+    Double_t theta = ThetaGen();
     Double_t phi = fRnd->Uniform(fPhi1*DegToRad(), fPhi2*DegToRad());
 
 Затем ионы с новыми характеристиками кидаются в стек частиц для дальнейшего транспорта.
@@ -252,7 +253,7 @@ Bool_t ElasticScattering::Steping()
     :width:  600 px
     :align: center
 
-На рисунке выше ион А упруго рассеивается на ионе B. В имплементации метода ElasticScattering::Steping() углы |theta|\ :sub: CM \
+На рисунке выше ион А упруго рассеивается на ионе B. В имплементации метода ElasticScattering::Steping() углы |theta|\ :sub:`CM` \
 разыгрываются в системе координат (на рис., выше выделена красным) у которой ось z  направлена вдоль импульса первичного иона.
 Необходимо  повернуть систему координат (2) так что бы ее ось z  совпала с-осью z  из (3).
 С помощью методов TLorentzVector::
@@ -272,7 +273,7 @@ Bool_t ElasticScattering::Steping()
 Пример
 ------
 
-Рассмотрим пример по моделированию упругого рассеяния\ :sup: 15 \ N на \ :sup: 11 \ B.
+Рассмотрим пример по моделированию упругого рассеяния\ :sup:`1`5 \ N на \ :sup:`1`1 \ B.
 
 Создаем макрос симуляции::
 
@@ -290,7 +291,7 @@ Bool_t ElasticScattering::Steping()
         // -----  Timer  --------------------------------------------------------
         TStopwatch timer;
         timer.Start();
-        
+
         // -----  Create simulation run  ----------------------------------------
         ERRunSim* run = new ERRunSim();
         /** Select transport engine
@@ -308,38 +309,38 @@ Bool_t ElasticScattering::Steping()
         // -----  Create media  -------------------------------------------------
         run->SetMaterials("N15.media.geo");      // Materials
         // ------------------------------------------------------------------------
-        
+
         //-------- Set MC event header --------------------------------------------
         ERDecayMCEventHeader* header = new ERDecayMCEventHeader();
         run->SetMCEventHeader(header);
         //-------------------------------------------------------------------------
-        
+
         // -----  Create detectors  ----------------------------------------------
         FairModule* cave= new ERCave("CAVE");
         cave->SetGeometryFileName("cave.geo");
         run->AddModule(cave);
-        
+
         FairModule* collimator = new ERCollimator(); // "N15B11_collimator", "N15B11_collimator"
         collimator->SetGeometryFileName("N15.collimator.root");
         run->AddModule(collimator);
-        
+
         ERDetector* target = new ERTarget("N15B11_target", kTRUE, 1);
         target->SetGeometryFileName("N15.target.root");
         run->AddModule(target);
-        
+
         FairDetector* detector = new ERN15B11Detector("N15B11detector", kTRUE, 1);
         detector->SetGeometryFileName("N15B11_detector.geo.root");
         run->AddModule(detector);
-    
+
         //------    ER Decayer  -------------------------------------------------
         //Ion 15N
         Int_t A = 15;
         Int_t Z = 7;
         Int_t Q = 3;
-        
+
         ERDecayer* decayer = new ERDecayer();
         ERElasticScattering* scattering = new ERElasticScattering("15Nto15N11B");
-        
+
         scattering->SetInputIon(Z,A,Q);
         scattering->SetTargetIon(5, 11, 5); // 11B
         scattering->SetThetaCDF("cos_tetta_cross.txt");
@@ -351,7 +352,7 @@ Bool_t ElasticScattering::Steping()
 
         decayer->AddDecay(scattering);
         run->SetDecayer(decayer);
-        
+
         // -----  Create PrimaryGenerator  --------------------------------------
         FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
         ERIonMixGenerator* generator = new ERIonMixGenerator("15N", Z, A, Q, 1);
@@ -366,13 +367,13 @@ Bool_t ElasticScattering::Steping()
         generator->SetBoxXYZ(-0.5, -0.5, 0.5, 0.5, -distanceToTarget); // Xmin = -0.5, Ymin = -0.5, Xmax = 0.5, , Ymax = 0.5, Z
 
         primGen->AddGenerator(generator);
-        
+
         run->SetGenerator(primGen);
         // ------------------------------------------------------------------------
 
         //-------Set visualisation flag to true------------------------------------
         run->SetStoreTraj(kFALSE); // or kTRUE
-        
+
         //-------Set LOG verbosity  -----------------------------------------------
         FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
         FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
@@ -380,7 +381,7 @@ Bool_t ElasticScattering::Steping()
         //------- Initialize simulation run ---------------------------------------
         run->Init();
         Int_t nSteps = -15000;
-        
+
         //--- Runtime database ----------------------------------------------------
         Bool_t kParameterMerged = kTRUE;    /** @brief Returns curent theta in CM for Primary Ion. **/
         FairParRootFileIo* parOut = new FairParRootFileIo(kParameterMerged);
@@ -391,7 +392,7 @@ Bool_t ElasticScattering::Steping()
 
         // -----  Run simulation  ------------------------------------------------
         run->Run(nEvents);
-        
+
         // -----  Finish  -------------------------------------------------------
         timer.Stop();
         Double_t rtime = timer.RealTime();
@@ -433,7 +434,7 @@ Bool_t ElasticScattering::Steping()
 
     На данном рисунке представлено сравнение входного дифференциального сечения и выходного  (полученного по результатам симуляции).
     Здесь можно видеть два главных эффекта:
-    
+
     #. Полученная зависимость становиться менее крутой в передних углах.
     #. Волновое поведение исходной кривой становится менее выраженным.
 
