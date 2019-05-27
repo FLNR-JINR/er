@@ -28,7 +28,8 @@ class ERUnpack : public FairUnpack
     virtual void Register(){};
 
     void UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,
-                                 std::map<Int_t, std::pair<Double_t, Double_t> >& valueMap);
+                                 std::map<Int_t, std::pair<Double_t, Double_t> >& valueMap,
+                                 Bool_t skipAloneChannels = kTRUE);
     void UnpackStation(DetEventDetector* detEvent, TString station, std::map<Int_t,Double_t>& valueMap);
 
     SetupConfiguration* fSetupConfiguration;

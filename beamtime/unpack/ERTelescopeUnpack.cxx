@@ -63,10 +63,12 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
     DetEventDetector* detEvent = (DetEventDetector* )event->GetChild(fDetName);
 
     for (auto itStation : fStations){
+        LOG(DEBUG) << FairLogger::endl << 
+                      itStation.first << " unpacking ..." << FairLogger::endl;
         if (itStation.second->type == "Si"){
             std::map<Int_t, std::pair<Double_t, Double_t> > valueMap;
             UnpackAmpTimeStation(detEvent,itStation.second->ampStName,itStation.second->timeStName,
-                                 valueMap);
+                                 valueMap, itStation.second->skipAloneChannels);
 
             if ((itStation.second->ampCalFile != "") || (itStation.second->timeCalFile != "")){
                 if (!ApplyCalibration(itStation.second->ampCalTable,itStation.second->timeCalTable,valueMap)){
@@ -88,7 +90,8 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
             if (itStation.second->sideCount == 2){
                 valueMap.clear();
                 UnpackAmpTimeStation(detEvent,itStation.second->ampStName2,
-                                     itStation.second->timeStName2, valueMap);
+                                     itStation.second->timeStName2, 
+                                     valueMap, itStation.second->skipAloneChannels);
 
                 if ((itStation.second->ampCalFile2 != "") || (itStation.second->timeCalFile2 != "")){
                     if (!ApplyCalibration(itStation.second->ampCalTable2,itStation.second->timeCalTable2,valueMap)){
@@ -112,7 +115,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
         if (itStation.second->type == "CsI"){
             std::map<Int_t, std::pair<Double_t, Double_t> > valueMap;
             UnpackAmpTimeStation(detEvent,itStation.second->ampStName,itStation.second->timeStName,
-                                     valueMap);
+                                 valueMap,itStation.second->skipAloneChannels);
 
             if ((itStation.second->ampCalFile != "") || (itStation.second->timeCalFile != ""))
                 if (!ApplyCalibration(itStation.second->ampCalTable,itStation.second->timeCalTable, valueMap)){
@@ -175,21 +178,26 @@ TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopeUnpack::AddSingleSiStation(TString name, TString ampStName, TString timeStName,
-                                           TString ampCalFile, TString timeCalFile, TString XYside){
-    ERTelescopeStation* st = new ERTelescopeStation( "Si", 1, ampStName, timeStName, "", "", ampCalFile, timeCalFile, "", "","", XYside);
+                                           TString ampCalFile, TString timeCalFile, TString XYside,
+                                           Bool_t skipAloneChannels/* = kTRUE*/){
+    ERTelescopeStation* st = new ERTelescopeStation( "Si", 1, ampStName, timeStName, "", "", ampCalFile, timeCalFile, "", "","", XYside,
+                                                    skipAloneChannels);
     fStations[name] = st;
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopeUnpack::AddDoubleSiStation(TString name, TString ampStName, TString timeStName,
                                            TString ampStName2, TString timeStName2, TString ampCalFile, TString timeCalFile,
-                                           TString ampCalFile2, TString timeCalFile2, TString XY){
+                                           TString ampCalFile2, TString timeCalFile2, TString XY,
+                                           Bool_t skipAloneChannels/* = kTRUE*/){
     ERTelescopeStation* st = new ERTelescopeStation( "Si", 2, ampStName, timeStName, ampStName2, timeStName2, ampCalFile, timeCalFile,
-                            ampCalFile2, timeCalFile2, XY, "");
+                            ampCalFile2, timeCalFile2, XY, "",skipAloneChannels);
     fStations[name] = st;
 }
 //--------------------------------------------------------------------------------------------------
-void ERTelescopeUnpack::AddCsIStation(TString name,TString ampStName, TString timeStName, TString ampCalFile, TString timeCalFile){
-    ERTelescopeStation* st = new ERTelescopeStation( "CsI", -1, ampStName, timeStName, "", "", ampCalFile, timeCalFile, "", "", "", "");
+void ERTelescopeUnpack::AddCsIStation(TString name,TString ampStName, TString timeStName, TString ampCalFile, TString timeCalFile,
+                                      Bool_t skipAloneChannels/* = kTRUE*/){
+    ERTelescopeStation* st = new ERTelescopeStation( "CsI", -1, ampStName, timeStName, "", "", ampCalFile, timeCalFile, "", "", "", "",
+                                                    skipAloneChannels);
     fStations[name] = st;
 }
 //--------------------------------------------------------------------------------------------------
@@ -273,7 +281,8 @@ void ERTelescopeUnpack::DumpStationsInfo(){
 //--------------------------------------------------------------------------------------------------
 ERTelescopeStation::ERTelescopeStation(TString _type, Int_t _sideCount, TString _ampStName, TString _timeStName,
                                        TString _ampStName2, TString _timeStName2, TString _ampCalFile, TString _timeCalFile,
-                                       TString _ampCalFile2, TString _timeCalFile2, TString _XY, TString _XYside):
+                                       TString _ampCalFile2, TString _timeCalFile2, TString _XY, TString _XYside,
+                                       Bool_t _skipAloneChannels):
     type(_type),
     sideCount(_sideCount),
     ampStName(_ampStName),
@@ -291,7 +300,8 @@ ERTelescopeStation::ERTelescopeStation(TString _type, Int_t _sideCount, TString 
     ampCalTable2(NULL),
     timeCalTable2(NULL),
     bName(""),
-    bName2("")
+    bName2(""),
+    skipAloneChannels(_skipAloneChannels)
 {
 }
 //--------------------------------------------------------------------------------------------------
