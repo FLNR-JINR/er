@@ -73,8 +73,8 @@ vector<TString>  ERBeamDetSetup::fKaptonWindowMedia;
 vector<TString>  ERBeamDetSetup::fCathodeMedia;
 vector<TString>  ERBeamDetSetup::fAnodeWireMedia;
 vector<TString>  ERBeamDetSetup::fGasMedia;
-vector<TString>  ERBeamDetSetup::fMWPCInvNumberingOrderX;
-vector<TString>  ERBeamDetSetup::fMWPCInvNumberingOrderY;
+vector<Bool_t>  ERBeamDetSetup::fMWPCInvNumberingOrderX;
+vector<Bool_t>  ERBeamDetSetup::fMWPCInvNumberingOrderY;
 // --------------------------------------------------------------------------
 // ------ fPosition of detector's parts relative to zero ---------------------
 vector<Double_t> ERBeamDetSetup::fPositionToF;
