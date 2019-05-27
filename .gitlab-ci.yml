@@ -11,3 +11,9 @@ build:
     - cd build
     - /home/schetinin/fs_inst/bin/cmake ../ -DUSE_DIFFERENT_COMPILER=TRUE
     - make
+    - cd ../
+    - mkdir build_accdaq
+    - cd build_accdaq
+    - /home/schetinin/fs_inst/bin/cmake ../ -DUSE_DIFFERENT_COMPILER=TRUE -DACCULINNA_GO4=/home/schetinin/accdaq/install
+    - make
+    
