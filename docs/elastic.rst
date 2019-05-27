@@ -141,21 +141,21 @@
 
             0 \leqslant \theta_1 \leqslant \pi\ ,\\
 
-            а когда  M\ :sub:`1` \ > M\ :sub:`2` \
+        а когда  M\ :sub:`1` \ > M\ :sub:`2` \
 
         .. math::
 
             0 \leqslant \theta_1 \leqslant \theta_{1max} \leqslant \frac{\pi}{2}\ ,\\
 
-            в обоих случаях:
+        в обоих случаях:
 
         .. math::
 
-            \theta_{cm1} = \arccos\left [  -\frac{M_1}{M_2} + sin 2(\theta_1-d\theta) + cos(\theta_1-d\theta)\sqrt{1 - \frac{M_1 2}{M_2 2}sin 2(\theta_1-d\theta)} \right ]\ ,
+            \theta_{cm1} = \arccos\left [  -\frac{M_1}{M_2} + sin^2(\theta_1-d\theta) + cos(\theta_1-d\theta)\sqrt{1 - \frac{M_1^2}{M_2^2}sin^2(\theta_1-d\theta)} \right ]\ ,
 
-            \theta_{cm2} = \arccos\left [  -\frac{M_1}{M_2} + sin 2(\theta_1+d\theta) + cos(\theta_1+d\theta)\sqrt{1 - \frac{M_1 2}{M_2 2}sin 2(\theta_1+d\theta)} \right ]\ .
+            \theta_{cm2} = \arccos\left [  -\frac{M_1}{M_2} + sin^2(\theta_1+d\theta) + cos(\theta_1+d\theta)\sqrt{1 - \frac{M_1^2}{M_2^2}sin^2(\theta_1+d\theta)} \right ]\ .
 
-            Когда M\ :sub:`1` \ = M\ :sub:`2` \
+        Когда M\ :sub:`1` \ = M\ :sub:`2` \
 
         .. math::
 
