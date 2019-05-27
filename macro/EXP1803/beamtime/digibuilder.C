@@ -3,8 +3,8 @@ void digibuilder(Int_t nEvents = 1000000)
   TString inputdir = gSystem->Getenv("VMCWORKDIR");
   inputdir = inputdir + "/input/";
 
-	TString inFile = inputdir + "run13_0037.lmd.root";
-  TString confFile = inputdir + "setup2_exp201803.xml";
+	TString inFile = inputdir + "dsd_20_l_03_0001.lmd.root ";
+  TString confFile = inputdir + "setup2_exp201811.xml";
 
 	// --- Specify output file name (this is just an example)
 	TString outFile = "digi.root";
@@ -15,7 +15,7 @@ void digibuilder(Int_t nEvents = 1000000)
   // --- Source task
   ERDigibuilder* builder = new ERDigibuilder();
   builder->SetConfigurationFile(confFile);
-  builder->SetUserCut("Beam_detector_F3.@fDetMessages.GetEntriesFast() == 4",kFALSE);
+  //builder->SetUserCut("Beam_detector_F3.@fDetMessages.GetEntriesFast() == 4",kFALSE);
   builder->AddFile(inFile);
 
 
