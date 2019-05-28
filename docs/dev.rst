@@ -129,8 +129,10 @@ Documenting
 Redmine
 -------
 
-Jenkins - builds and tests
+Gitlab-CI builds and tests
 --------------------------
+
+
 
 QA monitors
 -----------

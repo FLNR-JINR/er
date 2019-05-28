@@ -32,7 +32,7 @@ build:
     - ${GO4SYS}/bin/go4analysis -v -lib libAccDaqUserAnalysis.so -number 1000 -asf exp1803.lmd.asf.root -file $INPUT/EXP1803/run18_0001.lmd -args exp1803.lmd.root $ER/input/setup2_exp201803.xml
     - mv exp1803.lmd.root $ER/tests/EXP1803/.
     - cd $ER/tests/EXP1803/.
-    - root -l -q "$ER/macro/EXP1803/beamtime/digibuilder.C(1000,\"exp1803.lmd.root\",\"$ER/input/setup2_exp201803.xml\",\"exp1803.digi.lmd.root\")"
-    - root -l -q "$ER/macro/EXP1803/sim/exp1803_sim_digi.C(1000,\"exp1803.digi.sim.root\")"
-    - root -l -q "$ER/macro/EXP1803/sim/exp1803_reco.C(1000,\"exp1803.digi.lmd.root\",\"exp1803.reco.lmd.root\")"
-    - root -l -q "$ER/macro/EXP1803/sim/exp1803_reco.C(1000,\"exp1803.digi.sim.root\",\"exp1803.reco.sim.root\")"
+    - root -l -q -b "$ER/macro/EXP1803/beamtime/digibuilder.C(1000,\"exp1803.lmd.root\",\"$ER/input/setup2_exp201803.xml\",\"exp1803.digi.lmd.root\")"
+    - root -l -q -b "$ER/macro/EXP1803/sim/exp1803_sim_digi.C(1000,\"exp1803.digi.sim.root\")"
+    - root -l -q -b "$ER/macro/EXP1803/sim/exp1803_reco.C(1000,\"exp1803.digi.lmd.root\",\"exp1803.reco.lmd.root\")"
+    - root -l -q -b "$ER/macro/EXP1803/sim/exp1803_reco.C(1000,\"exp1803.digi.sim.root\",\"exp1803.reco.sim.root\")"
