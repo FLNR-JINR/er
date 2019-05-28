@@ -1,11 +1,10 @@
 #!/bin/bash
 
 # Directories
+COMPILATIONDIR=../../../build
 SIMOUTDIR=output_parallel
 RESULTSDIR=result
-COMPILATIONDIR=
 CALCOUTDIR=calc_output
-COMPILATIONDIR=../../../build
 INDIR=../output_parallel
 OUTDIR=output_digi_parallel
 GRAPHSOUTDIR=digi_graphs_parallel
@@ -16,7 +15,7 @@ MINANGLE=35
 MAXANGLE=35
 NTHREADS=3
 
-# Digitization add or no add
+# Digitization add or don't add
 TOADDDIGI='yes'
 echo -n "Enter 'yes' to add digitization: "
 read STRING
@@ -43,7 +42,7 @@ ITNUMBER=$(echo "1+($MAXANGLE-$MINANGLE)/$STEP" | bc -l)
 echo ${COMPILATIONDIR:?You must set directory to compilation}
 if [ -d ${COMPILATIONDIR} ]; then
 	cd ${COMPILATIONDIR}
-	make -j3
+	make -j${NTHREADS}
 	cd -
 else
 	echo -e "Compilation directory: \e[1m\e[34m${COMPILATIONDIR}\e[0m was not found"
