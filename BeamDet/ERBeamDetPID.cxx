@@ -6,10 +6,11 @@
 #include "TParticlePDG.h"
 
 #include "FairRootManager.h"
-#include "FairRunSim.h"
+#include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
+#include "ERRunAna.h"
 #include "ERDetectorList.h"
 #include "ERBeamDetSetup.h"
 
@@ -31,6 +32,10 @@ ERBeamDetPID::~ERBeamDetPID() {
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERBeamDetPID::Init() {
+  FairRun* run = FairRun::Instance();
+  if (!TString(run->ClassName()).Contains("ERRunAna"))
+    Fatal("Init", "Only ERRunAna can be used for ERBeamDetPID");
+
   if (fPID == -1){
     LOG(FATAL) << "PID not defined for ERBeamDetPID!" << FairLogger::endl;
   }
@@ -55,10 +60,11 @@ InitStatus ERBeamDetPID::Init() {
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetPID::Exec(Option_t* opt) { 
   Reset();
+  ERRunAna* run = ERRunAna::Instance();
+
   if (!fBeamDetTrack->At(0) || !fBeamDetToFDigi1->At(0) || !fBeamDetToFDigi2->At(0)) {
     LOG(DEBUG)  << "ERBeamDetPID: No track" << FairLogger::endl;
-    FairRun* run = FairRun::Instance();
-    // run->MarkFill(kFALSE);
+    run->MarkFill(kFALSE);
     return;
   }
 
@@ -96,7 +102,6 @@ void ERBeamDetPID::Exec(Option_t* opt) {
 
   if(probability < fProbabilityThreshold) {
     LOG(DEBUG) << "Probability " << probability << " less then threshold " << fProbabilityThreshold << FairLogger::endl;
-    FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
     return ;
   }
@@ -105,7 +110,6 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   beta = distanceBetweenToF * 1e-2 / (ToF * 1e-9) / TMath::C();
   if(beta <= 0 || beta >= 1) {
     LOG(DEBUG) << "Wrong beta " << beta << FairLogger::endl;
-    FairRun* run = FairRun::Instance();
     run->MarkFill(kFALSE);
     return ;
   }

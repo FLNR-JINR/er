@@ -12,12 +12,13 @@
 #include "TMath.h"
 
 #include "FairRootManager.h"
-#include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 #include "FairLink.h"
+#include "FairRun.h"
 
 #include "ERBeamDetTrack.h"
+#include "ERRunAna.h"
 
 using namespace std;
 
@@ -69,6 +70,10 @@ void ERQTelescopeTrackFinder::SetTargetPoint(Double_t x, Double_t y, Double_t z)
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERQTelescopeTrackFinder::Init() {
+  FairRun* run = FairRun::Instance();
+  if (!TString(run->ClassName()).Contains("ERRunAna"))
+    Fatal("Init", "Only ERRunAna can be used for ERBeamDetPID");
+
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   TList* allbrNames = ioman->GetBranchNameList();
@@ -182,20 +187,15 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         if (!fUserTargetPointIsSet) {
           ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
           if (!trackFromMWPC) {
-            FairRun* run = FairRun::Instance();
-            // run->MarkFill(kFALSE);
+            ERRunAna* run = ERRunAna::Instance();
+            run->MarkFill(kFALSE);
             return ;
           }
           fTargetX = trackFromMWPC->GetTargetX();
           fTargetY = trackFromMWPC->GetTargetY();
           fTargetZ = trackFromMWPC->GetTargetZ();
         }
-        // if (!fBeamDetTrack) {
-        //   FairRun* run = FairRun::Instance();
-        //     // run->MarkFill(kFALSE);
-        //     return ;
-        // }
-        // Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep());
+
         Double_t sumEdep = yStrip->GetEdep();        
         ERQTelescopeTrack *track = AddTrack(fTargetX, fTargetY, fTargetZ, 
                                             xQTeleGlobHit,  yQTeleGlobHit,  zQTeleGlobHit,                                            

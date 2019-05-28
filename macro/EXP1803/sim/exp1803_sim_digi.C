@@ -205,10 +205,6 @@ void exp1803_sim_digi(Int_t nEvents = 1) {
   // beamDetDigitizer->SetToFElossSigmaOverEloss(0);
   // beamDetDigitizer->SetToFTimeSigma(1e-10);
   run->AddTask(beamDetDigitizer);
-
-  ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
-  trackFinder->SetTargetVolume("boxCD");
-  run->AddTask(trackFinder);
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
   //-------Set LOG verbosity  ----------------------------------------------- 

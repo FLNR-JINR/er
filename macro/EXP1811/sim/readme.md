@@ -11,4 +11,4 @@ The prepareMaps.C macro is needed to prepare maps after the calibration process.
 
 Other files may be useful further and for now, aren't used
 
-The exp1811_full.C doesn't work, use exp1811_sim.C + exp1811_reco.C to get reconstruction results.
+Use exp1811_sim.C + exp1811_reco.C to get reconstruction results.
