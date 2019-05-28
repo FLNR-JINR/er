@@ -8,44 +8,39 @@
 
 #include "ERElasticScattering.h"
 
-// STD
-#include <fstream>
+#include <iostream>
 
-// ROOT
-#include <TGraph.h>
 #include <TF1.h>
 #include <TMath.h>
-#include <TVirtualMC.h>
 #include <TLorentzVector.h>
 #include <TLorentzRotation.h>
 #include <TVectorD.h>
+#include <TGraph.h>
+#include <TVirtualMC.h>
 
-// FairRoot
 #include <FairRunSim.h>
 #include <FairLogger.h>
 
 using TMath::DegToRad;
 using TMath::RadToDeg;
 
-//-------------------------------------------------------------------------------------------------
 TGraph* thetaCDFGr = NULL;
 TGraph* thetaInvCDFGr = NULL;
 
-Double_t ThetaCDF(Double_t *x, Double_t *par)
-{
+//-------------------------Globals----------------------------------
+Double_t ThetaCDF(Double_t *x, Double_t *par) {
   return thetaCDFGr->Eval(x[0]);
 }
 
-Double_t ThetaInvCDF(Double_t *x, Double_t *par)
-{
+Double_t ThetaInvCDF(Double_t *x, Double_t *par) {
   return thetaInvCDFGr->Eval(x[0]);
 }
+//------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------------------------
 ERElasticScattering::ERElasticScattering(TString name):
   ERDecay(name),
   fThetaFileName(""),
-  fTheta1(0),
+  fTheta1(0.),
   fTheta2(180.),
   fPhi1(0),
   fPhi2(360.),
@@ -53,15 +48,27 @@ ERElasticScattering::ERElasticScattering(TString name):
   fTargetIonPDG(NULL),
   fThetaInvCDF(NULL),
   fCDFmin(0.),
-  fCDFmax(1.)
+  fCDFmax(1.),
+  fThetaTargetIon1(0.),
+  fThetaTargetIon2(0.),
+  fCDFminTargetIon(0.),
+  fCDFmaxTargetIon(0.),
+  fDetThetaCenter(0.),
+  fDetdTheta(0.),
+  fDetSlotIsSet(kFALSE),
+  fIonMass(0.),
+  fInteractNumInTarget(0),
+  fCDFRangesSum(0.),
+  fThetaCMSumPri(0.),
+  fThetaCMSumTar(0.),
+  fNumOfPriIons(0),
+  fNumOfTarIons(0)
 {
 }
 
-//-------------------------------------------------------------------------------------------------
 ERElasticScattering::~ERElasticScattering() {
 }
 
-//-------------------------------------------------------------------------------------------------
 void ERElasticScattering::SetTargetIon(Int_t A, Int_t Z, Int_t Q) {
   FairRunSim* run = FairRunSim::Instance();
   fTargetIonName = fName + TString("_TargetIon");
@@ -69,9 +76,13 @@ void ERElasticScattering::SetTargetIon(Int_t A, Int_t Z, Int_t Q) {
   run->AddNewIon(ion);
 }
 
-//-------------------------------------------------------------------------------------------------
-Bool_t ERElasticScattering::Init()
-{
+
+void ERElasticScattering::SetDetectorsSlot(Double_t thetaCenter, Double_t dTheta) {
+  fDetThetaCenter = thetaCenter; fDetdTheta = dTheta;
+  fDetSlotIsSet = kTRUE;
+}
+
+Bool_t ERElasticScattering::Init() {
   if (!ERDecay::Init()) {
     return kFALSE;
   }
@@ -81,6 +92,12 @@ Bool_t ERElasticScattering::Init()
     LOG(FATAL) << "Target ion not found in pdg database!" << FairLogger::endl;
     return kFALSE;
   }
+
+  SetIonMass(fInputIonPDG->Mass());
+  SetTargetIonMass(fTargetIonPDG->Mass());
+
+  if (fDetSlotIsSet)
+    RangesCalculate (fInputIonPDG->Mass(), fTargetIonPDG->Mass());
 
   if (fThetaFileName != "") {
     LOG(INFO) << "ElasticScattering " << fName << " initialize from theta distribution file" << FairLogger::endl;
@@ -103,7 +120,6 @@ Bool_t ERElasticScattering::Init()
 
     Int_t i = 0;
     while (!f.eof()) {
-      // Костыль
       if (i == nPoints) break;
       f >> tet(i) >> sigma(i);
       LOG(DEBUG2) << i << ": " << tet(i) << "\t" << sigma(i) << FairLogger::endl;
@@ -113,172 +129,178 @@ Bool_t ERElasticScattering::Init()
     thetaCDFGr = new TGraph(tet, sigma);
     thetaInvCDFGr = new TGraph(sigma, tet);
 
-    TF1* thetaCDF = new TF1("thetaCDF", ThetaCDF, 0., 180., 0);
+    fThetaCDF = new TF1("thetaCDF", ThetaCDF, 0., 180., 0);
     fThetaInvCDF = new TF1("thetaInvCDF", ThetaInvCDF, 0., 1., 0);
 
-    fCDFmin = thetaCDF->Eval(fTheta1);
-    fCDFmax = thetaCDF->Eval(fTheta2);
+    fCDFmin = fThetaCDF->Eval(fTheta1);
+    fCDFmax = fThetaCDF->Eval(fTheta2);
+    fCDFminTargetIon = fThetaCDF->Eval(fThetaTargetIon1);
+    fCDFmaxTargetIon = fThetaCDF->Eval(fThetaTargetIon2);
   }
-
   return kTRUE;
 }
 
-//-------------------------------------------------------------------------------------------------
 Bool_t ERElasticScattering::Stepping() {
-  if (!fDecayFinish && gMC->TrackPid() == fInputIonPDG->PdgCode() && TString(gMC->CurrentVolName()).Contains(fVolumeName)){
-    gMC->SetMaxStep(fStep);
+  if (!fDecayFinish && gMC->TrackPid() == fInputIonPDG->PdgCode() && TString(gMC->CurrentVolName()).Contains(fVolumeName)) {
     TLorentzVector curPos;
     gMC->TrackPosition(curPos);
-    if (curPos.Z() > fDecayPosZ) {
-
+    if (curPos.Z() >= fDecayPosZ) {
+      gMC->SetMaxStep(fStep);
       TLorentzVector fInputIonV;
       gMC->TrackMomentum(fInputIonV);
-      Float_t iM = fInputIonPDG->Mass();
-      Float_t tM = fTargetIonPDG->Mass();
-      Float_t iM2 = pow(iM,2);
-      Float_t tM2 = pow(tM,2);
+      Double_t iM = GetIonMass();
+      Double_t tM = GetTargetIonMass();
+      Double_t iM2 = pow(iM, 2);
+      Double_t tM2 = pow(tM, 2);
 
-      Float_t inputIonT = sqrt(pow(fInputIonV.P(),2)+iM2) - iM;
+      Double_t inputIonT = sqrt(pow(fInputIonV.P(), 2)+iM2) - iM;
 
       LOG(DEBUG) << "ElasticScattering: " << fName << FairLogger::endl;
       LOG(DEBUG) << "  Input ion with Ekin = " << inputIonT
-                 << ", mass = " << iM
-                 << " mom = " << fInputIonV.Px() << "," << fInputIonV.Py() << "," << fInputIonV.Pz() << FairLogger::endl;
+                  << ", mass = " << iM
+                  << " mom = (" << fInputIonV.Px() << "," << fInputIonV.Py() << "," << fInputIonV.Pz() << ")" << FairLogger::endl;
 
-      Float_t invariant = pow((iM+tM),2)+2*tM*inputIonT;
-      Double_t shorty = pow(invariant-iM2-tM2,2);
-      Float_t Pcm = sqrt((shorty-4*iM2*tM2)/(4*invariant));
+      Double_t invariant = pow((iM+tM), 2) + 2*tM*inputIonT;
+      Double_t shorty = pow(invariant-iM2-tM2, 2);
+      Double_t Pcm = sqrt( (shorty-4*iM2*tM2) / (4*invariant) );
 
       LOG(DEBUG) << "  CM momentum: " << Pcm << FairLogger::endl;
       LOG(DEBUG) << "  CM Ekin: " << sqrt(pow(Pcm,2)+iM2) - iM << FairLogger::endl;
 
-      Float_t theta = ThetaGen();
-      Float_t phi = fRnd->Uniform(fPhi1*DegToRad(), fPhi2*DegToRad());
+      // Generate random angles theta and phi
+      Double_t theta = ThetaGen();
+      Double_t phi = fRnd->Uniform(fPhi1*DegToRad(), fPhi2*DegToRad());
+
+      // In case of target ion registration
+      if (fIonTester) {
+        phi = phi + 180.*DegToRad();
+        fThetaCMSumTar += theta*RadToDeg();
+        fNumOfTarIons++;
+      }
+      else {
+        fThetaCMSumPri += theta*RadToDeg();
+        fNumOfPriIons++;
+      }
 
       if (fThetaFileName != "") {
         LOG(DEBUG) << "  CM [CDFmin,CDFmax] = [" << fCDFmin << "," << fCDFmax << "]" << FairLogger::endl;
       }
 
+      TLorentzVector out1V (Pcm*sin(theta)*cos(phi), Pcm*sin(theta)*sin(phi), Pcm*cos(theta), sqrt(pow(Pcm,2) + iM2));
+      TLorentzVector out2V (-out1V.Px(), -out1V.Py(), -out1V.Pz(), sqrt(pow(Pcm,2) + tM2));
+      LOG(DEBUG) << "BEFORE BOOST=======================================================" << FairLogger::endl;
       LOG(DEBUG) << "  CM Theta = " << theta*RadToDeg() << ", phi = " << phi*RadToDeg() << FairLogger::endl;
-
-      TLorentzVector out1V (Pcm*sin(theta)*cos(phi),
-                            Pcm*sin(theta)*sin(phi),
-                            Pcm*cos(theta),
-                            sqrt(pow(Pcm,2) + iM2));
-      TLorentzVector out2V ( -out1V.Px(),
-                             -out1V.Py(),
-                             -out1V.Pz(),
-                              sqrt(pow(Pcm,2) + tM2));
-
-      LOG(DEBUG) << "  CM out1 state(px,py,pz,E) = "<<out1V.Px()<<","<<out1V.Py()<<","<<out1V.Pz()
-                 << "," << out1V.E() << FairLogger::endl;
-      LOG(DEBUG) << "  CM out2 state(px,py,pz,E) = "<<out2V.Px()<<","<<out2V.Py()<<","<<out2V.Pz()
-                 << "," << out2V.E() << FairLogger::endl;
-
+      LOG(DEBUG) << "  CM out1 state(px,py,pz,E) = "<<out1V.Px()<<", "<<out1V.Py()<<", "<<out1V.Pz()
+                << ", " << out1V.E() << FairLogger::endl;
+      LOG(DEBUG) << "  CM out2 state(px,py,pz,E) = "<<out2V.Px()<<", "<<out2V.Py()<<", "<<out2V.Pz()
+                << ", " << out2V.E() << FairLogger::endl;
       LOG(DEBUG) << "  CM out1 Ekin = "<< sqrt(pow(out1V.P(),2)+iM2) - iM << FairLogger::endl;
       LOG(DEBUG) << "  CM out2 Ekin = "<< sqrt(pow(out2V.P(),2)+tM2) - tM << FairLogger::endl;
 
-      LOG(DEBUG) << "  Boosting with beta = " << fInputIonV.Beta()
-                << ", gamma = " << fInputIonV.Gamma() << FairLogger::endl;
-
       TLorentzVector targetV(0,0,0,tM);
       TLorentzVector cmV = targetV + fInputIonV;
-      /* fake
-      TLorentzRotation lab2cm; //trasformation from Lab to CM
-      lab2cm.Boost(cmV.BoostVector());
-      lab2cm.RotateZ(TMath::Pi()/2.-cmV.Phi());
-      lab2cm.RotateX(cmV.Theta());
+      TVector3 cmVBoost = cmV.BoostVector();
+      LOG(DEBUG) << "  tM in targetV(0, 0, 0, tM): " << tM << FairLogger::endl;
+      LOG(DEBUG) << "  cmV components: (" << cmV.Px() << ", " << cmV.Py() << ", " << cmV.Pz() << ", " << cmV.E() << ")" << FairLogger::endl;
+      LOG(DEBUG) << "  Boosting with beta = " << cmV.Beta()
+                << ", gamma = " << cmV.Gamma() << FairLogger::endl;
+      LOG(DEBUG) << "  Module of cmV.BoostVector: " << sqrt(cmVBoost.Px()*cmVBoost.Px() + cmVBoost.Py()*cmVBoost.Py() + cmVBoost.Pz()*cmVBoost.Pz()) << FairLogger::endl;
+      LOG(DEBUG) << "  cmV.BoostVector components: (" << cmVBoost.Px() << ", " << cmVBoost.Py() << ", " << cmVBoost.Pz() << ")" << FairLogger::endl;
 
-      TLorentzRotation cm2lab; //trasformation from CM to Lab
-      cm2lab = lab2cm.Inverse();
-
-      out1V = cm2lab.VectorMultiplication(out1V);
-      out2V = cm2lab.VectorMultiplication(out2V);
-      */
-
-      //out1V.Boost(cmV.BoostVector());
-      //out2V.Boost(cmV.BoostVector());
-      
       theta = cmV.Theta();
       phi = cmV.Phi();
+      LOG(DEBUG) << "  Rotation angles: theta = " << theta*RadToDeg() << ", Phi = " << phi*RadToDeg() << FairLogger::endl;
 
-      LOG(DEBUG) << "   cmV = (" << cmV.X() << "," << cmV.Y() << "," << cmV.Z() << "," << cmV.E() <<  ")" << FairLogger::endl; 
-
-      // Two cases of LorentzRotation:
-      /*
-      LOG(DEBUG) << "   Case 1:" << FairLogger::endl;
-
-      TLorentzVector out1V1 = out1V;
-      TLorentzVector out2V1 = out2V;
-      TLorentzVector cmV1 = cmV;
-      cmV1.RotateZ(-phi);
-      cmV1.RotateY(-theta);
-
-      LOG(DEBUG) << "   cmV rotated = (" << cmV1.X() << "," << cmV1.Y() << "," << cmV1.Z() << "," << cmV1.E() <<  ")" << FairLogger::endl;
-
-      out1V1.Boost(cmV1.BoostVector());
-      out2V1.Boost(cmV1.BoostVector());
-
-      out1V1.RotateY(theta);
-      out1V1.RotateZ(phi);
-      
-      out2V1.RotateY(theta);
-      out2V1.RotateZ(phi);
-
-      LOG(DEBUG) << "   out1 in Lab = (" << out1V1.X() << "," << out1V1.Y() << "," << out1V1.Z() << "," << out1V1.E() <<  ")" << FairLogger::endl; 
-      LOG(DEBUG) << "   out2 in Lab = (" << out2V1.X() << "," << out2V1.Y() << "," << out2V1.Z() << "," << out2V1.E() <<  ")" << FairLogger::endl;
-
-      LOG(DEBUG) << "   Case 2:" << FairLogger::endl;
-      
-      TLorentzVector out1V2 = out1V;
-      TLorentzVector out2V2 = out2V;
-
-      out1V2.RotateY(theta);
-      out1V2.RotateZ(phi);
-      out1V2.Boost(cmV.BoostVector());
-
-      out2V2.RotateY(theta);
-      out2V2.RotateZ(phi);
-      out2V2.Boost(cmV.BoostVector());
-
-      LOG(DEBUG) << "   out1 in Lab = (" << out1V2.X() << "," << out1V2.Y() << "," << out1V2.Z() << "," << out1V2.E() <<  ")" << FairLogger::endl; 
-      LOG(DEBUG) << "   out2 in Lab = (" << out2V2.X() << "," << out2V2.Y() << "," << out2V2.Z() << "," << out2V2.E() <<  ")" << FairLogger::endl;
-      */
-      // we use second case
+      out1V.RotateZ(-phi);
       out1V.RotateY(theta);
       out1V.RotateZ(phi);
       out1V.Boost(cmV.BoostVector());
 
+      out2V.RotateZ(-phi);
       out2V.RotateY(theta);
       out2V.RotateZ(phi);
       out2V.Boost(cmV.BoostVector());
 
-      LOG(DEBUG) << "  Lab theta = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;
+      LOG(DEBUG) << "AFTER BOOST=======================================================" << FairLogger::endl;
+      LOG(DEBUG) << "  Lab theta primary ion = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;
       LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
       LOG(DEBUG) << "  Lab out2 T = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;
+      LOG(DEBUG) << "  Lab theta target ion = " << out2V.Theta()*RadToDeg() << " phi = " << out2V.Phi()*RadToDeg() << FairLogger::endl;
+      LOG(DEBUG) << "  Lab out1 state(px,py,pz,E) = " << out1V.Px() << "," << out1V.Py() << "," << out1V.Pz()
+                << "," << out1V.E() << FairLogger::endl;
+      LOG(DEBUG) << "  Lab out2 state(px,py,pz,E) = "<<out2V.Px()<<","<<out2V.Py()<<","<<out2V.Pz()
+                << "," << out2V.E() << FairLogger::endl;
 
-      curPos[2] += 0.0007; //TODO
-
-      AddParticleToStack(fInputIonPDG->PdgCode(),curPos,out1V);
-      AddParticleToStack(fTargetIonPDG->PdgCode(),curPos,out2V);
+      AddParticleToStack(fInputIonPDG->PdgCode(), curPos,out1V);
+      AddParticleToStack(fTargetIonPDG->PdgCode(), curPos,out2V);
 
       fDecayFinish = kTRUE;
       gMC->StopTrack();
       gMC->SetMaxStep(10000.);
+
+      // Interactions numbers counter
+      fInteractNumInTarget++;
     }
   }
   return kTRUE;
 }
-//-------------------------------------------------------------------------------------------------
-// in CM system
-Float_t ERElasticScattering::ThetaGen() {
-  Float_t theta = 0.;
+
+Double_t ERElasticScattering::ThetaGen() {
+  Double_t theta = 0.;
   if (fThetaFileName == "") {
     theta = acos(fRnd->Uniform(cos(fTheta1*DegToRad()), cos(fTheta2*DegToRad())));
-  } else {
-    theta = fThetaInvCDF->Eval(fRnd->Uniform(fCDFmin,fCDFmax))*DegToRad();
   }
+  else {
+    Double_t dF1 = fabs(fCDFmax-fCDFmin);
+    Double_t dF2 = fabs(fCDFmaxTargetIon-fCDFminTargetIon);
+    Double_t dLength = dF1 + dF2;
+
+    if (fCDFRangesSum == 0.)
+      fCDFRangesSum = dLength;
+
+      Double_t Rnd = fRnd->Uniform(0., 1.)*dLength;
+      Double_t curCDF;
+      if (Rnd <= dF1) {
+        curCDF = fCDFmin + Rnd;
+        fIonTester = kFALSE;
+      }
+      else {
+        curCDF = fCDFminTargetIon + Rnd - dF1;
+        fIonTester = kTRUE;
+      }
+
+      theta = fThetaInvCDF->Eval(curCDF)*DegToRad();
+    }
   return theta;
+}
+
+void ERElasticScattering::RangesCalculate(Double_t iM, Double_t tM) {
+  LOG(DEBUG) << "ERElasticScattering::RangesCalculate(" << iM << ", " << tM << ")" << FairLogger::endl;
+  Double_t rAng = fDetThetaCenter*DegToRad();
+  Double_t ratio = iM/tM;
+  Double_t ratio2 = ratio*ratio;
+  Double_t dThetaDet = fDetdTheta*TMath::DegToRad(); // Detectors dThetaDet
+  Double_t Radius = 218.;
+  // Primary Ion
+  if (iM != tM) {
+    fTheta1 = TMath::RadToDeg()*acos( -ratio*sin(rAng-dThetaDet)*sin(rAng-dThetaDet)
+              + cos(rAng-dThetaDet)*sqrt(1.-ratio2*sin(rAng-dThetaDet)*sin(rAng-dThetaDet)) );
+    fTheta2 = TMath::RadToDeg()*acos( -ratio*sin(rAng+dThetaDet)*sin(rAng+dThetaDet)
+              + cos(rAng+dThetaDet)*sqrt(1.-ratio2*sin(rAng+dThetaDet)*sin(rAng+dThetaDet)) );
+  }
+  else {
+    fTheta1 = TMath::RadToDeg()*(2.*rAng - dThetaDet);
+    fTheta2 = TMath::RadToDeg()*(2.*rAng + dThetaDet);
+  }
+
+  LOG(DEBUG) << "  N15: CMTheta1: " << fTheta1 << ", CMTheta2: " << fTheta2
+              << ", average value: " << 0.5*(fTheta2-fTheta1) + fTheta1 << FairLogger::endl;
+
+  // Target Ion
+  fThetaTargetIon1 = 180. - 2.*fDetThetaCenter - TMath::RadToDeg()*dThetaDet;
+  fThetaTargetIon2 = 180. - 2.*fDetThetaCenter + TMath::RadToDeg()*dThetaDet;
+  LOG(DEBUG) << "  B11: CMTheta1: " << fThetaTargetIon1 << ", CMTheta2: " << fThetaTargetIon2
+              << ", average value: " << 0.5*(fThetaTargetIon2-fThetaTargetIon1) + fThetaTargetIon1 << FairLogger::endl;
 }
 
 ClassImp(ERElasticScattering)

@@ -1,6 +1,6 @@
 void eventDisplay()
 {
-  TString inDir(".");
+  TString inDir("output");
   TString parFileName;
   TString simFileName;
   TString outFileName;
