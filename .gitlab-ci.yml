@@ -7,7 +7,7 @@ build:
     SIMPATH : "/home/schetinin/fs_inst"
     FAIRROOTPATH : "/home/schetinin/fr_inst"
     CMAKE : /home/schetinin/fs_inst/bin/cmake
-    GO4 : /home/schetinin/go4-5.3.0
+    GO4 : /home/schetinin/go4-5.3.2
     ACCULINA_GO4 : /home/schetinin/accdaq/
     INPUT: /home/schetinin/input
   script:
