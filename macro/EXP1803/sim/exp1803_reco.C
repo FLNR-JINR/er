@@ -1,16 +1,14 @@
-void exp1803_reco(Int_t nEvents = 1000) {
+void exp1803_reco(Int_t nEvents = 1000,  TString inFile = "sim_digi.root",TString outFile = "reco.root") {
   //---------------------Files-----------------------------------------------
-  TString inFile = "sim_digi.root";
-  TString outFile = "reco.root";
   TString parFile = "par.root";
-  TString parOutFile = "parOut.root";
+  TString geoFile = "exp1803.setup.root";
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();  
   // -----   Digitization run   ---------------------------------------------
   ERRunAna *run = ERRunAna::Instance();
   // run->SetUserCut("ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.003");
-
+  run->SetGeomFile(geoFile);
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
