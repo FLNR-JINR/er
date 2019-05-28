@@ -8,6 +8,7 @@ void exp1811_reco(Int_t nEvents = 10000000){
   timer.Start();  
   // -----   Digitization run   ---------------------------------------------
   ERRunAna *run = ERRunAna::Instance();
+  run->MarkFillEnable(kFALSE); // kTRUE - markfill working and perhaps different entry number in the input and output file
   //run->SetUserCut("EventHeader.fTrigger==1");
   //run->SetGeomFile(geoFile);
   run->SetInputFile(inFile);
