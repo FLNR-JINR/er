@@ -12,8 +12,8 @@ void digibuilder(Int_t nEvents = 1000000,
   // --- Source task
   ERDigibuilder* builder = new ERDigibuilder();
   builder->SetConfigurationFile(confFile);
-  builder->AddFile(inFile);
 
+  builder->AddFile(inFile);
 
   ERBeamDetUnpack* beamDetUnpack = new ERBeamDetUnpack("Beam_detector");
   
@@ -23,8 +23,9 @@ void digibuilder(Int_t nEvents = 1000000,
                                "SQY_R","tSQY_R",
                                inputdir + "SQX_R.cal",inputdir + "tSQX_R.cal",
                                inputdir + "SQY_R.cal",inputdir + "tSQY_R.cal",
-                               "XY");
-  rtUnpack->AddCsIStation("CsI_R","CsI_R","tCsI_R",inputdir + "csi_r_ec.clb","");
+                               "XY",
+                               kFALSE);
+  rtUnpack->AddCsIStation("CsI_R","CsI_R","tCsI_R",inputdir + "csi_r_ec.clb","",kFALSE);
 
   ERTelescopeUnpack* ltUnpack = new ERTelescopeUnpack("Left_telescope");
   ltUnpack->AddDoubleSiStation("SQ_L",
@@ -32,12 +33,12 @@ void digibuilder(Int_t nEvents = 1000000,
                                "SQY_L","tSQY_L",
                                inputdir + "SQX_L.cal", inputdir + "tSQX_L.cal",
                                inputdir + "SQY_L.cal", inputdir + "tSQY_L.cal",
-                               "XY");
+                               "XY",kFALSE);
   ltUnpack->AddSingleSiStation("SQ300",
                                "SQ300","tSQ300",
                                inputdir + "SQ20.cal", inputdir + "tSQ20.cal",
-                               "X");
-  ltUnpack->AddCsIStation("CsI_L","CsI_L","tCsI_L","","");
+                               "X",kFALSE);
+  ltUnpack->AddCsIStation("CsI_L","CsI_L","tCsI_L","","",kFALSE);
   
 
   builder->AddUnpack(beamDetUnpack);
@@ -51,7 +52,7 @@ void digibuilder(Int_t nEvents = 1000000,
   run->SetEventHeader(header);
 
   // -----   Logger settings --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
 
   // --- Start run
   TStopwatch timer;
