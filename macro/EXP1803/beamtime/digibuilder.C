@@ -1,13 +1,10 @@
-void digibuilder(Int_t nEvents = 1000000)
+void digibuilder(Int_t nEvents = 1000000, 
+                  TString inFile = "run13_0037.lmd.root",
+                  TString confFile = "setup2_exp201803.xml",
+                  TString outFile = "digi.root" )
 {
   TString inputdir = gSystem->Getenv("VMCWORKDIR");
   inputdir = inputdir + "/input/";
-
-	TString inFile = inputdir + "dsd_20_l_03_0001.lmd.root ";
-  TString confFile = inputdir + "setup2_exp201811.xml";
-
-	// --- Specify output file name (this is just an example)
-	TString outFile = "digi.root";
 
   std::cout << ">>> input file is " << inFile  << std::endl;
   std::cout << ">>> output file is " << outFile << std::endl;
@@ -15,9 +12,8 @@ void digibuilder(Int_t nEvents = 1000000)
   // --- Source task
   ERDigibuilder* builder = new ERDigibuilder();
   builder->SetConfigurationFile(confFile);
-  //builder->SetUserCut("Beam_detector_F3.@fDetMessages.GetEntriesFast() == 4",kFALSE);
-  builder->AddFile(inFile);
 
+  builder->AddFile(inFile);
 
   ERBeamDetUnpack* beamDetUnpack = new ERBeamDetUnpack("Beam_detector");
   

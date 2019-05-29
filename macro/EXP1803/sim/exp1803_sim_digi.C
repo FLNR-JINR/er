@@ -1,4 +1,4 @@
-void exp1803_sim_digi(Int_t nEvents = 1) {
+void exp1803_sim_digi(Int_t nEvents = 1, TString outFile= "sim_digi.root") {
   // --------------- Telescope T1 -------------------------------------------
   Double_t T1Dl = 0.5;         // [cm]      
   Double_t T1PosZ = 10.;       // [cm] 
@@ -19,7 +19,6 @@ void exp1803_sim_digi(Int_t nEvents = 1) {
   // --------------- Target -------------------------------------------------
   Double_t targetH2Thickness = 0.4;  // [cm] this parameter should coincide with target H2 thickness in /macro/geo/create_target_h2_geo.C
   //---------------------Files-----------------------------------------------
-  TString outFile= "sim_digi.root";
   TString parFile= "par.root";
   TString workDirPath = gSystem->Getenv("VMCWORKDIR");
   TString paramFileQTelescope = workDirPath
@@ -212,7 +211,7 @@ void exp1803_sim_digi(Int_t nEvents = 1) {
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
   //-------Set LOG verbosity  ----------------------------------------------- 
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
   Int_t nSteps = -15000;
@@ -224,7 +223,7 @@ void exp1803_sim_digi(Int_t nEvents = 1) {
   rtdb->saveOutput();
   rtdb->print();
   //gMC->SetMaxNStep(nSteps);
-  run->CreateGeometryFile("setup.root");
+  run->CreateGeometryFile("exp1803.setup.root");
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);
 
