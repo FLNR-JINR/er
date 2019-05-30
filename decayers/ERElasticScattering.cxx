@@ -61,13 +61,8 @@ ERElasticScattering::ERElasticScattering(TString name):
 ERElasticScattering::~ERElasticScattering() {
   if(fThetaInvCDF)
     delete fThetaInvCDF;
-  if (fThetaCDF)
-    delete fThetaCDF;
   if (thetaInvCDFGr)
     delete thetaInvCDFGr;
-  if (thetaCDFGr)
-    delete thetaCDFGr;
-
 }
 
 void ERElasticScattering::SetTargetIon(Int_t A, Int_t Z, Int_t Q) {
@@ -136,11 +131,9 @@ Bool_t ERElasticScattering::Init() {
     fCDFmin = fThetaCDF->Eval(fThetaMin);
     fCDFmax = fThetaCDF->Eval(fThetaMax);
 
-/*  TODO
     delete thetaCDFGr;
-    delete thetaInvCDFGr;
     delete fThetaCDF;
-*/
+
     std::cerr << "ERElasticScattering::Init" << std::endl;
     std::cerr << "fThetaMin: " << fThetaMin << ", fThetaMax: " << fThetaMax << std::endl;
     std::cerr << "fCDFmin: " << fCDFmin << ", CDFmax: " << fCDFmax << std::endl;
@@ -295,6 +288,7 @@ Double_t ERElasticScattering::ThetaGen() {
   else {
     theta = fThetaInvCDF->Eval(fRnd->Uniform(fCDFmin, fCDFmax))*DegToRad();
   }
+  std::cerr << "Returning theta: " << theta << std::endl;
   return theta;
 }
 
