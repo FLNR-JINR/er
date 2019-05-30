@@ -9,7 +9,7 @@ NEVENTS=1000
 ANGLE=5
 
 cd ${COMPILATIONDIR}
-make
+make -j3
 cd -
 
 echo -e "\e[1m\e[32m========== Compilation finished =========== \e[0m"

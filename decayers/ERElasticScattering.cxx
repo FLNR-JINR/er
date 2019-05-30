@@ -133,10 +133,6 @@ Bool_t ERElasticScattering::Init() {
 
     delete thetaCDFGr;
     delete fThetaCDF;
-
-    std::cerr << "ERElasticScattering::Init" << std::endl;
-    std::cerr << "fThetaMin: " << fThetaMin << ", fThetaMax: " << fThetaMax << std::endl;
-    std::cerr << "fCDFmin: " << fCDFmin << ", CDFmax: " << fCDFmax << std::endl;
   }
   return kTRUE;
 }
@@ -147,26 +143,26 @@ Bool_t ERElasticScattering::Stepping() {
     TLorentzVector curPos;
     gMC->TrackPosition(curPos);
     if (curPos.Z() >= fDecayPosZ) {
-      TLorentzVector fInputIonV;
-      gMC->TrackMomentum(fInputIonV);
-      Double_t iM = GetProjectileIonMass();
+      TLorentzVector fProjectileIonV;
+      gMC->TrackMomentum(fProjectileIonV);
+      Double_t pM = GetProjectileIonMass();
       Double_t tM = GetTargetIonMass();
-      Double_t iM2 = pow(iM, 2);
+      Double_t pM2 = pow(pM, 2);
       Double_t tM2 = pow(tM, 2);
 
-      Double_t inputIonT = sqrt(pow(fInputIonV.P(), 2)+iM2) - iM;
+      Double_t projectileIonIonT = sqrt(pow(fProjectileIonV.P(), 2)+pM2) - pM;
 
       LOG(DEBUG) << "ElasticScattering: " << fName << FairLogger::endl;
-      LOG(DEBUG) << "  Input ion with Ekin = " << inputIonT
-                  << ", mass = " << iM
-                  << " mom = (" << fInputIonV.Px() << "," << fInputIonV.Py() << "," << fInputIonV.Pz() << ")" << FairLogger::endl;
+      LOG(DEBUG) << "  ProjectileIon ion with Ekin = " << projectileIonIonT
+                  << ", mass = " << pM
+                  << " mom = (" << fProjectileIonV.Px() << "," << fProjectileIonV.Py() << "," << fProjectileIonV.Pz() << ")" << FairLogger::endl;
 
-      Double_t invariant = pow((iM+tM), 2) + 2*tM*inputIonT;
-      Double_t shorty = pow(invariant-iM2-tM2, 2);
-      Double_t Pcm = sqrt( (shorty-4*iM2*tM2) / (4*invariant) );
+      Double_t invariant = pow((pM+tM), 2) + 2*tM*projectileIonIonT;
+      Double_t shorty = pow(invariant-pM2-tM2, 2);
+      Double_t Pcm = sqrt( (shorty-4*pM2*tM2) / (4*invariant) );
 
       LOG(DEBUG) << "  CM momentum: " << Pcm << FairLogger::endl;
-      LOG(DEBUG) << "  CM Ekin: " << sqrt(pow(Pcm,2)+iM2) - iM << FairLogger::endl;
+      LOG(DEBUG) << "  CM Ekin: " << sqrt(pow(Pcm,2)+pM2) - pM << FairLogger::endl;
 
       // Generate random angles theta and phi
       Double_t theta = ThetaGen();
@@ -181,7 +177,7 @@ Bool_t ERElasticScattering::Stepping() {
         LOG(DEBUG) << "  CM [CDFmin,CDFmax] = [" << fCDFmin << "," << fCDFmax << "]" << FairLogger::endl;
       }
 
-      TLorentzVector out1V (Pcm*sin(theta)*cos(phi), Pcm*sin(theta)*sin(phi), Pcm*cos(theta), sqrt(pow(Pcm,2) + iM2));
+      TLorentzVector out1V (Pcm*sin(theta)*cos(phi), Pcm*sin(theta)*sin(phi), Pcm*cos(theta), sqrt(pow(Pcm,2) + pM2));
       TLorentzVector out2V (-out1V.Px(), -out1V.Py(), -out1V.Pz(), sqrt(pow(Pcm,2) + tM2));
       LOG(DEBUG) << "BEFORE BOOST=======================================================" << FairLogger::endl;
       LOG(DEBUG) << "  CM Theta = " << theta*RadToDeg() << ", phi = " << phi*RadToDeg() << FairLogger::endl;
@@ -189,11 +185,11 @@ Bool_t ERElasticScattering::Stepping() {
                 << ", " << out1V.E() << FairLogger::endl;
       LOG(DEBUG) << "  CM out2 state(px,py,pz,E) = "<<out2V.Px()<<", "<<out2V.Py()<<", "<<out2V.Pz()
                 << ", " << out2V.E() << FairLogger::endl;
-      LOG(DEBUG) << "  CM out1 Ekin = "<< sqrt(pow(out1V.P(),2)+iM2) - iM << FairLogger::endl;
+      LOG(DEBUG) << "  CM out1 Ekin = "<< sqrt(pow(out1V.P(),2)+pM2) - pM << FairLogger::endl;
       LOG(DEBUG) << "  CM out2 Ekin = "<< sqrt(pow(out2V.P(),2)+tM2) - tM << FairLogger::endl;
 
       TLorentzVector targetV(0,0,0,tM);
-      TLorentzVector cmV = targetV + fInputIonV;
+      TLorentzVector cmV = targetV + fProjectileIonV;
       TVector3 cmVBoost = cmV.BoostVector();
       LOG(DEBUG) << "  tM in targetV(0, 0, 0, tM): " << tM << FairLogger::endl;
       LOG(DEBUG) << "  cmV components: (" << cmV.Px() << ", " << cmV.Py() << ", " << cmV.Pz() << ", " << cmV.E() << ")" << FairLogger::endl;
@@ -217,8 +213,8 @@ Bool_t ERElasticScattering::Stepping() {
       out2V.Boost(cmV.BoostVector());
 
       LOG(DEBUG) << "AFTER BOOST=======================================================" << FairLogger::endl;
-      LOG(DEBUG) << "  Lab theta primary ion = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;
-      LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+iM2) - iM <<  FairLogger::endl;
+      LOG(DEBUG) << "  Lab theta projectile ion = " << out1V.Theta()*RadToDeg() << " phi = " << out1V.Phi()*RadToDeg() << FairLogger::endl;
+      LOG(DEBUG) << "  Lab out1 T = "<< sqrt(pow(out1V.P(),2)+pM2) - pM <<  FairLogger::endl;
       LOG(DEBUG) << "  Lab out2 T = "<< sqrt(pow(out2V.P(),2)+tM2) - tM <<  FairLogger::endl;
       LOG(DEBUG) << "  Lab theta target ion = " << out2V.Theta()*RadToDeg() << " phi = " << out2V.Phi()*RadToDeg() << FairLogger::endl;
       LOG(DEBUG) << "  Lab out1 state(px,py,pz,E) = " << out1V.Px() << "," << out1V.Py() << "," << out1V.Pz()
@@ -271,24 +267,16 @@ void  ERElasticScattering::ThetaRangesLab2CM(Double_t pM, Double_t tM) {
   else {
     LOG(FATAL) << "Incorrect third param in ERElasticScattering::SetLabThetaRange" << FairLogger::endl;
   }
-  std::cerr << "ERElasticScattering::ThetaRangesLab2CM" << std::endl;
-  std::cerr << "fThetaMin: " << fThetaMin << ", fThetaMax: " << fThetaMax << std::endl;
-  std::cerr << "fCDFmin: " << fCDFmin << ", CDFmax: " << fCDFmax << std::endl;
 }
 
 Double_t ERElasticScattering::ThetaGen() {
-  Double_t theta = 0.;
-  std::cerr << "ERElasticScattering::ThetaGen" << std::endl;
-  std::cerr << "fThetaMin: " << fThetaMin << ", fThetaMax: " << fThetaMax << std::endl;
-  std::cerr << "fCDFmin: " << fCDFmin << ", CDFmax: " << fCDFmax << std::endl;
-
+  Double_t theta;
   if (fThetaFileName == "") {
     theta = acos(fRnd->Uniform(cos(fThetaMin*DegToRad()), cos(fThetaMax*DegToRad())));
   }
   else {
     theta = fThetaInvCDF->Eval(fRnd->Uniform(fCDFmin, fCDFmax))*DegToRad();
   }
-  std::cerr << "Returning theta: " << theta << std::endl;
   return theta;
 }
 
