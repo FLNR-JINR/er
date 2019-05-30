@@ -6,7 +6,7 @@ OUTDIR=output
 
 # Variables
 NEVENTS=1000
-ANGLE=35
+ANGLE=5
 
 cd ${COMPILATIONDIR}
 make

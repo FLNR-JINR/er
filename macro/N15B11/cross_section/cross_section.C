@@ -303,7 +303,7 @@ SArrays* Fill_Arrays(Int_t n, Bool_t N15_B11_draw)
     TString countString;
     while (!fin.eof())
     {
-        if (iSumm > n || inB11 > n || inN15 > n) return NULL;
+        if (iSumm > n || inB11 > n || inN15 > n) { cout << "Error Here!" << endl; return NULL; }
         fin >> countString;
         Double_t vary;
         if (countString == "summ:")

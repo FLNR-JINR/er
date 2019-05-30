@@ -67,9 +67,10 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   scattering->SetThetaCDF("cos_tetta_cross.txt");
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
-  scattering->SetDecayVolume("cave"); //targetB11
-  scattering->SetDetectorsSlot(angle, 4.*0.262822833);
-  scattering->SetPhiRange(-20., 20.);
+  scattering->SetDecayVolume("targetB11"); //targetB11
+  scattering->SetLabThetaRange(angle, 4.*0.262822833, IonStatus::ProjectileIon); // ProjectileIon or TargetIon
+  //scattering->SetThetaRange(9.33242, 14.3093);
+  scattering->SetPhiRange(0., 0.);
 
   decayer->AddDecay(scattering);
   run->SetDecayer(decayer);
@@ -81,13 +82,13 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
 
   Double32_t theta = 0.;
   Double32_t sigmaTheta = 5e-3*TMath::RadToDeg();
-  generator->SetThetaSigma(theta, sigmaTheta); // theta = 0., sigma = 5 mrad
+  //generator->SetThetaSigma(theta, sigmaTheta); // theta = 0., sigma = 5 mrad
 
-  //generator->SetThetaRange(0., 0.); // -2 : 2
-  generator->SetPhiRange(0., 180.); // 0 : 180
+  generator->SetThetaRange(0., 0.); // -2 : 2
+  generator->SetPhiRange(0., 0.); // 0 : 180
 
   Double32_t distanceToTarget = 50.; // work: 50 cm, test 0.5 micron: 0.00005+0.00035
-  generator->SetBoxXYZ(-0.5, -0.5, 0.5, 0.5, -distanceToTarget); // Xmin = -0.5, Ymin = -0.5, Xmax = 0.5, , Ymax = 0.5, Z
+  generator->SetBoxXYZ(0., 0., 0., 0., -distanceToTarget); // Xmin = -0.5, Ymin = -0.5, Xmax = 0.5, , Ymax = 0.5, Z
 
   primGen->AddGenerator(generator);
 
@@ -129,8 +130,6 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // cout << "Energy " << momentum << "; mass " << mass << endl;
   cout << "Interactions number in target: " << scattering->GetInteractNumInTarget() << endl;
   cout << "dPhi range: " << scattering->GetdPhi() << endl;
-  cout << "ThetaCM Mean for N15: " << scattering->GetThetaCMMeanPri() << endl;
-  cout << "ThetaCM Mean for B11: " << scattering->GetThetaCMMeanTar() << endl;
   cout.precision(12);
   cout << "summ: "<< scattering->GetCDFRangesSum() << endl;
 }
