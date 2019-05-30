@@ -42,7 +42,7 @@ ERInteraction - базовый класс, предоставляющий общ
 
 Данные:
 
-* PDG коды входа и всех выходов. Необходимы для определения энергии основного состояния и розыгрыша изотропного распределения импульсов;
+* PDG коды входа(projectile), мишени(target) и выходов(ejectile). Необходимы для определения энергии основного состояния и розыгрыша изотропного распределения импульсов. Пропагацию projectilr отслеживаем до начала взаимодействия.
 * Способ определения координаты взаимодействия:
 
 	* Распределение координаты(Uniform, Exponential)
@@ -59,12 +59,15 @@ ERInteraction - базовый класс, предоставляющий общ
 
 * Проверка входых данных
 * Проверка, делаем ли взаимодействие на данном шаге 
-* Остановка входного трека
+* Остановка projectile трека
 * Перевод выходов в лаб. СК
 * Добавление выходов в стек треков
 
 ERReaction2in2
 ++++++++++++++
+
+Для всех реакций 2 в 2 подразумеваем, что один из участников до начала взаимодействия покоится
+в лабораторной системе центра масс.
 
 * Неизотропное распределение theta по CDF из файла (в  заданных диапазонах theta и phi)
 
@@ -109,3 +112,59 @@ ERDecayExternal
 необходима реализация конструктора взаимодействия, 
 в параметры которого входит другое взаимодействие, номер его
 выхода и флаг необходимости транспорта промежуточного продукта.
+
+Примеры использования
+---------------------
+
+* Упругое рассеяние для N15B11
+
+```
+
+ERReaction2in2Elastic* reaction = new ERReaction2in2Elastic("15Nto15N11B");
+
+reaction->AddProjectile(7,15,7);
+reaction->AddTarget(5,11,5);
+
+reaction->SetUniformPos(-0.00035,0.00035);
+reaction->SetStep(0.00001); //0.1 micron
+reaction->SetInteractionVolume("targetB11");
+
+reaction->SetThetaCDF("cos_tetta_cross.txt");
+reaction->SetThetaRange(20., 21.);
+reaction->SetPhiRange(0., 0.);
+
+```
+
+* Каскад реакции и распада для 8He (пропагация промежуточного иона (7H) не выполняется):
+
+	* 8He + 2H → 3He + 7H
+	* 7H → 3H + n +n +n +n
+
+```
+
+  ERReaction2to2Ineleatic* reaction = ERReaction2to2Ineleatic("8He + 2H → 3He + 7H");
+  
+  reaction->AddEjectile(2,8,2);
+  reaction->AddTarget(1,2,1);
+  reaction->AddEjectile(2,3,2);
+  reaction->AddEjectile(1,7,1,kNOTTRANSPORTED); //don`t added to Geant track stack
+
+  reaction->AddEjectileExitation(1,0.0004, 0.00002355, 1); //exitation distribution for second ejectile
+  reaction->AddEjectileExitation(1,0.0012, 0.0002355, 1);
+
+  reaction->SetExponentialPos(...);
+  reaction->SetStep(1e-5);
+  reaction->SetInteractionVolume("boxCD");
+
+  reaction->SetThetaCDF("cos_tetta_cross.txt");
+
+  ERDecayIsotropy* decay = ERDecayIsotropy("7H → 3H + n +n +n +n", reaction,1)
+  //second ejectile from parent reaction uses as projectile for decay
+
+  decay->AddEjectile(1,3,1);
+  decay->AddEjectile(2112);
+  decay->AddEjectile(2112);
+  decay->AddEjectile(2112);
+  decay->AddEjectile(2112);
+
+```
