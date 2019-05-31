@@ -8,7 +8,7 @@ void exp1811_reco(Int_t nEvents = 10000000){
   timer.Start();  
   // -----   Digitization run   ---------------------------------------------
   ERRunAna *run = ERRunAna::Instance();
-  run->MarkFillEnable(kFALSE); // kTRUE - markfill working and perhaps different entry number in the input and output file
+  run->HoldEventsCount(); //forbid different entry number in the input and output file
   //run->SetUserCut("EventHeader.fTrigger==1");
   //run->SetGeomFile(geoFile);
   run->SetInputFile(inFile);
@@ -75,7 +75,7 @@ void exp1811_reco(Int_t nEvents = 10000000){
   parIO->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parIO);
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   
   run->Init();
   run->Run(0, nEvents);

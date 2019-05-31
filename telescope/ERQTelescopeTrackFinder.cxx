@@ -15,7 +15,6 @@
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 #include "FairLink.h"
-#include "FairRun.h"
 
 #include "ERBeamDetTrack.h"
 #include "ERRunAna.h"
@@ -24,19 +23,21 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeTrackFinder::ERQTelescopeTrackFinder()
-  : FairTask("ER qtelescope track finding scheme"),
+  : ERTask("ER qtelescope track finding scheme"),
     fUserTargetPointIsSet(kFALSE),
     fBeamDetTrack(NULL)
     //@Todo инициализация всех переменных
 {
+  fAvailibleRunManagers.push_back("ERRunAna");
   fQTelescopeSetup = ERQTelescopeSetup::Instance();
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeTrackFinder::ERQTelescopeTrackFinder(Int_t verbose)
-  : FairTask("ER qtelescope track finding scheme ", verbose),
+  : ERTask("ER qtelescope track finding scheme ", verbose),
     fUserTargetPointIsSet(kFALSE),
     fBeamDetTrack(NULL)
 {
+  fAvailibleRunManagers.push_back("ERRunAna");
   fQTelescopeSetup = ERQTelescopeSetup::Instance();
 }
 //--------------------------------------------------------------------------------------------------
@@ -70,9 +71,8 @@ void ERQTelescopeTrackFinder::SetTargetPoint(Double_t x, Double_t y, Double_t z)
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERQTelescopeTrackFinder::Init() {
-  FairRun* run = FairRun::Instance();
-  if (!TString(run->ClassName()).Contains("ERRunAna"))
-    Fatal("Init", "Only ERRunAna can be used for ERBeamDetPID");
+  if (ERTask::Init() != kSUCCESS)
+    return kFATAL;
 
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
@@ -187,8 +187,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         if (!fUserTargetPointIsSet) {
           ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
           if (!trackFromMWPC) {
-            ERRunAna* run = ERRunAna::Instance();
-            run->MarkFill(kFALSE);
+            fRun->MarkFill(kFALSE);
             return ;
           }
           fTargetX = trackFromMWPC->GetTargetX();
@@ -238,12 +237,4 @@ ERQTelescopeTrack* ERQTelescopeTrackFinder::AddTrack(Double_t targetX, Double_t 
   return track;
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::SetParContainers() {
-  // Get run and runtime database
-  FairRun* run = FairRun::Instance();
-  if ( ! run ) Fatal("SetParContainers", "No analysis run");
-
-  FairRuntimeDb* rtdb = run->GetRuntimeDb();
-  if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
-}
 ClassImp(ERQTelescopeTrackFinder)

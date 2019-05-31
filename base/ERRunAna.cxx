@@ -43,7 +43,7 @@ ERRunAna* ERRunAna::Instance() {
 //--------------------------------------------------------------------------------------------------
 ERRunAna::ERRunAna()
 : FairRunAna(),
-fMarkFillEnable(kTRUE)
+fHoldEventsCount(kFALSE)
 {
   LOG(DEBUG) << "ERRunAna constructor" << FairLogger::endl;
 }
@@ -203,7 +203,7 @@ bool ERRunAna::ContentForAnalysis(Int_t iEvent) {
 }
 //--------------------------------------------------------------------------------------------------
 void ERRunAna::MarkFill(Bool_t flag){
-  if (fMarkFillEnable)
+  if (!fHoldEventsCount)
     fMarkFill = flag;
 }
 ClassImp(ERRunAna)

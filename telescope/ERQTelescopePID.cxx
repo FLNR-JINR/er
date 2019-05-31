@@ -33,21 +33,26 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERQTelescopePID::ERQTelescopePID()
-  : FairTask("ER qtelescope particle identification scheme"),
+  : ERTask("ER qtelescope particle identification scheme"),
   fQTelescopeSetup(NULL)
 {
+  fAvailibleRunManagers.push_back("ERRunAna");
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopePID::ERQTelescopePID(Int_t verbose)
-  : FairTask("ER qtelescope particle identification scheme", verbose),
+  : ERTask("ER qtelescope particle identification scheme", verbose),
   fQTelescopeSetup(NULL)
 {
+  fAvailibleRunManagers.push_back("ERRunAna");
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopePID::~ERQTelescopePID() {
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERQTelescopePID::Init() {
+  if (ERTask::Init() != kSUCCESS)
+    return kFATAL;
+
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   
@@ -168,23 +173,8 @@ ERQTelescopeParticle* ERQTelescopePID::AddParticle(TLorentzVector lvTelescope,
                                         ERQTelescopeParticle(lvTelescope,lvTarget,deadEloss,T);
   return particle;
 }
-//------------------------------------------------------------------------------------s--------------
-void ERQTelescopePID::SetParContainers() {
-  // Get run and runtime database
-  FairRun* run = FairRun::Instance();
-  if ( ! run ) Fatal("SetParContainers", "No analysis run");
-
-  FairRuntimeDb* rtdb = run->GetRuntimeDb();
-  if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
-}
 //--------------------------------------------------------------------------------------------------
 Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, Int_t pdg, Double_t T){
-  
- /* FairRun* run = FairRun::Instance();
-  if (!TString(run->ClassName()).Contains("ERRunAna") or !TString(run->ClassName()).Contains("ERRunSim")){
-    LOG(FATAL) << "Use ERRunAna for ERQTelescopePID::CalcEloss!!!" << FairLogger::endl;
-    return 0;
-  }*/
 
   //calclculation ion energy loss in BeamDet volumes
   TVector3 telescopeVertex = track->GetTelescopeVertex();

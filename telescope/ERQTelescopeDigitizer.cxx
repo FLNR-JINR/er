@@ -16,7 +16,6 @@
 #include "TRandom3.h"
 
 #include "FairRootManager.h"
-#include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairLink.h"
 #include "FairLogger.h"
@@ -27,15 +26,17 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------------------
 ERQTelescopeDigitizer::ERQTelescopeDigitizer()
-  : FairTask("ER qtelescope digitization"), 
+  : ERTask("ER qtelescope digitization"), 
   fSiElossSigma(0),
   fSiTimeSigma(0),
   fSiElossThreshold(0)
 {
+  fAvailibleRunManagers.push_back("ERRunSim");
+  fAvailibleRunManagers.push_back("ERRunAna");
 }
 //-------------------------------------------------------------------------------------------------
 ERQTelescopeDigitizer::ERQTelescopeDigitizer(Int_t verbose)
-  : FairTask("ER qtelescope digitization ", verbose),
+  : ERTask("ER qtelescope digitization ", verbose),
   fSiElossSigma(0),
   fSiTimeSigma(0),
   fSiElossThreshold(0)
@@ -46,16 +47,9 @@ ERQTelescopeDigitizer::~ERQTelescopeDigitizer()
 {
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescopeDigitizer::SetParContainers() {
-  // Get run and runtime database
-  FairRun* run = FairRun::Instance();
-  if ( ! run ) Fatal("SetParContainers", "No analysis run");
-
-  FairRuntimeDb* rtdb = run->GetRuntimeDb();
-  if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
-}
-//-------------------------------------------------------------------------------------------------
 InitStatus ERQTelescopeDigitizer::Init() {
+  if (ERTask::Init() != kSUCCESS)
+    return kFATAL;
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");

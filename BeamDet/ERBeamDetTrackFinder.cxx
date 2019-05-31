@@ -24,22 +24,24 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::ERBeamDetTrackFinder()
-  : FairTask("ER BeamDet track finding scheme"),
+  : ERTask("ER BeamDet track finding scheme"),
   fTargetVolName("") {
+  fAvailibleRunManagers.push_back("ERRunAna");
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::ERBeamDetTrackFinder(Int_t verbose)
-  : FairTask("ER BeamDet track finding scheme ", verbose),
+  : ERTask("ER BeamDet track finding scheme ", verbose),
   fTargetVolName("") {
+  fAvailibleRunManagers.push_back("ERRunAna");
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::~ERBeamDetTrackFinder() {
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERBeamDetTrackFinder::Init() {
-  FairRun* run = FairRun::Instance();
-  if (!TString(run->ClassName()).Contains("ERRunAna"))
-    Fatal("Init", "Only ERRunAna can be used for ERBeamDetTrackFinder");
+  if (ERTask::Init() != kSUCCESS)
+    return kFATAL;
+
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
@@ -120,14 +122,12 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
   Reset();
   LOG(DEBUG) << FairLogger::endl;
 
-  ERRunAna* run = ERRunAna::Instance();
-
   if(fBeamDetMWPCDigiX1->GetEntriesFast() < 1 ||
      fBeamDetMWPCDigiX2->GetEntriesFast() < 1 ||
      fBeamDetMWPCDigiY1->GetEntriesFast() < 1 || 
      fBeamDetMWPCDigiY2->GetEntriesFast() < 1 ) {
     LOG(DEBUG) << "Multiplicity less than one" << FairLogger::endl;
-    run->MarkFill(kFALSE);
+    fRun->MarkFill(kFALSE);
     return ;
   }
 
@@ -144,7 +144,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
       xFar = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiX1, 'X'); // calculate average coordinate of wires
       zFar = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiX1, 'Z');
     } else {
-      run->MarkFill(kFALSE);
+      fRun->MarkFill(kFALSE);
       return;
     }
   } else {  // only one wire in array
@@ -159,7 +159,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
     if(cluster) {
       xClose = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiX2, 'X'); // calculate average coordinate of wires
     } else {
-      run->MarkFill(kFALSE);
+      fRun->MarkFill(kFALSE);
       return;
     }
   } else {  // only one wire in array
@@ -172,7 +172,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
     if(cluster) {
       yFar = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiY1, 'Y'); // calculate average coordinate of wires
     } else {
-      run->MarkFill(kFALSE);
+      fRun->MarkFill(kFALSE);
       return;
     }
   } else {  // only one wire in array
@@ -186,7 +186,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
       yClose = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiY2, 'Y'); // calculate average coordinate of wires
       zClose = ERBeamDetTrackFinder::CalcCoordinateAvg (fBeamDetMWPCDigiY2, 'Z'); 
     } else {
-      run->MarkFill(kFALSE);
+      fRun->MarkFill(kFALSE);
       return;
     }
   } else { // only one wire in array
@@ -262,9 +262,6 @@ ERBeamDetTrack* ERBeamDetTrackFinder::AddTrack(Double_t xt, Double_t yt, Double_
 {
   return new((*fBeamDetTrack)[fBeamDetTrack->GetEntriesFast()])
               ERBeamDetTrack(xt, yt, zt, v);
-}
-//--------------------------------------------------------------------------------------------------
-void ERBeamDetTrackFinder::SetParContainers() {
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetTrackFinder)
