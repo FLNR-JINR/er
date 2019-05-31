@@ -68,7 +68,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11"); //targetB11
-  scattering->SetLabThetaRange(angle, 4.*0.262822833, IonStatus::ProjectileIon); // ProjectileIon or TargetIon
+  scattering->SetLabThetaRange(angle, 4.*0.262822833, kPROJECTILE); // kPROJECTILE or kTARGET
   //scattering->SetThetaRange(9.33242, 14.3093);
   scattering->SetPhiRange(0., 0.);
 
@@ -130,6 +130,8 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // cout << "Energy " << momentum << "; mass " << mass << endl;
   cout << "Interactions number in target: " << scattering->GetInteractNumInTarget() << endl;
   cout << "dPhi range: " << scattering->GetdPhi() << endl;
+  cout << "ThetaCM Mean for N15: " << scattering->GetThetaCMMean() << endl;
+  cout << "ThetaCM Mean for B11: " << scattering->GetThetaCMMean() << endl;
   cout.precision(12);
-  cout << "summ: "<< scattering->GetCDFRangesSum() << endl;
+  cout << "summ: "<< scattering->GetdThetaCDF() << endl;
 }

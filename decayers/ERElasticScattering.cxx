@@ -39,22 +39,25 @@ Double_t ThetaInvCDF(Double_t *x, Double_t *par) {
 
 ERElasticScattering::ERElasticScattering(TString name):
   ERDecay(name),
+  fRegisterIonStatus(kPROJECTILE),
   fThetaFileName(""),
   fTargetIonName(""),
-  fRegisterIonStatus(IonStatus::ProjectileIon),
+  fTargetIonPDG(NULL),
+  fThetaCDF(NULL),
+  fThetaInvCDF(NULL),
   fThetaMin(0.),
   fThetaMax(180.),
   fThetaRangeCenter(0.),
   fThetaRangedTheta(0.),
   fPhiMin(0),
   fPhiMax(360.),
-  fTargetIonPDG(NULL),
-  fThetaInvCDF(NULL),
   fCDFmin(0.),
   fCDFmax(1.),
   fProjectileIonMass(0.),
-  fInteractNumInTarget(0),
-  fThetaLabRangeIsSet(kFALSE)
+  fTargetIonMass(0.),
+  fThetaLabRangeIsSet(kFALSE),
+  fThetaCMSum(0.),
+  fInteractNumInTarget(0)
 {
 }
 
@@ -72,10 +75,21 @@ void ERElasticScattering::SetTargetIon(Int_t A, Int_t Z, Int_t Q) {
   run->AddNewIon(ion);
 }
 
-void ERElasticScattering::SetLabThetaRange(Double_t thetaCenter, Double_t dTheta, IonStatus regIonSt) {
+void ERElasticScattering::SetThetaRange(Double_t th1, Double_t th2, ERInteractionParticipant regIonSt) {
+  fThetaMin = th1; fThetaMax = th2;
+  fRegisterIonStatus = regIonSt;
+}
+
+void ERElasticScattering::SetLabThetaRange(Double_t thetaCenter, Double_t dTheta, ERInteractionParticipant regIonSt) {
   fThetaRangeCenter = thetaCenter; fThetaRangedTheta = dTheta;
   fRegisterIonStatus = regIonSt;
   fThetaLabRangeIsSet = kTRUE;
+}
+
+Double_t ERElasticScattering::GetThetaCMMean() const {
+  if (fInteractNumInTarget == 0)
+    return 0.;
+  return fThetaCMSum / fInteractNumInTarget;
 }
 
 Bool_t ERElasticScattering::Init() {
@@ -95,46 +109,7 @@ Bool_t ERElasticScattering::Init() {
   if (fThetaLabRangeIsSet)
     ThetaRangesLab2CM(GetProjectileIonMass(), GetTargetIonMass());
 
-  if (fThetaFileName != "") {
-    LOG(INFO) << "ElasticScattering " << fName << " initialize from theta distribution file" << FairLogger::endl;
-
-    TString path = TString(gSystem->Getenv("VMCWORKDIR")) + "/input/" + fThetaFileName;
-    std::ifstream f;
-    f.open(path.Data());
-    if (!f.is_open()) {
-      LOG(FATAL) << "Can't open file " << path << FairLogger::endl;
-      return kFALSE;
-    }
-
-    Int_t nPoints = std::count(std::istreambuf_iterator<char>(f),
-                               std::istreambuf_iterator<char>(), '\n');
-    f.seekg(0, std::ios::beg);
-    TVectorD tet(nPoints);
-    TVectorD sigma(nPoints);
-
-    LOG(DEBUG2) << "nPoints = " << nPoints << FairLogger::endl;
-
-    Int_t i = 0;
-    while (!f.eof()) {
-      if (i == nPoints) break;
-      f >> tet(i) >> sigma(i);
-      LOG(DEBUG2) << i << ": " << tet(i) << "\t" << sigma(i) << FairLogger::endl;
-      i++;
-    }
-
-    thetaCDFGr = new TGraph(tet, sigma);
-    thetaInvCDFGr = new TGraph(sigma, tet);
-
-    fThetaCDF = new TF1("thetaCDF", ThetaCDF, 0., 180., 0);
-    fThetaInvCDF = new TF1("thetaInvCDF", ThetaInvCDF, 0., 1., 0);
-
-    fCDFmin = fThetaCDF->Eval(fThetaMin);
-    fCDFmax = fThetaCDF->Eval(fThetaMax);
-
-    delete thetaCDFGr;
-    delete fThetaCDF;
-  }
-  return kTRUE;
+  return ThetaCDFRead();
 }
 
 Bool_t ERElasticScattering::Stepping() {
@@ -169,9 +144,12 @@ Bool_t ERElasticScattering::Stepping() {
       Double_t phi = fRnd->Uniform(fPhiMin*DegToRad(), fPhiMax*DegToRad());
 
       // In case of target ion registration
-      if (fRegisterIonStatus == IonStatus::TargetIon) {
+      if (fRegisterIonStatus == kTARGET) {
         phi = phi + 180.*DegToRad();
+        fThetaCMSum += theta*TMath::RadToDeg();
       }
+      else
+        fThetaCMSum += theta*TMath::RadToDeg();
 
       if (fThetaFileName != "") {
         LOG(DEBUG) << "  CM [CDFmin,CDFmax] = [" << fCDFmin << "," << fCDFmax << "]" << FairLogger::endl;
@@ -241,7 +219,7 @@ void  ERElasticScattering::ThetaRangesLab2CM(Double_t pM, Double_t tM) {
   Double_t ratio = pM/tM;
   Double_t ratio2 = ratio*ratio;
   Double_t rdTheta = fThetaRangedTheta*TMath::DegToRad(); // Detectors rdTheta
-  if (fRegisterIonStatus == IonStatus::ProjectileIon) {
+  if (fRegisterIonStatus == kPROJECTILE) {
     // Projectile Ion
     if (pM != tM) {
       fThetaMin = TMath::RadToDeg()*acos( -ratio*sin(rAng-rdTheta)*sin(rAng-rdTheta)
@@ -257,7 +235,7 @@ void  ERElasticScattering::ThetaRangesLab2CM(Double_t pM, Double_t tM) {
     LOG(DEBUG) << "  N15: CMTheta1: " << fThetaMin << ", CMTheta2: " << fThetaMax
               << ", average value: " << 0.5*(fThetaMax-fThetaMin) + fThetaMin << FairLogger::endl;
   }
-  else if (fRegisterIonStatus == IonStatus::TargetIon) {
+  else if (fRegisterIonStatus == kTARGET) {
     // Target Ion
     fThetaMin = 180. - 2.*TMath::RadToDeg()*rAng - TMath::RadToDeg()*rdTheta;
     fThetaMax = 180. - 2.*TMath::RadToDeg()*rAng + TMath::RadToDeg()*rdTheta;
@@ -267,6 +245,49 @@ void  ERElasticScattering::ThetaRangesLab2CM(Double_t pM, Double_t tM) {
   else {
     LOG(FATAL) << "Incorrect third param in ERElasticScattering::SetLabThetaRange" << FairLogger::endl;
   }
+}
+
+Bool_t ERElasticScattering::ThetaCDFRead() {
+  if (fThetaFileName != "") {
+    LOG(INFO) << "ElasticScattering " << fName << " initialize from theta distribution file" << FairLogger::endl;
+
+    TString path = TString(gSystem->Getenv("VMCWORKDIR")) + "/input/" + fThetaFileName;
+    std::ifstream f;
+    f.open(path.Data());
+    if (!f.is_open()) {
+      LOG(FATAL) << "Can't open file " << path << FairLogger::endl;
+      return kFALSE;
+    }
+
+    Int_t nPoints = std::count(std::istreambuf_iterator<char>(f),
+                               std::istreambuf_iterator<char>(), '\n');
+    f.seekg(0, std::ios::beg);
+    TVectorD tet(nPoints);
+    TVectorD sigma(nPoints);
+
+    LOG(DEBUG2) << "nPoints = " << nPoints << FairLogger::endl;
+
+    Int_t i = 0;
+    while (!f.eof()) {
+      if (i == nPoints) break;
+      f >> tet(i) >> sigma(i);
+      LOG(DEBUG2) << i << ": " << tet(i) << "\t" << sigma(i) << FairLogger::endl;
+      i++;
+    }
+
+    thetaCDFGr = new TGraph(tet, sigma);
+    thetaInvCDFGr = new TGraph(sigma, tet);
+
+    fThetaCDF = new TF1("thetaCDF", ThetaCDF, 0., 180., 0);
+    fThetaInvCDF = new TF1("thetaInvCDF", ThetaInvCDF, 0., 1., 0);
+
+    fCDFmin = fThetaCDF->Eval(fThetaMin);
+    fCDFmax = fThetaCDF->Eval(fThetaMax);
+
+    delete thetaCDFGr;
+    delete fThetaCDF;
+  }
+  return kTRUE;
 }
 
 Double_t ERElasticScattering::ThetaGen() {

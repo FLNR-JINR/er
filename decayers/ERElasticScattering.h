@@ -7,11 +7,13 @@
  ********************************************************************************/
 
 /** @class ERElasticScattering
-   ** @brief
-   ** @author
+   ** @brief Class for the elastic scattering simulate
+   ** @author  V.Schetinin <sch_vitaliy@mail.ru>.
+   ** @author  V.Satyshev <satyshevi@gmail.com>.
    ** @version 1.0
    **
-   ** The ERElasticScattering defines the
+   ** The ERElasticScattering defines the elastic scattering
+   ** of two particles during transport projectile in the target volume.
       TODO
   **/
 
@@ -22,8 +24,7 @@
 
 #include <TString.h>
 
-
-enum IonStatus{ ProjectileIon, TargetIon };
+enum ERInteractionParticipant{ kPROJECTILE, kTARGET, kEJECTILE}; // TODO убрать после того как будет создан ERInteraction
 
 class TF1;
 class TParticlePDG;
@@ -58,13 +59,13 @@ public:
   ** @param th2 theta maximum.
   ** @param regIonSt TODO
   **/
-  void SetThetaRange(Double_t th1, Double_t th2) { fThetaMin = th1; fThetaMax = th2; }
+  void SetThetaRange(Double_t th1, Double_t th2, ERInteractionParticipant regIonSt);
 
   /** @brief Defines theta position for detector slot center in Lab.
   ** @param ThetaCenter theta position for detector center in Lab.
   ** @param dTheta half of the theta range of the detector slit.
   **/
-  void SetLabThetaRange(Double_t thetaCenter, Double_t dTheta, IonStatus regIonSt);
+  void SetLabThetaRange(Double_t thetaCenter, Double_t dTheta, ERInteractionParticipant regIonSt);
 
   /** @brief Defines range of phi value.
   ** @param phi1 phi minimum.
@@ -83,9 +84,9 @@ public:
   void SetTargetIonMass(Double_t mass) { fTargetIonMass = mass; }
 
 
-  /*Accessors*/
+  /** Accessors **/
 
-  /** @brief Returns primary ion mass. **/
+  /** @brief Returns projectile ion mass. **/
   Double_t GetProjectileIonMass() const { return fProjectileIonMass; }
 
   /** @brief Returns target ion mass. **/
@@ -94,11 +95,14 @@ public:
   /** @brief Returns phi range value: fPh2-fPhiMin. **/
   Double_t GetdPhi() const { return (fPhiMax - fPhiMin); }
 
-  /** @brief Returns sum of CDF ranges values of primary and target ion. **/
-  Double_t GetCDFRangesSum() const { return fCDFmax - fCDFmin; }
+  /** @brief Returns ThetaCDF range value: fCDFmax-fCDFmin. **/
+  Double_t GetdThetaCDF() const { return fCDFmax - fCDFmin; }
 
   /** @brief Returns number of interactions on target. **/
   Int_t GetInteractNumInTarget() const { return fInteractNumInTarget; }
+
+  /** @brief Returns mean of thetaCM by all events in run [Deg]. **/
+  Double_t GetThetaCMMean() const;
 
 public:
   Bool_t Init();
@@ -106,12 +110,17 @@ public:
 
 private:
   /** @brief The private method is to convert Lab theta range to CM. **/
-  void  ThetaRangesLab2CM(Double_t pM, Double_t tM);
+  void ThetaRangesLab2CM(Double_t pM, Double_t tM);
+
+  /** @brief The private method is to read ThetaCDF cumulative function file. **/
+  Bool_t ThetaCDFRead();
 
   /** @brief The private method is to generate theta value. **/
   Double_t ThetaGen();
 
 private:
+  ERInteractionParticipant  fRegisterIonStatus;  ///< Ion status TODO
+
   TString         fThetaFileName;             ///< File name that contains theta CDF values
   TString         fTargetIonName;             ///< Target ion name
 
@@ -120,21 +129,24 @@ private:
   TF1*            fThetaCDF;                  ///< Pointer to theta CDF function
   TF1*            fThetaInvCDF;               ///< Pointer to inversety theta CDF function
 
-  IonStatus       fRegisterIonStatus;         ///< Ion status TODO
 
   Double_t        fThetaMin;                  ///< Theta minimum for primary ion in CM [Deg]
   Double_t        fThetaMax;                  ///< Theta maximum for primary ion in CM [Deg]
   Double_t        fThetaRangeCenter;          ///< Theta range's center
   Double_t        fThetaRangedTheta;          ///< The half-width of the range of theta
-  Double_t        fCDFmin;                    ///< ThetaCDF(fThetaMin) minimum
-  Double_t        fCDFmax;                    ///< ThetaCDF(fThetaMax) maximum
   Double_t        fPhiMin;                    ///< Phi minimum for primary ion in CM [Deg]
   Double_t        fPhiMax;                    ///< Phi maximum for primary ion in CM [Deg]
-  Double_t        fProjectileIonMass;         ///< Primary ion mass
+  Double_t        fCDFmin;                    ///< ThetaCDF(fThetaMin) minimum
+  Double_t        fCDFmax;                    ///< ThetaCDF(fThetaMax) maximum
+  Double_t        fProjectileIonMass;         ///< Projectile ion mass
   Double_t        fTargetIonMass;             ///< Target ion mass
-  Int_t           fInteractNumInTarget;       ///< Interactions counter in target
 
   Bool_t          fThetaLabRangeIsSet;        ///< kTRUE if Lab theta range is set, kFALSE if It is not set
+
+  /** Statistical attributes by all events. **/
+
+  Double_t        fThetaCMSum;                ///< Sum of thetaCM by all events in run
+  Int_t           fInteractNumInTarget;       ///< Interactions counter in target (by all events in run)
 
   ClassDef(ERElasticScattering, 1);
 };
