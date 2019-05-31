@@ -208,7 +208,7 @@ ERDecayExternal
   reaction->AddEjectile(3,10,3,kTRANSPORTED); //add to Geant track stack
   reaction->AddEjectile(1,1,1,kNOTTRANSPORTED); 
 
-  reaction->SetUniformPos(-0.00035,0.00035);
+  reaction->SetUniformPos();
   reaction->SetStep(1e-5);
   reaction->SetInteractionVolume("target2H");
 
@@ -240,7 +240,7 @@ ERDecayExternal
   reaction->AddEjectile(1,1,1); 
   reaction->AddEjectile(2,10,2,kNOTTRANSPORTED);
   
-  reaction->SetUniformPos(-0.00035,0.00035);
+  reaction->SetUniformPos();
   reaction->SetStep(1e-5);
   reaction->SetInteractionVolume("target3H");
 
