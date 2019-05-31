@@ -130,24 +130,24 @@ ERDecayExternal
 
 * Упругое рассеяние 15N на 11B
 
-```
+::
 
-ERReaction2in2Elastic* reaction = new ERReaction2in2Elastic("15Nto15N11B");
+	ERReaction2in2Elastic* reaction = new ERReaction2in2Elastic("15Nto15N11B");
 
-reaction->AddProjectile(7,15,7);
-reaction->AddTarget(5,11,5);
+	reaction->AddProjectile(7,15,7);
+	reaction->AddTarget(5,11,5);
 
-reaction->SetUniformPos(-0.00035,0.00035);
-reaction->SetStep(0.00001); //0.1 micron
-reaction->SetInteractionVolume("targetB11");
+	reaction->SetUniformPos(-0.00035,0.00035);
+	reaction->SetStep(0.00001); //0.1 micron
+	reaction->SetInteractionVolume("targetB11");
 
-reaction->SetThetaCDF("cos_tetta_cross.txt");
-reaction->SetThetaRange(20., 21.);
-// reaction->SetLabThetaRange(20., 21.,kPROJECTILE); // theta range in lab for projectile
-// reaction->SetLabThetaRange(20., 21.,kTARGET); 
-reaction->SetPhiRange(0., 0.);
+	reaction->SetThetaCDF("cos_tetta_cross.txt");
+	reaction->SetThetaRange(20., 21.);
+	// reaction->SetLabThetaRange(20., 21.,kPROJECTILE); // theta range in lab for projectile
+	// reaction->SetLabThetaRange(20., 21.,kTARGET); 
+	reaction->SetPhiRange(0., 0.);
 
-```
+
 
 * Каскад реакции и распада для изучения 7H:
 
@@ -162,7 +162,7 @@ reaction->SetPhiRange(0., 0.);
 4. Реакция неизотропна; задана функция распределения угла theta.
 5. Распад изотропен.
 
-```
+::
 
   ERReaction2to2* reaction = ERReaction2to2("8He + 2H → 3He + 7H");
   
@@ -189,7 +189,6 @@ reaction->SetPhiRange(0., 0.);
   decay->AddEjectile(2112);
   decay->AddEjectile(2112);
 
-```
 
 * Каскад с реакцией и распадом на лету для изучения 10Li:
 
@@ -203,7 +202,7 @@ reaction->SetPhiRange(0., 0.);
 3. Координата распада разыгрывается по времени жизни иона.
 4. Пропагация протона после реакции не требуется.
 
-```
+::
 
   ERReaction2to2* reaction = ERReaction2to2("9Li + 2H → 10Li + 1H");
   
@@ -221,7 +220,6 @@ reaction->SetPhiRange(0., 0.);
   decay->AddEjectile(3,9,3);
   decay->AddEjectile(2112);
 
-```
 
 * Каскад с реакцией и распадом для изучения 10He:
 
@@ -234,8 +232,7 @@ reaction->SetPhiRange(0., 0.);
 2. После реакции 10He не транспортируется.
 3. Распад загружается из внешнего текстового файла.
 
-
-```
+::
 
   ERReaction2to2* reaction = ERReaction2to2("8He + 3H → 1H + 10He");
   
@@ -256,5 +253,4 @@ reaction->SetPhiRange(0., 0.);
 
   decay->SetFile("10He_n_n_decays.txt");
 
-```
 
