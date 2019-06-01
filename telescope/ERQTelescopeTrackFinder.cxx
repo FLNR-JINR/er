@@ -12,30 +12,32 @@
 #include "TMath.h"
 
 #include "FairRootManager.h"
-#include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 #include "FairLink.h"
 
 #include "ERBeamDetTrack.h"
+#include "ERRunAna.h"
 
 using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeTrackFinder::ERQTelescopeTrackFinder()
-  : FairTask("ER qtelescope track finding scheme"),
+  : ERTask("ER qtelescope track finding scheme"),
     fUserTargetPointIsSet(kFALSE),
     fBeamDetTrack(NULL)
     //@Todo инициализация всех переменных
 {
+  fAvailibleRunManagers.push_back("ERRunAna");
   fQTelescopeSetup = ERQTelescopeSetup::Instance();
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeTrackFinder::ERQTelescopeTrackFinder(Int_t verbose)
-  : FairTask("ER qtelescope track finding scheme ", verbose),
+  : ERTask("ER qtelescope track finding scheme ", verbose),
     fUserTargetPointIsSet(kFALSE),
     fBeamDetTrack(NULL)
 {
+  fAvailibleRunManagers.push_back("ERRunAna");
   fQTelescopeSetup = ERQTelescopeSetup::Instance();
 }
 //--------------------------------------------------------------------------------------------------
@@ -69,6 +71,9 @@ void ERQTelescopeTrackFinder::SetTargetPoint(Double_t x, Double_t y, Double_t z)
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERQTelescopeTrackFinder::Init() {
+  if (ERTask::Init() != kSUCCESS)
+    return kFATAL;
+
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   TList* allbrNames = ioman->GetBranchNameList();
@@ -182,20 +187,14 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         if (!fUserTargetPointIsSet) {
           ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
           if (!trackFromMWPC) {
-            FairRun* run = FairRun::Instance();
-            // run->MarkFill(kFALSE);
+            fRun->MarkFill(kFALSE);
             return ;
           }
           fTargetX = trackFromMWPC->GetTargetX();
           fTargetY = trackFromMWPC->GetTargetY();
           fTargetZ = trackFromMWPC->GetTargetZ();
         }
-        // if (!fBeamDetTrack) {
-        //   FairRun* run = FairRun::Instance();
-        //     // run->MarkFill(kFALSE);
-        //     return ;
-        // }
-        // Double_t sumEdep = (xStrip->GetEdep() + yStrip->GetEdep());
+
         Double_t sumEdep = yStrip->GetEdep();        
         ERQTelescopeTrack *track = AddTrack(fTargetX, fTargetY, fTargetZ, 
                                             xQTeleGlobHit,  yQTeleGlobHit,  zQTeleGlobHit,                                            
@@ -238,12 +237,4 @@ ERQTelescopeTrack* ERQTelescopeTrackFinder::AddTrack(Double_t targetX, Double_t 
   return track;
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::SetParContainers() {
-  // Get run and runtime database
-  FairRun* run = FairRun::Instance();
-  if ( ! run ) Fatal("SetParContainers", "No analysis run");
-
-  FairRuntimeDb* rtdb = run->GetRuntimeDb();
-  if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
-}
 ClassImp(ERQTelescopeTrackFinder)

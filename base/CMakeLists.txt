@@ -26,6 +26,7 @@ ${GEANT4VMC_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
+ERTask.cxx
 ERDetector.cxx
 ERMCApplication.cxx
 ERRecoMCApplication.cxx

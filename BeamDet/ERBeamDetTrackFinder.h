@@ -12,8 +12,7 @@
 #include "TClonesArray.h"
 #include "TRandom3.h"
 
-#include "FairTask.h"
-
+#include "ERTask.h"
 #include "ERBeamDetMWPCDigi.h"
 #include "ERBeamDetTrack.h"
 #include "ERBeamDetSetup.h"
@@ -35,7 +34,7 @@
  ** (\f$<X_2>, <Y_2>\f$) points.
 **/
 
-class ERBeamDetTrackFinder : public FairTask {
+class ERBeamDetTrackFinder : public ERTask {
 
 public:
   /** @brief Default constructor **/
@@ -91,8 +90,6 @@ protected:
 
   TString fTargetVolName;
 private:
-  /** @brief Initializes runtime database for getting parameters from .par file**/
-  virtual void SetParContainers();
 
   /** @brief Adds a ERBeamDetTrack to the output Collection **/
   ERBeamDetTrack* AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v);

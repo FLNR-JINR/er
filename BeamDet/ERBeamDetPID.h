@@ -12,9 +12,9 @@
 #include "TClonesArray.h"
 #include "TParticlePDG.h"
 
-#include "FairTask.h"
 #include "FairIon.h"
 
+#include "ERTask.h"
 #include "ERBeamDetTOFDigi.h"
 #include "ERBeamDetTrack.h"
 #include "ERBeamDetParticle.h"
@@ -32,7 +32,7 @@
  ** In the first version of ERBeamDetPID class user should set mass of ion [MeV] for identification. 
 **/
 
-class ERBeamDetPID : public FairTask {
+class ERBeamDetPID : public ERTask {
 
 public:
   /** @brief Default constructor **/
@@ -137,9 +137,6 @@ private:
   /** @brief Adds a ERBeamDetParticle to the output Collection **/
   ERBeamDetParticle* AddParticle(Int_t pid, TLorentzVector tofState, TLorentzVector targetState, Double_t probability);
   
-  /** @brief Initializes runtime database for getting parameters from .par file**/
-  virtual void SetParContainers();
-
   ClassDef(ERBeamDetPID,1)
 };
 #endif

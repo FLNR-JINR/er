@@ -205,11 +205,6 @@ void exp1811_sim_digi (Int_t nEvents = 1000) {
 
   run->AddTask(beamDetDigitizer);
 
-  ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
-  trackFinder->SetTargetVolume("tubeD2");
-
-  run->AddTask(trackFinder);
-
   // -----------------------BeamDetTrackPID----------------------------------
   ERBeamDetPID* pid = new ERBeamDetPID(verbose);
   pid->SetBoxPID(0., 1000., 0., 1000.);

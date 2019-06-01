@@ -6,10 +6,10 @@
 #include "TParticlePDG.h"
 
 #include "FairRootManager.h"
-#include "FairRunSim.h"
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
+#include "ERRunAna.h"
 #include "ERDetectorList.h"
 #include "ERBeamDetSetup.h"
 
@@ -17,20 +17,25 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERBeamDetPID::ERBeamDetPID()
-  : FairTask("ER BeamDet particle finding scheme")
+  : ERTask("ER BeamDet particle finding scheme")
 {
+  fAvailibleRunManagers.push_back("ERRunAna");
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetPID::ERBeamDetPID(Int_t verbose)
-  : FairTask("ER BeamDet particle finding scheme ", verbose),
+  : ERTask("ER BeamDet particle finding scheme ", verbose),
   fPID(-1)
 {
+  fAvailibleRunManagers.push_back("ERRunAna");
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetPID::~ERBeamDetPID() {
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERBeamDetPID::Init() {
+  if (ERTask::Init() != kSUCCESS)
+    return kFATAL;
+
   if (fPID == -1){
     LOG(FATAL) << "PID not defined for ERBeamDetPID!" << FairLogger::endl;
   }
@@ -55,10 +60,10 @@ InitStatus ERBeamDetPID::Init() {
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetPID::Exec(Option_t* opt) { 
   Reset();
+
   if (!fBeamDetTrack->At(0) || !fBeamDetToFDigi1->At(0) || !fBeamDetToFDigi2->At(0)) {
     LOG(DEBUG)  << "ERBeamDetPID: No track" << FairLogger::endl;
-    FairRun* run = FairRun::Instance();
-    // run->MarkFill(kFALSE);
+    fRun->MarkFill(kFALSE);
     return;
   }
 
@@ -96,8 +101,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
 
   if(probability < fProbabilityThreshold) {
     LOG(DEBUG) << "Probability " << probability << " less then threshold " << fProbabilityThreshold << FairLogger::endl;
-    FairRun* run = FairRun::Instance();
-    run->MarkFill(kFALSE);
+    fRun->MarkFill(kFALSE);
     return ;
   }
   LOG(DEBUG) << "Mass " << fIonMass << FairLogger::endl;
@@ -105,8 +109,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   beta = distanceBetweenToF * 1e-2 / (ToF * 1e-9) / TMath::C();
   if(beta <= 0 || beta >= 1) {
     LOG(DEBUG) << "Wrong beta " << beta << FairLogger::endl;
-    FairRun* run = FairRun::Instance();
-    run->MarkFill(kFALSE);
+    fRun->MarkFill(kFALSE);
     return ;
   }
 
@@ -162,9 +165,6 @@ void ERBeamDetPID::SetIonMassNumber(Int_t a) {
 ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector tofState, TLorentzVector targetState, Double_t probability){
  return new((*fProjectile)[fProjectile->GetEntriesFast()])
               ERBeamDetParticle(pid, tofState, targetState,  probability); 
-}
-//--------------------------------------------------------------------------------------------------
-void ERBeamDetPID::SetParContainers() {
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetPID)

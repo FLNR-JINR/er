@@ -13,8 +13,7 @@
 
 #include "TClonesArray.h"
 
-#include "FairTask.h"
-
+#include "ERTask.h"
 #include "ERQTelescopeTrack.h"
 #include "ERQTelescopeSetup.h"
 #include "ERQTelescopeSiDigi.h"
@@ -25,7 +24,7 @@
  ** @version 1.0
 **/
 
-class ERQTelescopeTrackFinder : public FairTask {
+class ERQTelescopeTrackFinder : public ERTask {
 
 public:
 
@@ -85,9 +84,6 @@ protected:
   Bool_t   fUserTargetPointIsSet;
 
 private:
-  /** @brief Initializes runtime database for getting parameters from .par file**/
-  virtual void SetParContainers();
-
   /** @brief Adds a ERQTelescopeTrack to the output Collection **/
   ERQTelescopeTrack* AddTrack(Double_t targetX, Double_t targetY, Double_t targetZ,  
                               Double_t globalX, Double_t globalY, Double_t globalZ,

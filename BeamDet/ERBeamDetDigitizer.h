@@ -11,15 +11,14 @@
 
 #include "TClonesArray.h"
 
-#include "FairTask.h"
-
+#include "ERTask.h"
 #include "ERBeamDetMWPCPoint.h"
 #include "ERBeamDetTOFPoint.h"
 #include "ERBeamDetMWPCDigi.h"
 #include "ERBeamDetTOFDigi.h"
 
 
-class ERBeamDetDigitizer : public FairTask {
+class ERBeamDetDigitizer : public ERTask {
 
 /** @class ERBeamDetDigitizer
  ** @brief Class for convertion simulation data to format like real detector data.
@@ -138,8 +137,6 @@ protected:
   Bool_t  fSigmaEOverEToFIsSet;     ///< true if SetToFElossSigmaOverEloss is set
 
 private:
-  /** @brief Initializes runtime database for getting parameters from .par file**/
-  virtual void SetParContainers();
   
   ClassDef(ERBeamDetDigitizer,1)
 };

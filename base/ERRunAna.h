@@ -28,6 +28,9 @@ public:
   void Init();
   /**Run from event number NStart to event number NStop */
   void Run(Int_t NStart=0 ,Int_t NStop=0);
+
+  void MarkFill(Bool_t flag);
+  void HoldEventsCount(){fHoldEventsCount = kTRUE;}
 public:
   bool ContentForAnalysis(Int_t iEvent);
 private:
@@ -37,6 +40,8 @@ private:
 
   static TCut   fUserCut;
   static TH1I*  fEventsForProcessing;
+
+  Bool_t fHoldEventsCount; //!
 
   ClassDef(ERRunAna ,1)
 };

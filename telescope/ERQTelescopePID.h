@@ -14,8 +14,7 @@
 #include "TH1.h"
 #include "TCut.h"
 
-#include "FairTask.h"
-
+#include "ERTask.h"
 #include "ERQTelescopeTrack.h"
 #include "ERQTelescopeParticle.h"
 #include "ERQTelescopeSetup.h"
@@ -26,7 +25,7 @@
  ** @version 1.0
 **/
 
-class ERQTelescopePID : public FairTask {
+class ERQTelescopePID : public ERTask {
 
 public:
 
@@ -77,8 +76,6 @@ protected:
   Double_t FindDigiEdepByNode(TGeoNode* node);
   Double_t FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg);
 private:
-  /** @brief Initializes runtime database for getting parameters from .par file**/
-  virtual void SetParContainers();
 
   /** @brief Adds a ERQTelescopeParticles to the output Collection **/
   ERQTelescopeParticle* AddParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget, 

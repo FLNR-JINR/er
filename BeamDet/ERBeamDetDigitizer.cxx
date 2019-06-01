@@ -14,7 +14,6 @@
 #include "TRandom3.h"
 
 #include "FairRootManager.h"
-#include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
@@ -24,7 +23,7 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERBeamDetDigitizer::ERBeamDetDigitizer()
-  : FairTask("ER beamdet digitization"), 
+  : ERTask("ER beamdet digitization"), 
   fBeamDetToFPoints(NULL), 
   fBeamDetMWPCPoints(NULL), 
   fBeamDetToFDigi1(NULL), 
@@ -40,10 +39,12 @@ ERBeamDetDigitizer::ERBeamDetDigitizer()
   fMWPCElossThreshold(0),
   fToFElossThreshold(0)
 {
+  fAvailibleRunManagers.push_back("ERRunSim");
+  fAvailibleRunManagers.push_back("ERRunAna");
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
-  : FairTask("ER beamdet digitization ", verbose),
+  : ERTask("ER beamdet digitization ", verbose),
   fBeamDetToFPoints(NULL), 
   fBeamDetMWPCPoints(NULL), 
   fBeamDetToFDigi1(NULL), 
@@ -61,12 +62,16 @@ ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
   fElossSigmaOverElossToF(0),
   fSigmaEOverEToFIsSet(0)
 {
+  fAvailibleRunManagers.push_back("ERRunSim");
+  fAvailibleRunManagers.push_back("ERRunAna");
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetDigitizer::~ERBeamDetDigitizer() {
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERBeamDetDigitizer::Init() {
+  if (ERTask::Init() != kSUCCESS)
+    return kFATAL;
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
@@ -260,15 +265,6 @@ ERBeamDetTOFDigi* ERBeamDetDigitizer::AddToFDigi(Float_t edep, Double_t time, In
                 ERBeamDetTOFDigi(fBeamDetToFDigi2->GetEntriesFast(), edep, time, tofNb);
   }
   return digi;
-}
-//--------------------------------------------------------------------------------------------------
-void ERBeamDetDigitizer::SetParContainers() {
-  // Get run and runtime database
-  FairRun* run = FairRun::Instance();
-  if ( ! run ) Fatal("SetParContainers", "No analysis run");
-
-  FairRuntimeDb* rtdb = run->GetRuntimeDb();
-  if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetDigitizer)

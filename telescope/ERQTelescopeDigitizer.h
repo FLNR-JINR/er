@@ -11,8 +11,7 @@
 
 #include "TClonesArray.h"
 
-#include "FairTask.h"
-
+#include "ERTask.h"
 #include "ERQTelescopeSiPoint.h"
 #include "ERQTelescopeCsIPoint.h"
 #include "ERQTelescopeSiDigi.h"
@@ -21,7 +20,7 @@
 
 class ERQTelescopeSetup;
 
-class ERQTelescopeDigitizer : public FairTask {
+class ERQTelescopeDigitizer : public ERTask {
 
 public:
   /** Default constructor **/
@@ -75,7 +74,6 @@ protected:
                                                                Int_t blockNb,
                                                                TString digiBranchName);
 private:
-  virtual void SetParContainers();
   
   ClassDef(ERQTelescopeDigitizer,1)
 };
