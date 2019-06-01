@@ -82,13 +82,13 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
 
   Double32_t theta = 0.;
   Double32_t sigmaTheta = 5e-3*TMath::RadToDeg();
-  //generator->SetThetaSigma(theta, sigmaTheta); // theta = 0., sigma = 5 mrad
+  generator->SetThetaSigma(theta, sigmaTheta); // theta = 0., sigma = 5 mrad
 
-  generator->SetThetaRange(0., 0.); // -2 : 2
-  generator->SetPhiRange(0., 0.); // 0 : 180
+  //generator->SetThetaRange(0., 0.); // -2 : 2
+  generator->SetPhiRange(0., 180.); // 0 : 180
 
   Double32_t distanceToTarget = 50.; // work: 50 cm, test 0.5 micron: 0.00005+0.00035
-  generator->SetBoxXYZ(0., 0., 0., 0., -distanceToTarget); // Xmin = -0.5, Ymin = -0.5, Xmax = 0.5, , Ymax = 0.5, Z
+  generator->SetBoxXYZ(-0.5, -0.5, 0.5, 0.5, -distanceToTarget); // Xmin = -0.5, Ymin = -0.5, Xmax = 0.5, , Ymax = 0.5, Z
 
   primGen->AddGenerator(generator);
 
@@ -96,7 +96,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // ------------------------------------------------------------------------
 
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kTRUE); // kFALSE
+  run->SetStoreTraj(kFALSE); // kFALSE
 
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
