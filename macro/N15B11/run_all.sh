@@ -187,9 +187,9 @@ echo -e "\e[1m\e[32m========== FINISHED ========= \e[0m"
 ####################################### Cross-section calculate #######################################
 wait
 
-if [ -d cross_section ]; then
+if [ -d cross_section/ ]; then
 	cd cross_section
-	./remove
+	./remove.sh
 	cd -
 else
 	echo -e "\e[1m\e[32m========== cross_section directory was not found ========= \e[0m"

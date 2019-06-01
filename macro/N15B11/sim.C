@@ -70,7 +70,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   scattering->SetDecayVolume("targetB11"); //targetB11
   scattering->SetLabThetaRange(angle, 4.*0.262822833, kPROJECTILE); // kPROJECTILE or kTARGET
   //scattering->SetThetaRange(9.33242, 14.3093);
-  scattering->SetPhiRange(0., 0.);
+  scattering->SetPhiRange(-20., 20.);
 
   decayer->AddDecay(scattering);
   run->SetDecayer(decayer);
