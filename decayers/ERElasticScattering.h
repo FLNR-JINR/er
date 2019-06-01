@@ -7,15 +7,14 @@
  ********************************************************************************/
 
 /** @class ERElasticScattering
-   ** @brief Class for the elastic scattering simulate
-   ** @author  V.Schetinin <sch_vitaliy@mail.ru>.
-   ** @author  V.Satyshev <satyshevi@gmail.com>.
-   ** @version 1.0
-   **
-   ** The ERElasticScattering defines the elastic scattering
-   ** of two particles during transport projectile in the target volume.
-      TODO
-  **/
+** @brief Class for the elastic scattering simulate
+** @author V.Schetinin <schetinin@jinr.ru>.
+** @author I.Satyshev <satyshevi@gmail.com>.
+** @version 1.0
+**
+** The ERElasticScattering defines the elastic scattering
+** of the projectile in the target volume.
+**/
 
 #ifndef ERElasticScattering_H
 #define ERElasticScattering_H
@@ -128,7 +127,6 @@ private:
 
   TF1*            fThetaCDF;                  ///< Pointer to theta CDF function
   TF1*            fThetaInvCDF;               ///< Pointer to inversety theta CDF function
-
 
   Double_t        fThetaMin;                  ///< Theta minimum for primary ion in CM [Deg]
   Double_t        fThetaMax;                  ///< Theta maximum for primary ion in CM [Deg]

@@ -269,6 +269,7 @@ Bool_t ERElasticScattering::ThetaCDFRead() {
 
     Int_t i = 0;
     while (!f.eof()) {
+      // Костыль
       if (i == nPoints) break;
       f >> tet(i) >> sigma(i);
       LOG(DEBUG2) << i << ": " << tet(i) << "\t" << sigma(i) << FairLogger::endl;
