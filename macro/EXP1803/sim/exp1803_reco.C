@@ -7,7 +7,7 @@ void exp1803_reco(Int_t nEvents = 1000,  TString inFile = "sim_digi.root",TStrin
   timer.Start();  
   // -----   Digitization run   ---------------------------------------------
   ERRunAna *run = ERRunAna::Instance();
-  run->MarkFillEnable(kFALSE); // kTRUE - markfill working and perhaps different entry number in the input and output file
+  run->HoldEventsCount(); // kTRUE - markfill working and perhaps different entry number in the input and output file
   // run->SetUserCut("ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.003");
   run->SetGeomFile(geoFile);
   run->SetInputFile(inFile);
