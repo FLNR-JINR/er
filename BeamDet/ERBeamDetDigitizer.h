@@ -11,14 +11,14 @@
 
 #include "TClonesArray.h"
 
-#include "ERTask.h"
+#include "ERDigitizer.h"
 #include "ERBeamDetMWPCPoint.h"
 #include "ERBeamDetTOFPoint.h"
 #include "ERBeamDetMWPCDigi.h"
 #include "ERBeamDetTOFDigi.h"
 
 
-class ERBeamDetDigitizer : public ERTask {
+class ERBeamDetDigitizer : public ERDigitizer {
 
 /** @class ERBeamDetDigitizer
  ** @brief Class for convertion simulation data to format like real detector data.

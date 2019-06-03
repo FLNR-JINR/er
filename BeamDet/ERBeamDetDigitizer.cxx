@@ -17,13 +17,14 @@
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
+#include "ERBeamDetSetup.h"
 #include "ERDetectorList.h"
 
 using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERBeamDetDigitizer::ERBeamDetDigitizer()
-  : ERTask("ER beamdet digitization"), 
+  : ERDigitizer("ER beamdet digitization"), 
   fBeamDetToFPoints(NULL), 
   fBeamDetMWPCPoints(NULL), 
   fBeamDetToFDigi1(NULL), 
@@ -39,12 +40,10 @@ ERBeamDetDigitizer::ERBeamDetDigitizer()
   fMWPCElossThreshold(0),
   fToFElossThreshold(0)
 {
-  fAvailibleRunManagers.push_back("ERRunSim");
-  fAvailibleRunManagers.push_back("ERRunAna");
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
-  : ERTask("ER beamdet digitization ", verbose),
+  : ERDigitizer("ER beamdet digitization ", verbose),
   fBeamDetToFPoints(NULL), 
   fBeamDetMWPCPoints(NULL), 
   fBeamDetToFDigi1(NULL), 
@@ -62,8 +61,6 @@ ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
   fElossSigmaOverElossToF(0),
   fSigmaEOverEToFIsSet(0)
 {
-  fAvailibleRunManagers.push_back("ERRunSim");
-  fAvailibleRunManagers.push_back("ERRunAna");
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetDigitizer::~ERBeamDetDigitizer() {
@@ -198,6 +195,13 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
       }
     }
   }
+
+  /*@TODO: This functionality can be transferred to ERDigitizer if the information 
+  about the conformity of the trigger station and the digi collection moves there.*/
+  ERBeamDetSetup* setup = ERBeamDetSetup::Instance();
+  ApplyTrigger(setup->GetToFType(0),fBeamDetToFDigi1);
+  ApplyTrigger(setup->GetToFType(1),fBeamDetToFDigi2);
+
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetDigitizer::Reset()
@@ -222,8 +226,7 @@ void ERBeamDetDigitizer::Reset()
   }
 }
 //--------------------------------------------------------------------------------------------------
-void ERBeamDetDigitizer::Finish() {   
-
+void ERBeamDetDigitizer::Finish() {
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetMWPCDigi* ERBeamDetDigitizer::AddMWPCDigi(Float_t edep, Double_t time, 

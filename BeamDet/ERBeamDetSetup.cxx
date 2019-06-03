@@ -844,4 +844,11 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
   return T;
 }
 //--------------------------------------------------------------------------------------------------
+TString ERBeamDetSetup::GetToFType(Int_t number)
+{
+  if (number >= fToFType.size() || number < 0)
+    LOG(FATAL) << "Wrong ToF number was requested!" << FairLogger::endl;
+  return fToFType[number];
+}
+//--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetSetup)

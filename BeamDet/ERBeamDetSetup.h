@@ -43,6 +43,7 @@ public:
   static Double_t TargetR() {return fTargetR;}
   static void     PrintDetectorParameters(void);
   static void     PrintDetectorParametersToFile(TString fileName);
+  static TString  GetToFType(Int_t number);
 
   /* Modifiers */
   static void SetXmlParametersFile(TString xmlFileName) {fParamsXmlFileName = xmlFileName;}

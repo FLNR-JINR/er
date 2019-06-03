@@ -23,10 +23,13 @@ private:
   Int_t fInputTrackID;
   TArrayI fOutputTrackID;
   Int_t fOutputsTracksNb = 0;
+  Int_t fTrigger;
+  Int_t fTriggerPriority;
 public:
   ERDecayMCEventHeader();
   void SetDecayPos(TVector3 pos){fDecayPos = pos;}
   void SetInputIon(Int_t iID){fInputTrackID = iID;}
+  void SetTrigger(Int_t trigger, Int_t priority);
   void AddOutputParticle(Int_t oID){fOutputsTracksNb++; 
                                     fOutputTrackID.Set(fOutputsTracksNb);
                                     fOutputTrackID[fOutputsTracksNb-1]=oID;}
