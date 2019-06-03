@@ -35,7 +35,7 @@ void digi(Int_t nEvents = 1000, Int_t index = 0, TString inputDir = "../output",
     timer.Start();
 
     // Digitization run
-    ERRunAna*run = new ERRunAna();
+    ERRunAna*run = ERRunAna::Instance();
     run->SetInputFile(inputFileName);
     run->SetOutputFile(outputFileName);
 

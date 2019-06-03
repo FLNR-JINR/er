@@ -4,7 +4,7 @@ NEVENTS=1000
 INDIR=../output
 OUTDIR=output_digi
 GRAPHSOUTDIR=digi_graphs
-BUILDDIR=../../../../fork_expertroot_build
+BUILDDIR=../../../../build
 
 if [ -d ${BUILDDIR} ]; then
 	cd ${BUILDDIR}

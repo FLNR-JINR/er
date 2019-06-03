@@ -56,7 +56,7 @@ public:
   /** @brief Defines range of theta value.
   ** @param th1 theta minimum.
   ** @param th2 theta maximum.
-  ** @param regIonSt TODO
+  ** @param regIonSt defines which ion will be flying at the detector.
   **/
   void SetThetaRange(Double_t th1, Double_t th2, ERInteractionParticipant regIonSt);
 
