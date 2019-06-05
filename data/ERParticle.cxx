@@ -49,7 +49,38 @@ void ERParticle::Print() const
 //-------------------------------------------------------------------------------
 void ERParticle::DefineMass()
 {
+  G4ParticleTable* table = G4ParticleTable::GetParticleTable();
   if (fMass == 0.)
-    fMass = ((G4ParticleDefinition*)G4ParticleTable::GetParticleTable()->FindParticle(fPDG))->GetPDGMass();
+    fMass = ((G4ParticleDefinition*)table->FindParticle(fPDG))->GetPDGMass();
+  else {
+    if (!table->FindParticle(fPDG))
+      LOG(FATAL) << "Particle with PDG " << fPDG << " not found in Geant Particle Table !" << FairLogger::endl
+                 << "Full G4ParticleDefinition is required for new particle, wich is not supported  in ER."
+                 << FairLogger::endl;
+      G4ParticleDefinition* particle = table->GetParticle(fPDG);
+      table->Remove(particle);
+      G4ParticleDefinition* particleNewMass = new G4ParticleDefinition(
+                            particle->GetParticleName(),
+                            fMass,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            particle->GetParticleType(),
+                            0,
+                            0,
+                            particle->GetPDGEncoding(),
+                            0,0,0,0,
+                            particle->GetParticleSubType(),
+                            0,0
+                            );
+
+     
+      //particle->
+  }
 }
 //-------------------------------------------------------------------------------

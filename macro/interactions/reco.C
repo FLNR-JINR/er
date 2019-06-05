@@ -20,7 +20,7 @@ void reco(Int_t nEvents = 1){
   EREventHeader* header = new EREventHeader();
   run->SetEventHeader(header);
 
-  ERParticle* particle = new ERParticle("2H",1,2,1);
+  ERParticle* particle = new ERParticle("2H",1,2,1,2000);
   ERParticle* particlePDG = new ERParticle("neutron",2112);
 
   // -----------Runtime DataBase info ---------------------------------------
