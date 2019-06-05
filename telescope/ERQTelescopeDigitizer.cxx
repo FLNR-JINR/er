@@ -26,7 +26,7 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------------------
 ERQTelescopeDigitizer::ERQTelescopeDigitizer()
-  : ERTask("ER qtelescope digitization"), 
+  : ERDigitizer("ER qtelescope digitization"), 
   fSiElossSigma(0),
   fSiTimeSigma(0),
   fSiElossThreshold(0)
@@ -36,7 +36,7 @@ ERQTelescopeDigitizer::ERQTelescopeDigitizer()
 }
 //-------------------------------------------------------------------------------------------------
 ERQTelescopeDigitizer::ERQTelescopeDigitizer(Int_t verbose)
-  : ERTask("ER qtelescope digitization ", verbose),
+  : ERDigitizer("ER qtelescope digitization ", verbose),
   fSiElossSigma(0),
   fSiTimeSigma(0),
   fSiElossThreshold(0)
@@ -150,6 +150,20 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt) {
           csiDigi->AddLink(FairLink("ERQTelescopeCsIPoint", itPointsForCurrentVolume));
         }
       }   
+    }
+  }
+
+  /*@TODO: This functionality can be transferred to ERDigitizer if the information 
+  about the conformity of the trigger station and the digi collection moves there.*/
+  for ( const auto &itDigiBranch : fQTelescopeDigi ) {
+    TString branchName = itDigiBranch.first;
+    TClonesArray* digiCol = itDigiBranch.second;
+    for ( const auto &trigger : fTriggers) {
+      TString triggerStation = trigger.first;
+      if (branchName.Contains(triggerStation)){
+        LOG(DEBUG) << "Apply trigger to station " << triggerStation << FairLogger::endl;
+        ApplyTrigger(triggerStation,digiCol);
+      }
     }
   }
 }

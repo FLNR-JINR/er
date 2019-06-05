@@ -11,7 +11,7 @@
 
 #include "TClonesArray.h"
 
-#include "ERTask.h"
+#include "ERDigitizer.h"
 #include "ERQTelescopeSiPoint.h"
 #include "ERQTelescopeCsIPoint.h"
 #include "ERQTelescopeSiDigi.h"
@@ -20,7 +20,7 @@
 
 class ERQTelescopeSetup;
 
-class ERQTelescopeDigitizer : public ERTask {
+class ERQTelescopeDigitizer : public ERDigitizer {
 
 public:
   /** Default constructor **/

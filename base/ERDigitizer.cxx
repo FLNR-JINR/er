@@ -8,11 +8,12 @@
 #include "TRandom3.h"
 
 #include "FairRootManager.h"
-#include "FairRun.h"
+#include "FairRunSim.h"
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
 #include "ERPoint.h"
+#include "ERDecayMCEventHeader.h"
 
 #include <iostream>
 #include <algorithm>
@@ -22,33 +23,34 @@ using namespace std;
 
 // ----------------------------------------------------------------------------
 ERDigitizer::ERDigitizer()
-  : FairTask("ER common digitization")
+  : ERTask("ER common digitization")
 {
+  fAvailibleRunManagers.push_back("ERRunSim");
+  fAvailibleRunManagers.push_back("ERRunAna");
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+ERDigitizer::ERDigitizer(TString name)
+  : ERTask(name)
+{
+  fAvailibleRunManagers.push_back("ERRunSim");
+  fAvailibleRunManagers.push_back("ERRunAna");
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 ERDigitizer::ERDigitizer(TString name, Int_t verbose)
-  : FairTask(name, verbose)
+  : ERTask(name, verbose)
 {
+  fAvailibleRunManagers.push_back("ERRunSim");
+  fAvailibleRunManagers.push_back("ERRunAna");
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 ERDigitizer::~ERDigitizer()
 {
-}
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-void ERDigitizer::SetParContainers()
-{
-  // Get run and runtime database
-  FairRun* run = FairRun::Instance();
-  if ( ! run ) Fatal("SetParContainers", "No analysis run");
-
-  FairRuntimeDb* rtdb = run->GetRuntimeDb();
-  if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
 }
 // ----------------------------------------------------------------------------
 
@@ -132,6 +134,60 @@ void ERDigitizer::Exec(Option_t* opt){
       }*/
     }
   }
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void ERDigitizer::AddTrigger(TString stationSID, Int_t value, Int_t priority)
+{
+
+  for (const auto& trigger : fTriggers){
+    if (trigger.first == stationSID)
+      LOG(FATAL) << "Trigger with station SID " << stationSID 
+                 << " already exist!" << FairLogger::endl;
+    if (trigger.second.fValue == value)
+      LOG(FATAL) << "Trigger with value " << value 
+                  << " already exist!" << FairLogger::endl;
+    if (trigger.second.fPriority == priority)
+      LOG(FATAL) << "Trigger with priority " << priority 
+                  << " already exist!" << FairLogger::endl;
+  }
+
+  fTriggers[stationSID] = ERTrigger(value, priority);
+
+}
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+void ERDigitizer::ApplyTrigger(TString stationSID, TClonesArray* digiCollection)
+{
+  // The functionality of working with triggers is currently implemented only for ERDecayMCEventHeader
+  // and, accordingly, ERRunSim. In the future, this functionality should be made available for use 
+  // from ERRunAna.
+
+  if (fRun->ClassName() == TString("ERRunSim")){ // check Run class
+    // check header class
+    if ((((FairRunSim*)fRun)->GetMCEventHeader())->ClassName() != TString("ERDecayMCEventHeader")) 
+      return;
+
+    ERDecayMCEventHeader* header = (ERDecayMCEventHeader*)((FairRunSim*)fRun)->GetMCEventHeader();
+
+    // Trigger only applied if stationSID is SID of trigger station
+    // and if there is signal in station (which means there are digis)
+    if (  (fTriggers.find(stationSID) != fTriggers.end()) && (digiCollection->GetEntriesFast() > 0) ){
+
+      // It is possible to overwrite the current trigger value only if the priority is higher 
+      // than the recorded one.
+      if (fTriggers[stationSID].fPriority > header->GetTriggerPriority()){
+
+        header->SetTrigger(fTriggers[stationSID].fValue);
+        header->SetTriggerPriority(fTriggers[stationSID].fPriority);
+      }
+
+    }
+
+  }
+
 }
 //----------------------------------------------------------------------------
 

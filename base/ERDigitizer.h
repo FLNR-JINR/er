@@ -1,16 +1,21 @@
-// -------------------------------------------------------------------------
-// -----                        ERDigitizer header file          -----
-// -----                        Created   by                 -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 
 #ifndef ERDigitizer_H
 #define ERDigitizer_H
 
+#include <vector>
+
 #include "TClonesArray.h"
 #include "TString.h"
 
-#include "FairTask.h"
-
+#include "ERTask.h"
 #include "ERDigi.h"
 
 struct ERDigitizerError
@@ -26,11 +31,25 @@ struct ERDigitizerError
   Float_t c;
 };
 
-class ERDigitizer : public FairTask {
+struct ERTrigger
+{
+  Int_t   fValue;
+  Int_t   fPriority;
+  ERTrigger(){}
+  ERTrigger(Int_t value, Int_t priority){
+    fValue = value;
+    fPriority = priority;
+  }
+};
+
+class ERDigitizer : public ERTask {
 
 public:
   /** Default constructor **/
   ERDigitizer();
+
+  /** Constructor **/
+  ERDigitizer(TString name);
 
   /** Constructor 
   ** verbose: 1 - only standard log print, 2 - print digi information 
@@ -53,14 +72,15 @@ public:
   virtual void Reset();
 
   void AddError(TString volName,Float_t a, Float_t b, Float_t c);
+
+  void AddTrigger(TString stationSID, Int_t value, Int_t priority);
+  void ApplyTrigger(TString stationSID, TClonesArray* digiCollection);
   
 protected:
+  std::map<TString, ERTrigger> fTriggers;
   
 protected:
   ERDigi* AddDigi(TClonesArray* digi);
-
-private:
-  virtual void SetParContainers();
 
 private:
   std::map<TString,TClonesArray*> fSenVolDigis;

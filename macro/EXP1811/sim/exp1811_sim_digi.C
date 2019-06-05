@@ -186,6 +186,11 @@ void exp1811_sim_digi (Int_t nEvents = 1000) {
   // ------- QTelescope Digitizer -------------------------------------------
   ERQTelescopeDigitizer* qtelescopeDigitizer = new ERQTelescopeDigitizer(verbose);
 
+  //Set trigger for thick station of right telescope with value 2 and priority 2
+  qtelescopeDigitizer->AddTrigger("SSD_R_Y_3",2,2);
+  //Set trigger for double station of left telescope with value 3 and priority 3
+  qtelescopeDigitizer->AddTrigger("DSD_L_XY_0_X",3,3);
+
   qtelescopeDigitizer->SetSiElossThreshold(0);
   qtelescopeDigitizer->SetSiElossSigma(0);
   qtelescopeDigitizer->SetSiTimeSigma(0);
@@ -198,6 +203,8 @@ void exp1811_sim_digi (Int_t nEvents = 1000) {
 
   // -----  BeamDet Digitizer ----------------------------------------------
   ERBeamDetDigitizer* beamDetDigitizer = new ERBeamDetDigitizer(verbose);
+  //Set trigger for first Tof station with value 1 and priority 1
+  beamDetDigitizer->AddTrigger("ToF1",1,1);
   //beamDetDigitizer->SetMWPCElossThreshold(0.006);
   //beamDetDigitizer->SetToFElossThreshold(0.006);
   //beamDetDigitizer->SetToFElossSigmaOverEloss(0);
@@ -205,20 +212,11 @@ void exp1811_sim_digi (Int_t nEvents = 1000) {
 
   run->AddTask(beamDetDigitizer);
 
-  // -----------------------BeamDetTrackPID----------------------------------
-  ERBeamDetPID* pid = new ERBeamDetPID(verbose);
-  pid->SetBoxPID(0., 1000., 0., 1000.);
-  pid->SetOffsetToF(0.);
-  pid->SetProbabilityThreshold(0);
-  pid->SetIonMass(6.5696366); //????
-  pid->SetPID(1000020080);
-  // run->AddTask(pid);
-
   //-------Set visualisation flag to true------------------------------------
   //run->SetStoreTraj(kTRUE);
 
   //-------Set LOG verbosity  ----------------------------------------------- 
-  FairLogger::GetLogger()->SetLogScreenLevel("FATAL");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
 
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
