@@ -27,12 +27,18 @@ private:
   Int_t fTriggerPriority;
 public:
   ERDecayMCEventHeader();
+
   void SetDecayPos(TVector3 pos){fDecayPos = pos;}
   void SetInputIon(Int_t iID){fInputTrackID = iID;}
-  void SetTrigger(Int_t trigger, Int_t priority);
+  void SetTrigger(Int_t trigger){fTrigger = trigger;}
+  void SetTriggerPriority(Int_t priority){fTriggerPriority = priority;}
   void AddOutputParticle(Int_t oID){fOutputsTracksNb++; 
                                     fOutputTrackID.Set(fOutputsTracksNb);
                                     fOutputTrackID[fOutputsTracksNb-1]=oID;}
+
+  Int_t GetTrigger() const {return fTrigger;}
+  Int_t GetTriggerPriority() const {return fTriggerPriority;}
+
   void Clear();
 
   ClassDef(ERDecayMCEventHeader,1)

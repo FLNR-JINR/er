@@ -22,15 +22,4 @@ void ERDecayMCEventHeader::Clear(){
 }
 // -------------------------------------------------------------------------
 
-// -------------------------------------------------------------------------
-void ERDecayMCEventHeader::SetTrigger(Int_t trigger, Int_t priority)
-{
-  LOG(DEBUG) << trigger << " " << priority << FairLogger::endl;
-  if (priority > fTriggerPriority){
-    fTrigger = trigger;
-    fTriggerPriority = priority;
-  }
-}
-// -------------------------------------------------------------------------
-
 ClassImp(ERDecayMCEventHeader)
