@@ -140,7 +140,21 @@ void ERDigitizer::Exec(Option_t* opt){
 //----------------------------------------------------------------------------
 void ERDigitizer::AddTrigger(TString stationSID, Int_t value, Int_t priority)
 {
+
+  for (const auto& trigger : fTriggers){
+    if (trigger.first == stationSID)
+      LOG(FATAL) << "Trigger with station SID " << stationSID 
+                 << " already exist!" << FairLogger::endl;
+    if (trigger.second.fValue == value)
+      LOG(FATAL) << "Trigger with value " << value 
+                  << " already exist!" << FairLogger::endl;
+    if (trigger.second.fPriority == priority)
+      LOG(FATAL) << "Trigger with priority " << priority 
+                  << " already exist!" << FairLogger::endl;
+  }
+
   fTriggers[stationSID] = ERTrigger(value, priority);
+
 }
 //----------------------------------------------------------------------------
 
