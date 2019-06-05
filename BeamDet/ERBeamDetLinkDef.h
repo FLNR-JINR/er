@@ -25,4 +25,25 @@
 #pragma link C++ class ERBeamDetTrack+;
 #pragma link C++ class ERBeamDetParticle+;
 
+  //--------- setup ----------------------//
+  
+  #pragma link C++ class  ERBeamDetSetup+;
+
+  //--------- simulation -----------------//
+
+  #pragma link C++ class ERBeamDet+;
+  #pragma link C++ class ERBeamDetDigitizer+;
+  #pragma link C++ class ERBeamDetTOFPoint+;
+  #pragma link C++ class ERBeamDetMWPCPoint+;
+  #pragma link C++ class ERBeamDetTargetPoint+;
+  #pragma link C++ class ERBeamDetMWPCDigi+;
+  #pragma link C++ class ERBeamDetTOFDigi+;
+
+  //--------- reco -----------------------//
+
+  #pragma link C++ class ERBeamDetTrackFinder+;
+  #pragma link C++ class ERBeamDetTrack+;
+  #pragma link C++ class ERBeamDetPID+;
+  #pragma link C++ class ERBeamDetParticle+;
+
 #endif

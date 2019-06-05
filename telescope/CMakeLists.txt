@@ -27,50 +27,40 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 
-#simulation
-ERRTelescope.cxx
-#ERRTelescopeDigitizer.cxx
-ERRTelescopeHitFinder.cxx
+######### setup ##########
+
 ERRTelescopeSetup.cxx
 
-data/ERRTelescopeCsIPoint.cxx
-data/ERRTelescopeSiPoint.cxx
-data/ERRTelescopeCsIDigi.cxx
-data/ERRTelescopeSiDigi.cxx
-data/ERRTelescopeHit.cxx
-
+ERQTelescopeSetup.cxx
 geo/ERQTelescopeGeoComponentDoubleSi.cxx
 geo/ERQTelescopeGeoNonUniformSingleSi.cxx
 geo/ERQTelescopeGeoComponentSingleSi.cxx
 geo/ERQTelescopeGeoComponentCsI.cxx
 
+######### simulation ##########
+
+ERRTelescope.cxx
+#ERRTelescopeDigitizer.cxx
+data/ERRTelescopeCsIPoint.cxx
+data/ERRTelescopeSiPoint.cxx
+data/ERRTelescopeCsIDigi.cxx
+data/ERRTelescopeSiDigi.cxx
+
 ERQTelescope.cxx
 ERQTelescopeDigitizer.cxx
-ERQTelescopeSetup.cxx
-ERQTelescopeTrackFinder.cxx
-ERQTelescopePID.cxx
-
 data/ERQTelescopeSiPoint.cxx
 data/ERQTelescopeSiDigi.cxx
 data/ERQTelescopeCsIPoint.cxx
 data/ERQTelescopeCsIDigi.cxx
+
+##### reco ######
+
+ERQTelescopeTrackFinder.cxx
 data/ERQTelescopeTrack.cxx
+
+ERQTelescopePID.cxx
 data/ERQTelescopeParticle.cxx
 
-#AculRaw
-data/AculRaw.cxx
-
-
-#beamtest
-ERQTelescopeCalibrator.cxx
-ERRTelescopeCalibrator.cxx
-#ERTelescopeReconstructorNew.cxx
-
-data/ERRTelescopeEvent.cxx
-data/ERRTelescopeCalEvent.cxx
-data/ERQTelescopeEvent.cxx
-data/ERQTelescopeCalEvent.cxx
-data/ERTelescopeRecoEvent.cxx
 )
 
 # fill list of header files from list of source files

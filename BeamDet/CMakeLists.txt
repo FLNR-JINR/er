@@ -24,25 +24,28 @@ ${GEANT4_LIB_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-    data/ERBeamDetTOFPoint.cxx
-    data/ERBeamDetMWPCPoint.cxx
-    data/ERBeamDetTargetPoint.cxx
-    data/ERBeamDetEvent.cxx
-	data/ERBeamDetCalEvent.cxx
-	data/ERBeamDetRecoEvent.cxx
-	data/ERBeamDetMWPCDigi.cxx
-	data/ERBeamDetTOFDigi.cxx
-	data/ERBeamDetTrack.cxx
-	data/ERBeamDetParticle.cxx
+  ######### setup ##########
+  
+  ERBeamDetSetup.cxx
 
-	ERBeamDet.cxx
-	ERBeamDetCalibrator.cxx
-	ERBeamDetReconstructor.cxx
-	ERBeamDetDigitizer.cxx
-	ERBeamDetTrackFinder.cxx
-	ERBeamDetSetup.cxx
-	ERBeamDetCalibratorNew.cxx
-	ERBeamDetPID.cxx
+  ######### simulation ##########
+
+  ERBeamDet.cxx
+  ERBeamDetDigitizer.cxx
+  data/ERBeamDetTOFPoint.cxx
+  data/ERBeamDetMWPCPoint.cxx
+  data/ERBeamDetTargetPoint.cxx
+  data/ERBeamDetMWPCDigi.cxx
+  data/ERBeamDetTOFDigi.cxx
+
+  ##### reco #####
+
+  ERBeamDetTrackFinder.cxx
+  data/ERBeamDetTrack.cxx
+
+  ERBeamDetPID.cxx
+  data/ERBeamDetParticle.cxx
+  
 )
 
 # fill list of header files from list of source files
