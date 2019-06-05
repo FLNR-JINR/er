@@ -1,68 +1,55 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #include "ERParticle.h"
 
-#include "ERSupport.h"
+#include <iostream>
 
-ERParticle::ERParticle(){
+using namespace std;
 
-}
+#include "G4ParticleTable.hh"
+#include "G4IonTable.hh"
+#include "G4ParticleDefinition.hh"
 
-ERParticle::~ERParticle(){
+#include "FairLogger.h"
 
-}
-
-double ERParticle::ReturnMass(char* NON,char* WayMass)
+//-------------------------------------------------------------------------------
+ERParticle::ERParticle(TString name, Int_t Z, Int_t A, Int_t Q, Double_t mass/* = 0.*/):
+  TNamed(name, name),
+  fMass(mass),
+  fExcitation(0.)
 {
-  double MassExcess;
-  double LifeTime;
-  double massa;
-  int z;
-  int a;
-  char Name[5];
-  char TimeUnit [6];
-  FILE *F1 = fopen(WayMass,"r");
-  if(F1==NULL) {printf("ReturnMass: File %s is not found\n",WayMass);}
-  else 
-  {
-  while(!feof(F1))
-  {
-    int res;
-    res = fscanf(F1,"%s %d %d %lf %s %lf\n",Name,&z,&a,&MassExcess,TimeUnit,&LifeTime);
-    if (!strcmp(NON,Name))
-    {massa=AMU*(double)a+MassExcess;break;}
-  }
-  fclose(F1);
-  }
-  return massa;
+  fPDG = G4IonTable::GetIonTable()->GetNucleusEncoding(Z,A);
 }
-//-----------------------------------------------------------------------------
-void ERParticle::ParticleID(char* name, char* path){
-  char nucl[5];
-  double MassExcess;
-  int z;
-  int a;
-  char TimeUnit[6];
-  double LifeTime;
-
-  FILE *F1 = fopen(path,"r");
-  if(F1==NULL) {printf("IdParticle: File %s is not found\n",path);}
-  else 
-  {
-    while(!feof(F1))
-    {
-      int res;
-      res = fscanf(F1,"%s %d %d %lf %s %lf\n",nucl,&z,&a,&MassExcess,
-        TimeUnit,&LifeTime);
-      if (!strcmp(name,nucl))
-      {
-        Mass=AMU*(double)a+MassExcess;
-        NameOfNucleus = new char [strlen(nucl)+1];
-        strcpy(NameOfNucleus,nucl);
-        AtNumber = z;
-        AtMass = a;
-        break;
-      }
-    }
-  }
-  fclose(F1);
-  return;
+//-------------------------------------------------------------------------------
+ERParticle::ERParticle(TString name, Int_t PDG, Double_t mass/* = 0.*/):
+  TNamed(name, name),
+  fMass(mass),
+  fPDG(PDG),
+  fExcitation(0.)
+{
 }
+//-------------------------------------------------------------------------------
+ERParticle::~ERParticle()
+{
+}
+//-------------------------------------------------------------------------------
+void ERParticle::Print() const
+{
+  LOG(INFO) << "[ERParticle] "              << fName << " info:" << FairLogger::endl;
+  LOG(INFO) << "[ERParticle] PDG: "         << fPDG << FairLogger::endl;
+  LOG(INFO) << "[ERParticle] Mass: "        << fMass << FairLogger::endl;
+  LOG(INFO) << "[ERParticle] Excitation: "  << fExcitation << FairLogger::endl;
+}
+//-------------------------------------------------------------------------------
+void ERParticle::DefineMass()
+{
+  if (fMass == 0.)
+    fMass = ((G4ParticleDefinition*)G4ParticleTable::GetParticleTable()->FindParticle(fPDG))->GetPDGMass();
+}
+//-------------------------------------------------------------------------------
