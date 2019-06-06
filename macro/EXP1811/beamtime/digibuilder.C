@@ -43,6 +43,8 @@ void digibuilder(Int_t sEvent = 0 , Int_t fEvent = 100000, TString outFile = "di
   builder->AddFile(inFile);
 
   ERBeamDetUnpack* beamDetUnpack = new ERBeamDetUnpack("Beam_detector");
+  beamDetUnpack->SetToFCalibration(0.125, 0., 0.125, 0.); //aF3, bF3, aF5, bF5
+  beamDetUnpack->SetMWPCCalibration(0.125,0.);
   
   ERTelescopeUnpack* rtUnpack = new ERTelescopeUnpack("Right_telescope");
   rtUnpack->AddSingleSiStation("SSD20_R",

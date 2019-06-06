@@ -19,9 +19,13 @@ using namespace std;
 //--------------------------------------------------------------------------------------------------
 ERBeamDetUnpack::ERBeamDetUnpack(TString detName):
  ERUnpack(detName),
- fTimeCalConst(0.125)
+ fCalToFa1(0.125),
+ fCalToFb1(0.),
+ fCalToFa2(0.125),
+ fCalToFb2(0.),
+ fCalMWPCa(0.125),
+ fCalMWPCb(0.)
 {
-
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetUnpack::~ERBeamDetUnpack(){
@@ -89,7 +93,7 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 				amp += itValue.second.first;
 				time += itValue.second.second;
 			}
-			time = time*0.25*fTimeCalConst;
+			time = time*0.25*fCalToFa1+fCalToFb1;
 			AddToFDigi(amp,time,1);
 		}
 		else
@@ -104,7 +108,7 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 				amp += itValue.second.first;
 				time += itValue.second.second;
 			}
-			time = time*0.25*fTimeCalConst;
+			time = time*0.25*fCalToFa2+fCalToFb2;
 			AddToFDigi(amp,time,2);
 		}
 		else
@@ -124,7 +128,8 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 			UnpackStation(detEvent, mwpcAmpSt, mwpcAmp);
 			if (mwpcTime.find(mwpcTimeSt) != mwpcTime.end()){
 				for (auto itChanel : mwpcAmp){
-					AddMWPCDigi(itChanel.second, mwpcTime[mwpcTimeSt]*fTimeCalConst, mwpcAmpSt, itChanel.first);
+					Double_t time = mwpcTime[mwpcTimeSt]*fCalMWPCa + fCalMWPCb;
+					AddMWPCDigi(itChanel.second, time, mwpcAmpSt, itChanel.first);
 				}
 			}
 			else{
