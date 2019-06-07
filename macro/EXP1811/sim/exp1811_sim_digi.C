@@ -178,7 +178,7 @@ void exp1811_sim_digi (Int_t nEvents = 1000) {
   //targetDecay->SetH7Exitation(0.0012, 0.0002355, 1);
   targetDecay->SetMinStep(1e-1);
 
-  //targetDecay->SetDecayFile(workDirPath+"/input/generators/pmom-pv-1.dat");
+  targetDecay->SetDecayFile(workDirPath+"/input/generators/pmom-pv-1.dat");
   
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);

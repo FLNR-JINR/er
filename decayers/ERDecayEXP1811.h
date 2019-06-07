@@ -42,7 +42,7 @@ public:
   **/
   void ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass);
 
-  void DecayPhaseGenerator(TLorentzVector *h7,TLorentzVector **h3,TLorentzVector **n1,
+  Bool_t DecayPhaseGenerator(TLorentzVector *h7,TLorentzVector **h3,TLorentzVector **n1,
                           TLorentzVector **n2,TLorentzVector **n3, TLorentzVector **n4);
 
   /** @brief Sets distribution is contained in file.

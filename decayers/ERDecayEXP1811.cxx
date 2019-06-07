@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 using namespace std;
 
 #include "TVirtualMC.h"
@@ -223,7 +224,10 @@ Bool_t ERDecayEXP1811::Stepping() {
 
       //7H → f3H + n +n +n +n
       TLorentzVector *lv3H,*lvn1,*lvn2,*lvn3,*lvn4;
-      DecayPhaseGenerator(fLv7H,&lv3H,&lvn1,&lvn2,&lvn3,&lvn4);
+      if (!DecayPhaseGenerator(fLv7H,&lv3H,&lvn1,&lvn2,&lvn3,&lvn4)){
+        fDecayFinish = kTRUE;
+        return kTRUE;
+      }
 
       Int_t He8TrackNb, H7TrackNb, He3TrackNb, H3TrackNb, n1TrackNb, n2TrackNb, n3TrackNb, n4TrackNb;
 
@@ -337,7 +341,7 @@ void ERDecayEXP1811::ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass) {
 }
 
 //-------------------------------------------------------------------------------------------------
-void ERDecayEXP1811::DecayPhaseGenerator(TLorentzVector *h7,TLorentzVector **h3,TLorentzVector **n1,
+Bool_t ERDecayEXP1811::DecayPhaseGenerator(TLorentzVector *h7,TLorentzVector **h3,TLorentzVector **n1,
                           TLorentzVector **n2,TLorentzVector **n3, TLorentzVector **n4) {
   if (fDecayFilePath == ""){ // if decay file not defined, permorm decay using phase space
     Double_t decayMasses[5];
@@ -356,14 +360,50 @@ void ERDecayEXP1811::DecayPhaseGenerator(TLorentzVector *h7,TLorentzVector **h3,
     *n3 = fDecayPhaseSpace->GetDecay(3);
     *n4 = fDecayPhaseSpace->GetDecay(4);
 
-    std::string event_line;
-    std::getline(fDecayFile,event_line);
-    LOG(INFO) << event_line.c_str() << FairLogger::endl;
-
-    return;
+    return kTRUE;
   }
 
+  if (fDecayFile.eof()){
+    LOG(INFO) << "Decay file finished!" << FairLogger::endl;
+    return kFALSE;
+  }
+
+  std::string event_line;
+  std::getline(fDecayFile,event_line);
+
+  std::istringstream iss(event_line);
+  std::vector<std::string> outputs_components((std::istream_iterator<std::string>(iss)),
+                                   std::istream_iterator<std::string>());
+
+  if (outputs_components.size() < 5*3){
+    LOG(ERROR) << "Wrong components number in raw in decay file!" << FairLogger::endl;
+    return kFALSE;
+  }
+
+  *n1 = new TLorentzVector();
+  *n2 = new TLorentzVector();
+  *n3 = new TLorentzVector();
+  *n4 = new TLorentzVector();
+  *h3 = new TLorentzVector();
+
+  (*n1)->SetXYZM(std::stod(outputs_components[0]),std::stod(outputs_components[1]),
+               std::stod(outputs_components[2]),fn->Mass());
+  (*n2)->SetXYZM(std::stod(outputs_components[3]),std::stod(outputs_components[4]),
+               std::stod(outputs_components[5]),fn->Mass());
+  (*n3)->SetXYZM(std::stod(outputs_components[6]),std::stod(outputs_components[7]),
+               std::stod(outputs_components[8]),fn->Mass());
+  (*n4)->SetXYZM(std::stod(outputs_components[9]),std::stod(outputs_components[10]),
+               std::stod(outputs_components[11]),fn->Mass());
+  (*h3)->SetXYZM(std::stod(outputs_components[12]),std::stod(outputs_components[13]),
+               std::stod(outputs_components[14]),f3H->Mass());
+
+  (*n1)->Boost(h7->BoostVector());
+  (*n2)->Boost(h7->BoostVector());
+  (*n3)->Boost(h7->BoostVector());
+  (*n4)->Boost(h7->BoostVector());
+  (*h3)->Boost(h7->BoostVector());
   
+  return kTRUE;
 }
 
 //-------------------------------------------------------------------------------------------------
