@@ -9,6 +9,7 @@
 #include "ERDecayEXP1811.h"
 
 #include <iostream>
+#include <string>
 using namespace std;
 
 #include "TVirtualMC.h"
@@ -38,7 +39,10 @@ ERDecayEXP1811::ERDecayEXP1811():
   fIs7HUserMassSet(false),
   fIs7HExcitationSet(false),
   fADInput(NULL),
-  fADFunction(NULL)
+  fADFunction(NULL),
+  fDecayFilePath(""),
+  fDecayFileFinished(kFALSE),
+  fDecayFileCurrentEvent(0)
 {
   fRnd = new TRandom3();
   // fRnd->SetSeed();
@@ -60,6 +64,8 @@ ERDecayEXP1811::ERDecayEXP1811():
 
 //-------------------------------------------------------------------------------------------------
 ERDecayEXP1811::~ERDecayEXP1811() {
+  if (fDecayFile.is_open())
+    fDecayFile.close();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -120,18 +126,30 @@ Bool_t ERDecayEXP1811::Init() {
     f7HMass = f7H->Mass(); // if user mass is not defined in ERDecayEXP1811::SetH7Mass() than get a GEANT mass
   }
   CalculateTargetParameters();
+
+
+  if (fDecayFilePath != ""){
+    LOG(INFO) << "Use decay kinematics from external text file" << FairLogger::endl;
+    fDecayFile.open(fDecayFilePath.Data());
+    if (!fDecayFile.is_open())
+      LOG(FATAL) << "Can`t open decay file " << fDecayFilePath << FairLogger::endl;
+    //Пропускаем шапку файла
+    std::string header;
+    std::getline(fDecayFile,header);
+  }
+
   return kTRUE;
 }
 
 //-------------------------------------------------------------------------------------------------
 Bool_t ERDecayEXP1811::Stepping() {
-  if(!fDecayFinish && gMC->TrackPid() == 1000020080 
+  if(!fDecayFinish && gMC->TrackPid() == 1000020080
      && TString(gMC->CurrentVolName()).Contains(GetInteractionVolumeName()))
   {
     if (!fIsInterationPointFound) {
       if (!FindInteractionPoint()) {
         fDecayFinish = kTRUE;
-        return kFALSE;
+        return kTRUE;
       } else {
         fDistanceFromEntrance = 0;
       }
@@ -145,6 +163,7 @@ Bool_t ERDecayEXP1811::Stepping() {
     // std::cout << "Track step: " << fDistanceFromEntrance <<  endl;    
     if (fDistanceFromEntrance > fDistanceToInteractPoint) {
       // std::cout << "Start reation in target. Defined pos: " << fDistanceToInteractPoint << ", current pos: " << curPos.Z() << endl;
+      
       // 8He + 2H → 3He + 7H
       TLorentzVector lv8He;
       gMC->TrackMomentum(lv8He);
@@ -166,10 +185,11 @@ Bool_t ERDecayEXP1811::Stepping() {
       lv2HCM.Boost(-boost);
       ECM = lv8HeCM(3) + lv2HCM(3);
 
-      Int_t decayHappen = kFALSE;
+      Int_t reactionHappen = kFALSE;
       
       Double_t decay7HMass;
-      while (decayHappen==kFALSE) { // while decay condition is not fullfilled   
+      Int_t reactionAttempsCounter = 0;
+      while (reactionHappen==kFALSE) { // while reaction condition is not fullfilled   
         decay7HMass = f7HMass;
         Double_t excitation = 0;  // excitation energy
         if (fIs7HExcitationSet) {
@@ -186,31 +206,24 @@ Bool_t ERDecayEXP1811::Stepping() {
         }
         decay7HMass += excitation;
         if((ECM - f3He->Mass() - decay7HMass) > 0) { // выход из цикла while для PhaseGenerator
-          decayHappen = kTRUE;
+          reactionHappen = kTRUE;
+          LOG(DEBUG) << "[ERDecayEXP1811] Reaction is happen" << endl;
         }
-        cout << "[ERDecayEXP1811::Stepping] mass" << endl;
+        reactionAttempsCounter++;
+        if (reactionAttempsCounter > 1000){
+          LOG(DEBUG) << "[ERDecayEXP1811] Reaction is forbidden for this CM energy" << endl;
+          fDecayFinish = kTRUE;
+          return kTRUE;
+        }
       }
 
-      PhaseGenerator(ECM, decay7HMass);
+      ReactionPhaseGenerator(ECM, decay7HMass); 
       fLv7H->Boost(boost);
       fLv3He->Boost(boost);
 
       //7H → f3H + n +n +n +n
-      Double_t decayMasses[5];
-      decayMasses[0] = f3H->Mass();
-      decayMasses[1] = fn->Mass(); 
-      decayMasses[2] = fn->Mass();
-      decayMasses[3] = fn->Mass(); 
-      decayMasses[4] = fn->Mass();
-
-      fDecayPhaseSpace->SetDecay(*fLv7H, 5, decayMasses);
-      fDecayPhaseSpace->Generate();
-
-      TLorentzVector *lv3H = fDecayPhaseSpace->GetDecay(0);
-      TLorentzVector *lvn1 = fDecayPhaseSpace->GetDecay(1);
-      TLorentzVector *lvn2 = fDecayPhaseSpace->GetDecay(2);
-      TLorentzVector *lvn3 = fDecayPhaseSpace->GetDecay(3);
-      TLorentzVector *lvn4 = fDecayPhaseSpace->GetDecay(4);
+      TLorentzVector *lv3H,*lvn1,*lvn2,*lvn3,*lvn4;
+      DecayPhaseGenerator(fLv7H,&lv3H,&lvn1,&lvn2,&lvn3,&lvn4);
 
       Int_t He8TrackNb, H7TrackNb, He3TrackNb, H3TrackNb, n1TrackNb, n2TrackNb, n3TrackNb, n4TrackNb;
 
@@ -293,7 +306,7 @@ void ERDecayEXP1811::FinishEvent() {
 }
 
 //-------------------------------------------------------------------------------------------------
-void ERDecayEXP1811::PhaseGenerator(Double_t Ecm, Double_t h7Mass) {
+void ERDecayEXP1811::ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass) {
   Double_t m1 = h7Mass;
   Double_t m2 = f3He->Mass();
 
@@ -321,6 +334,36 @@ void ERDecayEXP1811::PhaseGenerator(Double_t Ecm, Double_t h7Mass) {
   fLv3He->SetXYZM(0., 0., 0., 0.);
   fLv7H->SetXYZM(Pcmv(0), Pcmv(1), Pcmv(2), m1);
   fLv3He->SetXYZM(-Pcmv(0), -Pcmv(1), -Pcmv(2), m2);
+}
+
+//-------------------------------------------------------------------------------------------------
+void ERDecayEXP1811::DecayPhaseGenerator(TLorentzVector *h7,TLorentzVector **h3,TLorentzVector **n1,
+                          TLorentzVector **n2,TLorentzVector **n3, TLorentzVector **n4) {
+  if (fDecayFilePath == ""){ // if decay file not defined, permorm decay using phase space
+    Double_t decayMasses[5];
+    decayMasses[0] = f3H->Mass();
+    decayMasses[1] = fn->Mass(); 
+    decayMasses[2] = fn->Mass();
+    decayMasses[3] = fn->Mass(); 
+    decayMasses[4] = fn->Mass();
+
+    fDecayPhaseSpace->SetDecay(*h7, 5, decayMasses);
+    fDecayPhaseSpace->Generate();
+
+    *h3 = fDecayPhaseSpace->GetDecay(0);
+    *n1 = fDecayPhaseSpace->GetDecay(1);
+    *n2 = fDecayPhaseSpace->GetDecay(2);
+    *n3 = fDecayPhaseSpace->GetDecay(3);
+    *n4 = fDecayPhaseSpace->GetDecay(4);
+
+    std::string event_line;
+    std::getline(fDecayFile,event_line);
+    LOG(INFO) << event_line.c_str() << FairLogger::endl;
+
+    return;
+  }
+
+  
 }
 
 //-------------------------------------------------------------------------------------------------

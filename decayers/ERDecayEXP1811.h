@@ -9,11 +9,15 @@
 #ifndef ERDecayEXP1811_H
 #define ERDecayEXP1811_H
 
+#include <vector>
+#include <fstream>
+
 #include "TGraph.h"
 #include "TF1.h"
 #include "TRandom3.h"
 #include "TRandom2.h"
 #include "TGenPhaseSpace.h"
+#include "TLorentzVector.h"
 
 #include "FairIon.h"
 
@@ -30,14 +34,17 @@ public:
   void SetTargetThickness(Double_t targetThickness) {fTargetThickness = targetThickness;}
   void SetH7Mass(Double_t mass) {f7HMass = mass; fIs7HUserMassSet = true;}
   void SetH7Exitation(Double_t excMean, Double_t fwhm, Double_t distibWeight);
+  void SetDecayFile(TString filePath){fDecayFilePath = filePath;}
 
-  /** @brief Body decay in phase space approach.
+  /** @brief Body reaction in phase space approach.
    ** @param Ecm     Total energy in CM.
    ** @oaram h7Mass  H7 ion mass.
   **/
-  void PhaseGenerator(Double_t Ecm, Double_t h7Mass);
+  void ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass);
 
-  
+  void DecayPhaseGenerator(TLorentzVector *h7,TLorentzVector **h3,TLorentzVector **n1,
+                          TLorentzVector **n2,TLorentzVector **n3, TLorentzVector **n4);
+
   /** @brief Sets distribution is contained in file.
    ** @param ADfile  file with angular distribution.
   **/  
@@ -49,6 +56,10 @@ public:
 
   void BeginEvent();
   void FinishEvent();
+
+private:
+
+  std::vector<TLorentzVector> ReadDecayEvent();
 
 private:
   TRandom3       *fRnd;
@@ -81,6 +92,11 @@ private:
   Double_t        f7HMass;
   Bool_t          fIs7HUserMassSet;
   Bool_t          fIs7HExcitationSet;
+
+  TString         fDecayFilePath;
+  Bool_t          fDecayFileFinished;
+  Int_t           fDecayFileCurrentEvent;
+  std::ifstream   fDecayFile;
 
   TGraph *fADInput;    //!   distribution (angular distribution) graph containing AD input
   TF1    *fADFunction; //!   function describing AD (angular distribution) of binary reaction
