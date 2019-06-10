@@ -9,6 +9,8 @@
 #include "ERDecayEXP1811.h"
 
 #include <iostream>
+#include <string>
+#include <sstream>
 using namespace std;
 
 #include "TVirtualMC.h"
@@ -38,7 +40,10 @@ ERDecayEXP1811::ERDecayEXP1811():
   fIs7HUserMassSet(false),
   fIs7HExcitationSet(false),
   fADInput(NULL),
-  fADFunction(NULL)
+  fADFunction(NULL),
+  fDecayFilePath(""),
+  fDecayFileFinished(kFALSE),
+  fDecayFileCurrentEvent(0)
 {
   fRnd = new TRandom3();
   // fRnd->SetSeed();
@@ -54,12 +59,21 @@ ERDecayEXP1811::ERDecayEXP1811():
 
   fLv7H = new TLorentzVector();
   fLv3He = new TLorentzVector();
-
-  cout << "ERDecayEXP1811 constructed." << endl;
 }
 
 //-------------------------------------------------------------------------------------------------
 ERDecayEXP1811::~ERDecayEXP1811() {
+  if (fDecayFile.is_open())
+    fDecayFile.close();
+  if (fDecayFilePath == ""){ // LV from TGenPhaseSpace will be deleted in TGenPhaseSpace
+    if (fLv3H){
+      delete fLv3H;
+      delete fLvn1;
+      delete fLvn2;
+      delete fLvn3;
+      delete fLvn4;
+    }
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -120,18 +134,36 @@ Bool_t ERDecayEXP1811::Init() {
     f7HMass = f7H->Mass(); // if user mass is not defined in ERDecayEXP1811::SetH7Mass() than get a GEANT mass
   }
   CalculateTargetParameters();
+
+
+  if (fDecayFilePath != ""){
+    LOG(INFO) << "Use decay kinematics from external text file" << FairLogger::endl;
+    fDecayFile.open(fDecayFilePath.Data());
+    if (!fDecayFile.is_open())
+      LOG(FATAL) << "Can`t open decay file " << fDecayFilePath << FairLogger::endl;
+    //Пропускаем шапку файла
+    std::string header;
+    std::getline(fDecayFile,header);
+
+    fLv3H = new TLorentzVector();
+    fLvn1 = new TLorentzVector();
+    fLvn2 = new TLorentzVector();
+    fLvn3 = new TLorentzVector();
+    fLvn4 = new TLorentzVector();
+  }
+
   return kTRUE;
 }
 
 //-------------------------------------------------------------------------------------------------
 Bool_t ERDecayEXP1811::Stepping() {
-  if(!fDecayFinish && gMC->TrackPid() == 1000020080 
+  if(!fDecayFinish && gMC->TrackPid() == 1000020080
      && TString(gMC->CurrentVolName()).Contains(GetInteractionVolumeName()))
   {
     if (!fIsInterationPointFound) {
       if (!FindInteractionPoint()) {
         fDecayFinish = kTRUE;
-        return kFALSE;
+        return kTRUE;
       } else {
         fDistanceFromEntrance = 0;
       }
@@ -145,6 +177,7 @@ Bool_t ERDecayEXP1811::Stepping() {
     // std::cout << "Track step: " << fDistanceFromEntrance <<  endl;    
     if (fDistanceFromEntrance > fDistanceToInteractPoint) {
       // std::cout << "Start reation in target. Defined pos: " << fDistanceToInteractPoint << ", current pos: " << curPos.Z() << endl;
+      
       // 8He + 2H → 3He + 7H
       TLorentzVector lv8He;
       gMC->TrackMomentum(lv8He);
@@ -166,10 +199,11 @@ Bool_t ERDecayEXP1811::Stepping() {
       lv2HCM.Boost(-boost);
       ECM = lv8HeCM(3) + lv2HCM(3);
 
-      Int_t decayHappen = kFALSE;
+      Int_t reactionHappen = kFALSE;
       
       Double_t decay7HMass;
-      while (decayHappen==kFALSE) { // while decay condition is not fullfilled   
+      Int_t reactionAttempsCounter = 0;
+      while (reactionHappen==kFALSE) { // while reaction condition is not fullfilled   
         decay7HMass = f7HMass;
         Double_t excitation = 0;  // excitation energy
         if (fIs7HExcitationSet) {
@@ -186,31 +220,26 @@ Bool_t ERDecayEXP1811::Stepping() {
         }
         decay7HMass += excitation;
         if((ECM - f3He->Mass() - decay7HMass) > 0) { // выход из цикла while для PhaseGenerator
-          decayHappen = kTRUE;
+          reactionHappen = kTRUE;
+          LOG(DEBUG) << "[ERDecayEXP1811] Reaction is happen" << endl;
         }
-        cout << "[ERDecayEXP1811::Stepping] mass" << endl;
+        reactionAttempsCounter++;
+        if (reactionAttempsCounter > 1000){
+          LOG(DEBUG) << "[ERDecayEXP1811] Reaction is forbidden for this CM energy" << endl;
+          fDecayFinish = kTRUE;
+          return kTRUE;
+        }
       }
 
-      PhaseGenerator(ECM, decay7HMass);
+      ReactionPhaseGenerator(ECM, decay7HMass); 
       fLv7H->Boost(boost);
       fLv3He->Boost(boost);
 
       //7H → f3H + n +n +n +n
-      Double_t decayMasses[5];
-      decayMasses[0] = f3H->Mass();
-      decayMasses[1] = fn->Mass(); 
-      decayMasses[2] = fn->Mass();
-      decayMasses[3] = fn->Mass(); 
-      decayMasses[4] = fn->Mass();
-
-      fDecayPhaseSpace->SetDecay(*fLv7H, 5, decayMasses);
-      fDecayPhaseSpace->Generate();
-
-      TLorentzVector *lv3H = fDecayPhaseSpace->GetDecay(0);
-      TLorentzVector *lvn1 = fDecayPhaseSpace->GetDecay(1);
-      TLorentzVector *lvn2 = fDecayPhaseSpace->GetDecay(2);
-      TLorentzVector *lvn3 = fDecayPhaseSpace->GetDecay(3);
-      TLorentzVector *lvn4 = fDecayPhaseSpace->GetDecay(4);
+      if (!DecayPhaseGenerator()){
+        fDecayFinish = kTRUE;
+        return kTRUE;
+      }
 
       Int_t He8TrackNb, H7TrackNb, He3TrackNb, H3TrackNb, n1TrackNb, n2TrackNb, n3TrackNb, n4TrackNb;
 
@@ -229,28 +258,28 @@ Bool_t ERDecayEXP1811::Stepping() {
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, He3TrackNb, f3He->Mass(), 0);
       gMC->GetStack()->PushTrack(1, He8TrackNb, f3H->PdgCode(),
-                                 lv3H->Px(), lv3H->Py(), lv3H->Pz(),
-                                 lv3H->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 fLv3H->Px(), fLv3H->Py(), fLv3H->Pz(),
+                                 fLv3H->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, H3TrackNb, f3H->Mass(), 0);
       gMC->GetStack()->PushTrack(1, He8TrackNb, fn->PdgCode(),
-                                 lvn1->Px(),lvn1->Py(),lvn1->Pz(),
-                                 lvn1->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 fLvn1->Px(),fLvn1->Py(),fLvn1->Pz(),
+                                 fLvn1->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, n1TrackNb, fn->Mass(), 0);
       gMC->GetStack()->PushTrack(1, He8TrackNb, fn->PdgCode(),
-                                 lvn2->Px(),lvn2->Py(),lvn2->Pz(),
-                                 lvn2->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 fLvn2->Px(),fLvn2->Py(),fLvn2->Pz(),
+                                 fLvn2->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, n2TrackNb, fn->Mass(), 0);
       gMC->GetStack()->PushTrack(1, He8TrackNb, fn->PdgCode(),
-                                 lvn3->Px(),lvn3->Py(),lvn3->Pz(),
-                                 lvn3->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 fLvn3->Px(),fLvn3->Py(),fLvn3->Pz(),
+                                 fLvn3->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, n3TrackNb, fn->Mass(), 0);
       gMC->GetStack()->PushTrack(1, He8TrackNb, fn->PdgCode(),
-                                 lvn4->Px(),lvn4->Py(),lvn4->Pz(),
-                                 lvn4->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 fLvn4->Px(),fLvn4->Py(),fLvn4->Pz(),
+                                 fLvn4->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, n4TrackNb, fn->Mass(), 0);
       gMC->StopTrack();
@@ -293,7 +322,7 @@ void ERDecayEXP1811::FinishEvent() {
 }
 
 //-------------------------------------------------------------------------------------------------
-void ERDecayEXP1811::PhaseGenerator(Double_t Ecm, Double_t h7Mass) {
+void ERDecayEXP1811::ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass) {
   Double_t m1 = h7Mass;
   Double_t m2 = f3He->Mass();
 
@@ -321,6 +350,65 @@ void ERDecayEXP1811::PhaseGenerator(Double_t Ecm, Double_t h7Mass) {
   fLv3He->SetXYZM(0., 0., 0., 0.);
   fLv7H->SetXYZM(Pcmv(0), Pcmv(1), Pcmv(2), m1);
   fLv3He->SetXYZM(-Pcmv(0), -Pcmv(1), -Pcmv(2), m2);
+}
+
+//-------------------------------------------------------------------------------------------------
+Bool_t ERDecayEXP1811::DecayPhaseGenerator() {
+  if (fDecayFilePath == ""){ // if decay file not defined, permorm decay using phase space
+    Double_t decayMasses[5];
+    decayMasses[0] = f3H->Mass();
+    decayMasses[1] = fn->Mass(); 
+    decayMasses[2] = fn->Mass();
+    decayMasses[3] = fn->Mass(); 
+    decayMasses[4] = fn->Mass();
+
+    fDecayPhaseSpace->SetDecay(*fLv7H, 5, decayMasses);
+    fDecayPhaseSpace->Generate();
+
+    fLv3H = fDecayPhaseSpace->GetDecay(0);
+    fLvn1 = fDecayPhaseSpace->GetDecay(1);
+    fLvn2 = fDecayPhaseSpace->GetDecay(2);
+    fLvn3 = fDecayPhaseSpace->GetDecay(3);
+    fLvn4 = fDecayPhaseSpace->GetDecay(4);
+
+    return kTRUE;
+  }
+
+  if (fDecayFile.eof()){
+    LOG(INFO) << "Decay file finished!" << FairLogger::endl;
+    return kFALSE;
+  }
+
+  std::string event_line;
+  std::getline(fDecayFile,event_line);
+
+  std::istringstream iss(event_line);
+  std::vector<std::string> outputs_components((std::istream_iterator<std::string>(iss)),
+                                   std::istream_iterator<std::string>());
+
+  if (outputs_components.size() < 5*3){
+    LOG(ERROR) << "Wrong components number in raw in decay file!" << FairLogger::endl;
+    return kFALSE;
+  }
+
+  fLvn1->SetXYZM(std::stod(outputs_components[0]),std::stod(outputs_components[1]),
+               std::stod(outputs_components[2]),fn->Mass());
+  fLvn2->SetXYZM(std::stod(outputs_components[3]),std::stod(outputs_components[4]),
+               std::stod(outputs_components[5]),fn->Mass());
+  fLvn3->SetXYZM(std::stod(outputs_components[6]),std::stod(outputs_components[7]),
+               std::stod(outputs_components[8]),fn->Mass());
+  fLvn4->SetXYZM(std::stod(outputs_components[9]),std::stod(outputs_components[10]),
+               std::stod(outputs_components[11]),fn->Mass());
+  fLv3H->SetXYZM(std::stod(outputs_components[12]),std::stod(outputs_components[13]),
+               std::stod(outputs_components[14]),f3H->Mass());
+
+  fLvn1->Boost(fLv7H->BoostVector());
+  fLvn2->Boost(fLv7H->BoostVector());
+  fLvn3->Boost(fLv7H->BoostVector());
+  fLvn4->Boost(fLv7H->BoostVector());
+  fLv3H->Boost(fLv7H->BoostVector());
+  
+  return kTRUE;
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -148,8 +148,7 @@ void exp1811_sim_digi (Int_t nEvents = 1000) {
   TString ionName = "8He";
   ERIonMixGenerator* generator = new ERIonMixGenerator(ionName, Z, A, Q, 1);
   Double32_t kin_energy = kinE_MevPerNucleon * 1e-3 * A; //GeV
-  generator->SetKinE(kin_energy);
-  generator->SetPSigmaOverP(0);
+  generator->SetKinESigma(kin_energy, 0.); 
   Double32_t sigmaTheta = 0.004*TMath::RadToDeg();
 
   generator->SetThetaSigma(0, sigmaTheta);
@@ -165,21 +164,22 @@ void exp1811_sim_digi (Int_t nEvents = 1000) {
   
   Double_t massH7 = 6.5691;//7.5061760;  // [GeV]
 
-
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1811* targetDecay = new ERDecayEXP1811();
 
   targetDecay->SetInteractionVolumeName("tubeD2");
 
   targetDecay->SetNuclearInteractionLength(20.);
+  targetDecay->SetMaxPathLength(2./*2e-4 * 10 * 1.1*/);
 
   //targetDecay->SetAngularDistribution("Cs_6He_d_3He_5H_35-25AMeV.txt");
   targetDecay->SetH7Mass(massH7);
   // targetDecay->SetH7Exitation(0.0004, 0.00002355, 1);
   //targetDecay->SetH7Exitation(0.0012, 0.0002355, 1);
   targetDecay->SetMinStep(1e-1);
-  targetDecay->SetMaxPathLength(2./*2e-4 * 10 * 1.1*/);
 
+  targetDecay->SetDecayFile(workDirPath+"/input/generators/pmom-pv-1.dat");
+  
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);
 
@@ -213,7 +213,7 @@ void exp1811_sim_digi (Int_t nEvents = 1000) {
   run->AddTask(beamDetDigitizer);
 
   //-------Set visualisation flag to true------------------------------------
-  //run->SetStoreTraj(kTRUE);
+  run->SetStoreTraj(kTRUE);
 
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogScreenLevel("INFO");

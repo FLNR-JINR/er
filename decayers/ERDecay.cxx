@@ -138,7 +138,7 @@ Bool_t ERDecay::FindInteractionPoint() {
               << interactProbability 
               << "; normalizing probability is " << fNormalizingProbability << FairLogger::endl;         
     if (fRnd1->Uniform(0, 1) > interactProbability) {
-      LOG(INFO) << "[ERDecay::FindInteractionPoint]: interaction hasn't happened in current event" 
+      LOG(DEBUG) << "Interaction hasn't happened with defined Interaction length and max path length"  
                 << FairLogger::endl;
       return kFALSE;
     } else {
