@@ -59,14 +59,21 @@ ERDecayEXP1811::ERDecayEXP1811():
 
   fLv7H = new TLorentzVector();
   fLv3He = new TLorentzVector();
-
-  cout << "ERDecayEXP1811 constructed." << endl;
 }
 
 //-------------------------------------------------------------------------------------------------
 ERDecayEXP1811::~ERDecayEXP1811() {
   if (fDecayFile.is_open())
     fDecayFile.close();
+  if (fDecayFilePath == ""){ // LV from TGenPhaseSpace will be deleted in TGenPhaseSpace
+    if (fLv3H){
+      delete fLv3H;
+      delete fLvn1;
+      delete fLvn2;
+      delete fLvn3;
+      delete fLvn4;
+    }
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -137,6 +144,12 @@ Bool_t ERDecayEXP1811::Init() {
     //Пропускаем шапку файла
     std::string header;
     std::getline(fDecayFile,header);
+
+    fLv3H = new TLorentzVector();
+    fLvn1 = new TLorentzVector();
+    fLvn2 = new TLorentzVector();
+    fLvn3 = new TLorentzVector();
+    fLvn4 = new TLorentzVector();
   }
 
   return kTRUE;
@@ -223,8 +236,7 @@ Bool_t ERDecayEXP1811::Stepping() {
       fLv3He->Boost(boost);
 
       //7H → f3H + n +n +n +n
-      TLorentzVector *lv3H,*lvn1,*lvn2,*lvn3,*lvn4;
-      if (!DecayPhaseGenerator(fLv7H,&lv3H,&lvn1,&lvn2,&lvn3,&lvn4)){
+      if (!DecayPhaseGenerator()){
         fDecayFinish = kTRUE;
         return kTRUE;
       }
@@ -246,28 +258,28 @@ Bool_t ERDecayEXP1811::Stepping() {
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, He3TrackNb, f3He->Mass(), 0);
       gMC->GetStack()->PushTrack(1, He8TrackNb, f3H->PdgCode(),
-                                 lv3H->Px(), lv3H->Py(), lv3H->Pz(),
-                                 lv3H->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 fLv3H->Px(), fLv3H->Py(), fLv3H->Pz(),
+                                 fLv3H->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, H3TrackNb, f3H->Mass(), 0);
       gMC->GetStack()->PushTrack(1, He8TrackNb, fn->PdgCode(),
-                                 lvn1->Px(),lvn1->Py(),lvn1->Pz(),
-                                 lvn1->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 fLvn1->Px(),fLvn1->Py(),fLvn1->Pz(),
+                                 fLvn1->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, n1TrackNb, fn->Mass(), 0);
       gMC->GetStack()->PushTrack(1, He8TrackNb, fn->PdgCode(),
-                                 lvn2->Px(),lvn2->Py(),lvn2->Pz(),
-                                 lvn2->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 fLvn2->Px(),fLvn2->Py(),fLvn2->Pz(),
+                                 fLvn2->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, n2TrackNb, fn->Mass(), 0);
       gMC->GetStack()->PushTrack(1, He8TrackNb, fn->PdgCode(),
-                                 lvn3->Px(),lvn3->Py(),lvn3->Pz(),
-                                 lvn3->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 fLvn3->Px(),fLvn3->Py(),fLvn3->Pz(),
+                                 fLvn3->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, n3TrackNb, fn->Mass(), 0);
       gMC->GetStack()->PushTrack(1, He8TrackNb, fn->PdgCode(),
-                                 lvn4->Px(),lvn4->Py(),lvn4->Pz(),
-                                 lvn4->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 fLvn4->Px(),fLvn4->Py(),fLvn4->Pz(),
+                                 fLvn4->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, n4TrackNb, fn->Mass(), 0);
       gMC->StopTrack();
@@ -341,8 +353,7 @@ void ERDecayEXP1811::ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass) {
 }
 
 //-------------------------------------------------------------------------------------------------
-Bool_t ERDecayEXP1811::DecayPhaseGenerator(TLorentzVector *h7,TLorentzVector **h3,TLorentzVector **n1,
-                          TLorentzVector **n2,TLorentzVector **n3, TLorentzVector **n4) {
+Bool_t ERDecayEXP1811::DecayPhaseGenerator() {
   if (fDecayFilePath == ""){ // if decay file not defined, permorm decay using phase space
     Double_t decayMasses[5];
     decayMasses[0] = f3H->Mass();
@@ -351,14 +362,14 @@ Bool_t ERDecayEXP1811::DecayPhaseGenerator(TLorentzVector *h7,TLorentzVector **h
     decayMasses[3] = fn->Mass(); 
     decayMasses[4] = fn->Mass();
 
-    fDecayPhaseSpace->SetDecay(*h7, 5, decayMasses);
+    fDecayPhaseSpace->SetDecay(*fLv7H, 5, decayMasses);
     fDecayPhaseSpace->Generate();
 
-    *h3 = fDecayPhaseSpace->GetDecay(0);
-    *n1 = fDecayPhaseSpace->GetDecay(1);
-    *n2 = fDecayPhaseSpace->GetDecay(2);
-    *n3 = fDecayPhaseSpace->GetDecay(3);
-    *n4 = fDecayPhaseSpace->GetDecay(4);
+    fLv3H = fDecayPhaseSpace->GetDecay(0);
+    fLvn1 = fDecayPhaseSpace->GetDecay(1);
+    fLvn2 = fDecayPhaseSpace->GetDecay(2);
+    fLvn3 = fDecayPhaseSpace->GetDecay(3);
+    fLvn4 = fDecayPhaseSpace->GetDecay(4);
 
     return kTRUE;
   }
@@ -380,28 +391,22 @@ Bool_t ERDecayEXP1811::DecayPhaseGenerator(TLorentzVector *h7,TLorentzVector **h
     return kFALSE;
   }
 
-  *n1 = new TLorentzVector();
-  *n2 = new TLorentzVector();
-  *n3 = new TLorentzVector();
-  *n4 = new TLorentzVector();
-  *h3 = new TLorentzVector();
-
-  (*n1)->SetXYZM(std::stod(outputs_components[0]),std::stod(outputs_components[1]),
+  fLvn1->SetXYZM(std::stod(outputs_components[0]),std::stod(outputs_components[1]),
                std::stod(outputs_components[2]),fn->Mass());
-  (*n2)->SetXYZM(std::stod(outputs_components[3]),std::stod(outputs_components[4]),
+  fLvn2->SetXYZM(std::stod(outputs_components[3]),std::stod(outputs_components[4]),
                std::stod(outputs_components[5]),fn->Mass());
-  (*n3)->SetXYZM(std::stod(outputs_components[6]),std::stod(outputs_components[7]),
+  fLvn3->SetXYZM(std::stod(outputs_components[6]),std::stod(outputs_components[7]),
                std::stod(outputs_components[8]),fn->Mass());
-  (*n4)->SetXYZM(std::stod(outputs_components[9]),std::stod(outputs_components[10]),
+  fLvn4->SetXYZM(std::stod(outputs_components[9]),std::stod(outputs_components[10]),
                std::stod(outputs_components[11]),fn->Mass());
-  (*h3)->SetXYZM(std::stod(outputs_components[12]),std::stod(outputs_components[13]),
+  fLv3H->SetXYZM(std::stod(outputs_components[12]),std::stod(outputs_components[13]),
                std::stod(outputs_components[14]),f3H->Mass());
 
-  (*n1)->Boost(h7->BoostVector());
-  (*n2)->Boost(h7->BoostVector());
-  (*n3)->Boost(h7->BoostVector());
-  (*n4)->Boost(h7->BoostVector());
-  (*h3)->Boost(h7->BoostVector());
+  fLvn1->Boost(fLv7H->BoostVector());
+  fLvn2->Boost(fLv7H->BoostVector());
+  fLvn3->Boost(fLv7H->BoostVector());
+  fLvn4->Boost(fLv7H->BoostVector());
+  fLv3H->Boost(fLv7H->BoostVector());
   
   return kTRUE;
 }

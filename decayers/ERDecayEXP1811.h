@@ -42,8 +42,7 @@ public:
   **/
   void ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass);
 
-  Bool_t DecayPhaseGenerator(TLorentzVector *h7,TLorentzVector **h3,TLorentzVector **n1,
-                          TLorentzVector **n2,TLorentzVector **n3, TLorentzVector **n4);
+  Bool_t DecayPhaseGenerator();
 
   /** @brief Sets distribution is contained in file.
    ** @param ADfile  file with angular distribution.
@@ -74,6 +73,11 @@ private:
 
   TLorentzVector *fLv3He; //!
   TLorentzVector *fLv7H; //!
+  TLorentzVector *fLv3H; //!
+  TLorentzVector *fLvn1; //!
+  TLorentzVector *fLvn2; //!
+  TLorentzVector *fLvn3; //!
+  TLorentzVector *fLvn4; //!
 
   FairIon        *fIon3He;
   FairIon        *fUnstableIon7H;

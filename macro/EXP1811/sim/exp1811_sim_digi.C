@@ -213,7 +213,7 @@ void exp1811_sim_digi (Int_t nEvents = 1000) {
   run->AddTask(beamDetDigitizer);
 
   //-------Set visualisation flag to true------------------------------------
-  //run->SetStoreTraj(kTRUE);
+  run->SetStoreTraj(kTRUE);
 
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogScreenLevel("INFO");
