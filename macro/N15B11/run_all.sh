@@ -11,7 +11,7 @@ GRAPHSOUTDIR=digi_graphs_parallel
 
 # Variables
 NEVENTS=1000
-MINANGLE=35
+MINANGLE=34
 MAXANGLE=35
 NTHREADS=3
 
@@ -176,6 +176,7 @@ wait
     wait
         root -l -b -q "merge_graphs.C(\"${GRAPHSOUTDIR}\")"
         cp ${GRAPHSOUTDIR}/eloss.pdf ${RESULTSDIR}/eloss_${ANG}.pdf
+        mv ${GRAPHSOUTDIR}/eloss.root ${RESULTSDIR}/eloss_${ANG}.root
         cd ../
     fi
 done
