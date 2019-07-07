@@ -121,7 +121,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         if (dphi == 0.) dphi = 1.;
         sigmaCMN15(i) = (Double_t)nN15Ar[i]*summAr[i]*dphi / (nEvents*2.*TMath::Pi()*TMath::Sin(TMath::DegToRad()*tetN15(i))*(theta2-theta1));
         fout << tetN15(i) << "\t" << sigmaCMN15(i) << endl;
-        sigmaCMN15(i) *= 1.12932;
+        sigmaCMN15(i) *= 1.13034;
     }
     fout.clear();
     fout.close();

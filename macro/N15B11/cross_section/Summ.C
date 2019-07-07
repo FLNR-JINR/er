@@ -15,7 +15,7 @@ void Summ()
 		Double_t curSigma;
 		fin >> curTheta >> curSigma;
 		if (curTheta >= 86.) break;
-		Integral += curSigma;
+		Integral += curSigma*TMath::Sin(TMath::DegToRad()*curTheta);
 		//cout << curTheta << "\t" << curSigma << endl;
 	}
 	cout << "Integral: " << Integral << endl;
@@ -35,11 +35,11 @@ void Summ()
 		if (curTheta >= 86.) break;
 		
 		if (curTheta == cTheta) {
-		  Integral2 += curSigma;
+		  Integral2 += curSigma*TMath::Sin(TMath::DegToRad()*curTheta);
 		  cTheta += 1.;
 		}
 		
-		//Integral2 += curSigma;
+		//Integral2 += curSigma*TMath::Sin(TMath::DegToRad()*curTheta);
 		//cout << curTheta << "\t" << curSigma << endl;
 	}
 	//Integral2 *= 0.1;
