@@ -4,7 +4,16 @@ struct SArrays
     Double_t* BAr;
     Double_t* NAr;
 };
-
+Double_t GetLabFromCM(Double_t cm) {
+  Double32_t lab, m1, m2, ratio;
+  m1 = 13.9689363768;
+  m2 = 10.2525479206;
+  ratio = m1/m2;
+  Double_t ratio2 = ratio*ratio;
+  cm = cm*TMath::DegToRad();
+  lab = atan(TMath::Sin(cm) / (TMath::Cos(cm) + ratio));
+  return lab*TMath::RadToDeg();
+}
 bool Draw_Experimental_Points(TCanvas* cn, TLegend* leg);
 bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg);
 SArrays* Fill_Arrays(Int_t anglesNumbers, Bool_t N15_B11_draw);
@@ -15,7 +24,7 @@ Double_t* GetThetaCMAr(Int_t anglesNumbers, Bool_t N15_or_B11); // N15_or_B11 kT
 //---------------------------------------------------------------------------------------------------------------------
 void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 3, Int_t anglesNumbers = 0, Double_t STEP=1.,
 
-                  Int_t case_n = 0, TString workDir = "output", Bool_t N15_B11_draw = kFALSE)
+                  Int_t case_n = 1, TString workDir = "output", Bool_t N15_B11_draw = kFALSE)
 {
     //Double_t norm = 1.;
     nEvents = nEvents*nThreads;
@@ -62,7 +71,9 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     }
 
     // Output file
-    ofstream fout("output/N15_cross_and_theta.txt");
+    TString N15OutFileName;
+    N15OutFileName.Form("cases/case_%d_N15_cross_and_theta.txt", case_n);
+    ofstream fout(N15OutFileName);
     if (!fout.is_open())
     {
         cerr << "Error: missing output directory\n";
@@ -80,6 +91,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     for (i = 0; i < anglesNumbers; i++) {
         // Curent theta for N15 calculate
         Double_t curAngle = TMath::DegToRad()*((Double_t)i*STEP + begAng);
+        curAngle = GetLabFromCM(curAngle);
         Double_t iA = ratio*sin(curAngle-dTheta)*sin(curAngle-dTheta);
         Double_t iB = cos(curAngle-dTheta)*sqrt(1. - ratio*ratio*sin(curAngle-dTheta)*sin(curAngle-dTheta));
         Double_t iC = acos(-iA + iB);
@@ -90,7 +102,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         Double_t theta2 = TMath::RadToDeg()*iC;
         //tetN15(i) = 0.5*(theta2-theta1) + theta1;
         //cout << "N15: old Theta: " << tetN15(i) << ", new Theta: " << ThetaCMAr[i] << endl;
-        tetN15(i) = ThetaCMAr[i];
+        tetN15(i) = 11. + (Int_t)i;
 
         // Curent cross-section calculate
         nEvents = nEventsAr[i];
@@ -106,8 +118,10 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
 */
         Double_t dPhiDet = 4.*180. / (TMath::Pi()*Radius*TMath::Sin(curAngle));
         Double_t dphi = dPhiAr[i]/dPhiDet;
+        if (dphi == 0.) dphi = 1.;
         sigmaCMN15(i) = (Double_t)nN15Ar[i]*summAr[i]*dphi / (nEvents*2.*TMath::Pi()*TMath::Sin(TMath::DegToRad()*tetN15(i))*(theta2-theta1));
         fout << tetN15(i) << "\t" << sigmaCMN15(i) << endl;
+        sigmaCMN15(i) *= 1.12932;
     }
     fout.clear();
     fout.close();
@@ -143,7 +157,9 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     N15_or_B11 = kFALSE;
     delete []ThetaCMAr;
     ThetaCMAr = GetThetaCMAr(anglesNumbers, kFALSE);
-    fout.open("output/B11_cross_and_theta.txt");
+    TString B11OutFileName;
+    B11OutFileName.Form("cases/case_%d_B11_cross_and_theta.txt", case_n);
+    fout.open(B11OutFileName);
     if (!fout.is_open())
     {
         cerr << "Error: missing output directory" << endl;
@@ -171,8 +187,8 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
 */
         Double_t dPhiDet = 4.*180. / (TMath::Pi()*Radius*TMath::Sin(curAngle));
         Double_t dphi = dPhiAr[i]/dPhiDet;
-        cout << dPhiAr[i] << " / " << dPhiDet << " = " << dphi << endl;
-        sigmaCMB11(i) = (Double_t)nB11Ar[i]*summAr[i]*dphi / (nEvents*TMath::Pi()*TMath::Sin(TMath::DegToRad()*tetB11(i))*(-theta2+theta1));
+        if (dphi == 0.) dphi = 1.;
+        sigmaCMB11(i) = (Double_t)nB11Ar[i]*summAr[i]*dphi / (nEvents*2.*TMath::Pi()*TMath::Sin(TMath::DegToRad()*tetB11(i))*(-theta2+theta1));
         fout << tetB11(i) << "\t" << sigmaCMB11(i) << endl;
     }
     fout.clear();
@@ -303,9 +319,7 @@ SArrays* Fill_Arrays(Int_t n, Bool_t N15_B11_draw)
     TString countString;
     while (!fin.eof())
     {
-        if (iSumm > n) { cout << "Error Here! (iSumm > n)" << endl; return NULL; }
-        else if (inB11 > n) { cout << "Error Here! (inB11 > n)" << endl; return NULL; }
-        else if (inN15 > n) { cout << "Error Here! (inN15 > n)" << endl; return NULL; }
+        if (iSumm > n || inB11 > n || inN15 > n) return NULL;
         fin >> countString;
         Double_t vary;
         if (countString == "summ:")
