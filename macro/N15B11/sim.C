@@ -1,4 +1,3 @@
-Double_t GetLabFromCM(Double_t angle);
 void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t angle = 20.)
 {
   gRandom->SetSeed(index);
@@ -69,7 +68,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11"); //targetB11
-  scattering->SetLabThetaRange(GetLabFromCM(angle), 4.*0.262822833, kPROJECTILE); // kPROJECTILE or kTARGET
+  scattering->SetLabThetaRange(angle, 7.*0.262822833, kPROJECTILE); // kPROJECTILE or kTARGET
   //scattering->SetThetaRange(9.33242, 14.3093);
   scattering->SetPhiRange(-20., 20.);
 
@@ -138,13 +137,3 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   cout << "m1 = " << scattering->GetProjectileIonMass() << ", m2 = " << scattering->GetTargetIonMass() << endl;
 }
 
-Double_t GetLabFromCM(Double_t cm) {
-  Double32_t lab, m1, m2, ratio;
-  m1 = 13.9689363768;
-  m2 = 10.2525479206;
-  ratio = m1/m2;
-  Double_t ratio2 = ratio*ratio;
-  cm = cm*TMath::DegToRad();
-  lab = atan(TMath::Sin(cm) / (TMath::Cos(cm) + ratio));
-  return lab*TMath::RadToDeg();
-}

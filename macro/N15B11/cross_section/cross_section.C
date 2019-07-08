@@ -102,7 +102,8 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         Double_t theta2 = TMath::RadToDeg()*iC;
         //tetN15(i) = 0.5*(theta2-theta1) + theta1;
         //cout << "N15: old Theta: " << tetN15(i) << ", new Theta: " << ThetaCMAr[i] << endl;
-        tetN15(i) = 11. + (Int_t)i;
+        //tetN15(i) = 11. + (Int_t)i;
+	tetN15(i) = ThetaCMAr[i];
 
         // Curent cross-section calculate
         nEvents = nEventsAr[i];
