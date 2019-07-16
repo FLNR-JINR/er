@@ -6,7 +6,7 @@ ANGNUM=$(grep -c -v "ncncw" input/thetaCMN15.txt)
 echo "ANGNUM: ${ANGNUM}"
 if [ -d result ]; then
 	cd result
-        rm -fv resultGr.pdf 
+        rm -fv resultGr.pdf
 	cd -
 else
 	mkdir result
