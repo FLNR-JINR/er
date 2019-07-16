@@ -88,9 +88,9 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         iB = cos(curAngle+dTheta)*sqrt(1. - ratio*ratio*sin(curAngle+dTheta)*sin(curAngle+dTheta));
         iC = acos(-iA + iB);
         Double_t theta2 = TMath::RadToDeg()*iC;
-        //tetN15(i) = 0.5*(theta2-theta1) + theta1;
+        tetN15(i) = 0.5*(theta2-theta1) + theta1;
         //cout << "N15: old Theta: " << tetN15(i) << ", new Theta: " << ThetaCMAr[i] << endl;
-        tetN15(i) = ThetaCMAr[i];
+        //tetN15(i) = ThetaCMAr[i];
 
         // Curent cross-section calculate
         nEvents = nEventsAr[i];
@@ -108,6 +108,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         Double_t dphi = dPhiAr[i]/dPhiDet;
         sigmaCMN15(i) = (Double_t)nN15Ar[i]*summAr[i]*dphi / (nEvents*2.*TMath::Pi()*TMath::Sin(TMath::DegToRad()*tetN15(i))*(theta2-theta1));
         fout << tetN15(i) << "\t" << sigmaCMN15(i) << endl;
+        sigmaCMN15(i) *= TMath::Sin(TMath::DegToRad()*tetN15(i));
     }
     fout.clear();
     fout.close();
@@ -159,7 +160,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         Double_t theta2 = 180. - 2.*TMath::RadToDeg()*(curAngle+dTheta);
         tetB11(i) = 0.5*(theta2-theta1) + theta1;
         //cout << "B11: old Theta: " << tetB11(i) << ", new Theta: " << ThetaCMAr[i] << endl;
-        tetB11(i) = ThetaCMAr[i];
+        //tetB11(i) = ThetaCMAr[i];
         // Curent cross-section for B11 calculate
         nEvents = nEventsAr[i];
 /*
@@ -174,6 +175,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         cout << dPhiAr[i] << " / " << dPhiDet << " = " << dphi << endl;
         sigmaCMB11(i) = (Double_t)nB11Ar[i]*summAr[i]*dphi / (nEvents*TMath::Pi()*TMath::Sin(TMath::DegToRad()*tetB11(i))*(-theta2+theta1));
         fout << tetB11(i) << "\t" << sigmaCMB11(i) << endl;
+        sigmaCMB11(i) *= TMath::Sin(TMath::DegToRad()*tetB11(i));
     }
     fout.clear();
     fout.close();
@@ -227,6 +229,7 @@ bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg)
     {
       if (i == anglesNumbers) break;
       f >> tet(i) >> sigma(i);
+      sigma(i) *= TMath::Sin(TMath::DegToRad()*tet(i));
       i++;
     }
 
