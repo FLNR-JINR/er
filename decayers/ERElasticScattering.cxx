@@ -215,6 +215,7 @@ Bool_t ERElasticScattering::Stepping() {
 }
 
 void  ERElasticScattering::ThetaRangesLab2CM(Double_t pM, Double_t tM) {
+  LOG(DEBUG) << "ERElasticScattering::ThetaRangesLab2CM(pM = " << pM << ", tM = " << tM << ")" << FairLogger::endl;
   Double_t rAng = fThetaRangeCenter*DegToRad();
   Double_t ratio = pM/tM;
   Double_t ratio2 = ratio*ratio;
