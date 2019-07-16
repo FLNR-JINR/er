@@ -1,3 +1,14 @@
+Double_t GetLabFromCM(Double_t cm) {
+  Double32_t lab, m1, m2, ratio;
+  m1 = 13.9689363768;
+  m2 = 10.2525479206;
+  ratio = m1/m2;
+  Double_t ratio2 = ratio*ratio;
+  cm = cm*TMath::DegToRad();
+  lab = atan(TMath::Sin(cm) / (TMath::Cos(cm) + ratio));
+  return lab*TMath::RadToDeg();
+}
+
 void create_N15B11_detector_geo(Double_t angle = 20.)
 {
     // Create a zero rotation
@@ -92,6 +103,7 @@ void create_N15B11_detector_geo(Double_t angle = 20.)
     vDetContainer->AddNode(vSemi, 1, tSemi);
 
     const Int_t detNum = 1; // detectors number
+    angle = GetLabFromCM(angle);
 
     Double_t angles[23] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
                            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};

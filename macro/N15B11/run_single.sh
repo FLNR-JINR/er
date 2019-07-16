@@ -5,7 +5,7 @@ COMPILATIONDIR=../../../build
 OUTDIR=output
 
 # Variables
-NEVENTS=1000
+NEVENTS=1
 ANGLE=5
 
 cd ${COMPILATIONDIR}
