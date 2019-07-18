@@ -18,6 +18,9 @@
 #include <TGraph.h>
 #include <TVirtualMC.h>
 
+#include "G4ParticleTable.hh"
+#include "G4ParticleDefinition.hh"
+
 #include <FairRunSim.h>
 #include <FairLogger.h>
 
@@ -103,8 +106,17 @@ Bool_t ERElasticScattering::Init() {
     return kFALSE;
   }
 
+  // TODO! This is needed to get removed!
   SetProjectileIonMass(fInputIonPDG->Mass());
   SetTargetIonMass(fTargetIonPDG->Mass());
+  LOG(DEBUG) << "ERElasticScattering::Init()" << FairLogger::endl;
+  LOG(DEBUG) << "Traget Ions Mass is " << GetTargetIonMass()
+             << ", Prigectile Ions Mass is " << GetProjectileIonMass() << FairLogger::endl;
+
+  DefineOfIonsMasses();
+  LOG(DEBUG) << "ERElasticScattering::Init()" << FairLogger::endl;
+  LOG(DEBUG) << "Traget Ions Mass is " << GetTargetIonMass()
+             << ", Prigectile Ions Mass is " << GetProjectileIonMass() << FairLogger::endl;
 
   if (fThetaLabRangeIsSet)
     ThetaRangesLab2CM(GetProjectileIonMass(), GetTargetIonMass());
@@ -303,4 +315,26 @@ Double_t ERElasticScattering::ThetaGen() {
   return theta;
 }
 
+Bool_t ERElasticScattering::DefineOfIonsMasses() {
+  G4ParticleTable* table = G4ParticleTable::GetParticleTable();
+  if (! table ) {
+    LOG(FATAL) << "G4 Particle Table is not found!" << FairLogger::endl;
+    return kFALSE;
+  }
+
+  fTargetIonMass = 1e-3*((G4ParticleDefinition*)table->FindParticle((G4int)fTargetIonPDG->PdgCode()))->GetPDGMass();
+  fProjectileIonMass = 1e-3*((G4ParticleDefinition*)table->FindParticle((G4int)fInputIonPDG->PdgCode()))->GetPDGMass();
+
+  if (! fTargetIonMass ) {
+    LOG(FATAL) << "It is impossible to difine Mass for target ion!" << FairLogger::endl;
+    return kFALSE;
+  }
+
+  if (! fInputIonPDG ) {
+    LOG(FATAL) << "It is impossible to difine Mass for projectile ion!" << FairLogger::endl;
+    return kFALSE;
+  }
+
+  return kTRUE;
+}
 ClassImp(ERElasticScattering)

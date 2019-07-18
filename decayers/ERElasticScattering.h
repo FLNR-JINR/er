@@ -117,6 +117,8 @@ private:
   /** @brief The private method is to generate theta value. **/
   Double_t ThetaGen();
 
+  Bool_t DefineOfIonsMasses();
+
 private:
   ERInteractionParticipant  fRegisterIonStatus;  ///< Ion status TODO
 
