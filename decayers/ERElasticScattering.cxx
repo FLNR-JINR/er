@@ -18,8 +18,7 @@
 #include <TGraph.h>
 #include <TVirtualMC.h>
 
-#include "G4ParticleTable.hh"
-#include "G4ParticleDefinition.hh"
+#include "G4IonTable.hh"
 
 #include <FairRunSim.h>
 #include <FairLogger.h>
