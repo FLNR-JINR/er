@@ -10,9 +10,9 @@ OUTDIR=output_digi_parallel
 GRAPHSOUTDIR=digi_graphs_parallel
 
 # Variables
-NEVENTS=100000
-MINANGLE=36
-MAXANGLE=36
+NEVENTS=10000
+MINANGLE=5
+MAXANGLE=35
 NTHREADS=16
 
 # Digitization add or don't add

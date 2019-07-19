@@ -4,16 +4,6 @@ struct SArrays
     Double_t* BAr;
     Double_t* NAr;
 };
-Double_t GetLabFromCM(Double_t cm) {
-  Double32_t lab, m1, m2, ratio;
-  m1 = 13.9689363768;
-  m2 = 10.2525479206;
-  ratio = m1/m2;
-  Double_t ratio2 = ratio*ratio;
-  cm = cm*TMath::DegToRad();
-  lab = atan(TMath::Sin(cm) / (TMath::Cos(cm) + ratio));
-  return lab*TMath::RadToDeg();
-}
 bool Draw_Experimental_Points(TCanvas* cn, TLegend* leg);
 bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg);
 SArrays* Fill_Arrays(Int_t anglesNumbers, Bool_t N15_B11_draw);
@@ -91,7 +81,6 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
     for (i = 0; i < anglesNumbers; i++) {
         // Curent theta for N15 calculate
         Double_t curAngle = TMath::DegToRad()*((Double_t)i*STEP + begAng);
-        curAngle = GetLabFromCM(curAngle);
         Double_t iA = ratio*sin(curAngle-dTheta)*sin(curAngle-dTheta);
         Double_t iB = cos(curAngle-dTheta)*sqrt(1. - ratio*ratio*sin(curAngle-dTheta)*sin(curAngle-dTheta));
         Double_t iC = acos(-iA + iB);
@@ -100,10 +89,9 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         iB = cos(curAngle+dTheta)*sqrt(1. - ratio*ratio*sin(curAngle+dTheta)*sin(curAngle+dTheta));
         iC = acos(-iA + iB);
         Double_t theta2 = TMath::RadToDeg()*iC;
-        //tetN15(i) = 0.5*(theta2-theta1) + theta1;
+        tetN15(i) = 0.5*(theta2-theta1) + theta1;
         //cout << "N15: old Theta: " << tetN15(i) << ", new Theta: " << ThetaCMAr[i] << endl;
-        //tetN15(i) = 11. + (Int_t)i;
-	tetN15(i) = ThetaCMAr[i];
+        //tetN15(i) = ThetaCMAr[i];
 
         // Curent cross-section calculate
         nEvents = nEventsAr[i];
@@ -122,7 +110,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         if (dphi == 0.) dphi = 1.;
         sigmaCMN15(i) = (Double_t)nN15Ar[i]*summAr[i]*dphi / (nEvents*2.*TMath::Pi()*TMath::Sin(TMath::DegToRad()*tetN15(i))*(theta2-theta1));
         fout << tetN15(i) << "\t" << sigmaCMN15(i) << endl;
-        sigmaCMN15(i) *= 1.13034;
+        sigmaCMN15(i) *= TMath::Sin(TMath::DegToRad()*tetN15(i));
     }
     fout.clear();
     fout.close();
@@ -176,7 +164,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         Double_t theta2 = 180. - 2.*TMath::RadToDeg()*(curAngle+dTheta);
         tetB11(i) = 0.5*(theta2-theta1) + theta1;
         //cout << "B11: old Theta: " << tetB11(i) << ", new Theta: " << ThetaCMAr[i] << endl;
-        tetB11(i) = ThetaCMAr[i];
+        //tetB11(i) = ThetaCMAr[i];
         // Curent cross-section for B11 calculate
         nEvents = nEventsAr[i];
 /*
@@ -191,6 +179,7 @@ void cross_section(Int_t nEvents = 100, Double_t begAng = 34., Int_t nThreads = 
         if (dphi == 0.) dphi = 1.;
         sigmaCMB11(i) = (Double_t)nB11Ar[i]*summAr[i]*dphi / (nEvents*2.*TMath::Pi()*TMath::Sin(TMath::DegToRad()*tetB11(i))*(-theta2+theta1));
         fout << tetB11(i) << "\t" << sigmaCMB11(i) << endl;
+        sigmaCMB11(i) *= TMath::Sin(TMath::DegToRad()*tetB11(i));
     }
     fout.clear();
     fout.close();
@@ -244,6 +233,7 @@ bool Draw_Base_Cross_Section(TCanvas* cn, TLegend* leg)
     {
       if (i == anglesNumbers) break;
       f >> tet(i) >> sigma(i);
+      sigma(i) *= TMath::Sin(TMath::DegToRad()*tet(i));
       i++;
     }
 

@@ -3,7 +3,7 @@ void Summ()
 	ifstream fin("cases/case_1_N15_cross_and_theta.txt");
 	if (!fin.is_open()) {
 		cerr << "Can not open file .txt" << endl;
-		return; 
+		return;
 	}
 
 	Int_t it = 0;
@@ -23,7 +23,7 @@ void Summ()
 	fin.open("input/nrv.txt");
 	if (!fin.is_open()) {
 	  cerr << "Can not open file .txt" << endl;
-	  return; 
+	  return;
 	}
 	Double_t Integral2 = 0.;
 	Double_t cTheta = 11.;
@@ -33,12 +33,12 @@ void Summ()
 		fin >> curTheta >> curSigma;
 		if (curTheta < 11.) continue;
 		if (curTheta >= 86.) break;
-		
+
 		if (curTheta == cTheta) {
 		  Integral2 += curSigma*TMath::Sin(TMath::DegToRad()*curTheta);
 		  cTheta += 1.;
 		}
-		
+
 		//Integral2 += curSigma*TMath::Sin(TMath::DegToRad()*curTheta);
 		//cout << curTheta << "\t" << curSigma << endl;
 	}

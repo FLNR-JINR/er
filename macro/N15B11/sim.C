@@ -68,7 +68,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   scattering->SetUniformPos(-0.00035,0.00035);
   scattering->SetStep(0.00001); //0.1 micron
   scattering->SetDecayVolume("targetB11"); //targetB11
-  scattering->SetLabThetaRange(angle, 7.*0.262822833, kPROJECTILE); // kPROJECTILE or kTARGET
+  scattering->SetLabThetaRange(angle, 7.*0.262822833+0.262822833, kPROJECTILE); // kPROJECTILE or kTARGET
   //scattering->SetThetaRange(9.33242, 14.3093);
   scattering->SetPhiRange(-20., 20.);
 
@@ -87,8 +87,8 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   //generator->SetThetaRange(0., 0.); // -2 : 2
   generator->SetPhiRange(0., 180.); // 0 : 180
 
-  Double32_t distanceToTarget = 50.; // work: 50 cm, test 0.5 micron: 0.00005+0.00035
-  generator->SetBoxXYZ(-0.5, -0.5, 0.5, 0.5, -distanceToTarget); // Xmin = -0.5, Ymin = -0.5, Xmax = 0.5, , Ymax = 0.5, Z
+  Double32_t distanceToTarget = 1.; // work: 50 cm, test 0.5 micron: 0.00005+0.00035
+  generator->SetBoxXYZ(-0.5, 0., 0.5, 0., -distanceToTarget); // Xmin = -0.5, Ymin = -0.5, Xmax = 0.5, , Ymax = 0.5, Z
 
   primGen->AddGenerator(generator);
 
@@ -100,7 +100,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
 
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
 
   //------- Initialize simulation run ---------------------------------------
   run->Init();
@@ -136,4 +136,3 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   cout << "summ: "<< scattering->GetdThetaCDF() << endl;
   cout << "m1 = " << scattering->GetProjectileIonMass() << ", m2 = " << scattering->GetTargetIonMass() << endl;
 }
-
