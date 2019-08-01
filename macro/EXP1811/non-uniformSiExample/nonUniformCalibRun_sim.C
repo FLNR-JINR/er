@@ -1,4 +1,4 @@
-void nonUniformCalibRun_sim (Int_t nEvents = 5000) {
+void nonUniformCalibRun_sim (Int_t nEvents = 1) {
   //---------------------Files-----------------------------------------------
   TString outFile = "sim_digi.root";
   TString parFile = "par.root";
@@ -31,9 +31,9 @@ void nonUniformCalibRun_sim (Int_t nEvents = 5000) {
   run->AddModule(cave);
 
   FairModule* target = new ERTarget("Target", kTRUE,1);
-  target->SetGeometryFileName("target.SiSource.geo.root");
+  // target->SetGeometryFileName("target.SiSource.geo.root");
   // target->SetGeometryFileName("target_CD2_geo.root");
-  run->AddModule(target);
+  // run->AddModule(target);
    
   Int_t verbose = 0;
   // -----  QTelescope Setup ------------------------------------------------
@@ -49,17 +49,18 @@ void nonUniformCalibRun_sim (Int_t nEvents = 5000) {
   Double_t yPos = 0.;
   Double_t zPos = radius * TMath::Cos(rotationL.Y() * TMath::DegToRad());
   ERGeoSubAssembly* assembly_Left = new ERGeoSubAssembly("Left_telescope", TVector3(xPos, yPos, zPos), rotationL);
-  // ERQTelescopeGeoComponentSingleSi* thin_Left = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_L", 
-  //                                                                                 TVector3(0., 0., -1.4), TVector3(), "X");
+  ERQTelescopeGeoComponentSingleSi* thin_Left = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_L", 
+                                                                                  TVector3(0., 0., -1.4), TVector3(), "X");
   ERQTelescopeGeoComponentDoubleSi* thick_Left = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_DSD_L", 
                                                                                   TVector3(0., 0., 0.), TVector3(), "X");
-  ERQTelescopeGeoNonUniformSingleSi* thin_Left = new ERQTelescopeGeoNonUniformSingleSi("SingleSi", "SingleSi_SSD20_L",
-                                                                               "DoubleSi", "DoubleSi_DSD_L", "Y",
-                                                                               "./input/map_sens.root",
-                                                                               "./input/map_deadFront.root",
-                                                                               "./input/map_deadBack.root"); 
+  // ERQTelescopeGeoNonUniformSingleSi* thin_Left = new ERQTelescopeGeoNonUniformSingleSi("SingleSi", "SingleSi_SSD20_L",
+  //                                                                              "DoubleSi", "DoubleSi_DSD_L", "Y",
+  //                                                                              "./input/map_sens.root",
+  //                                                                              "./input/map_deadFront.root",
+  //                                                                              "./input/map_deadBack.root"); 
   assembly_Left->AddComponent(thick_Left);
-  assembly_Left->AddComponent(thin_Left, TVector3(0, 0, -1.4), TVector3(0, 0, 0));
+  assembly_Left->AddComponent(thick_Left, TVector3(0, 0, -1.4), TVector3(70, 45, 60));
+  // assembly_Left->AddComponent(thin_Left, TVector3(0, 0, -1.4), TVector3(0, 45, 45));
 
   setupQTelescope->AddSubAssembly(assembly_Left);
 

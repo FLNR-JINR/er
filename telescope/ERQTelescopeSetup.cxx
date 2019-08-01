@@ -147,8 +147,8 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
               // Now we assume that QTelescope center in the global zero.
               // It is neccesary to write clear function to find global coordinates
               // by all forefathers nodes if possible. Maybe with some FairRoot methods
-              qtelescopeDetector->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
-              qtelescope->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
+              qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
+              qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
               fStrips[firstStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans));
               TGeoNode* doubleSiBox;
               Int_t iDoubleSiBox = 0;
@@ -159,10 +159,10 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
                   TString siBoxName = doubleSiBox->GetName();
                   GetTransInMotherNode(doubleSiBox, boxInStripTrans);
                   (qtelescopeStationName.Contains("XY")) ? stripInStationTrans[0] = 0
-                                                           : stripInStationTrans[1] = 0;
-                  qtelescopeStation->LocalToMaster(boxInStripTrans, stripInStationTrans);
-                  qtelescopeDetector->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
-                  qtelescope->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
+                                                         : stripInStationTrans[1] = 0;
+                  doubleSiStrip->LocalToMaster(boxInStripTrans, stripInStationTrans);
+                  qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
+                  qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
                   fStrips[secondStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans, boxInStripTrans));
                 }
                 flagFirstStripReaded = kTRUE;
@@ -175,8 +175,8 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
             for (; iSingleSiStrip < qtelescopeStation->GetNdaughters(); iSingleSiStrip++) {
               singleSiStrip = qtelescopeStation->GetDaughter(iSingleSiStrip);
               GetTransInMotherNode(singleSiStrip, stripInStationTrans);
-              qtelescopeDetector->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
-              qtelescope->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
+              qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
+              qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
               fStrips[qtelescopeStationName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans));            
             }
           }
