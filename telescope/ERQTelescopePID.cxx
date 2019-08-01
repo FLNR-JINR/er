@@ -173,6 +173,24 @@ ERQTelescopeParticle* ERQTelescopePID::AddParticle(TLorentzVector lvTelescope,
                                         ERQTelescopeParticle(lvTelescope,lvTarget,deadEloss,T);
   return particle;
 }
+
+Double_t CalcElossIntegralVolStep (Double_t T, G4ParticleDefinition* ion, 
+                                   G4Material* mat, Double_t range) 
+{ 
+  Double_t integralEloss = 0.;
+  Double_t intStep = range / 5.;
+  Double_t curStep = 0.;
+
+  G4EmCalculator* calc = new G4EmCalculator();
+  while (curStep <= range) {
+    Double_t eloss = calc->GetDEDX(T*1e3,ion,mat)*intStep*10*1e-3;
+    integralEloss += eloss;
+    T -= eloss;
+    curStep += intStep;
+  }
+  return integralEloss;
+}
+
 //--------------------------------------------------------------------------------------------------
 Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, Int_t pdg, Double_t T){
 
@@ -184,7 +202,6 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
   G4IonTable* ionTable = G4IonTable::GetIonTable();
   G4ParticleDefinition* ion =  ionTable->GetIon(pdg);
   Float_t mass = ion->GetPDGMass()/1000.; //GeV
-  G4EmCalculator* calc = new G4EmCalculator();
   G4NistManager* nist = G4NistManager::Instance();
 
 
@@ -229,7 +246,7 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
     }
     
     Double_t range = gGeoManager->GetStep();
-    Double_t edep = calc->GetDEDX(T*1e3,ion,mat)*range*10*1e-3;
+    Double_t edep = CalcElossIntegralVolStep(T, ion, mat, range);
 
     node = gGeoManager->GetCurrentNode();
     
@@ -415,7 +432,7 @@ Double_t ERQTelescopePID::FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg
     //-2 Последний мертвый слой не учитываем, потому что мы до него не добежали 
     for (Int_t iRange = ranges.size()-2; iRange >= 0; iRange--){
       G4Material* mat = nist->FindOrBuildMaterial(materials[iRange].Data());
-      Double_t rangeEdep = calc->GetDEDX(T*1e3,ion,mat)*ranges[iRange]*10*1e-3;
+      Double_t rangeEdep = CalcElossIntegralVolStep(T, ion, mat, ranges[iRange]);
       edep += rangeEdep;
 
       LOG(DEBUG) << " [FindCsIEdepByTrack]    Ekin " << T <<  " range " << ranges[iRange]

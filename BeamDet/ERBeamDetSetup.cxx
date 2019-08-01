@@ -768,6 +768,24 @@ void ERBeamDetSetup::ConstructGeometry() {
   geoFile->Close();
   // --------------------------------------------------------------------------
 }
+
+Double_t CalcElossIntegralVolStep (Double_t T, G4ParticleDefinition* ion, 
+                                   G4Material* mat, Double_t range) 
+{
+  Double_t integralEloss = 0.;
+  Double_t intStep = range / 5.;
+  Double_t curStep = 0.;
+
+  G4EmCalculator* calc = new G4EmCalculator();
+  while (curStep <= range) {
+    Double_t eloss = calc->GetDEDX(T*1e3,ion,mat)*intStep*10*1e-3;
+    integralEloss += eloss;
+    T -= eloss;
+    curStep += intStep;
+  }
+  return integralEloss;
+}
+
 //--------------------------------------------------------------------------------------------------
 Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom, Float_t mass){
   
@@ -815,7 +833,7 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
       break;
     
     Double_t range = gGeoManager->GetStep();
-    Double_t edep = calc->GetDEDX(T*1e3,ion,mat)*range*10*1e-3;
+    Double_t edep = CalcElossIntegralVolStep(T, ion, mat, range);
 
     node = gGeoManager->GetCurrentNode();
     
