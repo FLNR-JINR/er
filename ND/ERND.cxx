@@ -31,7 +31,8 @@ ERND::ERND() :
 // -----   Standard constructor   ------------------------------------------
 ERND::ERND(const char* name, Bool_t active, Int_t verbose) 
   : FairDetector(name, active,verbose),
-   fNDPoints(NULL)
+   fNDPoints(NULL),
+   fStep(1)
   {
   ResetParameters();
   fNDPoints = new TClonesArray("ERNDPoint");
