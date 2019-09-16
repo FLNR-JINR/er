@@ -70,6 +70,7 @@ class ERNDPoint : public FairMCPoint
   Double_t GetPxOut()           const { return fPx_out; }
   Double_t GetPyOut()           const { return fPy_out; }
   Double_t GetPzOut()           const { return fPz_out; }
+  Double_t GetPDG()             const { return fPdg; }
   Double_t GetMass()            const { return fMass; }
 
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
