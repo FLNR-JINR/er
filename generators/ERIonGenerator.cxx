@@ -206,7 +206,7 @@ void ERIonGenerator::SpreadingParameters()
     while (!isInCircle) {
       fX = gRandom->Uniform(0, fRho);
       fY = gRandom->Uniform(0, fRho);
-      if (sqrt(pow(fX, 2) + pow(fY, 2)) < fRho) {
+      if (sqrt(pow(fX, 2) + pow(fY, 2)) <= fRho) {
         isInCircle = kTRUE;
       }
     }
