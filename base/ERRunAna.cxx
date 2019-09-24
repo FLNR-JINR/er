@@ -17,6 +17,7 @@
 #include "G4EmCalculator.hh"
 #include "G4NistManager.hh"
 #include "G4Proton.hh"
+#include "G4IonTable.hh"
 
 #include "FairGeoLoader.h"
 #include "FairGeoInterface.h"
@@ -84,7 +85,137 @@ void ERRunAna::Init(){
 
   geant4->ProcessGeantMacro(erPath+"/gconfig/g4config.in");
   geant4->Init();
-  geant4->ProcessRun(0); 
+  geant4->ProcessRun(0);
+
+
+  // Double_t range = 8e-3;
+  // Double_t T = 7.68690;
+  // Double_t integralEloss = 0.;
+  // Double_t intStep = range / 1e1;
+  // Double_t curStep = 0.;
+
+  // G4IonTable* ionTable = G4IonTable::GetIonTable();
+  // G4ParticleDefinition* ion = ionTable->GetIon(1000020040);
+  // G4NistManager* nist = G4NistManager::Instance();
+  // G4Material* mat = nist->FindOrBuildMaterial("silicon");
+
+  // G4EmCalculator* calc = new G4EmCalculator();
+  // while (curStep <= range) {
+  //   Double_t eloss = calc->GetDEDX(T,ion,mat)*intStep;
+  //   integralEloss += eloss;
+  //   T -= eloss;
+  //   curStep += intStep;
+  // }
+  // cout << "integralEloss " << integralEloss << endl;
+
+G4IonTable* ionTable = G4IonTable::GetIonTable();
+G4ParticleDefinition* ion =  ionTable->GetIon(1000020040);
+G4EmCalculator* calc = new G4EmCalculator();
+G4NistManager* nist = G4NistManager::Instance();
+G4Material* mat = nist->FindOrBuildMaterial("silicon");
+double range = 1e-4;
+double T = 7.68690;
+
+std::vector<double> energies = {4.7844, 6.0024, 7.6869}; // [MeVs]
+std::vector<double> thickCalc_E  = {2, 4, 5, 5.56}; // [um]
+std::vector<double> thickCalc_dE = {2, 4, 5, 5.56, 8, 12, 16, 20, 24, 28, 32, 36, 40}; // [um]
+
+// for (auto itEnergies: energies) {
+//   double curStep = 0.;  // [um]
+//   double energy = itEnergies;
+//   double curDE = 0;
+//   cout << "itEnergies " << itEnergies << endl;
+//   auto itThickCalc_dE = thickCalc_dE.begin();
+//   while (itThickCalc_dE != thickCalc_dE.end()) {
+//     Double_t edep = calc->GetDEDX(energy,ion,mat)*intStep*1e-4*10;
+//     curDE += edep;
+//     energy -= edep;
+//     curStep += intStep;
+//     if (curStep >= *itThickCalc_dE) {
+//       itThickCalc_dE++;
+//       cout << curDE << " ";
+//     }
+//   } 
+//   cout << endl;
+// }  
+double intStep = 1e-5; // [um]
+for (auto itEnergies: energies) {
+  double curStep = 0.;  // [um]
+  double energy = itEnergies;
+  double energy_comp = itEnergies;
+  double curDE = 0;
+  double curDE_comp = 0;
+  cout << "itEnergies " << itEnergies << endl;
+  auto itThickCalc_E = thickCalc_dE.begin();
+  while (itThickCalc_E != thickCalc_dE.end()) {
+    Double_t edep = calc->GetDEDX(energy,ion,mat)*intStep*1e-4*10;
+    Double_t edep_comp = calc->ComputeDEDX(energy,ion,"ionIoni",mat)*intStep*1e-4*10;
+    curDE += edep;
+    curDE_comp += edep_comp;
+    energy_comp -= edep_comp;
+    energy -= edep;
+    curStep += intStep;
+    if (curStep >= *itThickCalc_E) {
+      itThickCalc_E++;
+      cout << energy*1e3 << " "  << curDE << " | " << energy_comp*1e3 << " " << curDE_comp << endl;
+      curDE = 0;
+      curDE_comp = 0;
+    }
+  }
+  cout << endl;
+}  
+// double energy4H = 7.6869;
+// std::vector<double> dEdx;
+// std::vector<double> E;
+// intStep = 1e-3;
+// while (energy4H > 0) {
+//   Double_t edep = calc->GetDEDX(energy4H,ion,mat)*1e-3;
+//   dEdx.push_back(edep);
+//   E.push_back(energy4H);
+//   cout << edep << " " << energy4H << endl;
+//   energy4H -= 0.1;
+// }
+// cout << endl;
+
+// auto canv = new TCanvas();
+// auto gr = new TGraph(dEdx.size(), &E[0], &dEdx[0]);
+// gr->SetLineColor(kBlue);
+// gr->SetMarkerColor(kBlue);
+// gr->SetLineWidth(2);
+// gr->SetMarkerSize(1.5);
+// gr->SetMarkerStyle(21);
+// gr->SetName("Bethe-Bloch");
+// gr->SetTitle("Bethe-Bloch Alpha");
+// gr->Draw("APL");
+// gr->GetXaxis()->SetTitle("E,[MeV]");
+// gr->GetYaxis()->SetTitle("dE/dx,[MeV/um]");
+// canv->SaveAs("BetheBloch.root");
+// for (auto itEnergies: energies) {
+//   cout << "E = " << itEnergies << endl;
+//   for (auto it_thick_E: thickCalc_E) {
+//     Double_t edep = calc->GetDEDX(itEnergies,ion,mat)*it_thick_E*1e-4*10;
+//     cout << itEnergies - edep <<  " ";
+//   }
+//   cout << endl << endl;
+//   for (auto it_thick_dE: thickCalc_dE) {
+//     Double_t edep = calc->GetDEDX(itEnergies,ion,mat)*it_thick_dE*1e-4*10;
+//     cout << edep << " ";
+//   }
+//   cout << endl << endl;    
+//   for (auto it_thick_dE: thickCalc_E) {
+//     Double_t edep = calc->GetDEDX(itEnergies,ion,mat)*it_thick_dE*1e-4*10;
+//     Double_t edep_compute = calc->ComputeDEDX(itEnergies,ion,"",mat)*it_thick_dE*1e-4*10;
+//     cout << "edep_compute " << edep_compute << endl;
+//     cout << "| " << edep - edep_compute << " |; ";
+//   }
+//   cout << endl;
+//   cout << "===================" << endl;
+// }
+
+// std::cout << endl << "=====" << endl << "edep " << edep << std::endl;
+// exit(0);
+// exit(0);  
+  exit(1);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -78,7 +78,8 @@ void nonUniformCalibRun_sim (Int_t nEvents = 1) {
   generator->SetKinERange(kin_energy, kin_energy);
   Double_t fronalCathesis = (5.8 / 2);
   Double_t maxTheta = abs(atan(fronalCathesis / zPos));
-  generator->SetThetaRange(0, maxTheta*TMath::RadToDeg());
+//  generator->SetThetaRange(0, maxTheta*TMath::RadToDeg());
+  generator->SetThetaRange(0,0);
   generator->SetCosTheta();
   generator->SetPhiRange(0, 360);
   generator->SetBoxXYZ(-0., -0., 0., 0., 0.);
