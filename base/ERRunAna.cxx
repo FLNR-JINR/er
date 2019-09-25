@@ -118,7 +118,8 @@ double T = 7.68690;
 
 std::vector<double> energies = {4.7844, 6.0024, 7.6869}; // [MeVs]
 std::vector<double> thickCalc_E  = {2, 4, 5, 5.56}; // [um]
-std::vector<double> thickCalc_dE = {2, 4, 5, 5.56, 8, 12, 16, 20, 24, 28, 32, 36, 40}; // [um]
+// std::vector<double> thickCalc_dE = {2, 4, 5, 5.56, 8, 12, 16, 20, 24, 28, 32, 36, 40}; // [um]
+std::vector<double> thickCalc_dE = {1, 2, 3, 4, 5, 6}; // [um]
 
 // for (auto itEnergies: energies) {
 //   double curStep = 0.;  // [um]
