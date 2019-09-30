@@ -1,7 +1,7 @@
 // int fTriggerNum = 2;
 void expCalib_reco(){
   //---------------------Files-----------------------------------------------
-  TString inFile = "calibEXP1803.Digi.root";
+  TString inFile = "alltel_90_1to9_digi.root";
   auto file = TFile::Open(inFile.Data());
   auto tree = (TTree*)file->Get("er");
   Int_t nEvents = tree->GetEntriesFast();//1443710
@@ -30,12 +30,12 @@ void expCalib_reco(){
   // ------- QTelescope TrackFinder -------------------------------------------
   ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
   qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
-  qtelescopeTrackFinder->SetHitStation("Left_telescope", "Left_telescope_SingleSi_SSD20_L_X_0",
-                                                         "Left_telescope_DoubleSi_DSD_L_XY_0_Y");
-  // qtelescopeTrackFinder->SetHitPseudoStation("Left_telescope", 
-  //                                            "Left_telescope_SingleSi_SSD20_L_X_0",
-  //                                            "Left_telescope_DoubleSi_DSD_L_XY_0_Y",
-  //                                            "Left_telescope_Pseudo_SingleSi_SSD20_L_DoubleSi_DSD_L_0");
+  qtelescopeTrackFinder->SetHitStation("Telescope_1", "Telescope_1_SingleSi_SSD20_1_Y_0",
+                                                         "Telescope_1_SingleSi_SSD_1_X_0");
+  // qtelescopeTrackFinder->SetHitPseudoStation("Telescope_1", 
+  //                                            "Telescope_1_SingleSi_SSD20_1_Y_0",
+  //                                            "Telescope_1_SingleSi_SSD_1_X_0",
+  //                                            "Telescope_1_Pseudo_SingleSi_SSD20_L_SingleSi_DSD_L_0");
 
   qtelescopeTrackFinder->SetStripEdepRange(0., 1000.);          // [GeV]
   //qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
@@ -47,14 +47,16 @@ void expCalib_reco(){
   // ------- QTelescope PID -------------------------------------------
   ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
 
-  // qtelescopePID->SetUserCut("ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.009");
+  // qtelescopePID->SetUserCut("ERQTelescopeSiDigi_T2_SingleSi_SD2_XY_1_X.fEdep>0.009");
   // qtelescopePID->SetUserCut("1");
 
-  // qtelescopePID->SetStationParticle("Left_telescope_SingleSi_SSD20_L_X_0",1000020040);
-  // qtelescopePID->SetStationParticle("Left_telescope_DoubleSi_DSD_L_XY_0_Y",1000020040);
-  qtelescopePID->SetStationParticle("Left_telescope_SingleSi_SSD20_L_X_0Left_telescope_DoubleSi_DSD_L_XY_0_Y", 1000020040);
+  // qtelescopePID->SetStationParticle("Telescope_1_SingleSi_SSD20_1_Y_0",1000020040);
+  // qtelescopePID->SetStationParticle("Telescope_1_SingleSi_SSD_1_X_0",1000020040);
+  ERQTelescopeSiDigi_Telescope_1_SingleSi_SSD_1_X_0
+  ERQTelescopeSiDigi_Telescope_1_SingleSi_SSD20_1_Y_0
+  qtelescopePID->SetStationParticle("Telescope_1_SingleSi_SSD20_1_Y_0Telescope_1_SingleSi_SSD_1_X_0", 1000020040);
 
-  // qtelescopePID->SetStationParticle("Left_telescope_SingleSi_SSD_L_X_0",1000020030);
+  // qtelescopePID->SetStationParticle("Telescope_1_SingleSi_SSD_L_X_0",1000020030);
 
   run->AddTask(qtelescopePID); 
   // -----------Runtime DataBase info ---------------------------------------

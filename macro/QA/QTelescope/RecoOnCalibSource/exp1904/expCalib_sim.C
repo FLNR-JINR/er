@@ -4,7 +4,7 @@ void expCalib_sim (Int_t nEvents = 0) {
   TString parFile = "par_Calib.root";
   TString workDirPath = gSystem->Getenv("VMCWORKDIR");
   TString paramFileQTelescope = workDirPath
-                         + "/db/QTelescope/QTelescopeParts_exp1810.xml";
+                         + "/db/QTelescope/QTelescopeParts_postcalibEXP1904.xml";
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer; 
   timer.Start();
@@ -49,18 +49,14 @@ void expCalib_sim (Int_t nEvents = 0) {
   Double_t yPos = 0.;
   Double_t zPos = radius * TMath::Cos(rotationL.Y() * TMath::DegToRad());
   ERGeoSubAssembly* assembly_Left = new ERGeoSubAssembly("Left_telescope", TVector3(xPos, yPos, zPos), rotationL);
-  // ERQTelescopeGeoComponentSingleSi* thin_Left = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_L", 
+  // ERQTelescopeGeoComponentSingleSi* thin_1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_L", 
   //                                                                                 TVector3(0., 0., -1.4), TVector3(), "X");
-  ERQTelescopeGeoComponentDoubleSi* thick_Left = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_DSD_L", 
-                                                                                  TVector3(0., 0., 0.), TVector3(), "X");
-  ERQTelescopeGeoPseudoDoubleSi* thin_Left = new ERQTelescopeGeoPseudoDoubleSi("SingleSi", "SingleSi_SSD20_L",
-                                                                               "DoubleSi", "DoubleSi_DSD_L",
-                                                                               "./input/map_sens.root",
-                                                                               "./input/map_deadFront.root",
-                                                                               "./input/map_deadBack.root"); 
+  ERQTelescopeGeoComponentDoubleSi* thin_1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_1", 
+                                                                                  TVector3(0., 0., 0.), TVector3(), "Y");
+  ERQTelescopeGeoComponentDoubleSi* thick_1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_1", "X");
 
-  assembly_Left->AddComponent(thick_Left);
-  assembly_Left->AddComponent(thin_Left, TVector3(0, 0, -1.4), TVector3(0, 0, 0));
+  assembly_Left->AddComponent(thin_1);
+  assembly_Left->AddComponent(thick_1, TVector3(0, 0, 1.5), TVector3(0, 0, 0));
 
   setupQTelescope->AddSubAssembly(assembly_Left);
 
@@ -90,15 +86,6 @@ void expCalib_sim (Int_t nEvents = 0) {
   //-------Set visualisation flag to true------------------------------------
   // run->SetStoreTraj(kTRUE);
 
-  ERQTelescopeDigitizer* qtelescopeDigitizer = new ERQTelescopeDigitizer(verbose);
-  qtelescopeDigitizer->SetSiElossThreshold(0);
-  qtelescopeDigitizer->SetSiElossSigma(0);
-  qtelescopeDigitizer->SetSiTimeSigma(0);
-
-  qtelescopeDigitizer->SetCsIElossThreshold(0);
-  qtelescopeDigitizer->SetCsIElossSigma(0);
-  qtelescopeDigitizer->SetCsITimeSigma(0);
-  run->AddTask(qtelescopeDigitizer);
   //-------Set LOG verbosity  ----------------------------------------------- 
   FairLogger::GetLogger()->SetLogScreenLevel("INFO");
 
