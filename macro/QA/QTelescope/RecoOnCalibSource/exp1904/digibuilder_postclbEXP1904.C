@@ -14,14 +14,14 @@ void digibuilder_postclbEXP1904(Int_t nEvents = 1443710)
   TString rootAqqDaqFile = "alltel_90_1to9.root";
 
   TString confFile = "./input/setupEXP1904.xml"; // check where is setup file is really stored
-  auto file = TFile::Open(inFile.Data());
+  auto file = TFile::Open((intdir_converted + rootAqqDaqFile).Data());
   auto tree = (TTree*)file->Get("stepRepackingxTree");
   nEvents = tree->GetEntriesFast();//1443710
 
 	// --- Specify output file name (this is just an example)
 	TString outFile = "alltel_90_1to9_digi.root";
 
-  std::cout << ">>> input  file is " << inFile  << std::endl;
+  std::cout << ">>> input  file is " << rootAqqDaqFile  << std::endl;
   std::cout << ">>> output file is " << outFile << std::endl;
   // --- Source task
   ERDigibuilder* builder = new ERDigibuilder();
@@ -31,15 +31,15 @@ void digibuilder_postclbEXP1904(Int_t nEvents = 1443710)
 // -------------------------------------------------------------------------------------
   ERTelescopeUnpack* telescope_1 = new ERTelescopeUnpack("Telescope_1");
   // for the thin detector it nessesary to implement new mappin for pixelwise coefficients
-  telescope_1->AddSingleSiStation("SSD20_1",
-                                  "SSD20_1","tSSD20_1",
-                                  intdir_settings + "SSD_20u_1.cal", "",
-                                  "X");
   telescope_1->AddSingleSiStation("SSD_1",
                                   "SSD_1","tSSD_1",
                                   intdir_settings + "SSD_1m_1.cal", "",
-                                  "Y");
+                                  "X");
  // -------------------------------------------------------------------------------------  
+  telescope_1->AddSingleSiStation("SSD20_1",
+                                  "SSD20_1","tSSD20_1",
+                                  intdir_settings + "SSD_20u_1.cal", "",
+                                  "Y");
   builder->AddUnpack(telescope_1);
   // --- Run
   FairRunOnline *run = new FairRunOnline(builder);
