@@ -8,21 +8,10 @@ TString getFileNameFromPath (TString const &path) {
 void digibuilder_postclbEXP1904(Int_t nEvents = 1443710)
 {
 
-  TString inputdir = gSystem->Getenv("VMCWORKDIR");
-  // inputdir = "~/soft/expertroot/macro/calibration/si_calibration/input/";
-  gSystem->Exec("mkdir -p ./input");
-  inputdir = "./mnt/data_nas/exp201904/data/postclb/";
+  TString intdir_converted = "/opt/keeper/stock/kozlov/calib201907/digibulder/alltel_90/";
+  TString intdir_settings = "./input/";
 
-  vector<TString> lmdFiles = {
-                               "alltel_90_0001.lmd",
-                               "alltel_90_0002.lmd",
-                               "alltel_90_0003.lmd",
-                               "alltel_90_0004.lmd",
-                               "alltel_90_0005.lmd",
-                               "alltel_90_0006.lmd",
-                               "alltel_90_0007.lmd",
-                               "alltel_90_0008.lmd"
-                             };
+  TString rootAqqDaqFile = "alltel_90_1to9.root";
 
   TString confFile = "./input/setupEXP1904.xml"; // check where is setup file is really stored
   auto file = TFile::Open(inFile.Data());
@@ -30,7 +19,7 @@ void digibuilder_postclbEXP1904(Int_t nEvents = 1443710)
   nEvents = tree->GetEntriesFast();//1443710
 
 	// --- Specify output file name (this is just an example)
-	TString outFile = "alltel_90_7f_db_1.root";
+	TString outFile = "alltel_90_1to9_digi.root";
 
   std::cout << ">>> input  file is " << inFile  << std::endl;
   std::cout << ">>> output file is " << outFile << std::endl;
@@ -38,24 +27,20 @@ void digibuilder_postclbEXP1904(Int_t nEvents = 1443710)
   ERDigibuilder* builder = new ERDigibuilder();
   builder->SetConfigurationFile(confFile);
   //builder->SetUserCut("Beam_detector_F3.@fDetMessages.GetEntriesFast() == 4",kFALSE);
-  for (auto const &itFile: lmdFiles) {
-    builder->AddFile(inputdir + itFile);
-  }
+  builder->AddFile(intdir_converted + rootAqqDaqFile);
 // -------------------------------------------------------------------------------------
-  ERTelescopeUnpack* ltUnpack = new ERTelescopeUnpack("Left_telescope");
+  ERTelescopeUnpack* telescope_1 = new ERTelescopeUnpack("Telescope_1");
   // for the thin detector it nessesary to implement new mappin for pixelwise coefficients
-  ltUnpack->AddSingleSiStation("SSD20_1",
-                               "SSD20_1","tSSD20_1",
-                               inputdir + "SSD20_1_geant.cal", "", //inputdir + "tSSD20_L.cal",
-                               "X");
-  ltUnpack->AddDoubleSiStation("DSD_L",
-                               "DSDX_L","tDSDX_L",
-                               "DSDY_L","tDSDY_L",
-                               inputdir + "calibCoeff_DSDX_L_dsd_l_02_0001.txt", "", //inputdir + "tDSDX_L.cal",
-                               inputdir + "calibCoeff_DSDY_L_dsd_l_02_0001.txt", "", //inputdir + "tDSDY_L.cal",
-                               "XY");
+  telescope_1->AddSingleSiStation("SSD20_1",
+                                  "SSD20_1","tSSD20_1",
+                                  intdir_settings + "SSD_20u_1.cal", "",
+                                  "X");
+  telescope_1->AddSingleSiStation("SSD_1",
+                                  "SSD_1","tSSD_1",
+                                  intdir_settings + "SSD_1m_1.cal", "",
+                                  "Y");
  // -------------------------------------------------------------------------------------  
-  builder->AddUnpack(ltUnpack);
+  builder->AddUnpack(telescope_1);
   // --- Run
   FairRunOnline *run = new FairRunOnline(builder);
   run->SetOutputFile(outFile);
