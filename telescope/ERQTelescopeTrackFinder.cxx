@@ -116,7 +116,6 @@ InitStatus ERQTelescopeTrackFinder::Init() {
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::Exec(Option_t* opt) { 
   Reset();
-
   for (const auto itSubassemblies : fSiHitStationsPair) {
     for (const auto itComponent : itSubassemblies.second) {
       vector<pair<Int_t, Int_t>>  hitTelescopePoint;    // pairs of X and Y strips that have difference between edep less than fEdepDiffXY 
@@ -129,9 +128,9 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
       if ( !xDigi || !yDigi) {
         continue;
       }
-       
-      if (xDigi->GetEntriesFast() == 0 || yDigi->GetEntriesFast()==0)
+      if (xDigi->GetEntriesFast() == 0 || yDigi->GetEntriesFast()==0) {
         continue;
+      }
 
       for (Int_t iXDigi  = 0; iXDigi < xDigi->GetEntriesFast(); iXDigi++) {
         Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(iXDigi))->GetEdep();
@@ -163,17 +162,19 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
 
         Int_t xStripNb = xStrip->GetStripNb();
         Int_t yStripNb = yStrip->GetStripNb();
-        // std::cout << "  Strips pair " << itHitPoint.first << " " << itHitPoint.second << FairLogger::endl;
-        // std::cout << "  CompName " << itComponent.first << " " << FairLogger::endl;
-        LOG(DEBUG) << xDigiBranchName << FairLogger::endl;
+        LOG(DEBUG) << "  Branch names " << xDigiBranchName << " " << yDigiBranchName << FairLogger::endl;
+        LOG(DEBUG) << "  Strips pair " << itHitPoint.first << " " << itHitPoint.second << FairLogger::endl;
+        LOG(DEBUG) << "  Strips pair numbers " << xStripNb << " " << yStripNb << FairLogger::endl;
         Double_t xQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalX(xDigiBranchName, xStripNb);
         Double_t yQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalY(yDigiBranchName, yStripNb);
-        Double_t zQTeleGlobHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(xDigiBranchName, xStripNb) 
-                               +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(yDigiBranchName, yStripNb)) / 2;
+        //Double_t zQTeleGlobHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(xDigiBranchName, xStripNb) 
+        //                       +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(yDigiBranchName, yStripNb)) / 2;
+        Double_t zQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(xDigiBranchName, xStripNb); 
         Double_t xQTeleLocalHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalX(xDigiBranchName, xStripNb);
         Double_t yQTeleLocalHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalY(yDigiBranchName, yStripNb);
-        Double_t zQTeleLocalHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalZ(xDigiBranchName, xStripNb) 
-                                +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalZ(yDigiBranchName, yStripNb)) / 2;
+        //Double_t zQTeleLocalHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalZ(xDigiBranchName, xStripNb) 
+        //                        +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalZ(yDigiBranchName, yStripNb)) / 2;
+        Double_t zQTeleLocalHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalZ(xDigiBranchName, xStripNb); 
         if (itComponent.first.Contains("DoubleSi")) {
           if (itComponent.first.Contains("XY")) {
             zQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(xDigiBranchName, xStripNb);
@@ -182,8 +183,8 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
           }
         } 
 
-        // std::cout << "Tele local hit X Y Z " << xQTeleLocalHit << " " << yQTeleLocalHit << " " << zQTeleLocalHit << endl;
-        // std::cout << "Tele global hit X Y Z " << xQTeleGlobHit << " " << yQTeleGlobHit << " " << zQTeleGlobHit << endl;
+        LOG(DEBUG) << "Tele local hit X Y Z " << xQTeleLocalHit << " " << yQTeleLocalHit << " " << zQTeleLocalHit << FairLogger::endl;
+        LOG(DEBUG) << "Tele global hit X Y Z " << xQTeleGlobHit << " " << yQTeleGlobHit << " " << zQTeleGlobHit << FairLogger::endl;
         if (!fUserTargetPointIsSet) {
           ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
           if (!trackFromMWPC) {
@@ -194,7 +195,8 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
           fTargetY = trackFromMWPC->GetTargetY();
           fTargetZ = trackFromMWPC->GetTargetZ();
         }
-        Double_t sumEdep = yStrip->GetEdep();        
+        //Double_t sumEdep = yStrip->GetEdep();        
+        Double_t sumEdep = xStrip->GetEdep();        
         ERQTelescopeTrack *track = AddTrack(fTargetX, fTargetY, fTargetZ, 
                                             xQTeleGlobHit,  yQTeleGlobHit,  zQTeleGlobHit,                                            
                                             xQTeleLocalHit, yQTeleLocalHit, zQTeleLocalHit,

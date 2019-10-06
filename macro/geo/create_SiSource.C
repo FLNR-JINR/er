@@ -37,14 +37,15 @@ void create_SiSource() {
   gGeoMan->SetName("DETgeom");
   TGeoVolume* top = new TGeoVolumeAssembly("TOP");
   gGeoMan->SetTopVolume(top);
-  // TGeoVolume* target = new TGeoVolumeAssembly("target");
+  TGeoVolume* target = new TGeoVolumeAssembly("target");
   // --------------------------------------------------------------------------
   Double_t radius = 6e-1;
-  Double_t thickness = 300e-4;
+  Double_t thickness = 300e-7;
   // --------------------------------------------------------------------------
-  TGeoVolume *sourceVol = gGeoManager->MakeTube("source", pSilicon, 0, radius, thickness / 2.);
+  TGeoVolume *sourceVol = gGeoManager->MakeTube("target_siSource", pSilicon, 0, radius, thickness / 2.);
 
-  top->AddNode(sourceVol,0,new TGeoCombiTrans(.0,.0, thickness / 2., fZeroRotation));
+  target->AddNode(sourceVol,0,new TGeoCombiTrans(.0,.0, 0., fZeroRotation));
+  top->AddNode(target,0,new TGeoCombiTrans(.0,.0, 0., fZeroRotation));
   // --------------------------------------------------------------------------
   gGeoMan->CloseGeometry();
   gGeoMan->CheckOverlaps(0.001);

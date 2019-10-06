@@ -158,7 +158,6 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
                   doubleSiBox = doubleSiStrip->GetDaughter(iDoubleSiBox);
                   TString siBoxName = doubleSiBox->GetName();
                   GetTransInMotherNode(doubleSiBox, boxInStripTrans);
-
                   (qtelescopeStationName.Contains("XY")) ? stripInStationTrans[0] = 0
                                                          : stripInStationTrans[1] = 0;
                   doubleSiStrip->LocalToMaster(boxInStripTrans, stripInStationTrans);
@@ -178,61 +177,19 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
               GetTransInMotherNode(singleSiStrip, stripInStationTrans);
               qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
               qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
+	      LOG(DEBUG) << qtelescopeStationName << " strip " 
+		         << iSingleSiStrip << " global coordinates: "
+		         << stripGlobTrans[0] << ", " 
+		         << stripGlobTrans[1] << ", " 
+		         << stripGlobTrans[2]; 
+			  
+	      LOG(DEBUG) << " | local coordinates: " 		         
+		         << stripInStationTrans[0] << ", " 
+		         << stripInStationTrans[1] << ", " 
+		         << stripInStationTrans[2] << FairLogger::endl; 
               fStrips[qtelescopeStationName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans));            
-              std::cout << "SingleSi glob " << stripGlobTrans[0] << ", "  
-                                            << stripGlobTrans[1] << ", "
-                                            << stripGlobTrans[2] << endl;
-
             }
           }
-          if (qtelescopeStationName.Contains("Pseudo", TString::kIgnoreCase) ) {
-            TGeoNode* doubleSiStrip;
-            TString firstStripArrayName, secondStripArrayName;
-            // condition is not checked beacause because only one configuration is used
-            // if (qtelescopeStationName.Contains("XY")) {
-              firstStripArrayName = qtelescopeStationName + "_X";
-              secondStripArrayName = qtelescopeStationName + "_Y";
-              std::cout << "Pseudo setup firstStripArrayName " << firstStripArrayName << std::endl; 
-              std::cout << "Pseudo setup secondStripArrayName " << secondStripArrayName << std::endl; 
-            // } else {
-            //   firstStripArrayName = qtelescopeStationName + "_Y";
-            //   secondStripArrayName = qtelescopeStationName + "_X";              
-            // }
-            Bool_t    flagFirstStripReaded = kFALSE;
-            Int_t     iDoubleSiStrip = 0;
-            for (; iDoubleSiStrip < qtelescopeStation->GetNdaughters(); iDoubleSiStrip++) {
-              doubleSiStrip = qtelescopeStation->GetDaughter(iDoubleSiStrip);
-              GetTransInMotherNode(doubleSiStrip, stripInStationTrans);
-              // Now we assume that QTelescope center in the global zero.
-              // It is neccesary to write clear function to find global coordinates
-              // by all forefathers nodes if possible. Maybe with some FairRoot methods
-              qtelescopeDetector->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
-              qtelescope->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
-              fStrips[firstStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans));
-              TGeoNode* doubleSiBox;
-              Int_t iDoubleSiBox = 0;
-              if (!flagFirstStripReaded) {
-                for (; iDoubleSiBox < doubleSiStrip->GetNdaughters(); iDoubleSiBox++) {
-                  doubleSiBox = doubleSiStrip->GetDaughter(iDoubleSiBox);
-                  TString siBoxName = doubleSiBox->GetName();
-                  GetTransInMotherNode(doubleSiBox, boxInStripTrans);
-                  (qtelescopeStationName.Contains("XY")) ? stripInStationTrans[0] = 0
-                                                           : stripInStationTrans[1] = 0;
-                  qtelescopeStation->LocalToMaster(boxInStripTrans, stripInStationTrans);
-                  qtelescopeDetector->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
-                  qtelescope->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
-                  fStrips[secondStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans, boxInStripTrans));
-                  std::cout << "SingleSi glob " << stripGlobTrans[0] << ", "  
-                                                << stripGlobTrans[1] << ", "
-                                                << stripGlobTrans[2] << endl;
-              // std::cout << "SingleSi  loc " << stripInDetectorTrans[0] << ", "  
-              //                               << stripInDetectorTrans[1] << ", "
-              //                               << stripInDetectorTrans[2] << endl;
-                }
-                flagFirstStripReaded = kTRUE;
-              }
-            }
-          }          
         }
       }
     }

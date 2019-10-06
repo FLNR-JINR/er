@@ -26,7 +26,8 @@ void digibuilder_postclbEXP1904(Int_t nEvents = 1443710)
   // --- Source task
   ERDigibuilder* builder = new ERDigibuilder();
   builder->SetConfigurationFile(confFile);
-  //builder->SetUserCut("Beam_detector_F3.@fDetMessages.GetEntriesFast() == 4",kFALSE);
+  //builder->SetUserCut("ERQTelescopeSiDigi_Telescope_1_SingleSi_SSD_1_X_1.fEdep>0.8e-3&&ERQTelescopeSiDigi_Telescope_1_SingleSi_SSD20_1_Y_0.fEdep > 0.8e-3");
+  //builder->SetUserCut("Telescope_1_SSD_1.fData.fValue>0.8e-3&&Telescope_1_SSD20_1.fData.fValue>0.8e-3");
   builder->AddFile(intdir_converted + rootAqqDaqFile);
 // -------------------------------------------------------------------------------------
   ERTelescopeUnpack* telescope_1 = new ERTelescopeUnpack("Telescope_1");
@@ -34,12 +35,14 @@ void digibuilder_postclbEXP1904(Int_t nEvents = 1443710)
   telescope_1->AddSingleSiStation("SSD_1",
                                   "SSD_1","tSSD_1",
                                   intdir_settings + "SSD_1m_1.cal", "",
-                                  "X");
+                                  "X",
+				  kFALSE);
  // -------------------------------------------------------------------------------------  
   telescope_1->AddSingleSiStation("SSD20_1",
                                   "SSD20_1","tSSD20_1",
                                   intdir_settings + "SSD_20u_1.cal", "",
-                                  "Y");
+                                  "Y",
+				  kFALSE);
   builder->AddUnpack(telescope_1);
   // --- Run
   FairRunOnline *run = new FairRunOnline(builder);

@@ -74,7 +74,6 @@ InitStatus ERQTelescopePID::Init() {
       Int_t bPrefixNameLength = bFullName.First('_'); 
       TString brName(bFullName(bPrefixNameLength + 1, bFullName.Length()));
       fQTelescopeTrack[brName] = (TClonesArray*) ioman->GetObject(bFullName);
-
       //Creating particles collections for every track collection
       for (auto itPDG : fStationParticles[brName]){
         TString brParticleName;
@@ -182,7 +181,8 @@ Double_t CalcElossIntegralVolStep (Double_t T, G4ParticleDefinition* ion,
   while (curStep <= range) {
     Double_t eloss = calc->GetDEDX(T*1e3,ion,mat)*intStep*10*1e-3;
     integralEloss += eloss;
-    T -= eloss;
+    T += eloss;
+    //std::cout << "CalcElossIntegralVolStep T" << T << "; eloss " << eloss << "; integralEloss " << integralEloss << std::endl;
     curStep += intStep;
   }
   return integralEloss;
@@ -314,9 +314,6 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(TGeoNode* node){
         found = kTRUE;
         LOG(DEBUG) << " [CalcEloss]   Found digi with edep " << digi->GetEdep() << FairLogger::endl;
         edep = digi->GetEdep();
-        if (stripNb == 6) {
-          // std::cout << "brName, stripNb, edep: " << brName << " " << stripNb << " " << edep << std::endl;
-        }
         break;
       }
     }
