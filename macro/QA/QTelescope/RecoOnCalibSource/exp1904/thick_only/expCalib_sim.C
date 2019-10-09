@@ -43,19 +43,19 @@ void expCalib_sim (Int_t nEvents = 1) {
   setupQTelescope->SetGeoName("QTelescopeTmp");
 
   // ----- LEFT parameters ----------------------------------------------------
-  Double_t radius = 40.;
+  Double_t radius = 29.;
   
   TVector3 rotationL(0., 0., 0.);
   Double_t xPos = radius * TMath::Sin(rotationL.Y() * TMath::DegToRad());
   Double_t yPos = 0.;
   Double_t zPos = radius * TMath::Cos(rotationL.Y() * TMath::DegToRad());
   ERGeoSubAssembly* assembly_Left = new ERGeoSubAssembly("Telescope_1", TVector3(xPos, yPos, zPos), rotationL);
-  ERQTelescopeGeoComponentSingleSi* thin_1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_1", 
-                                                                                  TVector3(0., 0., 0.), TVector3(), "Y");
+  //ERQTelescopeGeoComponentSingleSi* thin_1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_1", 
+  //                                                                                TVector3(0., 0., 0.), TVector3(), "Y");
   ERQTelescopeGeoComponentSingleSi* thick_1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_1", "X");
 
-  assembly_Left->AddComponent(thin_1);
-  assembly_Left->AddComponent(thick_1, TVector3(0, 0, 1.5), TVector3(0, 0, 0));
+  //assembly_Left->AddComponent(thin_1);
+  assembly_Left->AddComponent(thick_1, TVector3(0, 0, 0), TVector3(0, 0, 0));
 
   setupQTelescope->AddSubAssembly(assembly_Left);
 
@@ -77,7 +77,7 @@ void expCalib_sim (Int_t nEvents = 1) {
 
   generator->SetThetaSigma(0, sigmaTheta);
   generator->SetPhiRange(0, 360);
-  generator->SetBoxXYZ(0, 0, 0., 0., -2.);
+  generator->SetBoxXYZ(0, 0, 0., 0., 0.);
   generator->SpreadingOnTarget(); 
 
   primGen->AddGenerator(generator);

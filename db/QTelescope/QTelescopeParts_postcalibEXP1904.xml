@@ -16,16 +16,16 @@
 			<singleSi id="SingleSi_SSD20_1">
 				<singleSiSize singleSiX="5" singleSiY="5" singleSiZ="0.002"/>
 				<singleSiSensAreaSize singleSiSensX="5" singleSiSensY="5" singleSiSensZ="0.002"/>
-				<deadLayerThicknessFrontSide>0.00007</deadLayerThicknessFrontSide>
-				<deadLayerThicknessBackSide>0.00007</deadLayerThicknessBackSide>
+				<deadLayerThicknessFrontSide>0.000094</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.000094</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>	
 			<singleSi id="SingleSi_SSD_1">
 				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
 				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
-				<deadLayerThicknessFrontSide>0.000204</deadLayerThicknessFrontSide>
-				<deadLayerThicknessBackSide>0.000204</deadLayerThicknessBackSide>
+				<deadLayerThicknessFrontSide>0.0001904</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0001904</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>
