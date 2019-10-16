@@ -17,11 +17,12 @@ void fileAnalysis() {
   // tree->Draw(partBr+lvLeave,xCoord + "<0.6&&" + xCoord + ">0.4");
   // tree->Draw(partBr+lvLeave,xCoord + "<-0.4&&" + xCoord + ">-0.55");
   // tree->Draw(partBr+lvLeave,yCoord + "<-0.4&&" + yCoord + ">-0.6");
-  auto saveFile = TFile::Open("expCalib_reco_SSD_1m_1_st15.root", "RECREATE");
-  double startCoordY = -2.344;
-  double startCoordX = 2.85;
+  auto saveFile = TFile::Open("expCalib_reco_SSD_1m_1_st14.root", "RECREATE");
   double delta = 0.05;
   double stepY = 0.313;
+  double stepX = 0.38;
+  double startCoordY = -2.344;
+  double startCoordX = 2.85 - stepX;
   TString histParams = "(2048, 0, 9e-3)";
   for (int i = 0; i < 16; i++) {
     double currCoordY = startCoordY + i*stepY;
