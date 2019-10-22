@@ -175,7 +175,7 @@ Double_t CalcElossIntegralVolStep (Double_t T, G4ParticleDefinition* ion,
                                    G4Material* mat, Double_t range) 
 { 
   Double_t integralEloss = 0.;
-  Double_t intStep = range / 20.;
+  Double_t intStep = range / 1e3;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (curStep < range) {
@@ -243,6 +243,10 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
     }
     
     Double_t range = gGeoManager->GetStep();
+    if (TString(gGeoManager->GetPath()).Contains("target")) {
+      inTarget = kTRUE;
+      range /= 2.;
+    }
     Double_t edep = CalcElossIntegralVolStep(T, ion, mat, range);
 
     node = gGeoManager->GetCurrentNode();
@@ -252,8 +256,6 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
     LOG(DEBUG) <<" [CalcEloss]    range  = " << range << FairLogger::endl;
     LOG(DEBUG) <<" [CalcEloss]    edep = " << edep << FairLogger::endl;
 
-    if (TString(gGeoManager->GetPath()).Contains("target"))
-      inTarget = kTRUE;
 
     if (inTarget)
       tarEdep+=edep;
@@ -264,8 +266,6 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
     node = gGeoManager->Step();
   }
   
-  T += tarEdep/2.;
-  sumLoss -= tarEdep/2.;
   fT = T;
   LOG(DEBUG) <<" [CalcEloss] Target Eloss = " <<  tarEdep << FairLogger::endl;
   LOG(DEBUG) <<" [CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::endl;
