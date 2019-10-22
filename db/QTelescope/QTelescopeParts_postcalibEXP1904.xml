@@ -24,8 +24,8 @@
 			<singleSi id="SingleSi_SSD_1">
 				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
 				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
-				<deadLayerThicknessFrontSide>0.0001904</deadLayerThicknessFrontSide>
-				<deadLayerThicknessBackSide>0.0001904</deadLayerThicknessBackSide>
+				<deadLayerThicknessFrontSide>0.000196</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.000196</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>

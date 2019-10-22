@@ -40,7 +40,7 @@ void create_SiSource() {
   TGeoVolume* target = new TGeoVolumeAssembly("target");
   // --------------------------------------------------------------------------
   Double_t radius = 6e-1;
-  Double_t thickness = 300e-7;
+  Double_t thickness = 600e-7;
   // --------------------------------------------------------------------------
   TGeoVolume *sourceVol = gGeoManager->MakeTube("target_siSource", pSilicon, 0, radius, thickness / 2.);
 

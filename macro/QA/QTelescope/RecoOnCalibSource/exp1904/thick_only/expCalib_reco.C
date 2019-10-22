@@ -4,7 +4,7 @@ void expCalib_reco(){
   auto file = TFile::Open(inFile.Data());
   auto tree = (TTree*)file->Get("er");
   Int_t nEvents = tree->GetEntriesFast();//1443710:
-  //nEvents = 500;
+  //nEvents = 20;
   TString parFile = "par_Calib.root";
   TString geoFile = "geo_expCalib.root";
   // -----   Timer   --------------------------------------------------------
@@ -14,7 +14,7 @@ void expCalib_reco(){
   ERRunAna *run = ERRunAna::Instance();
   TString userCut;
   TString outFile;
-  outFile.Form("expCalib_reco.root");
+  outFile.Form("expCalib_reco_1.root");
   run->SetGeomFile("geo_expCalib.root");
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
@@ -46,9 +46,9 @@ void expCalib_reco(){
   parInput->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parInput);
   // -----   Intialise and run   --------------------------------------------
- // FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
-  FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
+  //FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  //FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  //FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
   //run->HoldEventsCount();
   run->MarkFill(kFALSE);
   run->Init();
