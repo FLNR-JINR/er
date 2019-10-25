@@ -23,7 +23,7 @@ void fileAnalysis() {
   double stepX = 0.38;
   double startCoordY = -2.344;
   double startCoordX = 2.85 - stepX;
-  TString histParams = "(2048, 0, 9e-3)";
+  TString histParams = "(1048, 0, 10.24e-3)";
   for (int i = 0; i < 16; i++) {
     double currCoordY = startCoordY + i*stepY;
     
