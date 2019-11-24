@@ -175,7 +175,7 @@ Double_t CalcElossIntegralVolStep (Double_t T, G4ParticleDefinition* ion,
                                    G4Material* mat, Double_t range) 
 { 
   Double_t integralEloss = 0.;
-  Double_t intStep = range / 1e3;
+  Double_t intStep = range / 20;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (curStep < range) {

@@ -172,18 +172,18 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         LOG(DEBUG) << "  Branch names " << xDigiBranchName << " " << yDigiBranchName << FairLogger::endl;
         LOG(DEBUG) << "  Strips pair " << itHitPoint.first << " " << itHitPoint.second << FairLogger::endl;
         LOG(DEBUG) << "  Strips pair numbers " << xStripNb << " " << yStripNb << FairLogger::endl;
-        Double_t xQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalX(xDigiBranchName, xStripNb);
+        Double_t yQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalY(xDigiBranchName, xStripNb);
         //Double_t yQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalY(yDigiBranchName, yStripNb);
         //Double_t zQTeleGlobHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(xDigiBranchName, xStripNb) 
         //                       +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(yDigiBranchName, yStripNb)) / 2;
         Double_t zQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(xDigiBranchName, xStripNb); 
-        Double_t xQTeleLocalHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalX(xDigiBranchName, xStripNb);
+        Double_t yQTeleLocalHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalY(xDigiBranchName, xStripNb);
         //Double_t yQTeleLocalHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalY(yDigiBranchName, yStripNb);
         //Double_t zQTeleLocalHit = (((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalZ(xDigiBranchName, xStripNb) 
         //                        +  ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalZ(yDigiBranchName, yStripNb)) / 2;
         Double_t zQTeleLocalHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripLocalZ(xDigiBranchName, xStripNb); 
-	Double_t yQTeleLocalHit = 0;
-	Double_t yQTeleGlobHit = gRandom->Uniform(-3., 3.);
+	Double_t xQTeleLocalHit = 0;
+	Double_t xQTeleGlobHit = 0;//gRandom->Uniform(-3., 3.);
         if (itComponent.first.Contains("DoubleSi")) {
           if (itComponent.first.Contains("XY")) {
             zQTeleGlobHit = ((ERQTelescopeSetup*)fQTelescopeSetup)->GetStripGlobalZ(xDigiBranchName, xStripNb);
