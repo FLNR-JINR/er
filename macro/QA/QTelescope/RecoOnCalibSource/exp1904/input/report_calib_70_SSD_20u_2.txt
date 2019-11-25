@@ -1,0 +1,100 @@
+Calibration results. 
+
+Sliding window algorithm parameters: 
+  window width: 19
+  search region around peak: +-8
+  peak RMS: 6
+  peak amplitude threshold (with respect to maximal): 0.5
+ADC-channels counts are stored in files: 
+ * channelsHist_low_calib_70_SSD_20u_2.root --- for low energy peak;
+	Strip 0: 931.921
+	Strip 1: 952.352
+	Strip 2: 940.949
+	Strip 3: 810.919
+	Strip 4: 855.304
+	Strip 5: 846.156
+	Strip 6: 863.332
+	Strip 7: 859.137
+	Strip 8: 850.022
+	Strip 9: 846.599
+	Strip 10: 846.419
+	Strip 11: 837.503
+	Strip 12: 909.051
+	Strip 13: 936.118
+	Strip 14: 924.13
+	Strip 15: 919.581
+ * channelsHist_middle_calib_70_SSD_20u_2.root --- for middle energy peak;
+	Strip 0: 1185.74
+	Strip 1: 1213.52
+	Strip 2: 1197.25
+	Strip 3: 1035.02
+	Strip 4: 1089.48
+	Strip 5: 1080.73
+	Strip 6: 1100.3
+	Strip 7: 1096
+	Strip 8: 1083.38
+	Strip 9: 1081.18
+	Strip 10: 1079.5
+	Strip 11: 1068.99
+	Strip 12: 1158.15
+	Strip 13: 1193.23
+	Strip 14: 1177.05
+	Strip 15: 1171.95
+ * channelsHist_high_calib_70_SSD_20u_2.root --- for high energy peak;
+
+	Strip 0: 1532.01
+	Strip 1: 1569.7
+	Strip 2: 1545.89
+	Strip 3: 1340.13
+	Strip 4: 1409.4
+	Strip 5: 1401.2
+	Strip 6: 1423.97
+	Strip 7: 1419.78
+	Strip 8: 1402.38
+	Strip 9: 1401.42
+	Strip 10: 1397.73
+	Strip 11: 1384.5
+	Strip 12: 1495.12
+	Strip 13: 1544
+	Strip 14: 1521.81
+	Strip 15: 1516.07
+
+Dead layer estimation [um] by strips are stored in file: ./results/calib_70/SSD_20u_2/estimateDeadHist_calib_70_SSD_20u_2.root:
+	Strip 0: 2.4886
+	Strip 1: 2.54588
+	Strip 2: 2.97856
+	Strip 3: 2.82953
+	Strip 4: 2.25151
+	Strip 5: 2.24985
+	Strip 6: 2.27595
+	Strip 7: 2.1509
+	Strip 8: 2.13776
+	Strip 9: 2.36917
+	Strip 10: 2.35589
+	Strip 11: 2.64124
+	Strip 12: 3.92317
+	Strip 13: 2.47727
+	Strip 14: 2.62232
+	Strip 15: 2.56926
+
+Effective dead layer thickness is: 2.46291 [um].
+Calibration coefficients are stored in files: 
+ * calibCoeff_calib_70_SSD_20u_2.txt --- linear coefficient (a) in the first column, free coefficient (b) in the second
+ * calibCoeff_calib_70_SSD_20u_2_rev.txt --- reversed columns
+                  b         a 
+	Strip 0: -0.257616 0.00500876
+	Strip 1: -0.226727 0.00486877
+	Strip 2: -0.266112 0.00496887
+	Strip 3: -0.196327 0.00567987
+	Strip 4: -0.228891 0.0054243
+	Strip 5: -0.171399 0.00541501
+	Strip 6: -0.217788 0.00536096
+	Strip 7: -0.194975 0.00536082
+	Strip 8: -0.214419 0.00544121
+	Strip 9: -0.175899 0.00541725
+	Strip 10: -0.204135 0.00545179
+	Strip 11: -0.192167 0.00549498
+	Strip 12: -0.255263 0.00512958
+	Strip 13: -0.218444 0.00494447
+	Strip 14: -0.237527 0.005029
+	Strip 15: -0.223741 0.00503898

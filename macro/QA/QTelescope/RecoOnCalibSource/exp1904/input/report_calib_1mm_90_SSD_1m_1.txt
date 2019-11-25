@@ -1,0 +1,100 @@
+Calibration results. 
+
+Sliding window algorithm parameters: 
+  window width: 9
+  search region around peak: +-8
+  peak RMS: 6
+  peak amplitude threshold (with respect to maximal): 0.7
+ADC-channels counts are stored in files: 
+ * channelsHist_low_calib_1mm_90_SSD_1m_1.root --- for low energy peak;
+	Strip 0: 278.074
+	Strip 1: 284.404
+	Strip 2: 282.668
+	Strip 3: 290.582
+	Strip 4: 288.63
+	Strip 5: 289.883
+	Strip 6: 284.069
+	Strip 7: 285.502
+	Strip 8: 290.167
+	Strip 9: 277.028
+	Strip 10: 277.2
+	Strip 11: 275.162
+	Strip 12: 278.296
+	Strip 13: 274.8
+	Strip 14: 284.762
+	Strip 15: 290.174
+ * channelsHist_middle_calib_1mm_90_SSD_1m_1.root --- for middle energy peak;
+	Strip 0: 352.602
+	Strip 1: 359.425
+	Strip 2: 358.557
+	Strip 3: 367.223
+	Strip 4: 364.544
+	Strip 5: 366.126
+	Strip 6: 359.493
+	Strip 7: 362.347
+	Strip 8: 365.892
+	Strip 9: 351.66
+	Strip 10: 351.707
+	Strip 11: 349.094
+	Strip 12: 352.832
+	Strip 13: 348.852
+	Strip 14: 360.222
+	Strip 15: 367
+ * channelsHist_high_calib_1mm_90_SSD_1m_1.root --- for high energy peak;
+
+	Strip 0: 454.452
+	Strip 1: 461.892
+	Strip 2: 462.113
+	Strip 3: 471.808
+	Strip 4: 468.186
+	Strip 5: 470.095
+	Strip 6: 462.183
+	Strip 7: 467.535
+	Strip 8: 469.289
+	Strip 9: 453.812
+	Strip 10: 453.431
+	Strip 11: 450.118
+	Strip 12: 454.738
+	Strip 13: 450.218
+	Strip 14: 463.333
+	Strip 15: 472.239
+
+Dead layer estimation [um] by strips are stored in file: ./results/calib_1mm_90/SSD_1m_1/estimateDeadHist_calib_1mm_90_SSD_1m_1.root:
+	Strip 0: 2.19511
+	Strip 1: 2.28961
+	Strip 2: 2.44858
+	Strip 3: 2.44418
+	Strip 4: 2.36003
+	Strip 5: 2.56024
+	Strip 6: 2.82786
+	Strip 7: 1.91873
+	Strip 8: 2.33866
+	Strip 9: 1.93127
+	Strip 10: 2.35704
+	Strip 11: 2.21368
+	Strip 12: 2.12082
+	Strip 13: 1.91474
+	Strip 14: 2.21551
+	Strip 15: 1.79541
+
+Effective dead layer thickness is: 2.24572 [um].
+Calibration coefficients are stored in files: 
+ * calibCoeff_calib_1mm_90_SSD_1m_1.txt --- linear coefficient (a) in the first column, free coefficient (b) in the second
+ * calibCoeff_calib_1mm_90_SSD_1m_1_rev.txt --- reversed columns
+                  b         a 
+	Strip 0: -0.279404 0.0169864
+	Strip 1: -0.356917 0.0168803
+	Strip 2: -0.27597 0.0166967
+	Strip 3: -0.360403 0.0165326
+	Strip 4: -0.372333 0.0166861
+	Strip 5: -0.376089 0.0166259
+	Strip 6: -0.335692 0.0168224
+	Strip 7: -0.25424 0.0164579
+	Strip 8: -0.409664 0.0167265
+	Strip 9: -0.250203 0.0169467
+	Strip 10: -0.268884 0.017001
+	Strip 11: -0.267993 0.0171246
+	Strip 12: -0.281266 0.01698
+	Strip 13: -0.248697 0.0170787
+	Strip 14: -0.333645 0.0167778
+	Strip 15: -0.330033 0.0164548
