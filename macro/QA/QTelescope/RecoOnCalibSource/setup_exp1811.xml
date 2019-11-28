@@ -1,0 +1,197 @@
+<!--
+
+  //TODO write this up!!!
+
+  This XML config has to conform some very strict structure due to the fact
+  that it is expected to be read by some very primitive software, possibly
+  running on a very limited hardware.
+
+  NO SPACES ARE ALLOWED INSIDE ATTRIBUTE VALUES !!!
+  sorry for that
+
+  NO SPACES ARE ALLOWED BETWEEN THE ATTRIBUTE NAME, '=' SIGN AND THE ATTRIBUTE VALUE !!!
+  sorry for that
+
+  Thus it has to be strictly: name="value"
+
+
+  Raw message received from the electronics block CAEN V775 (elblock="V775")
+  is parsed: electronics channel 'ch' and TDC value are extracted.
+  Output ??? (how do we call this entity) is formed as if this message comes
+  from the left square telescope and contains time information.
+  This ??? is pushed into the "tSQX_L" branch of the output tree(station="tSQX_L")
+  which will be located in the detector "Left_telescope" (detector="Left_telescope").
+
+  ????????
+
+  Additional check can be implemented with the aid of a FIXED electronics description file
+  electronics.xml
+
+  module=geo
+  Module term is used by MESYTEC and geo is used by CAEN.
+
+  If there is data coming from some channel which you want to ignore, use "Ignore" station name.
+  If you don't - the 'Learn' step of the analysis will warn you that there is data from unmapped channels.
+
+-->
+
+<setup name="exp201811" period="2018" run="3" comment="2018_Oct_ACCULINNA2_beamtime">
+
+<crate name="VME0" procid="100">
+
+  <mapping addr="30"  elblock="RIO3"  startelectrch="0" nelectrch="32" station="rio3"  startstatch="0" detector="DAQ_status"/>
+  <mapping addr="0" elblock="V560N"  startelectrch="0" nelectrch="16"  station="scalers" startstatch="0" detector="DAQ_status"/>
+
+  <mapping addr="1" elblock="V775"  startelectrch="0" nelectrch="16"  station="tSSD20_L"  startstatch="0" detector="Left_telescope" digicomp="time"/>
+  <mapping addr="1" elblock="V775"  startelectrch="16"  nelectrch="16"  station="tSSD20_R"  startstatch="0" detector="Right_telescope"  digicomp="time"/>
+  <mapping addr="5" elblock="mADC"  startelectrch="0" nelectrch="16"  station="SSD20_L" startstatch="0" detector="Left_telescope" digicomp="amp"/>
+  <mapping addr="5" elblock="mADC"  startelectrch="16"  nelectrch="16"  station="SSD20_R" startstatch="0" detector="Right_telescope"  digicomp="amp"/>
+
+  <mapping addr="2" elblock="V775"  startelectrch="0" nelectrch="16"  station="tDSDX_L" startstatch="0" detector="Left_telescope" digicomp="time"/>
+  <mapping addr="2" elblock="V775"  startelectrch="16"  nelectrch="16"  station="tDSDY_L" startstatch="0" detector="Left_telescope" digicomp="time"/>
+  <mapping addr="6" elblock="mADC"  startelectrch="0" nelectrch="16"  station="DSDX_L"  startstatch="0" detector="Left_telescope" digicomp="amp"/>
+  <mapping addr="6" elblock="mADC"  startelectrch="16"  nelectrch="16"  station="DSDY_L"  startstatch="0" detector="Left_telescope" digicomp="amp"/>
+
+  <mapping addr="3" elblock="V775"  startelectrch="0" nelectrch="16"  station="tCsI" startstatch="0" detector="Central_telescope"  digicomp="time"/>
+  <mapping addr="3" elblock="V775"  startelectrch="16"  nelectrch="16"  station="tSSDY_R" startstatch="0" detector="Right_telescope"  digicomp="time"/>
+  <mapping addr="7" elblock="mADC"  startelectrch="0" nelectrch="16"  station="CsI"  startstatch="0" detector="Central_telescope"  digicomp="amp"/>
+  <mapping addr="7" elblock="mADC"  startelectrch="16"  nelectrch="16"  station="SSDY_R"  startstatch="0" detector="Right_telescope"  digicomp="amp"/>
+
+  <mapping addr="4" elblock="V775"  startelectrch="0" nelectrch="16"  station="tSSD_L"  startstatch="0" detector="Left_telescope" digicomp="time"/>
+  <mapping addr="4" elblock="V775"  startelectrch="16"  nelectrch="16"  station="tSSD_R"  startstatch="0" detector="Right_telescope"  digicomp="time"/>
+  <mapping addr="8" elblock="mADC"  startelectrch="0" nelectrch="16"  station="SSD_L" startstatch="0" detector="Left_telescope" digicomp="amp"/>
+  <mapping addr="8" elblock="mADC"  startelectrch="16"  nelectrch="16"  station="SSD_R" startstatch="0" detector="Right_telescope"  digicomp="amp"/>
+
+  <mapping addr="9" elblock="mADC"  startelectrch="0" nelectrch="32"  station="DSDX_C"  startstatch="0" detector="Central_telescope"  digicomp="amp"/>
+  <mapping addr="10"  elblock="mADC"  startelectrch="0" nelectrch="32"  station="DSDY_C"  startstatch="0" detector="Central_telescope"  digicomp="amp"/>
+
+  <mapping addr="11"  elblock="mQDC"  startelectrch="0" nelectrch="4" station="F3"  startstatch="0" detector="Beam_detector"  digicomp="amp"/>
+  <mapping addr="11"  elblock="mQDC"  startelectrch="4" nelectrch="4" station="F5"  startstatch="0" detector="Beam_detector"  digicomp="amp"/>
+  <mapping addr="11"  elblock="mQDC"  startelectrch="8" nelectrch="4" station="F6"  startstatch="0" detector="Beam_detector"  digicomp="amp"/>
+
+  <mapping addr="12"  elblock="mTDC"  startelectrch="0" nelectrch="4" station="tF3" startstatch="0" detector="Beam_detector"  digicomp="time"/>
+  <mapping addr="12"  elblock="mTDC"  startelectrch="4" nelectrch="4" station="tF5" startstatch="0" detector="Beam_detector"  digicomp="time"/>
+  <mapping addr="12"  elblock="mTDC"  startelectrch="8" nelectrch="4" station="tF6" startstatch="0" detector="Beam_detector"  digicomp="time"/>
+  <mapping addr="12"  elblock="mTDC"  startelectrch="12"  nelectrch="4" station="tMWPC" startstatch="0" detector="Beam_detector"  digicomp="time"/>
+
+  <mapping addr="13"  elblock="mTDC"  startelectrch="0" nelectrch="32"  station="tDSDX_C" startstatch="0" detector="Central_telescope"  digicomp="time"/>
+  <mapping addr="14"  elblock="mTDC"  startelectrch="0" nelectrch="32"  station="tDSDY_C" startstatch="0" detector="Central_telescope"  digicomp="time"/>
+
+<!-- below goes what is ignored (data is present, but not included into online analysis) for this crate 
+  <mapping addr="1" elblock="TDC" startelectrch="0" nelectrch="32"  station="Ignore"  startstatch="0" detector="Ignore"/>
+  <mapping addr="2" elblock="TDC" startelectrch="0" nelectrch="32"  station="Ignore"  startstatch="0" detector="Ignore"/>
+  <mapping addr="3" elblock="TDC" startelectrch="0" nelectrch="32"  station="Ignore"  startstatch="0" detector="Ignore"/>
+  <mapping addr="4" elblock="TDC" startelectrch="0" nelectrch="32"  station="Ignore"  startstatch="0" detector="Ignore"/>
+  <mapping addr="10"  elblock="mADC"  startelectrch="0" nelectrch="32"  station="Ignore"  startstatch="0" detector="Ignore"/>
+
+-->
+  <mapping addr="11"  elblock="mQDC"  startelectrch="12"  nelectrch="20"  station="Ignore"  startstatch="0" detector="Ignore"/>
+ <!-- <mapping addr="10"  elblock="mADC"  startelectrch="16"  nelectrch="32"  station="Ignore"  startstatch="0" detector="Ignore"/>-->
+
+  </crate>
+
+<crate name="VME1" procid="200">
+
+  <mapping addr="2" elblock="mTDC"  startelectrch="0" nelectrch="32"  stepelectrch="1"  station="neutTDC" startstatch="0" detector="Neutron_detector" digicomp="time"/>
+
+  <mapping addr="0" elblock="V785"  startelectrch="0" nelectrch="32"  stepelectrch="2"  station="neutAmp" startstatch="0" detector="Neutron_detector" digicomp="amp"/>
+  <mapping addr="0" elblock="V785"  startelectrch="1" nelectrch="32"  stepelectrch="2"  station="neutTAC" startstatch="0" detector="Neutron_detector" digicomp="tac"/>
+  <mapping addr="1" elblock="V785"  startelectrch="0" nelectrch="32"  stepelectrch="2"  station="neutAmp" startstatch="16"  detector="Neutron_detector" digicomp="amp"/>
+  <mapping addr="1" elblock="V785"  startelectrch="1" nelectrch="32"  stepelectrch="2"  station="neutTAC" startstatch="16"  detector="Neutron_detector" digicomp="tac"/>
+
+</crate>
+
+<crate name="CAMAC" procid="101">
+  <mapping addr="0" elblock="other" startelectrch="0" nelectrch="32"  station="MWPC1" startstatch="0" detector="Beam_detector" digicomp="amp"/>
+  <mapping addr="1" elblock="other" startelectrch="0" nelectrch="32"  station="MWPC2" startstatch="0" detector="Beam_detector" digicomp="amp"/>
+  <mapping addr="2" elblock="other" startelectrch="0" nelectrch="32"  station="MWPC3" startstatch="0" detector="Beam_detector" digicomp="amp"/>
+  <mapping addr="3" elblock="other" startelectrch="0" nelectrch="32"  station="MWPC4" startstatch="0" detector="Beam_detector" digicomp="amp"/>
+
+</crate>
+
+</setup>
+
+
+
+<!-- this code below is from Egor, use as an example, but see mapping in old library
+
+  <mapping addr="6" elblock="mADC"  startelectrch="0" nelectrch="32"  station="SQX_R" startstatch="0" detector="Right_telescope"  digicomp="amp"/>
+
+  <mapping addr="7" elblock="mADC"  startelectrch="0" nelectrch="16"  station="SQY_L" startstatch="0" detector="Left_telescope" digicomp="amp"/>
+  <mapping addr="7" elblock="mADC"  startelectrch="16"  nelectrch="16"  station="SQY_R" startstatch="0" detector="Right_telescope"  digicomp="amp"/>
+
+
+  <mapping addr="8" elblock="mADC"  startelectrch="0" nelectrch="16"  station="CsI_L" startstatch="0" detector="Left_telescope" digicomp="amp"/>
+  <mapping addr="8" elblock="mADC"  startelectrch="16"  nelectrch="16"  station="CsI_R" startstatch="0" detector="Right_telescope"  digicomp="amp"/>
+
+  <mapping addr="9" elblock="mADC"  startelectrch="0" nelectrch="32"  station="Ignore"  startstatch="0" detector="Ignore"/>
+
+  <mapping addr="10"  elblock="mQDC"  startelectrch="0" nelectrch="4" station="F3"  startstatch="0" detector="Beam_detector_ToF"  digicomp="amp"/>
+  <mapping addr="10"  elblock="mQDC"  startelectrch="4" nelectrch="4" station="F5"  startstatch="0" detector="Beam_detector_ToF"  digicomp="amp"/>
+  <mapping addr="10"  elblock="mQDC"  startelectrch="8" nelectrch="4" station="F6"  startstatch="0" detector="Beam_detector_ToF"  digicomp="amp"/>
+
+  <mapping addr="10"  elblock="mQDC"  startelectrch="16"  nelectrch="16"  station="Ignore"  startstatch="0" detector="Ignore"/>
+  
+  <mapping addr="11"  elblock="mTDC"  startelectrch="0" nelectrch="4" station="tF3" startstatch="0" detector="Beam_detector_ToF"  digicomp="time"/>
+  <mapping addr="11"  elblock="mTDC"  startelectrch="4" nelectrch="4" station="tF5" startstatch="0" detector="Beam_detector_ToF"  digicomp="time"/>
+  <mapping addr="11"  elblock="mTDC"  startelectrch="8" nelectrch="4" station="tF6" startstatch="0" detector="Beam_detector_ToF"  digicomp="time"/>
+  <mapping addr="11"  elblock="mTDC"  startelectrch="12"  nelectrch="4" station="tMWPC" startstatch="0" detector="Beam_detector_MWPC" digicomp="time"/>
+  -->
+
+<!--
+  <mapping addr="12"  elblock="mTDC"  startelectrch="0" nelectrch="16"  station="tSQ300"  startstatch="0" detector="Left_telescope" digicomp="time"/>
+
+  <mapping addr="1" elblock="V775"  startelectrch="0" nelectrch="32"  station="tSQX_L"  startstatch="0" detector="Left_telescope" digicomp="time"/>
+  <mapping addr="2" elblock="V775"  startelectrch="0" nelectrch="32"  station="tSQX_R"  startstatch="0" detector="Right_telescope"  digicomp="time"/>
+
+  <mapping addr="3" elblock="V775"  startelectrch="0" nelectrch="16"  station="tSQY_L"  startstatch="0" detector="Left_telescope" digicomp="time"/>
+  <mapping addr="3" elblock="V775"  startelectrch="16"  nelectrch="16"  station="tSQY_R"  startstatch="0" detector="Right_telescope"  digicomp="time"/>
+  <mapping addr="4" elblock="V775"  startelectrch="0" nelectrch="16"  station="tCsI_L"  startstatch="0" detector="Left_telescope" digicomp="time"/>
+  <mapping addr="4" elblock="V775"  startelectrch="16"  nelectrch="16"  station="tCsI_R"  startstatch="0" detector="Right_telescope"  digicomp="time"/>
+-->
+
+
+<!--
+
+  XML reminder
+  ============
+
+  'Standard' combination consists of an opening tag which starts with the '<' sign
+  and the closing tag which starts with the '</' sign. Both end with the '>' sign.
+  A closing tag should have no attributes.
+
+  <tag attribute1="value">
+  </tag>
+
+  Self-closing tag starts with the '<' sign and ends with the '/>' sign.
+  Obviously, it needs no closing tag.
+
+  <tag attribute1="value" attribute2="value"/>
+
+  Attributes are separated by spaces or tabs (no commas!)
+
+  Double-quotes around the attribute value are necessary.
+
+  Order or attributes does not matter - it is ignored by any clever (=correctly) developed software.
+
+  There can be missing attributes if the reading software covers such situations.
+  In our particular case 'stepelectrch' attribute can be omitted while all the other are necessary.
+  If omitted, stepelectrch=1
+
+  comment start: less-exclamation-minus-minus
+  comment end: minus-minus-more
+
+  Neutron detector readout
+  ========================
+
+  PMT 1-4 => MPD4 №1 => MADC №1 ch 1-8
+  PMT 5-8 => MPD4 №2 => MADC №1 ch 9-16
+  PMT 9-12 => MPD4 №3 => MADC №1 ch 17-24
+  PMT 13-16 => MPD4 №4 => MADC №1 ch 25-32
+
+  PMT 17-20 => MPD4 №5 => MADC №2 ch 1-8
+  PMT 21-24 => MPD4 №6 => MADC №2 ch 9-16
+  PMT 25-28 => MPD4 №7 => MADC №2 ch 17-24
+  PMT 29-32 => MPD4 №8 => MADC №2 ch 25-32
+
+-->
