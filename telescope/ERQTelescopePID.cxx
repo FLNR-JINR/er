@@ -74,7 +74,6 @@ InitStatus ERQTelescopePID::Init() {
       Int_t bPrefixNameLength = bFullName.First('_'); 
       TString brName(bFullName(bPrefixNameLength + 1, bFullName.Length()));
       fQTelescopeTrack[brName] = (TClonesArray*) ioman->GetObject(bFullName);
-
       //Creating particles collections for every track collection
       for (auto itPDG : fStationParticles[brName]){
         TString brParticleName;
@@ -134,7 +133,6 @@ void ERQTelescopePID::Exec(Option_t* opt) {
 
         // AddParticle(lvTelescope, lvTarget, deadEloss,itParticesBranches.second);
         AddParticle(lvTelescope, lvTarget, deadEloss, itParticesBranches.second, fT);
-
       }
 
     }
@@ -173,19 +171,18 @@ ERQTelescopeParticle* ERQTelescopePID::AddParticle(TLorentzVector lvTelescope,
                                         ERQTelescopeParticle(lvTelescope,lvTarget,deadEloss,T);
   return particle;
 }
-
 Double_t CalcElossIntegralVolStep (Double_t T, G4ParticleDefinition* ion, 
                                    G4Material* mat, Double_t range) 
 { 
   Double_t integralEloss = 0.;
-  Double_t intStep = range / 5.;
+  Double_t intStep = range / 20;
   Double_t curStep = 0.;
-
   G4EmCalculator* calc = new G4EmCalculator();
-  while (curStep <= range) {
+  while (curStep < range) {
     Double_t eloss = calc->GetDEDX(T*1e3,ion,mat)*intStep*10*1e-3;
     integralEloss += eloss;
-    T -= eloss;
+    T += eloss;
+    //std::cout << "CalcElossIntegralVolStep T" << T << "; eloss " << eloss << "; integralEloss " << integralEloss << std::endl;
     curStep += intStep;
   }
   return integralEloss;
@@ -246,6 +243,10 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
     }
     
     Double_t range = gGeoManager->GetStep();
+    if (TString(gGeoManager->GetPath()).Contains("target")) {
+      inTarget = kTRUE;
+      range /= 2.;
+    }
     Double_t edep = CalcElossIntegralVolStep(T, ion, mat, range);
 
     node = gGeoManager->GetCurrentNode();
@@ -255,8 +256,6 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
     LOG(DEBUG) <<" [CalcEloss]    range  = " << range << FairLogger::endl;
     LOG(DEBUG) <<" [CalcEloss]    edep = " << edep << FairLogger::endl;
 
-    if (TString(gGeoManager->GetPath()).Contains("target"))
-      inTarget = kTRUE;
 
     if (inTarget)
       tarEdep+=edep;
@@ -267,8 +266,6 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
     node = gGeoManager->Step();
   }
   
-  T += tarEdep/2.;
-  sumLoss -= tarEdep/2.;
   fT = T;
   LOG(DEBUG) <<" [CalcEloss] Target Eloss = " <<  tarEdep << FairLogger::endl;
   LOG(DEBUG) <<" [CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::endl;
@@ -317,9 +314,6 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(TGeoNode* node){
         found = kTRUE;
         LOG(DEBUG) << " [CalcEloss]   Found digi with edep " << digi->GetEdep() << FairLogger::endl;
         edep = digi->GetEdep();
-        if (stripNb == 6) {
-          // std::cout << "brName, stripNb, edep: " << brName << " " << stripNb << " " << edep << std::endl;
-        }
         break;
       }
     }
