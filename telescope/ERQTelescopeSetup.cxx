@@ -177,6 +177,16 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
               GetTransInMotherNode(singleSiStrip, stripInStationTrans);
               qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
               qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
+	      LOG(DEBUG) << qtelescopeStationName << " strip " 
+		         << iSingleSiStrip << " global coordinates: "
+		         << stripGlobTrans[0] << ", " 
+		         << stripGlobTrans[1] << ", " 
+		         << stripGlobTrans[2]; 
+			  
+	      LOG(DEBUG) << " | local coordinates: " 		         
+		         << stripInStationTrans[0] << ", " 
+		         << stripInStationTrans[1] << ", " 
+		         << stripInStationTrans[2] << FairLogger::endl; 
               fStrips[qtelescopeStationName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans));            
             }
           }
