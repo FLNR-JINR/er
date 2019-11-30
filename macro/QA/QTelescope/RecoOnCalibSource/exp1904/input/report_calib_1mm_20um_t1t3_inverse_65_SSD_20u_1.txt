@@ -1,0 +1,100 @@
+Calibration results. 
+
+Sliding window algorithm parameters: 
+  window width: 19
+  search region around peak: +-8
+  peak RMS: 6
+  peak amplitude threshold (with respect to maximal): 0.6
+ADC-channels counts are stored in files: 
+ * channelsHist_low_calib_1mm_20um_t1t3_inverse_65_SSD_20u_1.root --- for low energy peak;
+	Strip 0: 890.163
+	Strip 1: 888.692
+	Strip 2: 868.348
+	Strip 3: 879.098
+	Strip 4: 866.584
+	Strip 5: 878.429
+	Strip 6: 885.425
+	Strip 7: 890.162
+	Strip 8: 880.462
+	Strip 9: 878.176
+	Strip 10: 871.627
+	Strip 11: 872.133
+	Strip 12: 884.652
+	Strip 13: 865.817
+	Strip 14: 876.431
+	Strip 15: 862.014
+ * channelsHist_middle_calib_1mm_20um_t1t3_inverse_65_SSD_20u_1.root --- for middle energy peak;
+	Strip 0: 1140.75
+	Strip 1: 1139.07
+	Strip 2: 1112.96
+	Strip 3: 1128.14
+	Strip 4: 1110.42
+	Strip 5: 1126.36
+	Strip 6: 1133.97
+	Strip 7: 1140.9
+	Strip 8: 1128.5
+	Strip 9: 1126.34
+	Strip 10: 1116.42
+	Strip 11: 1117.16
+	Strip 12: 1132.2
+	Strip 13: 1109.26
+	Strip 14: 1121.42
+	Strip 15: 1104.76
+ * channelsHist_high_calib_1mm_20um_t1t3_inverse_65_SSD_20u_1.root --- for high energy peak;
+
+	Strip 0: 1482.2
+	Strip 1: 1481
+	Strip 2: 1446.67
+	Strip 3: 1468.34
+	Strip 4: 1443.4
+	Strip 5: 1465.01
+	Strip 6: 1473.17
+	Strip 7: 1483.43
+	Strip 8: 1467.05
+	Strip 9: 1465.33
+	Strip 10: 1450.44
+	Strip 11: 1451.75
+	Strip 12: 1469.83
+	Strip 13: 1441.59
+	Strip 14: 1456.2
+	Strip 15: 1437.12
+
+Dead layer estimation [um] by strips are stored in file: ./results/calib_1mm_20um_t1t3_inverse_65/SSD_20u_1/estimateDeadHist_calib_1mm_20um_t1t3_inverse_65_SSD_20u_1.root:
+	Strip 0: 2.69176
+	Strip 1: 2.31028
+	Strip 2: 2.48915
+	Strip 3: 2.26619
+	Strip 4: 2.31777
+	Strip 5: 2.27806
+	Strip 6: 2.42237
+	Strip 7: 2.26387
+	Strip 8: 2.40255
+	Strip 9: 2.26621
+	Strip 10: 2.4566
+	Strip 11: 2.33074
+	Strip 12: 2.53174
+	Strip 13: 2.37691
+	Strip 14: 2.2102
+	Strip 15: 1.8787
+
+Effective dead layer thickness is: 2.34332 [um].
+Calibration coefficients are stored in files: 
+ * calibCoeff_calib_1mm_20um_t1t3_inverse_65_SSD_20u_1.txt --- linear coefficient (a) in the first column, free coefficient (b) in the second
+ * calibCoeff_calib_1mm_20um_t1t3_inverse_65_SSD_20u_1_rev.txt --- reversed columns
+                  b         a 
+	Strip 0: -0.0831946 0.00506811
+	Strip 1: -0.0727727 0.00506547
+	Strip 2: -0.0765047 0.00518811
+	Strip 3: -0.047239 0.00509179
+	Strip 4: -0.078763 0.0052016
+	Strip 5: -0.0642162 0.00511498
+	Strip 6: -0.0913653 0.00510495
+	Strip 7: -0.0728354 0.00505726
+	Strip 8: -0.0748178 0.00511497
+	Strip 9: -0.0584501 0.0051099
+	Strip 10: -0.0896657 0.00518375
+	Strip 11: -0.0857051 0.00517644
+	Strip 12: -0.107472 0.00512742
+	Strip 13: -0.08306 0.00521106
+	Strip 14: -0.106474 0.00517498
+	Strip 15: -0.0672452 0.00521665
