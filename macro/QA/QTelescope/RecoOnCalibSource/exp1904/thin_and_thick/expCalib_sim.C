@@ -3,8 +3,7 @@ void expCalib_sim (Int_t nEvents = 1) {
   TString outFile = "sim_digi_Calib.root";
   TString parFile = "par_Calib.root";
   TString workDirPath = gSystem->Getenv("VMCWORKDIR");
-  TString paramFileQTelescope = workDirPath
-                         + "/db/QTelescope/QTelescopeParts_postcalibEXP1904.xml";
+  TString paramFileQTelescope = "../input/QTelescopeParts_postcalibEXP1904.xml";
   TString targetGeoFileName = workDirPath + "/geometry/siSource.geo.root";
   // -----   Timer   --------------------------------------------------------
   //
@@ -32,7 +31,7 @@ void expCalib_sim (Int_t nEvents = 1) {
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
 
-  FairModule* target = new ERTarget("Target", kTRUE,1);
+  FairModule* target = new ERTarget("Target", kTRUE, 1);
   target->SetGeometryFileName("siSource.geo.root");
   run->AddModule(target);
    
@@ -42,23 +41,27 @@ void expCalib_sim (Int_t nEvents = 1) {
   setupQTelescope->SetXMLParametersFile(paramFileQTelescope);
   setupQTelescope->SetGeoName("QTelescopeTmp");
 
-  // ----- LEFT parameters ----------------------------------------------------
-  Double_t radius = 40.;
-  
-  TVector3 rotationL(0., 0., 0.);
-  Double_t xPos = radius * TMath::Sin(rotationL.Y() * TMath::DegToRad());
-  Double_t yPos = 0.;
-  Double_t zPos = radius * TMath::Cos(rotationL.Y() * TMath::DegToRad());
-  ERGeoSubAssembly* assembly_Left = new ERGeoSubAssembly("Telescope_1", TVector3(xPos, yPos, zPos), rotationL);
-  ERQTelescopeGeoComponentSingleSi* thin_1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_1", 
-                                                                                  TVector3(0., 0., 0.), TVector3(), "Y");
-  ERQTelescopeGeoComponentSingleSi* thick_1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_1", "X");
+  Double_t w_thin = 5.;
+  Double_t w_thick = 6.6;
+  Double_t l = 40.;
 
-  assembly_Left->AddComponent(thin_1);
-  assembly_Left->AddComponent(thick_1, TVector3(0, 0, 1.5), TVector3(0, 0, 0));
+  // ----- SSD_1 parameters --------------------------------------------------
+  ERGeoSubAssembly* telescope1 = new ERGeoSubAssembly("Telescope_1", TVector3(-w_thick, w_thick / 2, l), TVector3());
+  ERQTelescopeGeoComponentSingleSi* thin_1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_1", "X");
+  ERQTelescopeGeoComponentSingleSi* thick_1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_1", "Y");
 
-  setupQTelescope->AddSubAssembly(assembly_Left);
+  telescope1->AddComponent(thin_1, TVector3((w_thick - w_thin) / 2, -(w_thick - w_thin) / 2, 0), TVector3(0, 0, 0));
+  telescope1->AddComponent(thick_1, TVector3(0, 0, 1.5), TVector3(0, 0, 0));
+  // ----- SSD_1 parameters --------------------------------------------------
+  ERGeoSubAssembly* telescope2 = new ERGeoSubAssembly("Telescope_2", TVector3(-w_thick / 2, -w_thick, l), TVector3());
+  ERQTelescopeGeoComponentSingleSi* thin_2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_2", "Y");
+  ERQTelescopeGeoComponentSingleSi* thick_2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_2", "X");
 
+  telescope2->AddComponent(thin_2, TVector3((w_thick - w_thin) / 2, (w_thick - w_thin) / 2, 0), TVector3(0, 0, 0));
+  telescope2->AddComponent(thick_2, TVector3(0, 0, 1.5), TVector3(0, 0, 0));
+
+  setupQTelescope->AddSubAssembly(telescope1);
+  setupQTelescope->AddSubAssembly(telescope2);
   // ------QTelescope -------------------------------------------------------
   ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE, verbose);
   run->AddModule(qtelescope);

@@ -101,9 +101,6 @@ Double_t ERQTelescopeSetup::GetStripLocalZ(TString componentBranchName, Int_t st
 void ERQTelescopeSetup::GetTransInMotherNode (TGeoNode const* node, Double_t b[3]) {
   memcpy(b, node->GetMatrix()->GetTranslation(), sizeof(double)*3);
 }
-// Написать несколько методов для работы с объемами:
-// 1) Функция получения координаты в глобальной СК. (скорее всего функция в п.1) 
-//    Проход от самого низкого дочернего объема до родительского внтри одной функции
 // ------------------------------- -------------------------------------------------------------------
 void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
   if ( ! gGeoManager ) {
