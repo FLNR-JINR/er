@@ -46,14 +46,14 @@ void expCalib_sim (Int_t nEvents = 1) {
   Double_t l = 40.;
 
   // ----- SSD_1 parameters --------------------------------------------------
-  ERGeoSubAssembly* telescope1 = new ERGeoSubAssembly("Telescope_1", TVector3(-w_thick, w_thick / 2, l), TVector3());
+  ERGeoSubAssembly* telescope1 = new ERGeoSubAssembly("Telescope_1", TVector3(-3*w_thick/4, w_thick / 4, l), TVector3());
   ERQTelescopeGeoComponentSingleSi* thin_1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_1", "X");
   ERQTelescopeGeoComponentSingleSi* thick_1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_1", "Y");
 
   telescope1->AddComponent(thin_1, TVector3((w_thick - w_thin) / 2, -(w_thick - w_thin) / 2, 0), TVector3(0, 0, 0));
   telescope1->AddComponent(thick_1, TVector3(0, 0, 1.5), TVector3(0, 0, 0));
   // ----- SSD_1 parameters --------------------------------------------------
-  ERGeoSubAssembly* telescope2 = new ERGeoSubAssembly("Telescope_2", TVector3(-w_thick / 2, -w_thick, l), TVector3());
+  ERGeoSubAssembly* telescope2 = new ERGeoSubAssembly("Telescope_2", TVector3(-w_thick / 4, -3*w_thick/4, l), TVector3());
   ERQTelescopeGeoComponentSingleSi* thin_2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_2", "Y");
   ERQTelescopeGeoComponentSingleSi* thick_2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_2", "X");
 

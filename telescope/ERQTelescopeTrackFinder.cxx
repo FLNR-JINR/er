@@ -29,7 +29,7 @@ ERQTelescopeTrackFinder::ERQTelescopeTrackFinder()
     //@Todo инициализация всех переменных
 {
   fAvailibleRunManagers.push_back("ERRunAna");
-  fQTelescopeSetup = ERQTelescopeSetup::Instance();
+  fQTelSetup = ERQTelescopeSetup::Instance();
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeTrackFinder::ERQTelescopeTrackFinder(Int_t verbose)
@@ -38,18 +38,18 @@ ERQTelescopeTrackFinder::ERQTelescopeTrackFinder(Int_t verbose)
     fBeamDetTrack(NULL)
 {
   fAvailibleRunManagers.push_back("ERRunAna");
-  fQTelescopeSetup = ERQTelescopeSetup::Instance();
+  fQTelSetup = ERQTelescopeSetup::Instance();
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeTrackFinder::~ERQTelescopeTrackFinder() {
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString componentId) {
-  TString xStripArrayName = componentId;
-  TString yStripArrayName = componentId;
+  TString xStrArrayName = componentId;
+  TString yStrArrayName = componentId;
   fSiHitStationsPair[subassemblyName].emplace(make_pair(componentId, 
-                                       pair<TString, TString>(xStripArrayName.Append("_X"), 
-                                                              yStripArrayName.Append("_Y"))));
+                                       pair<TString, TString>(xStrArrayName.Append("_X"), 
+                                                              yStrArrayName.Append("_Y"))));
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString componentIdX,
@@ -85,15 +85,15 @@ InitStatus ERQTelescopeTrackFinder::Init() {
     if (bFullName.Contains("Digi") && bFullName.Contains("QTelescope")) {
       Int_t bPrefixNameLength = bFullName.First('_'); 
       TString brName(bFullName(bPrefixNameLength + 1, bFullName.Length()));
-      fQTelescopeDigi[brName] = (TClonesArray*) ioman->GetObject(bFullName);
+      fQTelDigi[brName] = (TClonesArray*) ioman->GetObject(bFullName);
     }
   }
   // Register output track branches only for stations that are setted by interface SetStation(){
   for (const auto itSubassemblies : fSiHitStationsPair) {
     for (const auto itComponent : itSubassemblies.second) {
-      fQTelescopeTrack[itComponent.first] = new TClonesArray("ERQTelescopeTrack");
+      fQTelTrack[itComponent.first] = new TClonesArray("ERQTelescopeTrack");
       ioman->Register("ERQTelescopeTrack_" + itComponent.first, "QTelescope", 
-                      fQTelescopeTrack[itComponent.first], kTRUE);
+                      fQTelTrack[itComponent.first], kTRUE);
     }
   }
 
@@ -107,7 +107,7 @@ InitStatus ERQTelescopeTrackFinder::Init() {
     } 
   }
 
-  fQTelescopeSetup->ERQTelescopeSetup::ReadGeoParamsFromParContainer();
+  fQTelSetup->ERQTelescopeSetup::ReadGeoParamsFromParContainer();
 
   //@TODO check setup and digi branch names
   
@@ -166,7 +166,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
           }
         }
       }
-      LOG(DEBUG) << "Strips array pair " << itComponent.second.first << " " 
+      LOG(DEBUG) << "Strs array pair " << itComponent.second.first << " " 
                                          << itComponent.second.second << FairLogger::endl;
       LOG(DEBUG) << "Hits count on pair " << hitTelescopePoint.size() << FairLogger::endl;
       for (const auto& itHitPoint : hitTelescopePoint) {
@@ -235,7 +235,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::Reset() {
-  for (const auto itTrackBranches : fQTelescopeTrack) {
+  for (const auto itTrackBranches : fQTelTrack) {
     if (itTrackBranches.second) {
       itTrackBranches.second->Delete();
     }
@@ -252,10 +252,10 @@ ERQTelescopeTrack* ERQTelescopeTrackFinder::AddTrack(Double_t targetX, Double_t 
                                                      Double_t localX,  Double_t  localY, 
                                                      Double_t localZ,
                                                      Double_t sumEdep,
-                                                     TString digiBranchName) 
+                                                     TString digiBrName) 
 {
-  ERQTelescopeTrack *track = new((*fQTelescopeTrack[digiBranchName])
-                                                   [fQTelescopeTrack[digiBranchName]->GetEntriesFast()])
+  ERQTelescopeTrack *track = new((*fQTelTrack[digiBrName])
+                                  [fQTelTrack[digiBrName]->GetEntriesFast()])
                              ERQTelescopeTrack( targetX, targetY, targetZ, 
                                                 globalX, globalY, globalZ,
                                                 localX,  localY,  localZ,

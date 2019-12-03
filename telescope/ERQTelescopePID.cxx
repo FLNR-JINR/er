@@ -139,7 +139,10 @@ void ERQTelescopePID::Reset() {
 void ERQTelescopePID::Finish() {   
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeParticle* ERQTelescopePID::AddParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget, Double_t deadEloss, TClonesArray* col) 
+ERQTelescopeParticle* ERQTelescopePID::AddParticle(TLorentzVector lvTelescope, 
+                                                   TLorentzVector lvTarget, 
+						   Double_t deadEloss, 
+						   TClonesArray* col) 
 {
   ERQTelescopeParticle *particle = new((*col)
                                         [col->GetEntriesFast()])
@@ -324,8 +327,6 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(TGeoNode* node){
     if (!found)
       LOG(WARNING) << " [CalcEloss]   Digi with strip number " << stripNb << " not found in collection" << FairLogger::endl;
   }
-
-
   return edep;
 }
 //--------------------------------------------------------------------------------------------------
