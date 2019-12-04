@@ -1,10 +1,10 @@
 void digibuilder_postclbEXP1904(Int_t nEvents = 1443710) {
-  //TString intdir_converted = "/opt/keeper/stock/kozlov/calib201907/digibulder/alltel_90/";
-  TString intdir_converted = "../input/";
+  TString intdir_converted = "/opt/keeper/stock/kozlov/calib201907/digibulder/alltel_90/";
+  //TString intdir_converted = "../input/";
   TString intdir_settings = "../input/";
 
   //TString rootAqqDaqFile = "alltel_90_1to8.root";
-  TString rootAqqDaqFile = "alltel_90_0009.lmd.root";
+  TString rootAqqDaqFile = "alltel_90.lml.root";
 
   TString confFile = "../input/setupEXP1904.xml"; // check where is setup file is really stored
   auto file = TFile::Open((intdir_converted + rootAqqDaqFile).Data());
@@ -12,7 +12,7 @@ void digibuilder_postclbEXP1904(Int_t nEvents = 1443710) {
   nEvents = tree->GetEntriesFast();//1443710
 
   // --- Specify output file name (this is just an example)
-  TString outFile = "alltel_90_0009.root";
+  TString outFile = "alltel_90.root";
 
   std::cout << ">>> input  file is " << rootAqqDaqFile  << std::endl;
   std::cout << ">>> output file is " << outFile << std::endl;

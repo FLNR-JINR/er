@@ -13,7 +13,7 @@ void fileAnalysis() {
   TString lvLeave = "fT";
   auto canv = new TCanvas();
   cout << trackBr+xCoord << endl;
-  auto saveFile = TFile::Open("expCalib_reco_SSD_1m_1_st14.root", "RECREATE");
+  auto saveFile = TFile::Open("expCalib_reco_hists.root", "RECREATE");
   double delta = 0.05;
   double thinStartLoc = -2.344;
   double thickStartLoc = -2.85;
@@ -25,18 +25,25 @@ void fileAnalysis() {
   double startCoordX = thinStartLoc;
   double startCoordY = thickStartLoc;
   TString histParams = "(1048, 0, 10.24e-3)";
+  vector<TH1D*> hists;
   for (int i = 0; i < 16; i++) {
-    double currCoordY = startCoordY + i*stepY;
-    
-    TString cond;
-    cond.Form("%s>%lf&&%s<%lf&&%s>%lf&&%s<%lf", yCoord.Data(), currCoordY - delta, 
-		                                  yCoord.Data(), currCoordY + delta, 
-					          xCoord.Data(), startCoordX - delta,
-					          xCoord.Data(), startCoordX + delta);
-    TString histName;
-    histName.Form("strip_%d", i);
-    tree->Draw(partBr+lvLeave + ">>" + histName + histParams, cond);
+    double currCoordX = startCoordX + i*stepX;
+    for (int j = 0; j < 16; j++) {
+      TString histName;
+      histName.Form("pixel_X-%d_Y-%d", i, j);
+      auto hist = new TH1D(histName, histName, 1024, 0, 10.24e-3);
+      hist->GetYaxis()->SetTitle("Counts, [1]");
+      hist->GetXaxis()->SetTitle("E, [GeV]");
+      double currCoordY = startCoordY + j*stepY;
+      TString cond;
+      cond.Form("%s>%lf&&%s<%lf&&%s>%lf&&%s<%lf", yCoord.Data(), currCoordY - delta, 
+                                                  yCoord.Data(), currCoordY + delta, 
+						  xCoord.Data(), currCoordX - delta,
+						  xCoord.Data(), currCoordX + delta);
+      tree->Draw(partBr+lvLeave + ">>" + histName, cond);
+      hist->Write();
+    }
   }
-  saveFile->Write();
+  //saveFile->Write();
   saveFile->Close();
 } 
