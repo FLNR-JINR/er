@@ -45,7 +45,6 @@ public:
   void SetStripEdepRange(Double_t edepMin, Double_t edepMax);
   void SetEdepMaxDiffXY(Double_t edepDiff) {fEdepDiffXY = edepDiff;}
   void SetTargetPoint(Double_t x, Double_t y, Double_t z);
-
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding.
@@ -65,12 +64,12 @@ public:
   
 protected:
   //Paramaters
-  ERQTelescopeSetup                   *fQTelescopeSetup;      ///< access to ERQTelescopeSetup class instance
+  ERQTelescopeSetup                   *fQTelSetup;      ///< access to ERQTelescopeSetup class instance
   //Input arrays
-  std::map<TString, TClonesArray*>    fQTelescopeDigi;
+  std::map<TString, TClonesArray*>    fQTelDigi;
   TClonesArray                        *fBeamDetTrack;
   //Output arrays
-  std::map<TString, TClonesArray*>    fQTelescopeTrack;
+  std::map<TString, TClonesArray*>    fQTelTrack;
   
   std::map<TString, map<TString, pair<TString, TString>>> fSiHitStationsPair; //// map<subassembly,map<component, pair<xBranch, yBranch>>> 
 
@@ -82,14 +81,13 @@ protected:
   Double_t fTargetY;
   Double_t fTargetZ;
   Bool_t   fUserTargetPointIsSet;
-
 private:
   /** @brief Adds a ERQTelescopeTrack to the output Collection **/
   ERQTelescopeTrack* AddTrack(Double_t targetX, Double_t targetY, Double_t targetZ,  
                               Double_t globalX, Double_t globalY, Double_t globalZ,
                               Double_t localX,  Double_t localY,  Double_t localZ,
                               Double_t sumEdep,
-                              TString digiBranchName);
+                              TString digiBrName);
 
   ClassDef(ERQTelescopeTrackFinder,1)
 };
