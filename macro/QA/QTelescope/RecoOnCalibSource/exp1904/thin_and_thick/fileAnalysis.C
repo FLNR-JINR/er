@@ -38,12 +38,13 @@ void fileAnalysis() {
       TString cond;
       cond.Form("%s>%lf&&%s<%lf&&%s>%lf&&%s<%lf", yCoord.Data(), currCoordY - delta, 
                                                   yCoord.Data(), currCoordY + delta, 
-						  xCoord.Data(), currCoordX - delta,
-						  xCoord.Data(), currCoordX + delta);
+      						  xCoord.Data(), currCoordX - delta,
+                                                  xCoord.Data(), currCoordX + delta);
+      //cond.Form("%s>%lf&&%s<%lf", yCoord.Data(), currCoordY - delta, 
+      //                            yCoord.Data(), currCoordY + delta); 
       tree->Draw(partBr+lvLeave + ">>" + histName, cond);
       hist->Write();
     }
   }
-  //saveFile->Write();
   saveFile->Close();
 } 

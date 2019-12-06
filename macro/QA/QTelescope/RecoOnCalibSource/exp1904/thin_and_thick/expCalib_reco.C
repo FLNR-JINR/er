@@ -25,8 +25,6 @@ void expCalib_reco() {
   qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
   qtelescopeTrackFinder->SetHitStation("Telescope_1", "Telescope_1_SingleSi_SSD20_1_X_0",
                                                       "Telescope_1_SingleSi_SSD_1_Y_1");
-  //qtelescopeTrackFinder->SetHitStation("Telescope_1", "Telescope_1_SingleSi_SSD_1_X_1",
-  //                                                    "Telescope_1_SingleSi_SSD20_1_Y_0");
   qtelescopeTrackFinder->SetStripEdepRange(0.35e-3, 8.35e-3);          // [GeV]
   //qtelescopeTrackFinder->SetStripEdepRange(0.0097, 100.);   // [GeV]
   //qtelescopeTrackFinder->SetEdepDiffXY(5.);                 // [GeV]
@@ -37,7 +35,6 @@ void expCalib_reco() {
   ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
 
   qtelescopePID->SetStationParticle("Telescope_1_SingleSi_SSD20_1_X_0Telescope_1_SingleSi_SSD_1_Y_1", 1000020040);
-  //qtelescopePID->SetStationParticle("Telescope_1_SingleSi_SSD_1_X_1Telescope_1_SingleSi_SSD20_1_Y_0", 1000020040);
 
   run->AddTask(qtelescopePID); 
   // -----------Runtime DataBase info ---------------------------------------
