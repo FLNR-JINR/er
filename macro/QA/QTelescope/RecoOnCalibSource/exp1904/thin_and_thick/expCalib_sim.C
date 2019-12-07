@@ -42,8 +42,8 @@ void expCalib_sim (Int_t nEvents = 1) {
   setupQTelescope->SetGeoName("QTelescopeTmp");
 
   Double_t w_thin = 5.;
-  Double_t w_thick = 6.6;
-  Double_t l = 40.;
+  Double_t w_thick = 6;
+  Double_t l = 29;
 
   // ----- SSD_1 parameters --------------------------------------------------
   ERGeoSubAssembly* telescope1 = new ERGeoSubAssembly("Telescope_1", TVector3(-3*w_thick/4, w_thick / 4, l), TVector3());

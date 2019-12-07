@@ -1,7 +1,8 @@
 void expCalib_reco() {
   //---------------------Files-----------------------------------------------
   //TString inFile = "../input/alltel_90_1to9_digi.root";
-  TString inFile = "alltel_90.root";
+  //TString inFile = "alltel_90.root";
+  TString inFile = "calib_90_all.root";
   auto file = TFile::Open(inFile.Data());
   auto tree = (TTree*)file->Get("er");
   Int_t nEvents = tree->GetEntriesFast();//1443710

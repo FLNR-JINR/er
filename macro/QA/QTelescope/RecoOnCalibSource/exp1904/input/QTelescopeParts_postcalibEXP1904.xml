@@ -22,8 +22,8 @@
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>	
 			<singleSi id="SingleSi_SSD_1">
-				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
-				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
+				<singleSiSize singleSiX="6" singleSiY="6" singleSiZ="0.1"/>
+				<singleSiSensAreaSize singleSiSensX="6" singleSiSensY="6" singleSiSensZ="0.1"/>
 				<deadLayerThicknessFrontSide>0.0001946</deadLayerThicknessFrontSide>
 				<deadLayerThicknessBackSide>0.0001946</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
@@ -38,8 +38,8 @@
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>	
 			<singleSi id="SingleSi_SSD_2">
-				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
-				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
+				<singleSiSize singleSiX="6" singleSiY="6" singleSiZ="0.1"/>
+				<singleSiSensAreaSize singleSiSensX="6" singleSiSensY="6" singleSiSensZ="0.1"/>
 				<deadLayerThicknessFrontSide>0.000195</deadLayerThicknessFrontSide>
 				<deadLayerThicknessBackSide>0.000195</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
