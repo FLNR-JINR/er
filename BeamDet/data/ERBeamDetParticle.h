@@ -26,6 +26,7 @@ public:
   ERBeamDetParticle(Int_t pid, TLorentzVector tofState, TLorentzVector targetState, Double_t probability);
 
   void AddParameters(Int_t pid, TLorentzVector tofState, TLorentzVector targetState, Double_t probability);
+  TLorentzVector GetLVTarget() const {return fTargetState;}
 
 	ClassDef(ERBeamDetParticle, 1)
 };

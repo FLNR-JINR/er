@@ -10,7 +10,7 @@
 #define ERQTelescopeTrackFinder_H
 
 #include <utility>
-
+#include <limits>
 #include "TClonesArray.h"
 
 #include "ERTask.h"
@@ -75,13 +75,13 @@ protected:
   std::map<TString, map<TString, pair<TString, TString>>> fSiHitStationsPair; //// map<subassembly,map<component, pair<xBranch, yBranch>>> 
 
 
-  Double_t fSiDigiEdepMin;
-  Double_t fSiDigiEdepMax;
-  Double_t fEdepDiffXY;
-  Double_t fTargetX;
-  Double_t fTargetY;
-  Double_t fTargetZ;
-  Bool_t   fUserTargetPointIsSet;
+  Double_t fSiDigiEdepMin = std::numeric_limits<double>::min();
+  Double_t fSiDigiEdepMax = std::numeric_limits<double>::max();
+  Double_t fEdepDiffXY = std::numeric_limits<double>::max();
+  Double_t fTargetX = 0.;
+  Double_t fTargetY = 0.;
+  Double_t fTargetZ = 0.;
+  Bool_t   fUserTargetPointIsSet = false;
 
 private:
   /** @brief Adds a ERQTelescopeTrack to the output Collection **/

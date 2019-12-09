@@ -171,11 +171,15 @@ ERQTelescopeParticle* ERQTelescopePID::AddParticle(TLorentzVector lvTelescope,
                                         ERQTelescopeParticle(lvTelescope,lvTarget,deadEloss,T);
   return particle;
 }
-Double_t CalcElossIntegralVolStep (Double_t T, G4ParticleDefinition* ion, 
-                                   G4Material* mat, Double_t range) 
-{ 
+Double_t CalcElossIntegralVolStep (Double_t T, const G4ParticleDefinition* ion, 
+                                   const G4Material* mat, const Double_t range) { 
+  //FIXME copy-past from ERBeamDetSetup
+  assert(mat);
+  assert(ion);
+  if (range <= 0.)
+    return 0;
   Double_t integralEloss = 0.;
-  Double_t intStep = range / 20;
+  const Double_t intStep = range / 20;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (curStep < range) {
@@ -243,6 +247,8 @@ Double_t ERQTelescopePID::CalcEloss(TString station, ERQTelescopeTrack* track, I
     }
     
     Double_t range = gGeoManager->GetStep();
+    if (range == 0.)
+      break;
     if (TString(gGeoManager->GetPath()).Contains("target")) {
       inTarget = kTRUE;
       range /= 2.;
