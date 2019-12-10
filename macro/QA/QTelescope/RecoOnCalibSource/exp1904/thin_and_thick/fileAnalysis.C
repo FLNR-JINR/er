@@ -26,7 +26,12 @@ void fileAnalysis() {
   double startCoordY = thickStartLoc;
   TString histParams = "(1048, 0, 10.24e-3)";
   vector<TH1D*> hists;
+  vector<TCanvas*> canvases;
   for (int i = 0; i < 16; i++) {
+    TString canvName;
+    canvName.Form("canvas_X%d", i);
+    auto curCanv = new TCanvas(canvName);
+    curCanv->Divide(4, 4);
     double currCoordX = startCoordX + i*stepX;
     for (int j = 0; j < 16; j++) {
       TString histName;
@@ -42,9 +47,11 @@ void fileAnalysis() {
                                                   xCoord.Data(), currCoordX + delta);
       //cond.Form("%s>%lf&&%s<%lf", yCoord.Data(), currCoordY - delta, 
       //                            yCoord.Data(), currCoordY + delta); 
+      curCanv->cd(j + 1);
       tree->Draw(partBr+lvLeave + ">>" + histName, cond);
       hist->Write();
     }
+    curCanv->Write();
   }
   saveFile->Close();
 } 
