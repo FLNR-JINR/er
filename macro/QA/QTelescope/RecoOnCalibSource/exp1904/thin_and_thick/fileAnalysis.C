@@ -15,10 +15,10 @@ void fileAnalysis() {
   cout << trackBr+xCoord << endl;
   auto saveFile = TFile::Open("expCalib_reco_hists.root", "RECREATE");
   double delta = 0.05;
-  double thinStartLoc = -2.344;
-  double thickStartLoc = -2.85;
-  double stepThin = 0.313;
-  double stepThick = 0.38;
+  double thinStartLoc = 2.344;
+  double thickStartLoc = 2.85;
+  double stepThin = -0.313;
+  double stepThick = -0.38;
 
   double stepX = stepThin;
   double stepY = stepThick;
