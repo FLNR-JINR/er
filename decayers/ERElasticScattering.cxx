@@ -329,7 +329,7 @@ Bool_t ERElasticScattering::DefineOfIonsMasses() {
     return kFALSE;
   }
 
-  if (! fInputIonPDG ) {
+  if (! fProjectileIonMass ) {
     LOG(FATAL) << "It is impossible to difine Mass for projectile ion!" << FairLogger::endl;
     return kFALSE;
   }
