@@ -57,7 +57,7 @@ void reco(Int_t nEvents = 100000){
   parIO->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parIO);
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   run->Init();
   run->Run(0, nEvents);
   // ------------------------------------------------------------------------;

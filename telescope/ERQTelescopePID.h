@@ -13,6 +13,7 @@
 #include "TString.h"
 #include "TH1.h"
 #include "TCut.h"
+#include "TVector3.h"
 
 #include "ERTask.h"
 #include "ERQTelescopeTrack.h"
@@ -72,7 +73,9 @@ protected:
   double fT;
 protected:
 
-  Double_t CalcEloss(TString station, ERQTelescopeTrack* track, Int_t pdg, Double_t T);
+  Double_t CalcEloss(const TString& station, const ERQTelescopeTrack* track,
+                     const TVector3& startPoint, Int_t pdg);
+  TVector3 FindBackPropagationStartPoint(const ERQTelescopeTrack* track);
   Double_t FindDigiEdepByNode(TGeoNode* node);
   Double_t FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg);
 private:
