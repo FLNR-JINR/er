@@ -107,7 +107,7 @@ void ERRunAna::Init(){
   //   curStep += intStep;
   // }
   // cout << "integralEloss " << integralEloss << endl;
-
+cout << "ERRunAna integration " << endl; 
 G4IonTable* ionTable = G4IonTable::GetIonTable();
 G4ParticleDefinition* ion =  ionTable->GetIon(1000020040);
 G4EmCalculator* calc = new G4EmCalculator();
@@ -115,11 +115,14 @@ G4NistManager* nist = G4NistManager::Instance();
 G4Material* mat = nist->FindOrBuildMaterial("silicon");
 double range = 1e-4;
 double T = 7.68690;
-
 std::vector<double> energies = {4.7844, 6.0024, 7.6869}; // [MeVs]
-std::vector<double> thickCalc_E  = {2, 4, 5, 5.56}; // [um]
+// std::vector<double> thickCalc_E  = {2, 4, 5, 5.56}; // [um]
 // std::vector<double> thickCalc_dE = {2, 4, 5, 5.56, 8, 12, 16, 20, 24, 28, 32, 36, 40}; // [um]
+// std::vector<double> thickCalc_dE = {2, 4, 6, 8, 12, 16, 20, 24, 28, 32, 36, 40}; // [um]
+// std::vector<double> thickCalc_dE = {8, 12, 16, 20, 24, 28, 32, 36}; // [um]
 std::vector<double> thickCalc_dE = {1, 2, 3, 4, 5, 6}; // [um]
+// std::vector<double> thickCalc_dE ={2.27}; // [um]
+// std::vector<double> thickCalc_dE  = {2, 4, 5, 5.56}; // [um]
 
 // for (auto itEnergies: energies) {
 //   double curStep = 0.;  // [um]
@@ -139,15 +142,16 @@ std::vector<double> thickCalc_dE = {1, 2, 3, 4, 5, 6}; // [um]
 //   } 
 //   cout << endl;
 // }  
-double intStep = 1e-5; // [um]
+double intStep;// = 2. / 100.; // [um]
 for (auto itEnergies: energies) {
   double curStep = 0.;  // [um]
   double energy = itEnergies;
   double energy_comp = itEnergies;
   double curDE = 0;
   double curDE_comp = 0;
-  cout << "itEnergies " << itEnergies << endl;
+  cout << itEnergies << endl;
   auto itThickCalc_E = thickCalc_dE.begin();
+  intStep = *itThickCalc_E / 1e3;
   while (itThickCalc_E != thickCalc_dE.end()) {
     Double_t edep = calc->GetDEDX(energy,ion,mat)*intStep*1e-4*10;
     Double_t edep_comp = calc->ComputeDEDX(energy,ion,"ionIoni",mat)*intStep*1e-4*10;
@@ -156,11 +160,23 @@ for (auto itEnergies: energies) {
     energy_comp -= edep_comp;
     energy -= edep;
     curStep += intStep;
-    if (curStep >= *itThickCalc_E) {
+    if (curStep > *itThickCalc_E) {
+      // cout << *itThickCalc_E 
+      //      << " & " << curDE 
+      //      << " & " << curDE_comp 
+      //      << " & " << (curDE - curDE_comp)*1e3 
+      //      << " \\\\"
+      //      << endl << "\\hline" << endl;
       itThickCalc_E++;
-      cout << energy*1e3 << " "  << curDE << " | " << energy_comp*1e3 << " " << curDE_comp << endl;
+      cout << energy << " "  << curDE << " | " << energy_comp << " " << curDE_comp << endl;
+      // cout << energy << " " << curDE << endl;
+      // cout << itEnergies - energy_comp << endl;
       curDE = 0;
       curDE_comp = 0;
+      curStep = 0.;
+      energy = itEnergies;
+      energy_comp = itEnergies;
+      intStep = *itThickCalc_E / 1e3;
     }
   }
   cout << endl;

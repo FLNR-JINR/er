@@ -5,7 +5,7 @@ void nonUniformCalibRun_reco(){
   auto file = TFile::Open(inFile.Data());
   auto tree = (TTree*)file->Get("er");
   Int_t nEvents = tree->GetEntriesFast();//1443710
-  // nEvents /= 2;//1443710
+   nEvents /= 2;//1443710
   // nEvents = 1000;//1443710
 
   // nEvents = /*1;*/ 14437;
