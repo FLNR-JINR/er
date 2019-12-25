@@ -162,7 +162,7 @@ void sim_digi (Int_t nEvents = 100000) {
 
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
-  Double_t  kinE_MevPerNucleon = 20.;
+  Double_t  kinE_MevPerNucleon = 30.;
 
   Int_t Z = 2, A = 8, Q = 2;
   TString ionName = "8He";
