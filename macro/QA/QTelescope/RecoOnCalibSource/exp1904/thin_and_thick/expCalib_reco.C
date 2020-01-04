@@ -7,6 +7,7 @@ void expCalib_reco() {
   auto tree = (TTree*)file->Get("er");
   Int_t nEvents = tree->GetEntriesFast();//1443710
   //nEvents = 500;
+ // nEvents = 1;
   TString parFile = "par_Calib.root";
   TString geoFile = "geo_expCalib.root";
   // -----   Timer   --------------------------------------------------------

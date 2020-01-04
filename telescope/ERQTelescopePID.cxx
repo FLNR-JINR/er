@@ -128,6 +128,7 @@ void ERQTelescopePID::Exec(Option_t* opt) {
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopePID::Reset() {
+  gGeoManager->ResetState();
   for (const auto itTrackBranches : fQTelescopeParticle) {
     for (const auto itParticleBranches : itTrackBranches.second)
       if (itParticleBranches.second) {
@@ -187,20 +188,29 @@ TVector3 ERQTelescopePID::FindBackPropagationStartPoint(const ERQTelescopeTrack*
   TVector3 backPropagationStartPoint = telescopeVertex;
   TVector3 direction = telescopeVertex - track->GetTargetVertex();
   direction.SetMag(1.);
+  gGeoManager->ResetState();
   TGeoNode* currentNode = gGeoManager->InitTrack(telescopeVertex.X(), telescopeVertex.Y(), telescopeVertex.Z(),
                                                  direction.X(), direction.Y(), direction.Z());
+  LOG(DEBUG) << "direction " << "(" << direction.X() << "," << direction.Y() << "," << direction.Z() << ")" << endl;
   TGeoNode* lastSensetiveNode = nullptr;
   TString lastSensetivePath;
   TVector3 lastSensetivePosition;
   while(!gGeoManager->IsOutside()) {
     bool inSensetiveVolume = false;
     const TString path = gGeoManager->GetPath();
+    //gGeoManager->InspectState();
+    //LOG(DEBUG) << "CheckPath " << gGeoManager->CheckPath(path) << FairLogger::endl;
+    //LOG(DEBUG) << "nullStep " << gGeoManager->IsNullStep() << FairLogger::endl;
+    //if (gGeoManager->IsNullStep()) {
+    //  gGeoManager->CdNext();
+    //}
+    //LOG(DEBUG) << "path finder " << path << FairLogger::endl;
     if (path.Contains("Sensitive")) {
       inSensetiveVolume = true;
       lastSensetiveNode = currentNode;
       lastSensetivePath = path; 
     }
-    currentNode = gGeoManager->Step();
+    currentNode = gGeoManager->FindNextBoundaryAndStep();
     if (inSensetiveVolume) {
       // position, when track exit sensetve volume
       lastSensetivePosition = TVector3(gGeoManager->GetCurrentPoint());

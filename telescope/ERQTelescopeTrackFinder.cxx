@@ -136,8 +136,8 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
       std::vector<Int_t> correctStripsY;
       const TString xDigiBranchName = itComponent.second.first;
       const TString yDigiBranchName = itComponent.second.second;  
-      const TClonesArray* xDigi = fQTelescopeDigi[xDigiBranchName];
-      const TClonesArray* yDigi = fQTelescopeDigi[yDigiBranchName];
+      const TClonesArray* xDigi = fQTelDigi[xDigiBranchName];
+      const TClonesArray* yDigi = fQTelDigi[yDigiBranchName];
       if ( !xDigi || !yDigi) {
         continue;
       }
@@ -185,36 +185,36 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         // Calc unknown coordinated using condition: target, hit on first station(closest) and
         // hit on second station lie on line :
         // {x1, y1, z1} = {fTargetX, fTargetY, fTargetZ} + k * ({x1, y1, z1} - {fTargetX, fTargetY, fTargetZ}).
-        const bool xStationIsClosest = fQTelescopeSetup->GetStripGlobalZ(xDigiBranchName, xStripNb)
-                                       < fQTelescopeSetup->GetStripGlobalZ(yDigiBranchName, yStripNb);
+        const bool xStationIsClosest = fQTelSetup->GetStripGlobalZ(xDigiBranchName, xStripNb)
+                                       < fQTelSetup->GetStripGlobalZ(yDigiBranchName, yStripNb);
         // We know all about z coordinate, so 
         const double z1 = xStationIsClosest 
-                          ? fQTelescopeSetup->GetStripGlobalZ(xDigiBranchName, xStripNb)
-                          : fQTelescopeSetup->GetStripGlobalZ(yDigiBranchName, yStripNb);
+                          ? fQTelSetup->GetStripGlobalZ(xDigiBranchName, xStripNb)
+                          : fQTelSetup->GetStripGlobalZ(yDigiBranchName, yStripNb);
         const double z2 =  xStationIsClosest 
-                          ? fQTelescopeSetup->GetStripGlobalZ(yDigiBranchName, yStripNb)
-                          : fQTelescopeSetup->GetStripGlobalZ(xDigiBranchName, xStripNb);
+                          ? fQTelSetup->GetStripGlobalZ(yDigiBranchName, yStripNb)
+                          : fQTelSetup->GetStripGlobalZ(xDigiBranchName, xStripNb);
         assert(z1 != fTargetZ);
         const double k = (z2 - fTargetZ) / (z1 - fTargetZ);
         double x1 = 0., x2 = 0., y1 = 0., y2 = 0.;
         if (xStationIsClosest) { // find y1, x2 from equation
-          x1 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xStripNb);
-          y2 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
+          x1 = fQTelSetup->GetStripGlobalX(xDigiBranchName, xStripNb);
+          y2 = fQTelSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
           y1 = (-1./k)*((1. - k)*fTargetY - y2);
           x2 = (1. - k)*fTargetX + k*x1;
         } else { // find x1, y2 from equation
-          x2 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xStripNb);
-          y1 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
+          x2 = fQTelSetup->GetStripGlobalX(xDigiBranchName, xStripNb);
+          y1 = fQTelSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
           x1 = (-1./k)*((1. - k)*fTargetX - x2);
           y2 = (1. - k)*fTargetY + k*y1;
         }
         const auto xQTeleGlobHit = (x1 + x2) / 2.;
         const auto yQTeleGlobHit = (y1 + y2) / 2.;
         const auto zQTeleGlobHit = (z1 + z2) / 2.;
-        const auto xQTeleLocalHit = fQTelescopeSetup->GetStripLocalX(xDigiBranchName, xStripNb);
-        const auto yQTeleLocalHit = fQTelescopeSetup->GetStripLocalY(yDigiBranchName, yStripNb);
-        const auto zQTeleLocalHit = (fQTelescopeSetup->GetStripLocalZ(xDigiBranchName, xStripNb)
-                                     + fQTelescopeSetup->GetStripLocalZ(yDigiBranchName, yStripNb))/2.;
+        const auto xQTeleLocalHit = fQTelSetup->GetStripLocalX(xDigiBranchName, xStripNb);
+        const auto yQTeleLocalHit = fQTelSetup->GetStripLocalX(yDigiBranchName, yStripNb);
+        const auto zQTeleLocalHit = (fQTelSetup->GetStripLocalZ(xDigiBranchName, xStripNb)
+                                     + fQTelSetup->GetStripLocalZ(yDigiBranchName, yStripNb))/2.;
         LOG(DEBUG) << " Local hit X Y Z " << xQTeleLocalHit << " " << yQTeleLocalHit 
                    << " " << zQTeleLocalHit << FairLogger::endl;
         LOG(DEBUG) << " Global hit X Y Z " << xQTeleGlobHit << " " << yQTeleGlobHit 

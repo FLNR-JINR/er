@@ -15,10 +15,10 @@ void fileAnalysis() {
   cout << trackBr+xCoord << endl;
   auto saveFile = TFile::Open("expCalib_reco_hists.root", "RECREATE");
   double delta = 0.05;
-  double thinStartLoc = 2.344;
-  double thickStartLoc = 2.85;
-  double stepThin = -0.313;
-  double stepThick = -0.38;
+  double thinStartLoc = 2.34375;
+  double thickStartLoc = 2.8125;
+  double stepThin = -(2.34375 - 2.03125);
+  double stepThick = -(2.8125 - 2.4375);
 
   double stepX = stepThin;
   double stepY = stepThick;
@@ -34,24 +34,50 @@ void fileAnalysis() {
     curCanv->Divide(4, 4);
     double currCoordX = startCoordX + i*stepX;
     for (int j = 0; j < 16; j++) {
-      TString histName;
+      TString histName, histNameStripX, histNameStripY;
       histName.Form("pixel_X-%d_Y-%d", i, j);
       auto hist = new TH1D(histName, histName, 1024, 0, 10.24e-3);
       hist->GetYaxis()->SetTitle("Counts, [1]");
       hist->GetXaxis()->SetTitle("E, [GeV]");
       double currCoordY = startCoordY + j*stepY;
-      TString cond;
+      TString cond, condX, condY;
       cond.Form("%s>%lf&&%s<%lf&&%s>%lf&&%s<%lf", yCoord.Data(), currCoordY - delta, 
                                                   yCoord.Data(), currCoordY + delta, 
       						  xCoord.Data(), currCoordX - delta,
                                                   xCoord.Data(), currCoordX + delta);
-      //cond.Form("%s>%lf&&%s<%lf", yCoord.Data(), currCoordY - delta, 
-      //                            yCoord.Data(), currCoordY + delta); 
-      curCanv->cd(j + 1);
+      condX.Form("%s>%lf&&%s<%lf", xCoord.Data(), currCoordX - delta,
+                                   xCoord.Data(), currCoordX + delta);
+      condY.Form("%s>%lf&&%s<%lf", yCoord.Data(), currCoordY - delta,
+                                   yCoord.Data(), currCoordY + delta);
+      //curCanv->cd(j + 1);
       tree->Draw(partBr+lvLeave + ">>" + histName, cond);
+      if (j == 0) {
+        histNameStripX.Form("strip_X-%d", i);
+        auto histStripX = new TH1D(histNameStripX, histNameStripX, 1024, 0, 10.24e-3);
+        histStripX->GetYaxis()->SetTitle("Counts, [1]");
+        histStripX->GetXaxis()->SetTitle("E, [GeV]");
+        tree->Draw(partBr+lvLeave + ">>" + histNameStripX, condX);
+        histStripX->Write();
+      }
+      if (i == 0) {
+        histNameStripY.Form("strip_Y-%d", j);
+        auto histStripY = new TH1D(histNameStripY, histNameStripY, 1024, 0, 10.24e-3);
+        histStripY->GetYaxis()->SetTitle("Counts, [1]");
+        histStripY->GetXaxis()->SetTitle("E, [GeV]");
+        tree->Draw(partBr+lvLeave + ">>" + histNameStripY, condY);
+        histStripY->Write();
+      }
       hist->Write();
     }
-    curCanv->Write();
+    //curCanv->Write();
   }
+  TString histNameWhole;
+  histNameWhole.Form("calib_90_all");
+  auto histWhole = new TH1D(histNameWhole, histNameWhole, 1024, 0, 10.24e-3);
+  histWhole->GetYaxis()->SetTitle("Counts, [1]");
+  histWhole->GetXaxis()->SetTitle("E, [GeV]");
+  tree->Draw(partBr+lvLeave + ">>" + histNameWhole, "");
+  histWhole->Write();
+
   saveFile->Close();
 } 
