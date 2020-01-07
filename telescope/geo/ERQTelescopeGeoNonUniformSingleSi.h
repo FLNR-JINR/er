@@ -45,20 +45,21 @@ public:
 
   /** @brief Constructor.
    ** @param xmlTypeSingleSi  single silicon station type from equipment database
-   ** @param id1  single silicon station identificator from equipment database
-   ** @param xmlTypeSecondSt  second station type from the equipment database
-   ** @param id2  second station identificator from equipment database
-   ** @param plane2  X or Y strip plane for.
+   ** @param id  single silicon station identificator from equipment database
+   ** @param stripOrientThin  orientation of strips in the first dimention 
+                          (the closest to a reconstruction point)
+   ** @param StripsAmountThin the second dimentionality strips amount
    ** @param pathFullMap  path to the full thin detector thicknes map
    ** @param pathFrontDeadMap  path to the thin detector front dead layer thicknes map
    ** @param pathBackDeadMap  path to the thin detector back dead layer thicknes map
   **/
-  ERQTelescopeGeoNonUniformSingleSi(TString xmlTypeSingleSi, TString id1,
-                                    TString xmlTypeSecondSt2, TString id2, TString plane2,
+  ERQTelescopeGeoNonUniformSingleSi(TString xmlTypeSingleSi,
+                                    TString id,
+                                    TString stripOrientThin,
+                                    Int_t StripsAmountThin,
                                     TString pathFullMap,
                                     TString pathFrontDeadMap,
-                                    TString pathBackDeadMap); 
-
+                                    TString pathBackDeadMap);
   /** @brief Default destructor.
   **/
   ~ERQTelescopeGeoNonUniformSingleSi();
@@ -69,17 +70,16 @@ public:
 
 private:
   TString  fOrientAroundZ;
-  TString  fComponentId1;
-  TString  fComponentId2;
+  TString  fComponentId;
   // Double_t fSizeX; // equals to first (thin) detector size
   // Double_t fSizeY; // equals to second (thick) detector size
   // Double_t fSizeZ; // equals to max pixel thickness in strip 
   Double_t fSensX; // value of the strip X-length equals to first (thin) detector size 
   Double_t fSensY; // value of the strip Y-length equals to second (thick) detector size
   Double_t fSensZ; // value of the strip Z-length equals to max pixel thickness in strip
-  Int_t    fStripPlaneCnt_1; // strips count in the first plane of the pseudo-intersection 
-  Int_t    fStripPlaneCnt_2; // strips count in the second plane of the pseudo-intersection
-  TString  fPlane2; // strips plane from the second detector used in the non-uniformity map building
+  Int_t    fStripsAmountThin;
+  Int_t    fXstripsAmount; // strips count in the first plane of the pseudo-intersection 
+  Int_t    fYstripsAmount; // strips count in the second plane of the pseudo-intersection
   TString  fMedia; // name of the material from media.geo file
   TString  fPathFullMap; // full thickness of the pseudo-pixel including thickness of the dead layer in thick detector
   TString  fPathFrontDeadMap; // estimation of the dead layer in pixel front side

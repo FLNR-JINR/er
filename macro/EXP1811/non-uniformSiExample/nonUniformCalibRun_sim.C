@@ -53,11 +53,11 @@ void nonUniformCalibRun_sim (Int_t nEvents = 1) {
                                                                                   TVector3(0., 0., -1.4), TVector3(), "X");
   ERQTelescopeGeoComponentDoubleSi* thick_Left = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_DSD_L", 
                                                                                   TVector3(0., 0., 0.), TVector3(), "X");
-  // ERQTelescopeGeoNonUniformSingleSi* thin_Left = new ERQTelescopeGeoNonUniformSingleSi("SingleSi", "SingleSi_SSD20_L",
-  //                                                                              "DoubleSi", "DoubleSi_DSD_L", "Y",
-  //                                                                              "./input/map_sens.root",
-  //                                                                              "./input/map_deadFront.root",
-  //                                                                              "./input/map_deadBack.root"); 
+  ERQTelescopeGeoNonUniformSingleSi* thin_Left = new ERQTelescopeGeoNonUniformSingleSi("SingleSi", "SingleSi_SSD20_L",
+                                                                               "DoubleSi", "DoubleSi_DSD_L", "Y",
+                                                                               "./input/map_sens.root",
+                                                                               "./input/map_deadFront.root",
+                                                                               "./input/map_deadBack.root"); 
   assembly_Left->AddComponent(thick_Left);
   assembly_Left->AddComponent(thick_Left, TVector3(0, 0, -1.4), TVector3(70, 45, 60));
   // assembly_Left->AddComponent(thin_Left, TVector3(0, 0, -1.4), TVector3(0, 45, 45));
