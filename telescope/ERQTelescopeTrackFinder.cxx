@@ -89,6 +89,7 @@ InitStatus ERQTelescopeTrackFinder::Init() {
     }
   }
   // Register output track branches only for stations that are setted by interface SetStation(){
+  fQTelDigi["Fictious"] = nullptr;
   for (const auto itSubassemblies : fSiHitStationsPair) {
     for (const auto itComponent : itSubassemblies.second) {
       fQTelTrack[itComponent.first] = new TClonesArray("ERQTelescopeTrack");
@@ -136,21 +137,15 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
       std::vector<Int_t> correctStripsY;
       const TString xDigiBranchName = itComponent.second.first;
       const TString yDigiBranchName = itComponent.second.second;  
-      const TClonesArray* xDigi = fQTelDigi[xDigiBranchName];
+      // const TClonesArray* xDigi = fQTelDigi[xDigiBranchName];
       const TClonesArray* yDigi = fQTelDigi[yDigiBranchName];
-      if ( !xDigi || !yDigi) {
+      if (!yDigi) {
         continue;
       }
-      if (xDigi->GetEntriesFast() == 0 || yDigi->GetEntriesFast()==0) {
+      if (yDigi->GetEntriesFast() == 0) {
         continue;
       }
-
-      for (Int_t iXDigi  = 0; iXDigi < xDigi->GetEntriesFast(); iXDigi++) {
-        const Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(iXDigi))->GetEdep();
-        if (xStripEdep > fSiDigiEdepMin && xStripEdep < fSiDigiEdepMax) {
-          correctStripsX.push_back(iXDigi);
-        }
-      }
+      correctStripsX.push_back(0);
       for (Int_t iYDigi  = 0; iYDigi < yDigi->GetEntriesFast(); iYDigi++) {
         const Double_t yStripEdep = ((ERQTelescopeSiDigi*)yDigi->At(iYDigi))->GetEdep();
         if (yStripEdep > fSiDigiEdepMin && yStripEdep < fSiDigiEdepMax) {
@@ -158,7 +153,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         }
       }
       for (const auto itCorrectStripsX : correctStripsX) {
-        const Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(itCorrectStripsX))->GetEdep();
+        const Double_t xStripEdep = 1e-3;//((ERQTelescopeSiDigi*)xDigi->At(itCorrectStripsX))->GetEdep();
         for (const auto itCorrectStripsY : correctStripsY) {
           const Double_t yStripEdep = ((ERQTelescopeSiDigi*)yDigi->At(itCorrectStripsY))->GetEdep();
           if (TMath::Abs(xStripEdep - yStripEdep) < fEdepDiffXY) {
@@ -170,64 +165,60 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
                                          << itComponent.second.second << FairLogger::endl;
       LOG(DEBUG) << "Hits count on pair " << hitTelescopePoint.size() << FairLogger::endl;
       for (const auto& itHitPoint : hitTelescopePoint) {
-        const auto xStripIndex = itHitPoint.first;
+        // const auto xStripIndex = 8;//itHitPoint.first;
         const auto yStripIndex = itHitPoint.second;
-        const auto* xStrip = dynamic_cast<ERQTelescopeSiDigi*>(xDigi->At(xStripIndex));
+        // const auto* xStrip = dynamic_cast<ERQTelescopeSiDigi*>(xDigi->At(xStripIndex));
         const auto* yStrip = dynamic_cast<ERQTelescopeSiDigi*>(yDigi->At(yStripIndex));
-        if (!xStrip || !yStrip)
+        if (!yStrip)
           continue;
-        const auto xStripNb = xStrip->GetStripNb();
+        const auto xStripNb = 8; // xStrip->GetStripNb();
         const auto yStripNb = yStrip->GetStripNb();
         LOG(DEBUG) << "  Branch names X:" << xDigiBranchName 
                    << " Y: " << yDigiBranchName << FairLogger::endl;
-        LOG(DEBUG) << "  Strips pair " << xStripIndex << " " << yStripIndex << FairLogger::endl;
+        LOG(DEBUG) << "  Strips pair " << 0 << " " << yStripIndex << FairLogger::endl;
         LOG(DEBUG) << "  Strips pair numbers " << xStripNb << " " << yStripNb << FairLogger::endl;
         // Calc unknown coordinated using condition: target, hit on first station(closest) and
         // hit on second station lie on line :
         // {x1, y1, z1} = {fTargetX, fTargetY, fTargetZ} + k * ({x1, y1, z1} - {fTargetX, fTargetY, fTargetZ}).
-        const bool xStationIsClosest = fQTelSetup->GetStripGlobalZ(xDigiBranchName, xStripNb)
-                                       < fQTelSetup->GetStripGlobalZ(yDigiBranchName, yStripNb);
+        // const bool xStationIsClosest = fQTelSetup->GetStripGlobalZ(xDigiBranchName, xStripNb)
+        //                                < fQTelSetup->GetStripGlobalZ(yDigiBranchName, yStripNb);
         // We know all about z coordinate, so 
-        const double z1 = xStationIsClosest 
-                          ? fQTelSetup->GetStripGlobalZ(xDigiBranchName, xStripNb)
-                          : fQTelSetup->GetStripGlobalZ(yDigiBranchName, yStripNb);
-        const double z2 =  xStationIsClosest 
-                          ? fQTelSetup->GetStripGlobalZ(yDigiBranchName, yStripNb)
-                          : fQTelSetup->GetStripGlobalZ(xDigiBranchName, xStripNb);
-        assert(z1 != fTargetZ);
-        const double k = (z2 - fTargetZ) / (z1 - fTargetZ);
-        double x1 = 0., x2 = 0., y1 = 0., y2 = 0.;
-        if (xStationIsClosest) { // find y1, x2 from equation
-          x1 = fQTelSetup->GetStripGlobalX(xDigiBranchName, xStripNb);
-          y2 = fQTelSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
-          y1 = (-1./k)*((1. - k)*fTargetY - y2);
-          x2 = (1. - k)*fTargetX + k*x1;
-        } else { // find x1, y2 from equation
-          x2 = fQTelSetup->GetStripGlobalX(xDigiBranchName, xStripNb);
-          y1 = fQTelSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
-          x1 = (-1./k)*((1. - k)*fTargetX - x2);
-          y2 = (1. - k)*fTargetY + k*y1;
-        }
-        const auto xQTeleGlobHit = (x1 + x2) / 2.;
-        const auto yQTeleGlobHit = (y1 + y2) / 2.;
-        const auto zQTeleGlobHit = (z1 + z2) / 2.;
-        const auto xQTeleLocalHit = fQTelSetup->GetStripLocalX(xDigiBranchName, xStripNb);
+        const double z = fQTelSetup->GetStripGlobalZ(yDigiBranchName, yStripNb);
+
+        assert(z != fTargetZ);
+
+        const double x = fQTelSetup->GetStripGlobalX(yDigiBranchName, yStripNb);
+        const double y = fQTelSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
+        // const double k = (z2 - fTargetZ) / (z1 - fTargetZ);
+        // double x1 = 0., x2 = 0., y1 = 0., y2 = 0.;
+        // if (xStationIsClosest) { // find y1, x2 from equation
+        //   y1 = (-1./k)*((1. - k)*fTargetY - y2);
+        //   x2 = (1. - k)*fTargetX + k*x1;
+        // } else { // find x1, y2 from equation
+        //   x2 = fQTelSetup->GetStripGlobalX(xDigiBranchName, xStripNb);
+        //   y1 = fQTelSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
+        //   x1 = (-1./k)*((1. - k)*fTargetX - x2);
+        //   y2 = (1. - k)*fTargetY + k*y1;
+        // }
+        const auto xQTeleGlobHit = x;
+        const auto yQTeleGlobHit = y;
+        const auto zQTeleGlobHit = z;
+        const auto xQTeleLocalHit = fQTelSetup->GetStripLocalX(yDigiBranchName, yStripNb);
         const auto yQTeleLocalHit = fQTelSetup->GetStripLocalX(yDigiBranchName, yStripNb);
-        const auto zQTeleLocalHit = (fQTelSetup->GetStripLocalZ(xDigiBranchName, xStripNb)
-                                     + fQTelSetup->GetStripLocalZ(yDigiBranchName, yStripNb))/2.;
+        const auto zQTeleLocalHit = fQTelSetup->GetStripLocalZ(yDigiBranchName, yStripNb);
         LOG(DEBUG) << " Local hit X Y Z " << xQTeleLocalHit << " " << yQTeleLocalHit 
                    << " " << zQTeleLocalHit << FairLogger::endl;
         LOG(DEBUG) << " Global hit X Y Z " << xQTeleGlobHit << " " << yQTeleGlobHit 
                    << " " << zQTeleGlobHit << FairLogger::endl;
         
         //Double_t sumEdep = yStrip->GetEdep();        
-        const Double_t sumEdep = xStrip->GetEdep();        
+        const Double_t sumEdep = yStrip->GetEdep();        
         auto* track = AddTrack(fTargetX, fTargetY, fTargetZ, 
-                                            xQTeleGlobHit,  yQTeleGlobHit,  zQTeleGlobHit,                                            
-                                            xQTeleLocalHit, yQTeleLocalHit, zQTeleLocalHit,
-                                            sumEdep,
-                                            itComponent.first);
-        track->AddLink(FairLink(xDigiBranchName, xStripIndex));
+                               xQTeleGlobHit,  yQTeleGlobHit,  zQTeleGlobHit,                                            
+                               xQTeleLocalHit, yQTeleLocalHit, zQTeleLocalHit,
+                               sumEdep,
+                               itComponent.first);
+        // track->AddLink(FairLink(xDigiBranchName, xStripIndex));
         track->AddLink(FairLink(yDigiBranchName, yStripIndex));
       }
     }
