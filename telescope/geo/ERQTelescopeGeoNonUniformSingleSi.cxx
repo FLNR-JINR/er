@@ -37,6 +37,7 @@ ERQTelescopeGeoNonUniformSingleSi::ERQTelescopeGeoNonUniformSingleSi(TString xml
   fPathFrontDeadMap = pathFrontDeadMap;
   fPathBackDeadMap = pathBackDeadMap;
   ParseXmlParameters();
+  fOrientAroundZ = stripOrientThin;
   if (stripOrientThin == "X") {
     fXstripsAmount = fStripsAmountThin;
     fYstripsAmount = stripsAmountThick;
@@ -105,6 +106,7 @@ void ERQTelescopeGeoNonUniformSingleSi::ConstructGeometryVolume(void) {
   vector<TGeoVolume*> boxDeadFront;
   vector<TGeoVolume*> boxDeadBack;
   fVolume = new TGeoVolumeAssembly(this->GetVolumeName());
+  LOG(DEBUG) << "this->GetVolumeName() " << this->GetVolumeName() << endl; 
   //------------------ Silicon strip   ---------------------------------------
   // Double_t stripX = fSensX / fXstripsAmount;
   // Double_t stripY = fSensY;
@@ -199,9 +201,9 @@ void ERQTelescopeGeoNonUniformSingleSi::ConstructGeometryVolume(void) {
                         - boxX *(iStripX)-(boxX / 2);
     fVolume->AddNode(stripAss[iStripX], iStripX, new TGeoCombiTrans(translateX, 0, 0, fZeroRotation));
   }
-  // if (fOrientAroundZ.Contains("Y")) {
-  //   fRotation->RotateZ(90.);
-  // }
+  if (fOrientAroundZ.Contains("Y")) {
+    fRotation->RotateZ(90.);
+  }
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoNonUniformSingleSi::ParseXmlParameters() {

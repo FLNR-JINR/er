@@ -169,7 +169,7 @@ Double_t CalcElossIntegralVolStep (Double_t T, const G4ParticleDefinition* ion,
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = range / 20;
+  const Double_t intStep = 1e-4*1e-2;//range / 20;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (curStep < range) {
