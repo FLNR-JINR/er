@@ -65,7 +65,7 @@ Double_t CalcElossIntegralVolStepGet (Double_t T, const G4ParticleDefinition* io
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = 0.009; // range / fDivision;
+  const Double_t intStep = 1e-5;// 0.001; // range / fDivision;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (!AreSame(curStep, range, intStep / 2.)) {
@@ -85,7 +85,7 @@ Double_t CalcElossIntegralVolStepCompute (Double_t T, G4ParticleDefinition* ion,
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = 0.009; // range / fDivision;
+  const Double_t intStep = 1e-5;// 0.001; // range / fDivision;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (!AreSame(curStep, range, intStep / 2.)) {
@@ -106,7 +106,7 @@ Double_t CalcElossIntegralVolStepGetInvDir (Double_t T, const G4ParticleDefiniti
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = 0.009; // range / fDivision;
+  const Double_t intStep = 1e-5;// 0.001; // range / fDivision;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (!AreSame(curStep, range, intStep / 2.)) {
@@ -126,7 +126,7 @@ Double_t CalcElossIntegralVolStepComputeInvDir (Double_t T, G4ParticleDefinition
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = 0.009; // range / fDivision;
+  const Double_t intStep = 1e-5;// 0.001; // range / fDivision;
   // cout << "intStep " << intStep << endl;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
@@ -214,7 +214,7 @@ void ERRunAna::Init(){
         double edep_get = CalcElossIntegralVolStepGet(T_get_after_dead, ion, mat, itThickness); 
         double T_restored_comp = T_comp_after_dead + edep_comp;
         double T_restored_get = T_get_after_dead + edep_get;
-        cout << (itEnergies - T_restored_comp)*1e3 << " | " << (itEnergies - T_restored_get)*1e3 << endl;
+        // cout << itThickness << " " << (itEnergies - T_restored_comp)*1e3 << " | " << (itEnergies - T_restored_get)*1e3 << endl;
         // cout << (itEnergies - T_restored_comp)*1e3 << " | " << (itEnergies - T_restored_get)*1e3 << endl;
 
       }
