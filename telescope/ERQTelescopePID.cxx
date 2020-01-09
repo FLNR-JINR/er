@@ -166,14 +166,19 @@ Double_t CalcElossIntegralVolStep (Double_t T, const G4ParticleDefinition* ion,
   //FIXME copy-past from ERBeamDetSetup
   assert(mat);
   assert(ion);
+  if (mat->GetName() == "vacuum") {
+    return 0.;
+  }
   if (range <= 0.)
     return 0;
+  const Double_t range_nm = range * 1e7; // [nm]
   Double_t integralEloss = 0.;
-  const Double_t intStep = 1e-4*1e-2;//range / 20;
+  const Double_t intStep = 10; // [nm]
   Double_t curStep = 0.;
+  //std::cout << "range_nm " << range_nm << " matName " << mat->GetName() << endl;
   G4EmCalculator* calc = new G4EmCalculator();
-  while (curStep < range) {
-    Double_t eloss = calc->GetDEDX(T*1e3,ion,mat)*intStep*10*1e-3;
+  while (curStep < range_nm) {
+    Double_t eloss = calc->GetDEDX(T*1e3,ion,mat)*intStep*1e-6*1e-3;
     integralEloss += eloss;
     T += eloss;
     //std::cout << "CalcElossIntegralVolStep T" << T << "; eloss " << eloss << "; integralEloss " << integralEloss << std::endl;

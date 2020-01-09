@@ -1,11 +1,11 @@
 void expCalib_reco(){
   //---------------------Files-----------------------------------------------
   // TString inFile = "../input/calib_1mm_90_1to8_digi_quad.root";
-  TString inFile = "../input/calib_1mm_90_1to8_digi_lin.root";
+  TString inFile = "../input/calib_1mm_90_1to8_digi_quad_mean.root";
   auto file = TFile::Open(inFile.Data());
   auto tree = (TTree*)file->Get("er");
   Int_t nEvents = tree->GetEntriesFast();//1443710:
-  // nEvents = 20;
+  //nEvents = 20;
   TString parFile = "par_Calib.root";
   TString geoFile = "geo_expCalib.root";
   // -----   Timer   --------------------------------------------------------
@@ -15,7 +15,7 @@ void expCalib_reco(){
   ERRunAna *run = ERRunAna::Instance();
   TString userCut;
   TString outFile;
-  outFile.Form("expCalib_reco_1.root");
+  outFile.Form("expCalib_reco_quad_mean.root");
   run->SetGeomFile("geo_expCalib.root");
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
@@ -46,7 +46,7 @@ void expCalib_reco(){
   parInput->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parInput);
   // -----   Intialise and run   --------------------------------------------
-  // FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  //FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
   FairLogger::GetLogger()->SetLogScreenLevel("INFO");
   //FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
   //run->HoldEventsCount();

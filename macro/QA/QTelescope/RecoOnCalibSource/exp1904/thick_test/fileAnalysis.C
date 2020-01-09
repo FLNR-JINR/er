@@ -1,5 +1,5 @@
 void fileAnalysis() {
-  auto file = TFile::Open("expCalib_reco_1.root");
+  auto file = TFile::Open("expCalib_reco_quad_mean.root");
   auto tree = (TTree*)file->Get("er");
 
   //TString trackBr = "ERQTelescopeTrack_Telescope_1_SingleSi_SSD_1_X_1Telescope_1_SingleSi_SSD_1_Y_0.";
