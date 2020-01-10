@@ -17,27 +17,22 @@
  ** @version 1.0
 **/
 
-class ERQTelescopeParticle : public TNamed{
-
+class ERQTelescopeParticle : public TNamed {
 public:
-  /** @brief Default constructor **/
-  ERQTelescopeParticle();
-
+  ERQTelescopeParticle() = default;
   /** @brief Constructor 
    ** @param deadEloss - eloss in passive detector volumes;
+   ** @param lvInteraction - Lorentz vector in interaction;
   **/
-  ERQTelescopeParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget,Double_t deadEloss);
-  ERQTelescopeParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget,Double_t deadEloss, Double_t T);
+  ERQTelescopeParticle(TLorentzVector lvinteraction, Double_t deadEloss,
+                       Double_t kineticEnergy);
   Double_t GetDeadEloss() const {return fDeadEloss;}
-  Double_t GetT() const {return fT;}
-  TLorentzVector GetLVTarget() const {return fLVTarget;}
-  TLorentzVector GetLVTelescope() const {return fLVTelescope;}
+  Double_t GetKineticEnergy() const {return fKineticEnergy;}
+  TLorentzVector GetLVInteraction() const {return fLVInteraction;}
 private:
-  TLorentzVector fLVTarget;
-  TLorentzVector fLVTelescope;
-  Double_t  fDeadEloss;
-  Double_t  fT;
-  Double_t  fT_noCorrections;
+  TLorentzVector fLVInteraction;
+  Double_t  fKineticEnergy = 0.;
+  Double_t  fDeadEloss = 0.;
   ClassDef(ERQTelescopeParticle, 1)
 };
 

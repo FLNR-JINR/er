@@ -31,7 +31,7 @@ void H7() {
                      t4_he3->GetEntriesFast() == 1 ? static_cast<ERQTelescopeParticle*>(t4_he3->At(0)) : 
                                                      nullptr;
     const auto he8  = static_cast<ERBeamDetParticle*>(beamdet_he8->At(0));
-    const auto he3_lv = he3->GetLVTarget();
+    const auto he3_lv = he3->GetLVInteraction();
     const auto he8_lv = he8->GetLVTarget();
     TLorentzVector h2_lv(0., 0., 0., 1.875612 /*GeV*/);                                            
     *h7_lv = he8_lv + h2_lv - he3_lv;

@@ -28,12 +28,12 @@ void reco(Int_t nEvents = 100000){
   // ------- QTelescope TrackFinder -------------------------------------------
   ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
   qtelescopeTrackFinder->SetHitStation("T1", "T1_SingleSi_SSD20_X_0", "T1_SingleSi_SSD_Y_1");
-  qtelescopeTrackFinder->SetHitStation("T2", "T2_SingleSi_SSD_X_4", "T2_SingleSi_SSD20_Y_3s");
+  qtelescopeTrackFinder->SetHitStation("T2", "T2_SingleSi_SSD_X_4", "T2_SingleSi_SSD20_Y_3");
   qtelescopeTrackFinder->SetHitStation("T3", "T3_SingleSi_SSD20_X_6", "T3_SingleSi_SSD_Y_7");
   qtelescopeTrackFinder->SetHitStation("T4", "T4_SingleSi_SSD_X_10", "T4_SingleSi_SSD20_Y_9");
   qtelescopeTrackFinder->SetHitStation("CT", "CT_DoubleSi_DSD_XY_0");
   run->AddTask(qtelescopeTrackFinder);
-  // -----------------------BeamDetTrackPID----------------------------------
+  // -----------------------BeamDetTrackPID----------------------------------s
   Int_t Z = 2, A = 8, Q = 2;
   TString ionName = "8He";
   ERBeamDetPID* beamdetPid = new ERBeamDetPID(verbose);
@@ -46,7 +46,7 @@ void reco(Int_t nEvents = 100000){
   // ------   QTelescope TrackPID -----------------------------------------
   ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
   qtelescopePID->SetStationParticle("T1_SingleSi_SSD20_X_0T1_SingleSi_SSD_Y_1", 1000020030);
-  qtelescopePID->SetStationParticle("T2_SingleSi_SSD_X_4T2_SingleSi_SSD20_Y_3s", 1000020030);
+  qtelescopePID->SetStationParticle("T2_SingleSi_SSD_X_4T2_SingleSi_SSD20_Y_3", 1000020030);
   qtelescopePID->SetStationParticle("T3_SingleSi_SSD20_X_6T3_SingleSi_SSD_Y_7", 1000020030);
   qtelescopePID->SetStationParticle("T4_SingleSi_SSD_X_10T4_SingleSi_SSD20_Y_9", 1000020030);
   qtelescopePID->SetStationParticle("CT_DoubleSi_DSD_XY_0", 1000010030);

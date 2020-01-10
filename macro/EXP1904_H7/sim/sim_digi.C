@@ -224,21 +224,7 @@ void sim_digi (Int_t nEvents = 100000) {
   //beamDetDigitizer->SetToFTimeSigma(1e-10);
 
   run->AddTask(beamDetDigitizer);
-
-  ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
-  trackFinder->SetTargetVolume("tubeD2");
-
-  //run->AddTask(trackFinder);
-
-  // -----------------------BeamDetTrackPID----------------------------------
-  ERBeamDetPID* pid = new ERBeamDetPID(verbose);
-  pid->SetBoxPID(0., 1000., 0., 1000.);
-  pid->SetOffsetToF(0.);
-  pid->SetProbabilityThreshold(0);
-  pid->SetIonMass(6.5696366); //????
-  pid->SetPID(1000020080);
-  // run->AddTask(pid);
-
+  
   //-------Set visualisation flag to true------------------------------------
   //run->SetStoreTraj(kTRUE);
 

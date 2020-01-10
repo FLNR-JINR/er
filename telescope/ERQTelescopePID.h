@@ -20,6 +20,8 @@
 #include "ERQTelescopeParticle.h"
 #include "ERQTelescopeSetup.h"
 
+class G4ParticleDefinition;
+
 /** @class ERQTelescopePID
  ** @brief 
  ** @author V.Schetinin <schetinin@jinr.ru>
@@ -27,66 +29,52 @@
 **/
 
 class ERQTelescopePID : public ERTask {
-
+  using PDG = Int_t;
 public:
-
   /** @brief Default constructor **/
   ERQTelescopePID();
-
   /** @brief Constructor 
    ** @param verbosity level
   **/
   ERQTelescopePID(Int_t verbose);
-
   /** @brief Destructor **/
-  ~ERQTelescopePID();
-
+  ~ERQTelescopePID() = default;
   /* Modifiers */
-  void SetStationParticle(TString station, Int_t pdg) {fStationParticles[station].push_back(pdg);}
+  void SetStationParticle(const TString& station,
+                          const PDG pdg) {
+    fStationParticles[station].push_back(pdg);
+  }
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding.
   **/
   virtual InitStatus Init();
-
   /** @brief Defines the transformation actions for all input data (Digi) to 
    ** output data (Track) for each event. 
   **/
   virtual void Exec(Option_t* opt);
-
   /** @brief Resets all output data. **/
   virtual void Reset();
-
-  /** @brief Defines actions in the end of track finding. **/
-  virtual void Finish();
-  
 protected:
   //Paramaters
-  ERQTelescopeSetup                   *fQTelescopeSetup;      ///< access to ERQTelescopeSetup class instance
+  ERQTelescopeSetup* fQTelescopeSetup = nullptr; ///< access to ERQTelescopeSetup class instance
   //Input arrays
-  std::map<TString, TClonesArray*>    fQTelescopeDigi;
-  std::map<TString, TClonesArray*>    fQTelescopeTrack;
+  std::map<TString, TClonesArray*> fQTelescopeDigi;
+  std::map<TString, TClonesArray*> fQTelescopeTrack;
   //Output arrays
-  std::map<TString, std::map<Int_t,TClonesArray*> >    fQTelescopeParticle;
-
-  std::map<TString, std::vector<Int_t>> fStationParticles;
-  double fT;
+  std::map<TString, std::map<PDG, TClonesArray*> >  fQTelescopeParticle;
+  std::map<TString, std::vector<PDG>> fStationParticles;
 protected:
-
-  Double_t CalcEloss(const TString& station, const ERQTelescopeTrack* track,
-                     const TVector3& startPoint, Int_t pdg);
-  TVector3 FindBackPropagationStartPoint(const ERQTelescopeTrack* track);
-  Double_t FindDigiEdepByNode(TGeoNode* node);
-  Double_t FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg);
+  TVector3 FindBackPropagationStartPoint(const ERQTelescopeTrack& track);
+  std::pair<Double_t, Double_t> CalcEnergyDeposites (
+      const ERQTelescopeTrack& track, const TVector3& startPoint,
+      const G4ParticleDefinition& particle);
+  Double_t FindDigiEdepByNode(const TGeoNode& node);
+  Double_t FindCsIEdepByTrack(ERQTelescopeTrack* track, PDG pdg);
 private:
-
   /** @brief Adds a ERQTelescopeParticles to the output Collection **/
-  ERQTelescopeParticle* AddParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget, 
-                                      Double_t deadEloss, TClonesArray* col);
-
-  ERQTelescopeParticle* AddParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget, 
-                                      Double_t deadEloss, TClonesArray* col, Double_t T);
-
+  ERQTelescopeParticle* AddParticle(const TLorentzVector& lvInteraction, Double_t kineticEnergy,
+                                    Double_t deadEloss, TClonesArray& col);
   ClassDef(ERQTelescopePID,1)
 };
 #endif

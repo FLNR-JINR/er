@@ -6,25 +6,11 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 #include "ERQTelescopeParticle.h"
-
-ERQTelescopeParticle::ERQTelescopeParticle()
-{
-}
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeParticle::ERQTelescopeParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget,Double_t deadEloss)
-: fDeadEloss(deadEloss),
-  fLVTarget(lvTarget),
-  fLVTelescope(lvTelescope)
-{
-}
-//--------------------------------------------------------------------------------------------------
-ERQTelescopeParticle::ERQTelescopeParticle(TLorentzVector lvTelescope, TLorentzVector lvTarget,Double_t deadEloss, Double_t T)
-: fDeadEloss(deadEloss),
-  fLVTarget(lvTarget),
-  fLVTelescope(lvTelescope),
-  fT(T)
-{
-  fT_noCorrections = fT - fDeadEloss;
+ERQTelescopeParticle::ERQTelescopeParticle(const TLorentzVector lvInteraction,
+                                           const Double_t kineticEnergy,
+                                           const Double_t deadEloss)
+    : fLVInteraction(lvInteraction), fKineticEnergy(kineticEnergy), fDeadEloss(deadEloss) {
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeParticle)
