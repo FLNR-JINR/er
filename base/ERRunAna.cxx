@@ -65,7 +65,7 @@ Double_t CalcElossIntegralVolStepGet (Double_t T, const G4ParticleDefinition* io
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = 1e-5;// 0.001; // range / fDivision;
+  const Double_t intStep = 0.01; // range / fDivision;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (!AreSame(curStep, range, intStep / 2.)) {
@@ -85,7 +85,7 @@ Double_t CalcElossIntegralVolStepCompute (Double_t T, G4ParticleDefinition* ion,
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = 1e-5;// 0.001; // range / fDivision;
+  const Double_t intStep = 0.01; // range / fDivision;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (!AreSame(curStep, range, intStep / 2.)) {
@@ -106,7 +106,7 @@ Double_t CalcElossIntegralVolStepGetInvDir (Double_t T, const G4ParticleDefiniti
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = 1e-5;// 0.001; // range / fDivision;
+  const Double_t intStep = 0.01; // range / fDivision;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (!AreSame(curStep, range, intStep / 2.)) {
@@ -126,7 +126,7 @@ Double_t CalcElossIntegralVolStepComputeInvDir (Double_t T, G4ParticleDefinition
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = 1e-5;// 0.001; // range / fDivision;
+  const Double_t intStep = 0.01; // range / fDivision;
   // cout << "intStep " << intStep << endl;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
@@ -191,7 +191,8 @@ void ERRunAna::Init(){
   // std::vector<double> energies = {4.7844}; // [MeVs]
   // std::vector<double> thickCalc_dE = {2, 4, 6, 8, 12, 16, 20, 24, 28, 32, 36, 40}; // [um]
   // std::vector<double> thickCalc_dE = {8, 12, 16, 20, 24, 28, 32, 36}; // [um]
-  std::vector<double> thickCalc_dE = {1, 2, 3, 4, 5, 6}; // [um]
+  // std::vector<double> thickCalc_dE = {1, 2, 3, 4, 5, 6}; // [um]
+  std::vector<double> thickCalc_dE = {2.33}; // [um]
   // std::vector<double> thickCalc_dE  = {2, 4, 5, 5.56}; // [um]
   cout << "d | edep_comp | edep_get " << endl;
   // for (double div = 500; div <= 5000; div *= 10) {
@@ -215,6 +216,7 @@ void ERRunAna::Init(){
         double T_restored_comp = T_comp_after_dead + edep_comp;
         double T_restored_get = T_get_after_dead + edep_get;
         // cout << itThickness << " " << (itEnergies - T_restored_comp)*1e3 << " | " << (itEnergies - T_restored_get)*1e3 << endl;
+        cout << itThickness << " " << edep_comp << " " << T_restored_comp << endl;
         // cout << (itEnergies - T_restored_comp)*1e3 << " | " << (itEnergies - T_restored_get)*1e3 << endl;
 
       }
