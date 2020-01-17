@@ -146,12 +146,25 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         continue;
       }
       correctStripsY.push_back(0);
+      
+      //std::vector<double> thresholds = {24, 28, 28, 30, 28, 29, 31, 28, 28, 29, 29, 29, 25, 28, 28, 23};
+      //std::vector<double> coeff_a = {0.0170149, 0.016903, 0.0167109, 0.0165498, 0.0167078, 0.0166459, 0.0168446, 0.0164798, 0.0167559, 0.0169723, 0.017026, 0.0171465, 0.0170058, 0.0170906, 0.0167915, 0.0164734};
+      //std::vector<double> coeff_b = {-0.30411, -0.377272, -0.29458, -0.378852, -0.395058, -0.395741, -0.358301, -0.273369, -0.434498, -0.269807, -0.29015, -0.286433, -0.303534, -0.262838, -0.351829, -0.34803};
+      //int mult = 0;
       for (Int_t iXDigi  = 0; iXDigi < xDigi->GetEntriesFast(); iXDigi++) {
         const Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(iXDigi))->GetEdep();
+	//cout << (xStripEdep - coeff_b[iXDigi]) / coeff_a[iXDigi] << endl;
+	//if ((xStripEdep - coeff_b[iXDigi]) / coeff_a[iXDigi] > thresholds[iXDigi]) {
+	//  cout << (xStripEdep - coeff_b[iXDigi]) / coeff_a[iXDigi] << endl;
+        //  mult++;
+	//}
         if (xStripEdep > fSiDigiEdepMin && xStripEdep < fSiDigiEdepMax) {
           correctStripsX.push_back(iXDigi);
         }
       }
+      //if (mult != 1) {
+      //  continue;
+      //}
       for (const auto itCorrectStripsX : correctStripsX) {
         const Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(itCorrectStripsX))->GetEdep();
         for (const auto itCorrectStripsY : correctStripsY) {

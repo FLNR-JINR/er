@@ -31,6 +31,7 @@
 #include <iostream>
 using namespace std;
 
+double edepppp = 0.;
 //--------------------------------------------------------------------------------------------------
 ERQTelescopePID::ERQTelescopePID()
   : ERTask("ER qtelescope particle identification scheme"),
@@ -121,7 +122,7 @@ void ERQTelescopePID::Exec(Option_t* opt) {
                                     P*sin(direction.Theta())*sin(direction.Phi()),
                                     P*cos(direction.Theta()),
                                     sqrt(pow(P,2)+pow(mass,2)));
-        AddParticle(lvTelescope, lvTarget, 0., itParticesBranches.second, T);
+        AddParticle(lvTelescope, lvTarget, edepppp, itParticesBranches.second, T);
       }
     }
   }
@@ -235,7 +236,6 @@ TVector3 ERQTelescopePID::FindBackPropagationStartPoint(const ERQTelescopeTrack*
              << "," << backPropagationStartPoint.Z() << FairLogger::endl;
   return backPropagationStartPoint;
 }
-
 //--------------------------------------------------------------------------------------------------
 Double_t ERQTelescopePID::CalcEloss(const TString& station, const ERQTelescopeTrack* track,
                                     const TVector3& startPoint, const Int_t pdg) { 
@@ -268,6 +268,7 @@ Double_t ERQTelescopePID::CalcEloss(const TString& station, const ERQTelescopeTr
     if (TString(gGeoManager->GetPath()).Contains("Sensitive")){
       LOG(DEBUG) <<" [CalcEloss]    Sensetive Volume -> get Eloss from digi" << FairLogger::endl;
       Double_t edep = FindDigiEdepByNode(node);
+      edepppp = edep;
       T += edep;
       node = gGeoManager->Step();
       LOG(DEBUG) <<" [CalcEloss]    Kinetic Energy  = " << T << FairLogger::endl;

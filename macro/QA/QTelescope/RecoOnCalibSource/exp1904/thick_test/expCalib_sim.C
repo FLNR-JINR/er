@@ -3,8 +3,7 @@ void expCalib_sim (Int_t nEvents = 1) {
   TString outFile = "sim_digi_Calib.root";
   TString parFile = "par_Calib.root";
   TString workDirPath = gSystem->Getenv("VMCWORKDIR");
-  TString paramFileQTelescope = workDirPath
-                         + "/db/QTelescope/QTelescopeParts_postcalibEXP1904.xml";
+  TString paramFileQTelescope = "../input/QTelescopeParts_postcalibEXP1904.xml";
   TString targetGeoFileName = workDirPath + "/geometry/siSource.geo.root";
   // -----   Timer   --------------------------------------------------------
   //

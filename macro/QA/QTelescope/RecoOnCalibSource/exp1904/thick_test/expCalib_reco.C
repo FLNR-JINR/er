@@ -1,7 +1,11 @@
 void expCalib_reco(){
   //---------------------Files-----------------------------------------------
   // TString inFile = "../input/calib_1mm_90_1to8_digi_quad.root";
-  TString inFile = "../input/calib_1mm_90_1to8_digi_quad_mean.root";
+  // TString inFile = "../input/calib_1mm_90_1to8_digi_quad_eta.root";
+  //TString inFile = "../input/calib_1mm_90_1to8_digi_quad_mean.root";
+  //TString inFile = "calib_1mm_90_1to8_digi_half_a_min.root";
+  //TString inFile = "calib_1mm_90_1to8_digi_half_a.root";
+  TString inFile = "calib_1mm_90_1to8_digi.root";
   auto file = TFile::Open(inFile.Data());
   auto tree = (TTree*)file->Get("er");
   Int_t nEvents = tree->GetEntriesFast();//1443710:
@@ -15,7 +19,9 @@ void expCalib_reco(){
   ERRunAna *run = ERRunAna::Instance();
   TString userCut;
   TString outFile;
-  outFile.Form("expCalib_reco_quad_mean.root");
+  //outFile.Form("expCalib_reco_quad_mean_half_a_min.root");
+  outFile.Form("expCalib_reco_quad_mean_half_a.root");
+  //outFile.Form("expCalib_reco_quad_mean.root");
   run->SetGeomFile("geo_expCalib.root");
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
