@@ -264,17 +264,19 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(const TGeoNode& node){
   //@ TODO Now working only for SingleSi
   Double_t edep = 0.;
   TString brNamePrefix = node.GetMotherVolume()->GetName();
-  LOG(DEBUG) <<" [ERQTelescopePID] [CalcEnergyDeposites] Branch name prefix " 
-             << brNamePrefix << FairLogger::endl;
-  if (brNamePrefix.Contains("pseudo")) {
+  // modify prefix in case of DoubleSi or pseudo volumes.
+  if (brNamePrefix.Contains("pseudo") || brNamePrefix.Contains("doubleSi")) {
+    // example: /cave_1/QTelescopeTmp_0/CT_3/CT_DoubleSi_DSD_XY_0/doubleSiStrip_XY_0/SensitiveDoubleSiBox_XY_16
     TString path = gGeoManager->GetPath();
     path.Remove(path.Last('/'), path.Length());
     path.Remove(path.Last('/'), path.Length());
     path.Remove(0, path.Last('/') + 1);
-    path.Remove(path.Length()-2, path.Length());
-    // std::cout << "debug path " << path << std::endl;
+    if (brNamePrefix.Contains("pseudo"))
+      path.Remove(path.Length()-2, path.Length());
     brNamePrefix = path;
   }
+  LOG(DEBUG) <<" [ERQTelescopePID] [CalcEnergyDeposites] Branch name prefix " 
+             << brNamePrefix << FairLogger::endl;
   TString brName = "";
   for (auto digiBranch : fQTelescopeDigi){
     TString currentBrNamePrefix(digiBranch.first(0,digiBranch.first.Last('_')));
@@ -283,7 +285,7 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(const TGeoNode& node){
     if (currentBrNamePrefix == brNamePrefix)
       brName = digiBranch.first;
   }
-  if (brName == ""){
+  if (brName == ""){  
     LOG(DEBUG) << " [ERQTelescopePID] [CalcEnergyDeposites]  Branch not found in telescope branches name" 
                  << FairLogger::endl;
     return 0.;

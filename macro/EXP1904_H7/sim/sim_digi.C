@@ -230,7 +230,7 @@ void sim_digi (Int_t nEvents = 100000) {
   //run->SetStoreTraj(kTRUE);
 
   //-------Set LOG verbosity  ----------------------------------------------- 
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("FATAL");
 
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
