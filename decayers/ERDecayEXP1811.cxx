@@ -203,9 +203,9 @@ Bool_t ERDecayEXP1811::Stepping() {
       
       Double_t decay7HMass;
       Int_t reactionAttempsCounter = 0;
+      Double_t excitation = 0;  // excitation energy
       while (reactionHappen==kFALSE) { // while reaction condition is not fullfilled   
         decay7HMass = f7HMass;
-        Double_t excitation = 0;  // excitation energy
         if (fIs7HExcitationSet) {
           Double_t randWeight = gRandom->Uniform(0., f7HExcitationWeight.back());
           Int_t distribNum = 0;
@@ -236,7 +236,7 @@ Bool_t ERDecayEXP1811::Stepping() {
       fLv3He->Boost(boost);
 
       //7H → f3H + n +n +n +n
-      if (!DecayPhaseGenerator()){
+      if (!DecayPhaseGenerator(excitation)){
         fDecayFinish = kTRUE;
         return kTRUE;
       }
@@ -353,61 +353,66 @@ void ERDecayEXP1811::ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass) {
 }
 
 //-------------------------------------------------------------------------------------------------
-Bool_t ERDecayEXP1811::DecayPhaseGenerator() {
-  if (fDecayFilePath == ""){ // if decay file not defined, permorm decay using phase space
+Bool_t ERDecayEXP1811::DecayPhaseGenerator(const Double_t excitation) {
+  if (fDecayFilePath == ""){ // if decay file not defined, per morm decay using phase space
     Double_t decayMasses[5];
     decayMasses[0] = f3H->Mass();
     decayMasses[1] = fn->Mass(); 
     decayMasses[2] = fn->Mass();
     decayMasses[3] = fn->Mass(); 
     decayMasses[4] = fn->Mass();
-
     fDecayPhaseSpace->SetDecay(*fLv7H, 5, decayMasses);
     fDecayPhaseSpace->Generate();
-
     fLv3H = fDecayPhaseSpace->GetDecay(0);
     fLvn1 = fDecayPhaseSpace->GetDecay(1);
     fLvn2 = fDecayPhaseSpace->GetDecay(2);
     fLvn3 = fDecayPhaseSpace->GetDecay(3);
     fLvn4 = fDecayPhaseSpace->GetDecay(4);
-
     return kTRUE;
   }
-
   if (fDecayFile.eof()){
     LOG(INFO) << "Decay file finished!" << FairLogger::endl;
     return kFALSE;
   }
-
   std::string event_line;
   std::getline(fDecayFile,event_line);
-
   std::istringstream iss(event_line);
   std::vector<std::string> outputs_components((std::istream_iterator<std::string>(iss)),
-                                   std::istream_iterator<std::string>());
-
+                                               std::istream_iterator<std::string>());
   if (outputs_components.size() < 5*3){
     LOG(ERROR) << "Wrong components number in raw in decay file!" << FairLogger::endl;
     return kFALSE;
   }
-
-  fLvn1->SetXYZM(std::stod(outputs_components[0]),std::stod(outputs_components[1]),
-               std::stod(outputs_components[2]),fn->Mass());
-  fLvn2->SetXYZM(std::stod(outputs_components[3]),std::stod(outputs_components[4]),
-               std::stod(outputs_components[5]),fn->Mass());
-  fLvn3->SetXYZM(std::stod(outputs_components[6]),std::stod(outputs_components[7]),
-               std::stod(outputs_components[8]),fn->Mass());
-  fLvn4->SetXYZM(std::stod(outputs_components[9]),std::stod(outputs_components[10]),
-               std::stod(outputs_components[11]),fn->Mass());
-  fLv3H->SetXYZM(std::stod(outputs_components[12]),std::stod(outputs_components[13]),
-               std::stod(outputs_components[14]),f3H->Mass());
-
-  fLvn1->Boost(fLv7H->BoostVector());
-  fLvn2->Boost(fLv7H->BoostVector());
-  fLvn3->Boost(fLv7H->BoostVector());
-  fLvn4->Boost(fLv7H->BoostVector());
-  fLv3H->Boost(fLv7H->BoostVector());
-  
+  // Fill momentum vectors in CM.
+  TVector3 pn1(std::stod(outputs_components[0]),std::stod(outputs_components[1]),
+               std::stod(outputs_components[2]));
+  TVector3 pn2(std::stod(outputs_components[3]),std::stod(outputs_components[4]),
+               std::stod(outputs_components[5]));
+  TVector3 pn3(std::stod(outputs_components[6]),std::stod(outputs_components[7]),
+               std::stod(outputs_components[8]));
+  TVector3 pn4(std::stod(outputs_components[9]),std::stod(outputs_components[10]),
+               std::stod(outputs_components[11]));
+  TVector3 p3H(std::stod(outputs_components[12]),std::stod(outputs_components[13]),
+               std::stod(outputs_components[14]));
+  // Apply scale factor
+  const auto excitationScale = excitation > 0. ? sqrt(excitation / fDecayFileExcitation) : 1.;
+  const auto MeV2GeV = 1./1000.;
+  const auto scale = excitationScale * MeV2GeV;
+  pn1 *= scale;
+  pn2 *= scale;
+  pn3 *= scale;
+  pn4 *= scale;
+  p3H *= scale;
+  const auto fill_output_lorentz_vectors_in_lab = 
+      [this](TLorentzVector* lv, const TVector3& p, const Double_t mass) {
+        lv->SetXYZM(p.X(), p.Y(), p.Z(), mass);
+        lv->Boost(fLv7H->BoostVector());
+      };
+  fill_output_lorentz_vectors_in_lab(fLvn1, pn1, fn->Mass());
+  fill_output_lorentz_vectors_in_lab(fLvn2, pn2, fn->Mass());
+  fill_output_lorentz_vectors_in_lab(fLvn3, pn3, fn->Mass());
+  fill_output_lorentz_vectors_in_lab(fLvn4, pn4, fn->Mass());
+  fill_output_lorentz_vectors_in_lab(fLv3H, p3H, f3H->Mass());
   return kTRUE;
 }
 
