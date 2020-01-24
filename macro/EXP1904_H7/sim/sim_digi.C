@@ -35,7 +35,7 @@ void sim_digi (Int_t nEvents = 100000) {
   // -----   Runtime database   ---------------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   //-------- Set MC event header --------------------------------------------
-  ERDecayMCEventHeader* decayMCheader = new ERDecayMCEventHeader();
+  EREXP1811EventHeader* decayMCheader = new EREXP1811EventHeader();
   run->SetMCEventHeader(decayMCheader);
   // -----   Create media   -------------------------------------------------
   run->SetMaterials("media.geo");       // Materials

@@ -40,7 +40,7 @@ void reco(Int_t nEvents = 100000){
   beamdetPid->SetBoxPID(0., 1000., 0., 1000.);
   beamdetPid->SetOffsetToF(0.);
   beamdetPid->SetProbabilityThreshold(0);
-  beamdetPid->SetIonMass(6.5696366);
+  beamdetPid->SetIonMass(7.4825396);
   beamdetPid->SetPID(1000020080);
   run->AddTask(beamdetPid);
   // ------   QTelescope TrackPID -----------------------------------------

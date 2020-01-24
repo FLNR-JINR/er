@@ -22,6 +22,7 @@ using namespace std;
 #include "FairLogger.h"
 
 #include "ERDecayMCEventHeader.h"
+#include "EREXP1811EventHeader.h"
 #include "ERMCEventHeader.h"
 
 ERDecayEXP1811::ERDecayEXP1811():
@@ -298,6 +299,11 @@ Bool_t ERDecayEXP1811::Stepping() {
         header->AddOutputParticle(n2TrackNb);
         header->AddOutputParticle(n3TrackNb);
         header->AddOutputParticle(n4TrackNb);
+      }   
+      if (TString(run->GetMCEventHeader()->ClassName()).Contains("EREXP1811EventHeader")){   
+        EREXP1811EventHeader* header = (EREXP1811EventHeader*)run->GetMCEventHeader();
+        header->SetData(curPos.Vect(), lv8He,  lv2H, *fLv3He, *fLv3H,  *fLv7H, *fLvn1, *fLvn2, *fLvn3, *fLvn4);
+        header->SetTrigger(1);
       }
     }
   }
@@ -317,6 +323,10 @@ void ERDecayEXP1811::FinishEvent() {
   FairRunSim* run = FairRunSim::Instance();
   if (TString(run->GetMCEventHeader()->ClassName()).Contains("ERDecayMCEventHeader")){   
     ERDecayMCEventHeader* header = (ERDecayMCEventHeader*)run->GetMCEventHeader();
+    header->Clear();
+  }
+  if (TString(run->GetMCEventHeader()->ClassName()).Contains("EREXP1811EventHeader")){   
+    EREXP1811EventHeader* header = (EREXP1811EventHeader*)run->GetMCEventHeader();
     header->Clear();
   }
 }

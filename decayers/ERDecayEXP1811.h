@@ -21,7 +21,7 @@
 
 #include "FairIon.h"
 
-#include "ERDecay.h" // mother class
+#include "ERDecay.h"
 
 class ERDecayEXP1811 : public ERDecay {
 

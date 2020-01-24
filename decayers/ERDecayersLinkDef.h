@@ -15,5 +15,6 @@
 #pragma link C++ class ERDecayEXP1803+;
 #pragma link C++ class ERDecayEXP1811+;
 #pragma link C++ class ERElasticScattering+;
+#pragma link C++ class EREXP1811EventHeader+;
 
 #endif
