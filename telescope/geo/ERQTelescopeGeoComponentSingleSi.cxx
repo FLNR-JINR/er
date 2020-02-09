@@ -82,25 +82,26 @@ void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
 
   fVolume = gGeoManager->MakeBox(this->GetVolumeName(), pMed, fSizeX / 2., fSizeY / 2., fSizeZ / 2.);
   //------------------ Single Si strip --------------------------------------
-  Double_t singleSiStripX = fSensX / fStripCount; 
-  Double_t singleSiStripY = fSensY;   
+  const bool isXstrip = (fOrientAroundZ.Contains("Y")) ? kFALSE : kTRUE;
+  Double_t singleSiStripX = (isXstrip) ? fSensX / fStripCount : fSensX; 
+  Double_t singleSiStripY = (isXstrip) ? fSensY : fSensY / fStripCount;   
   Double_t singleSiStripZ = fSensZ - fDeadLayerThicknessFrontSide - fDeadLayerThicknessBackSide;   
   singleSiStrip = gGeoManager->MakeBox("SensitiveSingleSiStrip"+fOrientAroundZ, pMed, 
-                                                                        singleSiStripX / 2., 
-                                                                        singleSiStripY / 2., 
-                                                                        singleSiStripZ / 2.);
-  //------------------ STRUCTURE  ---------------------------------------------
+                                       singleSiStripX / 2., 
+                                       singleSiStripY / 2., 
+                                       singleSiStripZ / 2.);
   //----------------------- Single Si structure -------------------------------
-  //------------------ Add fibers to station  along x -----------------------
   for (Int_t iStrip = 0; iStrip < fStripCount; iStrip++) {
-    Double_t transX = fSensX / 2
-                      - singleSiStripX/2. - iStrip*singleSiStripX;
+    Double_t transX = 0;
+    Double_t transY = 0;
+    if (isXstrip) {
+      transX = fSensX / 2. - singleSiStripX / 2. - iStrip * singleSiStripX;
+    } else {
+      transY = fSensY / 2. - singleSiStripY / 2. - iStrip * singleSiStripY;
+    }
     Double_t transZ = (fDeadLayerThicknessFrontSide 
-                        - fDeadLayerThicknessBackSide)/2.;
-    fVolume->AddNode(singleSiStrip, iStrip, new TGeoCombiTrans(transX, 0., transZ, new TGeoRotation()));
-  }
-  if (fOrientAroundZ.Contains("Y")) {
-    fRotation->RotateZ(90.);
+                       - fDeadLayerThicknessBackSide)/2.;
+    fVolume->AddNode(singleSiStrip, iStrip, new TGeoCombiTrans(transX, transY, transZ, new TGeoRotation()));
   }
 }
 //--------------------------------------------------------------------------------------------------
