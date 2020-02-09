@@ -144,15 +144,16 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
       if (xDigi->GetEntriesFast() == 0 || yDigi->GetEntriesFast()==0) {
         continue;
       }
-
       for (Int_t iXDigi  = 0; iXDigi < xDigi->GetEntriesFast(); iXDigi++) {
         const Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(iXDigi))->GetEdep();
+	LOG(DEBUG) << "xStripEdep " << xStripEdep << "; iXDigi " << iXDigi << FairLogger::endl;
         if (xStripEdep > fSiDigiEdepMin && xStripEdep < fSiDigiEdepMax) {
           correctStripsX.push_back(iXDigi);
         }
       }
       for (Int_t iYDigi  = 0; iYDigi < yDigi->GetEntriesFast(); iYDigi++) {
         const Double_t yStripEdep = ((ERQTelescopeSiDigi*)yDigi->At(iYDigi))->GetEdep();
+	LOG(DEBUG) << "yStripEdep " << yStripEdep << "; iYDigi " << iYDigi << FairLogger::endl;
         if (yStripEdep > fSiDigiEdepMin && yStripEdep < fSiDigiEdepMax) {
           correctStripsY.push_back(iYDigi);
         }
@@ -197,6 +198,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         assert(z1 != fTargetZ);
         const double k = (z2 - fTargetZ) / (z1 - fTargetZ);
         double x1 = 0., x2 = 0., y1 = 0., y2 = 0.;
+	LOG(DEBUG) << "xStationIsClosest " << xStationIsClosest << FairLogger::endl;
         if (xStationIsClosest) { // find y1, x2 from equation
           x1 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xStripNb);
           y2 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
@@ -208,6 +210,8 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
           x1 = (-1./k)*((1. - k)*fTargetX - x2);
           y2 = (1. - k)*fTargetY + k*y1;
         }
+	LOG(DEBUG) << "[ERQTelescopeTrack] x1, y1 " << x1 << " " << y1 << FairLogger::endl;
+	LOG(DEBUG) << "[ERQTelescopeTrack] x2, y2 " << x2 << " " << y2 << FairLogger::endl;
         const auto xQTeleGlobHit = (x1 + x2) / 2.;
         const auto yQTeleGlobHit = (y1 + y2) / 2.;
         const auto zQTeleGlobHit = (z1 + z2) / 2.;

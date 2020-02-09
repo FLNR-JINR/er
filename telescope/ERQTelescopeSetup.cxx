@@ -130,14 +130,19 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
           Double_t stripInDetectorTrans[3];
           Double_t stripGlobTrans[3];
           if (qtelescopeStationName.Contains("DoubleSi", TString::kIgnoreCase) ) {
+            Int_t bLastPostfix = qtelescopeStationName.Last('_');
+            TString assemblyNbStr(qtelescopeStationName(bLastPostfix + 1, qtelescopeStationName.Length()));
+            Int_t assemblyNb = assemblyNbStr.Atoi();
+	    LOG(DEBUG) << assemblyNb << " " << qtelescopeStationName << " " << qtelescopeStationName(0, bLastPostfix) << " ";
             TGeoNode* doubleSiStrip;
+	    TString stripArrayBase(qtelescopeStationName(0, bLastPostfix));
             TString firstStripArrayName, secondStripArrayName;
             if (qtelescopeStationName.Contains("XY")) {
-              firstStripArrayName = qtelescopeStationName + "_X";
-              secondStripArrayName = qtelescopeStationName + "_Y";
+              firstStripArrayName = stripArrayBase + "_" + TString::Itoa(assemblyNb, 10) + "_X";
+              secondStripArrayName = stripArrayBase + "_" + TString::Itoa(assemblyNb + 1, 10) + "_Y";
             } else {
-              firstStripArrayName = qtelescopeStationName + "_Y";
-              secondStripArrayName = qtelescopeStationName + "_X";              
+              firstStripArrayName = stripArrayBase + "_" + TString::Itoa(assemblyNb, 10) + "_Y";
+              secondStripArrayName = stripArrayBase + "_" + TString::Itoa(assemblyNb + 1, 10) + "_X";
             }
             Bool_t    flagFirstStripReaded = kFALSE;
             Int_t     iDoubleSiStrip = 0;
@@ -149,6 +154,15 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
               // by all forefathers nodes if possible. Maybe with some FairRoot methods
               qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
               qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
+	      LOG(DEBUG) << qtelescopeStationName << " strip " 
+		         << iDoubleSiStrip << " global coordinates: "
+		         << stripGlobTrans[0] << ", " 
+		         << stripGlobTrans[1] << ", " 
+		         << stripGlobTrans[2]; 
+	      LOG(DEBUG) << " | local coordinates: " 		         
+		         << stripInStationTrans[0] << ", " 
+		         << stripInStationTrans[1] << ", " 
+		         << stripInStationTrans[2] << FairLogger::endl; 
               fStrips[firstStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans));
               TGeoNode* doubleSiBox;
               Int_t iDoubleSiBox = 0;
@@ -163,6 +177,15 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
                   doubleSiStrip->LocalToMaster(boxInStripTrans, stripInStationTrans);
                   qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
                   qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
+	          LOG(DEBUG) << qtelescopeStationName << " strip " 
+		             << iDoubleSiBox << " global coordinates: "
+		             << stripGlobTrans[0] << ", " 
+		             << stripGlobTrans[1] << ", " 
+		             << stripGlobTrans[2]; 
+	          LOG(DEBUG) << " | local coordinates: " 		         
+		             << boxInStripTrans[0] << ", " 
+		             << boxInStripTrans[1] << ", " 
+		             << boxInStripTrans[2] << FairLogger::endl; 
                   fStrips[secondStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans, boxInStripTrans));
                 }
                 flagFirstStripReaded = kTRUE;

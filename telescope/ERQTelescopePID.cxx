@@ -133,20 +133,23 @@ AddParticle(const TLorentzVector& lvInteraction, const Double_t kineticEnergy, c
   return new(col[col.GetEntriesFast()]) ERQTelescopeParticle(lvInteraction, kineticEnergy, deadEloss);
 }
 //--------------------------------------------------------------------------------------------------
-Double_t CalcElossIntegralVolStep (Double_t kineticEnergy, const G4ParticleDefinition& particle, 
-                                   const G4Material& material, const Double_t range) { 
+Double_t CalcElossIntegralVolStep (Double_t T, const G4ParticleDefinition& ion, 
+                                   const G4Material& mat, const Double_t range) { 
   //FIXME copy-past from ERBeamDetSetup
+  if (mat.GetName() == "vacuum") {
+    return 0.;
+  }
   if (range <= 0.)
     return 0;
+  const Double_t range_nm = range * 1e7; // [nm]
   Double_t integralEloss = 0.;
-  const Double_t intStep = range / 20;
+  const Double_t intStep = 10; // [nm]
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
-  while (curStep < range) {
-    Double_t eloss = calc->GetDEDX(kineticEnergy * 1e3 /* MeV */, &particle, &material) * intStep 
-                     * 10 /* 1/mm */ * 1e-3 /* GeV */;
+  while (curStep < range_nm) {
+    Double_t eloss = calc->GetDEDX(T*1e3,&ion,&mat)*intStep*1e-6*1e-3;
     integralEloss += eloss;
-    kineticEnergy += eloss;
+    T += eloss;
     curStep += intStep;
   }
   return integralEloss;
@@ -269,7 +272,7 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(const TGeoNode& node){
     // example: /cave_1/QTelescopeTmp_0/CT_3/CT_DoubleSi_DSD_XY_0/doubleSiStrip_XY_0/SensitiveDoubleSiBox_XY_16
     TString path = gGeoManager->GetPath();
     path.Remove(path.Last('/'), path.Length());
-    path.Remove(path.Last('/'), path.Length());
+    path.Remove(path.Last('/')-2, path.Length());
     path.Remove(0, path.Last('/') + 1);
     if (brNamePrefix.Contains("pseudo"))
       path.Remove(path.Length()-2, path.Length());
@@ -279,9 +282,10 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(const TGeoNode& node){
              << brNamePrefix << FairLogger::endl;
   TString brName = "";
   for (auto digiBranch : fQTelescopeDigi){
-    TString currentBrNamePrefix(digiBranch.first(0,digiBranch.first.Last('_')));
-    // std::cout << "currentBrNamePrefix " << currentBrNamePrefix << std::endl;
-    // std::cout << "currentBrNamePrefix " << currentBrNamePrefix << std::endl;
+    TString currentBrNamePrefix(digiBranch.first(0,digiBranch.first.Last('_') - 2));
+    LOG(DEBUG) << "digiBranch.first " << digiBranch.first << FairLogger::endl;
+    LOG(DEBUG) << "currentBrNamePrefix " << currentBrNamePrefix << FairLogger::endl;
+    LOG(DEBUG) << "brNamePrefix " << brNamePrefix << FairLogger::endl;
     if (currentBrNamePrefix == brNamePrefix)
       brName = digiBranch.first;
   }
@@ -291,9 +295,12 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(const TGeoNode& node){
     return 0.;
   } else {
     TString sensVolName = node.GetName();
+    LOG(DEBUG) << "[FindDigiEdepByNode] sensVolName " << sensVolName << FairLogger::endl;
     Int_t bLastPostfix = sensVolName.Last('_'); 
     TString stripNbStr(sensVolName(bLastPostfix + 1, sensVolName.Length()));
     Int_t stripNb = stripNbStr.Atoi();
+    LOG(DEBUG) << "[FindDigiEdepByNode] stripNb " << stripNb << FairLogger::endl;
+    LOG(DEBUG) << "[FindDigiEdepByNode] brName " << brName << FairLogger::endl;
     Bool_t found = kFALSE;
     for (Int_t iDigi = 0; iDigi < fQTelescopeDigi[brName]->GetEntriesFast(); iDigi++){
       ERQTelescopeSiDigi* digi = (ERQTelescopeSiDigi*)fQTelescopeDigi[brName]->At(iDigi);

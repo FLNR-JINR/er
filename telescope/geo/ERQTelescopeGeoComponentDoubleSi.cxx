@@ -88,13 +88,11 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   FairGeoMedium* mDoubleSi;
   TGeoMedium*    pMed; 
   mDoubleSi = geoMedia->getMedium(fMedia);
-
   if ( ! mDoubleSi ) Fatal("Main", "Medium for DoubleSi not found");
   geoBuild->createMedium(mDoubleSi);
   pMed = gGeoMan->GetMedium(fMedia);
   if ( ! pMed ) Fatal("Main", "Medium for DoubleSi not found");
   LOG(DEBUG) << "Created double Si media" << FairLogger::endl;
-
   // --------------   Create geometry and top volume  -------------------------
   gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   // fVolume = new TGeoVolumeAssembly(fType);
@@ -102,40 +100,51 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   TGeoVolume* shell;
   TGeoVolume* strip;
   TGeoVolume* box;
-  fVolume =  gGeoManager->MakeBox(this->GetVolumeName(), pMed, fSizeX / 2, fSizeY / 2,  fSizeZ / 2);
+  fVolume = gGeoManager->MakeBox(this->GetVolumeName(), pMed, fSizeX / 2, fSizeY / 2,  fSizeZ / 2);
+  const bool isXstripFirst = (fOrientAroundZ.Contains("Y")) ? kFALSE : kTRUE;
   //------------------ Silicon strip   ---------------------------------------
-  Double_t stripX = fSensX / fStripCountX;
-  Double_t stripY = fSensY;
+  Double_t stripX = (isXstripFirst) ? fSensX / fStripCountX : fSensX;
+  Double_t stripY = (isXstripFirst) ? fSensY : fSensY / fStripCountY;
   Double_t stripZ = fSensZ - fDeadLayerThicknessFrontSide - fDeadLayerThicknessBackSide;
+  Double_t stripAmount = (isXstripFirst) ? fStripCountX : fStripCountY;
   strip = gGeoManager->MakeBox("doubleSiStrip" + fOrientAroundZ, pMed, stripX / 2, 
                                                                        stripY / 2, 
                                                                        stripZ / 2);
   //------------------ Silicon box   -----------------------------------------
-  Double_t boxX = stripX;  
-  Double_t boxY = stripY / fStripCountY; 
+  Double_t boxX = (isXstripFirst) ? fSensX : fSensX / fStripCountX;
+  Double_t boxY = (isXstripFirst) ? fSensY / fStripCountY : fSensY;
   Double_t boxZ = stripZ; 
+  Double_t boxAmount = (isXstripFirst) ? fStripCountY : fStripCountX;
   box = gGeoManager->MakeBox("SensitiveDoubleSiBox"+fOrientAroundZ, pMed, boxX / 2, 
                                                                           boxY / 2, 
                                                                           boxZ / 2);
   //------------------ STRUCTURE  ---------------------------------------------
   //----------------------- Double Si structure -------------------------------
-  //------------------ Add fibers to station  along x ----------------------- 
-  for (Int_t iBox = 0; iBox < fStripCountY ; ++iBox ) {
-    Double_t translateY = (fSensY / 2) 
-                        - boxY / 2 - boxY * iBox ;
-    strip->AddNode(box, iBox, new TGeoCombiTrans(0, translateY, 0, fZeroRotation));
+  for (Int_t iBox = 0; iBox < boxAmount ; ++iBox ) {
+    Double_t transX = 0; 
+    Double_t transY = 0;
+    if (isXstripFirst) {
+      transY = fSensY / 2 - boxY / 2 - boxY * iBox;
+    } else {
+      transX = fSensX / 2 - boxX / 2 - boxX * iBox;
+    }
+    strip->AddNode(box, iBox, new TGeoCombiTrans(transX, transY, 0, fZeroRotation));
+  } 
+  for (Int_t iStrip = 0; iStrip < stripAmount; iStrip++) {
+    Double_t transX = 0;
+    Double_t transY = 0;
+    if (isXstripFirst) {
+      transX = fSensX / 2 - stripX *(iStrip)-(stripX / 2);
+    } else {
+      transY = fSensY / 2 - stripY *(iStrip)-(stripY / 2);
+    }
+    Double_t transZ = (fDeadLayerThicknessFrontSide 
+                       - fDeadLayerThicknessBackSide) / 2. ;
+    fVolume->AddNode(strip, iStrip, new TGeoCombiTrans(transX, transY, transZ, fZeroRotation));
   }
-
-  for (Int_t iStripX = 0; iStripX < fStripCountX; iStripX++) {
-    Double_t translateX = fSensX / 2 
-                        - stripX *(iStripX)-(stripX / 2);
-    Double_t translateZ = (fDeadLayerThicknessFrontSide 
-                        - fDeadLayerThicknessBackSide)/2. ;
-    fVolume->AddNode(strip, iStripX, new TGeoCombiTrans(translateX, 0, translateZ, fZeroRotation));
-  }
-  if (fOrientAroundZ.Contains("Y")) {
-    fRotation->RotateZ(90.);
-  }
+  //if (fOrientAroundZ.Contains("Y")) {
+  //  fRotation->RotateZ(90.);
+  //}
   // TGeoRotation *rotation = new TGeoRotation();
   // rotation->RotateX(fRotation->X());
   // rotation->RotateY(fRotation->Y());

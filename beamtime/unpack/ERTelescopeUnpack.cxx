@@ -215,13 +215,16 @@ void ERTelescopeUnpack::FormAllBranches(){
         if( itStation.second->sideCount == 2){
             if (itStation.second->XY == "XY"){
                 itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","X", doubleSiCnt);
+	        doubleSiCnt++;
                 itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","Y", doubleSiCnt);
+	        doubleSiCnt++;
             }
             else{
-                itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","Y", doubleSiCnt);
-                itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","X", doubleSiCnt);
+                itStation.second->bName = FormBranchName("Si",2,itStation.first,"YX","Y", doubleSiCnt);
+	        doubleSiCnt++;
+                itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"YX","X", doubleSiCnt);
+	        doubleSiCnt++;
             }
-	    doubleSiCnt++;
         }
         else {
             itStation.second->bName = FormBranchName(itStation.second->type,

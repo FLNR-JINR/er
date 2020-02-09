@@ -93,8 +93,8 @@ void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
   //----------------------- Single Si structure -------------------------------
   //------------------ Add fibers to station  along x -----------------------
   for (Int_t iStrip = 0; iStrip < fStripCount; iStrip++) {
-    Double_t transX = (-1) * fSensX / 2
-                        + singleSiStripX/2. + iStrip*singleSiStripX;
+    Double_t transX = fSensX / 2
+                      - singleSiStripX/2. - iStrip*singleSiStripX;
     Double_t transZ = (fDeadLayerThicknessFrontSide 
                         - fDeadLayerThicknessBackSide)/2.;
     fVolume->AddNode(singleSiStrip, iStrip, new TGeoCombiTrans(transX, 0., transZ, new TGeoRotation()));
