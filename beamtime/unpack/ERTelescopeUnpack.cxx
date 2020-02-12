@@ -78,7 +78,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
             else
                 LOG(DEBUG) << "Calibration file for station " << itStation.second->ampStName << 
                     " or " << itStation.second->timeStName << " has not defined!" 
-                    " No calibration for this detrctor station "<< FairLogger::endl;
+                    " No calibration for this detector station "<< FairLogger::endl;
 
             for (auto itValue : valueMap){
                 Int_t channel = itValue.first;
@@ -342,37 +342,6 @@ Bool_t ERTelescopeUnpack::ReadCalFiles(){
 
     }
     return kTRUE;
-}
-//--------------------------------------------------------------------------------------------------
-TMatrixD* ERTelescopeUnpack::ReadCalFile(TString fileName){
-    ifstream in;
-    in.open(fileName);
-    if (!in.is_open()){
-        LOG(FATAL) << "Can`t open calibration file " << fileName << FairLogger::FairLogger::endl;
-        return NULL;
-    }
-
-    Int_t nRows = -1, nCols = -1;
-    in >> nCols;
-    in >> nRows;
-    if (nCols <= 0 || nRows <= 0){
-        LOG(FATAL) << "Can`t read rows or cols from calibration file " << fileName << FairLogger::FairLogger::endl;
-        return NULL;
-    }
-
-    TMatrixD* calTable = new TMatrixD(nRows,nCols);
-    Int_t i = 0;
-
-    while (!in.eof()){
-        if (i >= nRows){
-            LOG(FATAL) << "Wrong file format in " << fileName << FairLogger::FairLogger::endl;
-            return NULL;
-        }
-        in >> (*calTable)[i][0] >> (*calTable)[i][1];
-        i++;
-    }
-
-    return calTable;
 }
 //--------------------------------------------------------------------------------------------------
 Bool_t ERTelescopeUnpack::ApplyCalibration(TMatrixD* ampCalTable, TMatrixD* timeCalTable, 

@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "TString.h"
-#include "TMatrixD.h"
 
 #include "DetEventDetector.h"
 
@@ -63,7 +62,6 @@ class ERTelescopeUnpack : public ERUnpack
     TString FormBranchName(TString type, Int_t sideCount, TString stName, TString XY, TString XYside, Int_t volInd);
     void FormAllBranches();
     Bool_t ReadCalFiles();
-    TMatrixD* ReadCalFile(TString fileName);
     void DumpStationsInfo();
     Bool_t ApplyCalibration(TMatrixD* ampCalTable, TMatrixD* timeCalTable, std::map<Int_t, 
                             std::pair<Double_t, Double_t> >& valueMap);

@@ -10,6 +10,7 @@ ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/base/
 ${CMAKE_SOURCE_DIR}/beamtime/
 ${CMAKE_SOURCE_DIR}/NeuRad/data/
+${CMAKE_SOURCE_DIR}/ND/data/
 ${CMAKE_SOURCE_DIR}/data/data/
 ${CMAKE_SOURCE_DIR}/beamtime/data/
 ${CMAKE_SOURCE_DIR}/BeamDet/data/
@@ -57,6 +58,7 @@ if (ACCULINNA_GO4)
 	list(APPEND SRCS unpack/ERUnpack.cxx)
 	list(APPEND SRCS unpack/ERBeamDetUnpack.cxx)
 	list(APPEND SRCS unpack/ERTelescopeUnpack.cxx)
+	list(APPEND SRCS unpack/ERNDUnpack.cxx)
 	list(APPEND INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}/beamtime/unpack/)
 	list(APPEND INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}/telescope/data/)
 	list(APPEND INCLUDE_DIRECTORIES ${ACCULINNA_GO4}/include/)

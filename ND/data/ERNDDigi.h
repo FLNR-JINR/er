@@ -16,10 +16,12 @@ private:
 	Float_t fEdep;
 	Float_t fTime;
 	Float_t fNeutronProb;
+	Float_t fTAC;
 public:
 	ERNDDigi(){}
 	ERNDDigi(Int_t id, Int_t detID, TVector3& pos, TVector3& dpos, 
-				Int_t stilbenNb, Float_t edep, Float_t lightYield, Float_t time, Float_t neutronProb);
+			 Int_t stilbenNb, Float_t edep, Float_t lightYield, Float_t time, Float_t neutronProb,
+			 Float_t tac = -1.);
 
 	Int_t ID() const {return fID;}
 
@@ -28,6 +30,7 @@ public:
 	Float_t LightYield() const {return fLightYield;}
 	Float_t Time() const {return fTime;}
 	Float_t NeutronProb() const {return fNeutronProb;}
+	Float_t TAC() const { return fTAC; }
 
 
 	ClassDef(ERNDDigi, 1)
