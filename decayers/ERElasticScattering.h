@@ -22,8 +22,9 @@
 #include <ERDecay.h> // mother class
 
 #include <TString.h>
+#include <TLorentzVector.h>
 
-enum ERInteractionParticipant{ kPROJECTILE, kTARGET, kEJECTILE}; // TODO убрать после того как будет создан ERInteraction
+enum ERInteractionParticipant{ kPROJECTILE, kTARGET, kEJECTILE}; // TODO It has to be in the header of the future class "Interaction.h"
 
 class TF1;
 class TParticlePDG;
@@ -64,7 +65,7 @@ public:
   ** @param ThetaCenter theta position for detector center in Lab.
   ** @param dTheta half of the theta range of the detector slit.
   **/
-  void SetLabThetaRange(Double_t thetaCenter, Double_t dTheta, ERInteractionParticipant regIonSt);
+  void SetLabThetaRange(Double_t thetaCenter, Double_t dTheta, ERInteractionParticipant regIonSt, Bool_t relMod = kFALSE);
 
   /** @brief Defines range of phi value.
   ** @param phi1 phi minimum.
@@ -111,6 +112,9 @@ private:
   /** @brief The private method is to convert Lab theta range to CM. **/
   void ThetaRangesLab2CM(Double_t pM, Double_t tM);
 
+  /** @brief The private method is to convert Lab theta range to CM for relativistic case **/
+  void ThetaRangesLab2CMRelativistic();
+
   /** @brief The private method is to read ThetaCDF cumulative function file. **/
   Bool_t ThetaCDFRead();
 
@@ -142,6 +146,7 @@ private:
   Double_t        fTargetIonMass;             ///< Target ion mass
 
   Bool_t          fThetaLabRangeIsSet;        ///< kTRUE if Lab theta range is set, kFALSE if It is not set
+  Bool_t          fRelativisticMode;          ///< kTRUE of a relativistic case is simulated and kFALSE if It isn't
 
   /** Statistical attributes by all events. **/
 

@@ -12,7 +12,6 @@
 
 #include <TF1.h>
 #include <TMath.h>
-#include <TLorentzVector.h>
 #include <TLorentzRotation.h>
 #include <TVectorD.h>
 #include <TGraph.h>
@@ -58,6 +57,7 @@ ERElasticScattering::ERElasticScattering(TString name):
   fProjectileIonMass(0.),
   fTargetIonMass(0.),
   fThetaLabRangeIsSet(kFALSE),
+  fRelativisticMode(kFALSE),
   fThetaCMSum(0.),
   fInteractNumInTarget(0)
 {
@@ -82,10 +82,11 @@ void ERElasticScattering::SetThetaRange(Double_t th1, Double_t th2, ERInteractio
   fRegisterIonStatus = regIonSt;
 }
 
-void ERElasticScattering::SetLabThetaRange(Double_t thetaCenter, Double_t dTheta, ERInteractionParticipant regIonSt) {
+void ERElasticScattering::SetLabThetaRange(Double_t thetaCenter, Double_t dTheta, ERInteractionParticipant regIonSt, Bool_t relMod) {
   fThetaRangeCenter = thetaCenter; fThetaRangedTheta = dTheta;
   fRegisterIonStatus = regIonSt;
   fThetaLabRangeIsSet = kTRUE;
+  fRelativisticMode=relMod;
 }
 
 Double_t ERElasticScattering::GetThetaCMMean() const {
@@ -105,25 +106,30 @@ Bool_t ERElasticScattering::Init() {
     return kFALSE;
   }
 
-  // TODO! This is needed to get removed!
-  SetProjectileIonMass(fInputIonPDG->Mass());
-  SetTargetIonMass(fTargetIonPDG->Mass());
-  LOG(DEBUG) << "ERElasticScattering::Init()" << FairLogger::endl;
-  LOG(DEBUG) << "Traget Ions Mass is " << GetTargetIonMass()
-             << ", Prigectile Ions Mass is " << GetProjectileIonMass() << FairLogger::endl;
-
   DefineOfIonsMasses();
   LOG(DEBUG) << "ERElasticScattering::Init()" << FairLogger::endl;
   LOG(DEBUG) << "Traget Ions Mass is " << GetTargetIonMass()
              << ", Prigectile Ions Mass is " << GetProjectileIonMass() << FairLogger::endl;
 
-  if (fThetaLabRangeIsSet)
+  if (!fRelativisticMode) {
     ThetaRangesLab2CM(GetProjectileIonMass(), GetTargetIonMass());
-
-  return ThetaCDFRead();
+    if (!ThetaCDFRead()) {
+      LOG(FATAL) << "The input file which contains the CDF function can't be read!" << FairLogger::endl;
+      return kFALSE;
+    }
+  }
+  return kTRUE;
 }
 
 Bool_t ERElasticScattering::Stepping() {
+  if (fRelativisticMode && gMC->TrackPid() == fInputIonPDG->PdgCode()) {
+    ThetaRangesLab2CMRelativistic();
+    if (!ThetaCDFRead()) {
+      LOG(FATAL) << "The input file which contains the CDF function can't be read!" << FairLogger::endl;
+      return kFALSE;
+    }
+    fRelativisticMode = kFALSE; // Its the case is we don't need the second calculation of the things which implement here.
+  }
   if (!fDecayFinish && gMC->TrackPid() == fInputIonPDG->PdgCode() && TString(gMC->CurrentVolName()).Contains(fVolumeName)) {
     gMC->SetMaxStep(fStep);
     TLorentzVector curPos;
@@ -259,9 +265,56 @@ void  ERElasticScattering::ThetaRangesLab2CM(Double_t pM, Double_t tM) {
   }
 }
 
+void ERElasticScattering::ThetaRangesLab2CMRelativistic() {
+  Double_t pM = GetProjectileIonMass();
+  Double_t tM = GetTargetIonMass();
+  TLorentzVector curLV;
+  gMC->TrackMomentum(curLV);
+
+  Double_t pMom = curLV.P();
+  Double_t projectileE = /*curLV.E();*/ sqrt(pM*pM + pMom*pMom);
+  std::cout << "[ThetaRangesLab2CMRelativistic] projectileE = " << sqrt(pM*pM + pMom*pMom) << std::endl;
+  Double_t VelocityOfProjecInLab = pMom / (projectileE + tM);
+  if (VelocityOfProjecInLab > 1.) {
+    LOG(FATAL) << "The velocity of CM can't be > 1." << FairLogger::endl;
+  }
+  Double_t MomInCM = VelocityOfProjecInLab*tM / sqrt(1. - VelocityOfProjecInLab*VelocityOfProjecInLab);
+  Double_t yMin = tan(fThetaRangeCenter*DegToRad()-fThetaRangedTheta*TMath::DegToRad());
+  Double_t yMax = tan(fThetaRangeCenter*DegToRad()+fThetaRangedTheta*TMath::DegToRad());
+  Double_t z = VelocityOfProjecInLab*sqrt(pM*pM + MomInCM*MomInCM);
+  Double_t t = 1.-VelocityOfProjecInLab*VelocityOfProjecInLab;
+  Double_t B1Min = t*((MomInCM*MomInCM-z*z)*yMin*yMin + MomInCM*MomInCM*t);
+  Double_t B1Max = t*((MomInCM*MomInCM-z*z)*yMax*yMax + MomInCM*MomInCM*t);
+  if (B1Min < 0. || B1Max < 0.) {
+    LOG(FATAL) << "B1 can't be < 0." << FairLogger::endl;
+  }
+  B1Min = sqrt(B1Min);
+  B1Max = sqrt(B1Max);
+  Double_t B2Min = yMin*yMin*z;
+  Double_t B2Max = yMax*yMax*z;
+  Double_t B3Min = MomInCM*(yMin*yMin + t);
+  Double_t B3Max = MomInCM*(yMax*yMax + t);
+  Double_t cmThetaMin;
+  Double_t cmThetaMax;
+
+  if (fRegisterIonStatus == kPROJECTILE) {
+    cmThetaMin = (B1Min - B2Min) / B3Min;
+    cmThetaMax = (B1Max - B2Max) / B3Max;
+  }
+  else {
+    cmThetaMin = (-B1Min + B2Min) / B3Min;
+    cmThetaMax = (-B1Max + B2Max) / B3Max;
+  }
+
+
+  fThetaMin = acos(cmThetaMin)*TMath::RadToDeg();
+  fThetaMax = acos(cmThetaMax)*TMath::RadToDeg();
+  std::cout << "[ThetaRangesLab2CMRelativistic] cmTheta = (" << fThetaMin << ", " << fThetaMax << ")" << std::endl;
+}
+
 Bool_t ERElasticScattering::ThetaCDFRead() {
   if (fThetaFileName != "") {
-    LOG(INFO) << "ElasticScattering " << fName << " initialize from theta distribution file" << FairLogger::endl;
+    LOG(INFO) << "ElasticScattering " << fName << " initialized from theta distribution file" << FairLogger::endl;
 
     TString path = TString(gSystem->Getenv("VMCWORKDIR")) + "/input/" + fThetaFileName;
     std::ifstream f;
@@ -321,16 +374,16 @@ Bool_t ERElasticScattering::DefineOfIonsMasses() {
     return kFALSE;
   }
 
-  fTargetIonMass = 1e-3*((G4ParticleDefinition*)table->FindParticle((G4int)fTargetIonPDG->PdgCode()))->GetPDGMass();
-  fProjectileIonMass = 1e-3*((G4ParticleDefinition*)table->FindParticle((G4int)fInputIonPDG->PdgCode()))->GetPDGMass();
+  SetProjectileIonMass(1e-3*((G4ParticleDefinition*)table->FindParticle((G4int)fInputIonPDG->PdgCode()))->GetPDGMass());
+  SetTargetIonMass(1e-3*((G4ParticleDefinition*)table->FindParticle((G4int)fTargetIonPDG->PdgCode()))->GetPDGMass());
 
-  if (! fTargetIonMass ) {
-    LOG(FATAL) << "It is impossible to difine Mass for target ion!" << FairLogger::endl;
+  if (! GetProjectileIonMass() ) {
+    LOG(FATAL) << "It is impossible to difine Mass for projectile ion!" << FairLogger::endl;
     return kFALSE;
   }
 
-  if (! fProjectileIonMass ) {
-    LOG(FATAL) << "It is impossible to difine Mass for projectile ion!" << FairLogger::endl;
+  if (! GetTargetIonMass() ) {
+    LOG(FATAL) << "It is impossible to difine Mass for target ion!" << FairLogger::endl;
     return kFALSE;
   }
 

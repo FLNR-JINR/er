@@ -68,7 +68,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   scattering->SetUniformPos(0.,0.); // -0.00035,0.00035
   scattering->SetStep(1.); //0.1 micron 0.00001 cm
   scattering->SetDecayVolume("cave"); //targetB11
-  scattering->SetLabThetaRange(angle, 0., kPROJECTILE); // kPROJECTILE or kTARGET
+  scattering->SetLabThetaRange(angle, 0., kTARGET, kTRUE); // kPROJECTILE or kTARGET
   //scattering->SetThetaRange(9.33242, 14.3093);
   scattering->SetPhiRange(0., 0.);
 
@@ -78,7 +78,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   ERIonMixGenerator* generator = new ERIonMixGenerator("15N", Z, A, Q, 1);
-  generator->SetKinERange(0.0427094, 0.0436017); // 0.0427094 : 0.0436017
+  generator->SetKinERange(500., 500.); // 0.0427094 : 0.0436017
 
   Double32_t theta = 0.;
   Double32_t sigmaTheta = 5e-3*TMath::RadToDeg();
