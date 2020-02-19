@@ -2,10 +2,10 @@ void fileAnalysis() {
   auto file = TFile::Open("expCalib_reco_quad_mean_1_sens.root");
   auto tree = (TTree*)file->Get("er");
 
-  TString trackBr = "ERQTelescopeTrack_Telescope_1_DoubleSi_SSD_1_XY_0_XTelescope_1_DoubleSi_SSD_1_XY_1_Y.";
+  TString trackBr = "ERQTelescopeTrack_Telescope_1_DoubleSi_SSD20_1_YX_1_XTelescope_1_DoubleSi_SSD20_1_YX_0_Y.";
   TString xCoord = trackBr + "fTelescopeLocalX";
   TString yCoord = trackBr + "fTelescopeLocalY";
-  TString partBr = "ERQTelescopeParticle_Telescope_1_DoubleSi_SSD_1_XY_0_XTelescope_1_DoubleSi_SSD_1_XY_1_Y_1000020040.";
+  TString partBr = "ERQTelescopeParticle_Telescope_1_DoubleSi_SSD20_1_YX_1_XTelescope_1_DoubleSi_SSD20_1_YX_0_Y_1000020040.";
   TString lvLeave = "fKineticEnergy";
   auto canv = new TCanvas();
   cout << trackBr+xCoord << endl;
@@ -13,8 +13,6 @@ void fileAnalysis() {
   double delta = 0.1;
   double thickStartLoc = 2.34375;
   double stepThick = -(2.34375 - 2.03125);
-  double thickStartLoc = 2.8125;
-  double stepThick = -(2.8125 - 2.4375);
   double stepX = stepThick;
   double startCoordX = thickStartLoc;
   TString histParams = "(65536, 0, 10.24e-3)";
@@ -41,7 +39,8 @@ void fileAnalysis() {
     auto histStripX = new TH1D(histNameStripX, histNameStripX, 65536, 0, 10.24e-3);
     histStripX->GetYaxis()->SetTitle("Counts, [1]");
     histStripX->GetXaxis()->SetTitle("E, [GeV]");
-    tree->Draw(partBr+lvLeave + "+" + halfbin + ">>" + histNameStripX, condX);
+    //tree->Draw(partBr+lvLeave + "+" + halfbin + ">>" + histNameStripX, condX);
+    tree->Draw(partBr+lvLeave +  ">>" + histNameStripX, condX);
     cout << "histNameStripX " << histNameStripX << endl;
     auto histTmp = (TH1D*)gDirectory->Get(histNameStripX);
     for (int iBin = 1; iBin <= histTmp->GetXaxis()->GetNbins(); iBin++) {

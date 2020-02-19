@@ -129,6 +129,7 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
           Double_t stripInStationTrans[3];
           Double_t stripInDetectorTrans[3];
           Double_t stripGlobTrans[3];
+	  LOG(DEBUG) << "qtelescopeStationName " << qtelescopeStationName << FairLogger::endl;
           if (qtelescopeStationName.Contains("DoubleSi", TString::kIgnoreCase) ) {
             Int_t bLastPostfix = qtelescopeStationName.Last('_');
             TString assemblyNbStr(qtelescopeStationName(bLastPostfix + 1, qtelescopeStationName.Length()));

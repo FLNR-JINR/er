@@ -282,7 +282,7 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(const TGeoNode& node){
              << brNamePrefix << FairLogger::endl;
   TString brName = "";
   for (auto digiBranch : fQTelescopeDigi){
-    const int lastSymbSec = (digiBranch.first.Contains("doubleSi")) ? 2 : 0;
+    const int lastSymbSec = (digiBranch.first.Contains("DoubleSi")) ? 2 : 0;
     TString currentBrNamePrefix(digiBranch.first(0,digiBranch.first.Last('_') - lastSymbSec));
     LOG(DEBUG) << "digiBranch.first " << digiBranch.first << FairLogger::endl;
     LOG(DEBUG) << "currentBrNamePrefix " << currentBrNamePrefix << FairLogger::endl;

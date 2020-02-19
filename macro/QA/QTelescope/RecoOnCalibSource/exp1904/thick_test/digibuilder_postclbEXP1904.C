@@ -6,7 +6,7 @@ void digibuilder_postclbEXP1904(Int_t nEvents = 1443710) {
   auto file = TFile::Open((intdir_converted + rootAqqDaqFile).Data());
   auto tree = (TTree*)file->Get("stepRepackingxTree");
   nEvents = tree->GetEntriesFast(); 
-  //nEvents = 100;
+  //nEvents = 1000;
   // --- Specify output file name (this is just an example)
   TString outFile = "calib_65_1to10_digi.root";
   std::cout << ">>> input  file is " << rootAqqDaqFile  << std::endl;
@@ -20,9 +20,9 @@ void digibuilder_postclbEXP1904(Int_t nEvents = 1443710) {
   telescope_1->AddDoubleSiStation("SSD20_1",
                                   "SSD20_1","tSSD20_1",
                                   "SSD20_1","tSSD20_1",
-                                  intdir_settings + "SSD_20u_1_quad_mean.cal", "",
                                   intdir_settings + "SSD_20u_1_zero.cal", "",
-                                  "XY",
+                                  intdir_settings + "SSD_20u_1_quad_mean.cal", "",
+                                  "YX",
 				  kFALSE);
   builder->AddUnpack(telescope_1);
   // --- Run
