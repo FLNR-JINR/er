@@ -1,15 +1,14 @@
 void digibuilder_postclbEXP1904(Int_t nEvents = 1443710) {
-  TString intdir_converted = "/opt/keeper/stock/kozlov/calib201907/digibulder/calib_1mm/";
+  TString intdir_converted = "/opt/keeper/stock/kozlov/calib201907/digibulder/calib_65/";
   TString intdir_settings = "../input/";
-  //TString rootAqqDaqFile = "calib_1mm_90_1to8.root";
-  TString rootAqqDaqFile = "calib_1mm_90_1to8.lmd.root";
+  TString rootAqqDaqFile = "calib_65_1to10.lmd.root";
   TString confFile = intdir_settings + "setupEXP1904.xml"; 
   auto file = TFile::Open((intdir_converted + rootAqqDaqFile).Data());
   auto tree = (TTree*)file->Get("stepRepackingxTree");
   nEvents = tree->GetEntriesFast(); 
   //nEvents = 100;
   // --- Specify output file name (this is just an example)
-  TString outFile = "calib_1mm_90_1to8_digi.root";
+  TString outFile = "calib_65_1to10_digi.root";
   std::cout << ">>> input  file is " << rootAqqDaqFile  << std::endl;
   std::cout << ">>> output file is " << outFile << std::endl;
   // --- Source task --------------------------------------------------------
@@ -18,12 +17,12 @@ void digibuilder_postclbEXP1904(Int_t nEvents = 1443710) {
   builder->AddFile(intdir_converted + rootAqqDaqFile);
   // ------------------------------------------------------------------------
   ERTelescopeUnpack* telescope_1 = new ERTelescopeUnpack("Telescope_1");
-  telescope_1->AddDoubleSiStation("SSD_1",
-                                  "SSD_1","tSSD_1",
-                                  "SSD_1","tSSD_1",
-                                  intdir_settings + "SSD_1m_1_zero.cal", "",
-                                  intdir_settings + "SSD_1m_1_quad_mean.cal", "",
-                                  "Y",
+  telescope_1->AddDoubleSiStation("SSD20_1",
+                                  "SSD20_1","tSSD20_1",
+                                  "SSD20_1","tSSD20_1",
+                                  intdir_settings + "SSD_20u_1_quad_mean.cal", "",
+                                  intdir_settings + "SSD_20u_1_zero.cal", "",
+                                  "XY",
 				  kFALSE);
   builder->AddUnpack(telescope_1);
   // --- Run

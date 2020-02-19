@@ -32,13 +32,12 @@ void expCalib_sim (Int_t nEvents = 1) {
   setupQTelescope->SetXMLParametersFile(paramFileQTelescope);
   setupQTelescope->SetGeoName("QTelescopeTmp");
   // ----- LEFT parameters --------------------------------------------------
-  Double_t radius = 29.;
-  TVector3 rotationL(0., 0., 0.);
-  Double_t xPos = radius * TMath::Sin(rotationL.Y() * TMath::DegToRad());
+  TVector3 rotationL(0., 65., 0.);
+  Double_t xPos = 0;
   Double_t yPos = 0.;
-  Double_t zPos = radius * TMath::Cos(rotationL.Y() * TMath::DegToRad());
+  Double_t zPos = 47;
   ERGeoSubAssembly* assembly_Left = new ERGeoSubAssembly("Telescope_1", TVector3(xPos, yPos, zPos), rotationL);
-  ERQTelescopeGeoComponentDoubleSi* thick_1 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SSD_1", "Y");
+  ERQTelescopeGeoComponentDoubleSi* thick_1 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_SSD20_1", "Y");
   assembly_Left->AddComponent(thick_1, TVector3(0, 0, 0), TVector3(0, 0, 0));
   setupQTelescope->AddSubAssembly(assembly_Left);
   // ------QTelescope -------------------------------------------------------

@@ -1,17 +1,18 @@
 void fileAnalysis() {
   auto file = TFile::Open("expCalib_reco_quad_mean_1_sens.root");
-  //auto file = TFile::Open("expCalib_reco_quad_mean.root");
   auto tree = (TTree*)file->Get("er");
 
-  TString trackBr = "ERQTelescopeTrack_Telescope_1_DoubleSi_SSD_1_YX_1_XTelescope_1_DoubleSi_SSD_1_YX_0_Y.";
+  TString trackBr = "ERQTelescopeTrack_Telescope_1_DoubleSi_SSD_1_XY_0_XTelescope_1_DoubleSi_SSD_1_XY_1_Y.";
   TString xCoord = trackBr + "fTelescopeLocalX";
   TString yCoord = trackBr + "fTelescopeLocalY";
-  TString partBr = "ERQTelescopeParticle_Telescope_1_DoubleSi_SSD_1_YX_1_XTelescope_1_DoubleSi_SSD_1_YX_0_Y_1000020040.";
+  TString partBr = "ERQTelescopeParticle_Telescope_1_DoubleSi_SSD_1_XY_0_XTelescope_1_DoubleSi_SSD_1_XY_1_Y_1000020040.";
   TString lvLeave = "fKineticEnergy";
   auto canv = new TCanvas();
   cout << trackBr+xCoord << endl;
   auto saveFile = TFile::Open("expCalib_reco_hists.root", "RECREATE");
   double delta = 0.1;
+  double thickStartLoc = 2.34375;
+  double stepThick = -(2.34375 - 2.03125);
   double thickStartLoc = 2.8125;
   double stepThick = -(2.8125 - 2.4375);
   double stepX = stepThick;
@@ -51,7 +52,7 @@ void fileAnalysis() {
   }
   hist2d->Write();
   TString histNameWhole;
-  histNameWhole.Form("calib_90_all");
+  histNameWhole.Form("calib_65");
   auto histWhole = new TH1D(histNameWhole, histNameWhole, 65536, 0, 10.24e-3);
   histWhole->GetYaxis()->SetTitle("Counts, [1]");
   histWhole->GetXaxis()->SetTitle("E, [GeV]");

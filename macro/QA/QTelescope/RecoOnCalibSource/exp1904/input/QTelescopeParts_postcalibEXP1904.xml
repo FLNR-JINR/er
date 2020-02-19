@@ -20,6 +20,14 @@
 				<stripCountY>16</stripCountY>
 				<doubleSiMedia>silicon</doubleSiMedia>
 			</doubleSi>
+			<doubleSi id="DoubleSi_SSD20_1">
+				<doubleSiSize doubleSiX="5" doubleSiY="5" doubleSiZ="0.002"/>
+				<doubleSiSensAreaSize doubleSiSensX="5" doubleSiSensY="5" doubleSiSensZ="0.002"/>
+				<deadLayerThicknessFrontSide>0.00007</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.00007</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<doubleSiMedia>silicon</doubleSiMedia>
+			</doubleSi>	
 		</doubleSiTypes>
 		<singleSiTypes>
 			<singleSi id="SingleSi_SSD20_1">
