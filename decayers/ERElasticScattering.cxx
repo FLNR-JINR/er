@@ -244,18 +244,18 @@ void  ERElasticScattering::ThetaRangesLab2CM(Double_t pM, Double_t tM) {
   Double_t rAng = fThetaRangeCenter*DegToRad();
   Double_t ratio = pM/tM;
   Double_t ratio2 = ratio*ratio;
-  Double_t rdTheta = fThetaRangedTheta*TMath::DegToRad(); // Detectors rdTheta
+  Double_t rdTheta = fThetaRangedTheta*DegToRad(); // Detectors rdTheta
   if (fRegisterIonStatus == kPROJECTILE) {
     // Projectile Ion
     if (pM != tM) {
-      fThetaMin = TMath::RadToDeg()*acos( -ratio*sin(rAng-rdTheta)*sin(rAng-rdTheta)
+      fThetaMin = RadToDeg()*acos( -ratio*sin(rAng-rdTheta)*sin(rAng-rdTheta)
                 + cos(rAng-rdTheta)*sqrt(1.-ratio2*sin(rAng-rdTheta)*sin(rAng-rdTheta)) );
-      fThetaMax = TMath::RadToDeg()*acos( -ratio*sin(rAng+rdTheta)*sin(rAng+rdTheta)
+      fThetaMax = RadToDeg()*acos( -ratio*sin(rAng+rdTheta)*sin(rAng+rdTheta)
                 + cos(rAng+rdTheta)*sqrt(1.-ratio2*sin(rAng+rdTheta)*sin(rAng+rdTheta)) );
     }
     else {
-      fThetaMin = TMath::RadToDeg()*(2.*rAng - rdTheta);
-      fThetaMax = TMath::RadToDeg()*(2.*rAng + rdTheta);
+      fThetaMin = RadToDeg()*(2.*rAng - rdTheta);
+      fThetaMax = RadToDeg()*(2.*rAng + rdTheta);
     }
 
     LOG(DEBUG) << "  N15: CMTheta1: " << fThetaMin << ", CMTheta2: " << fThetaMax
@@ -263,8 +263,8 @@ void  ERElasticScattering::ThetaRangesLab2CM(Double_t pM, Double_t tM) {
   }
   else if (fRegisterIonStatus == kTARGET) {
     // Target Ion
-    fThetaMin = 180. - 2.*TMath::RadToDeg()*rAng - TMath::RadToDeg()*rdTheta;
-    fThetaMax = 180. - 2.*TMath::RadToDeg()*rAng + TMath::RadToDeg()*rdTheta;
+    fThetaMin = 180. - 2.*RadToDeg()*rAng - RadToDeg()*rdTheta;
+    fThetaMax = 180. - 2.*RadToDeg()*rAng + RadToDeg()*rdTheta;
     LOG(DEBUG) << "  B11: CMTheta1: " << fThetaMin << ", CMTheta2: " << fThetaMax
                 << ", average value: " << 0.5*(fThetaMax-fThetaMin) + fThetaMin << FairLogger::endl;
   }
@@ -289,8 +289,8 @@ void ERElasticScattering::ThetaRangesLab2CMRelativistic() {
     LOG(FATAL) << "The velocity of CM can't be > 1." << FairLogger::endl;
   }
   Double_t MomInCM = VelocityOfCMRelOfLab*tM / sqrt(1. - VelocityOfCMRelOfLab*VelocityOfCMRelOfLab);
-  Double_t yMin = tan(fThetaRangeCenter*DegToRad()-fThetaRangedTheta*TMath::DegToRad());
-  Double_t yMax = tan(fThetaRangeCenter*DegToRad()+fThetaRangedTheta*TMath::DegToRad());
+  Double_t yMin = tan(fThetaRangeCenter*DegToRad()-fThetaRangedTheta*DegToRad());
+  Double_t yMax = tan(fThetaRangeCenter*DegToRad()+fThetaRangedTheta*DegToRad());
   Double_t z = VelocityOfCMRelOfLab*sqrt(pM*pM + MomInCM*MomInCM);
   Double_t t = 1.-VelocityOfCMRelOfLab*VelocityOfCMRelOfLab;
   Double_t B1Min = t*((MomInCM*MomInCM-z*z)*yMin*yMin + MomInCM*MomInCM*t);
@@ -304,24 +304,24 @@ void ERElasticScattering::ThetaRangesLab2CMRelativistic() {
   Double_t B2Max = yMax*yMax*z;
   Double_t B3Min = MomInCM*(yMin*yMin + t);
   Double_t B3Max = MomInCM*(yMax*yMax + t);
-  Double_t cmThetaMin;
-  Double_t cmThetaMax;
+  Double_t CosThetaCMMin;
+  Double_t CosThetaCMMax;
 
   if (fRegisterIonStatus == kPROJECTILE) {
-    cmThetaMin = (-B2Min+B1Min) / B3Min;
-    cmThetaMax = (-B2Max+B1Max) / B3Max;
+    CosThetaCMMin = (-B2Min+B1Min) / B3Min;
+    CosThetaCMMax = (-B2Max+B1Max) / B3Max;
   }
   else if (fRegisterIonStatus == kTARGET) {
-    cmThetaMin = (B2Min-B1Min) / B3Min;
-    cmThetaMax = (B2Max-B1Max) / B3Max;
+    CosThetaCMMin = (B2Min-B1Min) / B3Min;
+    CosThetaCMMax = (B2Max-B1Max) / B3Max;
   }
   else {
     LOG(FATAL) << "In ERElasticScattering::ThetaRangesLab2CMRelativistic() unknown fRegisterIonStatus" << FairLogger::endl;
   }
 
 
-  fThetaMin = acos(cmThetaMin)*TMath::RadToDeg();
-  fThetaMax = acos(cmThetaMax)*TMath::RadToDeg();
+  fThetaMin = acos(CosThetaCMMin)*RadToDeg();
+  fThetaMax = acos(CosThetaCMMax)*RadToDeg();
   std::cout << "[ThetaRangesLab2CMRelativistic] cmTheta = (" << fThetaMin << ", " << fThetaMax << ")" << std::endl;
 }
 
