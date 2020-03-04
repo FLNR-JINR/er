@@ -36,6 +36,7 @@
 #pragma link C++ class ERUnpack+;
 #pragma link C++ class ERBeamDetUnpack+;
 #pragma link C++ class ERTelescopeUnpack+;
+#pragma link C++ class ERNDUnpack+;
 //#endif
 
 #endif

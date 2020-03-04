@@ -32,6 +32,7 @@ ERDecayLi9DetoLi10_Li9n_p.cxx
 ERDecayEXP1803.cxx
 ERDecayEXP1811.cxx
 ERElasticScattering.cxx
+EREXP1811EventHeader.cxx
 )
 
 # fill list of header files from list of source files

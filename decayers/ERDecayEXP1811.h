@@ -21,7 +21,7 @@
 
 #include "FairIon.h"
 
-#include "ERDecay.h" // mother class
+#include "ERDecay.h"
 
 class ERDecayEXP1811 : public ERDecay {
 
@@ -34,15 +34,7 @@ public:
   void SetTargetThickness(Double_t targetThickness) {fTargetThickness = targetThickness;}
   void SetH7Mass(Double_t mass) {f7HMass = mass; fIs7HUserMassSet = true;}
   void SetH7Exitation(Double_t excMean, Double_t fwhm, Double_t distibWeight);
-  void SetDecayFile(TString filePath){fDecayFilePath = filePath;}
-
-  /** @brief Body reaction in phase space approach.
-   ** @param Ecm     Total energy in CM.
-   ** @oaram h7Mass  H7 ion mass.
-  **/
-  void ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass);
-
-  Bool_t DecayPhaseGenerator();
+  void SetDecayFile(const TString& filePath, Double_t excitationEnergyInFile /*[GeV]*/){ fDecayFilePath = filePath; }
 
   /** @brief Sets distribution is contained in file.
    ** @param ADfile  file with angular distribution.
@@ -57,6 +49,13 @@ public:
   void FinishEvent();
 
 private:
+  /** @brief Body reaction in phase space approach.
+     ** @param Ecm     Total energy in CM.
+    ** @oaram h7Mass  H7 ion mass.
+  **/
+  void ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass);
+
+  Bool_t DecayPhaseGenerator(Double_t excitation);
 
   std::vector<TLorentzVector> ReadDecayEvent();
 
@@ -98,6 +97,7 @@ private:
   Bool_t          fIs7HExcitationSet;
 
   TString         fDecayFilePath;
+  Double_t        fDecayFileExcitation = 1. /*[GeV]*/;
   Bool_t          fDecayFileFinished;
   Int_t           fDecayFileCurrentEvent;
   std::ifstream   fDecayFile;

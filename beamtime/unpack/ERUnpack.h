@@ -3,9 +3,11 @@
 
 #include <map>
 #include <vector>
+#include <tuple>
 
 #include "TString.h"
 #include "TClonesArray.h"
+#include "TMatrixD.h"
 
 #include "FairUnpack.h"
 
@@ -26,9 +28,13 @@ class ERUnpack : public FairUnpack
     Bool_t IsInited(){return fInited;}
   protected:
     virtual void Register(){};
-
+    TMatrixD* ReadCalFile(TString fileName);
     void UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,
                                  std::map<Int_t, std::pair<Double_t, Double_t> >& valueMap,
+                                 Bool_t skipAloneChannels = kTRUE);
+    void UnpackAmpTimeTACStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,
+                                 TString tacStation,
+                                 std::map<Int_t, std::tuple<Double_t, Double_t, Double_t> >& valueMap,
                                  Bool_t skipAloneChannels = kTRUE);
     void UnpackStation(DetEventDetector* detEvent, TString station, std::map<Int_t,Double_t>& valueMap);
 
