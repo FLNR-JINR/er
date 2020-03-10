@@ -68,6 +68,10 @@ class ERTelescopeUnpack : public ERUnpack
     Bool_t CheckSetup();
 
     std::map<TString,ERTelescopeStation*> fStations;
+
+    static Int_t fSingleSiStationNewId;
+    static Int_t fDoubleSiStationNewId;
+    static Int_t fSingleCsIStationNewId;
   public:
     ClassDef(ERTelescopeUnpack, 0)
 };

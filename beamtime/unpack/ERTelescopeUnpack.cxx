@@ -17,6 +17,10 @@
 
 using namespace std;
 
+Int_t ERTelescopeUnpack::fSingleSiStationNewId = 0;
+Int_t ERTelescopeUnpack::fSingleCsIStationNewId = 0;
+Int_t ERTelescopeUnpack::fDoubleSiStationNewId = 0;     
+
 //--------------------------------------------------------------------------------------------------
 ERTelescopeUnpack::ERTelescopeUnpack(TString detName):
  ERUnpack(detName)
@@ -209,28 +213,26 @@ void ERTelescopeUnpack::FormAllBranches(){
 
     FairRootManager* ioman = FairRootManager::Instance();
     if ( ! ioman ) Fatal("Init", "No FairRootManager");
-    Int_t singleSiCnt = 0;
-    Int_t doubleSiCnt = 0;
     for (auto itStation : fStations){
         if( itStation.second->sideCount == 2){
             if (itStation.second->XY == "XY"){
-                itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","X", doubleSiCnt);
-                itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","Y", doubleSiCnt);
+                itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","X", fDoubleSiStationNewId);
+                itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","Y", fDoubleSiStationNewId);
             }
             else{
-                itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","Y", doubleSiCnt);
-                itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","X", doubleSiCnt);
+                itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","Y", fDoubleSiStationNewId);
+                itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","X", fDoubleSiStationNewId);
             }
-	    doubleSiCnt++;
+	        fDoubleSiStationNewId++;
         }
         else {
             itStation.second->bName = FormBranchName(itStation.second->type,
                                                     itStation.second->sideCount,
                                                     itStation.first,"",
                                                     itStation.second->XYside,
-						    singleSiCnt);
-	    singleSiCnt++;
-	}
+						                            itStation.second->type == "Si" 
+                                                    ? fSingleSiStationNewId++ : fSingleCsIStationNewId++);
+        }
     }
     for (auto itStation : fStations){
         TString bName = itStation.second->bName;
