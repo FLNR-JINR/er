@@ -18,13 +18,15 @@ ERDigiCleaner::ERDigiCleaner()
 void ERDigiCleaner::Recalibrate(
         const TString& detectorName, const TString& stationName,
         const TString& previousTimeCalFile, const TString& timeCalFile,
-        const TString& previousAmpCalFile, const TString& ampCalFile) {
+        const TString& previousAmpCalFile, const TString& ampCalFile,
+        std::map<Int_t, Int_t>* raw2SimChannelsMapping/* = nullptr*/) {
     fStationsRecalibrations.emplace_back(
         detectorName, stationName, 
         previousTimeCalFile != "" ? ReadCalFile(previousTimeCalFile) : nullptr,
         timeCalFile != "" ? ReadCalFile(timeCalFile) : nullptr, 
         previousAmpCalFile != "" ? ReadCalFile(previousAmpCalFile) : nullptr, 
-        ampCalFile != "" ? ReadCalFile(ampCalFile) : nullptr);          
+        ampCalFile != "" ? ReadCalFile(ampCalFile) : nullptr,
+        raw2SimChannelsMapping);          
 }
 //--------------------------------------------------------------------------------------------------
 void ERDigiCleaner::SetChannelCuts(
@@ -102,7 +104,7 @@ void ERDigiCleaner::Recalibration() {
         for (Int_t iDigi(0); iDigi < digis->GetEntriesFast(); iDigi++) {
             // linear calibration: res = table[channel][0] + table[channel][1] * raw
             auto digi = static_cast<ERQTelescopeSiDigi*>(digis->At(iDigi));
-            const auto stripNb = digi->GetStripNb();
+            const auto stripNb = GetChannelNumber(digi->GetStripNb(), recalibrationTask.fSim2RawChannelsMapping);
             if (prevTimeCalibration && timeCalibration) {
                 if (stripNb >= prevTimeCalibration->GetNrows() || stripNb >= timeCalibration->GetNrows()) {
                     LOG(FATAL) << "Channel " << stripNb << " not found time calibration tables of station " 
@@ -200,3 +202,19 @@ void ERDigiCleaner::Reset() {
     }
 }
 //--------------------------------------------------------------------------------------------------
+ERDigiCleaner::RecalibrationTask::RecalibrationTask(const TString& detectorName, const TString& stationName, 
+                                    TMatrixD* previousTimeCalibration, TMatrixD* timeCalibration,
+                                    TMatrixD* previousAmpCalibration, TMatrixD* ampCalibration,
+                                    std::map<Int_t, Int_t>* raw2SimChannelsMapping/* = nullptr*/)
+: fDetectorName(detectorName), fStationName(stationName),
+fPreviousAmpCalibration(previousAmpCalibration),
+fAmpCalibration(ampCalibration),
+fPreviousTimeCalibration(previousTimeCalibration),
+fTimeCalibration(timeCalibration) {
+    if (raw2SimChannelsMapping) {
+        fSim2RawChannelsMapping = new std::map<Int_t, Int_t>();
+        for (const auto raw2sim : *raw2SimChannelsMapping) {
+            (*fSim2RawChannelsMapping)[raw2sim.second] = raw2sim.first;
+        }
+    }
+}

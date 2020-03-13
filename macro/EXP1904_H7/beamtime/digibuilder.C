@@ -119,7 +119,13 @@ void digibuilder(TString InFile, TString OutFile) {
                                inputdir + "empty32.cal",inputdir + "mtdc32_pars.cal",
                                inputdir + "empty32.cal",inputdir + "mtdc32_pars.cal",
                                "XY");
-  ctUnpack->AddCsIStation("CsI","CsI","tCsI",inputdir + "empty16.cal",inputdir + "V775_caen_tdc_pars.cal");
+  std::map<Int_t, Int_t> csiChannelMapping = {
+    {8, 0},
+    {12, 1}
+    //...
+  };
+  ctUnpack->AddCsIStation("CsI","CsI","tCsI",inputdir + "empty16.cal",inputdir + "V775_caen_tdc_pars.cal", 
+                          &csiChannelMapping);
 
   ERNDUnpack* ndUnpack = new ERNDUnpack("ND", "ND_AMP", "ND_TIME", "ND_TAC",
                                         "", "", "");

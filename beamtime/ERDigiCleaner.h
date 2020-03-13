@@ -24,14 +24,11 @@ class ERDigiCleaner : public ERTask {
         TMatrixD* fTimeCalibration = nullptr;
         TMatrixD* fPreviousAmpCalibration = nullptr;
         TMatrixD* fAmpCalibration = nullptr;
+        std::map<Int_t, Int_t>* fSim2RawChannelsMapping = nullptr;
         RecalibrationTask(const TString& detectorName, const TString& stationName, 
                           TMatrixD* previousTimeCalibration, TMatrixD* timeCalibration,
-                          TMatrixD* previousAmpCalibration, TMatrixD* ampCalibration)
-                          : fDetectorName(detectorName), fStationName(stationName),
-                            fPreviousAmpCalibration(previousAmpCalibration),
-                            fAmpCalibration(ampCalibration),
-                            fPreviousTimeCalibration(previousTimeCalibration),
-                            fTimeCalibration(timeCalibration) {}
+                          TMatrixD* previousAmpCalibration, TMatrixD* ampCalibration,
+                          std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
         RecalibrationTask() = default;
     };
 
@@ -63,7 +60,8 @@ class ERDigiCleaner : public ERTask {
 
   void Recalibrate(const TString& detectorName, const TString& stationName,
                    const TString& previousTimeCalFile, const TString& timeCalFile,
-                   const TString& previousAmpCalFile, const TString& ampCalFile);
+                   const TString& previousAmpCalFile, const TString& ampCalFile,
+                   std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
   void SetLonelyMWPCClusterCondition() { fLonelyMWPCClusterCondition = true; }
   void SetStationMultiplicity(const TString& detectorName, const TString stationName, Int_t multiplicity) { 
     fStationsMultiplicities[std::make_pair(detectorName, stationName)] = multiplicity;

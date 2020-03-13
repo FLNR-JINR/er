@@ -43,7 +43,6 @@ class ERUnpack : public FairUnpack
     TString fDetName;
 
     std::map<TString,TClonesArray*> fDigiCollections;
-
   public:
     ClassDef(ERUnpack, 0)
 };

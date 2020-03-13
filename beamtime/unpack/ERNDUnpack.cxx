@@ -19,11 +19,13 @@
 //--------------------------------------------------------------------------------------------------
 ERNDUnpack::ERNDUnpack(TString detName, TString ampStation, TString timeStation, TString tacStation,
                        TString ampCalFile, TString timeCalFile, TString tacCalFile,
+                       std::map<Int_t, Int_t>* channelsMapping /*=nullptr*/,
                        Bool_t skipAloneChannels/*= kTRUE*/) : 
     ERUnpack(detName),
     fAmpStation(ampStation),
     fTimeStation(timeStation),
     fTACStation(tacStation),
+    fChannelsMapping(channelsMapping),
     fSkipAloneChannels(skipAloneChannels)
 {
     if (ampCalFile != "")
@@ -64,7 +66,7 @@ Bool_t ERNDUnpack::DoUnpack(Int_t* data, Int_t size){
         std::tie(amp, time, tac) = itValue.second;
         amp /= 1000.; //to GeV
         ApplyCalibrations(channel, amp, time, tac);
-        AddNDDigi(amp,time,tac,channel);
+        AddNDDigi(amp,time,tac, GetChannelNumber(channel, fChannelsMapping));
     }
 }
 //--------------------------------------------------------------------------------------------------

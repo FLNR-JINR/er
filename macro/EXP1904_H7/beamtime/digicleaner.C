@@ -20,7 +20,9 @@ void digicleaner(Int_t nEvents = 100000) {
   // "" - do not recalibrate
   cleaner->Recalibrate("Telescope_1", "SSD_1", "" /*previous time calibration*/, ""/*new time calibration*/,
                        inputdir + "mtdc32_pars.cal" /*previous amp calibration*/ ,
-                       inputdir + "mtdc32_pars.cal" /*previous amp calibration*/);
+                       inputdir + "mtdc32_pars.cal" /*new amp calibration*/
+                       //&raw2simChannelsMapping - like in digibuiler
+                       );
   // ...
   TCutG *ssd1_0_cut = new TCutG("SSD_1_0_cut",6);
   ssd1_0_cut->SetPoint(0,-0.3586207,1.509534);

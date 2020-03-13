@@ -130,7 +130,8 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 			if (mwpcTime.find(mwpcTimeSt) != mwpcTime.end()){
 				for (auto itChanel : mwpcAmp){
 					Double_t time = mwpcTime[mwpcTimeSt]*fCalMWPCa + fCalMWPCb;
-					AddMWPCDigi(itChanel.second, time, mwpcAmpSt, itChanel.first);
+					AddMWPCDigi(itChanel.second, time, mwpcAmpSt,
+								GetChannelNumber(itChanel.first, fMwpcChannelsMapping));
 				}
 			}
 			else{

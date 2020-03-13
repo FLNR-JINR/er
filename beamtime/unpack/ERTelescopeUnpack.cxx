@@ -86,7 +86,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
                     " No calibration for this detector station "<< FairLogger::endl;
 
             for (auto itValue : valueMap){
-                Int_t channel = itValue.first;
+                Int_t channel = GetChannelNumber(itValue.first, itStation.second->channelsMapping1);
                 Double_t amp = itValue.second.first /1000.; //to GeV
                 Double_t time = itValue.second.second;
                 AddSiDigi(amp,time,0,channel,itStation.second->bName);
@@ -109,7 +109,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
                         " No calibration for this detrctor station "<< FairLogger::endl;
 
                 for (auto itValue : valueMap){
-                    Int_t channel = itValue.first;
+                    Int_t channel = GetChannelNumber(itValue.first, itStation.second->channelsMapping2);
                     Double_t amp = itValue.second.first /1000.; //to GeV
                     Double_t time = itValue.second.second;
                     AddSiDigi(amp, time, 0, channel, itStation.second->bName2);
@@ -132,7 +132,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
                     " No calibration for this detrctor station "<< FairLogger::endl;
 
             for (auto itValue : valueMap){
-                Int_t channel = itValue.first;
+                Int_t channel = GetChannelNumber(itValue.first, itStation.second->channelsMapping1);
                 Double_t amp = itValue.second.first /1000.; //to GeV
                 Double_t time = itValue.second.second;
                 AddCsIDigi(amp, time, -1, channel, itStation.second->bName);
@@ -188,25 +188,28 @@ TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString
 //--------------------------------------------------------------------------------------------------
 void ERTelescopeUnpack::AddSingleSiStation(TString name, TString ampStName, TString timeStName,
                                            TString ampCalFile, TString timeCalFile, TString XYside,
+                                           std::map<Int_t, Int_t>* channelsMapping/* = nullptr*/,
                                            Bool_t skipAloneChannels/* = kTRUE*/){
     ERTelescopeStation* st = new ERTelescopeStation( "Si", 1, ampStName, timeStName, "", "", ampCalFile, timeCalFile, "", "","", XYside,
-                                                    skipAloneChannels);
+                                                    channelsMapping, nullptr, skipAloneChannels);
     fStations[name] = st;
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopeUnpack::AddDoubleSiStation(TString name, TString ampStName, TString timeStName,
                                            TString ampStName2, TString timeStName2, TString ampCalFile, TString timeCalFile,
                                            TString ampCalFile2, TString timeCalFile2, TString XY,
+                                           std::map<Int_t, Int_t>* channelsMapping1/* = nullptr*/,
+                                           std::map<Int_t, Int_t>* channelsMapping2/* = nullptr*/,
                                            Bool_t skipAloneChannels/* = kTRUE*/){
     ERTelescopeStation* st = new ERTelescopeStation( "Si", 2, ampStName, timeStName, ampStName2, timeStName2, ampCalFile, timeCalFile,
-                            ampCalFile2, timeCalFile2, XY, "",skipAloneChannels);
+                            ampCalFile2, timeCalFile2, XY, "", channelsMapping1, channelsMapping2, skipAloneChannels);
     fStations[name] = st;
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopeUnpack::AddCsIStation(TString name,TString ampStName, TString timeStName, TString ampCalFile, TString timeCalFile,
-                                      Bool_t skipAloneChannels/* = kTRUE*/){
+                                      std::map<Int_t, Int_t>* channelsMapping /* = nullptr*/, Bool_t skipAloneChannels/* = kTRUE*/){
     ERTelescopeStation* st = new ERTelescopeStation( "CsI", -1, ampStName, timeStName, "", "", ampCalFile, timeCalFile, "", "", "", "",
-                                                    skipAloneChannels);
+                                                    channelsMapping, nullptr, skipAloneChannels);
     fStations[name] = st;
 }
 //--------------------------------------------------------------------------------------------------
@@ -293,6 +296,7 @@ void ERTelescopeUnpack::DumpStationsInfo(){
 ERTelescopeStation::ERTelescopeStation(TString _type, Int_t _sideCount, TString _ampStName, TString _timeStName,
                                        TString _ampStName2, TString _timeStName2, TString _ampCalFile, TString _timeCalFile,
                                        TString _ampCalFile2, TString _timeCalFile2, TString _XY, TString _XYside,
+                                       std::map<Int_t, Int_t>* _channelsMapping1, std::map<Int_t, Int_t>* _channelsMapping2,
                                        Bool_t _skipAloneChannels):
     type(_type),
     sideCount(_sideCount),
@@ -306,12 +310,10 @@ ERTelescopeStation::ERTelescopeStation(TString _type, Int_t _sideCount, TString 
     timeCalFile2(_timeCalFile2),
     XY(_XY),
     XYside(_XYside),
-    ampCalTable(NULL),
-    timeCalTable(NULL),
-    ampCalTable2(NULL),
-    timeCalTable2(NULL),
     bName(""),
     bName2(""),
+    channelsMapping1(_channelsMapping1),
+    channelsMapping2(_channelsMapping2),
     skipAloneChannels(_skipAloneChannels)
 {
 }
