@@ -41,7 +41,9 @@ class ERQTelescopeSiDigi : public FairMultiLinkedData
   Double_t GetEdep() const {return fEdep;}
   Double_t GetStripNb() const {return fStripNb;}
   Double_t GetTime() const {return fTime;}
-  
+  /* Modifiers */
+  void SetTime(const Double_t time) { fTime = time; }
+  void SetEdep (const Double_t edep) { fEdep = edep; }
  protected:
   Int_t     fID;
   Int_t     fStationNb;

@@ -14,6 +14,7 @@
 
 #include "ERQTelescopeSiDigi.h"
 #include "ERQTelescopeCsIDigi.h"
+#include "ERSupport.h"
 
 using namespace std;
 

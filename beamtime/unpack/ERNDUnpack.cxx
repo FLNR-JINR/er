@@ -14,6 +14,7 @@
 
 #include "ERDetectorList.h"
 #include "ERNDDigi.h"
+#include "ERSupport.h"
 
 //--------------------------------------------------------------------------------------------------
 ERNDUnpack::ERNDUnpack(TString detName, TString ampStation, TString timeStation, TString tacStation,

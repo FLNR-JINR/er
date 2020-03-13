@@ -13,6 +13,7 @@
 
 #include "ERBeamDetTOFDigi.h"
 #include "ERBeamDetMWPCDigi.h"
+#include "ERSupport.h"
 
 using namespace std;
 

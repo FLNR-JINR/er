@@ -28,7 +28,6 @@ class ERUnpack : public FairUnpack
     Bool_t IsInited(){return fInited;}
   protected:
     virtual void Register(){};
-    TMatrixD* ReadCalFile(TString fileName);
     void UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,
                                  std::map<Int_t, std::pair<Double_t, Double_t> >& valueMap,
                                  Bool_t skipAloneChannels = kTRUE);

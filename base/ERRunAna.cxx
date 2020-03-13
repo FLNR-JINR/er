@@ -14,10 +14,6 @@
 #include "TG4RunConfiguration.h"
 #include "TGeant4.h"
 
-#include "G4EmCalculator.hh"
-#include "G4NistManager.hh"
-#include "G4Proton.hh"
-
 #include "FairGeoLoader.h"
 #include "FairGeoInterface.h"
 #include "FairLogger.h"
@@ -56,15 +52,12 @@ void ERRunAna::Init(){
   TString erPath = gSystem->Getenv("VMCWORKDIR");
   GeoInterFace->setMediaFile(erPath+"/geometry/media.geo");
   GeoInterFace->readMedia();
-
   ERRecoMCApplication* fApp= new ERRecoMCApplication("Fair","The Fair VMC App",new TObjArray(), erPath+"/geometry/media.geo");
-
   FairRunAna::Init();
   // initialisation of FairRootManager for getting tree to implement
   // user cuts for input data
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
-
   if (fUserCut != "") {
     LOG(INFO) << "User cut " << fUserCut << " implementation" << FairLogger::endl;
     TTree* tree = ioman->GetInTree();
@@ -75,16 +68,18 @@ void ERRunAna::Init(){
                 << fUserCut << FairLogger::endl;
       return;
     }
+    TCut cut = fUserCut;
+    cut.Write();
   }
-  
   TG4RunConfiguration* runConfiguration
-             = new TG4RunConfiguration("geomRoot", "QGSP_BERT_HP", "specialCuts+stackPopper");
+              = new TG4RunConfiguration("geomRoot", "QGSP_BERT_HP", "specialCuts+stackPopper");
+  if (!fWithoutGeant) { 
+    TGeant4* geant4 = new TGeant4("TGeant4", "The Geant4 Monte Carlo", runConfiguration);
 
-  TGeant4* geant4 = new TGeant4("TGeant4", "The Geant4 Monte Carlo", runConfiguration);
-
-  geant4->ProcessGeantMacro(erPath+"/gconfig/g4config.in");
-  geant4->Init();
-  geant4->ProcessRun(0); 
+    geant4->ProcessGeantMacro(erPath+"/gconfig/g4config.in");
+    geant4->Init();
+    geant4->ProcessRun(0);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

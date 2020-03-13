@@ -31,6 +31,8 @@
 
 #pragma link C++ class ERBeamTimeEventHeader+;
 
+#pragma link C++ class ERDigiCleaner+;
+
 //#ifdef ACCULINNA_GO4
 #pragma link C++ class ERDigibuilder+;
 #pragma link C++ class ERUnpack+;
