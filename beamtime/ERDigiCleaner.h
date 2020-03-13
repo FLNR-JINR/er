@@ -66,7 +66,7 @@ class ERDigiCleaner : public ERTask {
                    const TString& previousAmpCalFile, const TString& ampCalFile);
   void SetLonelyMWPCClusterCondition() { fLonelyMWPCClusterCondition = true; }
   void SetStationMultiplicity(const TString& detectorName, const TString stationName, Int_t multiplicity) { 
-    fStationMultiplicities[std::make_pair(detectorName, stationName)] = multiplicity;
+    fStationsMultiplicities[std::make_pair(detectorName, stationName)] = multiplicity;
   }
   void SetChannelCuts(const TString& detectorName, const TString& stationName,
                       const std::map<Int_t, TCutG*>& channelCuts);
