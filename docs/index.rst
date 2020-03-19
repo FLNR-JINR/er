@@ -40,3 +40,4 @@ EXPERTroot is a FAIRroot based framework for simulation of the detectrors' respo
    courses
    faq
    sadms
+   si_detector_calibration
