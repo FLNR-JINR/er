@@ -37,6 +37,7 @@ ERRawEvent.cxx
 ERParticle.cxx
 ERPoint.cxx
 ERDigi.cxx
+ERTrack.cxx
 )
 
 # fill list of header files from list of source files

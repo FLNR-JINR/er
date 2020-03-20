@@ -4,6 +4,8 @@
 
 #include "TGeoManager.h"
 
+#include "FairLogger.h"
+
 ERNDSetup* ERNDSetup::fInstance = NULL;
 TGeoNode* ERNDSetup::fNDnode = NULL;
 
@@ -30,6 +32,23 @@ ERNDSetup* ERNDSetup::Instance(){
                 return fInstance;
 }
 
+void ERNDSetup::ReadGeoParamsFromParContainer() {
+  if (! gGeoManager) 
+    LOG(FATAL) << "ERNDSetup: cannot initialise without TGeoManager!"<< FairLogger::endl;
+  gGeoManager->CdTop();
+  TGeoNode* cave = gGeoManager->GetCurrentNode();
+  for (Int_t iNode = 0; iNode < cave->GetNdaughters(); iNode++) { // cycle by volumes in TOP
+    TString detectorName = cave->GetDaughter(iNode)->GetName();
+    if (!detectorName.Contains("neutrondet", TString::kIgnoreCase))
+        continue;
+    const auto* nd = cave->GetDaughter(iNode);
+    for (Int_t iStilben = 0; iStilben < nd->GetNdaughters(); iStilben++) {
+        const auto* node = nd->GetDaughter(iStilben);
+        fChannel2Node[node->GetNumber()] = node;
+    }
+  }
+}
+
 void ERNDSetup::PMTPos(TVector3 pos, TVector3& pmtPos){
 	//@TODO пока что высчитывается координата центра стилбена.
 	TGeoNode* stilben = gGeoManager->FindNode(pos.X(), pos.Y(), pos.Z());
@@ -38,4 +57,13 @@ void ERNDSetup::PMTPos(TVector3 pos, TVector3& pmtPos){
 	pmtPos.SetXYZ(stilbenMatrix->GetTranslation()[0],
 				stilbenMatrix->GetTranslation()[1],
 				stilbenMatrix->GetTranslation()[2]);
+}
+
+TVector3 ERNDSetup::Pos(Int_t channel) {
+    if (fChannel2Node.find(channel) == fChannel2Node.end()) {
+        LOG(FATAL) << "ERNDSetup: Node for channel " << channel << " not found in geometry."
+                   << FairLogger::endl;
+    }
+    const auto* translation = fChannel2Node[channel]->GetMatrix()->GetTranslation();
+    return TVector3(translation[0], translation[1], translation[2]);
 }

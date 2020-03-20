@@ -9,6 +9,8 @@
 #ifndef ERNDSETUP_H
 #define ERNDSETUP_H
 
+#include <unordered_map>
+
 #include "Rtypes.h"
 #include "TVector3.h"
 #include "TGeoNode.h"
@@ -20,8 +22,11 @@ class ERNDSetup {
 public:
     static ERNDSetup* Instance();
     ClassDef(ERNDSetup,1)
-
     void PMTPos(TVector3 pos, TVector3& pmtPos);
+    TVector3 Pos(Int_t channel);
+    void ReadGeoParamsFromParContainer();
+protected:
+    std::unordered_map<Int_t, const TGeoNode*> fChannel2Node;
 };
 
 #endif

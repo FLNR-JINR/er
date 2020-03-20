@@ -7,6 +7,7 @@ ${BASE_INCLUDE_DIRECTORIES}
 ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
 ${CMAKE_SOURCE_DIR}/base/
+${CMAKE_SOURCE_DIR}/BeamDet/data
 ${CMAKE_SOURCE_DIR}/data/
 ${CMAKE_SOURCE_DIR}/ND/
 ${CMAKE_SOURCE_DIR}/ND/data
@@ -24,6 +25,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 ERND.cxx
 ERNDDigitizer.cxx
+ERNDTrackFinder.cxx
 ERNDSetup.cxx
 data/ERNDPoint.cxx
 data/ERNDDigi.cxx
