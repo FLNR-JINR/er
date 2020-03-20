@@ -14,7 +14,7 @@
 #include "ERSupport.h"
 #include "ERDigi.h"
 #include "ERBeamDetMWPCDigi.h"
-#include "ERBeamDetToFDigi.h"
+#include "ERBeamDetTOFDigi.h"
 
 //--------------------------------------------------------------------------------------------------
 ERDigiCleaner::ERDigiCleaner()
