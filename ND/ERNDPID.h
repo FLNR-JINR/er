@@ -31,3 +31,5 @@ class ERNDPID : public ERTask {
     ERParticle* AddParticle(const TLorentzVector& detectorState, const TLorentzVector& targetState);
     ClassDef(ERNDPID,1)
 };
+
+#endif

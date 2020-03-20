@@ -17,6 +17,10 @@ class ERTrack : public FairMultiLinkedData {
     ERTrack() = default;
     ERTrack(const TVector3& detectorVertex, const TVector3& targetVertex, Double_t edep);
     virtual void Print(const Option_t* opt = 0) const;
+    /** Accessors **/
+    TVector3 DetectorVertex() const {return fDetectorVertex;}
+    TVector3 TargetVertex() const {return fTargetVertex;}
+    Double_t Edep() const {return fEdep;}
   protected:
     TVector3 fTargetVertex;
     TVector3 fDetectorVertex;

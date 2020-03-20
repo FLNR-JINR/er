@@ -19,11 +19,10 @@
 class ERParticle: public FairMultiLinkedData {
   public:
 	ERParticle() = default;
-	ERParticle(const TLorentVector& detectorState, const TLorentVector& targetState);
+	ERParticle(const TLorentzVector& detectorState, const TLorentzVector& targetState);
   protected:
-    TLorentzVector& fDetectorState;
-	TLorentzVector& fTargetState;
-
+    TLorentzVector fDetectorState;
+	TLorentzVector fTargetState;
 	ClassDef(ERParticle,1);
 };
 

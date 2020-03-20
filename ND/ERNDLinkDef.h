@@ -7,6 +7,7 @@
 #pragma link C++ class ERND+;
 #pragma link C++ class ERNDDigitizer+;
 #pragma link C++ class ERNDTrackFinder+;
+#pragma link C++ class ERNDPID+;
 #pragma link C++ class ERNDSetup+;
 
 #pragma link C++ class ERNDPoint+;

@@ -1,6 +1,6 @@
 #include "ERParticle.h"
 
-ERParticle::ERParticle(const TLorentVector& detectorState, const TLorentVector& targetState) 
+ERParticle::ERParticle(const TLorentzVector& detectorState, const TLorentzVector& targetState) 
     :fDetectorState(detectorState), fTargetState(targetState) 
 {
 }

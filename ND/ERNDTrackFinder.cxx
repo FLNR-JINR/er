@@ -27,7 +27,6 @@ InitStatus ERNDTrackFinder::Init() {
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   fNDDigis = (TClonesArray*) ioman->GetObject("NDDigi");
   if (!fNDDigis) Fatal("Init", "Can`t find collection NDDigi!"); 
-  // Register output array fNDDigis
   fNDTracks = new TClonesArray("ERTrack",1000);
   ioman->Register("NDTrack", "ND track", fNDTracks, kTRUE);
   fSetup = ERNDSetup::Instance();

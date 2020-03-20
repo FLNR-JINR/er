@@ -11,7 +11,7 @@ void ND_reco(Int_t nEvents = 100){
   // ------------------------------------------------------------------------
   
   // -----   Digitization run   -------------------------------------------
-  FairRunAna *run= new FairRunAna();
+  ERRunAna* run = ERRunAna::Instance();
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -22,6 +22,14 @@ void ND_reco(Int_t nEvents = 100){
   run->AddTask(trackFinder);
   // ------------------------------------------------------------------------
   
+  // ------------------------ND track finder --------------------------------
+  ERNDPID* pid = new ERNDPID();
+  run->AddTask(pid);
+  // ------------------------------------------------------------------------
+
+  //-------Set LOG verbosity  ----------------------------------------------- 
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+
   // -----------Runtime DataBase info -------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   
