@@ -27,6 +27,7 @@ public:
     void ReadGeoParamsFromParContainer();
 protected:
     std::unordered_map<Int_t, const TGeoNode*> fChannel2Node;
+    bool fInited = false;
 };
 
 #endif

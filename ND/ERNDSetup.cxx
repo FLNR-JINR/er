@@ -33,6 +33,8 @@ ERNDSetup* ERNDSetup::Instance(){
 }
 
 void ERNDSetup::ReadGeoParamsFromParContainer() {
+  if (fInited)
+    return;
   if (! gGeoManager) 
     LOG(FATAL) << "ERNDSetup: cannot initialise without TGeoManager!"<< FairLogger::endl;
   gGeoManager->CdTop();
@@ -47,6 +49,7 @@ void ERNDSetup::ReadGeoParamsFromParContainer() {
         fChannel2Node[node->GetNumber()] = node;
     }
   }
+  fInited = true;
 }
 
 void ERNDSetup::PMTPos(TVector3 pos, TVector3& pmtPos){

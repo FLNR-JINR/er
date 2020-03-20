@@ -29,7 +29,7 @@ set(SRCS
     data/ERBeamDetTargetPoint.cxx
     data/ERBeamDetEvent.cxx
 	data/ERBeamDetCalEvent.cxx
-	data/ERBeamDetRecoEvent.cxx
+	#data/ERBeamDetRecoEvent.cxx
 	data/ERBeamDetMWPCDigi.cxx
 	data/ERBeamDetTOFDigi.cxx
 	data/ERBeamDetTrack.cxx
@@ -37,7 +37,7 @@ set(SRCS
 
 	ERBeamDet.cxx
 	ERBeamDetCalibrator.cxx
-	ERBeamDetReconstructor.cxx
+	#ERBeamDetReconstructor.cxx
 	ERBeamDetDigitizer.cxx
 	ERBeamDetTrackFinder.cxx
 	ERBeamDetSetup.cxx

@@ -6,25 +6,28 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERParticle_H
-#define ERParticle_H
+#ifndef ERNDPID_H
+#define ERNDPID_H
 
-#include "TNamed.h"
-#include "TTree.h"
-#include "TString.h"
+#include "TClonesArray.h"
 #include "TLorentzVector.h"
 
-#include "FairMultiLinkedData.h"
+#include "ERTask.h"
+#include "ERParticle.h"
+#include "ERNDSetup.h"
 
-class ERParticle: public FairMultiLinkedData {
+class ERNDPID : public ERTask {
   public:
-	ERParticle() = default;
-	ERParticle(const TLorentVector& detectorState, const TLorentVector& targetState);
+    ERNDPID();
+    virtual InitStatus Init(); 
+    virtual void Exec(Option_t* opt);
+    virtual void Reset();
   protected:
-    TLorentzVector& fDetectorState;
-	TLorentzVector& fTargetState;
-
-	ClassDef(ERParticle,1);
+    //Input arrays
+    TClonesArray* fNDTracks = nullptr;
+    //Output arrays
+    TClonesArray *fNDParticles = nullptr;
+    ERNDSetup* fSetup = nullptr;
+    ERParticle* AddParticle(const TLorentzVector& detectorState, const TLorentzVector& targetState);
+    ClassDef(ERNDPID,1)
 };
-
-#endif
