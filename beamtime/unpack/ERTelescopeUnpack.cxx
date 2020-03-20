@@ -148,10 +148,8 @@ void ERTelescopeUnpack::AddSiDigi(Float_t edep, Double_t time, Int_t stationNb,
                                                                                   TString digiBranchName)
 {
   ERQTelescopeSiDigi *digi = new((*fDigiCollections[digiBranchName])
-                                                  [fDigiCollections[digiBranchName]->GetEntriesFast()])
-              ERQTelescopeSiDigi(fDigiCollections[digiBranchName]->GetEntriesFast(), edep, time, 
-                                                                                     stationNb, 
-                                                                                     stripNb);
+        [fDigiCollections[digiBranchName]->GetEntriesFast()])
+        ERQTelescopeSiDigi(edep, time, stationNb, stripNb);
 }
 //-------------------------------------------------------------------------------------------------
 void ERTelescopeUnpack::AddCsIDigi(Float_t edep, Double_t time, Int_t wallNb, 
@@ -159,10 +157,8 @@ void ERTelescopeUnpack::AddCsIDigi(Float_t edep, Double_t time, Int_t wallNb,
                                                                     TString digiBranchName)
 {
   ERQTelescopeCsIDigi *digi = new((*fDigiCollections[digiBranchName])
-                                                   [fDigiCollections[digiBranchName]->GetEntriesFast()])
-              ERQTelescopeCsIDigi(fDigiCollections[digiBranchName]->GetEntriesFast(), edep, time, 
-                                                                                    wallNb, 
-                                                                                    blockNb);
+        [fDigiCollections[digiBranchName]->GetEntriesFast()])
+        ERQTelescopeCsIDigi(edep, time, wallNb, blockNb);
 }
 //--------------------------------------------------------------------------------------------------
 TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString stName, 

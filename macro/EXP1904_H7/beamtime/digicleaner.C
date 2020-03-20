@@ -32,11 +32,19 @@ void digicleaner(Int_t nEvents = 100000) {
   ssd1_0_cut->SetPoint(4,0.756681,0.1853814);
   ssd1_0_cut->SetPoint(5,-0.3586207,1.509534);
   TCutG* ssd1_1_cut = ssd1_0_cut;
-  const std::map<Int_t, TCutG*>& SSD_1_cuts = {
+  const std::map<Int_t, TCutG*>& SSD_1_gcuts = {
     {0,  ssd1_0_cut},
     {1,  ssd1_1_cut}
   };
-  cleaner->SetChannelCuts("Telescope_1", "SSD_1", SSD_1_cuts);
+  const std::map<Int_t, Double_t> SSD_1_amp_min = {
+    {1, 0.1}
+  };
+  const std::map<Int_t, Double_t> SSD_1_amp_max = {
+    {1, 10}
+  };
+  const std::map<Int_t, Double_t> SSD_1_time_min, SSD_1_time_max;
+  cleaner->SetChannelCuts("Telescope_1", "SSD_1", SSD_1_gcuts, SSD_1_amp_min, SSD_1_amp_max,
+                          SSD_1_time_min, SSD_1_time_max);
   // ...
   cleaner->SetStationMultiplicity("Telescope_1", "SSD_1", 1);
   cleaner->SetStationMultiplicity("Telescope_1", "SSD_V_1", 0);

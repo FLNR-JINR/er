@@ -1,3 +1,10 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 #ifndef ERDigiCleaner_H
 #define ERDigiCleaner_H
 
@@ -35,11 +42,21 @@ class ERDigiCleaner : public ERTask {
     struct StationCuts {
         TString fDetectorName;
         TString fStationName;
-        std::map<Int_t, TCutG*> fChannelCuts;
+        std::map<Int_t, TCutG*> fChannelGCuts;
+        std::map<Int_t, Double_t> fChannelMinAmp;
+        std::map<Int_t, Double_t> fChannelMaxAmp;
+        std::map<Int_t, Double_t> fChannelMinTime;
+        std::map<Int_t, Double_t> fChannelMaxTime;
         StationCuts(const TString& detectorName, const TString& stationName,
-                    const std::map<Int_t, TCutG*>& channelCuts)
+                    const std::map<Int_t, TCutG*>& channelGCuts,
+                    const std::map<Int_t, Double_t>& channelMinAmp,
+                    const std::map<Int_t, Double_t>& channelMaxAmp,
+                    const std::map<Int_t, Double_t>& channelMinTime,
+                    const std::map<Int_t, Double_t>& channelMaxTime)
                     : fDetectorName(detectorName), fStationName(stationName),
-                      fChannelCuts(channelCuts) {}
+                      fChannelGCuts(channelGCuts), fChannelMinAmp(channelMinAmp),
+                      fChannelMaxAmp(channelMaxAmp), fChannelMinTime(channelMinTime),
+                      fChannelMaxTime(channelMaxTime) {}
         StationCuts() = default;
     };
 
@@ -67,10 +84,12 @@ class ERDigiCleaner : public ERTask {
     fStationsMultiplicities[std::make_pair(detectorName, stationName)] = multiplicity;
   }
   void SetChannelCuts(const TString& detectorName, const TString& stationName,
-                      const std::map<Int_t, TCutG*>& channelCuts);
-
+                      const std::map<Int_t, TCutG*>& GCuts, 
+                      const std::map<Int_t, Double_t>& MinAmp,
+                      const std::map<Int_t, Double_t>& MaxAmp,
+                      const std::map<Int_t, Double_t>& MinTime,
+                      const std::map<Int_t, Double_t>& MaxTime);
   protected:
-
     bool AreFewClustersInMWPC();
     void Recalibration();
     void ApplyChannelCuts();

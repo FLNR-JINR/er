@@ -1,3 +1,10 @@
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 #include "ERDigiCleaner.h"
 
 #include <set>
@@ -5,9 +12,9 @@
 #include "FairLogger.h"
 
 #include "ERSupport.h"
+#include "ERDigi.h"
 #include "ERBeamDetMWPCDigi.h"
-#include "ERBeamDetTOFDigi.h"
-#include "ERQTelescopeSiDigi.h"
+#include "ERBeamDetToFDigi.h"
 
 //--------------------------------------------------------------------------------------------------
 ERDigiCleaner::ERDigiCleaner()
@@ -31,8 +38,11 @@ void ERDigiCleaner::Recalibrate(
 //--------------------------------------------------------------------------------------------------
 void ERDigiCleaner::SetChannelCuts(
         const TString& detectorName, const TString& stationName,
-        const std::map<Int_t, TCutG*>& channelCuts) {
-    fStationsCuts.emplace_back(detectorName, stationName, channelCuts);
+        const std::map<Int_t, TCutG*>& channelGCuts, const std::map<Int_t, Double_t>& channelMinAmp,
+        const std::map<Int_t, Double_t>& channelMaxAmp, const std::map<Int_t, Double_t>& channelMinTime,
+        const std::map<Int_t, Double_t>& channelMaxTime) {
+    fStationsCuts.emplace_back(detectorName, stationName, channelGCuts, channelMinAmp, channelMaxAmp,
+                               channelMinTime, channelMaxTime);
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERDigiCleaner::Init() {
@@ -69,7 +79,7 @@ bool ERDigiCleaner::AreFewClustersInMWPC(){
         const auto& digis = digiBranchNameAndCollection.second;
         std::set<Int_t> wireNumbers; // ordered 
         for (Int_t iDigi(0); iDigi < digis->GetEntriesFast(); iDigi++) {
-            const auto wireNumber = static_cast<ERBeamDetMWPCDigi*>(digis->At(iDigi))->GetWireNb();
+            const auto wireNumber = static_cast<ERBeamDetMWPCDigi*>(digis->At(iDigi))->Channel();
             wireNumbers.insert(wireNumber);
         }
         const auto wireCount = wireNumbers.size();
@@ -93,9 +103,6 @@ void ERDigiCleaner::Recalibration() {
                          << " not found." << FairLogger::endl;
         }
         const auto& branchName = branchNameAndDigis.first;
-        if (!TString(branchName).Contains("ERQTelescopeSiDigi")) {
-            LOG(FATAL) << "Recalibration is available only for silicon telescope station now." << FairLogger::endl;
-        }
         auto& digis = branchNameAndDigis.second;
         auto& prevTimeCalibration = recalibrationTask.fPreviousTimeCalibration;
         auto& timeCalibration = recalibrationTask.fTimeCalibration;
@@ -103,27 +110,30 @@ void ERDigiCleaner::Recalibration() {
         auto& ampCalibration = recalibrationTask.fAmpCalibration;
         for (Int_t iDigi(0); iDigi < digis->GetEntriesFast(); iDigi++) {
             // linear calibration: res = table[channel][0] + table[channel][1] * raw
-            auto digi = static_cast<ERQTelescopeSiDigi*>(digis->At(iDigi));
-            const auto stripNb = GetChannelNumber(digi->GetStripNb(), recalibrationTask.fSim2RawChannelsMapping);
+            auto digi = dynamic_cast<ERDigi*>(digis->At(iDigi));
+            if (!digi) {
+                LOG(FATAL) << "Recalibration is not available for branch " << branchName << FairLogger::endl;
+            }
+            const auto channel = GetChannelNumber(digi->Channel(), recalibrationTask.fSim2RawChannelsMapping);
             if (prevTimeCalibration && timeCalibration) {
-                if (stripNb >= prevTimeCalibration->GetNrows() || stripNb >= timeCalibration->GetNrows()) {
-                    LOG(FATAL) << "Channel " << stripNb << " not found time calibration tables of station " 
+                if (channel >= prevTimeCalibration->GetNrows() || channel >= timeCalibration->GetNrows()) {
+                    LOG(FATAL) << "Channel " << channel << " not found time calibration tables of station " 
                         << recalibrationTask.fStationName << " of detector " 
                         << recalibrationTask.fDetectorName <<  FairLogger::endl;
                 }
-                const auto rawTime = (digi->GetTime() - (*prevTimeCalibration)[stripNb][0]) 
-                    / (*prevTimeCalibration)[stripNb][1];
-                digi->SetTime((*timeCalibration)[stripNb][0] + (*timeCalibration)[stripNb][1] * rawTime);
+                const auto rawTime = (digi->Time() - (*prevTimeCalibration)[channel][0]) 
+                    / (*prevTimeCalibration)[channel][1];
+                digi->SetTime((*timeCalibration)[channel][0] + (*timeCalibration)[channel][1] * rawTime);
             }
             if (prevAmpCalibration && ampCalibration) {
-                if (stripNb >= prevAmpCalibration->GetNrows() || stripNb >= ampCalibration->GetNrows()) {
-                    LOG(FATAL) << "Channel " << stripNb << " not found amp calibration tables of station " 
+                if (channel >= prevAmpCalibration->GetNrows() || channel >= ampCalibration->GetNrows()) {
+                    LOG(FATAL) << "Channel " << channel << " not found amp calibration tables of station " 
                         << recalibrationTask.fStationName << " of detector " 
                         << recalibrationTask.fDetectorName <<  FairLogger::endl;
                 }
-                const auto rawEdep = (digi->GetEdep() - (*prevAmpCalibration)[stripNb][0]) 
-                    / (*prevAmpCalibration)[stripNb][1];
-                digi->SetEdep((*ampCalibration)[stripNb][0] + (*ampCalibration)[stripNb][1] * rawEdep);
+                const auto rawEdep = (digi->Edep() - (*prevAmpCalibration)[channel][0]) 
+                    / (*prevAmpCalibration)[channel][1];
+                digi->SetEdep((*ampCalibration)[channel][0] + (*ampCalibration)[channel][1] * rawEdep);
             }
         }
     }
@@ -135,7 +145,7 @@ void ERDigiCleaner::ApplyChannelCuts() {
     auto tofBranchAndDigi = GetBranchNameAndDigis("BeamDet", "ToFDigi2");
     if (!tofBranchAndDigi.second)
         LOG(FATAL) << "Digi branch for TOF2 station not found." << FairLogger::endl;
-    const auto tofTime = static_cast<ERBeamDetTOFDigi*>(tofBranchAndDigi.second->At(0))->GetTime();
+    const auto tofTime = static_cast<ERBeamDetTOFDigi*>(tofBranchAndDigi.second->At(0))->Time();
     for (const auto& stationCuts : fStationsCuts) {
         auto branchNameAndDigis = GetBranchNameAndDigis(stationCuts.fDetectorName, 
                                                         stationCuts.fStationName);
@@ -146,18 +156,39 @@ void ERDigiCleaner::ApplyChannelCuts() {
                          << " not found." << FairLogger::endl;
         }
         const auto branchName = branchNameAndDigis.first;
-        if (!TString(branchName).Contains("ERQTelescopeSiDigi")) {
-            LOG(FATAL) << "ApplyChannelCuts is available only for silicon telescope station now." << FairLogger::endl;
-        }
         std::list<TObject*> digisToRemove;
         for (Int_t iDigi(0); iDigi < digis->GetEntriesFast(); iDigi++) {
-            auto* digi = static_cast<ERQTelescopeSiDigi*>(digis->At(iDigi));
-            const auto stripNb = digi->GetStripNb();
-            const auto& channelsCuts = stationCuts.fChannelCuts;
-            if (channelsCuts.find(stripNb) != channelsCuts.end()) {
-                if (channelsCuts.at(stripNb)->IsInside(digi->GetTime() - tofTime, digi->GetEdep()))
-                    continue;
-                digisToRemove.push_back(digi);
+            auto* digi = dynamic_cast<ERDigi*>(digis->At(iDigi));
+            if (!digi) {
+                LOG(FATAL) << "Recalibration is not available for branch " << branchName << FairLogger::endl;
+            }
+            const auto channel = digi->Channel();
+            const auto time = digi->Time() - tofTime;
+            const auto edep = digi->Edep();
+            const auto& channelsGCuts = stationCuts.fChannelGCuts;
+            if (channelsGCuts.find(channel) != channelsGCuts.end()) {
+                if (!channelsGCuts.at(channel)->IsInside(time, edep))
+                    digisToRemove.push_back(digi);
+            }
+            const auto& channelsMinAmp = stationCuts.fChannelMinAmp;
+            if (channelsMinAmp.find(channel) != channelsMinAmp.end()) {
+                if (channelsMinAmp.at(channel) > edep)
+                    digisToRemove.push_back(digi);
+            }            
+            const auto& channelsMaxAmp = stationCuts.fChannelMaxAmp;
+            if (channelsMaxAmp.find(channel) != channelsMaxAmp.end()) {
+                if (channelsMaxAmp.at(channel) < edep)
+                    digisToRemove.push_back(digi);
+            }
+            const auto& channelsMinTime = stationCuts.fChannelMinTime;
+            if (channelsMinTime.find(channel) != channelsMinTime.end()) {
+                if (channelsMinTime.at(channel) > time)
+                    digisToRemove.push_back(digi);
+            }
+            const auto& channelsMaxTime = stationCuts.fChannelMaxTime;
+            if (channelsMaxTime.find(channel) != channelsMaxTime.end()) {
+                if (channelsMaxTime.at(channel) < time)
+                    digisToRemove.push_back(digi);
             }
         }
         for (auto* digi : digisToRemove) {

@@ -11,38 +11,15 @@
 #include "FairLogger.h"
 
 using namespace std;
-
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeCsIDigi::ERQTelescopeCsIDigi()
-  :fID(-1),
-  fEdep(0.)
+ERQTelescopeCsIDigi::ERQTelescopeCsIDigi(Double_t edep, Double_t time, Int_t wallNb, Int_t channel)
+  : ERDigi(edep, time, channel), fWallNb(wallNb)
 {
-}
-//-------------------------------------------------------------------------------------------------
-ERQTelescopeCsIDigi::ERQTelescopeCsIDigi(Int_t id, Float_t Edep, Double_t time, Int_t wallNb, Int_t blockNb)
-  :fID(id),
-  fEdep(Edep),
-  fTime(time),
-  fWallNb(wallNb),
-  fBlockNb(blockNb)
-{
-}
-//-------------------------------------------------------------------------------------------------
-ERQTelescopeCsIDigi::ERQTelescopeCsIDigi(const ERQTelescopeCsIDigi& right)
-  :fID(right.fID),
-  fEdep(right.fEdep),
-  fTime(right.fTime),
-  fWallNb(right.fWallNb),
-  fBlockNb(right.fBlockNb)
-{
-}
-//-------------------------------------------------------------------------------------------------
-ERQTelescopeCsIDigi::~ERQTelescopeCsIDigi(){
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescopeCsIDigi::Print(const Option_t* opt /* = 0 */) const {
-  LOG(DEBUG) << "-I- ERQTelescopeCsIDigi:  " << FairLogger::endl;
-  LOG(DEBUG) << "    Edep : " << fEdep << FairLogger::endl;
+  LOG(INFO) << "-I- ERQTelescopeCsIDigi: edep = " << fEdep << ", time = " << fTime
+            << ", wall number = " << fWallNb << ", channel = " << fChannel << FairLogger::endl;
 }
 //-------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeCsIDigi)

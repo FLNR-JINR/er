@@ -89,8 +89,7 @@ void ERNDUnpack::AddNDDigi(const Float_t edep, const Double_t time, const Int_t 
     TVector3 pos, dpos; // fields for simulation info  
     auto* digiCollection = fDigiCollections["NDDigis"];
     new((*digiCollection) [digiCollection->GetEntriesFast()])
-        ERNDDigi(digiCollection->GetEntriesFast(), kND, pos, dpos, channelNb, edep, -1. /*lightYield*/, time,
-                 -1. /*neutronProb*/, tac);
+        ERNDDigi(pos, dpos, channelNb, edep, -1. /*lightYield*/, time, -1. /*neutronProb*/, tac);
 }
 //--------------------------------------------------------------------------------------------------
 Bool_t ERNDUnpack::CheckSetup() {

@@ -297,11 +297,11 @@ Double_t ERQTelescopePID::FindDigiEdepByNode(const TGeoNode& node){
     Bool_t found = kFALSE;
     for (Int_t iDigi = 0; iDigi < fQTelescopeDigi[brName]->GetEntriesFast(); iDigi++){
       ERQTelescopeSiDigi* digi = (ERQTelescopeSiDigi*)fQTelescopeDigi[brName]->At(iDigi);
-      if (digi->GetStripNb() == stripNb){
+      if (digi->Channel() == stripNb){
         found = kTRUE;
         LOG(DEBUG) << " [ERQTelescopePID] [CalcEnergyDeposites] Found digi with edep " 
-                   << digi->GetEdep() << FairLogger::endl;
-        edep = digi->GetEdep();
+                   << digi->Edep() << FairLogger::endl;
+        edep = digi->Edep();
         break;
       }
     }
@@ -372,9 +372,9 @@ Double_t ERQTelescopePID::FindCsIEdepByTrack(ERQTelescopeTrack* track, Int_t pdg
           LOG(DEBUG) << " [FindCsIEdepByTrack]      CsI Branch found " << branch.first << FairLogger::endl;
           for (Int_t iDigi = 0; iDigi < branch.second->GetEntriesFast(); iDigi++){
             ERQTelescopeCsIDigi* digi = (ERQTelescopeCsIDigi*)branch.second->At(iDigi);
-            if (digi->GetBlockNb() == CsInb){
-              LOG(DEBUG) << " [FindCsIEdepByTrack]      Found CsI with edep " << digi->GetEdep() << FairLogger::endl;
-              edep = digi->GetEdep();
+            if (digi->Channel() == CsInb){
+              LOG(DEBUG) << " [FindCsIEdepByTrack]      Found CsI with edep " << digi->Edep() << FairLogger::endl;
+              edep = digi->Edep();
             }
           }
         }

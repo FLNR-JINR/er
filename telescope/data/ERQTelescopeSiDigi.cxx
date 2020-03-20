@@ -10,39 +10,15 @@
 
 #include "FairLogger.h"
 
-using namespace std;
-
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeSiDigi::ERQTelescopeSiDigi()
-  :fID(-1),
-  fEdep(0.)
+ERQTelescopeSiDigi::ERQTelescopeSiDigi(Double_t edep, Double_t time, Int_t stationNb, Int_t channel)
+  : ERDigi(edep, time, channel), fStationNb(stationNb)
 {
-}
-//-------------------------------------------------------------------------------------------------
-ERQTelescopeSiDigi::ERQTelescopeSiDigi(Int_t id, Double_t Edep, Double_t time, Int_t stationNb, Int_t stripNb)
-  :fID(id),
-  fEdep(Edep),
-  fTime(time),
-  fStationNb(stationNb),
-  fStripNb(stripNb)
-{
-}
-//-------------------------------------------------------------------------------------------------
-ERQTelescopeSiDigi::ERQTelescopeSiDigi(const ERQTelescopeSiDigi& right)
-  :fID(right.fID),
-  fEdep(right.fEdep),
-  fTime(right.fTime),
-  fStationNb(right.fStationNb),
-  fStripNb(right.fStripNb)
-{
-}
-//-------------------------------------------------------------------------------------------------
-ERQTelescopeSiDigi::~ERQTelescopeSiDigi(){
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescopeSiDigi::Print(const Option_t* opt /* = 0 */) const {
-  LOG(DEBUG) << "-I- ERQTelescopeSiDigi:  " << FairLogger::endl;
-  LOG(DEBUG) << "    Edep : " << fEdep << FairLogger::endl;
+  LOG(INFO) << "-I- ERQTelescopeSiDigi:  edep = " << fEdep << ", time = " << fTime
+            << ", station number = " << fStationNb << ", channel = " << fChannel << FairLogger::endl;
 }
 //-------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeSiDigi)

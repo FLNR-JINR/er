@@ -235,23 +235,19 @@ ERBeamDetMWPCDigi* ERBeamDetDigitizer::AddMWPCDigi(Float_t edep, Double_t time,
   if(mwpcNb == 1) {
     if(planeNb == 1) {
       digi = new((*fBeamDetMWPCDigiX1)[fBeamDetMWPCDigiX1->GetEntriesFast()])
-              ERBeamDetMWPCDigi(fBeamDetMWPCDigiX1->GetEntriesFast(), edep, time, 
-                                mwpcNb, planeNb, wireNb);
+          ERBeamDetMWPCDigi(edep, time, mwpcNb, planeNb, wireNb);
     } else {
       digi = new((*fBeamDetMWPCDigiY1)[fBeamDetMWPCDigiY1->GetEntriesFast()])
-              ERBeamDetMWPCDigi(fBeamDetMWPCDigiY1->GetEntriesFast(), edep, time, 
-                                mwpcNb, planeNb, wireNb);
+          ERBeamDetMWPCDigi(edep, time, mwpcNb, planeNb, wireNb);
     }
   }
   if(mwpcNb == 2) {
     if(planeNb == 1) {
       digi = new((*fBeamDetMWPCDigiX2)[fBeamDetMWPCDigiX2->GetEntriesFast()])
-              ERBeamDetMWPCDigi(fBeamDetMWPCDigiX2->GetEntriesFast(), edep, time, 
-                                mwpcNb, planeNb, wireNb);
+              ERBeamDetMWPCDigi(edep, time, mwpcNb, planeNb, wireNb);
     } else {
       digi = new((*fBeamDetMWPCDigiY2)[fBeamDetMWPCDigiY2->GetEntriesFast()])
-              ERBeamDetMWPCDigi(fBeamDetMWPCDigiY2->GetEntriesFast(), edep, time, 
-                                mwpcNb, planeNb, wireNb);
+              ERBeamDetMWPCDigi(edep, time, mwpcNb, planeNb, wireNb);
     }
   }
   return digi;
@@ -261,11 +257,11 @@ ERBeamDetTOFDigi* ERBeamDetDigitizer::AddToFDigi(Float_t edep, Double_t time, In
   ERBeamDetTOFDigi *digi; 
   if(tofNb == 1) {
     digi = new((*fBeamDetToFDigi1)[fBeamDetToFDigi1->GetEntriesFast()])
-                ERBeamDetTOFDigi(fBeamDetToFDigi1->GetEntriesFast(), edep, time, tofNb);
+        ERBeamDetTOFDigi(edep, time, tofNb);
   }
   if(tofNb == 2) {
     digi = new((*fBeamDetToFDigi2)[fBeamDetToFDigi2->GetEntriesFast()])
-                ERBeamDetTOFDigi(fBeamDetToFDigi2->GetEntriesFast(), edep, time, tofNb);
+        ERBeamDetTOFDigi(edep, time, tofNb);
   }
   return digi;
 }
