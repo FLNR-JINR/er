@@ -28,11 +28,14 @@ TMatrixD* ReadCalFile(TString fileName) {
 
     while (!in.eof()){
         if (i >= nRows){
-            LOG(FATAL) << "Wrong file format in " << fileName << FairLogger::FairLogger::endl;
-            return NULL;
+          break;
         }
         in >> (*calTable)[i][0] >> (*calTable)[i][1];
         i++;
+    }
+
+    if (i < nRows) {
+      LOG(FATAL) << "Wrong file format in " << fileName << FairLogger::FairLogger::endl;
     }
 
     return calTable;
