@@ -159,7 +159,11 @@ void sim_digi (Int_t nEvents = 100000) {
   // ------BeamDet ----------------------------------------------------------
   ERBeamDet* beamdet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
   run->AddModule(beamdet);
-
+  // ------ND ---------------------------------------------------------------
+  ERND* nd= new ERND("ERND", kTRUE,verbose);
+  nd->SetGeometryFileName("ND.geo.root");
+  run->AddModule(nd);
+  //-------------------------------------------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
   Double_t  kinE_MevPerNucleon = 30.;
@@ -184,15 +188,10 @@ void sim_digi (Int_t nEvents = 100000) {
   // ------- Decayer --------------------------------------------------------
   
   Double_t massH7 = 6.5691;//7.5061760;  // [GeV]
-
-
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1811* targetDecay = new ERDecayEXP1811();
-
   targetDecay->SetInteractionVolumeName("tubeD2");
-
   targetDecay->SetNuclearInteractionLength(20.);
-
   //targetDecay->SetAngularDistribution("Cs_6He_d_3He_5H_35-25AMeV.txt");
   targetDecay->SetH7Mass(massH7);
   targetDecay->SetDecayFile("pmom-pv-1_short.dat", 0.0005 /*excitation in file [GeV]*/);
@@ -206,15 +205,12 @@ void sim_digi (Int_t nEvents = 100000) {
 
   // ------- QTelescope Digitizer -------------------------------------------
   ERQTelescopeDigitizer* qtelescopeDigitizer = new ERQTelescopeDigitizer(verbose);
-
   qtelescopeDigitizer->SetSiElossThreshold(0);
   qtelescopeDigitizer->SetSiElossSigma(0);
   qtelescopeDigitizer->SetSiTimeSigma(0);
-
   qtelescopeDigitizer->SetCsIElossThreshold(0);
   qtelescopeDigitizer->SetCsIElossSigma(0);
   qtelescopeDigitizer->SetCsITimeSigma(0);
-
   run->AddTask(qtelescopeDigitizer);
 
   // -----  BeamDet Digitizer ----------------------------------------------
@@ -223,14 +219,22 @@ void sim_digi (Int_t nEvents = 100000) {
   //beamDetDigitizer->SetToFElossThreshold(0.006);
   //beamDetDigitizer->SetToFElossSigmaOverEloss(0);
   //beamDetDigitizer->SetToFTimeSigma(1e-10);
-
   run->AddTask(beamDetDigitizer);
-  
+  // ------------------------------------------------------------------------
+  ERNDDigitizer* ndDigitizer = new ERNDDigitizer(1);
+  ndDigitizer->SetEdepError(0.0,0.04,0.02);
+  ndDigitizer->SetLYError(0.0,0.04,0.02);
+  ndDigitizer->SetTimeError(0.001);
+  ndDigitizer->SetQuenchThreshold(0.005);
+  ndDigitizer->SetLYThreshold(0.004);
+  ndDigitizer->SetProbabilityB(0.1);
+  ndDigitizer->SetProbabilityC(0.3);
+  run->AddTask(ndDigitizer);
   //-------Set visualisation flag to true------------------------------------
   //run->SetStoreTraj(kTRUE);
 
   //-------Set LOG verbosity  ----------------------------------------------- 
-  FairLogger::GetLogger()->SetLogScreenLevel("FATAL");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
 
   // -----   Initialize simulation run   ------------------------------------
   run->Init();

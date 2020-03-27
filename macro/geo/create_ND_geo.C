@@ -3,8 +3,8 @@ void create_ND_geo()
   TString erPath = gSystem->Getenv("VMCWORKDIR");
 
   // Output paths
-  TString outGeoFilenameRoot = erPath + "/geometry/ND1ch.geo.root";
-  TString outGeoFilenameGdml = erPath + "/geometry/ND1ch.gdml";
+  TString outGeoFilenameRoot = erPath + "/geometry/ND.geo.root";
+  TString outGeoFilenameGdml = erPath + "/geometry/ND.gdml";
 
   // Input paths
   TString medFile = erPath + "/geometry/media.geo";
@@ -95,7 +95,7 @@ void create_ND_geo()
   //  }
   // Regular positioning below
 
-  const Double_t r = 300;        // Sphere's radius
+  const Double_t r = 100;        // Sphere's radius
   const Double_t l = 2*R_max_Housing - 0.1;        // Length of the arc between two cylinders
   Double_t alpha[3];        // Angle of rotation of cylinders around axes:  alpha = l/r
   Double_t h[3];          // h = sqrt[4*r*r*sin(alpha/2)*sin(alpha/2) - r*r*sin(alpha)*sin(alpha)]
