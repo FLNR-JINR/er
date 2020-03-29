@@ -136,7 +136,7 @@ void ERBeamDetCalibratorNew::Finish()
 ERBeamDetMWPCDigi* ERBeamDetCalibratorNew::AddMWPCDigi(Float_t edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb)
 {
   ERBeamDetMWPCDigi *digi = new((*fBeamDetMWPCDigi)[fBeamDetMWPCDigi->GetEntriesFast()])
-              ERBeamDetMWPCDigi(fBeamDetMWPCDigi->GetEntriesFast(), edep, time, mwpcNb, planeNb, wireNb);
+              ERBeamDetMWPCDigi(edep, time, mwpcNb, planeNb, wireNb);
   return digi;
 }
 //-----------------------------------------------------------------------------
@@ -145,7 +145,7 @@ ERBeamDetMWPCDigi* ERBeamDetCalibratorNew::AddMWPCDigi(Float_t edep, Double_t ti
 ERBeamDetTOFDigi* ERBeamDetCalibratorNew::AddToFDigi(Float_t edep, Double_t time, Int_t ToFNb)
 {
   ERBeamDetTOFDigi *digi = new((*fBeamDetToFDigi)[fBeamDetToFDigi->GetEntriesFast()])
-              ERBeamDetTOFDigi(fBeamDetToFDigi->GetEntriesFast(), edep, time, ToFNb);
+              ERBeamDetTOFDigi(edep, time, ToFNb);
   return digi;
 }
 //-----------------------------------------------------------------------------

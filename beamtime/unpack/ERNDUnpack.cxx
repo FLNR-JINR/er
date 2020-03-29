@@ -14,15 +14,18 @@
 
 #include "ERDetectorList.h"
 #include "ERNDDigi.h"
+#include "ERSupport.h"
 
 //--------------------------------------------------------------------------------------------------
 ERNDUnpack::ERNDUnpack(TString detName, TString ampStation, TString timeStation, TString tacStation,
                        TString ampCalFile, TString timeCalFile, TString tacCalFile,
+                       std::map<Int_t, Int_t>* channelsMapping /*=nullptr*/,
                        Bool_t skipAloneChannels/*= kTRUE*/) : 
     ERUnpack(detName),
     fAmpStation(ampStation),
     fTimeStation(timeStation),
     fTACStation(tacStation),
+    fChannelsMapping(channelsMapping),
     fSkipAloneChannels(skipAloneChannels)
 {
     if (ampCalFile != "")
@@ -63,7 +66,7 @@ Bool_t ERNDUnpack::DoUnpack(Int_t* data, Int_t size){
         std::tie(amp, time, tac) = itValue.second;
         amp /= 1000.; //to GeV
         ApplyCalibrations(channel, amp, time, tac);
-        AddNDDigi(amp,time,tac,channel);
+        AddNDDigi(amp,time,tac, GetChannelNumber(channel, fChannelsMapping));
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -86,8 +89,7 @@ void ERNDUnpack::AddNDDigi(const Float_t edep, const Double_t time, const Int_t 
     TVector3 pos, dpos; // fields for simulation info  
     auto* digiCollection = fDigiCollections["NDDigis"];
     new((*digiCollection) [digiCollection->GetEntriesFast()])
-        ERNDDigi(digiCollection->GetEntriesFast(), kND, pos, dpos, channelNb, edep, -1. /*lightYield*/, time,
-                 -1. /*neutronProb*/, tac);
+        ERNDDigi(pos, dpos, channelNb, edep, -1. /*lightYield*/, time, -1. /*neutronProb*/, tac);
 }
 //--------------------------------------------------------------------------------------------------
 Bool_t ERNDUnpack::CheckSetup() {

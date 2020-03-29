@@ -13,42 +13,18 @@
 #include "TObject.h"
 #include "TVector3.h"
 
-#include "FairMultiLinkedData.h"
+#include "ERDigi.h"
 
-class ERQTelescopeSiDigi : public FairMultiLinkedData
-{
+class ERQTelescopeSiDigi : public ERDigi {
  public:
-  /** Default constructor **/
-  ERQTelescopeSiDigi();
-  
-  /** Constructor with arguments
-   **/
-  ERQTelescopeSiDigi(Int_t id, Double_t Edep, Double_t time, Int_t stationNb, Int_t stripNb);
-                   
-  /** Copy constructor **/
-  ERQTelescopeSiDigi(const ERQTelescopeSiDigi&);
-
-  /** Destructor **/
-  virtual ~ERQTelescopeSiDigi();
-
-  ERQTelescopeSiDigi& operator=(const ERQTelescopeSiDigi&) { return *this; }
-
+  ERQTelescopeSiDigi() = default;
+  ERQTelescopeSiDigi(Double_t edep, Double_t time, Int_t stationNb, Int_t channel);
   /** Output to screen **/
   virtual void Print(const Option_t* opt = 0) const;
-
   /* Accessors */
-  Int_t ID () const {return fID;}
-  Double_t GetEdep() const {return fEdep;}
-  Double_t GetStripNb() const {return fStripNb;}
-  Double_t GetTime() const {return fTime;}
-  
+  Int_t StationNb() const {return fStationNb;}
  protected:
-  Int_t     fID;
-  Int_t     fStationNb;
-  Int_t     fStripNb;
-  Double_t  fTime;
-  Double_t  fEdep;
-  
+  Int_t     fStationNb = -1;
   ClassDef(ERQTelescopeSiDigi,1)
 };
 

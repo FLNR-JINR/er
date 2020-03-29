@@ -208,14 +208,13 @@ void ERDigitizer::Finish()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERDigi* ERDigitizer::AddDigi(TClonesArray* digis)
-{
-  ERDigi *digi = new((*digis)[digis->GetEntriesFast()])
-              ERDigi(digis->GetEntriesFast(), fEdep, fTime, fVolNb);
+ERDigi* ERDigitizer::AddDigi(TClonesArray* digis) {
+  ERDigi *digi = new((*digis)[digis->GetEntriesFast()]) 
+      ERDigi(fEdep, fTime, fVolNb);
   return digi;
 }
 // ----------------------------------------------------------------------------
-void ERDigitizer::AddError(TString volName,Float_t a, Float_t b, Float_t c){
+void ERDigitizer::AddError(TString volName,Float_t a, Float_t b, Float_t c) {
   fSenVolErrors[volName] = ERDigitizerError(a,b,c);
 }
 //-----------------------------------------------------------------------------

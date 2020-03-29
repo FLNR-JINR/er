@@ -1,53 +1,27 @@
-// -------------------------------------------------------------------------
-// -----                       ERBeamDetMWPCDigi source file                -----
-// -----           			   Created   by       			   -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #include "ERBeamDetMWPCDigi.h"
-#include <iostream>
 
-using namespace std;
+#include "FairLogger.h"
 
-// -----   Default constructor   -------------------------------------------
-ERBeamDetMWPCDigi::ERBeamDetMWPCDigi()
-  :fID(-1),
-  fEdep(0.)
+//---------------------------------------------------------------------------------
+ERBeamDetMWPCDigi::ERBeamDetMWPCDigi(Double_t edep, Double_t time, Int_t mwpcNb, 
+                                     Int_t planeNb, Int_t wireNb)
+  : ERDigi(edep, time, wireNb), fMWPCNb(mwpcNb), fPlaneNb(planeNb)  
 {
 }
-
-ERBeamDetMWPCDigi::ERBeamDetMWPCDigi(Int_t id, Float_t Edep, Double_t time, Int_t mwpcNb, Int_t planeNb, Int_t wireNb)
-  :fID(id),
-  fEdep(Edep),
-  fTime(time), 
-  fMWPCNb(mwpcNb), 
-  fPlaneNb(planeNb), 
-  fWireNb(wireNb)
-{
+//---------------------------------------------------------------------------------
+void ERBeamDetMWPCDigi::Print(const Option_t* opt /* = 0 */) const {
+  LOG(INFO) << "-I- ERBeamDetMWPCDigi:  edep = " << fEdep << ", time = " << fTime
+            << ", channel = " << fChannel << ", plane = " << fPlaneNb 
+            << ", mwpc = " << fMWPCNb << FairLogger::endl;
 }
-
-ERBeamDetMWPCDigi::ERBeamDetMWPCDigi(const ERBeamDetMWPCDigi& right)
-  :fID(right.fID),
-   fEdep(right.fEdep),
-   fTime(right.fTime), 
-   fMWPCNb(right.fMWPCNb), 
-   fPlaneNb(right.fPlaneNb), 
-   fWireNb(right.fWireNb)
-{
-}
-
-
-
-// -----   Destructor   ----------------------------------------------------
-ERBeamDetMWPCDigi::~ERBeamDetMWPCDigi()
-{
-}
-
-// -----   Public method Print   -------------------------------------------
-void ERBeamDetMWPCDigi::Print(const Option_t* opt /* = 0 */) const
-{
-  std::cout << "-I- ERBeamDetMWPCDigi:  " << endl;
-  std::cout << "    Edep : " << fEdep << endl;
-}
-// -------------------------------------------------------------------------
+//---------------------------------------------------------------------------------
 
 ClassImp(ERBeamDetMWPCDigi)

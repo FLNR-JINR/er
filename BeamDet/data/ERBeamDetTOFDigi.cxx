@@ -1,49 +1,23 @@
-// -------------------------------------------------------------------------
-// -----                       ERBeamDetTOFDigi source file                -----
-// -----           			   Created   by        			   -----
-// -------------------------------------------------------------------------
-
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 #include "ERBeamDetTOFDigi.h"
-#include<iostream>
 
-using namespace std;
+#include "FairLogger.h"
 
-// -----   Default constructor   -------------------------------------------
-ERBeamDetTOFDigi::ERBeamDetTOFDigi()
-  :fID(-1),
-  fEdep(0.)
+//---------------------------------------------------------------------------------
+ERBeamDetTOFDigi::ERBeamDetTOFDigi(Double_t edep, Double_t time, Int_t tofNb)
+  :ERDigi(edep, time, 0), fToFNb(tofNb)
 {
 }
-
-ERBeamDetTOFDigi::ERBeamDetTOFDigi(Int_t id, Float_t Edep, Double_t time, Int_t tofNb)
-  :fID(id),
-  fEdep(Edep),
-  fTime(time),
-  fToFNb(tofNb)
-{
+//---------------------------------------------------------------------------------
+void ERBeamDetTOFDigi::Print(const Option_t* opt /* = 0 */) const {
+  LOG(INFO) << "-I- ERBeamDetTOFDigi:  edep = " << fEdep << ", time = " << fTime
+            << ", tof = " << fToFNb << FairLogger::endl;
 }
-
-ERBeamDetTOFDigi::ERBeamDetTOFDigi(const ERBeamDetTOFDigi& right)
-  :fID(right.fID),
-  fEdep(right.fEdep),
-  fTime(right.fTime),
-  fToFNb(right.fToFNb)
-{
-}
-
-
-
-// -----   Destructor   ----------------------------------------------------
-ERBeamDetTOFDigi::~ERBeamDetTOFDigi()
-{
-}
-
-// -----   Public method Print   -------------------------------------------
-void ERBeamDetTOFDigi::Print(const Option_t* opt /* = 0 */) const
-{
-  std::cout << "-I- ERBeamDetTOFDigi:  " << endl;
-  std::cout << "    Edep : " << fEdep << endl;
-}
-// -------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------------
 ClassImp(ERBeamDetTOFDigi)

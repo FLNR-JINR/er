@@ -20,8 +20,72 @@
 				<deadLayerThicknessBackSide>0.0001</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
+			<singleSi id="SingleSi_SSD20_1">
+				<singleSiSize singleSiX="5" singleSiY="5" singleSiZ="0.002"/>
+				<singleSiSensAreaSize singleSiSensX="5" singleSiSensY="5" singleSiSensZ="0.002"/>
+				<deadLayerThicknessFrontSide>0.00005</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0001</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
+			<singleSi id="SingleSi_SSD20_2">
+				<singleSiSize singleSiX="5" singleSiY="5" singleSiZ="0.002"/>
+				<singleSiSensAreaSize singleSiSensX="5" singleSiSensY="5" singleSiSensZ="0.002"/>
+				<deadLayerThicknessFrontSide>0.00005</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0001</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
+			<singleSi id="SingleSi_SSD20_3">
+				<singleSiSize singleSiX="5" singleSiY="5" singleSiZ="0.002"/>
+				<singleSiSensAreaSize singleSiSensX="5" singleSiSensY="5" singleSiSensZ="0.002"/>
+				<deadLayerThicknessFrontSide>0.00005</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0001</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
+			<singleSi id="SingleSi_SSD20_4">
+				<singleSiSize singleSiX="5" singleSiY="5" singleSiZ="0.002"/>
+				<singleSiSensAreaSize singleSiSensX="5" singleSiSensY="5" singleSiSensZ="0.002"/>
+				<deadLayerThicknessFrontSide>0.00005</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0001</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>	
 			<singleSi id="SingleSi_SSD">
+				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
+				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
+				<deadLayerThicknessFrontSide>0.00015</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0003</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
+			<singleSi id="SingleSi_SSD_1">
+				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
+				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
+				<deadLayerThicknessFrontSide>0.00015</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0003</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
+			<singleSi id="SingleSi_SSD_2">
+				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
+				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
+				<deadLayerThicknessFrontSide>0.00015</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0003</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
+			<singleSi id="SingleSi_SSD_3">
+				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
+				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
+				<deadLayerThicknessFrontSide>0.00015</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0003</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
+			<singleSi id="SingleSi_SSD_4">
 				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
 				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
 				<deadLayerThicknessFrontSide>0.00015</deadLayerThicknessFrontSide>
@@ -36,11 +100,51 @@
 				<deadLayerThicknessBackSide>0.0003</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
+			<singleSi id="SingleSi_SSD_V_1">
+				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
+				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
+				<deadLayerThicknessFrontSide>0.00015</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0003</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
+			<singleSi id="SingleSi_SSD_V_2">
+				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
+				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
+				<deadLayerThicknessFrontSide>0.00015</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0003</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
+			<singleSi id="SingleSi_SSD_V_3">
+				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
+				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
+				<deadLayerThicknessFrontSide>0.00015</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0003</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
+			</singleSi>
+			<singleSi id="SingleSi_SSD_V_4">
+				<singleSiSize singleSiX="6.6" singleSiY="6.6" singleSiZ="0.1"/>
+				<singleSiSensAreaSize singleSiSensX="6.08" singleSiSensY="6.08" singleSiSensZ="0.1"/>
+				<deadLayerThicknessFrontSide>0.00015</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0003</deadLayerThicknessBackSide>
+				<stripCount>16</stripCount>
+				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>	
 		</singleSiTypes>
 	</SiTypes>
 	<CsITypes>
 		<CsI id="CsI_C">
+ 			<CsISize CsIX="1.65" CsIY="1.65" CsIZ="5"/>
+ 			<cubesCountX>4</cubesCountX>			
+ 			<cubesCountY>4</cubesCountY>
+ 			<splitSize>0.01</splitSize>
+ 			<deadLayer>0.002</deadLayer>
+			<CsIMedia>CsI</CsIMedia>
+		</CsI>
+		<CsI id="CsI">
  			<CsISize CsIX="1.65" CsIY="1.65" CsIZ="5"/>
  			<cubesCountX>4</cubesCountX>			
  			<cubesCountY>4</cubesCountY>

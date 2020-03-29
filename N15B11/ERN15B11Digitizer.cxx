@@ -67,7 +67,7 @@ void ERN15B11Digitizer::Exec(Option_t* option)
 void ERN15B11Digitizer::AddOutputDigi(TClonesArray& clref, Double_t Edep, Double_t Time)
 {
   UInt_t size = clref.GetEntries();
-  new(clref[size])ERDigi(1, Edep, Time, 1); // id = 1, Edep = Edep, time = Time, volNb = 1
+  new(clref[size])ERDigi(Edep, Time, 1); // id = 1, Edep = Edep, time = Time, volNb = 1
 }
 
 void ERN15B11Digitizer::FinishEvent()

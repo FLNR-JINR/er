@@ -73,7 +73,7 @@ Bool_t ERBeamDetTrackFinder::IsCluster (TClonesArray* digiArray) {
   for(Int_t i = 0; i < digiArray->GetEntries() - 1; i++) {
     ERBeamDetMWPCDigi* digi             = (ERBeamDetMWPCDigi*)digiArray->At(i);
     ERBeamDetMWPCDigi* digiNeigborWire  = (ERBeamDetMWPCDigi*)digiArray->At(i + 1);
-    if((digiNeigborWire->GetWireNb() - digi->GetWireNb()) != 1){;
+    if((digiNeigborWire->Channel() - digi->Channel()) != 1){;
       isCluster = kFALSE;
       FairRun* run = FairRun::Instance();
       break;
@@ -87,30 +87,30 @@ Double_t ERBeamDetTrackFinder::CalcCoordinateAvg (TClonesArray* digiArray, char 
   ERBeamDetMWPCDigi* digiLastInCluster  = (ERBeamDetMWPCDigi*)digiArray->At(digiArray->GetEntries() - 1);
   Double_t coordAvg;
   switch (coordType) {
-    case 'X' :  coordAvg = 0.5*(fBeamDetSetup->GetWireGlobX(digiFirstInCluster->GetMWPCNb()-1, 
-                                                     digiFirstInCluster->GetPlaneNb()-1, 
-                                                     digiFirstInCluster->GetWireNb()-1) 
+    case 'X' :  coordAvg = 0.5*(fBeamDetSetup->GetWireGlobX(digiFirstInCluster->MWPCNb()-1, 
+                                                     digiFirstInCluster->PlaneNb()-1, 
+                                                     digiFirstInCluster->Channel()-1) 
                                 + 
-                                fBeamDetSetup->GetWireGlobX(digiLastInCluster->GetMWPCNb()-1, 
-                                                     digiLastInCluster->GetPlaneNb()-1, 
-                                                     digiLastInCluster->GetWireNb()-1));  
+                                fBeamDetSetup->GetWireGlobX(digiLastInCluster->MWPCNb()-1, 
+                                                     digiLastInCluster->PlaneNb()-1, 
+                                                     digiLastInCluster->Channel()-1));  
                 break;
 
-    case 'Y' :  coordAvg = 0.5*(fBeamDetSetup->GetWireGlobY(digiFirstInCluster->GetMWPCNb()-1, 
-                                                     digiFirstInCluster->GetPlaneNb()-1, 
-                                                     digiFirstInCluster->GetWireNb()-1) 
+    case 'Y' :  coordAvg = 0.5*(fBeamDetSetup->GetWireGlobY(digiFirstInCluster->MWPCNb()-1, 
+                                                     digiFirstInCluster->PlaneNb()-1, 
+                                                     digiFirstInCluster->Channel()-1) 
                                 + 
-                                fBeamDetSetup->GetWireGlobY(digiLastInCluster->GetMWPCNb()-1, 
-                                                     digiLastInCluster->GetPlaneNb()-1, 
-                                                     digiLastInCluster->GetWireNb()-1)); 
+                                fBeamDetSetup->GetWireGlobY(digiLastInCluster->MWPCNb()-1, 
+                                                     digiLastInCluster->PlaneNb()-1, 
+                                                     digiLastInCluster->Channel()-1)); 
                 break;
-    case 'Z' :  coordAvg = 0.5*(fBeamDetSetup->GetWireGlobZ(digiFirstInCluster->GetMWPCNb()-1, 
-                                                     digiFirstInCluster->GetPlaneNb()-1, 
-                                                     digiFirstInCluster->GetWireNb()-1) 
+    case 'Z' :  coordAvg = 0.5*(fBeamDetSetup->GetWireGlobZ(digiFirstInCluster->MWPCNb()-1, 
+                                                     digiFirstInCluster->PlaneNb()-1, 
+                                                     digiFirstInCluster->Channel()-1) 
                                 + 
-                                fBeamDetSetup->GetWireGlobZ(digiLastInCluster->GetMWPCNb()-1, 
-                                                     digiLastInCluster->GetPlaneNb()-1, 
-                                                     digiLastInCluster->GetWireNb()-1)); 
+                                fBeamDetSetup->GetWireGlobZ(digiLastInCluster->MWPCNb()-1, 
+                                                     digiLastInCluster->PlaneNb()-1, 
+                                                     digiLastInCluster->Channel()-1)); 
                 break;
     default:  LOG(DEBUG) << "ERBeamDetTrackFinder::CalcCoordinateAvg: Unknown coordinate type " 
                          << FairLogger::endl;
@@ -149,8 +149,8 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
     }
   } else {  // only one wire in array
     digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiX1->At(0); 
-    xFar = fBeamDetSetup->GetWireGlobX(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);  
-    zFar = fBeamDetSetup->GetWireGlobZ(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
+    xFar = fBeamDetSetup->GetWireGlobX(digi->MWPCNb()-1, digi->PlaneNb()-1, digi->Channel()-1);  
+    zFar = fBeamDetSetup->GetWireGlobZ(digi->MWPCNb()-1, digi->PlaneNb()-1, digi->Channel()-1);
   }
 
   // Check X2 cluster
@@ -164,7 +164,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
     }
   } else {  // only one wire in array
     digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiX2->At(0);
-    xClose = fBeamDetSetup->GetWireGlobX(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);      
+    xClose = fBeamDetSetup->GetWireGlobX(digi->MWPCNb()-1, digi->PlaneNb()-1, digi->Channel()-1);      
   }
   // Check Y1 cluster
   if(fBeamDetMWPCDigiY1->GetEntriesFast() > 1 ) { // If multiplicity in wires array is more than one 
@@ -177,7 +177,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
     }
   } else {  // only one wire in array
     digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiY1->At(0);
-    yFar = fBeamDetSetup->GetWireGlobY(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
+    yFar = fBeamDetSetup->GetWireGlobY(digi->MWPCNb()-1, digi->PlaneNb()-1, digi->Channel()-1);
   }
   // Check Y2 cluster
   if(fBeamDetMWPCDigiY2->GetEntriesFast() > 1 ) { // If multiplicity in wires array is more than one 
@@ -191,8 +191,8 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
     }
   } else { // only one wire in array
     digi = (ERBeamDetMWPCDigi*)fBeamDetMWPCDigiY2->At(0);
-    yClose = fBeamDetSetup->GetWireGlobY(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
-    zClose = fBeamDetSetup->GetWireGlobZ(digi->GetMWPCNb()-1, digi->GetPlaneNb()-1, digi->GetWireNb()-1);
+    yClose = fBeamDetSetup->GetWireGlobY(digi->MWPCNb()-1, digi->PlaneNb()-1, digi->Channel()-1);
+    zClose = fBeamDetSetup->GetWireGlobZ(digi->MWPCNb()-1, digi->PlaneNb()-1, digi->Channel()-1);
   }
   TVector3 hitFar(xFar, yFar, zFar);
   TVector3 hitClose(xClose, yClose, zClose);

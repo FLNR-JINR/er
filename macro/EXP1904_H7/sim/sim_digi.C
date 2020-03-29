@@ -78,12 +78,12 @@ void sim_digi (Int_t nEvents = 100000) {
   //y = 2.075;
   z = 17.3+1.5;
   TVector3 fZeroRotation(0., 0., 0.);
-  ERGeoSubAssembly* assembly_1 = new ERGeoSubAssembly("T1", TVector3(-x, y, z), fZeroRotation);
-  ERQTelescopeGeoComponentSingleSi* thin1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20", 
+  ERGeoSubAssembly* assembly_1 = new ERGeoSubAssembly("Telescope_1", TVector3(-x, y, z), fZeroRotation);
+  ERQTelescopeGeoComponentSingleSi* thin1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_1", 
                                                                                   TVector3(0., 0., -1.5), TVector3(), "X");
-  ERQTelescopeGeoComponentSingleSi* thick1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD", 
+  ERQTelescopeGeoComponentSingleSi* thick1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_1", 
                                                                                   TVector3(0., 0., 0.), TVector3(), "Y");
-  ERQTelescopeGeoComponentSingleSi* veto1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_veto", 
+  ERQTelescopeGeoComponentSingleSi* veto1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_V_1", 
                                                                                   TVector3(0., 0., 1.0), TVector3(), "Y");
   assembly_1->AddComponent(thin1);
   assembly_1->AddComponent(thick1);
@@ -92,12 +92,12 @@ void sim_digi (Int_t nEvents = 100000) {
   setupQTelescope->AddSubAssembly(assembly_1);
 
   // ----- 2 parameters ----------------------------------------------------
-  ERGeoSubAssembly* assembly_2 = new ERGeoSubAssembly("T2", TVector3(-y, -x, z), fZeroRotation);
-  ERQTelescopeGeoComponentSingleSi* thin2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20", 
+  ERGeoSubAssembly* assembly_2 = new ERGeoSubAssembly("Telescope_2", TVector3(-y, -x, z), fZeroRotation);
+  ERQTelescopeGeoComponentSingleSi* thin2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_2", 
                                                                                   TVector3(0., 0., -1.5), TVector3(), "Y");
-  ERQTelescopeGeoComponentSingleSi* thick2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD", 
+  ERQTelescopeGeoComponentSingleSi* thick2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_2", 
                                                                                   TVector3(0., 0., 0.), TVector3(), "X");
-  ERQTelescopeGeoComponentSingleSi* veto2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_veto", 
+  ERQTelescopeGeoComponentSingleSi* veto2 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_V_2", 
                                                                                   TVector3(0., 0., 1.0), TVector3(), "X");
 
   assembly_2->AddComponent(thin2);
@@ -113,11 +113,11 @@ void sim_digi (Int_t nEvents = 100000) {
   xPos = radius * TMath::Sin(rotationC.Y() * TMath::DegToRad());
   yPos = 0.;
   zPos = radius * TMath::Cos(rotationC.Y() * TMath::DegToRad());
-  ERGeoSubAssembly* assembly_Central= new ERGeoSubAssembly("CT", TVector3(xPos, yPos, zPos), rotationC);
+  ERGeoSubAssembly* assembly_Central= new ERGeoSubAssembly("Central_telescope", TVector3(xPos, yPos, zPos), rotationC);
   
   ERQTelescopeGeoComponentDoubleSi* thick_Central = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_DSD", 
                                                                                   TVector3(0., 0., -2.9), TVector3(), "X");
-  ERQTelescopeGeoComponentCsI* csi = new ERQTelescopeGeoComponentCsI("CsI", "CsI_C", TVector3(0., 0., 0.), TVector3());
+  ERQTelescopeGeoComponentCsI* csi = new ERQTelescopeGeoComponentCsI("CsI", "CsI", TVector3(0., 0., 0.), TVector3());
 
   assembly_Central->AddComponent(thick_Central);
   assembly_Central->AddComponent(csi);
@@ -125,12 +125,12 @@ void sim_digi (Int_t nEvents = 100000) {
   setupQTelescope->AddSubAssembly(assembly_Central);
 
   // ----- 3 parameters ----------------------------------------------------
-  ERGeoSubAssembly* assembly_3 = new ERGeoSubAssembly("T3", TVector3(x, -y, z), fZeroRotation);
-  ERQTelescopeGeoComponentSingleSi* thin3 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20", 
+  ERGeoSubAssembly* assembly_3 = new ERGeoSubAssembly("Telescope_3", TVector3(x, -y, z), fZeroRotation);
+  ERQTelescopeGeoComponentSingleSi* thin3 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_3", 
                                                                                   TVector3(0., 0., -1.5), TVector3(), "X");
-  ERQTelescopeGeoComponentSingleSi* thick3 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD", 
+  ERQTelescopeGeoComponentSingleSi* thick3 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_3", 
                                                                                   TVector3(0., 0., 0.), TVector3(), "Y");
-  ERQTelescopeGeoComponentSingleSi* veto3 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_veto", 
+  ERQTelescopeGeoComponentSingleSi* veto3 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_V_3", 
                                                                                   TVector3(0., 0., 1.0), TVector3(), "Y");
 
   assembly_3->AddComponent(thin3);
@@ -140,12 +140,12 @@ void sim_digi (Int_t nEvents = 100000) {
   setupQTelescope->AddSubAssembly(assembly_3);
 
   // ----- 4 parameters ----------------------------------------------------
-  ERGeoSubAssembly* assembly_4 = new ERGeoSubAssembly("T4", TVector3(y, x, z), fZeroRotation);
-  ERQTelescopeGeoComponentSingleSi* thin4 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20", 
+  ERGeoSubAssembly* assembly_4 = new ERGeoSubAssembly("Telescope_4", TVector3(y, x, z), fZeroRotation);
+  ERQTelescopeGeoComponentSingleSi* thin4 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD20_4", 
                                                                                   TVector3(0., 0., -1.5), TVector3(), "Y");
-  ERQTelescopeGeoComponentSingleSi* thick4 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD", 
+  ERQTelescopeGeoComponentSingleSi* thick4 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_4", 
                                                                                   TVector3(0., 0., 0.), TVector3(), "X");
-  ERQTelescopeGeoComponentSingleSi* veto4 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_veto", 
+  ERQTelescopeGeoComponentSingleSi* veto4 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_V_4", 
                                                                                   TVector3(0., 0., 1.0), TVector3(), "X");
 
   assembly_4->AddComponent(thin4);

@@ -14,6 +14,7 @@ ${CMAKE_SOURCE_DIR}/ND/data/
 ${CMAKE_SOURCE_DIR}/data/data/
 ${CMAKE_SOURCE_DIR}/beamtime/data/
 ${CMAKE_SOURCE_DIR}/BeamDet/data/
+${CMAKE_SOURCE_DIR}/telescope/data/
 )
 
 set(LINK_DIRECTORIES
@@ -25,6 +26,7 @@ set(SRCS
 	ERDRS4Source.cxx
 	ERTektronixSource.cxx
 	ERRawToAnalyzeConverter.cxx
+	ERDigiCleaner.cxx
 
 	#ERLiCalibrator.cxx
 	ERRootSource.cxx

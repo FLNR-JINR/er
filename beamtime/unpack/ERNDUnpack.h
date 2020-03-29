@@ -12,6 +12,7 @@ class ERNDUnpack : public ERUnpack
   public:
     ERNDUnpack(TString detName, TString ampStation, TString timeStation, TString tacStation,
                TString ampCalFile, TString timeCalFile, TString tacCalFile,
+               std::map<Int_t, Int_t>* channelsMapping = nullptr,
                Bool_t skipAloneChannels = kTRUE);
     virtual ~ERNDUnpack();
 
@@ -28,6 +29,7 @@ class ERNDUnpack : public ERUnpack
     TMatrixD* fAmpCalTable = nullptr;
     TMatrixD* fTimeCalTable = nullptr;
     TMatrixD* fTACCalTable = nullptr;
+    std::map<Int_t, Int_t>* fChannelsMapping = nullptr;
     Bool_t fSkipAloneChannels;
     
   public:

@@ -5,52 +5,23 @@
  *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
-
 #ifndef ERQTelescopeCsIDigi_H
 #define ERQTelescopeCsIDigi_H
 
+#include "ERDigi.h"
 
-#include "TObject.h"
-#include "TVector3.h"
-
-#include "FairMultiLinkedData.h"
-
-class ERQTelescopeCsIDigi : public FairMultiLinkedData
-{
+class ERQTelescopeCsIDigi : public ERDigi {
  public:
-  /** Default constructor **/
-  ERQTelescopeCsIDigi();
-  
-  /** Constructor with arguments
-   **/
-  ERQTelescopeCsIDigi(Int_t id, Float_t Edep, Double_t time, Int_t wallNb, Int_t blockNb);
-                   
-  /** Copy constructor **/
-  ERQTelescopeCsIDigi(const ERQTelescopeCsIDigi&);
-
-  /** Destructor **/
-  virtual ~ERQTelescopeCsIDigi();
-
-  ERQTelescopeCsIDigi& operator=(const ERQTelescopeCsIDigi&) { return *this; }
-
+  ERQTelescopeCsIDigi() = default;
+  ERQTelescopeCsIDigi(Double_t edep, Double_t time, Int_t wallNb, Int_t channel);
   /** Output to screen **/
   virtual void Print(const Option_t* opt = 0) const;
-
   /* Accessors */
-  Int_t ID () const {return fID;}
-  Int_t GetBlockNb() const {return fBlockNb;}
-  Float_t GetEdep() const {return fEdep;}
-  Double_t GetTime() const {return fTime;}
-
+  Int_t WallNb() const {return fWallNb;}
  protected:
-  Int_t     fID;
-  Int_t     fWallNb;
-  Int_t     fBlockNb;
-  Double_t  fTime;
-  Float_t   fEdep;
-  
+  Int_t     fWallNb = -1;
+ 
   ClassDef(ERQTelescopeCsIDigi,1)
-
 };
 
 #endif

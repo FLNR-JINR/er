@@ -13,6 +13,7 @@
 
 #include "ERBeamDetTOFDigi.h"
 #include "ERBeamDetMWPCDigi.h"
+#include "ERSupport.h"
 
 using namespace std;
 
@@ -129,7 +130,8 @@ Bool_t ERBeamDetUnpack::DoUnpack(Int_t* data, Int_t size){
 			if (mwpcTime.find(mwpcTimeSt) != mwpcTime.end()){
 				for (auto itChanel : mwpcAmp){
 					Double_t time = mwpcTime[mwpcTimeSt]*fCalMWPCa + fCalMWPCb;
-					AddMWPCDigi(itChanel.second, time, mwpcAmpSt, itChanel.first);
+					AddMWPCDigi(itChanel.second, time, mwpcAmpSt,
+								GetChannelNumber(itChanel.first, fMwpcChannelsMapping));
 				}
 			}
 			else{
@@ -145,11 +147,11 @@ void ERBeamDetUnpack::AddToFDigi(Float_t edep, Double_t time, Int_t tofNb) {
   ERBeamDetTOFDigi *digi; 
   if(tofNb == 1) {
     digi = new((*fDigiCollections["BeamDetToFDigi1"])[fDigiCollections["BeamDetToFDigi1"]->GetEntriesFast()])
-                ERBeamDetTOFDigi(fDigiCollections["BeamDetToFDigi1"]->GetEntriesFast(), edep, time, tofNb);
+        ERBeamDetTOFDigi(edep, time, tofNb);
   }
   if(tofNb == 2) {
     digi = new((*fDigiCollections["BeamDetToFDigi2"])[fDigiCollections["BeamDetToFDigi2"]->GetEntriesFast()])
-                ERBeamDetTOFDigi(fDigiCollections["BeamDetToFDigi2"]->GetEntriesFast(), edep, time, tofNb);
+    	ERBeamDetTOFDigi(edep, time, tofNb);
   }
 }
 //--------------------------------------------------------------------------------------------------
@@ -176,8 +178,7 @@ void ERBeamDetUnpack::AddMWPCDigi(Float_t edep, Double_t time,
   	planeNb = 2;
   }
   digi = new((*fDigiCollections[bName])[fDigiCollections[bName]->GetEntriesFast()])
-              ERBeamDetMWPCDigi(fDigiCollections[bName]->GetEntriesFast(), edep, time, 
-                                mwpcNb, planeNb, wireNb+1);
+              ERBeamDetMWPCDigi(edep, time, mwpcNb, planeNb, wireNb+1);
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERBeamDetUnpack)

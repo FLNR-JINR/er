@@ -24,6 +24,7 @@ public:
 
   /*Modifiers*/
   void SetUserCut(TCut cut) {fUserCut = cut;}
+  void WithoutGeant() { fWithoutGeant = true; }
   /*Accessors*/
   void Init();
   /**Run from event number NStart to event number NStop */
@@ -42,6 +43,7 @@ private:
   static TH1I*  fEventsForProcessing;
 
   Bool_t fHoldEventsCount; //!
+  Bool_t fWithoutGeant = false;
 
   ClassDef(ERRunAna ,1)
 };

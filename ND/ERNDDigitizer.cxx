@@ -178,7 +178,7 @@ ERNDDigi* ERNDDigitizer::AddDigi(Int_t detID, TVector3& pos, TVector3& dpos,
                        Int_t point_index, Float_t edep, Float_t ly, Float_t time,Float_t neutronProb)
 {
   ERNDDigi *Digi = new((*fNDDigis)[fNDDigis->GetEntriesFast()])
-              ERNDDigi(fNDDigis->GetEntriesFast(),detID, pos, dpos, point_index, edep, ly, time, neutronProb);
+              ERNDDigi(pos, dpos, point_index, edep, ly, time, neutronProb);
   return Digi;
 }
 // ----------------------------------------------------------------------------

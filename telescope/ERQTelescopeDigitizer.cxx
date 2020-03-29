@@ -184,10 +184,8 @@ ERQTelescopeSiDigi* ERQTelescopeDigitizer::AddSiDigi(Float_t edep, Double_t time
                                                                                   TString digiBranchName)
 {
   ERQTelescopeSiDigi *digi = new((*fQTelescopeDigi[digiBranchName])
-                                                  [fQTelescopeDigi[digiBranchName]->GetEntriesFast()])
-              ERQTelescopeSiDigi(fQTelescopeDigi[digiBranchName]->GetEntriesFast(), edep, time, 
-                                                                                     stationNb, 
-                                                                                     stripNb);
+      [fQTelescopeDigi[digiBranchName]->GetEntriesFast()]) 
+      ERQTelescopeSiDigi(edep, time, stationNb, stripNb);
   return digi;
 }
 //-------------------------------------------------------------------------------------------------
@@ -196,10 +194,8 @@ ERQTelescopeCsIDigi* ERQTelescopeDigitizer::AddCsIDigi(Float_t edep, Double_t ti
                                                                                     TString digiBranchName)
 {
   ERQTelescopeCsIDigi *digi = new((*fQTelescopeDigi[digiBranchName])
-                                                   [fQTelescopeDigi[digiBranchName]->GetEntriesFast()])
-              ERQTelescopeCsIDigi(fQTelescopeDigi[digiBranchName]->GetEntriesFast(), edep, time, 
-                                                                                    wallNb, 
-                                                                                    blockNb);
+      [fQTelescopeDigi[digiBranchName]->GetEntriesFast()])
+      ERQTelescopeCsIDigi(edep, time, wallNb, blockNb);
   return digi;
 }
 //-------------------------------------------------------------------------------------------------

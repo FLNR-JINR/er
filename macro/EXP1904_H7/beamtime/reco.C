@@ -1,19 +1,22 @@
-void reco(Int_t nEvents = 100000){
+void reco(Int_t nEvents = 100000) {
   //---------------------Files-----------------------------------------------
-  TString inFile  = "sim_digi.root";
+  TString inFile  = "digi.root";
   TString outFile = "reco.root";
   TString parFile = "par.root";
+  TString geoFile = "setup_exp1904.root";
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();  
   // -----   Digitization run   ---------------------------------------------
   ERRunAna *run = ERRunAna::Instance();
   run->HoldEventsCount(); //forbid different entry number in the input and output file
+  /*
   run->SetUserCut("Length$(ERQTelescopeSiPoint_Telescope_1_SingleSi_SSD_V_1_Y_2) == 0 \
                    && Length$(ERQTelescopeSiDigi_Telescope_2_SingleSi_SSD_V_2_X_5) == 0 \
                    && Length$(ERQTelescopeSiDigi_Telescope_3_SingleSi_SSD_V_3_Y_8) == 0 \
                    && Length$(ERQTelescopeSiDigi_Telescope_4_SingleSi_SSD_V_4_X_11) == 0");
-  //run->SetGeomFile(geoFile);
+  */
+  run->SetGeomFile(geoFile);
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -33,7 +36,7 @@ void reco(Int_t nEvents = 100000){
   qtelescopeTrackFinder->SetHitStation("Telescope_4", "Telescope_4_SingleSi_SSD_4_X_10", "Telescope_4_SingleSi_SSD20_4_Y_9");
   qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_DoubleSi_DSD_XY_0");
   run->AddTask(qtelescopeTrackFinder);
-  // -----------------------BeamDetTrackPID----------------------------------s
+  // -----------------------BeamDetTrackPID----------------------------------
   Int_t Z = 2, A = 8, Q = 2;
   TString ionName = "8He";
   ERBeamDetPID* beamdetPid = new ERBeamDetPID(verbose);

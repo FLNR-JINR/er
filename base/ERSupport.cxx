@@ -2,7 +2,52 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 
+#include "FairLogger.h"
+
+//--------------------------------------------------------------------------------------------------
+TMatrixD* ReadCalFile(TString fileName) {
+    std::ifstream in;
+    in.open(fileName);
+    if (!in.is_open()){
+        LOG(FATAL) << "Can`t open calibration file " << fileName << FairLogger::FairLogger::endl;
+        return NULL;
+    }
+
+    Int_t nRows = -1, nCols = -1;
+    in >> nCols;
+    in >> nRows;
+    if (nCols <= 0 || nRows <= 0){
+        LOG(FATAL) << "Can`t read rows or cols from calibration file " << fileName << FairLogger::FairLogger::endl;
+        return NULL;
+    }
+
+    TMatrixD* calTable = new TMatrixD(nRows,nCols);
+    Int_t i = 0;
+
+    while (!in.eof()){
+        if (i >= nRows){
+          break;
+        }
+        in >> (*calTable)[i][0] >> (*calTable)[i][1];
+        i++;
+    }
+
+    if (i < nRows) {
+      LOG(FATAL) << "Wrong file format in " << fileName << FairLogger::FairLogger::endl;
+    }
+
+    return calTable;
+}
+//--------------------------------------------------------------------------------------------------
+Int_t GetChannelNumber(const Int_t rawChannel, const std::map<Int_t, Int_t>* channelsMapping) {
+    if (!channelsMapping)
+        return rawChannel;
+    if (channelsMapping->find(rawChannel) == channelsMapping->end())
+        return rawChannel;
+    return channelsMapping->at(rawChannel);
+}
 //-----------------------------------------------------------------------------
 double EiEo(double tableER[][105],double Tp,double Rp){
   if(Tp<0.1||Tp>1000.)

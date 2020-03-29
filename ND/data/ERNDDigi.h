@@ -1,40 +1,40 @@
-// -------------------------------------------------------------------------
-// -----                        ERNDDigi header file                   -----
-// -----                     Created 03/16  by V.Schetinin             -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             * 
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *  
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
 
 #ifndef ERNDDigi_H
 #define ERNDDigi_H
 
-#include "FairHit.h"
+#include "TVector3.h"
 
-class ERNDDigi : public FairHit{
-private:
-	Int_t fID;
-	Int_t fStilbenNb;
-	Float_t fLightYield;
-	Float_t fEdep;
-	Float_t fTime;
-	Float_t fNeutronProb;
-	Float_t fTAC;
-public:
-	ERNDDigi(){}
-	ERNDDigi(Int_t id, Int_t detID, TVector3& pos, TVector3& dpos, 
-			 Int_t stilbenNb, Float_t edep, Float_t lightYield, Float_t time, Float_t neutronProb,
-			 Float_t tac = -1.);
+#include "ERDigi.h"
 
-	Int_t ID() const {return fID;}
-
-	Int_t StilbenNb() const {return fStilbenNb;}
-	Float_t EnergyLoss() const {return fEdep;}
-	Float_t LightYield() const {return fLightYield;}
-	Float_t Time() const {return fTime;}
-	Float_t NeutronProb() const {return fNeutronProb;}
-	Float_t TAC() const { return fTAC; }
-
+class ERNDDigi : public ERDigi {
+ public:
+	ERNDDigi() = default;
+	ERNDDigi(TVector3& pos, TVector3& dpos, Int_t stilbenNb, Double_t edep, Double_t lightYield, 
+	         Double_t time, Double_t neutronProb, Double_t tac = -1.);
+	/** Accessors **/
+	Double_t LightYield() const {return fLightYield;}
+	Double_t NeutronProb() const {return fNeutronProb;}
+	Double_t TAC() const {return fTAC;}
+	TVector3 Position() const {return fPos;}
+	TVector3 DPosition() const {return fDPos;}
+	/** Modifiers **/
+	void Position(TVector3& pos) {fPos = pos;}
+	void DPosition(TVector3& dpos) {fDPos = dpos;}
+ protected:
+	Double_t fLightYield = -1.;
+	Double_t fNeutronProb = -1.;
+	Double_t fTAC = -1.;
+	TVector3 fPos;
+	TVector3 fDPos;
 
 	ClassDef(ERNDDigi, 1)
-
 };
 
 #endif
