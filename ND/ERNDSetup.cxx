@@ -41,11 +41,14 @@ void ERNDSetup::ReadGeoParamsFromParContainer() {
   TGeoNode* cave = gGeoManager->GetCurrentNode();
   for (Int_t iNode = 0; iNode < cave->GetNdaughters(); iNode++) { // cycle by volumes in TOP
     TString detectorName = cave->GetDaughter(iNode)->GetName();
-    if (!detectorName.Contains("neutrondet", TString::kIgnoreCase))
+    if (!detectorName.Contains("ND", TString::kIgnoreCase))
         continue;
     const auto* nd = cave->GetDaughter(iNode);
-    for (Int_t iStilben = 0; iStilben < nd->GetNdaughters(); iStilben++) {
-        const auto* node = nd->GetDaughter(iStilben);
+    if (nd->GetNdaughters() != 1)
+      LOG(FATAL) << "Wrong ND geometry structure" << FairLogger::endl;
+    const auto* airBox = nd->GetDaughter(0);
+    for (Int_t iStilben = 0; iStilben < airBox->GetNdaughters(); iStilben++) {
+        const auto* node = airBox->GetDaughter(iStilben);
         fChannel2Node[node->GetNumber()] = node;
     }
   }

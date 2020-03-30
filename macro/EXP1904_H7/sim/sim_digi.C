@@ -18,6 +18,7 @@ void sim_digi (Int_t nEvents = 100000) {
   TString paramFileBeamDet = workDirPath
                          + "/db/BeamDet/BeamDetParts.xml";
   TString targetGeoFileName = workDirPath + "/geometry/target.D2.gas.root";
+  TString ndGeoFileName = workDirPath + "/geometry/ND.geo.root";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer; 
@@ -161,7 +162,7 @@ void sim_digi (Int_t nEvents = 100000) {
   run->AddModule(beamdet);
   // ------ND ---------------------------------------------------------------
   ERND* nd= new ERND("ERND", kTRUE,verbose);
-  nd->SetGeometryFileName("ND.geo.root");
+  nd->SetGeometryFileName(ndGeoFileName);
   run->AddModule(nd);
   //-------------------------------------------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
