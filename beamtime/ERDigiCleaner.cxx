@@ -98,42 +98,54 @@ void ERDigiCleaner::Recalibration() {
         auto branchNameAndDigis = GetBranchNameAndDigis(recalibrationTask.fDetectorName, 
                                                         recalibrationTask.fStationName);
         if (!branchNameAndDigis.second) {
-            LOG(FATAL) << "Digi branch for station " << recalibrationTask.fStationName 
+            LOG(FATAL) << "[Recalibration] Digi branch for station " << recalibrationTask.fStationName 
                          << " of detector " << recalibrationTask.fDetectorName
                          << " not found." << FairLogger::endl;
         }
+        LOG(DEBUG) << "[Recalibration] Station " << recalibrationTask.fStationName << " of detector "
+                   << recalibrationTask.fDetectorName << FairLogger::endl;
         const auto& branchName = branchNameAndDigis.first;
         auto& digis = branchNameAndDigis.second;
         auto& prevTimeCalibration = recalibrationTask.fPreviousTimeCalibration;
         auto& timeCalibration = recalibrationTask.fTimeCalibration;
-        auto& prevAmpCalibration = recalibrationTask.fAmpCalibration;
+        auto& prevAmpCalibration = recalibrationTask.fPreviousAmpCalibration;
         auto& ampCalibration = recalibrationTask.fAmpCalibration;
         for (Int_t iDigi(0); iDigi < digis->GetEntriesFast(); iDigi++) {
             // linear calibration: res = table[channel][0] + table[channel][1] * raw
             auto digi = dynamic_cast<ERDigi*>(digis->At(iDigi));
             if (!digi) {
-                LOG(FATAL) << "Recalibration is not available for branch " << branchName << FairLogger::endl;
+                LOG(FATAL) << "[Recalibration] Recalibration is not available for branch " << branchName << FairLogger::endl;
             }
             const auto channel = GetChannelNumber(digi->Channel(), recalibrationTask.fSim2RawChannelsMapping);
             if (prevTimeCalibration && timeCalibration) {
                 if (channel >= prevTimeCalibration->GetNrows() || channel >= timeCalibration->GetNrows()) {
-                    LOG(FATAL) << "Channel " << channel << " not found time calibration tables of station " 
+                    LOG(FATAL) << "[Recalibration] Channel " << channel << " not found time calibration tables of station " 
                         << recalibrationTask.fStationName << " of detector " 
                         << recalibrationTask.fDetectorName <<  FairLogger::endl;
                 }
                 const auto rawTime = (digi->Time() - (*prevTimeCalibration)[channel][0]) 
                     / (*prevTimeCalibration)[channel][1];
-                digi->SetTime((*timeCalibration)[channel][0] + (*timeCalibration)[channel][1] * rawTime);
+                const auto newTime = (*timeCalibration)[channel][0] + (*timeCalibration)[channel][1] * rawTime;
+                LOG(DEBUG) << "[Recalibration] Time: channel = " << channel <<", previous a = " << (*prevTimeCalibration)[channel][0]
+                           << ", previous b = " << (*prevTimeCalibration)[channel][1] << " new a = " <<  (*timeCalibration)[channel][0]
+                           << ", new b = " << (*timeCalibration)[channel][1] << ", previous = " << digi->Time() 
+                           << ", raw = " << rawTime << ", new time =  " << newTime << FairLogger::endl;
+                digi->SetTime(newTime);
             }
             if (prevAmpCalibration && ampCalibration) {
                 if (channel >= prevAmpCalibration->GetNrows() || channel >= ampCalibration->GetNrows()) {
-                    LOG(FATAL) << "Channel " << channel << " not found amp calibration tables of station " 
+                    LOG(FATAL) << "[Recalibration] Channel " << channel << " not found amp calibration tables of station " 
                         << recalibrationTask.fStationName << " of detector " 
                         << recalibrationTask.fDetectorName <<  FairLogger::endl;
                 }
                 const auto rawEdep = (digi->Edep() - (*prevAmpCalibration)[channel][0]) 
                     / (*prevAmpCalibration)[channel][1];
-                digi->SetEdep((*ampCalibration)[channel][0] + (*ampCalibration)[channel][1] * rawEdep);
+                const auto newEdep = (*ampCalibration)[channel][0] + (*ampCalibration)[channel][1] * rawEdep;
+                LOG(DEBUG) << "[Recalibration] Edep: channel = " << channel << ", previous a = " << (*prevAmpCalibration)[channel][0]
+                           << ", previous b = " << (*prevAmpCalibration)[channel][1] << " new a = " <<  (*ampCalibration)[channel][0]
+                           << ", new b = " << (*ampCalibration)[channel][1] <<", previous = " << digi->Edep() 
+                           << ", raw = " << rawEdep << ", new =  " << newEdep << FairLogger::endl;
+                digi->SetEdep(newEdep);
             }
         }
     }
