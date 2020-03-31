@@ -18,8 +18,8 @@
 #pragma link C++ class ERBeamDetTargetPoint+;
 #pragma link C++ class ERBeamDetEvent+;
 #pragma link C++ class ERBeamDetCalEvent+;
-#pragma link C++ class ERBeamDetRecoEvent+;
-#pragma link C++ class ERBeamDetReconstructor;
+//#pragma link C++ class ERBeamDetRecoEvent+;
+//#pragma link C++ class ERBeamDetReconstructor;
 #pragma link C++ class ERBeamDetTOFDigi+;
 #pragma link C++ class ERBeamDetMWPCDigi+;
 #pragma link C++ class ERBeamDetTrack+;

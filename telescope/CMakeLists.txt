@@ -70,7 +70,7 @@ data/ERRTelescopeEvent.cxx
 data/ERRTelescopeCalEvent.cxx
 data/ERQTelescopeEvent.cxx
 data/ERQTelescopeCalEvent.cxx
-data/ERTelescopeRecoEvent.cxx
+#data/ERTelescopeRecoEvent.cxx
 )
 
 # fill list of header files from list of source files

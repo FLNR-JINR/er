@@ -1,7 +1,7 @@
-void ND_digi(Int_t nEvents = 10000){
+void ND_reco(Int_t nEvents = 100){
   //---------------------Files-----------------------------------------------
-  TString inFile = "sim.root";
-  TString outFile = "digi.root";
+  TString inFile = "sim_digi.root";
+  TString outFile = "reco.root";
   TString parFile = "par.root";
   // ------------------------------------------------------------------------
   
@@ -11,33 +11,35 @@ void ND_digi(Int_t nEvents = 10000){
   // ------------------------------------------------------------------------
   
   // -----   Digitization run   -------------------------------------------
-  FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(inFile);
-  fRun->SetOutputFile(outFile);
+  ERRunAna* run = ERRunAna::Instance();
+  run->SetInputFile(inFile);
+  run->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
  
-  // ------------------------ND digitizer ------------------------------------
-  ERNDDigitizer* digitizer = new ERNDDigitizer(1);
-  digitizer->SetEdepError(0.0,0.04,0.02);
-  digitizer->SetLYError(0.0,0.04,0.02);
-  digitizer->SetTimeError(0.001);
-  digitizer->SetQuenchThreshold(0.005);
-  digitizer->SetLYThreshold(0.004);
-  digitizer->SetProbabilityB(0.1);
-  digitizer->SetProbabilityC(0.3);
-  fRun->AddTask(digitizer);
+  // ------------------------ND track finder --------------------------------
+  ERNDTrackFinder* trackFinder = new ERNDTrackFinder();
+  trackFinder->SetTargetVertex(TVector3(0., 0., 0.));
+  run->AddTask(trackFinder);
   // ------------------------------------------------------------------------
   
+  // ------------------------ND track finder --------------------------------
+  ERNDPID* pid = new ERNDPID();
+  run->AddTask(pid);
+  // ------------------------------------------------------------------------
+
+  //-------Set LOG verbosity  ----------------------------------------------- 
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+
   // -----------Runtime DataBase info -------------------------------------
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairRuntimeDb* rtdb = run->GetRuntimeDb();
   
   FairParRootFileIo*  parIo1 = new FairParRootFileIo();
   parIo1->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parIo1);
   
   // -----   Intialise and run   --------------------------------------------
-  fRun->Init();
-  fRun->Run(0, nEvents);
+  run->Init();
+  run->Run(0, nEvents);
   // ------------------------------------------------------------------------
 
   // -----   Finish   -------------------------------------------------------

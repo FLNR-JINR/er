@@ -6,7 +6,9 @@ set(INCLUDE_DIRECTORIES
 ${BASE_INCLUDE_DIRECTORIES}
 ${ROOT_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
+${GEANT4_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/base/
+${CMAKE_SOURCE_DIR}/BeamDet/data
 ${CMAKE_SOURCE_DIR}/data/
 ${CMAKE_SOURCE_DIR}/ND/
 ${CMAKE_SOURCE_DIR}/ND/data
@@ -17,6 +19,7 @@ include_directories( ${INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
 ${BASE_LINK_DIRECTORIES}
 ${FAIRROOT_LIBRARY_DIR}
+${GEANT4_LIB_DIR}
 ) 
 
 link_directories( ${LINK_DIRECTORIES})
@@ -24,6 +27,8 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 ERND.cxx
 ERNDDigitizer.cxx
+ERNDTrackFinder.cxx
+ERNDPID.cxx
 ERNDSetup.cxx
 data/ERNDPoint.cxx
 data/ERNDDigi.cxx

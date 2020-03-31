@@ -17,5 +17,6 @@
 #pragma link C++ class ERParticle+;
 #pragma link C++ class ERPoint+;
 #pragma link C++ class ERDigi+;
+#pragma link C++ class ERTrack+;
 
 #endif

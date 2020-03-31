@@ -51,6 +51,16 @@ void reco(Int_t nEvents = 100000){
   qtelescopePID->SetStationParticle("Telescope_4_SingleSi_SSD_4_X_10Telescope_4_SingleSi_SSD20_4_Y_9", 1000020030);
   qtelescopePID->SetStationParticle("Central_telescope_DoubleSi_DSD_XY_0", 1000010030);
   run->AddTask(qtelescopePID);
+  // ------------------------ND track finder --------------------------------
+  ERNDTrackFinder* NDTrackFinder = new ERNDTrackFinder();
+  run->AddTask(NDTrackFinder);
+  // ------------------------------------------------------------------------
+  
+  // ------------------------ND track finder --------------------------------
+  ERNDPID* NDPID = new ERNDPID();
+  run->AddTask(NDPID);
+  // ------------------------------------------------------------------------
+
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   FairParRootFileIo*  parIO = new FairParRootFileIo();

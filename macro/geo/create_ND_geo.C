@@ -3,8 +3,8 @@ void create_ND_geo()
   TString erPath = gSystem->Getenv("VMCWORKDIR");
 
   // Output paths
-  TString outGeoFilenameRoot = erPath + "/geometry/ND1ch.geo.root";
-  TString outGeoFilenameGdml = erPath + "/geometry/ND1ch.gdml";
+  TString outGeoFilenameRoot = erPath + "/geometry/ND.geo.root";
+  TString outGeoFilenameGdml = erPath + "/geometry/ND.gdml";
 
   // Input paths
   TString medFile = erPath + "/geometry/media.geo";
@@ -22,6 +22,13 @@ void create_ND_geo()
 
   TString mediumName;
 
+  mediumName = "Air";
+  FairGeoMedium* mAir = geoMedia->getMedium(mediumName);
+  if (!mAir) Fatal("create_ND_geo", "FairMedium %s not found", mediumName.Data());
+  geoBuild->createMedium(mAir);
+  TGeoMedium* pAir = geoM->GetMedium(mediumName);
+  if (!pAir) Fatal("create_ND_geo", "Medium %s not found", mediumName.Data());
+  
   mediumName = "Stilbene";
   FairGeoMedium* mStilbene = geoMedia->getMedium(mediumName);
   if (!mStilbene) Fatal("create_ND_geo", "FairMedium %s not found", mediumName.Data());
@@ -55,16 +62,29 @@ void create_ND_geo()
   Double_t HeightZ_Housing = 5.4; // cm
 
   // Shapes
+  TGeoBBox* PlaneShape = new TGeoBBox("PlaneShape",200./2., 200./2., 100./2.);
   TGeoTube* crystalSh = new TGeoTube("crystalSh", R_min_Crystal, R_max_Crystal, HeightZ_Crystal/2.);
   TGeoTube* shellSh = new TGeoTube("shellSh", R_min_Shell, R_max_Shell, HeightZ_Shell/2.);
   TGeoTube* housingSh = new TGeoTube("housingSh", R_min_Housing, R_max_Housing, HeightZ_Housing/2.);
 
   // Volumes
-  TGeoVolume* crystalVol = new TGeoVolume("crystalVol", crystalSh, pStilbene);
-  TGeoVolume* shellVol = new TGeoVolume("shellVol", shellSh, paluminium);
-  TGeoVolume* housingVol = new TGeoVolume("housingVol", housingSh, pSteel);
-  TGeoVolume* moduleVol = new TGeoVolumeAssembly("moduleVol");
+  TGeoVolume* AirBox = new TGeoVolume("NDAirBox", PlaneShape, pAir);
 
+  TGeoVolume* crystalVol = new TGeoVolume("crystalVol", crystalSh, pStilbene);
+  crystalVol->SetLineColor(kBlue);
+  crystalVol->SetTransparency(10);
+
+  TGeoVolume* shellVol = new TGeoVolume("shellVol", shellSh, paluminium);
+  shellVol->SetLineColor(kRed);
+  //shellVol->SetTransparency(40);
+
+  TGeoVolume* housingVol = new TGeoVolume("housingVol", housingSh, pSteel);
+  housingVol->SetLineColor(kGray);
+  housingVol->SetTransparency(60);
+
+  TGeoVolume* moduleVol = new TGeoVolumeAssembly("moduleVol");
+  moduleVol->SetLineColor(kOrange);
+  moduleVol->SetTransparency(70);
   // Matrices
   TGeoRotation* rotNoRot = new TGeoRotation("rotNoRot", 0., 0., 0.);
   rotNoRot->RegisterYourself();
@@ -74,89 +94,110 @@ void create_ND_geo()
   shellVol->AddNode(crystalVol, 1, new TGeoCombiTrans("mCrystalInShell", 0., 0., (HeightZ_Shell-HeightZ_Crystal)/2., rotNoRot));
 
   // Shell in housing
-  housingVol->AddNode(shellVol, 1);
+  housingVol->AddNode(shellVol, 1, new TGeoCombiTrans("mCrystalInShell", 0., 0., (HeightZ_Shell-HeightZ_Crystal)/2., rotNoRot));
   // housing in Module
-  moduleVol->AddNode(housingVol, 1);
+  moduleVol->AddNode(housingVol, 1, new TGeoCombiTrans("mCrystalInShell", 0., 0., (HeightZ_Shell-HeightZ_Crystal)/2., rotNoRot));
 
-  // Module in ND
-  // This is the one but last level in the hierarchy
-  // This volume-assembly is the only volume to be inserted into TOP
-  TGeoVolumeAssembly* subdetectorVolAss = new TGeoVolumeAssembly("neutrondet1ch");
-  //subdetectorVolAss->AddNode(moduleVol, 1);
+  Float_t z = 0.;
 
-  //  for (UInt_t iX=0; iX<iXmax; iX++) {
-  //    for (UInt_t iY=0; iY<iYmax; iY++) {
-  //      matrixName.Form("mHousingInND_%d", iX*iYmax+iY);
-  //      moduleVol->AddNode(submoduleVol, iX*2+iY, new TGeoCombiTrans(matrixName,
-  // Modules' Positioning Here 
-  //          -submoduleXsize/2.+submoduleXsize*iX, -submoduleYsize/2.+submoduleYsize*iY, 0., rotNoRot));
-  //  Modules' Positioning Here 
-  //    }
-  //  }
-  // Regular positioning below
+  Float_t ya = 13.5;
+  Float_t yb = 27.;
 
-  const Double_t r = 300;        // Sphere's radius
-  const Double_t l = 2*R_max_Housing - 0.1;        // Length of the arc between two cylinders
-  Double_t alpha[3];        // Angle of rotation of cylinders around axes:  alpha = l/r
-  Double_t h[3];          // h = sqrt[4*r*r*sin(alpha/2)*sin(alpha/2) - r*r*sin(alpha)*sin(alpha)]
-                // h - defines the location of the cylinder on the Z-axis
-  Double_t l1[3];         // span: l1=r*sin(alpha)
-  Double_t pi = 3.141592653589793;
-  //TMath::Pi();
-  Double_t rad = 180./pi;       // conversion of rads to degrees
+  Float_t x0 = 57.735;
+  Float_t x1 = 45.45;
+  Float_t x2 = 32.55;
+  Float_t x3 = 15.755;
 
-  for(Int_t i=0; i<3; i++){
-  for(Int_t j=0; j<3; j++){
-  //1. Central cylinder:
-  if((i==0)&&(j==0)){
-  subdetectorVolAss->AddNode(moduleVol, 26, new TGeoCombiTrans("r1",0,0,r,new TGeoRotation("r2",0,0,0)));
-  }
-  //2. Cylinders along the Y-axis:
-  else if((i==0)&&!(j==0)){
-  alpha[j]= j*(l/r);
-  l1[j] =r*sin(alpha[j]);
-  h[j] = sqrt(4*r*r*sin(alpha[j]/2)*sin(alpha[j]/2) - r*r*sin(alpha[j])*sin(alpha[j]));
-  subdetectorVolAss->AddNode(moduleVol,2*j, new TGeoCombiTrans("r1",0,l1[j], r-h[j], new TGeoRotation("r2",0, -(alpha[j]*rad),0)));
-  subdetectorVolAss->AddNode(moduleVol,2*j+1, new TGeoCombiTrans("r1",0, -l1[j], r-h[j], new TGeoRotation("r2",0, (alpha[j]*rad),0)));
-  //3. Cylinders along the X-axis:
-  }else if((j==0)&&!(i==0)){
-  alpha[i]= i*(l/r);
-  l1[i] =r*sin(alpha[i]);
-  h[i] = sqrt(4*r*r*sin(alpha[i]/2)*sin(alpha[i]/2) - r*r*sin(alpha[i])*sin(alpha[i]));
-  subdetectorVolAss->AddNode(moduleVol,2*i+4, new TGeoCombiTrans("r1",l1[i],0, r-h[i], new TGeoRotation("r2",0, 0,-(alpha[i]*rad))));
-  subdetectorVolAss->AddNode(moduleVol,2*i+5, new TGeoCombiTrans("r1",-l1[i],0, r-h[i], new TGeoRotation("r2",0,0, (alpha[i]*rad))));
-  //4. Cylinders placed on quadrants:
-  }
-  else {
-  subdetectorVolAss->AddNode(moduleVol,8*i+2*j, 
-  new TGeoCombiTrans("r1",l1[i],l1[j], r-h[j]-h[i], 
-  new TGeoRotation("r2",0, -(alpha[j]*rad),-(alpha[i]*rad))));
-  subdetectorVolAss->AddNode(moduleVol,8*i+2*j+1, 
-  new TGeoCombiTrans("r1",l1[i], -l1[j], r-h[j]-h[i], 
-  new TGeoRotation("r2",0,(alpha[j]*rad), -(alpha[i]*rad))));
-  subdetectorVolAss->AddNode(moduleVol,8*i+2*j+4, 
-  new TGeoCombiTrans("r1",-l1[i],-l1[j], r-h[j]-h[i], 
-  new TGeoRotation("r2",0, (alpha[j]*rad),(alpha[i]*rad))));
-  subdetectorVolAss->AddNode(moduleVol,8*i+2*j+5, 
-  new TGeoCombiTrans("r1",-l1[i], l1[j], r-h[j]-h[i], 
-  new TGeoRotation("r2",0, -(alpha[j]*rad),(alpha[i]*rad))));
-  }//else
-  }//for j
-  }//for i
+  Float_t x8 = 57.31;
+  Float_t x9 = 46.05;
+  Float_t x10 = 34.38;
+  Float_t x11 = 21.89;
+  Float_t x12 = 10.44;
 
+  Float_t x19 = 46.665;
+  Float_t x20 = 33.15;
+  Float_t x21 = 22.095;
+  Float_t x22 = 9.21;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  AirBox->AddNode(moduleVol, 0, new TGeoCombiTrans("module", x0, yb, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 1, new TGeoCombiTrans("module", x1, yb, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 2, new TGeoCombiTrans("module", x2, yb, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 3, new TGeoCombiTrans("module", x3, yb, z, rotNoRot));
+  
+  AirBox->AddNode(moduleVol, 47, new TGeoCombiTrans("module", 0., yb, z, rotNoRot));
+  
+  AirBox->AddNode(moduleVol, 4, new TGeoCombiTrans("module", -x3, yb, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 5, new TGeoCombiTrans("module", -x2, yb, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 6, new TGeoCombiTrans("module", -x1, yb, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 7, new TGeoCombiTrans("module", -x0, yb, z, rotNoRot));
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  AirBox->AddNode(moduleVol, 8, new TGeoCombiTrans("module", x8, ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 9, new TGeoCombiTrans("module", x9, ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 10, new TGeoCombiTrans("module", x10, ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 11, new TGeoCombiTrans("module", x11, ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 12, new TGeoCombiTrans("module", x12, ya, z, rotNoRot));
+  
+  AirBox->AddNode(moduleVol, 13, new TGeoCombiTrans("module", 0., ya, z, rotNoRot));
+  
+  AirBox->AddNode(moduleVol, 14, new TGeoCombiTrans("module", -x12, ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 15, new TGeoCombiTrans("module", -x11, ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 16, new TGeoCombiTrans("module", -x10, ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 17, new TGeoCombiTrans("module", -x9, ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 18, new TGeoCombiTrans("module", -x8, ya, z, rotNoRot));
+ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+  AirBox->AddNode(moduleVol, 19, new TGeoCombiTrans("module", x19, 0., z, rotNoRot));
+  AirBox->AddNode(moduleVol, 20, new TGeoCombiTrans("module", x20, 0., z, rotNoRot));
+  AirBox->AddNode(moduleVol, 21, new TGeoCombiTrans("module", x21, 0., z, rotNoRot));
+  AirBox->AddNode(moduleVol, 22, new TGeoCombiTrans("module", x22, 0., z, rotNoRot));
+  
+  AirBox->AddNode(moduleVol, 23, new TGeoCombiTrans("module", -x22, 0., z, rotNoRot));
+  AirBox->AddNode(moduleVol, 24, new TGeoCombiTrans("module", -x21, 0., z, rotNoRot));
+  AirBox->AddNode(moduleVol, 25, new TGeoCombiTrans("module", -x20, 0., z, rotNoRot));
+  AirBox->AddNode(moduleVol, 26, new TGeoCombiTrans("module", -x19, 0., z, rotNoRot));
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  AirBox->AddNode(moduleVol, 27, new TGeoCombiTrans("module", x8, -ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 28, new TGeoCombiTrans("module", x9, -ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 29, new TGeoCombiTrans("module", x10, -ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 30, new TGeoCombiTrans("module", x11, -ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 31, new TGeoCombiTrans("module", x12, -ya, z, rotNoRot));
+  
+  AirBox->AddNode(moduleVol, 32, new TGeoCombiTrans("module", 0., -ya, z, rotNoRot));
+  
+  AirBox->AddNode(moduleVol, 33, new TGeoCombiTrans("module", -x12, -ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 34, new TGeoCombiTrans("module", -x11, -ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 35, new TGeoCombiTrans("module", -x10, -ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 36, new TGeoCombiTrans("module", -x9, -ya, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 37, new TGeoCombiTrans("module", -x8, -ya, z, rotNoRot));
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  AirBox->AddNode(moduleVol, 38, new TGeoCombiTrans("module", x0, -yb, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 39, new TGeoCombiTrans("module", x1, -yb, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 40, new TGeoCombiTrans("module", x2, -yb, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 41, new TGeoCombiTrans("module", x3, -yb, z, rotNoRot));
+  
+  AirBox->AddNode(moduleVol, 42, new TGeoCombiTrans("module", 0., -yb, z, rotNoRot));
+  
+  AirBox->AddNode(moduleVol, 43, new TGeoCombiTrans("module", -x3, -yb, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 44, new TGeoCombiTrans("module", -x2, -yb, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 45, new TGeoCombiTrans("module", -x1, -yb, z, rotNoRot));
+  AirBox->AddNode(moduleVol, 46, new TGeoCombiTrans("module", -x0, -yb, z, rotNoRot));
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // World ------------------------------------
   TGeoVolumeAssembly* topVolAss = new TGeoVolumeAssembly("TOP");
-  topVolAss->AddNode(subdetectorVolAss, 1);
-
+  // This is the one but last level in the hierarchy
+  // This volume-assembly is the only volume to be inserted into TOP
+  TGeoVolumeAssembly* ND = new TGeoVolumeAssembly("ND");
+  topVolAss->AddNode(ND, 1, new TGeoCombiTrans("AirBox", 0., 0., 200., rotNoRot));
+  ND->AddNode(AirBox,1);
+  
   // Finalize
   geoM->SetTopVolume(topVolAss);
   geoM->CloseGeometry();
   geoM->CheckOverlaps();
   geoM->PrintOverlaps();
-  //geoM->CheckGeometry();
-  //geoM->CheckGeometryFull();
-  //geoM->Test();
+  geoM->CheckGeometry();
+  geoM->CheckGeometryFull();
+  geoM->Test();
 
   // Export
   //geoM->Export(outGeoFilenameGdml);

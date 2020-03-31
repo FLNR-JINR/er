@@ -5,25 +5,28 @@
  *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
+#ifndef ERTrack_H
+#define ERTrack_H
 
-#ifndef ERParticle_H
-#define ERParticle_H
-
-#include "TNamed.h"
-#include "TTree.h"
-#include "TString.h"
-#include "TLorentzVector.h"
+#include "TVector3.h"
 
 #include "FairMultiLinkedData.h"
 
-class ERParticle: public FairMultiLinkedData {
+class ERTrack : public FairMultiLinkedData {
   public:
-	ERParticle() = default;
-	ERParticle(const TLorentzVector& detectorState, const TLorentzVector& targetState);
+    ERTrack() = default;
+    ERTrack(const TVector3& detectorVertex, const TVector3& targetVertex, Double_t edep);
+    virtual void Print(const Option_t* opt = 0) const;
+    /** Accessors **/
+    TVector3 DetectorVertex() const {return fDetectorVertex;}
+    TVector3 TargetVertex() const {return fTargetVertex;}
+    Double_t Edep() const {return fEdep;}
   protected:
-    TLorentzVector fDetectorState;
-	TLorentzVector fTargetState;
-	ClassDef(ERParticle,1);
+    TVector3 fTargetVertex;
+    TVector3 fDetectorVertex;
+    Double_t fEdep = -1.;
+
+    ClassDef(ERTrack,1)
 };
 
 #endif

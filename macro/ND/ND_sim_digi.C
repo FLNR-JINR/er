@@ -1,6 +1,6 @@
-void ND_sim(Int_t nEvents = 1){
+void ND_sim_digi(Int_t nEvents = 100 ){
   //---------------------Files-----------------------------------------------
-  TString outFile= "sim.root";
+  TString outFile= "sim_digi.root";
   TString parFile= "par.root";
   // ------------------------------------------------------------------------
 
@@ -61,7 +61,15 @@ void ND_sim(Int_t nEvents = 1){
   primGen->AddGenerator(boxGen);
   run->SetGenerator(primGen);
   // ------------------------------------------------------------------------
-	
+  ERNDDigitizer* digitizer = new ERNDDigitizer(1);
+  digitizer->SetEdepError(0.0,0.04,0.02);
+  digitizer->SetLYError(0.0,0.04,0.02);
+  digitizer->SetTimeError(0.001);
+  digitizer->SetQuenchThreshold(0.005);
+  digitizer->SetLYThreshold(0.004);
+  digitizer->SetProbabilityB(0.1);
+  digitizer->SetProbabilityC(0.3);
+  run->AddTask(digitizer);
   //-------Set visualisation flag to true------------------------------------
   run->SetStoreTraj(kTRUE);
 	
@@ -80,7 +88,7 @@ void ND_sim(Int_t nEvents = 1){
   rtdb->setOutput(parOut);
   rtdb->saveOutput();
   rtdb->print();
-  // ---------------------------------------------------------
+  // ------------------------------------------------------------------------
   
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);

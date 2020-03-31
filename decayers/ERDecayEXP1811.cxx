@@ -381,7 +381,8 @@ Bool_t ERDecayEXP1811::DecayPhaseGenerator(const Double_t excitation) {
     return kTRUE;
   }
   if (fDecayFile.eof()){
-    LOG(INFO) << "Decay file finished!" << FairLogger::endl;
+    LOG(ERROR) << "Decay file finished! There are no more events in file " << fDecayFilePath
+               << " to be processed." << FairLogger::endl;
     return kFALSE;
   }
   std::string event_line;

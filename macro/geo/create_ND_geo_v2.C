@@ -110,5 +110,5 @@ void create_ND_geo_v2()
 
   // Draw
   TBrowser* bro = new TBrowser("bro", "bro");
-  geoM->GetTopVolume()->Draw("ogl");
+  geoM->GetTopVolume()->Draw();
 }
