@@ -56,7 +56,7 @@ void ERNDTrackFinder::Exec(Option_t* opt) {
   }
   for (Int_t iDigi(0); iDigi < fNDDigis->GetEntriesFast(); iDigi++) {
     const auto* digi = static_cast<ERNDDigi*>(fNDDigis->At(iDigi));
-    AddTrack(fSetup->Pos(digi->StilbenNb()), fTargetVertex, digi->EnergyLoss());
+    AddTrack(fSetup->Pos(digi->Channel()), fTargetVertex, digi->Edep());
   }
 }
 
