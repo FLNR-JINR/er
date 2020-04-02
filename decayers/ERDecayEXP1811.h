@@ -102,8 +102,10 @@ private:
   Int_t           fDecayFileCurrentEvent;
   std::ifstream   fDecayFile;
 
-  TGraph *fADInput;    //!   distribution (angular distribution) graph containing AD input
-  TF1    *fADFunction; //!   function describing AD (angular distribution) of binary reaction
+  TGraph *fADInput = nullptr;    //!   distribution (angular distribution) graph containing AD input
+  TF1    *fADFunction = nullptr; //!   function describing AD (angular distribution) of binary reaction
+  Double_t fThetaMin = 0.;
+  Double_t fThetaMax = 0.;
 
   //ADEvaluate function is necessary for TF1 constructor
   Double_t ADEvaluate(Double_t *x, Double_t *p);

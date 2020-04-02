@@ -193,7 +193,7 @@ void sim_digi (Int_t nEvents = 100000) {
   ERDecayEXP1811* targetDecay = new ERDecayEXP1811();
   targetDecay->SetInteractionVolumeName("tubeD2");
   targetDecay->SetNuclearInteractionLength(20.);
-  //targetDecay->SetAngularDistribution("Cs_6He_d_3He_5H_35-25AMeV.txt");
+  targetDecay->SetAngularDistribution("cos_tetta_cross.txt");
   targetDecay->SetH7Mass(massH7);
   targetDecay->SetDecayFile("pmom-pv-1_short.dat", 0.0005 /*excitation in file [GeV]*/);
   //targetDecay->SetH7Exitation(0.0004, 0.00002355, 1);

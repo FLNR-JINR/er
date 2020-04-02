@@ -17,6 +17,7 @@ using namespace std;
 #include "TLorentzVector.h"
 #include "TMCProcess.h"
 #include "TRandom.h"
+#include "TVector.h"
 
 #include "FairRunSim.h"
 #include "FairLogger.h"
@@ -342,17 +343,14 @@ void ERDecayEXP1811::ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass) {
 
   //Impulse in CM
   Double_t Pcm = TMath::Sqrt(E1 * E1 - m1 * m1);
-
   //Generate angles of particles in CM
   Double_t thetaCM;
-  if(fADInput == NULL) { // if file with angular distribution isn't setted than isotropic distribution is generated
+  if(!fADInput) { // if file with angular distribution isn't setted than isotropic distribution is generated
     thetaCM = TMath::ACos(gRandom->Uniform(-1, 1));
-  }
-  else { 
-    thetaCM = fADFunction->GetRandom(1., fADInput->GetN()-1)*TMath::DegToRad();
+  } else { 
+    thetaCM = fADFunction->GetRandom(fThetaMin, fThetaMax)*TMath::DegToRad();
   }
   Double_t phi = gRandom->Uniform(0., 2. * TMath::Pi());
-
   TVector3 Pcmv;
   Pcmv.SetMagThetaPhi(Pcm, thetaCM, phi);
 
@@ -440,10 +438,27 @@ Double_t ERDecayEXP1811::ADEvaluate(Double_t *x, Double_t *p) {
 //-------------------------------------------------------------------------------------------------
 void ERDecayEXP1811::SetAngularDistribution(TString ADFile) {
   TString ADFilePath = gSystem->Getenv("VMCWORKDIR");
-  ADFilePath += "/input/generators/" + ADFile; 
-
-  fADInput = new TGraph(ADFilePath, "%lg %*lg %lg");   // TGraph object is used for reading data from file with distribution
-  
+  ADFilePath += "/input/" + ADFile;
+  std::ifstream f;
+  f.open(ADFilePath.Data());
+  if (!f.is_open()) {
+    LOG(FATAL) << "Can't open file " << ADFilePath << FairLogger::endl;
+  }
+  Int_t nPoints = std::count(std::istreambuf_iterator<char>(f),
+                              std::istreambuf_iterator<char>(), '\n');
+  f.seekg(0, std::ios::beg);
+  TVectorD tet(nPoints);
+  TVectorD sigma(nPoints);
+  LOG(DEBUG2) << "nPoints = " << nPoints << FairLogger::endl;
+  Int_t i = 0;
+  while (!f.eof()) {
+    // Костыль
+    if (i == nPoints) break;
+    f >> tet(i) >> sigma(i);
+    LOG(DEBUG2) << i << ": " << tet(i) << "\t" << sigma(i) << FairLogger::endl;
+    i++;
+  }
+  fADInput = new TGraph(tet, sigma);
   if (fADInput->GetN() <= 0) { //if there are no points in input file
     LOG(INFO) << "ERDecayEXP1811::SetAngularDistribution: "
               << "Too few inputs for creation of AD function!" << FairLogger::endl;
@@ -454,8 +469,11 @@ void ERDecayEXP1811::SetAngularDistribution(TString ADFile) {
   // Creation of angular distribution function using class member function.
   // Constructor divides interval (0; fADInput->GetN()-1) into grid.
   // On each step of grid it calls ADEvaluate() to get interpolated values of input data.
+  fThetaMin = angle[0];
+  fThetaMax = angle[fADInput->GetN()-1];
   fADFunction = new TF1("angDistr", this, &ERDecayEXP1811::ADEvaluate, 
-                         angle[0], angle[fADInput->GetN()-1], 0, "ERDecayEXP1811", "ADEvaluate");
+                         fThetaMin, fThetaMax, 0, "ERDecayEXP1811", "ADEvaluate");
+  fADFunction->Eval(1.);
 }
 //-------------------------------------------------------------------------------------------------
 ClassImp(ERDecayEXP1811)
