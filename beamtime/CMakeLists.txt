@@ -52,7 +52,7 @@ set(SRCS
 
 Set(LINKDEF ERBeamtimeLinkDef.h)
 Set(LIBRARY_NAME ERBeamTime)
-Set(DEPENDENCIES ERBase ERData Base Core)
+Set(DEPENDENCIES ERBase ERData Base Core ND)
 
 if (ACCULINNA_GO4)
 	add_definitions( -DACCULINA_GO4)

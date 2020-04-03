@@ -10,11 +10,13 @@
 #include <set>
 
 #include "FairLogger.h"
+#include "FairRun.h"
 
 #include "ERSupport.h"
 #include "ERDigi.h"
 #include "ERBeamDetMWPCDigi.h"
 #include "ERBeamDetTOFDigi.h"
+#include "ERNDDigi.h"
 
 //--------------------------------------------------------------------------------------------------
 ERDigiCleaner::ERDigiCleaner()
@@ -33,7 +35,25 @@ void ERDigiCleaner::Recalibrate(
         timeCalFile != "" ? ReadCalFile(timeCalFile) : nullptr, 
         previousAmpCalFile != "" ? ReadCalFile(previousAmpCalFile) : nullptr, 
         ampCalFile != "" ? ReadCalFile(ampCalFile) : nullptr,
+        nullptr, nullptr,
         raw2SimChannelsMapping);          
+}
+//--------------------------------------------------------------------------------------------------
+void ERDigiCleaner::RecalibrateWithTAC(
+        const TString& detectorName, const TString& stationName,
+        const TString& previousTimeCalFile, const TString& timeCalFile,
+        const TString& previousAmpCalFile, const TString& ampCalFile,
+        const TString& previousTACCalFile, const TString& TACCalFile,
+        std::map<Int_t, Int_t>* raw2SimChannelsMapping/* = nullptr*/) {
+    fStationsRecalibrations.emplace_back(
+        detectorName, stationName, 
+        previousTimeCalFile != "" ? ReadCalFile(previousTimeCalFile) : nullptr,
+        timeCalFile != "" ? ReadCalFile(timeCalFile) : nullptr, 
+        previousAmpCalFile != "" ? ReadCalFile(previousAmpCalFile) : nullptr, 
+        ampCalFile != "" ? ReadCalFile(ampCalFile) : nullptr,
+        previousTACCalFile != "" ? ReadCalFile(previousTACCalFile) : nullptr,
+        TACCalFile != "" ? ReadCalFile(TACCalFile) : nullptr,
+        raw2SimChannelsMapping);
 }
 //--------------------------------------------------------------------------------------------------
 void ERDigiCleaner::SetChannelCuts(
@@ -48,6 +68,10 @@ void ERDigiCleaner::SetChannelCuts(
 InitStatus ERDigiCleaner::Init() {
     FairRootManager* ioman = FairRootManager::Instance();
     if ( ! ioman ) Fatal("Init", "No FairRootManager");
+    if (dynamic_cast<ERBeamTimeEventHeader*>(ioman->GetObject("EventHeader."))) {
+        fInputHeader = new ERBeamTimeEventHeader();
+        ioman->GetInTree()->SetBranchAddress("EventHeader.",&fInputHeader);
+    }
     TList* allBranchNames = ioman->GetBranchNameList();
     TIter nextBranch(allBranchNames);
     while (TObjString* branchNameObj = (TObjString*)nextBranch()) {
@@ -59,11 +83,21 @@ InitStatus ERDigiCleaner::Init() {
 }
 //--------------------------------------------------------------------------------------------------
 void ERDigiCleaner::Exec(Option_t*) {
+    if (fInputHeader)
+        CopyEventHeader();
     if (fLonelyMWPCClusterCondition && AreFewClustersInMWPC())
         fRun->MarkFill(kFALSE);
     Recalibration();
     ApplyChannelCuts();
     ApplyStationMultiplicities();
+}
+//--------------------------------------------------------------------------------------------------
+void ERDigiCleaner::CopyEventHeader() {
+    FairRun* run = FairRun::Instance();
+    ERBeamTimeEventHeader* header = dynamic_cast<ERBeamTimeEventHeader*>(run->GetEventHeader());
+    if (!header)
+        return;
+    header->SetTrigger(fInputHeader->GetTrigger());
 }
 //--------------------------------------------------------------------------------------------------
 bool ERDigiCleaner::AreFewClustersInMWPC(){
@@ -110,6 +144,8 @@ void ERDigiCleaner::Recalibration() {
         auto& timeCalibration = recalibrationTask.fTimeCalibration;
         auto& prevAmpCalibration = recalibrationTask.fPreviousAmpCalibration;
         auto& ampCalibration = recalibrationTask.fAmpCalibration;
+        auto& prevTACCalibration = recalibrationTask.fPreviousTACCalibration;
+        auto& TACCalibration = recalibrationTask.fTACCalibration;
         for (Int_t iDigi(0); iDigi < digis->GetEntriesFast(); iDigi++) {
             // linear calibration: res = table[channel][0] + table[channel][1] * raw
             auto digi = dynamic_cast<ERDigi*>(digis->At(iDigi));
@@ -119,7 +155,7 @@ void ERDigiCleaner::Recalibration() {
             const auto channel = GetChannelNumber(digi->Channel(), recalibrationTask.fSim2RawChannelsMapping);
             if (prevTimeCalibration && timeCalibration) {
                 if (channel >= prevTimeCalibration->GetNrows() || channel >= timeCalibration->GetNrows()) {
-                    LOG(FATAL) << "[Recalibration] Channel " << channel << " not found time calibration tables of station " 
+                    LOG(FATAL) << "[Recalibration] Channel " << channel << " not found time in calibration tables of station " 
                         << recalibrationTask.fStationName << " of detector " 
                         << recalibrationTask.fDetectorName <<  FairLogger::endl;
                 }
@@ -134,7 +170,7 @@ void ERDigiCleaner::Recalibration() {
             }
             if (prevAmpCalibration && ampCalibration) {
                 if (channel >= prevAmpCalibration->GetNrows() || channel >= ampCalibration->GetNrows()) {
-                    LOG(FATAL) << "[Recalibration] Channel " << channel << " not found amp calibration tables of station " 
+                    LOG(FATAL) << "[Recalibration] Channel " << channel << " not found in amp calibration tables of station " 
                         << recalibrationTask.fStationName << " of detector " 
                         << recalibrationTask.fDetectorName <<  FairLogger::endl;
                 }
@@ -146,6 +182,24 @@ void ERDigiCleaner::Recalibration() {
                            << ", new b = " << (*ampCalibration)[channel][1] <<", previous = " << digi->Edep() 
                            << ", raw = " << rawEdep << ", new =  " << newEdep << FairLogger::endl;
                 digi->SetEdep(newEdep);
+            }
+            if (prevTACCalibration && TACCalibration) {
+                if (channel >= prevTACCalibration->GetNrows() || channel >= TACCalibration->GetNrows()) {
+                    LOG(FATAL) << "[Recalibration] Channel " << channel << " not found in TAC calibration tables of station " 
+                        << recalibrationTask.fStationName << " of detector " 
+                        << recalibrationTask.fDetectorName <<  FairLogger::endl;
+                }
+                auto* NDDigi = dynamic_cast<ERNDDigi*>(digi);
+                if (!NDDigi)
+                    LOG(FATAL) << "[Recalibration] You are trying to recalibrate TAC, but digi is not ERNDDigi" << FairLogger::endl;
+                const auto rawTAC = (NDDigi->TAC() - (*prevTACCalibration)[channel][0]) 
+                    / (*prevTACCalibration)[channel][1];
+                const auto newTAC = (*TACCalibration)[channel][0] + (*TACCalibration)[channel][1] * rawTAC;
+                LOG(DEBUG) << "[Recalibration] TAC: channel = " << channel << ", previous a = " << (*prevTACCalibration)[channel][0]
+                           << ", previous b = " << (*prevTACCalibration)[channel][1] << " new a = " <<  (*TACCalibration)[channel][0]
+                           << ", new b = " << (*TACCalibration)[channel][1] <<", previous = " << NDDigi->TAC() 
+                           << ", raw = " << rawTAC << ", new =  " << newTAC << FairLogger::endl;
+                NDDigi->SetTAC(newTAC);
             }
         }
     }
@@ -248,12 +302,15 @@ void ERDigiCleaner::Reset() {
 ERDigiCleaner::RecalibrationTask::RecalibrationTask(const TString& detectorName, const TString& stationName, 
                                     TMatrixD* previousTimeCalibration, TMatrixD* timeCalibration,
                                     TMatrixD* previousAmpCalibration, TMatrixD* ampCalibration,
+                                    TMatrixD* previousTACCalibration /*= nullptr*/, TMatrixD* TACCalibration/*= nullptr*/,
                                     std::map<Int_t, Int_t>* raw2SimChannelsMapping/* = nullptr*/)
 : fDetectorName(detectorName), fStationName(stationName),
 fPreviousAmpCalibration(previousAmpCalibration),
 fAmpCalibration(ampCalibration),
 fPreviousTimeCalibration(previousTimeCalibration),
-fTimeCalibration(timeCalibration) {
+fTimeCalibration(timeCalibration),
+fPreviousTACCalibration(previousTACCalibration),
+fTACCalibration(TACCalibration) {
     if (raw2SimChannelsMapping) {
         fSim2RawChannelsMapping = new std::map<Int_t, Int_t>();
         for (const auto raw2sim : *raw2SimChannelsMapping) {

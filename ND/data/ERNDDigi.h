@@ -27,6 +27,7 @@ class ERNDDigi : public ERDigi {
 	/** Modifiers **/
 	void Position(TVector3& pos) {fPos = pos;}
 	void DPosition(TVector3& dpos) {fDPos = dpos;}
+	void SetTAC(const Double_t TAC) {fTAC = TAC;}
  protected:
 	Double_t fLightYield = -1.;
 	Double_t fNeutronProb = -1.;

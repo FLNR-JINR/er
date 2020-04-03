@@ -19,6 +19,7 @@
 #include "TCutG.h"
 
 #include "ERTask.h"
+#include "ERBeamTimeEventHeader.h"
 
 class ERDigiCleaner : public ERTask {
 
@@ -31,10 +32,13 @@ class ERDigiCleaner : public ERTask {
         TMatrixD* fTimeCalibration = nullptr;
         TMatrixD* fPreviousAmpCalibration = nullptr;
         TMatrixD* fAmpCalibration = nullptr;
+        TMatrixD* fPreviousTACCalibration = nullptr;
+        TMatrixD* fTACCalibration = nullptr;
         std::map<Int_t, Int_t>* fSim2RawChannelsMapping = nullptr;
         RecalibrationTask(const TString& detectorName, const TString& stationName, 
                           TMatrixD* previousTimeCalibration, TMatrixD* timeCalibration,
                           TMatrixD* previousAmpCalibration, TMatrixD* ampCalibration,
+                          TMatrixD* previousTACCalibration = nullptr, TMatrixD* TACCalibration = nullptr,
                           std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
         RecalibrationTask() = default;
     };
@@ -79,6 +83,11 @@ class ERDigiCleaner : public ERTask {
                    const TString& previousTimeCalFile, const TString& timeCalFile,
                    const TString& previousAmpCalFile, const TString& ampCalFile,
                    std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
+  void RecalibrateWithTAC(const TString& detectorName, const TString& stationName,
+                          const TString& previousTimeCalFile, const TString& timeCalFile,
+                          const TString& previousAmpCalFile, const TString& ampCalFile,
+                          const TString& previousTACCalFile, const TString& TACCalFile,
+                          std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
   void SetLonelyMWPCClusterCondition() { fLonelyMWPCClusterCondition = true; }
   void SetStationMultiplicity(const TString& detectorName, const TString stationName, Int_t multiplicity) { 
     fStationsMultiplicities[std::make_pair(detectorName, stationName)] = multiplicity;
@@ -94,6 +103,7 @@ class ERDigiCleaner : public ERTask {
     void Recalibration();
     void ApplyChannelCuts();
     void ApplyStationMultiplicities();
+    void CopyEventHeader();
     std::pair<std::string, TClonesArray*> GetBranchNameAndDigis(
         const TString& detectorName, const TString& stationName);
 
@@ -103,6 +113,7 @@ class ERDigiCleaner : public ERTask {
     bool fLonelyMWPCClusterCondition = false;
 
     std::unordered_map<std::string, TClonesArray*> fInputDigis;
+    ERBeamTimeEventHeader* fInputHeader = nullptr;
 
   private:
     ClassDef(ERDigiCleaner,1)

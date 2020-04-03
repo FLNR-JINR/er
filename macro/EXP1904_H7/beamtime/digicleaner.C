@@ -13,6 +13,8 @@ void digicleaner(Int_t nEvents = 100000) {
   //run->SetUserCut("");
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
+  ERBeamTimeEventHeader* header = new ERBeamTimeEventHeader();
+  run->SetEventHeader(header);
   // ------------------------------------------------------------------------
   ERDigiCleaner* cleaner = new ERDigiCleaner();
 
@@ -23,6 +25,13 @@ void digicleaner(Int_t nEvents = 100000) {
                        inputdir + "mtdc32_pars.cal" /*new amp calibration*/
                        //&raw2simChannelsMapping - like in digibuiler
                        );
+  cleaner->RecalibrateWithTAC("ND", "ND", "" /*previous time calibration*/, ""/*new time calibration*/,
+                       inputdir + "ND.cal" /*previous amp calibration*/ ,
+                       inputdir + "ND.cal" /*new amp calibration*/,
+                       inputdir + "tacND.cal" /*previous tac calibration*/ ,
+                       inputdir + "tacND.cal" /*new tac calibration*/
+                       //&raw2simChannelsMapping - like in digibuiler
+                       );                     
   // ...
   TCutG *ssd1_0_cut = new TCutG("SSD_1_0_cut",6);
   ssd1_0_cut->SetPoint(0,-0.3586207,1.509534);
@@ -56,7 +65,7 @@ void digicleaner(Int_t nEvents = 100000) {
   parIO->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parIO);
   // ------------------------------------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
   run->Init();
   run->Run(0, nEvents);
   // ------------------------------------------------------------------------
