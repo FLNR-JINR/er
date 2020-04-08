@@ -62,8 +62,11 @@ public:
   void SetThetaRange(Double_t th1, Double_t th2, ERInteractionParticipant regIonSt);
 
   /** @brief Defines theta position for detector slot center in Lab.
-  ** @param ThetaCenter theta position for detector center in Lab.
-  ** @param dTheta half of the theta range of the detector slit.
+  ** @param ThetaCenter is theta position for detector center in Lab.
+  ** @param dTheta is a half of the theta range of the detector slit.
+            User should choose the theta range as maximum as It is possible. 
+            It means that the increase of chosen value dTheta does not lead to increase number of events registered by detector.
+  ** @param relMod is mode for the relativistic case, by defulat is kFALSE
   **/
   void SetLabThetaRange(Double_t thetaCenter, Double_t dTheta, ERInteractionParticipant regIonSt, Bool_t relMod = kFALSE);
 

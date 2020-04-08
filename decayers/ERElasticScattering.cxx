@@ -273,21 +273,47 @@ void  ERElasticScattering::ThetaRangesLab2CM(Double_t pM, Double_t tM) {
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// It is a method to recalculation theta ranges from Lab to CM.
+/// Input formula is tan(thetaLab) = MomOfProjectilePerpendicularComponent / MomOfProjectileParallelComponent.
+/// Where MomOfProjectilePerpendicularComponent = Pcm*Sin(thetaCM)*sqrt(1-V^2),
+/// and MomOfProjectileParallelComponent = Pcm*Cos(thetaCM) + V*sqrt(pM^2+Pcm^2).
+/// Where V is a velocity of central of mass relativity of the Lab.
+/// Pcm is momentum of CM relativity of Lab. 
+/// Here we use inverse formula to obtain thetaCM from thetaLab.
+/// For comfortable calculations we introduced corresponding notations.
+/// y = tan(thetaLab),
+/// z = V*sqrt(pM^2+Pcm^2),
+/// t = 1-V^2,
+/// x = Cos(thetaCM).
+/// a = Pcm^2*(y^2+t),
+/// b = 2*y^2*Pcm*z*x,
+/// c = y^2*z^2 - Pcm^2*t = 0,
+/// From input formula we obtain the equation 
+/// a*x^2 + b*x + c = 0
+/// From the equation  
+/// D = b^2 - a*c, 
+/// x1,2 = (-b +- sqrt(D)) / 2 / a,
+/// for projectile ion Cos(thetaCM) = (-b + sqrt(D)) / 2 / a,
+/// for target ion Cos(thetaCM) = -Cos(thetaCM) = (b - sqrt(D)) / 2 / a.
 void ERElasticScattering::ThetaRangesLab2CMRelativistic() {
-  std::cerr << "ERElasticScattering::ThetaRangesLab2CMRelativistic()" << std::endl;
   Double_t pM = GetProjectileIonMass();
   Double_t tM = GetTargetIonMass();
-  std::cerr << "pM = " << pM << ", tM = " << tM << std::endl;
+  /// For a target ion in the calculations below projectile mass has to be changed by target mass
+  if (fRegisterIonStatus == kTARGET) 
+    pM = tM;
+
   TLorentzVector curLV;
   gMC->TrackMomentum(curLV);
 
-  Double_t pMom = curLV.P();
-  std::cerr << "pMom = " << pMom << std::endl;
-  Double_t projectileE = /*curLV.E();*/ sqrt(pM*pM + pMom*pMom);
+  Double_t pMom = curLV.P(); 
+  Double_t projectileE = sqrt(pM*pM + pMom*pMom);
   Double_t VelocityOfCMRelOfLab = pMom / (projectileE + tM);
   if (VelocityOfCMRelOfLab > 1.) {
-    LOG(FATAL) << "The velocity of CM can't be > 1." << FairLogger::endl;
+    LOG(FATAL) << "In ERElasticScattering::ThetaRangesLab2CMRelativistic() the velocity of CM can't be > 1." << FairLogger::endl;
   }
+  /// Absolute value of the CM momentum is the same 
+  /// for both particles and also before and after the ellastic scattering.
   Double_t MomInCM = VelocityOfCMRelOfLab*tM / sqrt(1. - VelocityOfCMRelOfLab*VelocityOfCMRelOfLab);
   Double_t yMin = tan(fThetaRangeCenter*DegToRad()-fThetaRangedTheta*DegToRad());
   Double_t yMax = tan(fThetaRangeCenter*DegToRad()+fThetaRangedTheta*DegToRad());
@@ -296,7 +322,7 @@ void ERElasticScattering::ThetaRangesLab2CMRelativistic() {
   Double_t B1Min = t*((MomInCM*MomInCM-z*z)*yMin*yMin + MomInCM*MomInCM*t);
   Double_t B1Max = t*((MomInCM*MomInCM-z*z)*yMax*yMax + MomInCM*MomInCM*t);
   if (B1Min < 0. || B1Max < 0.) {
-    LOG(FATAL) << "B1 can't be < 0." << FairLogger::endl;
+    LOG(FATAL) << "In ERElasticScattering::ThetaRangesLab2CMRelativistic() B1 can't be < 0." << FairLogger::endl;
   }
   B1Min = sqrt(B1Min);
   B1Max = sqrt(B1Max);
@@ -319,10 +345,8 @@ void ERElasticScattering::ThetaRangesLab2CMRelativistic() {
     LOG(FATAL) << "In ERElasticScattering::ThetaRangesLab2CMRelativistic() unknown fRegisterIonStatus" << FairLogger::endl;
   }
 
-
   fThetaMin = acos(CosThetaCMMin)*RadToDeg();
   fThetaMax = acos(CosThetaCMMax)*RadToDeg();
-  std::cout << "[ThetaRangesLab2CMRelativistic] cmTheta = (" << fThetaMin << ", " << fThetaMax << ")" << std::endl;
 }
 
 Bool_t ERElasticScattering::ThetaCDFRead() {

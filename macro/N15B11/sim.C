@@ -68,7 +68,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   scattering->SetUniformPos(0.,0.); // -0.00035,0.00035
   scattering->SetStep(1.); //0.1 micron 0.00001 cm
   scattering->SetDecayVolume("cave"); //targetB11
-  scattering->SetLabThetaRange(angle, 0., kTARGET, kTRUE); // kPROJECTILE or kTARGET
+  scattering->SetLabThetaRange(angle, 0., kPROJECTILE, kTRUE); // kPROJECTILE or kTARGET
   //scattering->SetThetaRange(9.33242, 14.3093);
   scattering->SetPhiRange(0., 0.);
 
