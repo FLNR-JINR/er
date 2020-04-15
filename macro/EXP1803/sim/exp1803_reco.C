@@ -49,8 +49,8 @@ void exp1803_reco(Int_t nEvents = 1000,  TString inFile = "sim_digi.root",TStrin
 
   // qtelescopePID->SetUserCut("ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.009");
 
-  qtelescopePID->SetStationParticle("Left_telescope_DoubleSi_SQ_L_XY_0",1000020030);
-  qtelescopePID->SetStationParticle("Right_telescope_DoubleSi_SQ_R_XY_1",1000010030);
+  qtelescopePID->SetParticleTrack("Left_telescope_DoubleSi_SQ_L_XY_0",1000020030);
+  qtelescopePID->SetParticleTrack("Right_telescope_DoubleSi_SQ_R_XY_1",1000010030);
   run->AddTask(qtelescopePID); 
 
   // -----------Runtime DataBase info ---------------------------------------

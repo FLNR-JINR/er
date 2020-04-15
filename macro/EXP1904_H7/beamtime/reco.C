@@ -48,11 +48,11 @@ void reco(Int_t nEvents = 100000) {
   run->AddTask(beamdetPid);
   // ------   QTelescope TrackPID -----------------------------------------
   ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
-  qtelescopePID->SetStationParticle("Telescope_1_SingleSi_SSD20_1_X_0Telescope_1_SingleSi_SSD_1_Y_1", 1000020030);
-  qtelescopePID->SetStationParticle("Telescope_2_SingleSi_SSD_2_X_4Telescope_2_SingleSi_SSD20_2_Y_3", 1000020030);
-  qtelescopePID->SetStationParticle("Telescope_3_SingleSi_SSD20_3_X_6Telescope_3_SingleSi_SSD_3_Y_7", 1000020030);
-  qtelescopePID->SetStationParticle("Telescope_4_SingleSi_SSD_4_X_10Telescope_4_SingleSi_SSD20_4_Y_9", 1000020030);
-  qtelescopePID->SetStationParticle("Central_telescope_DoubleSi_DSD_XY_0", 1000010030);
+  qtelescopePID->SetTrackForParticle("Telescope_1_SingleSi_SSD20_1_X_0Telescope_1_SingleSi_SSD_1_Y_1", 1000020030);
+  qtelescopePID->SetTrackForParticle("Telescope_2_SingleSi_SSD_2_X_4Telescope_2_SingleSi_SSD20_2_Y_3", 1000020030);
+  qtelescopePID->SetTrackForParticle("Telescope_3_SingleSi_SSD20_3_X_6Telescope_3_SingleSi_SSD_3_Y_7", 1000020030);
+  qtelescopePID->SetTrackForParticle("Telescope_4_SingleSi_SSD_4_X_10Telescope_4_SingleSi_SSD20_4_Y_9", 1000020030);
+  qtelescopePID->SetTrackForParticle("Central_telescope_DoubleSi_DSD_XY_0", 1000010030);
   run->AddTask(qtelescopePID);
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
