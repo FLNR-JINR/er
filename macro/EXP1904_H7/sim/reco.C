@@ -45,7 +45,46 @@ void reco(Int_t nEvents = 100000){
   run->AddTask(beamdetPid);
   // ------   QTelescope TrackPID -----------------------------------------
   ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
-  qtelescopePID->SetTrackForParticle("Telescope_1_SingleSi_SSD20_1_X_0Telescope_1_SingleSi_SSD_1_Y_1", 1000020030);
+  TString deStation1 = "SSD20_1";
+  TString eStation1 = "SSD_1";
+  Double_t normolizedThickness = 0.002; // [cm]
+  std::map<Int_t, Double_t> deMin1 = { // channel to min dE value [GeV]
+    { 0, 0. },
+    { 1, 0. }
+    // ..... //
+  };
+  std::map<Int_t, Double_t> deMax1 = { // channel to max dE value [GeV]
+    { 0, 0.1 },
+    { 1, 0.1 }
+    // ..... //
+  };
+  std::map<Int_t, Double_t> eMin1 = { // channel to min E value [GeV]
+    { 0, 0. },
+    { 1, 0. }
+    // ..... //
+  };
+  std::map<Int_t, Double_t> eMax1 = { // channel to min E value [GeV]
+    { 0, 1. },
+    { 1, 1. }
+    // ..... //
+  };
+  TCutG ssd1_0_cut("dE_E_cut_1",6);
+  ssd1_0_cut.SetVarX("E"); // ssd1_0_cut->SetVarX("dE+E");
+  ssd1_0_cut.SetVarY("dE");
+  ssd1_0_cut.SetPoint(0,-0.3586207,1.509534);
+  ssd1_0_cut.SetPoint(1,-1.894181,-0.529661);
+  ssd1_0_cut.SetPoint(2,0.07780173,-1.21822);
+  ssd1_0_cut.SetPoint(3,-1.0375,-0.07944915);
+  ssd1_0_cut.SetPoint(4,0.756681,0.1853814);
+  ssd1_0_cut.SetPoint(5,-0.3586207,1.509534);
+  TCutG ssd1_1_cut = ssd1_0_cut;
+  std::map<Int_t, TCutG> gcuts1 = {
+    {0, ssd1_0_cut},
+    {1, ssd1_1_cut}
+    // ... // 
+  };
+  qtelescopePID->SetTrackAndCutForParticle("Telescope_1_SingleSi_SSD20_1_X_0Telescope_1_SingleSi_SSD_1_Y_1", 1000020030,
+                                           deStation1, eStation1, normolizedThickness, &deMin1, &deMax1, &eMin1, &eMax1, &gcuts1);
   qtelescopePID->SetTrackForParticle("Telescope_2_SingleSi_SSD_2_X_4Telescope_2_SingleSi_SSD20_2_Y_3", 1000020030);
   qtelescopePID->SetTrackForParticle("Telescope_3_SingleSi_SSD20_3_X_6Telescope_3_SingleSi_SSD_3_Y_7", 1000020030);
   qtelescopePID->SetTrackForParticle("Telescope_4_SingleSi_SSD_4_X_10Telescope_4_SingleSi_SSD20_4_Y_9", 1000020030);
@@ -67,7 +106,7 @@ void reco(Int_t nEvents = 100000){
   parIO->open(parFile.Data(), "UPDATE");
   rtdb->setFirstInput(parIO);
   // -----   Intialise and run   --------------------------------------------
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
   run->Init();
   run->Run(0, nEvents);
   // ------------------------------------------------------------------------;

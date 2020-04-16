@@ -24,8 +24,6 @@
 #include "FairEventHeader.h"
 
 #include "ERBeamDetTrack.h"
-#include "ERQTelescopeSiDigi.h"
-#include "ERQTelescopeCsIDigi.h"
 #include "ERRunAna.h"
 
 #include <iostream>
@@ -97,9 +95,11 @@ void ERQTelescopePID::Exec(Option_t* opt) {
         // to middle of target volume. We assume that kinetic energy 
         // is fully detected by the setup, so calculate it as sum of 
         // energy deposites in digi and energy deposites in passive volumes (using G4EmCalculator).
-        std::map<TString, Double_t> digiBrNameToEnergyDeposite;
+        std::list<DigiOnTrack> digisOnTrack;
         const auto energyDeposites = CalcEnergyDeposites(
-            *track, backPropagationStartPoint, *particle, digiBrNameToEnergyDeposite);
+            *track, backPropagationStartPoint, *particle, digisOnTrack);
+        if (!IsInsideParticleCut(trackBranch, pdg, digisOnTrack))
+          continue;
         const auto digisDeposite = energyDeposites.first;
         const auto deadDeposite = energyDeposites.second;
         const auto kineticEnergy = digisDeposite + deadDeposite;
@@ -198,7 +198,7 @@ TVector3 ERQTelescopePID::FindBackPropagationStartPoint(const ERQTelescopeTrack&
 std::pair<Double_t, Double_t> ERQTelescopePID::
 CalcEnergyDeposites(const ERQTelescopeTrack& track, const TVector3& startPoint, 
                     const G4ParticleDefinition& particle,
-                    std::map<TString, Double_t>& digiBrNameToEnergyDeposite) {
+                    std::list<DigiOnTrack>& digisOnTrack ) {
   // Calc paritcle energy deposites in setup using back track propagation from start point.
   // Return pair: first - sum of energy deposites in digi(sensetive volumes); 
   //              second - sum of energy deposites in passive volumes (or dead energy deposite).
@@ -235,12 +235,13 @@ CalcEnergyDeposites(const ERQTelescopeTrack& track, const TVector3& startPoint,
     if (TString(gGeoManager->GetPath()).Contains("Sensitive")){
       LOG(DEBUG) <<"[ERQTelescopePID] [CalcEnergyDeposites]"
                  <<" Get energy deposite from digi." << FairLogger::endl;
-      const auto brNameAndDigiDeposite = FindDigiEdepByNode(*node);
-      const auto brName = brNameAndDigiDeposite.first;
-      const auto digiDeposite = brNameAndDigiDeposite.second;
-      if (brName != "") {
-        digiBrNameToEnergyDeposite[brName] = digiDeposite;
+      const auto branchAndDigi = FindDigiEdepByNode(*node);
+      const auto trackBranch = branchAndDigi.first;
+      const auto* digi = branchAndDigi.second;
+      if (!digi) {
+        digisOnTrack.emplace_back(trackBranch, digi, gGeoManager->GetStep());
       }
+      const auto digiDeposite = digi ? digi->Edep() : 0.;
       kineticEnergy += digiDeposite;
       digiDepositesSum += digiDeposite;
     } else  { // track in passive volume
@@ -266,8 +267,7 @@ CalcEnergyDeposites(const ERQTelescopeTrack& track, const TVector3& startPoint,
   return {digiDepositesSum, deadDepositesSum};
 }
 //--------------------------------------------------------------------------------------------------
-std::pair<TString, Double_t> ERQTelescopePID::FindDigiEdepByNode(const TGeoNode& node) {
-  Double_t edep = 0.;
+std::pair<TString, const ERDigi*> ERQTelescopePID::FindDigiEdepByNode(const TGeoNode& node) {
   TString brNamePrefix = node.GetMotherVolume()->GetName();
   // modify prefix in case of DoubleSi or pseudo volumes.
   if (brNamePrefix.Contains("pseudo") || brNamePrefix.Contains("doubleSi")) {
@@ -291,7 +291,7 @@ std::pair<TString, Double_t> ERQTelescopePID::FindDigiEdepByNode(const TGeoNode&
   if (brName == ""){  
     LOG(ERROR) << " [ERQTelescopePID] [CalcEnergyDeposites]  Branch not found in telescope branches name" 
                  << FairLogger::endl;
-    return {"", 0.};
+    return {"", nullptr};
   }
   TString sensVolName = node.GetName();
   Int_t bLastPostfix = sensVolName.Last('_'); 
@@ -301,18 +301,119 @@ std::pair<TString, Double_t> ERQTelescopePID::FindDigiEdepByNode(const TGeoNode&
     const auto* digi = static_cast<ERDigi*>(fQTelescopeDigi[brName]->At(iDigi));
     if (digi->Channel() != cnannel) 
       continue;
-    edep = digi->Edep();
-    break;
-  }
-  if (edep) {
     LOG(DEBUG) << " [ERQTelescopePID] [CalcEnergyDeposites] Found digi with edep " 
-               << edep << FairLogger::endl;
-  } else {
-    LOG(ERROR) << " [ERQTelescopePID] [CalcEnergyDeposites]  Digi with channel number " 
-                  << cnannel << " not found in collection" << brName << FairLogger::endl;
+               << digi->Edep() << FairLogger::endl;
+    return {brName, digi};
   }
-  return {brName, edep};
-}
+  LOG(ERROR) << " [ERQTelescopePID] [CalcEnergyDeposites]  Digi with channel number " 
+                  << cnannel << " not found in collection" << brName << FairLogger::endl;
+  return {"", nullptr};
+}//--------------------------------------------------------------------------------------------------
+void ERQTelescopePID::SetTrackAndCutForParticle( const TString& trackBranch,
+      const PDG pdg, const TString& deStation, const TString& eStation,
+      const Double_t normalizeThickness, std::map<Int_t, Double_t>* deMin /*= nullptr*/, 
+      std::map<Int_t, Double_t>* deMax /*= nullptr*/, std::map<Int_t, Double_t>* eMin /*= nullptr*/, 
+      std::map<Int_t, Double_t>* eMax /*= nullptr*/, std::map<Int_t, TCutG>* deECut /*= nullptr*/) {
+    if (deECut) {
+      for (const auto& channelAndCut : *deECut) {
+        const auto xTitle = TString(channelAndCut.second.GetVarX());
+        if (xTitle != TString("E") && xTitle != TString("dE+E")) {
+          LOG(FATAL) << "Wrong X title for dE - E graphical cut. Legal values are E, dE+E"
+                     << FairLogger::endl;
+        }
+        const auto yTitle = TString(channelAndCut.second.GetVarY());
+        if (yTitle != "dE") {
+          LOG(FATAL) << "Wrong Y title for dE - E graphical cut. Legal value dE"
+                     << FairLogger::endl;
+        }
+      }
+    }
+    fParticleTracks[trackBranch].insert(pdg); 
+    fParticleCuts[{trackBranch, pdg}] = ParticleCut(
+        deStation, eStation, normalizeThickness, 
+        deMin, deMax, eMin, eMax, deECut);
+  }
 //--------------------------------------------------------------------------------------------------
+bool ERQTelescopePID::IsInsideParticleCut(
+    const TString& trackBranch, PDG pdg, 
+    const std::list<DigiOnTrack>& digisOnTrack) {
+  const auto itCut = fParticleCuts.find({trackBranch, pdg});
+  if (itCut == fParticleCuts.end()) // There is no cut for this track and PID
+    return true;
+  const auto cut = itCut->second;
+  const auto getDigiOnTrack = [&digisOnTrack](const TString& stationName) -> DigiOnTrack {
+    const auto itDigiOnTrack =  std::find_if(digisOnTrack.begin(), digisOnTrack.end(),
+        [&stationName](const DigiOnTrack& digiOntrack) {
+      return digiOntrack.fBranch.Contains(stationName);
+    });
+    if (itDigiOnTrack == digisOnTrack.end()) {
+      return DigiOnTrack();
+    }
+    return *itDigiOnTrack;
+  };
+  const auto deDigiOnTrack = getDigiOnTrack(cut.fDeStation);
+  if (!deDigiOnTrack.IsFound()) {
+    LOG(WARNING) << "[ERQTelescopePID] Digi for station " << cut.fDeStation << " not found on track from "
+                 << trackBranch << " path." << FairLogger::endl;
+    return false;
+  }
+  const auto eDigiOnTrack = getDigiOnTrack(cut.fEStation);
+  if (!eDigiOnTrack.IsFound()) {
+    LOG(WARNING) << "[ERQTelescopePID] Digi for station " << cut.fEStation << " not found on track from "
+                 << trackBranch << " path" << FairLogger::endl;
+    return false;
+  }
+  const auto* deDigi = deDigiOnTrack.fDigi;
+  const auto* eDigi = eDigiOnTrack.fDigi;
+  // de and E correction
+  const auto deCorrected = deDigi->Edep() * cut.fCutNormalizeThickness / deDigiOnTrack.fSensetiveThickness;
+  LOG(DEBUG) << "[ERQTelescopePID] Digi from station " << cut.fDeStation << " with edep = " << deDigi 
+             << " [GeV] corrected to edep = " << deCorrected << ". Normalized thickness = " 
+             << cut.fCutNormalizeThickness << ", step in sensetive volume = " << deDigiOnTrack.fSensetiveThickness
+             << FairLogger::endl;
+  const auto eCorrected = eDigi->Edep() + deDigi->Edep() - deCorrected;
+  LOG(DEBUG) << "[ERQTelescopePID] Digi from station " << cut.fEStation << " with edep = " << eDigi 
+             << " corrected to " << eCorrected;
+  if (cut.fDeMin 
+      && cut.fDeMin->find(deDigi->Channel()) != cut.fDeMin->end()
+      && cut.fDeMin->at(deDigi->Channel()) > deCorrected)  {
+    LOG(DEBUG) << "[ERQTelescopePID] Particle with track " << trackBranch << " and  PDG " << pdg 
+               << " skipped with dE min cut." << FairLogger::endl;
+    return false;
+  }
+  if (cut.fDeMax
+      && cut.fDeMax->find(deDigi->Channel()) != cut.fDeMax->end()
+      && cut.fDeMax->at(deDigi->Channel()) < deCorrected)  {
+    LOG(DEBUG) << "[ERQTelescopePID] Particle with track " << trackBranch << " and  PDG " << pdg 
+               << " skipped with dE max cut." << FairLogger::endl;
+    return false;
+  }
+  if (cut.fEMin 
+      && cut.fEMin->find(eDigi->Channel()) != cut.fEMin->end()
+      && cut.fEMin->at(eDigi->Channel()) > eCorrected)  {
+    LOG(DEBUG) << "[ERQTelescopePID] Particle with track " << trackBranch << " and  PDG " << pdg 
+               << " skipped with E min cut." << FairLogger::endl;
+    return false;
+  }
+  if (cut.fEMax
+      && cut.fEMax->find(eDigi->Channel()) != cut.fEMax->end()
+      && cut.fEMax->at(eDigi->Channel()) < eCorrected)  {
+    LOG(DEBUG) << "[ERQTelescopePID] Particle with track " << trackBranch << " and  PDG " << pdg 
+               << " skipped with E max cut." << FairLogger::endl;
+    return false;
+  }
+  if (cut.fDeECut
+      && cut.fDeECut->find(eDigi->Channel()) != cut.fDeECut->end()) {
+    const auto& gcut = cut.fDeECut->at(eDigi->Channel());
+    const auto gcutXTitle = TString(gcut.GetVarX());
+    if ((gcutXTitle == TString("E") && !gcut.IsInside(eCorrected, deCorrected))
+        || (gcutXTitle == TString("dE+E") && !gcut.IsInside(eCorrected + deCorrected, deCorrected))) {
+        LOG(DEBUG) << "[ERQTelescopePID] Particle with track " << trackBranch << " and  PDG " << pdg 
+                   << " skipped with graphical cut." << FairLogger::endl;
+        return false;
+    }
+  }
+  return true;
+}
 
 ClassImp(ERQTelescopePID)
