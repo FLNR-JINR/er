@@ -37,22 +37,16 @@ class G4ParticleDefinition;
 class ERQTelescopePID : public ERTask {
   using PDG = Int_t;
 public:
-  struct ParticleCut {
-    TString fDeStation;
-    TString fEStation;
-    Double_t fCutNormalizeThickness = -1.;
-    std::map<Int_t, Double_t>* fDeMin = nullptr;
-    std::map<Int_t, Double_t>* fDeMax = nullptr;
-    std::map<Int_t, Double_t>* fEMin = nullptr;
-    std::map<Int_t, Double_t>* fEMax = nullptr;
-    std::map<Int_t, TCutG>* fDeECut = nullptr;
-    ParticleCut() = default;
-    ParticleCut(const TString& deStation, const TString& eStation, Double_t normalizeThickness, 
-                std::map<Int_t, Double_t>* deMin, std::map<Int_t, Double_t>* deMax,
-                    std::map<Int_t, Double_t>* eMin, std::map<Int_t, Double_t>* eMax,
-                    std::map<Int_t, TCutG>* deECut) 
-        : fCutNormalizeThickness(normalizeThickness), fDeMin(deMin), fDeMax(deMax),
-          fEMin(eMin), fEMax(eMax), fDeECut(deECut) {}
+  struct ParticleDescription {
+    const PDG fPDG = -1;
+    const TString fDeStation;
+    const TString fEStation;
+    const Double_t fNormalizedThickness = 0.002;
+    ParticleDescription() = default;
+    ParticleDescription(PDG pdg, const TString& deStation, 
+                        const TString& eStation, Double_t normalizedThickness)
+        : fPDG(pdg), fDeStation(deStation), fEStation(eStation),
+          fNormalizedThickness(normalizedThickness) {}
   };
   struct DigiOnTrack {
     const TString fBranch;
@@ -62,7 +56,8 @@ public:
     DigiOnTrack(const TString& branch, const ERDigi* digi, Double_t sensetiveThickness) :
         fBranch(branch), fDigi(digi), fSensetiveThickness(sensetiveThickness) {}
     bool IsFound() const { return fDigi != nullptr; }
-  };                                                              
+  };
+                                                     
   /** @brief Default constructor **/
   ERQTelescopePID();
   /** @brief Constructor 
@@ -72,20 +67,9 @@ public:
   /** @brief Destructor **/
   ~ERQTelescopePID() = default;
   /* Modifiers */
-  void SetTrackForParticle(const TString& trackBranchName, const PDG pdg) {
-    fParticleTracks[trackBranchName].insert(pdg);
-  }
-  void SetTrackAndCutForParticle(
-      const TString& trackBranch,
-      const PDG pdg,
-      const TString& deStation,
-      const TString& eStation,
-      const Double_t normalizeThickness,
-      std::map<Int_t, Double_t>* deMin = nullptr, 
-      std::map<Int_t, Double_t>* deMax = nullptr,
-      std::map<Int_t, Double_t>* eMin = nullptr, 
-      std::map<Int_t, Double_t>* eMax = nullptr,
-      std::map<Int_t, TCutG>* deECut = nullptr);
+  void SetParticle(const TString& trackBranchName, const PDG pdg, 
+                   const TString& deStation = "", const TString& eStation = "",
+                   Double_t deNormalizedThickness = 0.002);
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding.
@@ -100,8 +84,7 @@ public:
 protected:
   //Paramaters
   ERQTelescopeSetup* fQTelescopeSetup = nullptr; ///< access to ERQTelescopeSetup class instance
-  std::map<TString, std::set<PDG>> fParticleTracks;
-  std::map<std::pair<TString, PDG>, ParticleCut> fParticleCuts;
+  std::map<TString, std::list<ParticleDescription>> fParticleDescriptions;
   //Input arrays
   std::map<TString, TClonesArray*> fQTelescopeDigi;
   std::map<TString, TClonesArray*> fQTelescopeTrack;
@@ -112,13 +95,19 @@ protected:
   std::pair<Double_t, Double_t> CalcEnergyDeposites (
       const ERQTelescopeTrack& track, const TVector3& startPoint,
       const G4ParticleDefinition& particle, std::list<DigiOnTrack>& digisOnTrack);
-  std::pair<TString, const ERDigi*> FindDigiEdepByNode(const TGeoNode& node);
-  bool IsInsideParticleCut(const TString& trackBranch, PDG pdg, 
-                           const std::list<DigiOnTrack>& digisOnTrack);
+  std::pair<TString, const ERDigi*> FindDigiEdepByNode(const TGeoNode& node, const TString& nodePath);
+  void FindEnergiesForDeEAnalysis(const TString& trackBranch,
+                                  const std::list<DigiOnTrack>& digisOnTrack, 
+                                  const TString& eStation, const TString& deStation, 
+                                  const Double_t normalizedThickness,
+                                  Double_t& edepInThickStation, Double_t& edepInThinStation,
+                                  Double_t& edepInThickStationCorrected, Double_t& edepInThinStationCorrected);
 private:
   /** @brief Adds a ERQTelescopeParticles to the output Collection **/
   ERQTelescopeParticle* AddParticle(const TLorentzVector& lvInteraction, Double_t kineticEnergy,
-                                    Double_t deadEloss, TClonesArray& col);
-  ClassDef(ERQTelescopePID,1)
+                                    Double_t deadEloss, Double_t edepInThickStation, Double_t edepInThinStation,
+                                    Double_t edepInThickStationCorrected, Double_t edepInThinStationCorrected,
+                                    TClonesArray& col);
+  ClassDef(ERQTelescopePID, 1)
 };
 #endif

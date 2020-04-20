@@ -132,7 +132,7 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
           if (qtelescopeStationName.Contains("DoubleSi", TString::kIgnoreCase) ) {
             TGeoNode* doubleSiStrip;
             TString firstStripArrayName, secondStripArrayName;
-            if (qtelescopeStationName.Contains("XY")) {
+            if (qtelescopeStationName.Contains("YX")) {
               firstStripArrayName = qtelescopeStationName + "_X";
               secondStripArrayName = qtelescopeStationName + "_Y";
             } else {
@@ -150,6 +150,15 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
               qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
               qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
               fStrips[firstStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans));
+              LOG(DEBUG) << firstStripArrayName << " strip " 
+                              << fStrips[firstStripArrayName].size()-1 << " global coordinates: "
+                              << stripGlobTrans[0] << ", " 
+                              << stripGlobTrans[1] << ", " 
+                              << stripGlobTrans[2] ;
+              LOG(DEBUG)  << " | local coordinates: "
+                          << boxInStripTrans[0] << ", " 
+                          << boxInStripTrans[1] << ", " 
+                          << boxInStripTrans[2] << FairLogger::endl; 
               TGeoNode* doubleSiBox;
               Int_t iDoubleSiBox = 0;
               if (!flagFirstStripReaded) {
@@ -164,6 +173,16 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
                   qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
                   qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
                   fStrips[secondStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans, boxInStripTrans));
+                  LOG(DEBUG) << secondStripArrayName << " strip " 
+                              << fStrips[secondStripArrayName].size()-1 << " global coordinates: "
+                              << stripGlobTrans[0] << ", " 
+                              << stripGlobTrans[1] << ", " 
+                              << stripGlobTrans[2];
+                  LOG(DEBUG)  << " | local coordinates: "
+                              << boxInStripTrans[0] << ", " 
+                              << boxInStripTrans[1] << ", " 
+                              << boxInStripTrans[2] << FairLogger::endl;; 
+
                 }
                 flagFirstStripReaded = kTRUE;
               }

@@ -5,13 +5,13 @@ void H7() {
   TClonesArray* beamdet_he8 = new TClonesArray("ERBeamDetParticle", 10);
   tree->SetBranchAddress("BeamDetParticle.",&beamdet_he8);
   TClonesArray* t1_he3 = new TClonesArray("ERQTelescopeParticle", 10);
-  tree->SetBranchAddress("ERQTelescopeParticle_T1_SingleSi_SSD20_X_0T1_SingleSi_SSD_Y_1_1000020030",&t1_he3);
+  tree->SetBranchAddress("ERQTelescopeParticle_Telescope_1_SingleSi_SSD20_1_X_0Telescope_1_SingleSi_SSD_1_Y_1_1000020030",&t1_he3);
   TClonesArray* t2_he3 = new TClonesArray("ERQTelescopeParticle", 10);
-  tree->SetBranchAddress("ERQTelescopeParticle_T2_SingleSi_SSD_X_4T2_SingleSi_SSD20_Y_3s_1000020030",&t2_he3);
+  tree->SetBranchAddress("ERQTelescopeParticle_Telescope_2_SingleSi_SSD_2_X_4Telescope_2_SingleSi_SSD20_2_Y_3_1000020030",&t2_he3);
   TClonesArray* t3_he3 = new TClonesArray("ERQTelescopeParticle", 10);
-  tree->SetBranchAddress("ERQTelescopeParticle_T3_SingleSi_SSD20_X_6T3_SingleSi_SSD_Y_7_1000020030",&t3_he3);
+  tree->SetBranchAddress("ERQTelescopeParticle_Telescope_3_SingleSi_SSD20_3_X_6Telescope_3_SingleSi_SSD_3_Y_7_1000020030",&t3_he3);
   TClonesArray* t4_he3 = new TClonesArray("ERQTelescopeParticle", 10);
-  tree->SetBranchAddress("ERQTelescopeParticle_T4_SingleSi_SSD_X_10T4_SingleSi_SSD20_Y_9_1000020030",&t4_he3);
+  tree->SetBranchAddress("ERQTelescopeParticle_Telescope_4_SingleSi_SSD_4_X_10Telescope_4_SingleSi_SSD20_4_Y_9_1000020030",&t4_he3);
   //output
   TFile* h7_file = new TFile("h7.root", "recreate");
   TTree* h7_tree = new TTree("h7_tree", "Tree with h7 Lorentz vectors");
