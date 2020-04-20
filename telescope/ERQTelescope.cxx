@@ -111,17 +111,10 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
     TString volName = gMC->CurrentVolName();
     if (fEloss > 0.){
       if (volName.Contains("DoubleSi")) {
-        Int_t xStripNb;
-        Int_t yStripNb;
-        gMC->CurrentVolOffID(0, yStripNb);
-        gMC->CurrentVolOffID(1, xStripNb);
+        Int_t xStripNb = -1, yStripNb = -1;
+        gMC->CurrentVolOffID(0, volName.EndsWith("Y") ?  xStripNb : yStripNb);
+        gMC->CurrentVolOffID(1, volName.EndsWith("Y") ?  yStripNb : xStripNb);
         gMC->CurrentVolOffID(2, fSiStationNb);
-        if (volName.EndsWith("X")) {
-          // swap X and Y strip numbers
-          xStripNb = xStripNb ^ yStripNb;
-          yStripNb = xStripNb ^ yStripNb;
-          xStripNb = xStripNb ^ yStripNb;
-        }
         fSiStripNb = xStripNb;
         AddSiPoint(*(fDoubleSiXPoints[fSiStationNb]));
         fSiStripNb = yStripNb;

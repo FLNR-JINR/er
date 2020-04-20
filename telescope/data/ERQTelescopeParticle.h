@@ -25,14 +25,24 @@ public:
    ** @param lvInteraction - Lorentz vector in interaction;
   **/
   ERQTelescopeParticle(TLorentzVector lvinteraction, Double_t deadEloss,
-                       Double_t kineticEnergy);
+                       Double_t kineticEnergy, Double_t edepInThickStation = -1.,
+                       Double_t edepInThinStation = -1., Double_t correctedEdepInThickStation = -1.,
+                       Double_t correctedEdepInThinStation = -1.);
   Double_t GetDeadEloss() const {return fDeadEloss;}
   Double_t GetKineticEnergy() const {return fKineticEnergy;}
   TLorentzVector GetLVInteraction() const {return fLVInteraction;}
+  Double_t GetEdepInThickStation() const {return fEdepInThickStation;}
+  Double_t GetEdepInThinStation() const {return fEdepInThinStation;}
+  Double_t GetCorrectedEdepInThickStation() const {return fCorrectedEdepInThickStation;}
+  Double_t GetCorrectedEdepInThinStation() const {return fCorrectedEdepInThinStation;}
 private:
   TLorentzVector fLVInteraction;
   Double_t  fKineticEnergy = 0.;
   Double_t  fDeadEloss = 0.;
+  Double_t  fEdepInThickStation = -1.;
+  Double_t  fEdepInThinStation = -1.;
+  Double_t  fCorrectedEdepInThickStation = -1.;
+  Double_t  fCorrectedEdepInThinStation = -1.;
   ClassDef(ERQTelescopeParticle, 1)
 };
 

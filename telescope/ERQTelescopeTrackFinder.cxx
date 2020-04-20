@@ -115,6 +115,8 @@ InitStatus ERQTelescopeTrackFinder::Init() {
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::Exec(Option_t* opt) { 
+  LOG(DEBUG) << "[ERQTelescopeTrackFinder]------------Started--------------------------------------"
+             << FairLogger::endl;
   Reset();
   if (!fUserTargetPointIsSet) {
       ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
@@ -166,9 +168,9 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
           }
         }
       }
-      LOG(DEBUG) << "Strips array pair " << itComponent.second.first << " " 
+      LOG(DEBUG) << "[ERQTelescopeTrackFinder] Strips array pair " << itComponent.second.first << " " 
                                          << itComponent.second.second << FairLogger::endl;
-      LOG(DEBUG) << "Hits count on pair " << hitTelescopePoint.size() << FairLogger::endl;
+      LOG(DEBUG) << "[ERQTelescopeTrackFinder] Hits count on pair " << hitTelescopePoint.size() << FairLogger::endl;
       for (const auto& itHitPoint : hitTelescopePoint) {
         const auto xStripIndex = itHitPoint.first;
         const auto yStripIndex = itHitPoint.second;
@@ -178,10 +180,10 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
           continue;
         const auto xStripNb = xStrip->Channel();
         const auto yStripNb = yStrip->Channel();
-        LOG(DEBUG) << "  Branch names X:" << xDigiBranchName 
+        LOG(DEBUG) << "[ERQTelescopeTrackFinder] Branch names X:" << xDigiBranchName 
                    << " Y: " << yDigiBranchName << FairLogger::endl;
-        LOG(DEBUG) << "  Strips pair " << xStripIndex << " " << yStripIndex << FairLogger::endl;
-        LOG(DEBUG) << "  Strips pair numbers " << xStripNb << " " << yStripNb << FairLogger::endl;
+        LOG(DEBUG) << "[ERQTelescopeTrackFinder] Strips pair numbers " << xStripNb << " " 
+                   << yStripNb << FairLogger::endl;
         // Calc unknown coordinated using condition: target, hit on first station(closest) and
         // hit on second station lie on line :
         // {x1, y1, z1} = {fTargetX, fTargetY, fTargetZ} + k * ({x1, y1, z1} - {fTargetX, fTargetY, fTargetZ}).
@@ -200,11 +202,15 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         if (xStationIsClosest) { // find y1, x2 from equation
           x1 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xStripNb);
           y2 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
+          LOG(DEBUG) << "[ERQTelescopeTrackFinder] Coordinates from strips. x1 = " << x1 
+                     << " y2 = " << y2 << " z1 = " << z1 << " z2 = " << z2 << FairLogger::endl;
           y1 = (-1./k)*((1. - k)*fTargetY - y2);
           x2 = (1. - k)*fTargetX + k*x1;
         } else { // find x1, y2 from equation
           x2 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xStripNb);
           y1 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
+          LOG(DEBUG) << "[ERQTelescopeTrackFinder] Coordinates from strips. x2 = " << x2 
+                     << " y1 = " << y1 << " z1 = " << z1 << " z2 = " << z2 << FairLogger::endl;
           x1 = (-1./k)*((1. - k)*fTargetX - x2);
           y2 = (1. - k)*fTargetY + k*y1;
         }
@@ -215,9 +221,9 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         const auto yQTeleLocalHit = fQTelescopeSetup->GetStripLocalY(yDigiBranchName, yStripNb);
         const auto zQTeleLocalHit = (fQTelescopeSetup->GetStripLocalZ(xDigiBranchName, xStripNb)
                                      + fQTelescopeSetup->GetStripLocalZ(yDigiBranchName, yStripNb))/2.;
-        LOG(DEBUG) << " Local hit X Y Z " << xQTeleLocalHit << " " << yQTeleLocalHit 
+        LOG(DEBUG) << "[ERQTelescopeTrackFinder] Local hit X Y Z " << xQTeleLocalHit << " " << yQTeleLocalHit 
                    << " " << zQTeleLocalHit << FairLogger::endl;
-        LOG(DEBUG) << " Global hit X Y Z " << xQTeleGlobHit << " " << yQTeleGlobHit 
+        LOG(DEBUG) << "[ERQTelescopeTrackFinder] Global hit X Y Z " << xQTeleGlobHit << " " << yQTeleGlobHit 
                    << " " << zQTeleGlobHit << FairLogger::endl;     
         const Double_t sumEdep = xStrip->Edep();        
         auto* track = AddTrack(fTargetX, fTargetY, fTargetZ, 
@@ -229,6 +235,8 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
       }
     }
   }
+  LOG(DEBUG) << "[ERQTelescopeTrackFinder]------------Finished--------------------------------------"
+             << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::Reset() {

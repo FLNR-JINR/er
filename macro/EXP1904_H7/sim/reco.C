@@ -9,10 +9,11 @@ void reco(Int_t nEvents = 100000){
   // -----   Digitization run   ---------------------------------------------
   ERRunAna *run = ERRunAna::Instance();
   run->HoldEventsCount(); //forbid different entry number in the input and output file
+  /*
   run->SetUserCut("Length$(ERQTelescopeSiPoint_Telescope_1_SingleSi_SSD_V_1_Y_2) == 0 \
                    && Length$(ERQTelescopeSiDigi_Telescope_2_SingleSi_SSD_V_2_X_5) == 0 \
                    && Length$(ERQTelescopeSiDigi_Telescope_3_SingleSi_SSD_V_3_Y_8) == 0 \
-                   && Length$(ERQTelescopeSiDigi_Telescope_4_SingleSi_SSD_V_4_X_11) == 0");
+                   && Length$(ERQTelescopeSiDigi_Telescope_4_SingleSi_SSD_V_4_X_11) == 0");*/
   //run->SetGeomFile(geoFile);
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
@@ -25,14 +26,6 @@ void reco(Int_t nEvents = 100000){
   ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
   trackFinder->SetTargetVolume("tubeD2");
   run->AddTask(trackFinder);
-  // ------- QTelescope TrackFinder -------------------------------------------
-  ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
-  qtelescopeTrackFinder->SetHitStation("Telescope_1", "Telescope_1_SingleSi_SSD20_1_X_0", "Telescope_1_SingleSi_SSD_1_Y_1");
-  qtelescopeTrackFinder->SetHitStation("Telescope_2", "Telescope_2_SingleSi_SSD_2_X_4", "Telescope_2_SingleSi_SSD20_2_Y_3");
-  qtelescopeTrackFinder->SetHitStation("Telescope_3", "Telescope_3_SingleSi_SSD20_3_X_6", "Telescope_3_SingleSi_SSD_3_Y_7");
-  qtelescopeTrackFinder->SetHitStation("Telescope_4", "Telescope_4_SingleSi_SSD_4_X_10", "Telescope_4_SingleSi_SSD20_4_Y_9");
-  qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_DoubleSi_DSD_XY_0");
-  run->AddTask(qtelescopeTrackFinder);
   // -----------------------BeamDetTrackPID----------------------------------s
   Int_t Z = 2, A = 8, Q = 2;
   TString ionName = "8He";
@@ -43,13 +36,28 @@ void reco(Int_t nEvents = 100000){
   beamdetPid->SetIonMass(7.4825396);
   beamdetPid->SetPID(1000020080);
   run->AddTask(beamdetPid);
+  // ------- QTelescope TrackFinder -------------------------------------------
+  ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
+  qtelescopeTrackFinder->SetHitStation("Telescope_1", "Telescope_1_SingleSi_SSD20_1_X_0", "Telescope_1_SingleSi_SSD_1_Y_1");
+  qtelescopeTrackFinder->SetHitStation("Telescope_2", "Telescope_2_SingleSi_SSD_2_X_4", "Telescope_2_SingleSi_SSD20_2_Y_3");
+  qtelescopeTrackFinder->SetHitStation("Telescope_3", "Telescope_3_SingleSi_SSD20_3_X_6", "Telescope_3_SingleSi_SSD_3_Y_7");
+  qtelescopeTrackFinder->SetHitStation("Telescope_4", "Telescope_4_SingleSi_SSD_4_X_10", "Telescope_4_SingleSi_SSD20_4_Y_9");
+  qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_DoubleSi_DSD_XY_0");
+  run->AddTask(qtelescopeTrackFinder);
   // ------   QTelescope TrackPID -----------------------------------------
   ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
-  qtelescopePID->SetStationParticle("Telescope_1_SingleSi_SSD20_1_X_0Telescope_1_SingleSi_SSD_1_Y_1", 1000020030);
-  qtelescopePID->SetStationParticle("Telescope_2_SingleSi_SSD_2_X_4Telescope_2_SingleSi_SSD20_2_Y_3", 1000020030);
-  qtelescopePID->SetStationParticle("Telescope_3_SingleSi_SSD20_3_X_6Telescope_3_SingleSi_SSD_3_Y_7", 1000020030);
-  qtelescopePID->SetStationParticle("Telescope_4_SingleSi_SSD_4_X_10Telescope_4_SingleSi_SSD20_4_Y_9", 1000020030);
-  qtelescopePID->SetStationParticle("Central_telescope_DoubleSi_DSD_XY_0", 1000010030);
+  TString deStation1 = "SSD20_1";
+  TString eStation1 = "SSD_1";
+  Double_t normalizedThickness = 0.002; // [cm]
+  qtelescopePID->SetParticle("Telescope_1_SingleSi_SSD20_1_X_0Telescope_1_SingleSi_SSD_1_Y_1", 1000020030,
+                              deStation1, eStation1, normalizedThickness);
+  qtelescopePID->SetParticle("Telescope_2_SingleSi_SSD_2_X_4Telescope_2_SingleSi_SSD20_2_Y_3", 1000020030,
+                             "SSD20_2", "SSD_2", normalizedThickness);
+  qtelescopePID->SetParticle("Telescope_3_SingleSi_SSD20_3_X_6Telescope_3_SingleSi_SSD_3_Y_7", 1000020030,
+                             "SSD20_3", "SSD_3", normalizedThickness);
+  qtelescopePID->SetParticle("Telescope_4_SingleSi_SSD_4_X_10Telescope_4_SingleSi_SSD20_4_Y_9", 1000020030,
+                             "SSD20_4", "SSD_4", normalizedThickness);
+  qtelescopePID->SetParticle("Central_telescope_DoubleSi_DSD_XY_0", 1000010030);
   run->AddTask(qtelescopePID);
   // ------------------------ND track finder --------------------------------
   ERNDTrackFinder* NDTrackFinder = new ERNDTrackFinder();

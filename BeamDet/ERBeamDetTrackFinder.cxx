@@ -118,9 +118,10 @@ Double_t ERBeamDetTrackFinder::CalcCoordinateAvg (TClonesArray* digiArray, char 
   return coordAvg;  
 }
 //--------------------------------------------------------------------------------------------------
-void ERBeamDetTrackFinder::Exec(Option_t* opt) { 
+void ERBeamDetTrackFinder::Exec(Option_t* opt) {
   Reset();
-  LOG(DEBUG) << FairLogger::endl;
+  LOG(DEBUG) << "[ERBeamDetTrackFinder]------------Started-----------------------------------------"
+             << FairLogger::endl;
 
   if(fBeamDetMWPCDigiX1->GetEntriesFast() < 1 ||
      fBeamDetMWPCDigiX2->GetEntriesFast() < 1 ||
@@ -243,10 +244,12 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
            targetMiddleThicknessY, 
            targetMiddleThicknessZ, vectorOnTarget.Unit());
 
-  LOG(INFO) << "Point on target " << "(" << targetMiddleThicknessX << ", " 
+  LOG(DEBUG) << "Point on target " << "(" << targetMiddleThicknessX << ", " 
                                           << targetMiddleThicknessY << ", "
                                           << targetMiddleThicknessZ << ") cm" 
                                           << FairLogger::endl;
+  LOG(DEBUG) << "[ERBeamDetTrackFinder]------------Finished-----------------------------------------"
+             << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetTrackFinder::Reset() {

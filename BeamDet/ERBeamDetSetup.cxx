@@ -793,13 +793,13 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
   
   FairRun* run = FairRun::Instance();
   if (!TString(run->ClassName()).Contains("ERRunAna")){
-    LOG(FATAL) << "Use ERRunAna for ERBeamDetSetup::CalcEloss!!!" << FairLogger::FairLogger::endl;
+    LOG(FATAL) << "[ERBeamDet] Use ERRunAna for ERBeamDetSetup::CalcEloss!!!" << FairLogger::FairLogger::endl;
     return 0;
   }
 
   //calclculation ion energy loss in BeamDet volumes
   TVector3 targetVertex = track.GetTargetVertex();
-  LOG(DEBUG) << " [CalcEloss] Eloss calculation with target vertex = (" << targetVertex.X() << ","
+  LOG(DEBUG) << "[ERBeamDet][CalcEloss] Eloss calculation with target vertex = (" << targetVertex.X() << ","
             << targetVertex.Y() << "," << targetVertex.Z() << "), direction on target = ("
             << track.GetVector().X() << "," << track.GetVector().Y() << "," << track.GetVector().Z() << ")" << FairLogger::FairLogger::endl;
   
@@ -807,7 +807,7 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
   Float_t xStart = targetVertex.X() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Cos(track.GetVector().Phi());
   Float_t yStart = targetVertex.Y() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Sin(track.GetVector().Phi());
 
-  LOG(DEBUG) << " [CalcEloss] Eloss calculation start vertex = (" << xStart << "," << yStart << "," << zStart << ")" << FairLogger::FairLogger::endl; 
+  LOG(DEBUG) << "[ERBeamDet][CalcEloss] Eloss calculation start vertex = (" << xStart << "," << yStart << "," << zStart << ")" << FairLogger::FairLogger::endl; 
 
   G4IonTable* ionTable = G4IonTable::GetIonTable();
   G4ParticleDefinition* ion =  ionTable->GetIon(pid);
@@ -840,12 +840,9 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
     Double_t edep = CalcElossIntegralVolStep(T, ion, mat, range);
 
     node = gGeoManager->GetCurrentNode();
-    
-    LOG(DEBUG) <<" [CalcEloss] Kinetic Energy  = " << T << FairLogger::FairLogger::endl;
-    LOG(DEBUG) <<" [CalcEloss] path  = " <<  gGeoManager->GetPath() << FairLogger::FairLogger::endl;
-    LOG(DEBUG) <<" [CalcEloss] medium " << matName << FairLogger::FairLogger::endl;
-    LOG(DEBUG) <<" [CalcEloss] range  = " << range << FairLogger::FairLogger::endl;
-    LOG(DEBUG) <<" [CalcEloss] edep = " << edep << FairLogger::FairLogger::endl;
+    LOG(DEBUG) << "[ERBeamDet][CalcEloss] path  = " <<  gGeoManager->GetPath() << FairLogger::FairLogger::endl;
+    LOG(DEBUG) <<"[ERBeamDet][CalcEloss] Kinetic Energy  = " << T 
+               << " medium " << matName << " range  = " << range << " edep = " << edep << FairLogger::FairLogger::endl;
 
     if (TString(gGeoManager->GetPath()).Contains("target"))
       inTarget = kTRUE;
@@ -861,8 +858,8 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
   T += tarEdep/2.;
   sumLoss -= tarEdep/2.;
   
-  LOG(DEBUG) <<" [CalcEloss] Target Eloss = " <<  tarEdep << FairLogger::FairLogger::endl;
-  LOG(DEBUG) <<" [CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::FairLogger::endl;
+  LOG(DEBUG) <<"[ERBeamDet][CalcEloss] Target Eloss = " <<  tarEdep << FairLogger::FairLogger::endl;
+  LOG(DEBUG) <<"[ERBeamDet][CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::FairLogger::endl;
   return T;
 }
 //--------------------------------------------------------------------------------------------------

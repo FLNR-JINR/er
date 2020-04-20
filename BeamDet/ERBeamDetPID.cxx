@@ -59,10 +59,12 @@ InitStatus ERBeamDetPID::Init() {
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetPID::Exec(Option_t* opt) { 
+  LOG(DEBUG) << "[ERBeamDetPID]---------------------Started-----------------------------------------"
+             << FairLogger::endl;
   Reset();
 
   if (!fBeamDetTrack->At(0) || !fBeamDetToFDigi1->At(0) || !fBeamDetToFDigi2->At(0)) {
-    LOG(DEBUG)  << "ERBeamDetPID: No track" << FairLogger::endl;
+    LOG(DEBUG)  << "[ERBeamDetPID] No track" << FairLogger::endl;
     fRun->MarkFill(kFALSE);
     return;
   }
@@ -81,16 +83,16 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   digi = (ERBeamDetTOFDigi*)fBeamDetToFDigi1->At(0);
   ToF1 = digi->Time();
   dE1 = digi->Edep();
-  LOG(DEBUG) << "dE1 = " << dE1 << " ToF1 = " << ToF1 << FairLogger::endl;
+  LOG(DEBUG) << "[ERBeamDetPID] dE1 = " << dE1 << " ToF1 = " << ToF1 << FairLogger::endl;
   digi = (ERBeamDetTOFDigi*)fBeamDetToFDigi2->At(0);
   ToF2 = digi->Time();
   dE2 = digi->Edep();
-  LOG(DEBUG) << "dE2 = " << dE2 << " ToF2 = " << ToF2 << FairLogger::endl;
+  LOG(DEBUG) << "[ERBeamDetPID] dE2 = " << dE2 << " ToF2 = " << ToF2 << FairLogger::endl;
 
   dE = dE1 + dE2;
-  LOG(DEBUG) << "dE = " << dE << " Gev; " << " ToF1 = " << ToF1 << " ns;" << " ToF2 = " << ToF2 << " ns;" << FairLogger::endl;
+  LOG(DEBUG) << "[ERBeamDetPID] dE = " << dE << " Gev; " << " ToF1 = " << ToF1 << " ns;" << " ToF2 = " << ToF2 << " ns;" << FairLogger::endl;
   ToF = TMath::Abs(ToF2 - ToF1) + fOffsetToF;
-  LOG(DEBUG) << "dE = " << dE << " Gev; " << " ToF = " << ToF << " ns;" << FairLogger::endl;
+  LOG(DEBUG) << "[ERBeamDetPID] dE = " << dE << " Gev; " << " ToF = " << ToF << " ns;" << FairLogger::endl;
 
   if(ToF <= fToF1 || ToF >= fToF2 || dE <= fdE1 || dE >= fdE2){
     probability = 0;
@@ -100,15 +102,15 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   }
 
   if(probability < fProbabilityThreshold) {
-    LOG(DEBUG) << "Probability " << probability << " less then threshold " << fProbabilityThreshold << FairLogger::endl;
+    LOG(DEBUG) << "[ERBeamDetPID] Probability " << probability << " less then threshold " << fProbabilityThreshold << FairLogger::endl;
     fRun->MarkFill(kFALSE);
     return ;
   }
-  LOG(DEBUG) << "Mass " << fIonMass << FairLogger::endl;
+  LOG(DEBUG) << "[ERBeamDetPID] Mass " << fIonMass << FairLogger::endl;
   Double_t distanceBetweenToF = fBeamDetSetup->GetDistanceBetweenToF(0, fBeamDetSetup->GetToFCount() - 1);
   beta = distanceBetweenToF * 1e-2 / (ToF * 1e-9) / TMath::C();
   if(beta <= 0 || beta >= 1) {
-    LOG(DEBUG) << "Wrong beta " << beta << FairLogger::endl;
+    LOG(DEBUG) << "[ERBeamDetPID] Wrong beta " << beta << FairLogger::endl;
     fRun->MarkFill(kFALSE);
     return ;
   }
@@ -125,7 +127,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   pz = p * TMath::Cos(track->GetVector().Theta());
 
   energy = fIonMass * gamma;
-  LOG(DEBUG) << "TOF State:: PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
+  LOG(DEBUG) << "[ERBeamDetPID] TOF State:: PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
             << " energy: " << energy << "; probability " << probability << FairLogger::endl;
 
   //eloss calculation, T-kinetic energy on target
@@ -140,10 +142,12 @@ void ERBeamDetPID::Exec(Option_t* opt) {
 
   et = fIonMass + T;
 
-  LOG(DEBUG) << "Target State::  px: " << ptx << "; py: " << pty << "; pz: " << ptz 
+  LOG(DEBUG) << "[ERBeamDetPID] Target State::  px: " << ptx << "; py: " << pty << "; pz: " << ptz 
             << " energy: " << et << FairLogger::endl;
 
   AddParticle(fPID, TLorentzVector(px, py, pz, energy), TLorentzVector(ptx,pty,ptz,et), probability);
+  LOG(DEBUG) << "[ERBeamDetPID]---------------------Finished-----------------------------------------"
+             << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetPID::Reset() {

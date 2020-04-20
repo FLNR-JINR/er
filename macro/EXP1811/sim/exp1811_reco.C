@@ -57,16 +57,16 @@ void exp1811_reco(Int_t nEvents = 10000000){
 
   // qtelescopePID->SetUserCut("ERQTelescopeSiDigi_T2_DoubleSi_SD2_XY_1_X.fEdep>0.009");
 
-  qtelescopePID->SetStationParticle("Central_telescope_DoubleSi_DSD_C_XY_0", 1000010030);
-  qtelescopePID->SetStationParticle("Central_telescope_CsI_0", 1000010030);
+  qtelescopePID->SetParticle("Central_telescope_DoubleSi_DSD_C_XY_0", 1000010030);
+  qtelescopePID->SetParticle("Central_telescope_CsI_0", 1000010030);
 
-  qtelescopePID->SetStationParticle("Left_telescope_SingleSi_SSD20_L_X_0", 1000020030);
-  qtelescopePID->SetStationParticle("Left_telescope_DoubleSi_DSD_L_XY_0", 1000020030);
-  qtelescopePID->SetStationParticle("Left_telescope_SingleSi_SSD_L_X_0", 1000020030);
+  qtelescopePID->SetParticle("Left_telescope_SingleSi_SSD20_L_X_0", 1000020030);
+  qtelescopePID->SetParticle("Left_telescope_DoubleSi_DSD_L_XY_0", 1000020030);
+  qtelescopePID->SetParticle("Left_telescope_SingleSi_SSD_L_X_0", 1000020030);
 
-  qtelescopePID->SetStationParticle("Right_telescope_SingleSi_SSD20_R_X_0", 1000020030);
-  qtelescopePID->SetStationParticle("Right_telescope_SingleSi_SSDY_R_Y_0", 1000020030);
-  qtelescopePID->SetStationParticle("Right_telescope_SingleSi_SSD_R_Y_0", 1000020030);
+  qtelescopePID->SetParticle("Right_telescope_SingleSi_SSD20_R_X_0", 1000020030);
+  qtelescopePID->SetParticle("Right_telescope_SingleSi_SSDY_R_Y_0", 1000020030);
+  qtelescopePID->SetParticle("Right_telescope_SingleSi_SSD_R_Y_0", 1000020030);
 
   run->AddTask(qtelescopePID); 
   // -----------Runtime DataBase info ---------------------------------------
