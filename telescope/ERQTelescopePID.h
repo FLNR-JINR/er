@@ -15,10 +15,7 @@
 
 #include "TClonesArray.h"
 #include "TString.h"
-#include "TH1.h"
-#include "TCut.h"
 #include "TVector3.h"
-#include "TCutG.h"
 
 #include "ERTask.h"
 #include "ERDigi.h"
