@@ -196,5 +196,5 @@ void ERQTelescopeGeoComponentSingleSi::ParseXmlParameters() {
   }
 }
 //--------------------------------------------------------------------------------------------------
-ClassImp(ERGeoComponent)
+ClassImp(ERQTelescopeGeoComponentSingleSi)
 
