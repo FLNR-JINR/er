@@ -56,7 +56,7 @@ void sim_digi(Int_t nEvents = 10)
                                                                                   TVector3(0., 0., 0.), TVector3(), "Y");
   ERQTelescopeGeoComponentSingleSi* veto1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_V_1", 
                                                                                   TVector3(0., 0., 1.0), TVector3(), "Y");
-  ERQTelescopeGeoComponentPassive* passive = new ERQTelescopeGeoComponentPassive("passive_component.root", 
+  ERQTelescopeGeoComponentPassive* passive = new ERQTelescopeGeoComponentPassive("passive_component.root", "PassiveElement",
                                                                                   TVector3(0., 0., -3.), TVector3());                                                                                
   
   assembly_1->AddComponent(thin1);

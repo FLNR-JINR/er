@@ -18,13 +18,14 @@
 class ERQTelescopeGeoComponentPassive : public ERGeoComponent {
   public:
     ERQTelescopeGeoComponentPassive() = default;
-    ERQTelescopeGeoComponentPassive(const TString& fileName, const TVector3& position, 
-                                    const TVector3& rotation);
+    ERQTelescopeGeoComponentPassive(const TString& fileName, const TString& topVolumeName,
+                                    const TVector3& position, const TVector3& rotation);
     virtual void ConstructGeometryVolume();
   protected:
     virtual void ParseXmlParameters() {}
     TFile* fGeoFile = nullptr;
     TString fFileName;
+    TString fTopVolumeName;
     ClassDef(ERQTelescopeGeoComponentPassive,1)                            
 };
 #endif  

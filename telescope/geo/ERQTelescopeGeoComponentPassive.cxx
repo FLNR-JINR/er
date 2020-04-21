@@ -10,17 +10,19 @@
 
 //--------------------------------------------------------------------------------
 ERQTelescopeGeoComponentPassive::ERQTelescopeGeoComponentPassive(
-    const TString& fileName, const TVector3& position, const TVector3& rotation)
-    : ERGeoComponent("None", fileName, position, rotation), fFileName(fileName) {
+    const TString& fileName, const TString& topVolumeName, 
+    const TVector3& position, const TVector3& rotation)
+    : ERGeoComponent("None", fileName, position, rotation), fFileName(fileName), 
+      fTopVolumeName(topVolumeName) {
   fGeoFile = new TFile(fileName, "READ");
   if (!fGeoFile->IsOpen())
     LOG(FATAL) << "Can not open file: " << fileName << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------
 void ERQTelescopeGeoComponentPassive::ConstructGeometryVolume() {
-  fVolume = static_cast<TGeoVolume*>(fGeoFile->Get("PassiveElement"));
+  fVolume = static_cast<TGeoVolume*>(fGeoFile->Get(fTopVolumeName));
   if (!fVolume)
-    LOG(FATAL) << "PassiveElement volume not found in file " << fFileName 
+    LOG(FATAL) << "Volume " << fTopVolumeName << " not found in file " << fFileName 
                << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------
