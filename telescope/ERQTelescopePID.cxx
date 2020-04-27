@@ -126,8 +126,7 @@ void ERQTelescopePID::Exec(Option_t* opt) {
         const auto kineticEnergy = digisDeposite + deadDeposite;
         // Calculate Lorentz vector of particle at the exit of the reaction in lab system.
         const Double_t momentumMag = sqrt(pow(kineticEnergy, 2) + 2 * mass * kineticEnergy);
-        TVector3 direction = (track->GetTelescopeVertex()-track->GetTargetVertex());
-        direction.SetMag(1.);
+        TVector3 direction = track->GetDirection();
         const auto momentum = momentumMag * direction;
         const Double_t fullEnergy = sqrt(pow(momentumMag, 2)+pow(mass, 2));
         const TLorentzVector lvTarget (momentum, fullEnergy);
@@ -184,10 +183,9 @@ TVector3 ERQTelescopePID::FindBackPropagationStartPoint(const ERQTelescopeTrack&
   // Return geometry point at which the track exit last sensetive volume
   // on its direct propagation. If sensetive volume was not found, return 
   // track telescope vertex.
-  const TVector3 telescopeVertex = track.GetTelescopeVertex();
+  const TVector3 telescopeVertex = track.GetXStationVertex();
   TVector3 backPropagationStartPoint = telescopeVertex;
-  TVector3 direction = telescopeVertex - track.GetTargetVertex();
-  direction.SetMag(1.);
+  const auto direction = track.GetDirection();
   TGeoNode* currentNode = gGeoManager->InitTrack(telescopeVertex.X(), telescopeVertex.Y(), telescopeVertex.Z(),
                                                  direction.X(), direction.Y(), direction.Z());
   TGeoNode* lastSensetiveNode = nullptr;
@@ -239,8 +237,7 @@ CalcEnergyDeposites(const ERQTelescopeTrack& track, const TVector3& startPoint,
   // with zero kinetic energy can not loss energy ;)
   Double_t kineticEnergy = 0.;
   // Init track in back direction.
-  auto backDirection = (track.GetTargetVertex() - track.GetTelescopeVertex());
-  backDirection.SetMag(1.);
+  auto backDirection = track.GetBackDirection();
   LOG(DEBUG) << "[ERQTelescopePID] [CalcEnergyDeposites] Energy deposites calculation" 
              << " for particle " << particle.GetParticleName() 
              << "; start point = (" << startPoint.X() << ","  << startPoint.Y() << "," << startPoint.Z() 

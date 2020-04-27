@@ -9,6 +9,7 @@
 #include "ERQTelescopeSetup.h"
 
 #include <ostream>
+#include <iostream>
 
 #include "TGeoTube.h"
 #include "TError.h"
@@ -32,10 +33,9 @@
 #include "FairGeoMedia.h"
 #include "FairLogger.h"
 
-using namespace std;
-
 ERQTelescopeSetup* ERQTelescopeSetup::fInstance = NULL;
-map<TString, vector<ERQTelescopeStrip*>> ERQTelescopeSetup::fStrips;  // map<station,map<component, vector<strip>>>            
+std::map<TString, std::vector<const ERQTelescopeStrip*>> ERQTelescopeSetup::fStrips;  // map<station,map<component, vector<strip>>>
+std::map<TString, TGeoHMatrix> ERQTelescopeSetup::fStationGlobalToLocalMatrixies;       
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeStrip::ERQTelescopeStrip(Double_t globalX, Double_t globalY, Double_t globalZ,
                                      Double_t  localX, Double_t  localY, Double_t localZ) 
@@ -98,6 +98,29 @@ Double_t ERQTelescopeSetup::GetStripLocalZ(TString componentBranchName, Int_t st
   return fStrips[componentBranchName][stripNb]->fLocalZ;
 }
 //--------------------------------------------------------------------------------------------------
+TVector3 ERQTelescopeSetup::ToStationCoordinateSystem (const TString& componentBranchName, 
+                                                       const TVector3& vectorInGlobalCS) {
+  Double_t global[3], local[3];
+  
+  for (int i(0); i < 3; i++)
+    global[i] = vectorInGlobalCS[i];
+  fStationGlobalToLocalMatrixies.at(componentBranchName).MasterToLocal(global, local);
+  return TVector3(local);
+}
+//--------------------------------------------------------------------------------------------------
+TGeoHMatrix GetGlobalToLocalMatrix(const TString& path) {
+  TGeoIterator nextNode(gGeoManager->GetTopVolume());
+  while(nextNode()) {
+    TString nodePath;
+    nextNode.GetPath(nodePath);
+    if (nodePath == path) {
+      return (*static_cast<const TGeoHMatrix*>(nextNode.GetCurrentMatrix()));
+    }
+  }
+  LOG(FATAL) << "Path " << path << " not found in geometry" << FairLogger::endl;
+  return nullptr;
+}
+//--------------------------------------------------------------------------------------------------
 void ERQTelescopeSetup::GetTransInMotherNode (TGeoNode const* node, Double_t b[3]) {
   memcpy(b, node->GetMatrix()->GetTranslation(), sizeof(double)*3);
 }
@@ -110,7 +133,7 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
     std::cerr << "ERQTelescopeSetup: cannot initialise without TGeoManager!"<< std::endl;
   }
   gGeoManager->CdTop();
-
+  
   TGeoNode* cave = gGeoManager->GetCurrentNode();
   TGeoNode* qtelescope  = NULL;
   TGeoNode* qtelescopeDetector = NULL;
@@ -121,7 +144,6 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
       qtelescope = cave->GetDaughter(iNode); 
       for (Int_t iDetector = 0; iDetector < qtelescope->GetNdaughters(); iDetector++) { // cycle by subassemblies in QTelescope
         qtelescopeDetector = qtelescope->GetDaughter(iDetector);
-        TString stationName = qtelescopeDetector->GetName();
         for (Int_t iStation = 0; iStation < qtelescopeDetector->GetNdaughters(); iStation++) { // cycle by components in station
           qtelescopeStation = qtelescopeDetector->GetDaughter(iStation);
           TString qtelescopeStationName = qtelescopeStation->GetName();
@@ -187,6 +209,13 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
                 flagFirstStripReaded = kTRUE;
               }
             }
+            TString stationPath;
+            stationPath.Form("cave/%s/%s/%s", qtelescope->GetName(), qtelescopeDetector->GetName(),
+                             qtelescopeStationName.Data());
+            std::cerr << qtelescopeStationName << FairLogger::endl;
+            fStationGlobalToLocalMatrixies[firstStripArrayName] = GetGlobalToLocalMatrix(stationPath);
+            fStationGlobalToLocalMatrixies[secondStripArrayName] = fStationGlobalToLocalMatrixies[firstStripArrayName];
+            fStationGlobalToLocalMatrixies[firstStripArrayName].Print();
           }
           if (qtelescopeStationName.Contains("SingleSi", TString::kIgnoreCase) ) {
             TGeoNode* singleSiStrip;
@@ -196,23 +225,29 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
               GetTransInMotherNode(singleSiStrip, stripInStationTrans);
               qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
               qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
-	      LOG(DEBUG) << qtelescopeStationName << " strip " 
-		         << iSingleSiStrip << " global coordinates: "
-		         << stripGlobTrans[0] << ", " 
-		         << stripGlobTrans[1] << ", " 
-		         << stripGlobTrans[2]; 
-			  
-	      LOG(DEBUG) << " | local coordinates: " 		         
-		         << stripInStationTrans[0] << ", " 
-		         << stripInStationTrans[1] << ", " 
-		         << stripInStationTrans[2] << FairLogger::endl; 
-              fStrips[qtelescopeStationName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans));            
+              LOG(DEBUG) << qtelescopeStationName << " strip " 
+                  << iSingleSiStrip << " global coordinates: "
+                  << stripGlobTrans[0] << ", " 
+                  << stripGlobTrans[1] << ", " 
+                  << stripGlobTrans[2]; 
+              LOG(DEBUG) << " | local coordinates: " 		         
+                  << stripInStationTrans[0] << ", " 
+                  << stripInStationTrans[1] << ", " 
+                  << stripInStationTrans[2] << FairLogger::endl; 
+              fStrips[qtelescopeStationName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans)); 
             }
+            TString stationPath;
+            stationPath.Form("cave/%s/%s/%s", qtelescope->GetName(), qtelescopeDetector->GetName(),
+                             qtelescopeStationName.Data());
+            std::cerr <<  stationPath <<FairLogger::endl;
+            fStationGlobalToLocalMatrixies[qtelescopeStationName] = GetGlobalToLocalMatrix(stationPath);
+            fStationGlobalToLocalMatrixies[qtelescopeStationName].Print();
           }
         }
       }
     }
   }
+  gGeoManager->CdTop();
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeSetup)

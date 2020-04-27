@@ -125,10 +125,10 @@ public:
 
 private:
   ERQTelescopeSetup         *fQTelescopeSetup;
-  vector<TClonesArray*>     fDoubleSiXPoints;          //!  The point collection
-  vector<TClonesArray*>     fDoubleSiYPoints;          //!  The point collection
-  vector<TClonesArray*>     fSingleSiPoints;          //!  The point collection
-  vector<TClonesArray*>     fCsIPoints;          //!  The point collection
+  std::vector<TClonesArray*>     fDoubleSiXPoints;          //!  The point collection
+  std::vector<TClonesArray*>     fDoubleSiYPoints;          //!  The point collection
+  std::vector<TClonesArray*>     fSingleSiPoints;          //!  The point collection
+  std::vector<TClonesArray*>     fCsIPoints;          //!  The point collection
 
   Int_t                     fVersion;           //! geometry version
 

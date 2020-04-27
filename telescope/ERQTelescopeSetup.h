@@ -14,9 +14,8 @@
 #include "TString.h"
 #include <TXMLNode.h>
 #include "Rtypes.h"
-#include <TVector3.h>
-
-using namespace std;
+#include "TVector3.h"
+#include "TGeoMatrix.h"
 
 struct ERQTelescopeStrip{
   Double_t fGlobalX;
@@ -44,7 +43,8 @@ public:
   Double_t GetStripLocalX (TString componentBranchName, Int_t stripNb);
   Double_t GetStripLocalY (TString componentBranchName, Int_t stripNb);
   Double_t GetStripLocalZ (TString componentBranchName, Int_t stripNb);
-  void GetTransInMotherNode (TGeoNode const* node, Double_t b[3]);
+  TVector3 ToStationCoordinateSystem (const TString& componentBranchName, 
+                                      const TVector3& vectorInGlobalCS);
 
 public:
   virtual void ReadGeoParamsFromParContainer();
@@ -53,8 +53,10 @@ public:
 
 private:
   ERQTelescopeSetup();
+  void GetTransInMotherNode (TGeoNode const* node, Double_t b[3]);
 
-  static map<TString, vector<ERQTelescopeStrip*>> fStrips; 
+  static std::map<TString, std::vector<const ERQTelescopeStrip*>> fStrips;
+  static std::map<TString, TGeoHMatrix> fStationGlobalToLocalMatrixies; 
   static ERQTelescopeSetup* fInstance;
 
   ClassDef(ERQTelescopeSetup,1)

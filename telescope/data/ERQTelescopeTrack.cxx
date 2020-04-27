@@ -6,26 +6,21 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 #include "ERQTelescopeTrack.h"
-
-ERQTelescopeTrack::ERQTelescopeTrack()
+//--------------------------------------------------------------------------------------------------
+ERQTelescopeTrack::ERQTelescopeTrack(const TVector3& targetVertex, const TVector3& xStationVertex, 
+                                     const TVector3& yStationVertex, const TVector3& xStationLocalVertex,
+                                     const TVector3& yStationLocalVertex, const Int_t xChannel, const Int_t yChannel,
+                                     const Double_t xEdep, const Double_t yEdep)
+: fTargetVertex(targetVertex), fXStationVertex(xStationVertex), fYStationVertex(yStationVertex),
+  fXStationLocalVertex(xStationLocalVertex), fYStationLocalVertex(yStationLocalVertex),
+  fXChannel(xChannel), fYChannel(yChannel), fXEdep(xEdep), fYEdep(yEdep)
 {
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeTrack::ERQTelescopeTrack(Double_t targetX, Double_t targetY, Double_t targetZ, 
-                    				         Double_t globalX, Double_t globalY, Double_t globalZ,
-                                     Double_t  localX, Double_t  localY, Double_t  localZ,
-                                     Double_t sumEdep)
-: fTargetX(targetX),
-  fTargetY(targetY),
-  fTargetZ(targetZ),
-  fTelescopeGlobalX(globalX),
-  fTelescopeGlobalY(globalY),
-  fTelescopeGlobalZ(globalZ),
-  fTelescopeLocalX(localX),
-  fTelescopeLocalY(localY),
-  fTelescopeLocalZ(localZ),
-  fSumEdep(sumEdep)
-{
+TVector3 ERQTelescopeTrack::GetDirection() const {
+    auto direction = fXStationVertex - fTargetVertex;
+    direction.SetMag(1.);
+    return direction;
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeTrack)

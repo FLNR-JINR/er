@@ -23,43 +23,43 @@ class ERQTelescopeTrack : public FairMultiLinkedData{
 
 public:
   /** @brief Default constructor **/
-  ERQTelescopeTrack();
-
+  ERQTelescopeTrack() = default;
   /** @brief Constructor 
-   ** @param targetX - hit x-coordinate on target;
-   ** @param targetY - hit y-coordinate on target;
-   ** @param targetZ - hit z-coordinate on target;
-   ** @param globalX - hit x-coordinate on QTelescope station in global frame;
-   ** @param globalY - hit y-coordinate on QTelescope station in global frame;
-   ** @param globalZ - hit z-coordinate on QTelescope station in global frame;
-   ** @param localX  - hit x-coordinate on QTelescope station in telescope (subassembly) frame;
-   ** @param localY  - hit y-coordinate on QTelescope station in telescope (subassembly) frame; 
-   ** @param localZ  - hit z-coordinate on QTelescope station in telescope (subassembly) frame; 
-   ** @param sumEdep - summary enegy deposit in X and Y strips;
+   ** @param fTargetVertex - Track vertex on target;
+   ** @param fXStationVertex - Track vertex on telescope station, which produced X coordinate;
+   ** @param fYStationVertex - Track vertex on telescope station, which produced Y coordinate;
+   ** @param fXStationLocalVertex - Track vertex in station CS on telescope station, which produced X coordinate;
+   ** @param fYStationLocalVertex - Track vertex in station CS on telescope station, which produced Y coordinate;
+   ** @param fXChannel - Channel number in telescope station, which produced X coordinate;
+   ** @param fYChannel - Channel number in telescope station, which produced Y coordinate;
+   ** @param fXEdep - Edep in telescope station, which produced X coordinate;
+   ** @param fYEdep - Edep in telescope station, which produced Y coordinate;
   **/
-  ERQTelescopeTrack(Double_t targetX, Double_t targetY, Double_t targetZ, 
-                    Double_t globalX, Double_t globalY, Double_t globalZ,
-                    Double_t  localX, Double_t  localY, Double_t  localZ,
-                    Double_t sumEdep);
-
+  ERQTelescopeTrack(const TVector3& targetVertex, const TVector3& xStationVertex, const TVector3& yStationVertex,
+                    const TVector3& xStationLocalVertex, const TVector3& yStationLocalVertex, 
+                    Int_t xChannel, Int_t yChannel, Double_t xEdep, Double_t yEdep);
   /* Accessors */
-  TVector3 GetTargetVertex()    const {return TVector3(fTargetX,fTargetY,fTargetZ);}
-  TVector3 GetTelescopeVertex() const {return TVector3(fTelescopeGlobalX,fTelescopeGlobalY,fTelescopeGlobalZ);}
-  Double_t GetSumEdep()      const {return fSumEdep;}
-
+  TVector3 GetTargetVertex() const {return fTargetVertex;}
+  TVector3 GetXStationVertex() const {return fXStationVertex;}
+  TVector3 GetYStationVertex() const {return fYStationVertex;}
+  TVector3 GetXStationLocalVertex() const {return fXStationLocalVertex;}
+  TVector3 GetYStationLocalVertex() const {return fYStationLocalVertex;}
+  TVector3 GetDirection() const;
+  TVector3 GetBackDirection() const {return (-1.) * GetDirection();}
+  Int_t GetXChannel() const {return fXChannel;}
+  Int_t GetYChannel() const {return fYChannel;}
+  Double_t GetXEdep() const {return fXEdep;}
+  Double_t GetYEdep() const {return fYEdep;}
 private:
-  Double_t  fTargetX;
-  Double_t  fTargetY;
-  Double_t  fTargetZ;                   // point coordinates on target
-  Double_t  fTelescopeGlobalX;
-  Double_t  fTelescopeGlobalY;
-  Double_t  fTelescopeGlobalZ;
-  Double_t  fTelescopeLocalX;
-  Double_t  fTelescopeLocalY;
-  Double_t  fTelescopeLocalZ;
-
-  Double_t  fSumEdep;
-
+  TVector3 fTargetVertex;
+  TVector3 fXStationVertex;
+  TVector3 fYStationVertex;
+  TVector3 fXStationLocalVertex;
+  TVector3 fYStationLocalVertex;
+  Int_t fXChannel = -1;
+  Int_t fYChannel = -1;
+  Double_t fXEdep = -1.;
+  Double_t fYEdep = -1.;
 
   ClassDef(ERQTelescopeTrack, 1)
 };

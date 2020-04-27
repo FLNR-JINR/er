@@ -72,7 +72,7 @@ protected:
   //Output arrays
   std::map<TString, TClonesArray*>    fQTelescopeTrack;
   
-  std::map<TString, map<TString, pair<TString, TString>>> fSiHitStationsPair; //// map<subassembly,map<component, pair<xBranch, yBranch>>> 
+  std::map<TString, std::map<TString, std::pair<TString, TString>>> fSiHitStationsPair; //// map<subassembly,map<component, pair<xBranch, yBranch>>> 
 
 
   Double_t fSiDigiEdepMin = std::numeric_limits<double>::min();
@@ -85,12 +85,10 @@ protected:
 
 private:
   /** @brief Adds a ERQTelescopeTrack to the output Collection **/
-  ERQTelescopeTrack* AddTrack(Double_t targetX, Double_t targetY, Double_t targetZ,  
-                              Double_t globalX, Double_t globalY, Double_t globalZ,
-                              Double_t localX,  Double_t localY,  Double_t localZ,
-                              Double_t sumEdep,
-                              TString digiBranchName);
-
+  ERQTelescopeTrack* AddTrack(const TVector3& targetVertex, const TVector3& xStationVertex, const TVector3& yStationVertex,
+                              const TVector3& xStationLocalVertex, const TVector3& yStationLocalVertex, 
+                              Int_t xChannel, Int_t yChannel, Double_t xEdep, Double_t yEdep,
+                              const TString& digiBranchName);
   ClassDef(ERQTelescopeTrackFinder,1)
 };
 #endif

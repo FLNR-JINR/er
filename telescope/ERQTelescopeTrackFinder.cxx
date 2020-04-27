@@ -47,16 +47,16 @@ ERQTelescopeTrackFinder::~ERQTelescopeTrackFinder() {
 void ERQTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString componentId) {
   TString xStripArrayName = componentId;
   TString yStripArrayName = componentId;
-  fSiHitStationsPair[subassemblyName].emplace(make_pair(componentId, 
-                                       pair<TString, TString>(xStripArrayName.Append("_X"), 
+  fSiHitStationsPair[subassemblyName].emplace(
+      std::make_pair(componentId, std::pair<TString, TString>(xStripArrayName.Append("_X"), 
                                                               yStripArrayName.Append("_Y"))));
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString componentIdX,
                                                                      TString componentIdY) 
 {
-  fSiHitStationsPair[subassemblyName].emplace(make_pair(componentIdX + componentIdY, 
-                                              pair<TString, TString>(componentIdX, componentIdY)));
+  fSiHitStationsPair[subassemblyName].emplace(
+      std::make_pair(componentIdX + componentIdY, std::pair<TString, TString>(componentIdX, componentIdY)));
 }//--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::SetStripEdepRange(Double_t edepMin, Double_t edepMax) {
   fSiDigiEdepMin = edepMin; 
@@ -164,7 +164,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         for (const auto itCorrectStripsY : correctStripsY) {
           const Double_t yStripEdep = ((ERQTelescopeSiDigi*)yDigi->At(itCorrectStripsY))->Edep();
           if (TMath::Abs(xStripEdep - yStripEdep) < fEdepDiffXY) {
-            hitTelescopePoint.push_back(pair<Int_t, Int_t>(itCorrectStripsX, itCorrectStripsY));
+            hitTelescopePoint.push_back(std::pair<Int_t, Int_t>(itCorrectStripsX, itCorrectStripsY));
           }
         }
       }
@@ -178,58 +178,57 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         const auto* yStrip = dynamic_cast<ERQTelescopeSiDigi*>(yDigi->At(yStripIndex));
         if (!xStrip || !yStrip)
           continue;
-        const auto xStripNb = xStrip->Channel();
-        const auto yStripNb = yStrip->Channel();
+        const auto xChannel = xStrip->Channel();
+        const auto yChannel = yStrip->Channel();
         LOG(DEBUG) << "[ERQTelescopeTrackFinder] Branch names X:" << xDigiBranchName 
                    << " Y: " << yDigiBranchName << FairLogger::endl;
-        LOG(DEBUG) << "[ERQTelescopeTrackFinder] Strips pair numbers " << xStripNb << " " 
-                   << yStripNb << FairLogger::endl;
+        LOG(DEBUG) << "[ERQTelescopeTrackFinder] Strips pair numbers " << xChannel << " " 
+                   << yChannel << FairLogger::endl;
         // Calc unknown coordinated using condition: target, hit on first station(closest) and
         // hit on second station lie on line :
         // {x1, y1, z1} = {fTargetX, fTargetY, fTargetZ} + k * ({x1, y1, z1} - {fTargetX, fTargetY, fTargetZ}).
-        const bool xStationIsClosest = fQTelescopeSetup->GetStripGlobalZ(xDigiBranchName, xStripNb)
-                                       < fQTelescopeSetup->GetStripGlobalZ(yDigiBranchName, yStripNb);
+        const bool xStationIsClosest = fQTelescopeSetup->GetStripGlobalZ(xDigiBranchName, xChannel)
+                                       < fQTelescopeSetup->GetStripGlobalZ(yDigiBranchName, yChannel);
         // We know all about z coordinate, so 
         const double z1 = xStationIsClosest 
-                          ? fQTelescopeSetup->GetStripGlobalZ(xDigiBranchName, xStripNb)
-                          : fQTelescopeSetup->GetStripGlobalZ(yDigiBranchName, yStripNb);
+                          ? fQTelescopeSetup->GetStripGlobalZ(xDigiBranchName, xChannel)
+                          : fQTelescopeSetup->GetStripGlobalZ(yDigiBranchName, yChannel);
         const double z2 =  xStationIsClosest 
-                          ? fQTelescopeSetup->GetStripGlobalZ(yDigiBranchName, yStripNb)
-                          : fQTelescopeSetup->GetStripGlobalZ(xDigiBranchName, xStripNb);
+                          ? fQTelescopeSetup->GetStripGlobalZ(yDigiBranchName, yChannel)
+                          : fQTelescopeSetup->GetStripGlobalZ(xDigiBranchName, xChannel);
         assert(z1 != fTargetZ);
         const double k = (z2 - fTargetZ) / (z1 - fTargetZ);
         double x1 = 0., x2 = 0., y1 = 0., y2 = 0.;
         if (xStationIsClosest) { // find y1, x2 from equation
-          x1 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xStripNb);
-          y2 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
+          x1 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xChannel);
+          y2 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yChannel);
           LOG(DEBUG) << "[ERQTelescopeTrackFinder] Coordinates from strips. x1 = " << x1 
                      << " y2 = " << y2 << " z1 = " << z1 << " z2 = " << z2 << FairLogger::endl;
           y1 = (-1./k)*((1. - k)*fTargetY - y2);
           x2 = (1. - k)*fTargetX + k*x1;
         } else { // find x1, y2 from equation
-          x2 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xStripNb);
-          y1 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yStripNb);
+          x2 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xChannel);
+          y1 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yChannel);
           LOG(DEBUG) << "[ERQTelescopeTrackFinder] Coordinates from strips. x2 = " << x2 
                      << " y1 = " << y1 << " z1 = " << z1 << " z2 = " << z2 << FairLogger::endl;
           x1 = (-1./k)*((1. - k)*fTargetX - x2);
           y2 = (1. - k)*fTargetY + k*y1;
         }
-        const auto xQTeleGlobHit = (x1 + x2) / 2.;
-        const auto yQTeleGlobHit = (y1 + y2) / 2.;
-        const auto zQTeleGlobHit = (z1 + z2) / 2.;
-        const auto xQTeleLocalHit = fQTelescopeSetup->GetStripLocalX(xDigiBranchName, xStripNb);
-        const auto yQTeleLocalHit = fQTelescopeSetup->GetStripLocalY(yDigiBranchName, yStripNb);
-        const auto zQTeleLocalHit = (fQTelescopeSetup->GetStripLocalZ(xDigiBranchName, xStripNb)
-                                     + fQTelescopeSetup->GetStripLocalZ(yDigiBranchName, yStripNb))/2.;
-        LOG(DEBUG) << "[ERQTelescopeTrackFinder] Local hit X Y Z " << xQTeleLocalHit << " " << yQTeleLocalHit 
-                   << " " << zQTeleLocalHit << FairLogger::endl;
-        LOG(DEBUG) << "[ERQTelescopeTrackFinder] Global hit X Y Z " << xQTeleGlobHit << " " << yQTeleGlobHit 
-                   << " " << zQTeleGlobHit << FairLogger::endl;     
-        const Double_t sumEdep = xStrip->Edep();        
-        auto* track = AddTrack(fTargetX, fTargetY, fTargetZ, 
-                               xQTeleGlobHit,  yQTeleGlobHit,  zQTeleGlobHit,                                            
-                               xQTeleLocalHit, yQTeleLocalHit, zQTeleLocalHit,
-                               sumEdep, itComponent.first);
+        const auto& xStationVertex = xStationIsClosest ? TVector3(x1, y1, z1) : TVector3(x2, y2, z2);
+        const auto& yStationVertex = xStationIsClosest ? TVector3(x2, y2, z2) : TVector3(x1, y1, z1);
+        const auto& xStationLocalVertex = fQTelescopeSetup->ToStationCoordinateSystem(xDigiBranchName, xStationVertex);
+        const auto& yStationLocalVertex = fQTelescopeSetup->ToStationCoordinateSystem(yDigiBranchName, yStationVertex);
+        LOG(DEBUG) << "[ERQTelescopeTrackFinder] X Station Vertex (" << xStationVertex.x() << " " << xStationVertex.y() 
+                   << " " << xStationVertex.z() << ")" << FairLogger::endl;
+        LOG(DEBUG) << "[ERQTelescopeTrackFinder] Y Station Vertex (" << yStationVertex.x() << " " << yStationVertex.y() 
+                   << " " << yStationVertex.z() << ")" << FairLogger::endl;
+        LOG(DEBUG) << "[ERQTelescopeTrackFinder] X Station Vertex in station CS (" << xStationLocalVertex.x() << " " << xStationLocalVertex.y() 
+                   << " " << xStationLocalVertex.z() << ")" << FairLogger::endl;
+        LOG(DEBUG) << "[ERQTelescopeTrackFinder] Y Station Vertex in station CS (" << yStationLocalVertex.x() << " " << yStationLocalVertex.y() 
+                   << " " << yStationLocalVertex.z() << ")" << FairLogger::endl;
+        auto* track = AddTrack(TVector3(fTargetX, fTargetY, fTargetZ), xStationVertex, yStationVertex,
+                               xStationLocalVertex, yStationLocalVertex, xChannel, yChannel, xStrip->Edep(), yStrip->Edep(),
+                               itComponent.first);
         track->AddLink(FairLink(xDigiBranchName, xStripIndex));
         track->AddLink(FairLink(yDigiBranchName, yStripIndex));
       }
@@ -250,22 +249,14 @@ void ERQTelescopeTrackFinder::Reset() {
 void ERQTelescopeTrackFinder::Finish() {   
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeTrack* ERQTelescopeTrackFinder::AddTrack(Double_t targetX, Double_t targetY,   
-                                                     Double_t targetZ,  
-                                                     Double_t globalX, Double_t globalY, 
-                                                     Double_t globalZ,
-                                                     Double_t localX,  Double_t  localY, 
-                                                     Double_t localZ,
-                                                     Double_t sumEdep,
-                                                     TString digiBranchName) 
-{
-  ERQTelescopeTrack *track = new((*fQTelescopeTrack[digiBranchName])
-                                                   [fQTelescopeTrack[digiBranchName]->GetEntriesFast()])
-                             ERQTelescopeTrack( targetX, targetY, targetZ, 
-                                                globalX, globalY, globalZ,
-                                                localX,  localY,  localZ,
-                                                sumEdep);
-  return track;
+ERQTelescopeTrack* ERQTelescopeTrackFinder::AddTrack(
+    const TVector3& targetVertex, const TVector3& xStationVertex, const TVector3& yStationVertex,
+    const TVector3& xStationLocalVertex, const TVector3& yStationLocalVertex, 
+    const Int_t xChannel, const Int_t yChannel, const Double_t xEdep, const Double_t yEdep,
+    const TString& digiBranchName) {
+  return new((*fQTelescopeTrack[digiBranchName]) [fQTelescopeTrack[digiBranchName]->GetEntriesFast()])
+      ERQTelescopeTrack(targetVertex, xStationVertex, yStationVertex, xStationLocalVertex,
+                        yStationLocalVertex, xChannel, yChannel, xEdep, yEdep);
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeTrackFinder)
