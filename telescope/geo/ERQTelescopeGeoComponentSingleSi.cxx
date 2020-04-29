@@ -15,9 +15,6 @@
 using namespace std;
 
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi() {
-}
-//--------------------------------------------------------------------------------------------------
 ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(TString typeFromXML, 
                                                                    TString id, 
                                                                    TString orientAroundZ) 
@@ -41,9 +38,6 @@ ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(TString typeF
   fVolumeName += volumeNameInd;
   fDeadLayerThicknessFrontSide = 0.;
   fDeadLayerThicknessBackSide  = 0.;
-}
-//--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentSingleSi::~ERQTelescopeGeoComponentSingleSi() {
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {

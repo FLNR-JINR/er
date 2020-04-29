@@ -16,33 +16,27 @@
 
 class ERQTelescopeGeoComponentSingleSi : public ERGeoComponent {
 public:
-  ERQTelescopeGeoComponentSingleSi();
+  ERQTelescopeGeoComponentSingleSi() = default;
   ERQTelescopeGeoComponentSingleSi(TString typeFromXML, TString id, TString orientAroundZ); 
-  ERQTelescopeGeoComponentSingleSi(TString typeFromXML, TString id, 
-                                   TVector3 position, 
-                                   TVector3 rotation,
-                                   TString  orientAroundZ);
-  ~ERQTelescopeGeoComponentSingleSi();
+  ERQTelescopeGeoComponentSingleSi(TString typeFromXML, TString id, TVector3 position, 
+                                   TVector3 rotation, TString orientAroundZ);
   /* Modifiers */
-  
   /* Accessors */
 public:
   virtual void ConstructGeometryVolume(void);
-
-private:
+protected:
+  virtual void ParseXmlParameters();
   TString  fOrientAroundZ;
-  Double_t fSizeX;
-  Double_t fSizeY;
-  Double_t fSizeZ;
-  Double_t fSensX;
-  Double_t fSensY;
-  Double_t fSensZ;
-  Double_t fDeadLayerThicknessFrontSide;
-  Double_t fDeadLayerThicknessBackSide;
-  Int_t    fStripCount;
+  Double_t fSizeX = 0.;
+  Double_t fSizeY = 0.;
+  Double_t fSizeZ = 0.;
+  Double_t fSensX = 0.;
+  Double_t fSensY = 0.;
+  Double_t fSensZ = 0.;
+  Double_t fDeadLayerThicknessFrontSide = 0.;
+  Double_t fDeadLayerThicknessBackSide = 0.;
+  Int_t    fStripCount = 0;
   TString  fMedia;
-
-  void ParseXmlParameters();
 
   ClassDef(ERQTelescopeGeoComponentSingleSi,1)
 };

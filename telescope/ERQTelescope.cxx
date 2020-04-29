@@ -121,13 +121,13 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
         AddSiPoint(*(fDoubleSiYPoints[fSiStationNb]));
       }
       if (volName.Contains("SingleSi")) {
-        if (volName.Contains("NonUniform")) {
-          gMC->CurrentVolOffID(1, fSiStripNb) ;
-          gMC->CurrentVolOffID(2, fSiStationNb);
-        } else {
-          gMC->CurrentVolOffID(0, fSiStripNb) ;
-          gMC->CurrentVolOffID(1, fSiStationNb);
-        }
+        gMC->CurrentVolOffID(0, fSiStripNb) ;
+        gMC->CurrentVolOffID(1, fSiStationNb);
+        AddSiPoint(*(fSingleSiPoints[fSiStationNb]));
+      }
+      if (volName.Contains("PixelSi")) {
+        gMC->CurrentVolOffID(1, fSiStripNb);
+        gMC->CurrentVolOffID(2, fSiStationNb);
         AddSiPoint(*(fSingleSiPoints[fSiStationNb]));
       }
       if (volName.Contains("CsI")) {
