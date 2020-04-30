@@ -1,6 +1,3 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-
 namespace ERCalibrationSSD {
 /*
   Namespace includes code for a Silicon Strip Detector (SSD) calibration.
@@ -22,6 +19,16 @@ namespace ERCalibrationSSD {
   ROOT versions - ???
 */
 
+/* @TODO
+  * Sorting stations by name for reproducible results (path names)
+  * Replace SetRunInfo class by RunInfo which will contain several sensors info with their common 
+   run id.
+  * More log messages for each significant step
+*/
+
+
+TString GetFileNameBaseFromPath(const TString& path);
+
 class SensorRunInfo {
   /** @class SensorRunInfo
    ** @brief Info.
@@ -29,7 +36,8 @@ class SensorRunInfo {
   **/
 public:
   SensorRunInfo() = default;
-  SensorRunInfo(const TString& name, const Int_t stripAmount, const Int_t binAmount);
+  SensorRunInfo(const TString& name, const Int_t stripAmount, 
+                const Int_t binAmount, const TString& runId = "");
   ~SensorRunInfo() = default;
 
   /** @brief Sets threshold file path.
@@ -43,19 +51,22 @@ public:
   **/
   void SetThresholdFile(const TString &path) {fThresholdFilePath = path;}
 
-  void SetRunId(TString) {fRunId};
-
   void ReadThresholds();
 public:
-  TString fName = ""; // name of a propper leaf in a tree
-  TString fThresholdFilePath = ""; //
+  TString fName; // name of a propper leaf in a tree
+  TString fThresholdFilePath; //
+  TString fCalibFilePath;
   Int_t fStripAmount = 16;
   Int_t fBinAmount = 1024;
-  TString fRunId = "";
+  TString fRunId;
 };
 
-SensorRunInfo::SensorRunInfo(const TString& name, const Int_t stripAmount, const Int_t binAmount)
-: fName(name), fStripAmount(stripAmount), fBinAmount(binAmount) {
+SensorRunInfo::SensorRunInfo(const TString& name, const Int_t stripAmount, 
+                             const Int_t binAmount, const TString& runId = ""): 
+  fName(name), 
+  fStripAmount(stripAmount), 
+  fBinAmount(binAmount), 
+  fRunId(GetFileNameBaseFromPath(runId)) {
 }
 
 
@@ -72,7 +83,7 @@ void DrawSensorSpectraByStrip(TTree* tree,
                               const SensorRunInfo* sensor,
                               const std::vector<UShort_t>& thresholds)  {
   const auto canvas = new TCanvas(Form("canvas_%s", sensor->fName.Data()));
-  // prepare approximately square placin of pads on canvas
+  // prepare approximately square placing of pads on canvas
   Int_t canvFirtsDim = std::round(std::sqrt(sensor->fStripAmount));
   Int_t canvSecondDim = 1;
   for (; canvSecondDim*canvFirtsDim < sensor->fStripAmount; canvSecondDim++) {}
@@ -93,6 +104,55 @@ void DrawSensorSpectraByStrip(TTree* tree,
     hist->Write();
   }
   canvas->Write();
+}
+
+/**
+** Pixel (stripDraw, stripSelect) is a portion of strip (stripDraw) sensor data 
+** which is also registered in a strip of the other station (stripSelect). In both 
+** sensors registered signal is higher than the noise threshold
+** Writes a histogram for every pixel and canvases containing all the histograms by
+** strips to a current ROOT directory.
+**
+** @param tree tree containing histograms data
+** @param sensorDraw sensor to draw
+** @param sensorSelect cross oriented sensor with respect to 'sensorDraw'
+** @param thresoldsDraw list of the 'Draw' sensor thresolds
+** @param thresoldsSelect list of the 'Select' sensor thresolds
+**/
+void DrawSensorSpectraByPixel(TTree* tree,  
+                              const SensorRunInfo* sensorDraw,
+                              const SensorRunInfo* sensorSelect,
+                              const std::vector<UShort_t>& thresholdsDraw,
+                              const std::vector<UShort_t>& thresholdsSelect)  {
+  // prepare approximately square placing of pads on canvas
+  Int_t canvFirtsDim = std::round(std::sqrt(sensorDraw->fStripAmount));
+  Int_t canvSecondDim = 1;
+  for (; canvSecondDim*canvFirtsDim < sensorDraw->fStripAmount; canvSecondDim++) {}
+
+  for (Int_t iStripDraw = 0; iStripDraw < sensorDraw->fStripAmount; iStripDraw++) {
+    const auto canvasName = Form("canvas_%s[%d]", sensorDraw->fName.Data(), iStripDraw);
+    const auto canvas = new TCanvas(canvasName);
+    canvas->Divide(canvFirtsDim, canvSecondDim);
+    for (Int_t iStripSelect = 0; iStripSelect < sensorSelect->fStripAmount; iStripSelect++) {
+      const auto histParams = Form("(%d,%d,%d,%d,%d,%d)", 
+                                   sensorDraw->fBinAmount, 0, sensorDraw->fBinAmount,
+                                   sensorSelect->fBinAmount, 0, sensorSelect->fBinAmount);
+      const auto histName = Form("canvas_%s[%d]_%s[%d]", sensorDraw->fName.Data(), iStripDraw, 
+                                                         sensorSelect->fName.Data(), iStripSelect);
+      const auto drawExpression = Form("%s[%d]>>%s%s", sensorDraw->fName.Data(), iStripDraw, 
+                                                       histName, histParams); 
+      const auto cutExpression = Form("%s[%d]>%d&&%s[%d]>%d", 
+                                      sensorDraw->fName.Data(), iStripDraw, 
+                                      thresholdsDraw[iStripDraw],
+                                      sensorSelect->fName.Data(), iStripSelect, 
+                                      thresholdsSelect[iStripSelect]);
+      canvas->cd(iStripDraw + 1);
+      tree->Draw(drawExpression, cutExpression, "");
+      const auto hist = static_cast<TH1D*>(gDirectory->Get(histName));
+      hist->Write();
+    }
+    canvas->Write();
+  }
 }
 
 // External fuctions begin
@@ -136,7 +196,7 @@ Bool_t CheckIfSingleMultiplicity(const std::vector<SensorRunInfo*>* sensors,
 }
 
 /**
-** @brief Deserializes a reaquired object TKey from a ROOT-file by name.
+** @brief Deserializes a reaquired TKey object by name from a ROOT-file.
 **  If a name is not set the first key is returned.
 ** ATTENTION! Opened ROOT-file is not closed.
 ** @param filePath ROOT-file data path.
@@ -150,14 +210,32 @@ TObject* GetObjectFromRootFile(const TString& filePath, const TString& objName =
   return obj;
 }
 
+/**
+** @brief Deserializes a reaquired TKey object by name from a ROOT-file object.
+**  If a name is not set the first key is returned.
+** @param file ROOT-file pointer.
+** @param objName deserealized object name.
+**/
+TObject* GetObjectFromRootFile(TFile* file, const TString& objName = "") {
+  // save current directory
+  auto obj = (objName.Length())
+           ? file->Get(objName)
+           : file->Get(file->GetListOfKeys()->At(0)->GetName());
+  return obj;
+}
+
+
 /**  
 ** @brief Returns file name base withou extension (part of a path after the last dot).
 ** @param path - path to file
 **/
 TString GetFileNameBaseFromPath(const TString& path) {
-  TString fileName(path(path.Last('/') + 1, path.Length())); // file name with extension
+  TString fileName = gSystem->BaseName(path);
   // remove file extension. Extension is considered as part of the name after last "." symbol
-  fileName.Remove(fileName.Last('.'), fileName.Length());    
+  Int_t lastDotPos = fileName.Last('.');
+  if (lastDotPos > 0) {
+    fileName.Remove(lastDotPos, fileName.Length());    
+  }
   return fileName;
 }
 
@@ -201,12 +279,14 @@ void Dump2DVector(const T& vec2d, ofstream& file,
 **  the method.
 **/
 template<typename T>
-std::vector<T> ReadVector(ifstream& file, 
-                          const UInt_t size = std::numeric_limits<Int_t>::max()) {
+std::vector<T> ReadVectorFromFile(const TString& filePath) {
+  std::ifstream file(filePath);
+  if (!file.is_open()) {
+    Error("Read2DVectorFromFile", "Failed to open file: %s", filePath.Data());
+  }
   std::vector<T> vec;
   T value;
-  Int_t elNum = 0;
-  while (file >> value && elNum++ < size) {
+  while (file >> value) {
     vec.push_back(value);
   }
   return vec;
@@ -247,11 +327,6 @@ enum ApproxOrder {
   LINEAR,
   QUAD,
   TRI
-};
-
-enum PeakSearchAlgorithm {
-  SLIDING_WINDOW,
-  GAUSS
 };
 
 class IOManager {
@@ -403,12 +478,13 @@ enum FileType {
   ROOT_MULT_SELECTED_PATH, // *.root ROOT_INPUT_REDUCED_TREE_PATH after excluding non-single multiplycity stations
   ROOT_HIST_SPECTRA_PATH, // *.root strip histograms after multiplycity selection and cut on thresholds
   ROOT_HIST_PEAKS_PATH, // *.root strip histograms with marked peaks found by TSpectrum and chosen algorithm
+  ROOT_HIST_PIXEL_PATH, // *.root pixel spectra histograms
   TXT_PEAK_DATA_PATH, // *.root contains three 1D histograms for low middle and high energy peaks
   TXT_THRESHOLD_PATH, // *.txt noise thresholds for sensor
   TXT_DEAD_LAYER_PATH, // *.txt noise thresholds for sensor
   TXT_CALIB_COEFF_PATH, // calibration coefficients
   TXT_REPORT_PATH, // calibration results report
-  ROOT_THICKNESS_MAP_PATH // *.root 2D histogram with 
+  TXT_HIGH_E_PEAK_PATH // *.root table of high energy peak values in thick sensor
 };
 
 class CalibIOManager: public IOManager {
@@ -464,6 +540,9 @@ public:
   std::vector<T> GetSensorThresholds(const SensorRunInfo* sensor,
                                      const TString& runId);
 
+  template<typename T>
+  std::vector<std::vector<T>> GetCalibCoefficients(const SensorRunInfo* sensor,
+                                                   const TString& runId);
 };
 
 // CalibIOManager::CalibIOManager(const TString &workdir)
@@ -531,6 +610,11 @@ TString CalibIOManager::GetPath(const Int_t fileType,
         {"draw"}, "peaks", nameRoot, sensors, "root"
       );
     break;
+    case ROOT_HIST_PIXEL_PATH:
+      path = this->ConstructSensorFilePath(
+        {"draw"}, "pixels", nameRoot, sensors, "root"
+      );
+    break;
     case TXT_PEAK_DATA_PATH:
       path = this->ConstructSensorFilePath(
         {"txt"}, "peakpos", nameRoot, sensors, "txt"
@@ -556,6 +640,11 @@ TString CalibIOManager::GetPath(const Int_t fileType,
         {""}, "report", nameRoot, sensors, "txt"
       );
     break;
+    case TXT_HIGH_E_PEAK_PATH:
+      path = this->ConstructSensorFilePath(
+        {"txt"}, "high_map", nameRoot, sensors, "txt"
+      );
+    break;
   }
   return path;
 }
@@ -572,13 +661,23 @@ TString CalibIOManager::GetPath(const Int_t fileType,
 template<typename T>
 std::vector<T> CalibIOManager::GetSensorThresholds(const SensorRunInfo* sensor,
                                                    const TString& runId) {
-  auto file  = this->OpenTextFile(
-    (sensor->fThresholdFilePath == "") ? this->GetPath(TXT_THRESHOLD_PATH, runId, sensor)
-                                       : sensor->fThresholdFilePath
-  );
-  auto thresholds = ReadVector<T>(file);
-  file.close();
+  const TString filePath  = (sensor->fThresholdFilePath == "") 
+                          ? this->GetPath(TXT_THRESHOLD_PATH, runId, sensor)
+                          : sensor->fThresholdFilePath;
+  auto thresholds = ReadVectorFromFile<T>(filePath);
   return thresholds;
+}
+
+template<typename T>
+std::vector<std::vector<T>>
+CalibIOManager::GetCalibCoefficients(const SensorRunInfo* sensor,
+                                     const TString& runId) 
+{
+  const TString filePath  = (sensor->fCalibFilePath == "") 
+                          ? this->GetPath(TXT_CALIB_COEFF_PATH, runId, sensor)
+                          : sensor->fCalibFilePath;
+  auto coeffs = Read2DVectorFromFile<T>(filePath);
+  return coeffs;
 }
 
 class TaskManager {
@@ -598,7 +697,7 @@ public:
 protected:
   CalibIOManager *fIOManager = nullptr;
   TString fWorkDir = "result";
-  TString fRunId = ""; 
+  TString fRunId = "";
   TString fRawDataPath = "";
 };
 
@@ -685,10 +784,10 @@ Preprocessing::Preprocessing(const TString& rawDataPath) : TaskManager(rawDataPa
   fSensors = new std::vector<SensorRunInfo*>();
 }
 
-
 void Preprocessing::ConvertTree(const TString& option = "neevent") {
   if (option == "neevent") {
-    const auto tree = static_cast<TTree*>(GetObjectFromRootFile(fRawDataPath));
+    auto inFile = fIOManager->OpenRootFile(fRawDataPath);
+    const auto tree = static_cast<TTree*>(GetObjectFromRootFile(inFile));
     Info(
       "Preprocessing::ConvertTree", "Converting a tree '%s' from the file '%s'", 
       tree->GetName(), fRawDataPath.Data()
@@ -700,12 +799,13 @@ void Preprocessing::ConvertTree(const TString& option = "neevent") {
       tree->SetBranchStatus(brName, 1);
       tree->SetAlias(sensor->fName, brName);
     }
-    const TString filePath = fIOManager->GetPath(ROOT_INPUT_REDUCED_TREE_PATH, fRunId, fSensors);
-    const auto file = fIOManager->CreateRootFile(filePath);
+    const TString outFilePath = fIOManager->GetPath(ROOT_INPUT_REDUCED_TREE_PATH, fRunId, fSensors);
+    const auto outFile = fIOManager->CreateRootFile(outFilePath);
     const auto *newtree = tree->CloneTree();
     tree->Write();
-    file->Write();
-    file->Close();
+    outFile->Write();
+    outFile->Close();
+    inFile->Close();
   }
   if (option == "aqqdaq") {
     /*aqqdaq convertion code will be here*/
@@ -716,9 +816,9 @@ void Preprocessing::FindThresholds(const TString& opt = "draw_off") {
   for (const auto *sensor: *fSensors) {
     // read tree from a generated input file name
     const TString filePath = fIOManager->GetPath(ROOT_INPUT_REDUCED_TREE_PATH, fRunId, fSensors);
-    const auto tree = static_cast<TTree*>(GetObjectFromRootFile(filePath));
+    auto inFile = fIOManager->OpenRootFile(filePath);
+    const auto tree = static_cast<TTree*>(GetObjectFromRootFile(inFile));
     Info("Preprocessing::FindThresholds", "Tree entries: %lld", tree->GetEntries());
-    
     std::vector<Double_t> thersholdArray; 
     thersholdArray.resize(sensor->fStripAmount);
     // parameters exclude zero bin from a histograms because in the zero bin 
@@ -755,13 +855,15 @@ void Preprocessing::FindThresholds(const TString& opt = "draw_off") {
     auto file = fIOManager->CreateTextFile(thresholdsPath);
     DumpVector(thersholdArray, file);
     file.close();
+    inFile->Close();
   }  
 }
 
 void Preprocessing::MultiplicitySelection(const TString& opt = "draw_off") {
   // Read input file
   const TString inFilePath = fIOManager->GetPath(ROOT_INPUT_REDUCED_TREE_PATH, fRunId, fSensors);
-  const auto inTree = static_cast<TTree*>(GetObjectFromRootFile(inFilePath));
+  auto inFile = fIOManager->OpenRootFile(inFilePath);
+  const auto inTree = static_cast<TTree*>(GetObjectFromRootFile(inFile));
   // Create output file and tree
   const TString outFilePath = fIOManager->GetPath(ROOT_MULT_SELECTED_PATH, fRunId, fSensors);
   auto outFile = fIOManager->CreateRootFile(outFilePath);
@@ -780,7 +882,6 @@ void Preprocessing::MultiplicitySelection(const TString& opt = "draw_off") {
     auto sensorThresholds = fIOManager->GetSensorThresholds<UShort_t>(sensor, fRunId);
     thresholds->push_back(sensorThresholds);
   }
-  
   Info("Preprocessing::MultiplicitySelection", "Begin multiplicity selection");
   Info("Preprocessing::MultiplicitySelection", "Input tree entries: %lld", inTree->GetEntries());
   for (Long64_t eventNb = 0; eventNb < inTree->GetEntries(); eventNb++) {
@@ -795,20 +896,22 @@ void Preprocessing::MultiplicitySelection(const TString& opt = "draw_off") {
   outTree->Write();
   outFile->Write();
   outFile->Close();
-
+  inFile->Close();
   CreateSpectraHists();
 }
 
 void Preprocessing::CreateSpectraHists() {
   const TString multSelectPath = fIOManager->GetPath(ROOT_MULT_SELECTED_PATH, fRunId, fSensors);
   for (const auto *sensor: *fSensors) {
-    const auto tree = static_cast<TTree*>(GetObjectFromRootFile(multSelectPath));    
+    auto inFile = fIOManager->OpenRootFile(multSelectPath);
+    const auto tree = static_cast<TTree*>(GetObjectFromRootFile(inFile));    
     auto thresholds = fIOManager->GetSensorThresholds<UShort_t>(sensor, fRunId);
 
     const TString histSpectraPath = fIOManager->GetPath(ROOT_HIST_SPECTRA_PATH, fRunId, sensor);
     auto histSpectraFile = fIOManager->CreateRootFile(histSpectraPath);
     DrawSensorSpectraByStrip(tree, sensor, thresholds);
     histSpectraFile->Close();
+    inFile->Close();
   }
 }
 
@@ -818,8 +921,141 @@ void Preprocessing::Exec() {
   MultiplicitySelection();
 }
 
+class PeakSearch {
+public:  
+  enum PeakSearchAlgorithm {
+    SLIDING_WINDOW,
+    GAUSS
+  };
 
-const static std::vector<Double_t> fAlphaE = {4.7844, 6.0024, 7.6869}; // radioactive source alpha lines
+  PeakSearch() = default;
+  ~PeakSearch() = default;
+
+  void SetPeakSearchMethod(const TString& peakSearchAlgorithm);
+  void SetFitMinSigma(const Double_t value) {fFitMinSigma = value;}
+  void SetFitPeakThreshold(const Double_t value) {fFitPeakThreshold = value;}
+  void SetSearchRadius(const Int_t value) {fSearchRadius = value;}
+  void SetSlideWindowWidth(const Int_t value) {fSlideWindowWidth = value;}
+  void SetPeakWidth(const Int_t value) {fPeakWidth = value;}
+  /**
+  ** Returns sorted list of peaks found by TSpectrum algorithm.
+  ** @param hist input histogram to search peaks
+  **/
+  std::list<Double_t> GetPeaksTSpectrum(TH1* hist, 
+                                        const Double_t fitMinSigma, 
+                                        const Double_t fitPeakThreshold);
+
+   
+  std::list<Double_t> SlidingWindowPeakSearch(TH1* hist, const std::list<Double_t>& initGuess,
+                                              const Int_t windowWidth,
+                                              const Int_t searchRadius);
+
+  std::list<Double_t> GaussPeakSearch(TH1* hist, const std::list<Double_t>& initGuess,
+                                      const Int_t peakWidth);
+
+  /**
+  ** @brief Returns peaks according to set options.
+  ** @param hist histogram to search peak
+  ** @param initGuess initial guess for searching methods
+  **/
+  std::list<Double_t> GetPeaks(TH1* hist, const std::list<Double_t>& initGuess);
+protected:
+  Int_t fPeakSearchMethod = SLIDING_WINDOW;
+  // Peak search algoritm common parameters
+  Double_t fFitMinSigma = 6.;
+  Double_t fFitPeakThreshold = 0.7;  
+  // Sliding window algorithm parameters
+  Int_t fSearchRadius = 10; // interval length for window sliding search.
+                             // The middle of the interval is peak position found by TSpectrum
+  Int_t fSlideWindowWidth = 10;
+  // Gauss + pol algorithm parameters
+  Int_t fPeakWidth = 15;
+};
+
+void PeakSearch::SetPeakSearchMethod(const TString& peakSearchAlgorithm) {
+  if (peakSearchAlgorithm == "sliding_window") {
+    fPeakSearchMethod = SLIDING_WINDOW;
+  }
+  if (peakSearchAlgorithm == "gauss") {
+    fPeakSearchMethod = GAUSS;
+  }
+}
+
+
+std::list<Double_t> PeakSearch::GetPeaksTSpectrum(TH1* hist, 
+                                                  const Double_t fitMinSigma, 
+                                                  const Double_t fitPeakThreshold)
+{
+  TSpectrum sc;
+  sc.Search(hist, fitMinSigma, "", fitPeakThreshold);
+  const Int_t peaksAmount = sc.GetNPeaks();
+  Info("PeakSearch::GetPeaksTSpectrum", "Occured peaks amount is %d", peaksAmount);
+  Double_t* peaksPos = sc.GetPositionX();
+  std::list<Double_t> peaks(peaksPos, peaksPos + peaksAmount);
+  peaks.sort();
+  // remove markers from the histogram
+  auto functions = hist->GetListOfFunctions();
+  auto pm = static_cast<TPolyMarker*>(functions->FindObject("TPolyMarker"));
+  functions->Remove(pm); 
+  return peaks;
+}
+
+
+std::list<Double_t> 
+PeakSearch::SlidingWindowPeakSearch(TH1* hist, const std::list<Double_t>& initGuess, 
+                                    const Int_t windowWidth,
+                                    const Int_t searchRadius) 
+{
+  std::list<Double_t> peaks;
+  for (const auto& guessPos: initGuess) {
+    gStyle->SetStatFormat("6.8g");
+    const Int_t peakBinNb = hist->GetXaxis()->FindBin(guessPos);
+    Int_t maxIntegral = numeric_limits<Int_t>::min();
+    Double_t peakMean;
+    // Double_t peakRMS;
+    for (Int_t i = peakBinNb - searchRadius; i < peakBinNb + searchRadius - windowWidth; i++) {
+      hist->GetXaxis()->SetRange(i, i + windowWidth - 1 /*to not include the last bin*/);
+      const Int_t integral = hist->Integral();
+      if (maxIntegral < integral) {
+        maxIntegral = integral;
+        peakMean = hist->GetMean();
+        // peakRMS = hist->GetStdDev();
+      }
+    }
+    cout << "peakMean " << peakMean << endl;
+    peaks.push_back(peakMean);
+  }
+  return peaks;
+}
+
+std::list<Double_t> 
+PeakSearch::GaussPeakSearch(TH1* hist, const std::list<Double_t>& initGuess,
+                            const Int_t peakWidth) 
+{
+  std::list<Double_t> peaks;
+  peaks = initGuess;
+  return peaks;
+}
+
+std::list<Double_t> PeakSearch::GetPeaks(TH1* hist, const std::list<Double_t>& initGuess) {
+  std::list<Double_t> peaks;
+  switch (fPeakSearchMethod) {
+    case SLIDING_WINDOW: 
+      peaks = SlidingWindowPeakSearch(hist, initGuess, fSlideWindowWidth, fSearchRadius);
+      break;
+    case GAUSS: 
+      peaks = GaussPeakSearch(hist, initGuess, fPeakWidth);
+      break;
+    default: 
+      Error("PeakSearch::SearchPeaks", "Unknown peak search method is set");
+  }
+  return peaks;
+}
+
+/**
+** Radioactive source alpha lines
+**/
+const static std::vector<Double_t> fAlphaE = {4.7844, 6.0024, 7.6869}; 
 /** 
 ** dE(E, d) [MeV] qudratic approximation coefficients for each alpha source energy
 ** in format {p0, p1, p2} where p0, p1, p2 --- coefficients: dE = p0 + p1*d + p2*d^2  
@@ -827,24 +1063,16 @@ const static std::vector<Double_t> fAlphaE = {4.7844, 6.0024, 7.6869}; // radioa
 const static std::vector<std::vector<Double_t>> fElossApprox = {{0.0010319, 0.146954, 0.00181655},
                                                                 {0.0004273, 0.127711, 0.00106127},
                                                                 {0.0001624, 0.108467, 0.000589357}};
-class Calibration: public TaskManager {
+class Calibration: public TaskManager, public PeakSearch {
 /* @class Calibration
   @brief Class implements SSD calibration procedure described 
   in http://er.jinr.ru/si_detector_calibration.html.
 */
 public:
-
-
-  enum PeakSearchAlgorithm {
-    SLIDING_WINDOW,
-    GAUSS
-  };
-
   Calibration() = default;
   Calibration(const TString& rawDataPath);
   ~Calibration() = default;
 
-  void SetPeakSearchMethod(const TString& peakSearchAlgorithm) {};
   void SetSensor(SensorRunInfo* sensor) {fSensor = sensor;}
   /** @brief Executes all calibration steps
   ** 1) Peaks position determination. 
@@ -854,16 +1082,6 @@ public:
   **/  
   void Exec();
 private:
-  std::list<Double_t> SlidingWindowPeakSearch(TH1* hist, const std::list<Double_t>& initGuess);
-  std::list<Double_t> GaussPeakSearch(TH1* hist, const std::list<Double_t>& initGuess);
-  void GetPeaksFromSpectrum(Int_t stripNb);
-
-  /**
-  ** Returns sorted list of peaks found by TSpectrum algorithm.
-  ** @param hist input histogram to search peaks
-  **/
-  std::list<Double_t> GetPeaksTSpectrum(TH1* hist);
-
   /**
   ** @brief Finds peaks with a set algorithm method.
   ** Stores statistic files in the directory [WORK_DIR]/run_id/sensor_name/statistics/ :
@@ -900,66 +1118,10 @@ private:
 
 private:
   SensorRunInfo* fSensor = nullptr;
-  Int_t fPeakSearchMethod = SLIDING_WINDOW;
-  // Peak search algoritm common parameters
-  Double_t fFitMinSigma = 6.;
-  Double_t fFitPeakThreshold = 0.7;  
-  // Sliding window algorithm parameters
-  Int_t fSearchRegionRadius = 10.; // interval length for window sliding search.
-                                   // The middle of the interval is peak position found by TSpectrum
-  Int_t fSlideWindowWidth = 10;
-  // Gauss + pol algorithm parameters
-  Int_t fPeakWidth = 15;
-
 };
 
 Calibration::Calibration(const TString& rawDataPath) : TaskManager(rawDataPath) {
   fSensor = new SensorRunInfo();
-}
-
-std::list<Double_t>
-Calibration::SlidingWindowPeakSearch(TH1* hist, const std::list<Double_t>& initGuess) {
-  std::list<Double_t> peaks;
-  for (const auto& guessPos: initGuess) {
-    gStyle->SetStatFormat("6.8g");
-    const Int_t peakBinNb = hist->GetXaxis()->FindBin(guessPos);
-    Int_t maxIntegral = numeric_limits<Int_t>::min();
-    Double_t peakMean;
-    // Double_t peakRMS;
-    for (Int_t i = peakBinNb - fSearchRegionRadius; i < peakBinNb + fSearchRegionRadius - 1; i++) {
-      hist->GetXaxis()->SetRange(i, i + fSlideWindowWidth - 1 /*to not include the last bin*/);
-      const Int_t integral = hist->Integral();
-      if (maxIntegral < integral) {
-        maxIntegral = integral;
-        peakMean = hist->GetMean();
-        // peakRMS = hist->GetStdDev();
-      }
-    }
-    peaks.push_back(peakMean);
-  }
-  return peaks;
-}
-
-std::list<Double_t>
-Calibration::GaussPeakSearch(TH1* hist, const std::list<Double_t>& initGuess) {
-  std::list<Double_t> peaks;
-  return peaks;
-}
-
-
-std::list<Double_t> Calibration::GetPeaksTSpectrum(TH1* hist) {
-  TSpectrum sc;
-  sc.Search(hist, fFitMinSigma, "", fFitPeakThreshold);
-  const Int_t peaksAmount = sc.GetNPeaks();
-  Info("[Calibration::GetPeaksTSpectrum]", "Occured peaks amount is %d", peaksAmount);
-  Double_t* peaksPos = sc.GetPositionX();
-  std::list<Double_t> peaks(peaksPos, peaksPos + peaksAmount);
-  peaks.sort();
-  // remove markers from the histogram
-  auto functions = hist->GetListOfFunctions();
-  auto pm = static_cast<TPolyMarker*>(functions->FindObject("TPolyMarker"));
-  functions->Remove(pm); 
-  return peaks;
 }
 
 void Calibration::SearchPeaks() {
@@ -971,18 +1133,10 @@ void Calibration::SearchPeaks() {
   std::vector<std::list<Double_t>> peaks;
   for (Int_t iStrip = 0; iStrip < fSensor->fStripAmount; iStrip++) {
     const TString histName = Form("strip_%d", iStrip);
-    const auto hist = static_cast<TH1D*>(GetObjectFromRootFile(spectraHistPath, histName));
-    const auto peaksTSpec = GetPeaksTSpectrum(hist);
-    std::list<Double_t> stripPeaks;
-    switch (fPeakSearchMethod) {
-      case SLIDING_WINDOW: stripPeaks = SlidingWindowPeakSearch(hist, peaksTSpec);
-        break;
-      case GAUSS: stripPeaks = GaussPeakSearch(hist, peaksTSpec);
-        break;
-      default:
-        Error("Calibration::SearchPeaks", "Unknown peak search method is set");
-    }
-
+    const auto histFile = fIOManager->OpenRootFile(spectraHistPath);
+    const auto hist = static_cast<TH1D*>(GetObjectFromRootFile(histFile, histName));
+    const auto peaksTSpec = GetPeaksTSpectrum(hist, fFitMinSigma, fFitPeakThreshold);
+    auto stripPeaks = GetPeaks(hist, peaksTSpec);
     if (stripPeaks.size() == 4) {
       // delete the second element from the list
       auto itDelete = stripPeaks.begin();
@@ -997,6 +1151,7 @@ void Calibration::SearchPeaks() {
       stripPeaks = std::list<Double_t>(3, std::numeric_limits<double>::quiet_NaN());
     }
     peaks.push_back(stripPeaks);
+    histFile->Close();
   }
 
   const TString peakDataPath = fIOManager->GetPath(TXT_PEAK_DATA_PATH, fRunId, fSensor);
@@ -1046,12 +1201,10 @@ std::vector<Double_t> Calibration::GetAlphaEnergiesAfterDeadLayer (const Double_
 void Calibration::CalcCalibrationCoefficients() {
   // read peaks from file
   const TString peakDataPath = fIOManager->GetPath(TXT_PEAK_DATA_PATH, fRunId, fSensor);
-  auto peaksFile = fIOManager->OpenTextFile(peakDataPath);
   auto peaks = Read2DVectorFromFile<Double_t>(peakDataPath);
   // read dead layers from file
   const TString deadDataPath = fIOManager->GetPath(TXT_DEAD_LAYER_PATH, fRunId, fSensor);
-  auto deadFile = fIOManager->OpenTextFile(deadDataPath);
-  auto deadVec = ReadVector<Double_t>(deadFile);
+  auto deadVec = ReadVectorFromFile<Double_t>(deadDataPath);
   // calculate average dead layer
   Double_t sumDead = 0.;
   Int_t notNaNStrips = 0;
@@ -1101,13 +1254,13 @@ void Calibration::PrintReport(const std::vector<std::vector<Double_t>>& peaks,
     report << "Peak search method: SLIDING_WINDOW" << endl;
     report << "Sliding window algorithm parameters: " <<  endl;
     report << "  window width: " << fSlideWindowWidth <<  endl;
-    report << "  search region around TSpectrum peak: +-" << fSearchRegionRadius <<  endl;
+    report << "  search region around TSpectrum peak: +-" << fSearchRadius <<  endl;
     report << "  peak RMS: " << fFitMinSigma <<  endl;
     report << "  peak amplitude threshold (with respect to maximal): " 
                << fFitPeakThreshold <<  endl;
   }
   report << endl;
-  report << "Detessd_one_spectrum_calibrationrmined peak positions (in [ADC-channels]): " << endl;
+  report << "Determined peak positions (in [ADC-channels]):" << endl;
   report << "StripNb" << std::right 
          << setw(20) << "E_low" 
          << setw(20) << "E_middle" 
@@ -1148,23 +1301,179 @@ void Calibration::Exec() {
   CalcCalibrationCoefficients();
 }
 
+class NonUniformityMapBuilder: public TaskManager, public PeakSearch {
+public:
+  NonUniformityMapBuilder() = default;
+  ~NonUniformityMapBuilder() = default;
+
+  void SetThickSensor(SensorRunInfo* sensor) {fMapSensors->at(0) = sensor;}
+  void SetThinSensor(SensorRunInfo* sensor) {fMapSensors->at(1) = sensor;}
+  void SetThickCalibSensor(SensorRunInfo* sensor) {fSensorCalib = sensor;}
+
+  /**
+  ** @brief Draws thick sensor pixels and saves histograms to the file.
+  **
+  ** Pixel - thick sensor strip data which is also registered in a thin sensor.
+  ** Readout data are superior to noise thresholds in both stations.
+  **/
+  void DrawPixelSpectra();
+  void SearchPixelHighEnergyPeak();
+  void Exec();
+private:
+  // fMapSensors->at(0) - thick sensor info, fMapSensors->at(1) - thin sensor info
+  std::vector<SensorRunInfo*>* fMapSensors = new std::vector<SensorRunInfo*>(2, nullptr); 
+  SensorRunInfo* fSensorCalib = nullptr; // info about thick sensor from a calibration run
+};
+
+void NonUniformityMapBuilder::Exec() {
+  DrawPixelSpectra();
+  SearchPixelHighEnergyPeak();
+}
+
+void NonUniformityMapBuilder::DrawPixelSpectra() {
+  // Get input tree
+  const TString multSelectPath = fIOManager->GetPath(
+    ROOT_MULT_SELECTED_PATH, fMapSensors->at(0)->fRunId, fMapSensors
+  );
+  cerr << "llogogogogoogogo" << multSelectPath << endl;
+  auto multSelectFile = fIOManager->OpenRootFile(multSelectPath);
+  auto tree = static_cast<TTree*>(GetObjectFromRootFile(multSelectFile));
+  // Create output file
+  const TString pixelSpectraPath = fIOManager->GetPath(
+    ROOT_HIST_PIXEL_PATH, fMapSensors->at(0)->fRunId, fMapSensors
+  );
+  auto outFile = fIOManager->CreateRootFile(pixelSpectraPath);
+  // Read thresholds
+  const TString thresholdThickPath = fIOManager->GetPath(
+    TXT_THRESHOLD_PATH, fMapSensors->at(0)->fRunId, fMapSensors->at(0)
+  );
+  const TString thresholdThinPath = fIOManager->GetPath(
+    TXT_THRESHOLD_PATH, fMapSensors->at(1)->fRunId, fMapSensors->at(1)
+  );
+  const auto thresholdThick = ReadVectorFromFile<UShort_t>(thresholdThickPath);
+  const auto thresholdThin = ReadVectorFromFile<UShort_t>(thresholdThinPath);
+  
+  DrawSensorSpectraByPixel(tree, fMapSensors->at(0), fMapSensors->at(1), 
+                           thresholdThick, thresholdThin);
+  multSelectFile->Close();
+  outFile->Close();
+}
+
+void NonUniformityMapBuilder::SearchPixelHighEnergyPeak() {
+  std::vector<std::vector<Double_t>> peaks;
+  for (Int_t iStripThick = 0; iStripThick < fMapSensors->at(0)->fStripAmount; iStripThick++) {
+    for (Int_t iStripThin = 0; iStripThin < fMapSensors->at(1)->fStripAmount; iStripThin++) {
+      // tree
+    }
+  }
+  const TString highEPeaksPath = fIOManager->GetPath(
+    TXT_HIGH_E_PEAK_PATH, fRunId, fMapSensors->at(1)
+  );
+  auto peaksFile = fIOManager->CreateTextFile(highEPeaksPath);
+  Dump2DVector(peaks, peaksFile);
+}
+
 } // namespace ERCalibrationSSD
 
 using namespace ERCalibrationSSD;
 
 void ssd_one_spectrum_calibration() {
-  const TString file_name = 
+  // Define input file path with raw data converted by TNEvent go4-based library
+  const TString file_calib_path = 
     "/mnt/analysis_nas/exp201904/clb/oldLib/postClb/grouped/calib_1mm_90_since25to33.root";
-  auto ssd_1m_1 = new SensorRunInfo("SSD_1m_1", 16, 1024);
-  
-  auto prep_ssd_1m_1 = new Preprocessing(file_name);
-  prep_ssd_1m_1->AddSensor(ssd_1m_1);
-  prep_ssd_1m_1->Exec();
-  // prep_ssd_1m_1->ConvertTree();
-  // prep_ssd_1m_1->FindThresholds();
-  // prep_ssd_1m_1->MultiplicitySelection();
 
-  auto calib_ssd_1m_1 = new Calibration(file_name);
+  // [Prepare information about sensor in the calibration run]
+  // Constructor parameters: 
+  // * sensor branch name in raw data file
+  // * stips amount
+  // * bins amount in analysis histograms
+  // * raw data file path
+  //
+  auto ssd_1m_1 = new SensorRunInfo("SSD_1m_1", 16, 1024, file_calib_path);
+  auto ssd_1m_2 = new SensorRunInfo("SSD_1m_2", 16, 1024, file_calib_path);
+  auto ssd_1m_3 = new SensorRunInfo("SSD_1m_3", 16, 1024, file_calib_path);
+  auto ssd_1m_4 = new SensorRunInfo("SSD_1m_4", 16, 1024, file_calib_path);
+
+  // [Preprocessing]
+  // Constructor parameter is a raw data file path.
+  // The base of a raw input file name is a run ID.
+  // For example, if the input file path is /path/to/file/calib_1mm_90_all.root
+  // then run ID is 'calib_1mm_90_all' which will be used as subfolder to
+  // store results in a resulting directory
+  //
+  // For the calibration  only one sensor should be added to 
+  // preprocessing by AddSensor() method
+  auto prep_ssd_1m_1 = new Preprocessing(file_calib_path);
+  prep_ssd_1m_1->AddSensor(ssd_1m_1);
+
+  // Execution of preprocessing may be performed fully automaticaly by call Exec()
+  // method
+  // prep_ssd_1m_1->Exec();
+  // or separately, if user one want to control each preprocessing step results.
+  // Important that each the following steps can work only with a data produced by
+  // precending method in order `ConvertTree() -> FindThresholds() -> MultiplicitySelection()`.
+  // * Convertation of an input tree by leaving only the single branch conrned with
+  //   analyzed sensor set by AddSensor() method.
+  //   ouput file is stored by path
+  //   ./result/[run_id]/input/input_[run_id]_[sensor_name].root
+  prep_ssd_1m_1->ConvertTree();
+
+  // * Find noise thresholds in each strip
+  //   resulting file is stored by path
+  //   ./result/[run_id]/[sensor_name]/txt/threshold_[run_id]_[sensor_name].txt
+  prep_ssd_1m_1->FindThresholds();
+ 
+  // * Leave for further analysis only the data with single multiplity - events there
+  //   only one of strips has signal higher than a noise threshold.
+  //   Strips spectra histograms can be viewed by path
+  //  ./result/[run_id]/[sensor_name]/draw/spectra_[run_id]_[sensor_name].root
+  //   Tree with a data is in the
+  //  ./result/[run_id]/input/mult_one_[run_id]_[sensor_name].root
+  prep_ssd_1m_1->MultiplicitySelection();
+
+  // [Calibration] (http://er.jinr.ru/si_detector_calibration.html)
+  auto calib_ssd_1m_1 = new Calibration(file_calib_path);
   calib_ssd_1m_1->SetSensor(ssd_1m_1);
+
+  // [[Define peak search algoritm parameters]] 
+  // Default values may be found in PeakSearch class documentation
+
+  // Choose peak search method. Two option are avaliable: "sliding_window" or "gauss"
+  calib_ssd_1m_1->SetPeakSearchMethod("sliding_window");
+  
+  // [[Set algorithm options]]
+  
+  // All the algoritms use TSpectrum peak search result as initial guess.
+  // It's parameters are:
+  // * Minimal peak standard deviation;
+  calib_ssd_1m_1->SetFitMinSigma(6.);
+  // * Relative peks height with respect to the highest one.
+  calib_ssd_1m_1->SetFitPeakThreshold(0.7);
+
+  // [[Algorithm specific parameters]]
+
+  // If "sliding_window" set by SetPeakSearchMethod()
+  // * Sliding window width [bins] (w_width) 
+  calib_ssd_1m_1->SetSlideWindowWidth(10);
+  // * Interval of rearch around TSpectrum found peak (tspec_val) 
+  //   is defined by [tspec_val - w_width; tspec_val + w_width]
+  calib_ssd_1m_1->SetSearchRadius(15);
+
+  // If "gauss" set by SetPeakSearchMethod() 
+  // the same option works
+  // calib_ssd_1m_1->SetSearchRadius(10);
+
+  // Execute all calibration step:
+  // 1) Peaks position determination
+  //    results are stored in
+  //    ./result/[run_id]/[sensor_name]/txt/peakpos_[run_id]_[sensor_name].txt
+  // 2) Dead layer estimation. 
+  //    Found values are in
+  //    ./result/[run_id]/[sensor_name]/txt/dead_[run_id]_[sensor_name].txt
+  // 3) Calibration coefficients calculation. 
+  //    Found values are in
+  //    ./result/[run_id]/[sensor_name]/txt/coeff_[run_id]_[sensor_name].txt
+  // 4) Report file printing containing all the information about calubration run
+  //    ./result/[run_id]/[sensor_name]/report_[run_id]_[sensor_name].txt
   calib_ssd_1m_1->Exec();
 }
