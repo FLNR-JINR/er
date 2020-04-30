@@ -296,9 +296,9 @@ std::pair<TString, const ERDigi*> ERQTelescopePID::FindDigiEdepByNode(const TGeo
   // example SSD: /cave_1/QTelescopeTmp_0/Telescope_4_5/Telescope_4_SingleSi_SSD_V_4_X_11/SensitiveSingleSiStrip_X_2
   // example DSD: /cave_1/QTelescopeTmp_0/CT_3/CT_DoubleSi_DSD_XY_0/doubleSiStrip_XY_0/SensitiveDoubleSiBox_XY_16
   // example CsI: /cave_1/QTelescopeTmp_0/Central_telescope_3/Central_telescope_CsI_0/CsIBoxShell_8/SensitiveCsIBox_1
-  // example NonUniform SSD: ?
+  // example NonUniform SSD: /cave_1/QTelescopeTmp_0/Telescope_1_1/Telescope_1_SingleSi_SSD20_1_X_0/pseudoSiStrip_4_4/SensitivePixelSiBox_X4_Y1_0
   const auto getDigiBranchSubString = [&node, &nodePath]() -> TString {
-    if (nodePath.Contains("SingleSi")) {
+    if (nodePath.Contains("SingleSi") && !nodePath.Contains("pseudo")) {
       return node.GetMotherVolume()->GetName(); // for ex: Telescope_4_SingleSi_SSD_V_4_X_11
     }
     if (nodePath.Contains("DoubleSi") || nodePath.Contains("CsI") || nodePath.Contains("pseudo")) {
@@ -306,8 +306,6 @@ std::pair<TString, const ERDigi*> ERQTelescopePID::FindDigiEdepByNode(const TGeo
       digiBranchSubString.Remove(digiBranchSubString.Last('/'), digiBranchSubString.Length());
       digiBranchSubString.Remove(digiBranchSubString.Last('/'), digiBranchSubString.Length());
       digiBranchSubString.Remove(0, digiBranchSubString.Last('/') + 1);
-      if (nodePath.Contains("pseudo"))
-        digiBranchSubString.Remove(digiBranchSubString.Length()-2, digiBranchSubString.Length());
       return digiBranchSubString; // for ex: CT_DoubleSi_DSD_XY_0, Central_telescope_CsI_0
     }
   };
@@ -326,7 +324,7 @@ std::pair<TString, const ERDigi*> ERQTelescopePID::FindDigiEdepByNode(const TGeo
   }
   const auto getChannel = [&node, &nodePath]() {
     TString pathWithChannelPostfix = nodePath;
-    if (nodePath.Contains("CsI"))
+    if (nodePath.Contains("CsI") || nodePath.Contains("pseudo"))
       pathWithChannelPostfix.Remove(pathWithChannelPostfix.Last('/'), pathWithChannelPostfix.Length());
     const TString channelStr(pathWithChannelPostfix(pathWithChannelPostfix.Last('_') + 1,
                                               pathWithChannelPostfix.Length()));
