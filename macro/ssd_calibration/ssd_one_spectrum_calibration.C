@@ -24,6 +24,7 @@ namespace ERCalibrationSSD {
   * Replace SetRunInfo class by RunInfo which will contain several sensors info with their common 
    run id.
   * More log messages for each significant step
+  * SetSearchRadius() for should not be the same parameter for several calibration methods (think about it) 
 */
 
 
@@ -69,6 +70,22 @@ SensorRunInfo::SensorRunInfo(const TString& name, const Int_t stripAmount,
   fRunId(GetFileNameBaseFromPath(runId)) {
 }
 
+/**
+** @brief Calculates non NaN values average values in a collection
+** @param values iterable collection of values castable to the Double_t type
+**/
+template<typename T>
+Double_t CalculateAvg(T values) {
+  Double_t sum = 0.;
+  Int_t counterNotNaN = 0;
+  for (const auto& value: values) {
+    if (!std::isnan(value)) {
+      sum += value;
+      counterNotNaN++;
+    }
+  }
+  return sum / counterNotNaN;
+}
 
 /**
 ** @brief Draws strips spectra.
@@ -134,11 +151,13 @@ void DrawSensorSpectraByPixel(TTree* tree,
     const auto canvas = new TCanvas(canvasName);
     canvas->Divide(canvFirtsDim, canvSecondDim);
     for (Int_t iStripSelect = 0; iStripSelect < sensorSelect->fStripAmount; iStripSelect++) {
-      const auto histParams = Form("(%d,%d,%d,%d,%d,%d)", 
-                                   sensorDraw->fBinAmount, 0, sensorDraw->fBinAmount,
-                                   sensorSelect->fBinAmount, 0, sensorSelect->fBinAmount);
-      const auto histName = Form("canvas_%s[%d]_%s[%d]", sensorDraw->fName.Data(), iStripDraw, 
-                                                         sensorSelect->fName.Data(), iStripSelect);
+      Info("DrawSensorSpectraByPixel", "Pixel %s[%d]-%s[%d] in progress", 
+                                        sensorDraw->fName.Data(), iStripDraw,
+                                        sensorSelect->fName.Data(), iStripSelect);
+      const auto histParams = Form("(%d,%d,%d)", 
+                                    sensorDraw->fBinAmount, 0, sensorDraw->fBinAmount);
+      const auto histName = Form("pixel_%s[%d]_%s[%d]", sensorDraw->fName.Data(), iStripDraw, 
+                                                        sensorSelect->fName.Data(), iStripSelect);
       const auto drawExpression = Form("%s[%d]>>%s%s", sensorDraw->fName.Data(), iStripDraw, 
                                                        histName, histParams); 
       const auto cutExpression = Form("%s[%d]>%d&&%s[%d]>%d", 
@@ -146,7 +165,7 @@ void DrawSensorSpectraByPixel(TTree* tree,
                                       thresholdsDraw[iStripDraw],
                                       sensorSelect->fName.Data(), iStripSelect, 
                                       thresholdsSelect[iStripSelect]);
-      canvas->cd(iStripDraw + 1);
+      canvas->cd(iStripSelect + 1);
       tree->Draw(drawExpression, cutExpression, "");
       const auto hist = static_cast<TH1D*>(gDirectory->Get(histName));
       hist->Write();
@@ -270,19 +289,31 @@ void Dump2DVector(const T& vec2d, ofstream& file,
   }
 }
 
+/**  
+** @brief Dumps vector data to the standard output with the set delimiter.
+** @param vec - vector of data
+** @param delimiter
+**/
+template<typename T>
+void Dump2DVector(const T& vec2d, const TString& delimiter = " ") {
+  for (const auto &vec: vec2d) {
+    for (const auto &elem: vec) {
+      std::cout << elem << delimiter;
+    }
+    std::cout << std::endl;
+  }
+}
+
 
 /**  
 ** @brief Reads vector data from a file stream.
-** @param file - input file stream
-** @param size - vector size. If not set - all avaliable from stip sequently is read.
-**  Note: The size value higher then std::numeric_limits<UInt_t>::max() will drop
-**  the method.
+** @param filePath path to input file
 **/
 template<typename T>
 std::vector<T> ReadVectorFromFile(const TString& filePath) {
   std::ifstream file(filePath);
   if (!file.is_open()) {
-    Error("Read2DVectorFromFile", "Failed to open file: %s", filePath.Data());
+    Error("ReadVectorFromFile", "Failed to open file: %s", filePath.Data());
   }
   std::vector<T> vec;
   T value;
@@ -294,10 +325,7 @@ std::vector<T> ReadVectorFromFile(const TString& filePath) {
 
 /**  
 ** @brief Reads vector data from a file stream.
-** @param file - input file stream
-** @param size - vector size. If not set - all avaliable from stip sequently is read.
-**  Note: The size value higher then std::numeric_limits<UInt_t>::max() will drop
-**  the method.
+** @param filePath path to input file
 **/
 template<typename T>
 std::vector<std::vector<T>> Read2DVectorFromFile(const TString& filePath) {
@@ -320,6 +348,52 @@ std::vector<std::vector<T>> Read2DVectorFromFile(const TString& filePath) {
   file.close();
   return vec2d;
 }
+
+/**  
+** @brief Reads vector of floating data from a file stream.
+** @param filePath path to input file
+**/
+std::vector<Double_t> ReadDoubleVectorFromFile(const TString& filePath) {
+  std::ifstream file(filePath);
+  if (!file.is_open()) {
+    Error("ReadDoubleVectorFromFile", "Failed to open file: %s", filePath.Data());
+  }
+  std::vector<Double_t> vec;
+  std::string str_val;
+  while (file >> str_val) {
+    vec.push_back(std::stod(str_val));
+  }
+  file.close();
+
+  return vec;
+}
+
+
+/**  
+** @brief Reads vector of floating data from a file stream.
+** @param filePath path to input file
+**/
+std::vector<std::vector<Double_t>> Read2DDoubleVectorFromFile(const TString& filePath) {
+  std::ifstream file(filePath);
+  if (!file.is_open()) {
+    Error("Read2DDoubleVectorFromFile", "Failed to open file: %s", filePath.Data());
+  }
+  std::vector<std::vector<Double_t>> vec2d;
+  std::string line;
+  while (std::getline(file, line)) {
+    std::vector<Double_t> vec;
+    std::istringstream iss(line);
+    std::string str_val;
+    while (iss >> str_val) {
+      vec.push_back(std::stod(str_val));
+    }
+    vec2d.push_back(vec);
+  }
+  file.close();
+
+  return vec2d;
+}
+
 
 // External functions end
 
@@ -479,12 +553,14 @@ enum FileType {
   ROOT_HIST_SPECTRA_PATH, // *.root strip histograms after multiplycity selection and cut on thresholds
   ROOT_HIST_PEAKS_PATH, // *.root strip histograms with marked peaks found by TSpectrum and chosen algorithm
   ROOT_HIST_PIXEL_PATH, // *.root pixel spectra histograms
+  ROOT_HIST_NON_UNIFORM_MAP_PATH, // *.root pixel effective thickness map 
   TXT_PEAK_DATA_PATH, // *.root contains three 1D histograms for low middle and high energy peaks
   TXT_THRESHOLD_PATH, // *.txt noise thresholds for sensor
   TXT_DEAD_LAYER_PATH, // *.txt noise thresholds for sensor
   TXT_CALIB_COEFF_PATH, // calibration coefficients
   TXT_REPORT_PATH, // calibration results report
-  TXT_HIGH_E_PEAK_PATH // *.root table of high energy peak values in thick sensor
+  TXT_HIGH_E_PEAK_PATH, // *.root table of high energy peak values in thick sensor
+  TXT_HIST_NON_UNIFORM_MAP_PATH // *.txt pixel effective thickness map 
 };
 
 class CalibIOManager: public IOManager {
@@ -561,6 +637,8 @@ TString CalibIOManager::ConstructFilePath(const std::set<TString>& subdirs,
   }
   fileName += Form(".%s", extension.Data());
   TString dirPath = fWorkDir;
+  TString runId = nameRoot;
+  dirPath = gSystem->PrependPathName(dirPath, runId);
   for (auto subdir: subdirs) {
     dirPath = gSystem->PrependPathName(dirPath, subdir);
   }
@@ -581,6 +659,8 @@ TString CalibIOManager::ConstructSensorFilePath(const std::set<TString>& subdirs
   TString sensorSubdir = sensorNames(1, sensorNames.Length());
   fileName += Form("%s.%s", sensorNames.Data(), extension.Data());
   TString dirPath = fWorkDir;
+  TString runId = nameRoot;
+  dirPath = gSystem->PrependPathName(dirPath, runId);
   dirPath = gSystem->PrependPathName(dirPath, sensorSubdir);
   for (auto subdir: subdirs) {
     dirPath = gSystem->PrependPathName(dirPath, subdir);
@@ -615,6 +695,11 @@ TString CalibIOManager::GetPath(const Int_t fileType,
         {"draw"}, "pixels", nameRoot, sensors, "root"
       );
     break;
+    case ROOT_HIST_NON_UNIFORM_MAP_PATH:
+      path = this->ConstructSensorFilePath(
+        {"draw"}, "map", nameRoot, sensors, "root"
+      );
+    break;
     case TXT_PEAK_DATA_PATH:
       path = this->ConstructSensorFilePath(
         {"txt"}, "peakpos", nameRoot, sensors, "txt"
@@ -643,6 +728,11 @@ TString CalibIOManager::GetPath(const Int_t fileType,
     case TXT_HIGH_E_PEAK_PATH:
       path = this->ConstructSensorFilePath(
         {"txt"}, "high_map", nameRoot, sensors, "txt"
+      );
+    break;
+    case TXT_HIST_NON_UNIFORM_MAP_PATH:
+      path = this->ConstructSensorFilePath(
+        {"txt"}, "map", nameRoot, sensors, "txt"
       );
     break;
   }
@@ -704,9 +794,8 @@ protected:
 TaskManager::TaskManager(const TString& rawDataPath) 
   : fIOManager(new CalibIOManager()), fRawDataPath(rawDataPath) {
   TString rawFileNameBase = GetFileNameBaseFromPath(fRawDataPath);
-  const TString resDir = gSystem->PrependPathName(fWorkDir, rawFileNameBase);
   fRunId = GetFileNameBaseFromPath(fRawDataPath);
-  fIOManager->ChangeDir(resDir);
+  fIOManager->ChangeDir(fWorkDir);
 }
 
 
@@ -994,9 +1083,9 @@ std::list<Double_t> PeakSearch::GetPeaksTSpectrum(TH1* hist,
   std::list<Double_t> peaks(peaksPos, peaksPos + peaksAmount);
   peaks.sort();
   // remove markers from the histogram
-  auto functions = hist->GetListOfFunctions();
-  auto pm = static_cast<TPolyMarker*>(functions->FindObject("TPolyMarker"));
-  functions->Remove(pm); 
+  // auto functions = hist->GetListOfFunctions();
+  // auto pm = static_cast<TPolyMarker*>(functions->FindObject("TPolyMarker"));
+  // functions->Remove(pm); 
   return peaks;
 }
 
@@ -1022,7 +1111,6 @@ PeakSearch::SlidingWindowPeakSearch(TH1* hist, const std::list<Double_t>& initGu
         // peakRMS = hist->GetStdDev();
       }
     }
-    cout << "peakMean " << peakMean << endl;
     peaks.push_back(peakMean);
   }
   return peaks;
@@ -1103,7 +1191,6 @@ private:
                    const std::vector<Double_t>& deadVec,
                    const Double_t avgDead,
                    const std::vector<std::vector<Double_t>>& coeffsAB);
-  void SearchPeaksTSpectrum();
 
   std::vector<Double_t> GetAlphaEnergiesAfterDeadLayer (const Double_t dead);
 
@@ -1171,7 +1258,7 @@ void Calibration::DeadLayerEstimation() {
   // read peaks from file
   const TString peakDataPath = fIOManager->GetPath(TXT_PEAK_DATA_PATH, fRunId, fSensor);
   auto peaksFile = fIOManager->OpenTextFile(peakDataPath);
-  auto peaks = Read2DVectorFromFile<Double_t>(peakDataPath);
+  auto peaks = Read2DDoubleVectorFromFile(peakDataPath);
   
   vector<Double_t> deadVec;
   for (const auto stripPeaks: peaks) {
@@ -1201,21 +1288,11 @@ std::vector<Double_t> Calibration::GetAlphaEnergiesAfterDeadLayer (const Double_
 void Calibration::CalcCalibrationCoefficients() {
   // read peaks from file
   const TString peakDataPath = fIOManager->GetPath(TXT_PEAK_DATA_PATH, fRunId, fSensor);
-  auto peaks = Read2DVectorFromFile<Double_t>(peakDataPath);
+  auto peaks = Read2DDoubleVectorFromFile(peakDataPath);
   // read dead layers from file
   const TString deadDataPath = fIOManager->GetPath(TXT_DEAD_LAYER_PATH, fRunId, fSensor);
-  auto deadVec = ReadVectorFromFile<Double_t>(deadDataPath);
-  // calculate average dead layer
-  Double_t sumDead = 0.;
-  Int_t notNaNStrips = 0;
-  for (const auto& dead: deadVec) {
-    if (!std::isnan(dead)) {
-      sumDead += dead;
-      notNaNStrips++;
-    }
-  }
-  const Double_t avgDead = sumDead / notNaNStrips;
-  
+  auto deadVec = ReadDoubleVectorFromFile(deadDataPath);
+  const Double_t avgDead = CalculateAvg(deadVec);
   auto energies = GetAlphaEnergiesAfterDeadLayer(avgDead);
 
   std::vector<std::vector<Double_t>> coeffsAB;
@@ -1304,6 +1381,7 @@ void Calibration::Exec() {
 class NonUniformityMapBuilder: public TaskManager, public PeakSearch {
 public:
   NonUniformityMapBuilder() = default;
+  NonUniformityMapBuilder(const TString& mapRunDataPath);
   ~NonUniformityMapBuilder() = default;
 
   void SetThickSensor(SensorRunInfo* sensor) {fMapSensors->at(0) = sensor;}
@@ -1318,6 +1396,7 @@ public:
   **/
   void DrawPixelSpectra();
   void SearchPixelHighEnergyPeak();
+  void CreateThinSensorMap();
   void Exec();
 private:
   // fMapSensors->at(0) - thick sensor info, fMapSensors->at(1) - thin sensor info
@@ -1325,17 +1404,65 @@ private:
   SensorRunInfo* fSensorCalib = nullptr; // info about thick sensor from a calibration run
 };
 
+NonUniformityMapBuilder::NonUniformityMapBuilder(const TString& mapRunDataPath)
+  : TaskManager(mapRunDataPath) {
+}
+
+
 void NonUniformityMapBuilder::Exec() {
   DrawPixelSpectra();
   SearchPixelHighEnergyPeak();
+  CreateThinSensorMap();
 }
+
+
+// Quadratic approximation of the D(dE) 
+// by dead layer points 8, 12, 16, 20, 24, 28, 32, 36 um
+// for the 7.6869 MeV alpha-particle
+// D(dE) = p0 + p1*dE + p2*dE^2,
+// where D - effective dead layer high energy alpha-particle passes through [um],
+// dE - energy loss [MeV]
+vector<double> quad_coeffs = {0.159428, 0.0837999, 0.0014907}; // highE 
+// Cubic approximation of the D(dE) 
+// by dead layer points 8, 12, 16, 20, 24, 28, 32, 36 um
+// for the 7.6869 MeV alpha-particle
+// D(dE) = p0 + p1*dE + p2*dE^2 + p3*dE^3,
+// where D - effective dead layer high energy alpha-particle passes through [um],
+// dE - energy loss [MeV]
+vector<double> triag_coeffs = {0.00805579, 9.18781, -0.401229, -0.0044059};
+
+/**
+** @brief Calculates thickness as quadratic approximation of the D(dE) dependence,
+** where D - effective layer thickness [um], dE - energy loss of the high energy
+** alpha-particle (7.6869 [MeV]) in [MeV].
+** @param dE energy loss [MeV]
+**  
+**/
+double GetThicknessByHighElossQuad(double dE) {
+  return (-quad_coeffs[1] + sqrt(pow(quad_coeffs[1], 2) 
+          - 4*quad_coeffs[2]*(quad_coeffs[0] - dE))) 
+         / (2 * quad_coeffs[2]);
+}
+
+/**
+** @brief Calculates thickness as cubic approximation of the D(dE) dependence,
+** where D - effective layer thickness [um], dE - energy loss of the high energy
+** alpha-particle (7.6869 [MeV]) in [MeV].
+** @param dE energy loss [MeV]
+**  
+**/
+double GetThicknessByHighElossCubic (double dE) {
+  return triag_coeffs[0] + triag_coeffs[1]*dE
+         + triag_coeffs[2] * pow(dE, 2)
+         + triag_coeffs[3] * pow(dE, 3);
+}
+
 
 void NonUniformityMapBuilder::DrawPixelSpectra() {
   // Get input tree
   const TString multSelectPath = fIOManager->GetPath(
     ROOT_MULT_SELECTED_PATH, fMapSensors->at(0)->fRunId, fMapSensors
   );
-  cerr << "llogogogogoogogo" << multSelectPath << endl;
   auto multSelectFile = fIOManager->OpenRootFile(multSelectPath);
   auto tree = static_cast<TTree*>(GetObjectFromRootFile(multSelectFile));
   // Create output file
@@ -1360,17 +1487,97 @@ void NonUniformityMapBuilder::DrawPixelSpectra() {
 }
 
 void NonUniformityMapBuilder::SearchPixelHighEnergyPeak() {
+  const TString pixelSpectraPath = fIOManager->GetPath(
+    ROOT_HIST_PIXEL_PATH, fMapSensors->at(0)->fRunId, fMapSensors
+  );
+  auto histFile = fIOManager->OpenRootFile(pixelSpectraPath);
   std::vector<std::vector<Double_t>> peaks;
   for (Int_t iStripThick = 0; iStripThick < fMapSensors->at(0)->fStripAmount; iStripThick++) {
+    std::vector<Double_t> stripPeaks;
     for (Int_t iStripThin = 0; iStripThin < fMapSensors->at(1)->fStripAmount; iStripThin++) {
-      // tree
+      const auto pixelName = Form("%s[%d]_%s[%d]", fMapSensors->at(0)->fName.Data(),
+                                                   iStripThick,
+                                                   fMapSensors->at(1)->fName.Data(),
+                                                   iStripThin);
+      Info("SearchPixelHighEnergyPeak", "Search high energy peak in pixel %s", pixelName);
+      const auto histName = Form("pixel_%s", pixelName);
+      const auto hist = static_cast<TH1D*>(GetObjectFromRootFile(histFile, histName));
+      const auto peaksTSpec = GetPeaksTSpectrum(hist, fFitMinSigma, fFitPeakThreshold);
+      auto pixelPeaks = GetPeaks(hist, peaksTSpec);
+      Double_t peakPos;
+      if (pixelPeaks.size()) {
+        peakPos = pixelPeaks.back();
+      } else {
+        Warning("Calibration::SearchPeaks", "Peaks are not found");
+        Warning("Calibration::SearchPeaks", "By default value is set to Nan");
+        peakPos = std::numeric_limits<double>::quiet_NaN();
+      }
+      stripPeaks.push_back(peakPos);
     }
+    peaks.push_back(stripPeaks);
   }
   const TString highEPeaksPath = fIOManager->GetPath(
-    TXT_HIGH_E_PEAK_PATH, fRunId, fMapSensors->at(1)
+    TXT_HIGH_E_PEAK_PATH, fMapSensors->at(0)->fRunId, fMapSensors
   );
   auto peaksFile = fIOManager->CreateTextFile(highEPeaksPath);
   Dump2DVector(peaks, peaksFile);
+  peaksFile.close();
+  histFile->Close();
+}
+
+void NonUniformityMapBuilder::CreateThinSensorMap() {
+  // read data for a thin sensor effective thickness map building
+  const TString pixelPeakMapPath = fIOManager->GetPath(
+    TXT_HIGH_E_PEAK_PATH, fMapSensors->at(0)->fRunId, fMapSensors
+  );
+  const TString peaksThickCalibPath = fIOManager->GetPath(
+    TXT_PEAK_DATA_PATH, fSensorCalib->fRunId, fSensorCalib
+  );
+  const TString thickCalibCoeffsPath = fIOManager->GetPath(
+    TXT_CALIB_COEFF_PATH, fSensorCalib->fRunId, fSensorCalib
+  );
+  const TString deadLayerThickPath = fIOManager->GetPath(
+    TXT_DEAD_LAYER_PATH, fSensorCalib->fRunId, fSensorCalib
+  );
+  auto peaksPixelHighEMap = Read2DDoubleVectorFromFile(pixelPeakMapPath);
+  auto peaksThickCalib = Read2DDoubleVectorFromFile(peaksThickCalibPath);
+  auto calibCoeffsThick = Read2DDoubleVectorFromFile(thickCalibCoeffsPath);
+  auto deadLayerThickVec = ReadDoubleVectorFromFile(deadLayerThickPath);
+  const Int_t thickStripAmount = fMapSensors->at(0)->fStripAmount;
+  const Int_t thinStripAmount = fMapSensors->at(1)->fStripAmount;
+  // create output map root file
+  const TString mapRootPath = fIOManager->GetPath(
+    ROOT_HIST_NON_UNIFORM_MAP_PATH, fMapSensors->at(0)->fRunId, fMapSensors
+  );
+  auto outFile = fIOManager->CreateRootFile(mapRootPath);
+  auto hist = new TH2D("map", Form("Map of the sensor %s effective", 
+                                    fMapSensors->at(1)->fName.Data()),
+                       thickStripAmount, 0, thickStripAmount,
+                       thinStripAmount, 0, thinStripAmount);
+  std::vector<std::vector<Double_t>> sensorMap;
+  const Double_t deadLayerThick = CalculateAvg(deadLayerThickVec);
+  for (Int_t iStripThick = 0; iStripThick < thickStripAmount; iStripThick++) {
+    std::vector<Double_t> stripMap;
+    for (Int_t iStripThin = 0; iStripThin < thinStripAmount; iStripThin++) {
+      const Double_t N2 = peaksThickCalib[iStripThick][2];
+      const Double_t N1 = peaksPixelHighEMap[iStripThick][iStripThin];
+      const Double_t dE = (N2 - N1) * calibCoeffsThick[iStripThick][0];
+      const Double_t pixelThickness = GetThicknessByHighElossCubic(dE) - deadLayerThick;
+      hist->SetBinContent(iStripThick + 1, iStripThin + 1, pixelThickness);
+      stripMap.push_back(pixelThickness);
+    }
+    sensorMap.push_back(stripMap);
+  }
+
+  const TString mapTxtPath = fIOManager->GetPath(
+    TXT_HIST_NON_UNIFORM_MAP_PATH, fMapSensors->at(0)->fRunId, fMapSensors
+  );
+  auto mapFile = fIOManager->CreateTextFile(mapTxtPath);
+  Dump2DVector(sensorMap, mapFile);
+
+  mapFile.close();
+  hist->Write();
+  outFile->Close();
 }
 
 } // namespace ERCalibrationSSD
@@ -1378,102 +1585,34 @@ void NonUniformityMapBuilder::SearchPixelHighEnergyPeak() {
 using namespace ERCalibrationSSD;
 
 void ssd_one_spectrum_calibration() {
-  // Define input file path with raw data converted by TNEvent go4-based library
-  const TString file_calib_path = 
+  const TString calib_run_path = 
     "/mnt/analysis_nas/exp201904/clb/oldLib/postClb/grouped/calib_1mm_90_since25to33.root";
+  const TString map_run_path = 
+    "/mnt/analysis_nas/exp201904/clb/oldLib/postClb/alltel_90.root";
 
-  // [Prepare information about sensor in the calibration run]
-  // Constructor parameters: 
-  // * sensor branch name in raw data file
-  // * stips amount
-  // * bins amount in analysis histograms
-  // * raw data file path
-  //
-  auto ssd_1m_1 = new SensorRunInfo("SSD_1m_1", 16, 1024, file_calib_path);
-  auto ssd_1m_2 = new SensorRunInfo("SSD_1m_2", 16, 1024, file_calib_path);
-  auto ssd_1m_3 = new SensorRunInfo("SSD_1m_3", 16, 1024, file_calib_path);
-  auto ssd_1m_4 = new SensorRunInfo("SSD_1m_4", 16, 1024, file_calib_path);
+  auto ssd_1m_1_cal = new SensorRunInfo("SSD_1m_1", 16, 1024, calib_run_path);
+  auto ssd_1m_1_map = new SensorRunInfo("SSD_1m_1", 16, 1024, map_run_path);
+  auto ssd_20u_1_map = new SensorRunInfo("SSD_20u_1", 16, 1024, map_run_path);
 
-  // [Preprocessing]
-  // Constructor parameter is a raw data file path.
-  // The base of a raw input file name is a run ID.
-  // For example, if the input file path is /path/to/file/calib_1mm_90_all.root
-  // then run ID is 'calib_1mm_90_all' which will be used as subfolder to
-  // store results in a resulting directory
-  //
-  // For the calibration  only one sensor should be added to 
-  // preprocessing by AddSensor() method
-  auto prep_ssd_1m_1 = new Preprocessing(file_calib_path);
-  prep_ssd_1m_1->AddSensor(ssd_1m_1);
+  // thick sensor calibration
+  // auto prep_ssd_1m_1 = new Preprocessing(calib_run_path);
+  // prep_ssd_1m_1->AddSensor(ssd_1m_1_cal);
+  // prep_ssd_1m_1->ConvertTree();
+  // prep_ssd_1m_1->FindThresholds();
+  // prep_ssd_1m_1->MultiplicitySelection();
 
-  // Execution of preprocessing may be performed fully automaticaly by call Exec()
-  // method
-  // prep_ssd_1m_1->Exec();
-  // or separately, if user one want to control each preprocessing step results.
-  // Important that each the following steps can work only with a data produced by
-  // precending method in order `ConvertTree() -> FindThresholds() -> MultiplicitySelection()`.
-  // * Convertation of an input tree by leaving only the single branch conrned with
-  //   analyzed sensor set by AddSensor() method.
-  //   ouput file is stored by path
-  //   ./result/[run_id]/input/input_[run_id]_[sensor_name].root
-  prep_ssd_1m_1->ConvertTree();
-
-  // * Find noise thresholds in each strip
-  //   resulting file is stored by path
-  //   ./result/[run_id]/[sensor_name]/txt/threshold_[run_id]_[sensor_name].txt
-  prep_ssd_1m_1->FindThresholds();
- 
-  // * Leave for further analysis only the data with single multiplity - events there
-  //   only one of strips has signal higher than a noise threshold.
-  //   Strips spectra histograms can be viewed by path
-  //  ./result/[run_id]/[sensor_name]/draw/spectra_[run_id]_[sensor_name].root
-  //   Tree with a data is in the
-  //  ./result/[run_id]/input/mult_one_[run_id]_[sensor_name].root
-  prep_ssd_1m_1->MultiplicitySelection();
-
-  // [Calibration] (http://er.jinr.ru/si_detector_calibration.html)
-  auto calib_ssd_1m_1 = new Calibration(file_calib_path);
-  calib_ssd_1m_1->SetSensor(ssd_1m_1);
-
-  // [[Define peak search algoritm parameters]] 
-  // Default values may be found in PeakSearch class documentation
-
-  // Choose peak search method. Two option are avaliable: "sliding_window" or "gauss"
+  auto calib_ssd_1m_1 = new Calibration(calib_run_path);
+  calib_ssd_1m_1->SetSensor(ssd_1m_1_cal);
   calib_ssd_1m_1->SetPeakSearchMethod("sliding_window");
-  
-  // [[Set algorithm options]]
-  
-  // All the algoritms use TSpectrum peak search result as initial guess.
-  // It's parameters are:
-  // * Minimal peak standard deviation;
   calib_ssd_1m_1->SetFitMinSigma(6.);
-  // * Relative peks height with respect to the highest one.
   calib_ssd_1m_1->SetFitPeakThreshold(0.7);
-
-  // [[Algorithm specific parameters]]
-
-  // If "sliding_window" set by SetPeakSearchMethod()
-  // * Sliding window width [bins] (w_width) 
   calib_ssd_1m_1->SetSlideWindowWidth(10);
-  // * Interval of rearch around TSpectrum found peak (tspec_val) 
-  //   is defined by [tspec_val - w_width; tspec_val + w_width]
   calib_ssd_1m_1->SetSearchRadius(15);
+  // calib_ssd_1m_1->Exec();
 
-  // If "gauss" set by SetPeakSearchMethod() 
-  // the same option works
-  // calib_ssd_1m_1->SetSearchRadius(10);
-
-  // Execute all calibration step:
-  // 1) Peaks position determination
-  //    results are stored in
-  //    ./result/[run_id]/[sensor_name]/txt/peakpos_[run_id]_[sensor_name].txt
-  // 2) Dead layer estimation. 
-  //    Found values are in
-  //    ./result/[run_id]/[sensor_name]/txt/dead_[run_id]_[sensor_name].txt
-  // 3) Calibration coefficients calculation. 
-  //    Found values are in
-  //    ./result/[run_id]/[sensor_name]/txt/coeff_[run_id]_[sensor_name].txt
-  // 4) Report file printing containing all the information about calubration run
-  //    ./result/[run_id]/[sensor_name]/report_[run_id]_[sensor_name].txt
-  calib_ssd_1m_1->Exec();
+  auto ssd_1_map = new NonUniformityMapBuilder(map_run_path);
+  ssd_1_map->SetThickSensor(ssd_1m_1_map);
+  ssd_1_map->SetThinSensor(ssd_20u_1_map);
+  ssd_1_map->SetThickCalibSensor(ssd_1m_1_cal);
+  ssd_1_map->Exec();
 }
