@@ -1025,7 +1025,6 @@ public:
   void SetFitPeakThreshold(const Double_t value) {fFitPeakThreshold = value;}
   void SetSearchRadius(const Int_t value) {fSearchRadius = value;}
   void SetSlideWindowWidth(const Int_t value) {fSlideWindowWidth = value;}
-  void SetPeakWidth(const Int_t value) {fPeakWidth = value;}
   /**
   ** Returns sorted list of peaks found by TSpectrum algorithm.
   ** @param hist input histogram to search peaks
@@ -1034,31 +1033,65 @@ public:
                                         const Double_t fitMinSigma, 
                                         const Double_t fitPeakThreshold);
 
-   
+  /**
+  ** @brief Searchs peaks on a histogram by the "sliding window" algorithm.
+  ** Algorithm:
+  ** 1. set window_width;
+  ** 2. set search_radius;
+  ** 3. for each init_peak in [initial guess peaks]:
+  **    3.1. search window position on the interval 
+  **         [init_peak - search_radius, init_peak + search_radius]
+  **         with maximal integral counts value;
+  **    3.2. Mean value in window with maximal integral value is a peak position  
+  **
+  **  Note: on each step of searching maximal integral postion the window fully lies 
+  **  inside the search interval
+  ** 
+  ** @parameter hist histogram to find peaks
+  ** @parameter initGuess list of approximate positions of peaks
+  ** @parameter windowWidth widht of the sliding window
+  ** @parameter searchRadius radius of a region around intial guess peak 
+  **                         bounding sliding window moving
+  ** @return list of peaks
+  **/ 
   std::list<Double_t> SlidingWindowPeakSearch(TH1* hist, const std::list<Double_t>& initGuess,
                                               const Int_t windowWidth,
                                               const Int_t searchRadius);
 
+  /**
+  ** @brief Searchs peaks on a histogram by the 'gaus + pol1' fit.
+  ** Algorithm:
+  ** 1. set search_radius;
+  ** 2. for each init_peak in [initial guess peaks]:
+  **    2.1. make preliminary fit by 'clear' Gauss around the init_peak +- search_radius;
+  **    2.2. use 2.1 result as inital guess for fit by 'gaus + pol1' 
+  **         around the init_peak +- search_radius;
+  **    2.3. Mean value of the 2.2 fit is a peak position.
+  ** 
+  ** @parameter hist histogram to find peaks
+  ** @parameter initGuess list of approximate positions of peaks
+  ** @parameter searchRadius radius of a region around intial guess peak bounding sliding window moving
+  ** @return list of peaks
+  **/
   std::list<Double_t> GaussPeakSearch(TH1* hist, const std::list<Double_t>& initGuess,
-                                      const Int_t peakWidth);
+                                      const Int_t searchRadius);
 
   /**
   ** @brief Returns peaks according to set options.
+  ** Restores histogram bin range (0, Nbins) after search by any method.
   ** @param hist histogram to search peak
   ** @param initGuess initial guess for searching methods
   **/
   std::list<Double_t> GetPeaks(TH1* hist, const std::list<Double_t>& initGuess);
+
 protected:
   Int_t fPeakSearchMethod = SLIDING_WINDOW;
   // Peak search algoritm common parameters
   Double_t fFitMinSigma = 6.;
   Double_t fFitPeakThreshold = 0.7;  
-  // Sliding window algorithm parameters
-  Int_t fSearchRadius = 10; // interval length for window sliding search.
-                             // The middle of the interval is peak position found by TSpectrum
-  Int_t fSlideWindowWidth = 10;
-  // Gauss + pol algorithm parameters
-  Int_t fPeakWidth = 15;
+
+  Int_t fSearchRadius = 10; // radius of algorithm search aroun initial guess points (applicable for Sliding window (SW) and Gauss)
+  Int_t fSlideWindowWidth = 10; // sliding window width (applicable for SW)
 };
 
 void PeakSearch::SetPeakSearchMethod(const TString& peakSearchAlgorithm) {
@@ -1097,7 +1130,7 @@ PeakSearch::SlidingWindowPeakSearch(TH1* hist, const std::list<Double_t>& initGu
 {
   std::list<Double_t> peaks;
   for (const auto& guessPos: initGuess) {
-    gStyle->SetStatFormat("6.8g");
+    // gStyle->SetStatFormat("6.8g");
     const Int_t peakBinNb = hist->GetXaxis()->FindBin(guessPos);
     Int_t maxIntegral = numeric_limits<Int_t>::min();
     Double_t peakMean;
@@ -1118,10 +1151,25 @@ PeakSearch::SlidingWindowPeakSearch(TH1* hist, const std::list<Double_t>& initGu
 
 std::list<Double_t> 
 PeakSearch::GaussPeakSearch(TH1* hist, const std::list<Double_t>& initGuess,
-                            const Int_t peakWidth) 
+                            const Int_t searchRadius) 
 {
   std::list<Double_t> peaks;
-  peaks = initGuess;
+  for (const auto& guessPos: initGuess) {
+    // get bin position
+    const Int_t peakBinNb = hist->GetXaxis()->FindBin(guessPos);
+    // make initial 'clear' gauss fit
+    auto gausInit = new TF1("gausInit", "gaus", peakBinNb - searchRadius, 
+                                                peakBinNb + searchRadius);
+    auto fitRes = hist->Fit("gausInit", "RS");
+    // make gauss + pol1 fit based on initial preliminary clear gauss fit
+    auto gausPol = new TF1("gausPol", "gaus(0) + pol1(3)", peakBinNb - searchRadius, 
+                                                           peakBinNb + searchRadius);
+    gausPol->SetParameter(0, fitRes->Parameter(0)); // constant (height)
+    gausPol->SetParameter(1, fitRes->Parameter(1)); // mean 
+    gausPol->SetParameter(2, fitRes->Parameter(2)); // sigma
+    fitRes = hist->Fit("gausPol", "RS+");
+    peaks.push_back(fitRes->Parameter(1));
+  }
   return peaks;
 }
 
@@ -1132,11 +1180,13 @@ std::list<Double_t> PeakSearch::GetPeaks(TH1* hist, const std::list<Double_t>& i
       peaks = SlidingWindowPeakSearch(hist, initGuess, fSlideWindowWidth, fSearchRadius);
       break;
     case GAUSS: 
-      peaks = GaussPeakSearch(hist, initGuess, fPeakWidth);
+      peaks = GaussPeakSearch(hist, initGuess, fSearchRadius);
       break;
     default: 
       Error("PeakSearch::SearchPeaks", "Unknown peak search method is set");
   }
+  // restore hist range
+  hist->GetXaxis()->SetRange(0, hist->GetXaxis()->GetNbins());
   return peaks;
 }
 
@@ -1213,6 +1263,7 @@ Calibration::Calibration(const TString& rawDataPath) : TaskManager(rawDataPath) 
 
 void Calibration::SearchPeaks() {
   const TString spectraHistPath = fIOManager->GetPath(ROOT_HIST_SPECTRA_PATH, fRunId, fSensor);
+  const auto histFile = fIOManager->OpenRootFile(spectraHistPath);
 
   const TString peaksHistPath = fIOManager->GetPath(ROOT_HIST_PEAKS_PATH, fRunId, fSensor);
   const auto peakHists = fIOManager->CreateRootFile(peaksHistPath);
@@ -1220,7 +1271,6 @@ void Calibration::SearchPeaks() {
   std::vector<std::list<Double_t>> peaks;
   for (Int_t iStrip = 0; iStrip < fSensor->fStripAmount; iStrip++) {
     const TString histName = Form("strip_%d", iStrip);
-    const auto histFile = fIOManager->OpenRootFile(spectraHistPath);
     const auto hist = static_cast<TH1D*>(GetObjectFromRootFile(histFile, histName));
     const auto peaksTSpec = GetPeaksTSpectrum(hist, fFitMinSigma, fFitPeakThreshold);
     auto stripPeaks = GetPeaks(hist, peaksTSpec);
@@ -1238,7 +1288,7 @@ void Calibration::SearchPeaks() {
       stripPeaks = std::list<Double_t>(3, std::numeric_limits<double>::quiet_NaN());
     }
     peaks.push_back(stripPeaks);
-    histFile->Close();
+    hist->Write();
   }
 
   const TString peakDataPath = fIOManager->GetPath(TXT_PEAK_DATA_PATH, fRunId, fSensor);
@@ -1246,6 +1296,7 @@ void Calibration::SearchPeaks() {
   auto peaksFile = fIOManager->CreateTextFile(peakDataPath);
   Dump2DVector(peaks, peaksFile);
   peaksFile.close();
+  histFile->Close();
 }
 
 Double_t Calibration::GetDeadLayerByEta (const Double_t eta) {
@@ -1331,6 +1382,14 @@ void Calibration::PrintReport(const std::vector<std::vector<Double_t>>& peaks,
     report << "Peak search method: SLIDING_WINDOW" << endl;
     report << "Sliding window algorithm parameters: " <<  endl;
     report << "  window width: " << fSlideWindowWidth <<  endl;
+    report << "  search region around TSpectrum peak: +-" << fSearchRadius <<  endl;
+    report << "  peak RMS: " << fFitMinSigma <<  endl;
+    report << "  peak amplitude threshold (with respect to maximal): " 
+               << fFitPeakThreshold <<  endl;
+  }
+  if (fPeakSearchMethod == GAUSS) {
+    report << "Peak search method: GAUSS (gaus + pol1)" << endl;
+    report << "Algorithm parameters: " <<  endl;
     report << "  search region around TSpectrum peak: +-" << fSearchRadius <<  endl;
     report << "  peak RMS: " << fFitMinSigma <<  endl;
     report << "  peak amplitude threshold (with respect to maximal): " 
@@ -1608,11 +1667,11 @@ void ssd_one_spectrum_calibration() {
   calib_ssd_1m_1->SetFitPeakThreshold(0.7);
   calib_ssd_1m_1->SetSlideWindowWidth(10);
   calib_ssd_1m_1->SetSearchRadius(15);
-  // calib_ssd_1m_1->Exec();
+  calib_ssd_1m_1->Exec();
 
   auto ssd_1_map = new NonUniformityMapBuilder(map_run_path);
   ssd_1_map->SetThickSensor(ssd_1m_1_map);
   ssd_1_map->SetThinSensor(ssd_20u_1_map);
   ssd_1_map->SetThickCalibSensor(ssd_1m_1_cal);
-  ssd_1_map->Exec();
+  // ssd_1_map->Exec();
 }
