@@ -8,118 +8,67 @@
 
 #include "ERQTelescopeGeoComponentDoubleSi.h"
 
+#include "TGeoManager.h"
+#include "TGeoMatrix.h"
+#include <TDOMParser.h>
+#include <TXMLAttr.h>
+#include <TXMLNode.h>
+#include <TList.h>
+
 #include "FairLogger.h"
 
 #include "ERQTelescopeSetup.h"
 
-using namespace std;
-
 Int_t ERQTelescopeGeoComponentDoubleSi::fConstructedObjCount = 0;
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi() {
-}
-//--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(TString typeFromXML, 
-                                                                   TString id,
-                                                                   TString orientAroundZ) 
-: ERGeoComponent(typeFromXML, id)
+ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(
+    const TString& typeFromXML, const TString& id, const TString& orientAroundZ) 
+: ERQTelescopeGeoComponentSensetive(typeFromXML, id)
 {
   TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
   fOrientAroundZ = volumeNameInd;
   fVolumeName += volumeNameInd;
-  fDeadLayerThicknessFrontSide = 0.;
-  fDeadLayerThicknessBackSide  = 0.;
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(TString typeFromXML, TString id, 
-                                                                   TVector3 position, 
-                                                                   TVector3 rotation,
-                                                                   TString  orientAroundZ)
-: ERGeoComponent(typeFromXML, id, position, rotation)
+ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(
+    const TString& typeFromXML, const TString& id, const TVector3& position, 
+    const TVector3& rotation, const TString& orientAroundZ)
+: ERQTelescopeGeoComponentSensetive(typeFromXML, id, position, rotation)
 {
   TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
   fOrientAroundZ = volumeNameInd;
   fVolumeName += volumeNameInd;
-  fDeadLayerThicknessFrontSide = 0.;
-  fDeadLayerThicknessBackSide  = 0.;
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentDoubleSi::~ERQTelescopeGeoComponentDoubleSi() {
-}
 void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   ParseXmlParameters();
-   // ----- BeamDet parameters -------------------------------------------------
-  Double_t transTargetX = 0.;
-  Double_t transTargetY = 0.; 
-  Double_t transTargetZ = 0.;
-  // --------------------------------------------------------------------------
-  // Create a global translation
-  Float_t global_X = 0.;
-  Float_t global_Y = 0.;
-  Float_t global_Z = 0.;
-  // Create a zero rotation
-  TGeoRotation *fZeroRotation = new TGeoRotation();
-  fZeroRotation->RotateX(0.);
-  fZeroRotation->RotateY(0.);
-  fZeroRotation->RotateZ(0.);
-  // Create a 90 degree rotation around Z axis
-  TGeoRotation *f90ZRotation = new TGeoRotation();
-  f90ZRotation->RotateX(0.);
-  f90ZRotation->RotateY(0.);
-  f90ZRotation->RotateZ(90.);
-
-  TGeoManager*   gGeoMan = NULL;
-  // -------   Load media from media file   -----------------------------------
-  FairGeoLoader* geoLoad = FairGeoLoader::Instance();//
-  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-  TString geoPath = gSystem->Getenv("VMCWORKDIR");
-  TString medFile = geoPath + "/geometry/media.geo";
-  geoFace->setMediaFile(medFile);
-  geoFace->readMedia();
-  gGeoMan = gGeoManager;
-  // --------------------------------------------------------------------------
-  // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/QTelescope.temp.root";
-  // --------------------------------------------------------------------------
-  // -----------------   Get and create the required media    -----------------
-  FairGeoMedia*   geoMedia = geoFace->getMedia();
-  FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
-  // ----- Create media for Double Si -----------------------------------------
-  FairGeoMedium* mDoubleSi;
-  TGeoMedium*    pMed; 
-  mDoubleSi = geoMedia->getMedium(fMedia);
-
-  if ( ! mDoubleSi ) Fatal("Main", "Medium for DoubleSi not found");
-  geoBuild->createMedium(mDoubleSi);
-  pMed = gGeoMan->GetMedium(fMedia);
-  if ( ! pMed ) Fatal("Main", "Medium for DoubleSi not found");
-  LOG(DEBUG) << "Created double Si media" << FairLogger::endl;
-
-  // --------------   Create geometry and top volume  -------------------------
-  gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
-  // fVolume = new TGeoVolumeAssembly(fType);
+  auto* media = CreateMaterial(fMedia); 
   // ----------------- DoubleSi -----------------------------------------------
   TGeoVolume* shell;
   TGeoVolume* strip;
   TGeoVolume* box;
-  fVolume =  gGeoManager->MakeBox(this->GetVolumeName(), pMed, fSizeX / 2, fSizeY / 2,  fSizeZ / 2);
+  fVolume =  gGeoManager->MakeBox(this->GetVolumeName(), media, fSizeX / 2, fSizeY / 2,  fSizeZ / 2);
   //------------------ Silicon strip   ---------------------------------------
   Double_t stripX = fSensX / fStripCountX;
   Double_t stripY = fSensY;
   Double_t stripZ = fSensZ - fDeadLayerThicknessFrontSide - fDeadLayerThicknessBackSide;
-  strip = gGeoManager->MakeBox("doubleSiStrip" + fOrientAroundZ, pMed, stripX / 2, 
+  strip = gGeoManager->MakeBox("doubleSiStrip" + fOrientAroundZ, media, stripX / 2, 
                                                                        stripY / 2, 
                                                                        stripZ / 2);
   //------------------ Silicon box   -----------------------------------------
   Double_t boxX = stripX;  
   Double_t boxY = stripY / fStripCountY; 
   Double_t boxZ = stripZ; 
-  box = gGeoManager->MakeBox("SensitiveDoubleSiBox"+fOrientAroundZ, pMed, boxX / 2, 
+  box = gGeoManager->MakeBox("SensitiveDoubleSiBox"+fOrientAroundZ, media, boxX / 2, 
                                                                           boxY / 2, 
                                                                           boxZ / 2);
   //------------------ STRUCTURE  ---------------------------------------------
   //----------------------- Double Si structure -------------------------------
-  //------------------ Add fibers to station  along x ----------------------- 
+  //------------------ Add fibers to station  along x -----------------------
+  TGeoRotation *fZeroRotation = new TGeoRotation();
+  fZeroRotation->RotateX(0.);
+  fZeroRotation->RotateY(0.);
+  fZeroRotation->RotateZ(0.);
   for (Int_t iBox = 0; iBox < fStripCountY ; ++iBox ) {
     Double_t translateY = (fSensY / 2) 
                         - boxY / 2 - boxY * iBox ;
@@ -134,7 +83,7 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
     fVolume->AddNode(strip, iStripX, new TGeoCombiTrans(translateX, 0, translateZ, fZeroRotation));
   }
   if (fOrientAroundZ.Contains("Y")) {
-    fRotation->RotateZ(90.);
+    fRotation.RotateZ(90.);
   }
   // TGeoRotation *rotation = new TGeoRotation();
   // rotation->RotateX(fRotation->X());
@@ -239,5 +188,34 @@ void ERQTelescopeGeoComponentDoubleSi::ParseXmlParameters() {
   }
 }
 //--------------------------------------------------------------------------------------------------
-ClassImp(ERGeoComponent)
+TString ERQTelescopeGeoComponentDoubleSi::GetBranchName(
+    ERDataObjectType objectType, OrientationAroundZ orientationAroundZ /*= OrientationAroundZ::Default*/,
+    ChannelSide channelSide /*= ChannelSide::None*/) const {
+  return GetBranchNamePrefix(SensetiveType::Si, objectType)
+         + "_" + OrientationAroundZStr(orientationAroundZ)
+         + (channelSide != ChannelSide::None ? TString("_") + ChannelSideStr(channelSide) : "");
+}
+//--------------------------------------------------------------------------------------------------
+std::list<OrientationAroundZ> ERQTelescopeGeoComponentDoubleSi::GetOrientationsAroundZ() const {
+  return {OrientationAroundZ::X, OrientationAroundZ::Y};
+}
+//--------------------------------------------------------------------------------------------------
+std::list<ChannelSide> ERQTelescopeGeoComponentDoubleSi::GetChannelSides() const {
+  if (fHasTwoSidedChannel) {
+    return {ChannelSide::First, ChannelSide::Second};
+  }
+  return {ChannelSide::None};
+}
+//--------------------------------------------------------------------------------------------------
+Int_t ERQTelescopeGeoComponentDoubleSi::GetChannelFromSensetiveNodePath(
+    const TString& path, OrientationAroundZ orientation /*= OrientationAroundZ::Default*/) const {
+  TString pathWithChannelPostfix = path;
+  if (orientation == OrientationAroundZ::Y)
+    pathWithChannelPostfix.Remove(pathWithChannelPostfix.Last('/'), pathWithChannelPostfix.Length());
+  const TString channelStr(pathWithChannelPostfix(pathWithChannelPostfix.Last('_') + 1,
+                                                  pathWithChannelPostfix.Length()));
+  return channelStr.Atoi();
+}
+//--------------------------------------------------------------------------------------------------
+ClassImp(ERQTelescopeGeoComponentDoubleSi)
 

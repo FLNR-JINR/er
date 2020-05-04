@@ -14,7 +14,7 @@
 
 
 #include "ERGadastDigiPar.h"
-#include "ERDetectorList.h"
+#include "ERSupport.h"
 
 class ERGadastSetup {
 public:
@@ -27,7 +27,7 @@ public:
     static Float_t CsIDispB(TVector3* pos);
     static Float_t LaBrDispB(TVector3* pos);
 
-	int GetMeshElement(TVector3* pos,ERGadastDetectorType detType);
+	int GetMeshElement(TVector3* pos, SensetiveType detType);
 private:
 	ERGadastSetup();
 	static ERGadastSetup* fInstance;

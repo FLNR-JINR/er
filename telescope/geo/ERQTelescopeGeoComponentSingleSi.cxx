@@ -8,6 +8,13 @@
 
 #include "ERQTelescopeGeoComponentSingleSi.h"
 
+#include "TGeoManager.h"
+#include "TGeoMatrix.h"
+#include <TDOMParser.h>
+#include <TXMLAttr.h>
+#include <TXMLNode.h>
+#include <TList.h>
+
 #include "FairLogger.h"
 
 #include "ERQTelescopeSetup.h"
@@ -15,74 +22,38 @@
 using namespace std;
 
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(TString typeFromXML, 
-                                                                   TString id, 
-                                                                   TString orientAroundZ) 
-: ERGeoComponent(typeFromXML, id)
-{
+ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(
+    const TString& typeFromXML, const TString& id, const TString& orientAroundZ) 
+: ERQTelescopeGeoComponentSensetive(typeFromXML, id)
+{ 
   TString volumeNameInd = (orientAroundZ == "X") ? "_X" : "_Y";  
-  fOrientAroundZ = volumeNameInd;
+  fOrientAroundZ = (orientAroundZ == "X") ? OrientationAroundZ::X : OrientationAroundZ::Y;
   fVolumeName += volumeNameInd;
-  fDeadLayerThicknessFrontSide = 0.;
-  fDeadLayerThicknessBackSide  = 0.;
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(TString typeFromXML, TString id, 
-                                                                   TVector3 position, 
-                                                                   TVector3 rotation,
-                                                                   TString  orientAroundZ)
-: ERGeoComponent(typeFromXML, id, position, rotation)
+ERQTelescopeGeoComponentSingleSi::ERQTelescopeGeoComponentSingleSi(
+    const TString& typeFromXML, const TString& id, const TVector3& position, 
+    const TVector3& rotation, const TString& orientAroundZ)
+: ERQTelescopeGeoComponentSensetive(typeFromXML, id, position, rotation)
 {
   TString volumeNameInd = (orientAroundZ == "X") ? "_X" : "_Y";  
-  fOrientAroundZ = volumeNameInd;
+  fOrientAroundZ = (orientAroundZ == "X") ? OrientationAroundZ::X : OrientationAroundZ::Y;
   fVolumeName += volumeNameInd;
-  fDeadLayerThicknessFrontSide = 0.;
-  fDeadLayerThicknessBackSide  = 0.;
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
   ParseXmlParameters();
-  TGeoManager*   gGeoMan = NULL;
-  // -------   Load media from media file   -----------------------------------
-  FairGeoLoader* geoLoad = FairGeoLoader::Instance();//
-  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-  TString geoPath = gSystem->Getenv("VMCWORKDIR");
-  TString medFile = geoPath + "/geometry/media.geo";
-  geoFace->setMediaFile(medFile);
-  geoFace->readMedia();
-  gGeoMan = gGeoManager;
-  // --------------------------------------------------------------------------
-  // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/QTelescope.temp.root";
-  // --------------------------------------------------------------------------
-  // -----------------   Get and create the required media    -----------------
-  FairGeoMedia*   geoMedia = geoFace->getMedia();
-  FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
-  // ----- Create media for Single Si -----------------------------------------
-  FairGeoMedium* mSingleSi;
-  TGeoMedium*    pMed; 
-  mSingleSi = geoMedia->getMedium(fMedia);
-
-  if ( ! mSingleSi ) Fatal("Main", "Medium for singleSi not found");
-  geoBuild->createMedium(mSingleSi);
-  pMed = gGeoMan->GetMedium(fMedia);
-  if ( ! pMed ) Fatal("Main", "Medium for SingleSi not found");
-  LOG(DEBUG) << "Created single Si media" << FairLogger::endl;
-
-  // --------------   Create geometry and top volume  -------------------------
-  gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
+  auto* media = CreateMaterial(fMedia);
+  media->GetMaterial()->Print();
   // ---------------- SingleSi-------------------------------------------------
   TGeoVolume* singleSiStrip;
-
-  fVolume = gGeoManager->MakeBox(this->GetVolumeName(), pMed, fSizeX / 2., fSizeY / 2., fSizeZ / 2.);
+  fVolume = gGeoManager->MakeBox(this->GetVolumeName(), media, fSizeX / 2., fSizeY / 2., fSizeZ / 2.);
   //------------------ Single Si strip --------------------------------------
   Double_t singleSiStripX = fSensX / fStripCount; 
   Double_t singleSiStripY = fSensY;   
   Double_t singleSiStripZ = fSensZ - fDeadLayerThicknessFrontSide - fDeadLayerThicknessBackSide;   
-  singleSiStrip = gGeoManager->MakeBox("SensitiveSingleSiStrip"+fOrientAroundZ, pMed, 
-                                                                        singleSiStripX / 2., 
-                                                                        singleSiStripY / 2., 
-                                                                        singleSiStripZ / 2.);
+  singleSiStrip = gGeoManager->MakeBox("SensitiveSingleSiStrip", media, singleSiStripX / 2., 
+                                       singleSiStripY / 2., singleSiStripZ / 2.);
   //------------------ STRUCTURE  ---------------------------------------------
   //----------------------- Single Si structure -------------------------------
   //------------------ Add fibers to station  along x -----------------------
@@ -93,18 +64,16 @@ void ERQTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
                         - fDeadLayerThicknessBackSide)/2.;
     fVolume->AddNode(singleSiStrip, iStrip, new TGeoCombiTrans(transX, 0., transZ, new TGeoRotation()));
   }
-  if (fOrientAroundZ.Contains("Y")) {
-    fRotation->RotateZ(90.);
+  if (fOrientAroundZ == OrientationAroundZ::Y) {
+    fRotation.RotateZ(90.);
   }
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoComponentSingleSi::ParseXmlParameters() {
   TString xmlFile = ERQTelescopeSetup::Instance()->GetXMLParametersFile();
-  TDOMParser *domParser;//
-  //gROOT->ProcessLine(".O 0");
+  TDOMParser *domParser;
   domParser = new TDOMParser;
   domParser->SetValidate(false); // do not validate with DTD
-
   Int_t parsecode = domParser->ParseFile(xmlFile);
   if (parsecode < 0) {
      LOG(FATAL) << domParser->GetParseCodeMessage(parsecode) << FairLogger::FairLogger::endl;
@@ -188,6 +157,30 @@ void ERQTelescopeGeoComponentSingleSi::ParseXmlParameters() {
       }
     }
   }
+}
+//--------------------------------------------------------------------------------------------------
+TString ERQTelescopeGeoComponentSingleSi::GetBranchName(
+    ERDataObjectType objectType, OrientationAroundZ /*orientationAroundZ = OrientationAroundZ::Default*/,
+    ChannelSide channelSide /*= ChannelSide::None*/) const {
+  return GetBranchNamePrefix(SensetiveType::Si, objectType)
+         + (channelSide != ChannelSide::None ? TString("_") + ChannelSideStr(channelSide) : "");
+}
+//--------------------------------------------------------------------------------------------------
+std::list<OrientationAroundZ> ERQTelescopeGeoComponentSingleSi::GetOrientationsAroundZ() const {
+  return {fOrientAroundZ};
+}
+//--------------------------------------------------------------------------------------------------
+std::list<ChannelSide> ERQTelescopeGeoComponentSingleSi::GetChannelSides() const {
+  if (fHasTwoSidedChannel) {
+    return {ChannelSide::First, ChannelSide::Second};
+  }
+  return {ChannelSide::None};
+}
+//--------------------------------------------------------------------------------------------------
+Int_t ERQTelescopeGeoComponentSingleSi::GetChannelFromSensetiveNodePath(
+    const TString& path, OrientationAroundZ /*orientation = OrientationAroundZ::Default*/) const {
+  const TString channelStr(path(path.Last('_') + 1, path.Length()));
+  return channelStr.Atoi();
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeGeoComponentSingleSi)

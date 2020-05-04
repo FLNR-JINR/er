@@ -20,27 +20,21 @@ class TClonesArray;
 class FairVolume;
 class TF1;
 
-class ERQTelescope : public ERDetector
-{
-
+class ERQTelescope : public ERDetector {
+  using BranchName = TString;
+  using ComponentPoints = std::map<BranchName, TClonesArray*>;
+  using PointsPerComponent = std::map<TString, ComponentPoints>;
 public:
-
   /** Default constructor **/
   ERQTelescope();
-
-
   /** Standard constructor.
    *@param name    ERQTelescope ERQTelescope name
    *@param active  sensitivity flag
    *@param verbose Verbosity level. 1 - only standart logs, 2 - Print points after each event, 3 - GEANT Step information
    **/
   ERQTelescope(const char* name, Bool_t active, Int_t verbose);
-
-
   /** Destructor **/
   virtual ~ERQTelescope();
-
-
   /** Virtual method ProcessHits
    **
    ** Defines the action to be taken when a step is inside the
@@ -49,45 +43,33 @@ public:
    *@param vol  Pointer to the active volume
    **/
   virtual Bool_t ProcessHits(FairVolume* vol = 0);
-
-
   /** Virtual method BeginEvent
    **
    **/
   virtual void BeginEvent();
-
   /** Virtual method EndOfEvent
    **
    ** If verbosity level is set, print point collection at the
    ** end of the event.
    **/
   virtual void EndOfEvent();
-
   /** Virtual method Register
    **
    ** Registers the point collection in the ROOT manager.
    **/
   virtual void Register();
-
-
   /** Accessor to the point collection **/
   virtual TClonesArray* GetCollection(Int_t iColl) const;
-
-
   /** Virtual method Print
    **
    ** Screen output of hit collection.
    **/
   virtual void Print(Option_t *option="") const;
-
-
   /** Virtual method Reset
    **
    ** Clears the point collection
    **/
   virtual void Reset();
-
-
   /** Virtual method CopyClones
    **
    ** Copies the hit collection with a given track index offset
@@ -97,19 +79,16 @@ public:
    **/
   virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2,
 			  Int_t offset);
-
    /** Virtaul method Initialize
    **
    ** Initialize ERQTelescope data
    **/
   virtual void Initialize();
-
   /** @brief Builds geometry and writes it to temporary file
    ** trough parameters from ERBeamDetSetup class object.
    ** Virtual from FairDetector.
   **/
   virtual void ConstructGeometry();
-
   /** Virtaul method CheckIfSensitive
 	**Check whether a volume is sensitive.
   ** @param(name)  Volume name
@@ -118,20 +97,13 @@ public:
   ** The decision is based on the volume name.
   **/
   virtual Bool_t CheckIfSensitive(std::string name);
-
   /** Virtaul method SetGeomVersion
   **/
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
-
 private:
-  ERQTelescopeSetup         *fQTelescopeSetup;
-  std::vector<TClonesArray*>     fDoubleSiXPoints;          //!  The point collection
-  std::vector<TClonesArray*>     fDoubleSiYPoints;          //!  The point collection
-  std::vector<TClonesArray*>     fSingleSiPoints;          //!  The point collection
-  std::vector<TClonesArray*>     fCsIPoints;          //!  The point collection
-
+  ERQTelescopeSetup* fQTelescopeSetup;
+  PointsPerComponent fPoints;
   Int_t                     fVersion;           //! geometry version
-
   Int_t                     fEventID;           //!  event index
   Int_t                     fTrackID;           //!  track index
   Int_t                     fMot0TrackID;       //!  0th mother track index
@@ -146,16 +118,12 @@ private:
   Int_t                     fCsIBoxNb;           // CsI (0-3)
   Int_t                     fCsIStationNb;
   Int_t                     fPDG;
-
-
 private:
   /** Private method AddPoint
    **
-   ** Adds a NeuRadPoint to the Point Collection
+   ** Adds a telescope to the Point Collection
    **/
-  ERQTelescopeSiPoint* AddSiPoint(TClonesArray& clref);
-  ERQTelescopeCsIPoint* AddCsIPoint(TClonesArray& clref);
-
+  void AddPoint(TClonesArray& clref);
   /** Private method ResetParameters
    **
    ** Resets the private members for the track parameters

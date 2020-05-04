@@ -19,6 +19,7 @@
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
+#include "ERQTelescopeGeoComponentSensetive.h"
 //-------------------------------------------------------------------------------------------------
 ERQTelescope::ERQTelescope() :
   ERDetector("ERQTelescope", kTRUE)
@@ -58,24 +59,14 @@ void ERQTelescope::Initialize() {
   FairDetector::Initialize();
 }
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeSiPoint* ERQTelescope::AddSiPoint(TClonesArray& clref) {
-  Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERQTelescopeSiPoint(fEventID, fTrackID, fMot0TrackID, fMass,
+void ERQTelescope::AddPoint(TClonesArray& clref) {
+  new(clref[clref.GetEntriesFast()]) ERQTelescopeSiPoint(
+    fEventID, fTrackID, fMot0TrackID, fMass,
     TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
     TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
     TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
     TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
     fTime, fLength, fEloss, fSiStationNb, fSiStripNb,fPDG);
-}
-//-------------------------------------------------------------------------------------------------
-ERQTelescopeCsIPoint* ERQTelescope::AddCsIPoint(TClonesArray& clref) {
-  Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) ERQTelescopeCsIPoint(fEventID, fTrackID, fMot0TrackID, fMass,
-    TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
-    TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
-    TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
-    TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-    fTime, fLength, fEloss, fCsIStationNb, fCsIBoxNb,fPDG);
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::ConstructGeometry() {
@@ -96,44 +87,25 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
     fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     fMass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
     fPDG = gMC->TrackPid();
-    // gMC->CurrentVolID(sensor);
-    // gMC->CurrentVolOffID(1, sector);
   }
-
   fEloss += gMC->Edep(); // GeV //Return the energy lost in the current step
-
-  if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume
-      gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
-      gMC->IsTrackDisappeared())
-  {
+  if ((gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume
+       gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold
+       gMC->IsTrackDisappeared()) && fEloss > 0.) {
     gMC->TrackPosition(fPosOut);
     gMC->TrackMomentum(fMomOut);
-    TString volName = gMC->CurrentVolName();
-    if (fEloss > 0.){
-      if (volName.Contains("DoubleSi")) {
-        Int_t xStripNb = -1, yStripNb = -1;
-        gMC->CurrentVolOffID(0, volName.EndsWith("Y") ?  xStripNb : yStripNb);
-        gMC->CurrentVolOffID(1, volName.EndsWith("Y") ?  yStripNb : xStripNb);
-        gMC->CurrentVolOffID(2, fSiStationNb);
-        fSiStripNb = xStripNb;
-        AddSiPoint(*(fDoubleSiXPoints[fSiStationNb]));
-        fSiStripNb = yStripNb;
-        AddSiPoint(*(fDoubleSiYPoints[fSiStationNb]));
-      }
-      if (volName.Contains("SingleSi")) {
-        gMC->CurrentVolOffID(0, fSiStripNb) ;
-        gMC->CurrentVolOffID(1, fSiStationNb);
-        AddSiPoint(*(fSingleSiPoints[fSiStationNb]));
-      }
-      if (volName.Contains("PixelSi")) {
-        gMC->CurrentVolOffID(1, fSiStripNb);
-        gMC->CurrentVolOffID(2, fSiStationNb);
-        AddSiPoint(*(fSingleSiPoints[fSiStationNb]));
-      }
-      if (volName.Contains("CsI")) {
-        gMC->CurrentVolOffID(1, fCsIBoxNb);
-        gMC->CurrentVolOffID(2, fCsIStationNb);
-        AddCsIPoint(*(fCsIPoints[fCsIStationNb]));
+    const TString path = gMC->CurrentVolPath();
+    const auto* component = dynamic_cast<ERQTelescopeGeoComponentSensetive*>(fQTelescopeSetup->GetComponent(path));
+    if (!component)
+      LOG(FATAL) << "[ERQTelescope] Not found setup component for sensetive volume path" 
+                  << path << FairLogger::endl;
+    fEloss /= component->GetOrientationsAroundZ().size() * component->GetChannelSides().size();
+    for (const auto orientation : component->GetOrientationsAroundZ()) {
+      for (const auto channelSide : component->GetChannelSides()) {
+        fSiStripNb = component->GetChannelFromSensetiveNodePath(path, orientation);
+        auto* pointCollection = 
+            fPoints[component->GetVolumeName()][component->GetBranchName(ERDataObjectType::Point, orientation, channelSide)];
+        AddPoint(*pointCollection);
       }
     }
   }
@@ -152,32 +124,16 @@ void ERQTelescope::EndOfEvent() {
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
-  TString branchName;
   if (!ioman)
     Fatal("Init", "IO manager is not set");
-  Int_t iDoubleSi = 0; 
-  Int_t iSingleSi = 0; 
-  Int_t iCsI      = 0; 
-  std::vector<TString>* sensVolumes = fQTelescopeSetup->GetComponentNames();
-  for (Int_t i = 0; i < sensVolumes->size(); i++) {
-    if (sensVolumes->at(i).Contains("DoubleSi")) {
-      fDoubleSiXPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
-      fDoubleSiYPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
-      branchName = "ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iDoubleSi, 10) + "_X";
-      ioman->Register(branchName, "QTelescope", fDoubleSiXPoints.back(), kTRUE);
-      branchName = "ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iDoubleSi++, 10) + "_Y";
-      ioman->Register(branchName, "QTelescope", fDoubleSiYPoints.back(), kTRUE);
-    }
-    if (sensVolumes->at(i).Contains("SingleSi")) {
-      fSingleSiPoints.push_back(new TClonesArray("ERQTelescopeSiPoint"));
-      branchName = "ERQTelescopeSiPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iSingleSi++, 10);
-      ioman->Register(branchName, "QTelescope", fSingleSiPoints.back(), kTRUE);
-    }
-    if (sensVolumes->at(i).Contains("CsI")) {
-      fCsIPoints.push_back(new TClonesArray("ERQTelescopeCsIPoint"));
-      branchName = "ERQTelescopeCsIPoint_" + sensVolumes->at(i) + "_" + TString::Itoa(iCsI++, 10);      
-      ioman->Register(branchName, "QTelescope", fCsIPoints.back(), kTRUE);
-
+  for (const auto* component : fQTelescopeSetup->GetAllComponents()) {
+    if (!dynamic_cast<const ERQTelescopeGeoComponentSensetive*>(component))
+      continue;
+    for (const auto branchName : component->GetBranchNames(ERDataObjectType::Point)) {
+      LOG(DEBUG) << "[ERQTelescope] Register branch " << branchName 
+                 << " for component " << component->GetVolumeName() << FairLogger::endl;
+      fPoints[component->GetVolumeName()][branchName] = new TClonesArray("ERQTelescopeSiPoint");
+      ioman->Register(branchName, "QTelescope", fPoints[component->GetVolumeName()][branchName], kTRUE);
     }
   }
 }
@@ -210,17 +166,10 @@ void ERQTelescope::Print(Option_t *option) const {
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::Reset() {
-  for(auto &itDobleSiXPoints : fDoubleSiXPoints) {
-    itDobleSiXPoints->Clear();
-  }
-  for(auto &itDobleSiYPoints : fDoubleSiYPoints) {
-    itDobleSiYPoints->Clear();
-  }
-  for(auto &itSingleSiPoints : fSingleSiPoints) {
-    itSingleSiPoints->Clear();
-  }
-  for(auto &itCsIPoints : fCsIPoints) {
-    itCsIPoints->Clear();
+  for(auto& componentPoints : fPoints) {
+    for (auto& branchPoints : componentPoints.second) {
+      branchPoints.second->Clear();
+    }
   }
   ResetParameters();
 }

@@ -9,49 +9,46 @@
 #ifndef ERGeoComponent_H
 #define ERGeoComponent_H
 
+#include <list>
+
 #include "TString.h"
 #include "TVector3.h"
-#include "TGeoVolume.h"
 #include "TGeoMatrix.h"
-#include <TDOMParser.h>
-#include <TXMLAttr.h>
-#include <TXMLNode.h>
-#include <TList.h>
+#include "TGeoVolume.h"
+#include "TGeoMedium.h"
 
-#include "ERSetup.h"
+#include "ERSupport.h"
 
 class ERGeoComponent : public TNamed {
 public:
-  ERGeoComponent();
-  ERGeoComponent(TString name);
-  ERGeoComponent(TString typeFromXML, TString id);
-  ERGeoComponent(TString typeFromXML, TString id, TVector3 position, TVector3 rotation);
-  ~ERGeoComponent();
+  ERGeoComponent() = default;
+  ERGeoComponent(const TString& name) : TNamed(name, name) {}
+  ERGeoComponent(const TString& name, const TVector3& position, const TVector3& rotation);
+  ERGeoComponent(const TString& typeFromXML, const TString& id);
+  ERGeoComponent(const TString& typeFromXML, const TString& id, 
+                 const TVector3& position, const TVector3& rotation);
   /* Modifiers */
-  void SetVolumeNamePrefix(TString prefix) {fVolumeName = prefix + fVolumeName;}
-  void SetPosition(TVector3 position);
-  void SetRotation(TVector3 rotation);
+  void SetVolumeNamePrefix(const TString& prefix) {fVolumeName = prefix + fVolumeName;}
+  void SetPosition(const TVector3& position) {fPosition = position; }
+  void SetRotation(const TVector3& rotation);
   /* Accessors */
-  TGeoVolume*   GetVolume()     const {return fVolume;}
-  TVector3*     GetPosition()   const {return fPosition;}
-  TGeoRotation* GetRotation()   const {return fRotation;}
-  TString       GetID()         const {return fComponentId;}
-  TString       GetType()       const {return fType;}
-  TString       GetVolumeName() const {return fVolumeName;}
-
-public:
+  TGeoVolume*  GetVolume() {return fVolume;}
+  const TVector3* GetPosition() const {return &fPosition;}
+  const TGeoRotation* GetRotation() const {return &fRotation;}
+  const TString& GetID() const {return fComponentId;}
+  const TString& GetType() const {return fType;}
+  const TString& GetVolumeName() const {return fVolumeName;}
+  virtual std::list<TString> GetBranchNames(ERDataObjectType object) const = 0;
   virtual void ConstructGeometryVolume(void) = 0;
-
 protected:
   virtual void ParseXmlParameters() = 0;
-  
-  TGeoVolume*   fVolume;
-  TVector3*     fPosition;
-  TGeoRotation* fRotation;
+  TGeoMedium* CreateMaterial(const TString& name); 
+  TGeoVolume*   fVolume = nullptr;
+  TVector3     fPosition;
+  TGeoRotation fRotation;
   TString       fType;
   TString       fComponentId;
   TString       fVolumeName;
-
   ClassDef(ERGeoComponent,1)
 };
 #endif

@@ -26,6 +26,7 @@ class ERQTelescopeGeoComponentPassive : public ERGeoComponent {
     TFile* fGeoFile = nullptr;
     TString fFileName;
     TString fTopVolumeName;
+    
     ClassDef(ERQTelescopeGeoComponentPassive,1)                            
 };
-#endif  
+#endif 

@@ -16,36 +16,27 @@
 #include "TGeoVolume.h"
 #include "TGeoMatrix.h"
 
-class ERGeoSubAssembly : public TNamed {
+class ERGeoSubAssembly : public ERGeoComponent {
 public:
-  ERGeoSubAssembly();
-  ERGeoSubAssembly(TString name);
-  ERGeoSubAssembly(TString name, TVector3 position, TVector3 rotation);
-  ~ERGeoSubAssembly();
-
+  ERGeoSubAssembly() = default;
+  ERGeoSubAssembly(const TString& name) : ERGeoComponent(name) {}
+  ERGeoSubAssembly(const TString& name, const TVector3& position, const TVector3& rotation)
+    : ERGeoComponent(name, position, rotation) {}
   /* Modifiers */
-  void SetPosition(TVector3 position);
-  void SetRotation(TVector3 rotation);
-  void AddComponent(TObject* component);
-  void AddComponent(TObject* component, TVector3 position, TVector3 rotation);
+  void AddComponent(ERGeoComponent* component);
+  void AddComponent(ERGeoComponent* component, const TVector3& position, const TVector3& rotation);
   /* Accessors */
-  TGeoVolume*   GetVolume()   const {return fVolume;}
-  TVector3*     GetPosition() const {return fPosition;}
-  TGeoRotation* GetRotation() const {return fRotation;}
-  std::vector<TString>* GetComponentNames() const {return fComponentNames;}
-  
-public:
+  const TGeoVolume* GetVolume() const {return fVolume;}
+  const std::map<TString, ERGeoComponent*>& GetComponents() const { return fComponents; }
+  std::list<TString> GetComponentNames() const;
+  virtual std::list<TString> GetBranchNames(ERDataObjectType object) const {
+    LOG(FATAL) << "SubAssembly does not produce branches\n";
+    return {};
+  }
   void  ConstructGeometryVolume();
-
 protected:
-  TObjArray*               fComponents;
-  TVector3*                fPosition;
-  TGeoRotation*            fRotation;
-  TGeoVolume*              fVolume;
-  std::vector<TString>     *fComponentNames;
-  
-  static std::map<TString, Int_t> *fComponentTypes; // <"ComponentName", count of components with "ComponentName">
-
+  virtual void ParseXmlParameters() {}
+  std::map<TString, ERGeoComponent*> fComponents;
   ClassDef(ERGeoSubAssembly,1)
 };
 #endif

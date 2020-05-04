@@ -9,37 +9,34 @@
 #ifndef ERQTelescopeGeoComponentCsI_H
 #define ERQTelescopeGeoComponentCsI_H
 
-#include "ERGeoComponent.h"
+#include "ERQTelescopeGeoComponentSensetive.h"
 
 #include "TString.h"
 #include "TVector3.h"
 
-class ERQTelescopeGeoComponentCsI : public ERGeoComponent {
+class ERQTelescopeGeoComponentCsI : public ERQTelescopeGeoComponentSensetive {
 public:
-  ERQTelescopeGeoComponentCsI();
-  ERQTelescopeGeoComponentCsI(TString typeFromXML, TString id);
-  ERQTelescopeGeoComponentCsI(TString typeFromXML, TString id, 
-                                                   TVector3 position, 
-                                                   TVector3 rotation);
-  ~ERQTelescopeGeoComponentCsI();
-  /* Modifiers */
-  
-  /* Accessors */
-public:
+  ERQTelescopeGeoComponentCsI() = default;
+  ERQTelescopeGeoComponentCsI(const TString& typeFromXML, const TString& id)
+    : ERQTelescopeGeoComponentSensetive(typeFromXML, id) {}
+  ERQTelescopeGeoComponentCsI(const TString& typeFromXML, const TString& id, 
+                              const TVector3& position, const TVector3& rotation)
+    : ERQTelescopeGeoComponentSensetive(typeFromXML, id, position, rotation) {}
+  virtual ~ERQTelescopeGeoComponentCsI() = default;
   virtual void ConstructGeometryVolume(void);
-
+  virtual TString GetBranchName(ERDataObjectType object, 
+                                OrientationAroundZ orientationAroundZ = OrientationAroundZ::Default,
+                                ChannelSide side = ChannelSide::None) const;
+  virtual std::list<OrientationAroundZ> GetOrientationsAroundZ() const;
+  virtual std::list<ChannelSide> GetChannelSides() const;
+  virtual Int_t GetChannelFromSensetiveNodePath(
+    const TString& path, OrientationAroundZ orientation = OrientationAroundZ::Default) const;
 private:
-  Double_t fSizeX;
-  Double_t fSizeY;
-  Double_t fSizeZ;
-  Int_t    fCubesCountX;
-  Int_t    fCubesCountY;
-  Double_t fSplitSize;
-  Double_t fDeadLayer;
-  TString  fMedia;
-
-  void ParseXmlParameters();
-
+  virtual void ParseXmlParameters();
+  Int_t    fCubesCountX = 0;
+  Int_t    fCubesCountY = 0;
+  Double_t fSplitSize = 0.;
+  Double_t fDeadLayer = 0.;
   ClassDef(ERQTelescopeGeoComponentCsI,1)
 };
 #endif

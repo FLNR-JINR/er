@@ -19,11 +19,11 @@ void sim_digi (Int_t nEvents = 100000) {
                          + "/db/BeamDet/BeamDetParts.xml";
   TString targetGeoFileName = workDirPath + "/geometry/target.D2.gas.root";
   TString ndGeoFileName = workDirPath + "/geometry/ND.geo.root";
-  
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer; 
   timer.Start();
-  // ------------------------------------------------------------------------
+  //-------Set LOG verbosity  ----------------------------------------------- 
+  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
   // -----   Create simulation run   ----------------------------------------
   ERRunSim* run = new ERRunSim();
   /** Select transport engine
@@ -91,6 +91,7 @@ void sim_digi (Int_t nEvents = 100000) {
   assembly_1->AddComponent(veto1);
 
   setupQTelescope->AddSubAssembly(assembly_1);
+
 
   // ----- 2 parameters ----------------------------------------------------
   ERGeoSubAssembly* assembly_2 = new ERGeoSubAssembly("Telescope_2", TVector3(-y, -x, z), fZeroRotation);
@@ -233,9 +234,6 @@ void sim_digi (Int_t nEvents = 100000) {
   run->AddTask(ndDigitizer);
   //-------Set visualisation flag to true------------------------------------
   //run->SetStoreTraj(kTRUE);
-
-  //-------Set LOG verbosity  ----------------------------------------------- 
-  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
 
   // -----   Initialize simulation run   ------------------------------------
   run->Init();
