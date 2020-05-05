@@ -92,7 +92,7 @@ protected:
   std::pair<Double_t, Double_t> CalcEnergyDeposites (
       const ERQTelescopeTrack& track, const TVector3& startPoint,
       const G4ParticleDefinition& particle, std::list<DigiOnTrack>& digisOnTrack);
-  std::pair<TString, const ERDigi*> FindDigiEdepByNode(const TGeoNode& node, const TString& nodePath);
+  std::map<TString, const ERDigi*> FindDigisByNode(const TGeoNode& node, const TString& nodePath);
   void FindEnergiesForDeEAnalysis(const TString& trackBranch,
                                   const std::list<DigiOnTrack>& digisOnTrack, 
                                   const TString& eStation, const TString& deStation, 
