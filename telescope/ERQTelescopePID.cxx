@@ -8,6 +8,8 @@
 
 #include "ERQTelescopePID.h"
 
+#include <numeric>
+
 #include "TVector3.h"
 #include "TMath.h"
 #include "TGeoNode.h"
@@ -25,9 +27,6 @@
 
 #include "ERBeamDetTrack.h"
 #include "ERRunAna.h"
-
-#include <iostream>
-using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERQTelescopePID::ERQTelescopePID()
@@ -97,6 +96,8 @@ void ERQTelescopePID::Exec(Option_t* opt) {
   for (const auto& itTrackBranches : fQTelescopeTrack) {
     const auto& trackBranch = itTrackBranches.first;
     const auto& tracks = itTrackBranches.second;
+    if (tracks->GetEntriesFast() == 0)
+      continue;
     LOG(DEBUG) << "[ERQTelescopePID] Work with traks in " << trackBranch << FairLogger::endl;
     for (Int_t iTrack(0); iTrack < tracks->GetEntriesFast(); iTrack++) { 
       const auto* track = static_cast<ERQTelescopeTrack*>(tracks->At(iTrack));
@@ -259,16 +260,15 @@ CalcEnergyDeposites(const ERQTelescopeTrack& track, const TVector3& startPoint,
     // If track in sensetive volume, try to find digi
     if (TString(gGeoManager->GetPath()).Contains("Sensitive")){
       LOG(DEBUG) <<"[ERQTelescopePID] [CalcEnergyDeposites]"
-                 <<" Get energy deposite from digi." << FairLogger::endl;
-      const auto branchAndDigi = FindDigiEdepByNode(*node, gGeoManager->GetPath());
-      const auto digiBranch = branchAndDigi.first;
-      const auto* digi = branchAndDigi.second;
-      if (digi) {
+                 <<" Get energy deposite from digis." << FairLogger::endl;
+      const auto branchAndDigis = FindDigisByNode(*node, gGeoManager->GetPath());
+      for (const auto& branchAndDigi : branchAndDigis) {
+        const auto digiBranch = branchAndDigi.first;
+        const auto* digi = branchAndDigi.second;
         digisOnTrack.emplace_back(digiBranch, digi, gGeoManager->GetStep());
+        kineticEnergy += digi->Edep();
+        digiDepositesSum += digi->Edep();
       }
-      const auto digiDeposite = digi ? digi->Edep() : 0.;
-      kineticEnergy += digiDeposite;
-      digiDepositesSum += digiDeposite;
     } else  { // track in passive volume
       const auto step = gGeoManager->GetStep();
       // We take into account only half of step in target.
@@ -292,16 +292,19 @@ CalcEnergyDeposites(const ERQTelescopeTrack& track, const TVector3& startPoint,
   return {digiDepositesSum, deadDepositesSum};
 }
 //--------------------------------------------------------------------------------------------------
-std::pair<TString, const ERDigi*> ERQTelescopePID::FindDigiEdepByNode(const TGeoNode& node, const TString& nodePath) {
+std::map<TString, const ERDigi*> ERQTelescopePID::FindDigisByNode(const TGeoNode& node, const TString& nodePath) {
   // example SSD: /cave_1/QTelescopeTmp_0/Telescope_4_5/Telescope_4_SingleSi_SSD_V_4_X_11/SensitiveSingleSiStrip_X_2
   // example DSD: /cave_1/QTelescopeTmp_0/CT_3/CT_DoubleSi_DSD_XY_0/doubleSiStrip_XY_0/SensitiveDoubleSiBox_XY_16
   // example CsI: /cave_1/QTelescopeTmp_0/Central_telescope_3/Central_telescope_CsI_0/CsIBoxShell_8/SensitiveCsIBox_1
   // example NonUniform SSD: /cave_1/QTelescopeTmp_0/Telescope_1_1/Telescope_1_SingleSi_SSD20_1_X_0/pseudoSiStrip_4_4/SensitivePixelSiBox_X4_Y1_0
-  const auto getDigiBranchSubString = [&node, &nodePath]() -> TString {
+  std::map<TString, const ERDigi*> resultDigis;
+  const bool nodeOfDoubleSiStation = nodePath.Contains("DoubleSi");
+  //@TODO here Setup->GetComponent(path) interface should be used in future.
+  const auto getDigiBranchSubString = [&node, &nodePath, nodeOfDoubleSiStation]() -> TString {
     if (nodePath.Contains("SingleSi") && !nodePath.Contains("pseudo")) {
       return node.GetMotherVolume()->GetName(); // for ex: Telescope_4_SingleSi_SSD_V_4_X_11
     }
-    if (nodePath.Contains("DoubleSi") || nodePath.Contains("CsI") || nodePath.Contains("pseudo")) {
+    if (nodeOfDoubleSiStation || nodePath.Contains("CsI") || nodePath.Contains("pseudo")) {
       TString digiBranchSubString = nodePath;
       digiBranchSubString.Remove(digiBranchSubString.Last('/'), digiBranchSubString.Length());
       digiBranchSubString.Remove(digiBranchSubString.Last('/'), digiBranchSubString.Length());
@@ -312,38 +315,56 @@ std::pair<TString, const ERDigi*> ERQTelescopePID::FindDigiEdepByNode(const TGeo
   const auto digiBranchSubstring = getDigiBranchSubString();
   LOG(DEBUG) <<"   [ERQTelescopePID][CalcEnergyDeposites] Digi branch substring " 
              << digiBranchSubstring << FairLogger::endl;
-  const auto itDigiBranch = std::find_if(fQTelescopeDigi.begin(), fQTelescopeDigi.end(), 
-      [&digiBranchSubstring] (const std::pair<TString, TClonesArray*> digiCollection) {
-          return digiCollection.first.Contains(digiBranchSubstring);
-      }
-  );
-  if (itDigiBranch == fQTelescopeDigi.end()){  
+  // Multiple digi collections can correspond to one geometry node.
+  // DoubleSi station is example.
+  //@TODO here component->GetBranchNames() interface should be used in future.
+  std::list<TString> digiBranchNames;
+  for (const auto& digiCollectionPair : fQTelescopeDigi) {
+    if (digiCollectionPair.first.Contains(digiBranchSubstring))
+      digiBranchNames.push_back(digiCollectionPair.first);
+  }
+  if (digiBranchNames.empty()) {  
     LOG(ERROR) << "   [ERQTelescopePID][CalcEnergyDeposites]  Branch with substring " << digiBranchSubstring
                << " not found." << FairLogger::endl;
-    return {"", nullptr};
+    return resultDigis;
   }
-  const auto getChannel = [&node, &nodePath]() {
+  //@TODO here component->GetChannelFromSensetiveNode() interface should be used in future.
+  const auto getChannels = [&node, &nodePath, nodeOfDoubleSiStation]() -> std::vector<Int_t> {
     TString pathWithChannelPostfix = nodePath;
     if (nodePath.Contains("CsI") || nodePath.Contains("pseudo"))
       pathWithChannelPostfix.Remove(pathWithChannelPostfix.Last('/'), pathWithChannelPostfix.Length());
     const TString channelStr(pathWithChannelPostfix(pathWithChannelPostfix.Last('_') + 1,
                                               pathWithChannelPostfix.Length()));
-    return channelStr.Atoi();
+    if (!nodeOfDoubleSiStation)
+      return {channelStr.Atoi()};
+    pathWithChannelPostfix.Remove(pathWithChannelPostfix.Last('/'), pathWithChannelPostfix.Length());
+    const TString secondChannelStr(pathWithChannelPostfix(pathWithChannelPostfix.Last('_') + 1,
+                                                          pathWithChannelPostfix.Length()));
+    return {channelStr.Atoi(), secondChannelStr.Atoi()};
   };
-  const auto channel = getChannel();
-  const auto* digis = itDigiBranch->second;
-  const auto digiBranchName = itDigiBranch->first;
-  for (Int_t iDigi = 0; iDigi < digis->GetEntriesFast(); iDigi++){
-    const auto* digi = static_cast<ERDigi*>(digis->At(iDigi));
-    if (digi->Channel() != channel) 
-      continue;
-    LOG(DEBUG) << "   [ERQTelescopePID][CalcEnergyDeposites] Found digi with edep " 
-               << digi->Edep() << FairLogger::endl;
-    return {digiBranchName, digi};
+  const auto channels = getChannels();
+  for (const auto& digiBranchName : digiBranchNames) {
+    const auto* digis = fQTelescopeDigi[digiBranchName];
+    // @BUG Code only for XY doubleSi stations.
+    Int_t channel = (nodeOfDoubleSiStation && digiBranchName.EndsWith("_Y")) ? channels[1] : channels[0];
+    LOG(DEBUG) << "   [ERQTelescopePID][CalcEnergyDeposites] Finding digi with channel number " 
+               << channel << FairLogger::endl;
+    Bool_t digiFound = false;
+    for (Int_t iDigi = 0; iDigi < digis->GetEntriesFast(); iDigi++){
+      const auto* digi = static_cast<ERDigi*>(digis->At(iDigi));
+      if (digi->Channel() != channel)
+        continue;
+      digiFound = true;
+      LOG(DEBUG) << "   [ERQTelescopePID][CalcEnergyDeposites] Found digi with edep " 
+                << digi->Edep() << FairLogger::endl;
+      resultDigis[digiBranchName] = digi;
+      break;
+    }
+    if (!digiFound)
+      LOG(ERROR) << "   [ERQTelescopePID][CalcEnergyDeposites] Digi with channel number " 
+              << channel << " not found in collection " << digiBranchName << FairLogger::endl;
   }
-  LOG(ERROR) << "   [ERQTelescopePID][CalcEnergyDeposites] Digi with channel number " 
-             << channel << " not found in collection " << digiBranchName << FairLogger::endl;
-  return {"", nullptr};
+  return resultDigis;
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopePID::FindEnergiesForDeEAnalysis(const TString& trackBranch, 
@@ -352,39 +373,40 @@ void ERQTelescopePID::FindEnergiesForDeEAnalysis(const TString& trackBranch,
     Double_t& edepInThickStationCorrected, Double_t& edepInThinStationCorrected) {
   if (eStation == "" || deStation == "")
     return;
-  const auto getDigiOnTrack = [&digisOnTrack](const TString& stationName) -> DigiOnTrack {
-    const auto itDigiOnTrack =  std::find_if(digisOnTrack.begin(), digisOnTrack.end(),
-        [&stationName](const DigiOnTrack& digiOntrack) {
-      return digiOntrack.fBranch.Contains(stationName);
-    });
-    if (itDigiOnTrack == digisOnTrack.end()) {
-      return DigiOnTrack();
+  const auto getDigisOnTrack = [&digisOnTrack](const TString& stationName) -> std::list<DigiOnTrack> {
+    std::list<DigiOnTrack> digisOnTrackInStation;
+    for (const auto digiOnTrack : digisOnTrack) {
+      if (digiOnTrack.fBranch.Contains(stationName)) {
+        digisOnTrackInStation.push_back(digiOnTrack);
+      }
     }
-    return *itDigiOnTrack;
+    return digisOnTrackInStation;
   };
-  const auto deDigiOnTrack = getDigiOnTrack(deStation);
-  if (!deDigiOnTrack.IsFound()) {
+  const auto deDigisOnTrack = getDigisOnTrack(deStation);
+  if (deDigisOnTrack.empty()) {
     LOG(WARNING) << "[ERQTelescopePID][FindEnergiesForDeEAnalysis] Digi for station " << deStation 
                  << " not found on track from " << trackBranch << " path." << FairLogger::endl;
     return;
   }
-  const auto eDigiOnTrack = getDigiOnTrack(eStation);
-  if (!eDigiOnTrack.IsFound()) {
+  const auto eDigisOnTrack = getDigisOnTrack(eStation);
+  if (eDigisOnTrack.empty()) {
     LOG(WARNING) << "[ERQTelescopePID][FindEnergiesForDeEAnalysis] Digi for station " << eStation 
                  << " not found on track from " << trackBranch << " path" << FairLogger::endl;
     return;
   }
-  edepInThickStation = eDigiOnTrack.fDigi->Edep();
-  edepInThinStation = deDigiOnTrack.fDigi->Edep();
+  const auto edepSum = [](Double_t sum, const DigiOnTrack& digiOnTrack) { return sum += digiOnTrack.fDigi->Edep(); };
+  edepInThickStation = std::accumulate(eDigisOnTrack.begin(), eDigisOnTrack.end(), 0., edepSum);
+  edepInThinStation = std::accumulate(deDigisOnTrack.begin(), deDigisOnTrack.end(), 0., edepSum);
+  const auto deSensetiveThickness = deDigisOnTrack.front().fSensetiveThickness;
   // de and E correction
-  edepInThinStationCorrected = edepInThinStation * normalizedThickness / deDigiOnTrack.fSensetiveThickness;
+  edepInThinStationCorrected = edepInThinStation * normalizedThickness / deSensetiveThickness;
   LOG(DEBUG) << "[ERQTelescopePID][FindEnergiesForDeEAnalysis] Digi from station " << deStation << " with edep = " << edepInThinStation 
-             << " [GeV] corrected to edep = " << edepInThinStationCorrected << ". Normalized thickness = " 
-             << normalizedThickness << ", step in sensetive volume = " << deDigiOnTrack.fSensetiveThickness
-             << FairLogger::endl;
+            << " [GeV] corrected to edep = " << edepInThinStationCorrected << ". Normalized thickness = " 
+            << normalizedThickness << ", step in sensetive volume = " << deSensetiveThickness
+            << FairLogger::endl;
   edepInThickStationCorrected = edepInThickStation + edepInThinStation - edepInThinStationCorrected;
   LOG(DEBUG) << "[ERQTelescopePID][FindEnergiesForDeEAnalysis] Digi from station " << eStation << " with edep = " << edepInThickStation 
-             << " corrected to " << edepInThickStationCorrected;
+             << " corrected to " << edepInThickStationCorrected << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopePID)

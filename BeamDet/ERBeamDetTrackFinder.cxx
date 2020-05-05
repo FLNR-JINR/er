@@ -226,7 +226,7 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
     }
   }
   if (!targetAffected){
-    LOG(WARNING) << "Tatget is not affected" << FairLogger::endl;
+    LOG(WARNING) << "Target is not affected" << FairLogger::endl;
     return;
   }
 
