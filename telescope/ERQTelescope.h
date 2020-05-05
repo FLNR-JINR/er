@@ -103,21 +103,18 @@ public:
 private:
   ERQTelescopeSetup* fQTelescopeSetup;
   PointsPerComponent fPoints;
-  Int_t                     fVersion;           //! geometry version
-  Int_t                     fEventID;           //!  event index
-  Int_t                     fTrackID;           //!  track index
-  Int_t                     fMot0TrackID;       //!  0th mother track index
-  Double_t                  fMass;              //!  mass
+  Int_t                     fVersion = -1;           //! geometry version
+  Int_t                     fEventID = -1;           //!  event index
+  Int_t                     fTrackID = -2;           //!  track index
+  Int_t                     fMot0TrackID = -2;       //!  0th mother track index
+  Double_t                  fMass = 0.;              //!  mass
   TLorentzVector            fPosIn, fPosOut;    //!  position
   TLorentzVector            fMomIn, fMomOut;    //!  momentum
-  Double32_t                fTime;              //!  time
-  Double32_t                fLength;            //!  length
-  Double32_t                fEloss;             //!  energy loss
-  Int_t                     fSiStationNb;         // Si
-  Int_t                     fSiStripNb;
-  Int_t                     fCsIBoxNb;           // CsI (0-3)
-  Int_t                     fCsIStationNb;
-  Int_t                     fPDG;
+  Double32_t                fTime = 0.;              //!  time
+  Double32_t                fLength = 0.;            //!  length
+  Double32_t                fEloss = 0.;             //!  energy loss
+  Int_t                     fChannel = -1;
+  Int_t                     fPDG = -1;
 private:
   /** Private method AddPoint
    **

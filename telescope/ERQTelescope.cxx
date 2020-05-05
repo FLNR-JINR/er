@@ -66,7 +66,7 @@ void ERQTelescope::AddPoint(TClonesArray& clref) {
     TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
     TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
     TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-    fTime, fLength, fEloss, fSiStationNb, fSiStripNb,fPDG);
+    fTime, fLength, fEloss, fChannel,fPDG);
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::ConstructGeometry() {
@@ -102,7 +102,7 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
     fEloss /= component->GetOrientationsAroundZ().size() * component->GetChannelSides().size();
     for (const auto orientation : component->GetOrientationsAroundZ()) {
       for (const auto channelSide : component->GetChannelSides()) {
-        fSiStripNb = component->GetChannelFromSensetiveNodePath(path, orientation);
+        fChannel = component->GetChannelFromSensetiveNodePath(path, orientation);
         auto* pointCollection = 
             fPoints[component->GetVolumeName()][component->GetBranchName(ERDataObjectType::Point, orientation, channelSide)];
         AddPoint(*pointCollection);

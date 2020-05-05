@@ -9,6 +9,8 @@
 #ifndef ERQTelescopeDigitizer_H
 #define ERQTelescopeDigitizer_H
 
+#include <limits>
+
 #include "TClonesArray.h"
 
 #include "ERDigitizer.h"
@@ -21,36 +23,25 @@
 class ERQTelescopeSetup;
 
 class ERQTelescopeDigitizer : public ERDigitizer {
-
-public:
-  /** Default constructor **/
+ public:
   ERQTelescopeDigitizer();
-
   /** Constructor 
   ** verbose: 1 - only standard log print, 2 - print digi information 
   **/
   ERQTelescopeDigitizer(Int_t verbose);
-
-  /** Destructor **/
-  ~ERQTelescopeDigitizer();
-
+  virtual ~ERQTelescopeDigitizer() = default;
   /** Virtual method Init **/
   virtual InitStatus Init();
-
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
-
   /** Virtual method Finish **/
   virtual void Finish();
-
   /** Virtual method Reset **/
   virtual void Reset();
-  
   /** Modifiers **/
   void SetSiElossThreshold(Float_t th){fSiElossThreshold = th;}
   void SetSiElossSigma(Float_t sigma) {fSiElossSigma = sigma;}
   void SetSiTimeSigma(Float_t sigma)  {fSiTimeSigma = sigma;}
-
   void SetCsIElossThreshold(Float_t th){fCsIElossThreshold = th;}
   void SetCsIElossSigma(Float_t sigma) {fCsIElossSigma = sigma;}
   void SetCsITimeSigma(Float_t sigma)  {fCsITimeSigma = sigma;}
@@ -59,22 +50,16 @@ protected:
   std::map<TString, TClonesArray*> fQTelescopePoints;
   //Output arrays
   std::map<TString, TClonesArray*> fQTelescopeDigi;
-  
-  Float_t       fSiElossThreshold;
-  Float_t       fSiElossSigma;
-  Float_t       fSiTimeSigma;
-  Float_t       fCsIElossThreshold;
-  Float_t       fCsIElossSigma;
-  Float_t       fCsITimeSigma;
+  Float_t       fSiElossThreshold = std::numeric_limits<float>::max();
+  Float_t       fSiElossSigma = 0.;
+  Float_t       fSiTimeSigma = 0.;
+  Float_t       fCsIElossThreshold = std::numeric_limits<float>::max();
+  Float_t       fCsIElossSigma = 0.;
+  Float_t       fCsITimeSigma = 0.;
 protected:
-  ERQTelescopeSiDigi* AddSiDigi(Float_t edep, Double_t time, Int_t stationNb, 
-                                                             Int_t stripNb, 
-                                                             TString digiBranchName);
-  ERQTelescopeCsIDigi* AddCsIDigi(Float_t edep, Double_t time, Int_t wallNb,
-                                                               Int_t blockNb,
-                                                               TString digiBranchName);
+  ERQTelescopeSiDigi* AddSiDigi(Float_t edep, Double_t time, Int_t stripNb, TString digiBranchName);
+  ERQTelescopeCsIDigi* AddCsIDigi(Float_t edep, Double_t time, Int_t blockNb, TString digiBranchName);
 private:
-  
   ClassDef(ERQTelescopeDigitizer,1)
 };
 

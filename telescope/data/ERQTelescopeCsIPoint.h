@@ -14,20 +14,14 @@
 
 #include "FairMCPoint.h"
 
-class ERQTelescopeCsIPoint : public FairMCPoint
-{
-
+class ERQTelescopeCsIPoint : public FairMCPoint {
  public:
-
-  /** Default constructor **/
-  ERQTelescopeCsIPoint();
-
-
+  ERQTelescopeCsIPoint() = default;
   /** Constructor with arguments
    *@param EventID  Index of Event
    *@param trackID  Index of MCTrack
    *@param mot0trackID Index of Mother MCTrack
-   *@param posIn    Ccoordinates at entrance of point [cm]
+   *@param posIn    Coordinates at entrance of point [cm]
    *@param posOut   Coordinates at exit of point [cm]
    *@param momIn    Momentum of track at entrance [GeV]
    *@param momOut   Momentum of track at exit [GeV]
@@ -40,20 +34,8 @@ class ERQTelescopeCsIPoint : public FairMCPoint
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t wallNb ,Int_t blockNb,Int_t pdg);
-
-
-  /** Copy constructor **/
-  ERQTelescopeCsIPoint(const ERQTelescopeCsIPoint&);
-
-
-  /** Destructor **/
-  virtual ~ERQTelescopeCsIPoint();
-
-
-  ERQTelescopeCsIPoint& operator=(const ERQTelescopeCsIPoint&) { return *this; }
-
-
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t blockNb, Int_t pdg);
+  virtual ~ERQTelescopeCsIPoint() = default;
   /** Accessors **/
   Int_t GetEventID()            const { return fEventID; }
   Int_t GetMot0TrackID()        const { return fMot0TrackID; }
@@ -68,37 +50,25 @@ class ERQTelescopeCsIPoint : public FairMCPoint
   Double_t GetPzOut()           const { return fPz_out; }
   Double_t GetMass()            const { return fMass; }
   Int_t    GetPDG()             const { return fPDG; }
-
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
   void MomentumOut(TVector3& mom) { mom.SetXYZ(fPx_out,fPy_out,fPz_out); }
-
-
   /** Point coordinates at given z from linear extrapolation **/
   Double_t GetX(Double_t z) const;
   Double_t GetY(Double_t z) const;
-  // Int_t Sector() const {return fSector;}
-  // Int_t Sensor() const {return fSensor;}
-
-  Int_t          GetWallNb()  {return fWallNb;}
-  Int_t          GetBlockNb() {return fBlockNb;}
-
+  Int_t    GetBlockNb() const {return fBlockNb;}
   /** Check for distance between in and out **/
   Bool_t IsUsable() const;
-
   /** Output to screen **/
   virtual void Print(const Option_t* opt = 0) const;
-
  protected:
-
-  Int_t      fEventID;
-  Int_t      fMot0TrackID;
-  Double_t   fMass;
-  Double32_t fX_out,  fY_out,  fZ_out;
-  Double32_t fPx_out, fPy_out, fPz_out;
-  Int_t      fWallNb;     // СsI
-  Int_t      fBlockNb;
-  Int_t      fPDG;
+  Int_t      fEventID = -1;
+  Int_t      fMot0TrackID = -1;
+  Double_t   fMass = 0.;
+  Double32_t fX_out = 0.,  fY_out = 0.,  fZ_out = 0.;
+  Double32_t fPx_out = 0., fPy_out = 0., fPz_out = 0.;
+  Int_t      fBlockNb = -1;
+  Int_t      fPDG = -1;
   ClassDef(ERQTelescopeCsIPoint,1)
 };
 #endif
