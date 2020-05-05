@@ -1,4 +1,7 @@
 #include "ERQTelescopeGeoComponentSensetive.h"
+
+#include <TXMLAttr.h>
+
 //--------------------------------------------------------------------------------------------------
 TString ERQTelescopeGeoComponentSensetive::GetBranchNamePrefix(
     SensetiveType sensetiveType, ERDataObjectType objectType) const {
@@ -14,6 +17,15 @@ std::list<TString> ERQTelescopeGeoComponentSensetive::GetBranchNames(ERDataObjec
     }
   }
   return branchNames;
+}
+//--------------------------------------------------------------------------------------------------
+void ERQTelescopeGeoComponentSensetive::FillTwoSidedChannelAttribute(const TList* attributes) {
+  TIter next(attributes);
+  while (auto* attr = static_cast<TXMLAttr*>(next())) {
+    if (!strcasecmp("twoSidedChannel", attr->GetName()) && !strcasecmp("yes", attr->GetValue())) { 
+      fHasTwoSidedChannel = true;
+    }
+  }
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeGeoComponentSensetive)

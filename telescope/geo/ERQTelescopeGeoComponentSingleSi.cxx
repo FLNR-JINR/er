@@ -104,6 +104,7 @@ void ERQTelescopeGeoComponentSingleSi::ParseXmlParameters() {
               continue;
             }
             if(!strcasecmp(fComponentId, attr->GetValue())) {
+              FillTwoSidedChannelAttribute(curNode->GetAttributes());
               TXMLNode* curNode2 = curNode->GetChildren();
               for(; curNode2; curNode2 = curNode2->GetNextNode()) {
                 if(!strcasecmp(curNode2->GetNodeName(), "singleSiSize")) {

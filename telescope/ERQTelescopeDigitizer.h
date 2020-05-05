@@ -50,10 +50,10 @@ protected:
   std::map<TString, TClonesArray*> fQTelescopePoints;
   //Output arrays
   std::map<TString, TClonesArray*> fQTelescopeDigi;
-  Float_t       fSiElossThreshold = std::numeric_limits<float>::max();
+  Float_t       fSiElossThreshold = 0.;
   Float_t       fSiElossSigma = 0.;
   Float_t       fSiTimeSigma = 0.;
-  Float_t       fCsIElossThreshold = std::numeric_limits<float>::max();
+  Float_t       fCsIElossThreshold = 0.;
   Float_t       fCsIElossSigma = 0.;
   Float_t       fCsITimeSigma = 0.;
 protected:

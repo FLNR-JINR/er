@@ -99,7 +99,6 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
     if (!component)
       LOG(FATAL) << "[ERQTelescope] Not found setup component for sensetive volume path" 
                   << path << FairLogger::endl;
-    fEloss /= component->GetOrientationsAroundZ().size() * component->GetChannelSides().size();
     for (const auto orientation : component->GetOrientationsAroundZ()) {
       for (const auto channelSide : component->GetChannelSides()) {
         fChannel = component->GetChannelFromSensetiveNodePath(path, orientation);

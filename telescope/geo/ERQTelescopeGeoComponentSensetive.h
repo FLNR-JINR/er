@@ -9,6 +9,8 @@
 #ifndef ERQTelescopeGeoComponentSensetive_H
 #define ERQTelescopeGeoComponentSensetive_H
 
+#include "TList.h"
+
 #include "ERGeoComponent.h"
 
 class ERQTelescopeGeoComponentSensetive : public ERGeoComponent {
@@ -31,6 +33,7 @@ public:
       const TString& path, OrientationAroundZ orientation = OrientationAroundZ::Default) const = 0;
 protected:
   TString GetBranchNamePrefix(SensetiveType sensetiveType, ERDataObjectType object) const;
+  void FillTwoSidedChannelAttribute(const TList* attributes);
   TString  fMedia;
   Double_t fSizeX = 0.;
   Double_t fSizeY = 0.;
