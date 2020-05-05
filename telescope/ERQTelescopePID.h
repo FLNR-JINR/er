@@ -34,6 +34,7 @@ class G4ParticleDefinition;
 class ERQTelescopePID : public ERTask {
   using PDG = Int_t;
 public:
+  enum EdepAccountingStrategy {EdepFromXChannel, EdepFromYChannel, AverageEdep, SummarizedEdep};
   struct ParticleDescription {
     const PDG fPDG = -1;
     const TString fDeStation;
@@ -67,6 +68,10 @@ public:
   void SetParticle(const TString& trackBranchName, const PDG pdg, 
                    const TString& deStation = "", const TString& eStation = "",
                    Double_t deNormalizedThickness = 0.002);
+  void SetEdepAccountingStrategy(
+      const TString& station, EdepAccountingStrategy strategy) {
+    fEdepAccountingStrategies[station] = strategy;
+  }
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding.
@@ -82,6 +87,7 @@ protected:
   //Paramaters
   ERQTelescopeSetup* fQTelescopeSetup = nullptr; ///< access to ERQTelescopeSetup class instance
   std::map<TString, std::list<ParticleDescription>> fParticleDescriptions;
+  std::map<TString, EdepAccountingStrategy> fEdepAccountingStrategies;
   //Input arrays
   std::map<TString, TClonesArray*> fQTelescopeDigi;
   std::map<TString, TClonesArray*> fQTelescopeTrack;
@@ -99,7 +105,8 @@ protected:
                                   const Double_t normalizedThickness,
                                   Double_t& edepInThickStation, Double_t& edepInThinStation,
                                   Double_t& edepInThickStationCorrected, Double_t& edepInThinStationCorrected);
-private:
+  Double_t ApplyEdepAccountingStrategy(const std::map<TString, const ERDigi*>& digisByBranchName);
+  Double_t ApplyEdepAccountingStrategy(const std::list<DigiOnTrack>& digisOnTrack);
   /** @brief Adds a ERQTelescopeParticles to the output Collection **/
   ERQTelescopeParticle* AddParticle(const TLorentzVector& lvInteraction, Double_t kineticEnergy,
                                     Double_t deadEloss, Double_t edepInThickStation, Double_t edepInThinStation,
