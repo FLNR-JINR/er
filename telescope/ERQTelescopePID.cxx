@@ -51,10 +51,8 @@ InitStatus ERQTelescopePID::Init() {
   while (bName = (TObjString*)nextBranch()) {
     TString bFullName = bName->GetString();
     if (bFullName.Contains("Digi") && bFullName.Contains("QTelescope")) {
-      Int_t bPrefixNameLength = bFullName.First('_'); 
-      TString brName(bFullName(bPrefixNameLength + 1, bFullName.Length()));
-      fQTelescopeDigi[brName] = (TClonesArray*) ioman->GetObject(bFullName);
-      LOG(DEBUG) << "Digi branche " << brName << FairLogger::endl; 
+      fQTelescopeDigi[bFullName] = (TClonesArray*) ioman->GetObject(bFullName);
+      LOG(DEBUG) << "Digi branch " << bFullName << FairLogger::endl; 
     }
     if (bFullName.Contains("Track") && bFullName.Contains("QTelescope")) {
       Int_t bPrefixNameLength = bFullName.First('_'); 
@@ -266,9 +264,10 @@ CalcEnergyDeposites(const ERQTelescopeTrack& track, const TVector3& startPoint,
         const auto digiBranch = branchAndDigi.first;
         const auto* digi = branchAndDigi.second;
         digisOnTrack.emplace_back(digiBranch, digi, gGeoManager->GetStep());
-        kineticEnergy += digi->Edep();
-        digiDepositesSum += digi->Edep();
       }
+      const Double_t edepInStation = ApplyEdepAccountingStrategy(branchAndDigis);
+      kineticEnergy += edepInStation;
+      digiDepositesSum += edepInStation;
     } else  { // track in passive volume
       const auto step = gGeoManager->GetStep();
       // We take into account only half of step in target.
@@ -348,7 +347,7 @@ std::map<TString, const ERDigi*> ERQTelescopePID::FindDigisByNode(const TGeoNode
     // @BUG Code only for XY doubleSi stations.
     Int_t channel = (nodeOfDoubleSiStation && digiBranchName.EndsWith("_Y")) ? channels[1] : channels[0];
     LOG(DEBUG) << "   [ERQTelescopePID][CalcEnergyDeposites] Finding digi with channel number " 
-               << channel << FairLogger::endl;
+               << channel << " in branch " << digiBranchName << FairLogger::endl;
     Bool_t digiFound = false;
     for (Int_t iDigi = 0; iDigi < digis->GetEntriesFast(); iDigi++){
       const auto* digi = static_cast<ERDigi*>(digis->At(iDigi));
@@ -394,9 +393,8 @@ void ERQTelescopePID::FindEnergiesForDeEAnalysis(const TString& trackBranch,
                  << " not found on track from " << trackBranch << " path" << FairLogger::endl;
     return;
   }
-  const auto edepSum = [](Double_t sum, const DigiOnTrack& digiOnTrack) { return sum += digiOnTrack.fDigi->Edep(); };
-  edepInThickStation = std::accumulate(eDigisOnTrack.begin(), eDigisOnTrack.end(), 0., edepSum);
-  edepInThinStation = std::accumulate(deDigisOnTrack.begin(), deDigisOnTrack.end(), 0., edepSum);
+  edepInThickStation = ApplyEdepAccountingStrategy(eDigisOnTrack);
+  edepInThinStation = ApplyEdepAccountingStrategy(deDigisOnTrack);
   const auto deSensetiveThickness = deDigisOnTrack.front().fSensetiveThickness;
   // de and E correction
   edepInThinStationCorrected = edepInThinStation * normalizedThickness / deSensetiveThickness;
@@ -407,6 +405,54 @@ void ERQTelescopePID::FindEnergiesForDeEAnalysis(const TString& trackBranch,
   edepInThickStationCorrected = edepInThickStation + edepInThinStation - edepInThinStationCorrected;
   LOG(DEBUG) << "[ERQTelescopePID][FindEnergiesForDeEAnalysis] Digi from station " << eStation << " with edep = " << edepInThickStation 
              << " corrected to " << edepInThickStationCorrected << FairLogger::endl;
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERQTelescopePID::ApplyEdepAccountingStrategy(const std::map<TString, const ERDigi*>& digisByBranchName) {
+  if (digisByBranchName.empty())
+    return 0;
+  // @TODO setup->GetComponent(branchName) and component->ComponentName() should be used here
+  const auto getStrategyForStation = [this](const TString& branchName) -> EdepAccountingStrategy {
+    const auto itStationStrategy = std::find_if(
+        fEdepAccountingStrategies.begin(), fEdepAccountingStrategies.end(),
+        [&branchName](const std::pair<TString, EdepAccountingStrategy> stationAndStrategy) {
+          return branchName.Contains(stationAndStrategy.first);
+    });
+    if (itStationStrategy != fEdepAccountingStrategies.end())
+      return itStationStrategy->second;
+    if (branchName.Contains("_X"))
+      return EdepFromXChannel;
+    else if (branchName.Contains("_Y"))
+      return EdepFromYChannel;
+    if (branchName.Contains("CsI"))
+      return SummarizedEdep;
+    LOG(FATAL) << "Unable to select edep accaunting strategy by branch " << branchName << FairLogger::endl;
+  };
+  const auto strategy = getStrategyForStation(digisByBranchName.begin()->first);
+  Double_t summarizedEdep = 0.;
+  for (const auto& branchAndDigi : digisByBranchName) {
+    const auto branchName = branchAndDigi.first;
+    const auto* digi = branchAndDigi.second;
+    // @TODO component->GetBranchName(...) should be used here
+    if ((strategy == EdepFromXChannel && branchName.Contains("_X"))
+        || (strategy == EdepFromYChannel && branchName.Contains("_Y"))) {
+      return digi->Edep();
+    }
+    summarizedEdep += digi->Edep();
+  }
+  if (strategy == AverageEdep)
+    return summarizedEdep / digisByBranchName.size();
+  else if (strategy == SummarizedEdep)
+    return summarizedEdep;
+  LOG(FATAL) << "[ERQTelescopePID][ApplyEdepAccountingStrategy] Unable to apply edep accounting strategy." << FairLogger::endl;
+  return -1;
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERQTelescopePID::ApplyEdepAccountingStrategy(const std::list<DigiOnTrack>& digisOnTrack) {
+  std::map<TString, const ERDigi*> digisByBranchName;
+  for (const auto& digiOnTrack : digisOnTrack) {
+    digisByBranchName[digiOnTrack.fBranch] = digiOnTrack.fDigi;
+  }
+  return ApplyEdepAccountingStrategy(digisByBranchName);
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopePID)

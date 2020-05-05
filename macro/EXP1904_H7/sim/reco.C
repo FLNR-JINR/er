@@ -58,6 +58,8 @@ void reco(Int_t nEvents = 100000){
   qtelescopePID->SetParticle("Telescope_4_SingleSi_SSD_4_X_10Telescope_4_SingleSi_SSD20_4_Y_9", 1000020030,
                              "SSD20_4", "SSD_4", normalizedThickness);
   qtelescopePID->SetParticle("Central_telescope_DoubleSi_DSD_XY_0", 1000010030);
+  //enum EdepAccountingStrategy {EdepFromXChannel, EdepFromYChannel, AverageEdep, SummarizedEdep};
+  qtelescopePID->SetEdepAccountingStrategy("DSD", ERQTelescopePID::EdepAccountingStrategy::EdepFromYChannel);
   run->AddTask(qtelescopePID);
   // ------------------------ND track finder --------------------------------
   ERNDTrackFinder* NDTrackFinder = new ERNDTrackFinder();
