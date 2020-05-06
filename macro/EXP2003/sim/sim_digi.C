@@ -69,7 +69,7 @@ void sim_digi (Int_t nEvents = 100000) {
   yPos = 0.;
   zPos = radius * TMath::Cos(rotationC.Y() * TMath::DegToRad());
   ERGeoSubAssembly* assembly_Central= new ERGeoSubAssembly("Central_telescope", TVector3(xPos, yPos, zPos), rotationC);
-  ERQTelescopeGeoComponentSingleSi* f06 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_F06", 
+  ERQTelescopeGeoComponentDoubleSi* f06 = new ERQTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_F06", 
                                                                                 TVector3(), TVector3(), "X");
   assembly_Central->AddComponent(f06);
   setupQTelescope->AddSubAssembly(assembly_Central);
