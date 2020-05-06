@@ -3,7 +3,7 @@
 if [ -d input ]; then
 	cd input
 
-	rm -fv out.txt
+	rm -fv out*
 	rm -fv target_*
 	rm -fv dPhi_info.txt*
 	rm -fv thetaCM*

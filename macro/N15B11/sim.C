@@ -1,5 +1,7 @@
 void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t angle = 20.)
 {
+  Double_t beamAvE = 500.; // GeV
+  Double_t dBeamAvE = 0.; // GeV 
   gRandom->SetSeed(index);
 
   //---------------------Files-----------------------------------------------
@@ -47,7 +49,7 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
 
   ERDetector* target = new ERTarget("N15B11_target", kTRUE, 1);
   target->SetGeometryFileName("N15.target.root");
-  run->AddModule(target);
+  //run->AddModule(target);
 
   FairDetector* detector = new ERN15B11Detector("N15B11detector", kTRUE, 1);
   detector->SetGeometryFileName("N15B11_detector.geo.root");
@@ -65,12 +67,12 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   scattering->SetInputIon(Z,A,Q);
   scattering->SetTargetIon(5, 11, 5);
   scattering->SetThetaCDF("cos_tetta_cross.txt");
-  scattering->SetUniformPos(-0.00035,0.00035);
-  scattering->SetStep(0.00001); //0.1 micron
-  scattering->SetDecayVolume("targetB11"); //targetB11
-  scattering->SetLabThetaRange(angle, 4.*0.262822833, kPROJECTILE); // kPROJECTILE or kTARGET
+  scattering->SetUniformPos(0.,0.); // -0.00035,0.00035
+  scattering->SetStep(1.); //0.1 micron 0.00001 cm
+  scattering->SetDecayVolume("cave"); //targetB11
+  scattering->SetLabThetaRange(angle, 0., kPROJECTILE, kTRUE, beamAvE); // kPROJECTILE or kTARGET
   //scattering->SetThetaRange(9.33242, 14.3093);
-  scattering->SetPhiRange(-20., 20.);
+  scattering->SetPhiRange(0., 0.);
 
   decayer->AddDecay(scattering);
   run->SetDecayer(decayer);
@@ -78,17 +80,17 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   ERIonMixGenerator* generator = new ERIonMixGenerator("15N", Z, A, Q, 1);
-  generator->SetKinERange(0.0427094, 0.0436017); // 0.0427094 : 0.0436017
+  generator->SetKinERange(beamAvE-dBeamAvE , beamAvE+dBeamAvE); // 0.0427094 : 0.0436017
 
   Double32_t theta = 0.;
   Double32_t sigmaTheta = 5e-3*TMath::RadToDeg();
-  generator->SetThetaSigma(theta, sigmaTheta); // theta = 0., sigma = 5 mrad
+  //generator->SetThetaSigma(theta, sigmaTheta); // theta = 0., sigma = 5 mrad
 
-  //generator->SetThetaRange(0., 0.); // -2 : 2
-  generator->SetPhiRange(0., 180.); // 0 : 180
+  generator->SetThetaRange(0., 0.); // -2 : 2
+  //generator->SetPhiRange(0., 180.); // 0 : 180
 
-  Double32_t distanceToTarget = 50.; // work: 50 cm, test 0.5 micron: 0.00005+0.00035
-  generator->SetBoxXYZ(-0.5, -0.5, 0.5, 0.5, -distanceToTarget); // Xmin = -0.5, Ymin = -0.5, Xmax = 0.5, , Ymax = 0.5, Z
+  Double32_t distanceToTarget = 1.; // work: 50 cm, test 0.5 micron: 0.00005+0.00035
+  generator->SetBoxXYZ(0., 0., 0., 0., -distanceToTarget); // Xmin = -0.5, Ymin = -0.5, Xmax = 0.5, , Ymax = 0.5, Z
 
   primGen->AddGenerator(generator);
 
@@ -96,11 +98,11 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   // ------------------------------------------------------------------------
 
   //-------Set visualisation flag to true------------------------------------
-  run->SetStoreTraj(kFALSE); // kFALSE
+  run->SetStoreTraj(kTRUE); // kFALSE
 
   //-------Set LOG verbosity  -----------------------------------------------
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
-  FairLogger::GetLogger()->SetLogScreenLevel("DEBUG");
+  FairLogger::GetLogger()->SetLogScreenLevel("INFO");
 
   //------- Initialize simulation run ---------------------------------------
   run->Init();
@@ -134,4 +136,5 @@ void sim(Int_t nEvents = 100, Int_t index = 0, TString outDir="output", Double_t
   cout << "ThetaCM Mean for B11: " << scattering->GetThetaCMMean() << endl;
   cout.precision(12);
   cout << "summ: "<< scattering->GetdThetaCDF() << endl;
+  cout << "m1 = " << scattering->GetProjectileIonMass() << ", m2 = " << scattering->GetTargetIonMass() << endl;
 }

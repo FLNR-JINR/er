@@ -10,10 +10,10 @@ OUTDIR=output_digi_parallel
 GRAPHSOUTDIR=digi_graphs_parallel
 
 # Variables
-NEVENTS=1000
-MINANGLE=35
+NEVENTS=100
+MINANGLE=5
 MAXANGLE=35
-NTHREADS=3
+NTHREADS=1
 
 # Digitization add or don't add
 TOADDDIGI='yes'
@@ -176,6 +176,7 @@ wait
     wait
         root -l -b -q "merge_graphs.C(\"${GRAPHSOUTDIR}\")"
         cp ${GRAPHSOUTDIR}/eloss.pdf ${RESULTSDIR}/eloss_${ANG}.pdf
+        mv ${GRAPHSOUTDIR}/eloss.root ${RESULTSDIR}/eloss_${ANG}.root
         cd ../
     fi
 done

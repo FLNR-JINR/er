@@ -12,11 +12,12 @@
 
 #include <TF1.h>
 #include <TMath.h>
-#include <TLorentzVector.h>
 #include <TLorentzRotation.h>
 #include <TVectorD.h>
 #include <TGraph.h>
 #include <TVirtualMC.h>
+
+#include "G4IonTable.hh"
 
 #include <FairRunSim.h>
 #include <FairLogger.h>
@@ -38,26 +39,7 @@ Double_t ThetaInvCDF(Double_t *x, Double_t *par) {
 //------------------------------------------------------------------
 
 ERElasticScattering::ERElasticScattering(TString name):
-  ERDecay(name),
-  fRegisterIonStatus(kPROJECTILE),
-  fThetaFileName(""),
-  fTargetIonName(""),
-  fTargetIonPDG(NULL),
-  fThetaCDF(NULL),
-  fThetaInvCDF(NULL),
-  fThetaMin(0.),
-  fThetaMax(180.),
-  fThetaRangeCenter(0.),
-  fThetaRangedTheta(0.),
-  fPhiMin(0),
-  fPhiMax(360.),
-  fCDFmin(0.),
-  fCDFmax(1.),
-  fProjectileIonMass(0.),
-  fTargetIonMass(0.),
-  fThetaLabRangeIsSet(kFALSE),
-  fThetaCMSum(0.),
-  fInteractNumInTarget(0)
+  ERDecay(name)
 {
 }
 
@@ -75,15 +57,26 @@ void ERElasticScattering::SetTargetIon(Int_t A, Int_t Z, Int_t Q) {
   run->AddNewIon(ion);
 }
 
-void ERElasticScattering::SetThetaRange(Double_t th1, Double_t th2, ERInteractionParticipant regIonSt) {
-  fThetaMin = th1; fThetaMax = th2;
-  fRegisterIonStatus = regIonSt;
+void ERElasticScattering::SetThetaRange(Double_t th1, Double_t th2, ERInteractionParticipant DetIonType) {
+  fThetaMinCM = th1; fThetaMaxCM = th2;
+  fDetectionIonType = DetIonType;
 }
 
-void ERElasticScattering::SetLabThetaRange(Double_t thetaCenter, Double_t dTheta, ERInteractionParticipant regIonSt) {
+void ERElasticScattering::SetLabThetaRange(Double_t thetaCenter, Double_t dTheta, ERInteractionParticipant DetIonType, Bool_t relMod, Double_t BeamAvE) {
   fThetaRangeCenter = thetaCenter; fThetaRangedTheta = dTheta;
-  fRegisterIonStatus = regIonSt;
-  fThetaLabRangeIsSet = kTRUE;
+  fDetectionIonType = DetIonType;
+  fRelativisticMode = relMod;
+  fBeamAverageEnergy = BeamAvE;
+  if (fRelativisticMode == kTRUE && fBeamAverageEnergy == 0.) {
+    LOG(FATAL) << "ERElasticScattering::SetLabThetaRange: In the relativistic case (4-th param = kTRUE) "
+               << "the average energy of the beam (5-th param) can't be zero." 
+               << "For the relativistic case this energy must be set correct." << FairLogger::endl;
+  }
+  if (relMod == kFALSE && fBeamAverageEnergy != 0.) {
+    LOG(WARNING) << "ERElasticScattering::SetLabThetaRange: The average energy of the beam (5-th param) is not zero, " 
+                 << "but in non relativistic case (4-th param = kFALSE) "
+                 << "the average energy of the beam is not used! This energy should be set to zero!" << FairLogger::endl;
+  }
 }
 
 Double_t ERElasticScattering::GetThetaCMMean() const {
@@ -99,17 +92,24 @@ Bool_t ERElasticScattering::Init() {
 
   fTargetIonPDG = TDatabasePDG::Instance()->GetParticle(fTargetIonName);
   if ( ! fTargetIonPDG ) {
-    LOG(FATAL) << "Target ion not found in pdg database!" << FairLogger::endl;
-    return kFALSE;
+    LOG(FATAL) << "ERElasticScattering::Init: Target ion was not found in pdg database!" << FairLogger::endl;
   }
 
-  SetProjectileIonMass(fInputIonPDG->Mass());
-  SetTargetIonMass(fTargetIonPDG->Mass());
+  DefineOfIonsMasses();
+  LOG(DEBUG) << "ERElasticScattering::Init()" << FairLogger::endl;
+  LOG(DEBUG) << "Traget Ions Mass is " << GetTargetIonMass()
+             << ", Prigectile Ions Mass is " << GetProjectileIonMass() << FairLogger::endl;
+    
+  if (fRelativisticMode)
+    ThetaRangesLab2CMRelativistic();
+  else
+    ThetaRangesLab2CM();
 
-  if (fThetaLabRangeIsSet)
-    ThetaRangesLab2CM(GetProjectileIonMass(), GetTargetIonMass());
-
-  return ThetaCDFRead();
+  if (!ThetaCDFRead()) {
+    LOG(FATAL) << "The input file which contains the CDF function can't be read!" << FairLogger::endl;
+    return kFALSE;
+  }
+  return kTRUE;
 }
 
 Bool_t ERElasticScattering::Stepping() {
@@ -142,19 +142,18 @@ Bool_t ERElasticScattering::Stepping() {
       // Generate random angles theta and phi
       Double_t theta = ThetaGen();
       Double_t phi = fRnd->Uniform(fPhiMin*DegToRad(), fPhiMax*DegToRad());
-
+     
       // In case of target ion registration
-      if (fRegisterIonStatus == kTARGET) {
+      if (fDetectionIonType == kTARGET) {
         phi = phi + 180.*DegToRad();
-        fThetaCMSum += theta*TMath::RadToDeg();
+        fThetaCMSum += theta*RadToDeg();
       }
       else
-        fThetaCMSum += theta*TMath::RadToDeg();
+        fThetaCMSum += theta*RadToDeg();
 
       if (fThetaFileName != "") {
         LOG(DEBUG) << "  CM [CDFmin,CDFmax] = [" << fCDFmin << "," << fCDFmax << "]" << FairLogger::endl;
       }
-
       TLorentzVector out1V (Pcm*sin(theta)*cos(phi), Pcm*sin(theta)*sin(phi), Pcm*cos(theta), sqrt(pow(Pcm,2) + pM2));
       TLorentzVector out2V (-out1V.Px(), -out1V.Py(), -out1V.Pz(), sqrt(pow(Pcm,2) + tM2));
       LOG(DEBUG) << "BEFORE BOOST=======================================================" << FairLogger::endl;
@@ -214,42 +213,117 @@ Bool_t ERElasticScattering::Stepping() {
   return kTRUE;
 }
 
-void  ERElasticScattering::ThetaRangesLab2CM(Double_t pM, Double_t tM) {
+void  ERElasticScattering::ThetaRangesLab2CM() {
+  Double_t pM = GetProjectileIonMass();
+  Double_t tM = GetTargetIonMass();
+  LOG(DEBUG) << "ERElasticScattering::ThetaRangesLab2CM(pM = " << pM << ", tM = " << tM << ")" << FairLogger::endl;
   Double_t rAng = fThetaRangeCenter*DegToRad();
   Double_t ratio = pM/tM;
   Double_t ratio2 = ratio*ratio;
-  Double_t rdTheta = fThetaRangedTheta*TMath::DegToRad(); // Detectors rdTheta
-  if (fRegisterIonStatus == kPROJECTILE) {
+  Double_t rdThetaLab = fThetaRangedTheta*DegToRad(); // Detectors rdThetaLab
+  if (fDetectionIonType == kPROJECTILE) {
     // Projectile Ion
     if (pM != tM) {
-      fThetaMin = TMath::RadToDeg()*acos( -ratio*sin(rAng-rdTheta)*sin(rAng-rdTheta)
-                + cos(rAng-rdTheta)*sqrt(1.-ratio2*sin(rAng-rdTheta)*sin(rAng-rdTheta)) );
-      fThetaMax = TMath::RadToDeg()*acos( -ratio*sin(rAng+rdTheta)*sin(rAng+rdTheta)
-                + cos(rAng+rdTheta)*sqrt(1.-ratio2*sin(rAng+rdTheta)*sin(rAng+rdTheta)) );
+      fThetaMinCM = RadToDeg()*acos( -ratio*sin(rAng-rdThetaLab)*sin(rAng-rdThetaLab)
+                + cos(rAng-rdThetaLab)*sqrt(1.-ratio2*sin(rAng-rdThetaLab)*sin(rAng-rdThetaLab)) );
+      fThetaMaxCM = RadToDeg()*acos( -ratio*sin(rAng+rdThetaLab)*sin(rAng+rdThetaLab)
+                + cos(rAng+rdThetaLab)*sqrt(1.-ratio2*sin(rAng+rdThetaLab)*sin(rAng+rdThetaLab)) );
     }
     else {
-      fThetaMin = TMath::RadToDeg()*(2.*rAng - rdTheta);
-      fThetaMax = TMath::RadToDeg()*(2.*rAng + rdTheta);
+      fThetaMinCM = RadToDeg()*(2.*rAng - rdThetaLab);
+      fThetaMaxCM = RadToDeg()*(2.*rAng + rdThetaLab);
     }
 
-    LOG(DEBUG) << "  N15: CMTheta1: " << fThetaMin << ", CMTheta2: " << fThetaMax
-              << ", average value: " << 0.5*(fThetaMax-fThetaMin) + fThetaMin << FairLogger::endl;
+    LOG(DEBUG) << "  Projectile CMTheta1: " << fThetaMinCM << ", Projectile CMTheta2: " << fThetaMaxCM
+               << ", average value: " << 0.5*(fThetaMaxCM-fThetaMinCM) + fThetaMinCM << FairLogger::endl;
   }
-  else if (fRegisterIonStatus == kTARGET) {
+  else if (fDetectionIonType == kTARGET) {
     // Target Ion
-    fThetaMin = 180. - 2.*TMath::RadToDeg()*rAng - TMath::RadToDeg()*rdTheta;
-    fThetaMax = 180. - 2.*TMath::RadToDeg()*rAng + TMath::RadToDeg()*rdTheta;
-    LOG(DEBUG) << "  B11: CMTheta1: " << fThetaMin << ", CMTheta2: " << fThetaMax
-                << ", average value: " << 0.5*(fThetaMax-fThetaMin) + fThetaMin << FairLogger::endl;
+    fThetaMinCM = 180. - 2.*RadToDeg()*rAng - RadToDeg()*rdThetaLab;
+    fThetaMaxCM = 180. - 2.*RadToDeg()*rAng + RadToDeg()*rdThetaLab;
+    LOG(DEBUG) << "  B11: CMTheta1: " << fThetaMinCM << ", CMTheta2: " << fThetaMaxCM
+               << ", average value: " << 0.5*(fThetaMaxCM-fThetaMinCM) + fThetaMinCM << FairLogger::endl;
   }
   else {
-    LOG(FATAL) << "Incorrect third param in ERElasticScattering::SetLabThetaRange" << FairLogger::endl;
+    LOG(FATAL) << "Unknown fDetectionIonType!" << FairLogger::endl;
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// It is a method to recalculation theta ranges from Lab to CM.
+/// Input formula is tan(thetaLab) = MomOfProjectilePerpendicularComponent / MomOfProjectileParallelComponent.
+/// Where MomOfProjectilePerpendicularComponent = Pcm*Sin(thetaCM)*sqrt(1-V^2),
+/// and MomOfProjectileParallelComponent = Pcm*Cos(thetaCM) + V*sqrt(pM^2+Pcm^2).
+/// Where V is a velocity of central of mass relativity of the Lab.
+/// Pcm is momentum of CM relativity of Lab. 
+/// Here we use inverse formula to obtain thetaCM from thetaLab.
+/// For comfortable calculations we introduced corresponding notations.
+/// y = tan(thetaLab),
+/// z = V*sqrt(pM^2+Pcm^2),
+/// t = 1-V^2,
+/// x = Cos(thetaCM).
+/// a = Pcm^2*(y^2+t),
+/// b = 2*y^2*Pcm*z*x,
+/// c = y^2*z^2 - Pcm^2*t = 0,
+/// From input formula we obtain the equation 
+/// a*x^2 + b*x + c = 0
+/// From the equation  
+/// D = b^2 - a*c, 
+/// x1,2 = (-b +- sqrt(D)) / 2 / a,
+/// for projectile ion Cos(thetaCM) = (-b + sqrt(D)) / 2 / a,
+/// for target ion Cos(thetaCM) = -Cos(thetaCM) = (b - sqrt(D)) / 2 / a.
+void ERElasticScattering::ThetaRangesLab2CMRelativistic() {
+  Double_t pM = GetProjectileIonMass();
+  Double_t tM = GetTargetIonMass();
+  /// For a target ion in the calculations below projectile mass has to be changed with target mass
+  if (fDetectionIonType == kTARGET) 
+    pM = tM;
+
+  Double_t pMom = sqrt(fBeamAverageEnergy*fBeamAverageEnergy - pM*pM);
+  Double_t VelocityOfCMRelOfLab = pMom / (fBeamAverageEnergy + tM);
+  if (VelocityOfCMRelOfLab > 1.) {
+    LOG(FATAL) << "In ERElasticScattering::ThetaRangesLab2CMRelativistic() the velocity of CM can't be > 1." << FairLogger::endl;
+  }
+  /// Absolute value of the CM momentum is the same 
+  /// for both particles and also before and after the ellastic scattering.
+  Double_t MomInCM = VelocityOfCMRelOfLab*tM / sqrt(1. - VelocityOfCMRelOfLab*VelocityOfCMRelOfLab);
+  Double_t yMin = tan(fThetaRangeCenter*DegToRad()-fThetaRangedTheta*DegToRad());
+  Double_t yMax = tan(fThetaRangeCenter*DegToRad()+fThetaRangedTheta*DegToRad());
+  Double_t z = VelocityOfCMRelOfLab*sqrt(pM*pM + MomInCM*MomInCM);
+  Double_t t = 1.-VelocityOfCMRelOfLab*VelocityOfCMRelOfLab;
+  Double_t B1Min = t*((MomInCM*MomInCM-z*z)*yMin*yMin + MomInCM*MomInCM*t);
+  Double_t B1Max = t*((MomInCM*MomInCM-z*z)*yMax*yMax + MomInCM*MomInCM*t);
+  if (B1Min < 0. || B1Max < 0.) {
+    LOG(FATAL) << "In ERElasticScattering::ThetaRangesLab2CMRelativistic() B1 can't be < 0." << FairLogger::endl;
+  }
+  B1Min = sqrt(B1Min);
+  B1Max = sqrt(B1Max);
+  Double_t B2Min = yMin*yMin*z;
+  Double_t B2Max = yMax*yMax*z;
+  Double_t B3Min = MomInCM*(yMin*yMin + t);
+  Double_t B3Max = MomInCM*(yMax*yMax + t);
+  Double_t CosThetaCMMin;
+  Double_t CosThetaCMMax;
+
+  if (fDetectionIonType == kPROJECTILE) {
+    CosThetaCMMin = (-B2Min+B1Min) / B3Min;
+    CosThetaCMMax = (-B2Max+B1Max) / B3Max;
+  }
+  else if (fDetectionIonType == kTARGET) {
+    CosThetaCMMin = (B2Min-B1Min) / B3Min;
+    CosThetaCMMax = (B2Max-B1Max) / B3Max;
+  }
+  else {
+    LOG(FATAL) << "In ERElasticScattering::ThetaRangesLab2CMRelativistic() unknown fDetectionIonType!" << FairLogger::endl;
+  }
+
+  fThetaMinCM = acos(CosThetaCMMin)*RadToDeg();
+  fThetaMaxCM = acos(CosThetaCMMax)*RadToDeg();
 }
 
 Bool_t ERElasticScattering::ThetaCDFRead() {
   if (fThetaFileName != "") {
-    LOG(INFO) << "ElasticScattering " << fName << " initialize from theta distribution file" << FairLogger::endl;
+    LOG(INFO) << "ElasticScattering " << fName << " initialized from theta distribution file" << FairLogger::endl;
 
     TString path = TString(gSystem->Getenv("VMCWORKDIR")) + "/input/" + fThetaFileName;
     std::ifstream f;
@@ -282,8 +356,8 @@ Bool_t ERElasticScattering::ThetaCDFRead() {
     fThetaCDF = new TF1("thetaCDF", ThetaCDF, 0., 180., 0);
     fThetaInvCDF = new TF1("thetaInvCDF", ThetaInvCDF, 0., 1., 0);
 
-    fCDFmin = fThetaCDF->Eval(fThetaMin);
-    fCDFmax = fThetaCDF->Eval(fThetaMax);
+    fCDFmin = fThetaCDF->Eval(fThetaMinCM);
+    fCDFmax = fThetaCDF->Eval(fThetaMaxCM);
 
     delete thetaCDFGr;
     delete fThetaCDF;
@@ -294,12 +368,35 @@ Bool_t ERElasticScattering::ThetaCDFRead() {
 Double_t ERElasticScattering::ThetaGen() {
   Double_t theta;
   if (fThetaFileName == "") {
-    theta = acos(fRnd->Uniform(cos(fThetaMin*DegToRad()), cos(fThetaMax*DegToRad())));
+    theta = acos(fRnd->Uniform(cos(fThetaMinCM*DegToRad()), cos(fThetaMaxCM*DegToRad())));
   }
   else {
     theta = fThetaInvCDF->Eval(fRnd->Uniform(fCDFmin, fCDFmax))*DegToRad();
   }
   return theta;
+}
+
+Bool_t ERElasticScattering::DefineOfIonsMasses() {
+  G4ParticleTable* table = G4ParticleTable::GetParticleTable();
+  if (! table ) {
+    LOG(FATAL) << "G4 Particle Table is not found!" << FairLogger::endl;
+    return kFALSE;
+  }
+
+  SetProjectileIonMass(1e-3*((G4ParticleDefinition*)table->FindParticle((G4int)fInputIonPDG->PdgCode()))->GetPDGMass());
+  SetTargetIonMass(1e-3*((G4ParticleDefinition*)table->FindParticle((G4int)fTargetIonPDG->PdgCode()))->GetPDGMass());
+
+  if (! GetProjectileIonMass() ) {
+    LOG(FATAL) << "Can't difine Mass for projectile ion!" << FairLogger::endl;
+    return kFALSE;
+  }
+
+  if (! GetTargetIonMass() ) {
+    LOG(FATAL) << "Can't difine Mass for target ion!" << FairLogger::endl;
+    return kFALSE;
+  }
+
+  return kTRUE;
 }
 
 ClassImp(ERElasticScattering)

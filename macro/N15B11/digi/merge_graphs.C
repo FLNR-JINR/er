@@ -55,4 +55,14 @@ void merge_graphs(TString outputDirectory = "digi_graphs")
 	TString toSaveCanvDir;
 	toSaveCanvDir.Form("%s/eloss.pdf", outputDirectory.Data());
 	canv->SaveAs(toSaveCanvDir);
+
+	TString oFileName;
+	oFileName.Form("%s/eloss.root", outputDirectory.Data());
+	TFile* oFile = new TFile(oFileName, "recreate");
+	if (oFile->IsZombie()) {
+		cerr << "CAN NOT CREATED ROOT FILE " << oFileName << endl;
+		return;
+	}
+	canv->Write();
+	oFile->Close();
 }
