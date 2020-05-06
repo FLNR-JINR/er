@@ -12,10 +12,10 @@
 				<doubleSiMedia>silicon</doubleSiMedia>
 			</doubleSi>
 			<doubleSi id="DoubleSi_F06" twoSidedChannel="yes">
-				<doubleSiSize doubleSiX="6.8" doubleSiY="6.8" doubleSiZ="0.15"/>
-				<doubleSiSensAreaSize doubleSiSensX="6.4" doubleSiSensY="6.4" doubleSiSensZ="0.15"/>
-				<deadLayerThicknessFrontSide>0.00015</deadLayerThicknessFrontSide>
-				<deadLayerThicknessBackSide>0.0001</deadLayerThicknessBackSide>
+				<doubleSiSize doubleSiX="100" doubleSiY="100" doubleSiZ="0.01"/>
+				<doubleSiSensAreaSize doubleSiSensX="100" doubleSiSensY="100" doubleSiSensZ="0.01"/>
+				<deadLayerThicknessFrontSide>0.00</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.00</deadLayerThicknessBackSide>
 				<stripCountX>1</stripCountX>
 				<stripCountY>1</stripCountY>
 				<doubleSiMedia>BC408</doubleSiMedia>
