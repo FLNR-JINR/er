@@ -8,8 +8,15 @@
 
 #include "ERQTelescopeGeoNonUniformSingleSi.h"
 
+#include "TGeoManager.h"
 #include "TGeoBBox.h"
 #include "TGeoCompositeShape.h"
+#include "TGeoMatrix.h"
+#include "TDOMParser.h"
+#include "TXMLAttr.h"
+#include "TXMLNode.h"
+#include "TList.h"
+#include "TFile.h"
 
 #include "FairLogger.h"
 
@@ -36,25 +43,11 @@ ERQTelescopeGeoNonUniformSingleSi::ERQTelescopeGeoNonUniformSingleSi(
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoNonUniformSingleSi::ConstructGeometryVolume(void) {
   ParseXmlParameters();
-  if (fOrientAroundZ == "X" && fXPseudoStripCount != fStripCount
-      || fOrientAroundZ == "Y" && fYPseudoStripCount != fStripCount)
+  if (fOrientAroundZ == OrientationAroundZ::X && fXPseudoStripCount != fStripCount
+      || fOrientAroundZ == OrientationAroundZ::Y && fYPseudoStripCount != fStripCount)
     LOG(FATAL) << "[ERQTelescopeGeoNonUniformSingleSi] Discretization in thickness map " << fXPseudoStripCount 
                << "x" << fYPseudoStripCount << " and station strip count " << fStripCount << " are inconsistent.\n";  
-  FairGeoLoader* geoLoad = FairGeoLoader::Instance();//
-  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-  TString geoPath = gSystem->Getenv("VMCWORKDIR");
-  TString medFile = geoPath + "/geometry/media.geo";
-  geoFace->setMediaFile(medFile);
-  geoFace->readMedia();
-  FairGeoMedia*   geoMedia = geoFace->getMedia();
-  FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
-  FairGeoMedium* mDoubleSi = geoMedia->getMedium(fMedia);
-  if (!mDoubleSi)
-    LOG(FATAL) << "Fairroot media " << fMedia << " for non-uniform singleSi station not found\n";
-  geoBuild->createMedium(mDoubleSi);
-  TGeoMedium* pMed = gGeoManager->GetMedium(fMedia);
-  if (!pMed)
-    LOG(FATAL) << "Root media " << fMedia << " for non-uniform singleSi station not found\n";
+  auto* media = CreateMaterial(fMedia); 
   fVolume = new TGeoVolumeAssembly(this->GetVolumeName());
   const Double_t boxX = fSensX / fXPseudoStripCount;  
   const Double_t boxY = fSensY / fYPseudoStripCount;
@@ -72,14 +65,14 @@ void ERQTelescopeGeoNonUniformSingleSi::ConstructGeometryVolume(void) {
                  << " with full thickness = " << fullThickness << " and sensetive thickness = " 
                  << sensetiveThickness << FairLogger::endl;
       const TString boxNamePostfix = "_X" + TString::Itoa(iStripX, 10) + "_Y" + TString::Itoa(iStripY, 10);
-      auto* sensetiveBox = gGeoManager->MakeBox("SensitivePixelSiBox" + boxNamePostfix, pMed,
+      auto* sensetiveBox = gGeoManager->MakeBox("SensitivePixelSiBox" + boxNamePostfix, media,
                                                  boxX / 2, boxY / 2, sensetiveThickness / 2);
       sensetiveBox->SetTransparency(60);
-      auto* frontDeadBox = gGeoManager->MakeBox("DeadFrontPixelSiBox" + boxNamePostfix, pMed, 
+      auto* frontDeadBox = gGeoManager->MakeBox("DeadFrontPixelSiBox" + boxNamePostfix, media, 
                                                  boxX / 2, boxY / 2, fDeadLayerThicknessFrontSide / 2);
       frontDeadBox->SetLineColor(kRed);
       frontDeadBox->SetTransparency(60);
-      auto* backDeadBox = gGeoManager->MakeBox("DeadBackPixelSiBox" + boxNamePostfix, pMed, 
+      auto* backDeadBox = gGeoManager->MakeBox("DeadBackPixelSiBox" + boxNamePostfix, media, 
                                                 boxX / 2, boxY / 2, fDeadLayerThicknessBackSide / 2);
       backDeadBox->SetLineColor(kGreen);
       backDeadBox->SetTransparency(60);
@@ -91,9 +84,18 @@ void ERQTelescopeGeoNonUniformSingleSi::ConstructGeometryVolume(void) {
       strip->AddNode(backDeadBox, 0, new TGeoCombiTrans(0, translationInStripY, transBackDeadZ, zeroRotation));
     }
   }
-  if (fOrientAroundZ.Contains("Y")) {
-    fRotation->RotateZ(90.);
+  if (fOrientAroundZ == OrientationAroundZ::Y) {
+    fRotation.RotateZ(90.);
   }
+}
+//--------------------------------------------------------------------------------------------------
+Int_t ERQTelescopeGeoNonUniformSingleSi::GetChannelFromSensetiveNodePath(
+    const TString& path, OrientationAroundZ /*orientation = OrientationAroundZ::Default*/) const {
+  TString pathWithChannelPostfix = path;
+  pathWithChannelPostfix.Remove(pathWithChannelPostfix.Last('/'), pathWithChannelPostfix.Length());
+  const TString channelStr(pathWithChannelPostfix(pathWithChannelPostfix.Last('_') + 1,
+                                                  pathWithChannelPostfix.Length()));
+  return channelStr.Atoi();
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERGeoComponent)

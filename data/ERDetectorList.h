@@ -10,6 +10,5 @@
 #define ERDETECTORLIST_H 1
 
 enum DetectorId {kNEURAD, kGADAST, kMUSI, kDSRD, kND};
-enum ERGadastDetectorType {CsI, LaBr};
 
 #endif

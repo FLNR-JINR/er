@@ -8,20 +8,19 @@
 
 #include "ERGeoComponent.h"
 
-using namespace std;
+#include "TGeoMedium.h"
+#include "TGeoManager.h"
+#include "TROOT.h"
+#include "TSystem.h"
 
+#include "FairGeoLoader.h"
+#include "FairGeoMedia.h"
+#include "FairGeoBuilder.h"
+#include "FairGeoMedium.h"
+#include "FairGeoInterface.h"
+#include "FairLogger.h"
 //--------------------------------------------------------------------------------------------------
-ERGeoComponent::ERGeoComponent() {
-}
-//--------------------------------------------------------------------------------------------------
-ERGeoComponent::ERGeoComponent(TString name) 
-: TNamed(name, name),
-  fPosition(new TVector3()),
-  fRotation(new TGeoRotation())
-{
-}
-//--------------------------------------------------------------------------------------------------
-ERGeoComponent::ERGeoComponent(TString typeFromXML, TString id) 
+ERGeoComponent::ERGeoComponent(const TString& typeFromXML, const TString& id) 
 : TNamed(typeFromXML + id, typeFromXML + id),
   fType(typeFromXML),
   fComponentId(id),
@@ -29,31 +28,50 @@ ERGeoComponent::ERGeoComponent(TString typeFromXML, TString id)
 {
 }
 //--------------------------------------------------------------------------------------------------
-ERGeoComponent::ERGeoComponent(TString typeFromXML, TString id, TVector3 position, TVector3 rotation)
-: TNamed(typeFromXML + id, typeFromXML + id),
-  fType(typeFromXML),
-  fComponentId(id),
-  fVolumeName(id),
-  fPosition(new TVector3(position))
+ERGeoComponent::ERGeoComponent(const TString& name, const TVector3& position, 
+                               const TVector3& rotation)
+: TNamed(name, name), fVolumeName(name), fPosition(position)
 {
-  fRotation = new TGeoRotation();
-  fRotation->RotateX(rotation.X());
-  fRotation->RotateY(rotation.Y());
-  fRotation->RotateZ(rotation.Z());
+  fRotation.RotateX(rotation.X());
+  fRotation.RotateY(rotation.Y());
+  fRotation.RotateZ(rotation.Z());
 }
 //--------------------------------------------------------------------------------------------------
-ERGeoComponent::~ERGeoComponent() {
+ERGeoComponent::ERGeoComponent(const TString& typeFromXML, const TString& id, const TVector3& position,
+                               const TVector3& rotation)
+: TNamed(typeFromXML + id, typeFromXML + id), fType(typeFromXML),
+  fComponentId(id), fVolumeName(id), fPosition(position)
+{
+  fRotation.RotateX(rotation.X());
+  fRotation.RotateY(rotation.Y());
+  fRotation.RotateZ(rotation.Z());
 }
 //--------------------------------------------------------------------------------------------------
-void ERGeoComponent::SetPosition(TVector3 position) {
-  fPosition = new TVector3(position);
+void ERGeoComponent::SetRotation(const TVector3& rotation) {
+  fRotation.Clear();
+  fRotation.RotateX(rotation.X());
+  fRotation.RotateY(rotation.Y());
+  fRotation.RotateZ(rotation.Z());
 }
 //--------------------------------------------------------------------------------------------------
-void ERGeoComponent::SetRotation(TVector3 rotation) {
-  fRotation = new TGeoRotation();
-  fRotation->RotateX(rotation.X());
-  fRotation->RotateY(rotation.Y());
-  fRotation->RotateZ(rotation.Z());
+TGeoMedium* ERGeoComponent::CreateMaterial(const TString& name) {
+  FairGeoLoader* geoLoader = FairGeoLoader::Instance();
+  FairGeoInterface* geoFace = geoLoader->getGeoInterface();
+  TString geoPath = gSystem->Getenv("VMCWORKDIR");
+  TString medFile = geoPath + "/geometry/media.geo";
+  geoFace->setMediaFile(medFile);
+  geoFace->readMedia();
+  FairGeoMedia*   geoMedia = geoFace->getMedia();
+  FairGeoBuilder* geoBuilder = geoLoader->getGeoBuilder();
+  FairGeoMedium* fairMedia = geoMedia->getMedium(name);
+  if (!fairMedia)
+    LOG(FATAL) << "Media " << name << " not found in media.geo file\n";
+  geoBuilder->createMedium(fairMedia);
+  TGeoMedium* rootMedia = gGeoManager->GetMedium(name);
+  if (!rootMedia)
+    LOG(FATAL) << "Media " << name << " not found in gGeoManager\n";
+  LOG(DEBUG) << "Created " << name << " media\n";
+  return rootMedia;
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERGeoComponent)

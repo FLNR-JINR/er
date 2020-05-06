@@ -18,13 +18,10 @@
 class ERQTelescopeSiDigi : public ERDigi {
  public:
   ERQTelescopeSiDigi() = default;
-  ERQTelescopeSiDigi(Double_t edep, Double_t time, Int_t stationNb, Int_t channel);
+  ERQTelescopeSiDigi(Double_t edep, Double_t time, Int_t channel);
   /** Output to screen **/
   virtual void Print(const Option_t* opt = 0) const;
-  /* Accessors */
-  Int_t StationNb() const {return fStationNb;}
  protected:
-  Int_t     fStationNb = -1;
   ClassDef(ERQTelescopeSiDigi,1)
 };
 

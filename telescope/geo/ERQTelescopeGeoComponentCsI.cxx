@@ -8,74 +8,35 @@
 
 #include "ERQTelescopeGeoComponentCsI.h"
 
+#include "TGeoManager.h"
+#include "TGeoMatrix.h"
+#include <TDOMParser.h>
+#include <TXMLAttr.h>
+#include <TXMLNode.h>
+#include <TList.h>
+
 #include "FairLogger.h"
 
 #include "ERQTelescopeSetup.h"
-
-using namespace std;
-
-//--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentCsI::ERQTelescopeGeoComponentCsI() {
-}
-//--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentCsI::ERQTelescopeGeoComponentCsI(TString typeFromXML, TString id) 
-: ERGeoComponent(typeFromXML, id)
-{
-}
-//--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentCsI::ERQTelescopeGeoComponentCsI(TString typeFromXML, TString id, 
-                                                                              TVector3 position, 
-                                                                              TVector3 rotation)
-: ERGeoComponent(typeFromXML, id, position, rotation)
-{
-}
-//--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentCsI::~ERQTelescopeGeoComponentCsI() {
-}
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoComponentCsI::ConstructGeometryVolume(void) {
   ParseXmlParameters();
-  TGeoManager*   gGeoMan = NULL;
-  // -------   Load media from media file   -----------------------------------
-  FairGeoLoader* geoLoad = FairGeoLoader::Instance();//
-  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-  TString geoPath = gSystem->Getenv("VMCWORKDIR");
-  TString medFile = geoPath + "/geometry/media.geo";
-  geoFace->setMediaFile(medFile);
-  geoFace->readMedia();
-  gGeoMan = gGeoManager;
-  // -----------------   Get and create the required media    -----------------
-  FairGeoMedia*   geoMedia = geoFace->getMedia();
-  FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
-  // ----- Create media for Single Si -----------------------------------------
-  FairGeoMedium* mCsI;
-  TGeoMedium*    pMed; 
-
-  mCsI = geoMedia->getMedium(fMedia);
-  if ( ! mCsI ) Fatal("Main", "Medium for CsI not found");
-  geoBuild->createMedium(mCsI);
-  pMed = gGeoMan->GetMedium(fMedia);
-  if ( ! pMed ) Fatal("Main", "Medium for CsI not found");
-  LOG(DEBUG) << "Created single Si media" << FairLogger::endl;
-
-  // --------------   Create geometry and top volume  -------------------------
-  gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
-  // ---------------- CsI-------------------------------------------------
+  auto* media = CreateMaterial(fMedia); 
   Float_t fullX = fSizeX*fCubesCountX + fSplitSize*fCubesCountX;
   Float_t fullY = fSizeY*fCubesCountY + fSplitSize*fCubesCountY;
 
   fVolume = gGeoManager->MakeBox(this->GetVolumeName(), 
-                                 pMed, 
+                                 media, 
                                  fullX/2., 
                                  fullY/2., 
                                  fSizeZ/2.);
  
 
-  TGeoVolume* shellCsI = gGeoManager->MakeBox("CsIBoxShell", pMed, fSizeX / 2, 
+  TGeoVolume* shellCsI = gGeoManager->MakeBox("CsIBoxShell", media, fSizeX / 2, 
                                                                    fSizeY / 2, 
                                                                    fSizeZ / 2);
 
-  TGeoVolume* boxCsISensitive = gGeoManager->MakeBox("SensitiveCsIBox", pMed, fSizeX / 2 - fDeadLayer, 
+  TGeoVolume* boxCsISensitive = gGeoManager->MakeBox("SensitiveCsIBox", media, fSizeX / 2 - fDeadLayer, 
                                                                               fSizeY / 2 - fDeadLayer, 
                                                                               fSizeZ / 2 - fDeadLayer);
   shellCsI->AddNode(boxCsISensitive, 1, new TGeoCombiTrans(0, 0, 0, new TGeoRotation()));
@@ -165,6 +126,29 @@ void ERQTelescopeGeoComponentCsI::ParseXmlParameters() {
       }
     }
   }
+}
+//--------------------------------------------------------------------------------------------------
+TString ERQTelescopeGeoComponentCsI::GetBranchName(
+    ERDataObjectType objectType, OrientationAroundZ orientationAroundZ /*= OrientationAroundZ::Default*/,
+    ChannelSide side /*= ChannelSide::None*/) const {
+  return GetBranchNamePrefix(SensetiveType::CsI, objectType);
+}
+//--------------------------------------------------------------------------------------------------
+std::list<OrientationAroundZ> ERQTelescopeGeoComponentCsI::GetOrientationsAroundZ() const {
+  return {};
+}
+//--------------------------------------------------------------------------------------------------
+std::list<ChannelSide> ERQTelescopeGeoComponentCsI::GetChannelSides() const {
+  return {};
+}
+//--------------------------------------------------------------------------------------------------
+Int_t ERQTelescopeGeoComponentCsI::GetChannelFromSensetiveNodePath(
+    const TString& path, OrientationAroundZ orientation /*= OrientationAroundZ::Default*/) const {
+  TString pathWithChannelPostfix = path;
+  pathWithChannelPostfix.Remove(pathWithChannelPostfix.Last('/'), pathWithChannelPostfix.Length());
+  const TString channelStr(pathWithChannelPostfix(pathWithChannelPostfix.Last('_') + 1,
+                                                  pathWithChannelPostfix.Length()));
+  return channelStr.Atoi();
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERGeoComponent)

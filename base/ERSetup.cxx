@@ -8,80 +8,81 @@
 
 #include "ERSetup.h"
 
-TGeoManager*    ERSetup::fGeoMan   = NULL;
-FairGeoMedia*   ERSetup::fGeoMedia = NULL;
-FairGeoBuilder* ERSetup::fGeoBuild = NULL;
-//--------------------------------------------------------------------------------------------------
-ERSetup::ERSetup() 
-: fSubAssembies(new TObjArray()),
-  fComponentNames(new std::vector<TString>())
-{
- std::cout << "ERSetup::ERSetup()" << std::endl;
-}
-//--------------------------------------------------------------------------------------------------
-ERSetup::~ERSetup() {
-}
+#include "TGeoManager.h"
+#include "TROOT.h"
+
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoLoader.h"
+#include "FairGeoInterface.h"
+#include "FairGeoMedia.h"
+#include "FairGeoBuilder.h"
+#include "FairLogger.h"
 //--------------------------------------------------------------------------------------------------
 Int_t ERSetup::SetParContainers(){
-      // Get run and runtime database
+  // Get run and runtime database
   FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
-
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   if ( ! rtdb ) Fatal("SetParContainers", "No runtime database");
 }
 //--------------------------------------------------------------------------------------------------
-void ERSetup::AddSubAssembly(TObject* subAssembly) {
-  fSubAssembies->AddLast(subAssembly);
+void ERSetup::AddSubAssembly(ERGeoSubAssembly* subAssembly) {
+  fSubAssemblies[subAssembly->GetName()] = subAssembly;
 }
 //--------------------------------------------------------------------------------------------------
-void ERSetup::AddSubAssembly(TObject* subAssembly, TVector3 position, TVector3 rotation) {
-  ((ERGeoSubAssembly*)subAssembly)->SetPosition(position);
-  ((ERGeoSubAssembly*)subAssembly)->SetRotation(rotation);  
-  fSubAssembies->AddLast(subAssembly);
+void ERSetup::AddSubAssembly(ERGeoSubAssembly* subAssembly, const TVector3& position,
+                             const TVector3& rotation) {
+  subAssembly->SetPosition(position);
+  subAssembly->SetRotation(rotation);  
+  AddSubAssembly(subAssembly);
 }
 //--------------------------------------------------------------------------------------------------
 void ERSetup::ConstructGeometry(void) {
-  TGeoManager*   gGeoMan = NULL;
-  // -------   Load media from media file   -----------------------------------
-  FairGeoLoader* geoLoad = FairGeoLoader::Instance();//
-  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-  TString geoPath = gSystem->Getenv("VMCWORKDIR");
-  TString medFile = geoPath + "/geometry/media.geo";
-  geoFace->setMediaFile(medFile);
-  geoFace->readMedia();
-  gGeoMan = gGeoManager;
-  // -------   Geometry file name (output)   ----------------------------------
-  // -----------------   Get and create the required media    -----------------
-  FairGeoMedia*   geoMedia = geoFace->getMedia();
-  FairGeoBuilder* geoBuild = geoLoad->getGeoBuilder();
- 
-  // --------------   Create geometry and top volume  -------------------------
+  if (!gGeoManager)
+    LOG(FATAL) << "[ERSetup] gGeoManager has not inited.\n";
   TGeoVolume* top   = new TGeoVolumeAssembly("TOP");
   TGeoVolume* geoVol = new TGeoVolumeAssembly(fGeoName);
-
-  //------------------ STRUCTURE  ---------------------------------------------
-  TIter itSubAssembly(fSubAssembies);
-  ERGeoSubAssembly *subAssembly;
   int i = 0;
-  while(subAssembly = (ERGeoSubAssembly*)(itSubAssembly.Next())){
+  for (auto subAssemblyPair : fSubAssemblies) {
+    auto* subAssembly = subAssemblyPair.second;
     subAssembly->ConstructGeometryVolume();
-    TGeoVolume*   volume = subAssembly->GetVolume(); 
-    TGeoRotation* rotation = subAssembly->GetRotation();
-    TVector3*     trans = subAssembly->GetPosition();
-    std::vector<TString> *compNames = subAssembly->GetComponentNames();
-    for (const auto itCompNames : *compNames) {
-      fComponentNames->push_back(itCompNames);
-    }
-    // top->AddNode(volume, ++i, new TGeoCombiTrans(trans->X() ,trans->Y(), trans->Z(), rotation));
-    geoVol->AddNode(volume, ++i, new TGeoCombiTrans(trans->X() ,trans->Y(), trans->Z(), rotation)); 
+    const TVector3* translation = subAssembly->GetPosition();
+    auto* rotation = const_cast<TGeoRotation*>(subAssembly->GetRotation());
+    auto* volume = const_cast<TGeoVolume*>(subAssembly->GetVolume());
+    geoVol->AddNode(volume, ++i, 
+                    new TGeoCombiTrans(translation->X() ,translation->Y(), translation->Z(),
+                    rotation));
   }
   top->AddNode(geoVol, 1, new TGeoCombiTrans(0., 0., 0., new TGeoRotation()));  
-  
-  TString geoFileName = geoPath + "/geometry/" + fGeoName + ".temp.root";
+  const TString geoPath = gSystem->Getenv("VMCWORKDIR");
+  const TString geoFileName = geoPath + "/geometry/" + fGeoName + ".temp.root";
   TFile* geoFile = new TFile(geoFileName, "RECREATE");
   top->Write();
   geoFile->Close();
+}
+//--------------------------------------------------------------------------------------------------
+std::list<ERGeoComponent*> ERSetup::GetAllComponents() {
+  std::list<ERGeoComponent*> components;
+  for (auto subAssemblyPair : fSubAssemblies) {
+    auto* subAssembly = subAssemblyPair.second;
+    auto& subComponents = subAssembly->GetComponents();
+    for (auto subComponentPair : subComponents) {
+      components.push_back(subComponentPair.second);
+    }
+  }
+  return components;
+}
+//--------------------------------------------------------------------------------------------------
+ERGeoComponent* ERSetup::GetComponent(const TString& path){
+  const auto components = GetAllComponents();
+  const auto componentIt = std::find_if(
+    components.begin(), components.end(), [&path](ERGeoComponent* component) {
+      return path.Contains(component->GetVolumeName());
+  });
+  return componentIt != components.end() ? *componentIt : nullptr;
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERSetup)

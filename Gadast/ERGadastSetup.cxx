@@ -37,7 +37,7 @@ ERGadastSetup::ERGadastSetup()
     if ( ! fDigiPar ) Fatal("ERGadastSetup`", "No ERNeuRadDigiPar in runtime");
 }
 //----------------------------------------------------------------------------
-int ERGadastSetup::GetMeshElement(TVector3* pos, ERGadastDetectorType detType){
+int ERGadastSetup::GetMeshElement(TVector3* pos, SensetiveType detType){
 	TGeoNode* node = gGeoManager->FindNode(pos->X(), pos->Y(), pos->Z());
 	TGeoMatrix* gm = node->GetMatrix();
 

@@ -11,14 +11,14 @@
 #include "FairLogger.h"
 
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeSiDigi::ERQTelescopeSiDigi(Double_t edep, Double_t time, Int_t stationNb, Int_t channel)
-  : ERDigi(edep, time, channel), fStationNb(stationNb)
+ERQTelescopeSiDigi::ERQTelescopeSiDigi(Double_t edep, Double_t time, Int_t channel)
+  : ERDigi(edep, time, channel)
 {
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescopeSiDigi::Print(const Option_t* opt /* = 0 */) const {
   LOG(INFO) << "-I- ERQTelescopeSiDigi:  edep = " << fEdep << ", time = " << fTime
-            << ", station number = " << fStationNb << ", channel = " << fChannel << FairLogger::endl;
+            << ", channel = " << fChannel << FairLogger::endl;
 }
 //-------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeSiDigi)

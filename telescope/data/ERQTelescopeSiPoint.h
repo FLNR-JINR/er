@@ -16,15 +16,9 @@
 #include "FairMCPoint.h"
 
 
-class ERQTelescopeSiPoint : public FairMCPoint
-{
-
+class ERQTelescopeSiPoint : public FairMCPoint {
  public:
-
-  /** Default constructor **/
-  ERQTelescopeSiPoint();
-
-
+  ERQTelescopeSiPoint() = default;
   /** Constructor with arguments
    *@param EventID  Index of Event
    *@param trackID  Index of MCTrack
@@ -42,21 +36,9 @@ class ERQTelescopeSiPoint : public FairMCPoint
 		  Double_t mass,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t StationNb ,Int_t X_StripNb, Int_t pdg);
-
-
-
-  /** Copy constructor **/
-  ERQTelescopeSiPoint(const ERQTelescopeSiPoint&);
-
-
+		  Double_t tof, Double_t length, Double_t eLoss, Int_t X_StripNb, Int_t pdg);
   /** Destructor **/
-  virtual ~ERQTelescopeSiPoint();
-
-
-  ERQTelescopeSiPoint& operator=(const ERQTelescopeSiPoint&) { return *this; }
-
-
+  virtual ~ERQTelescopeSiPoint() = default;
   /** Accessors **/
   Int_t GetEventID()            const { return fEventID; }
   Int_t GetMot0TrackID()        const { return fMot0TrackID; }
@@ -71,39 +53,25 @@ class ERQTelescopeSiPoint : public FairMCPoint
   Double_t GetPzOut()           const { return fPz_out; }
   Double_t GetMass()            const { return fMass; }
   Int_t    GetPDG()             const { return fPDG; }
-
-
   void PositionIn(TVector3& pos)  { pos.SetXYZ(fX, fY, fZ); }
   void PositionOut(TVector3& pos) { pos.SetXYZ(fX_out,fY_out,fZ_out); }
   void MomentumOut(TVector3& mom) { mom.SetXYZ(fPx_out,fPy_out,fPz_out); }
-
-
   /** Point coordinates at given z from linear extrapolation **/
   Double_t GetX(Double_t z) const;
   Double_t GetY(Double_t z) const;
-  // Int_t Sector() const {return fSector;}
-  // Int_t Sensor() const {return fSensor;}
-
-  virtual Int_t GetStationNb() {return fStationNb;}     // Si
   virtual Int_t GetStripNb()   {return fStrip;}
-
-
   /** Check for distance between in and out **/
   Bool_t IsUsable() const;
-
   /** Output to screen **/
   virtual void Print(const Option_t* opt = 0) const;
-
  protected:
-
-  Int_t      fEventID;
-  Int_t      fMot0TrackID;
-  Double_t   fMass;
-  Double32_t fX_out,  fY_out,  fZ_out;
-  Double32_t fPx_out, fPy_out, fPz_out;
-  Int_t      fStationNb;     // Si
-  Int_t      fStrip;
-  Int_t      fPDG;
+  Int_t      fEventID = -1;
+  Int_t      fMot0TrackID = -1;
+  Double_t   fMass = -1.;
+  Double32_t fX_out = 0.,  fY_out = 0.,  fZ_out = 0.;
+  Double32_t fPx_out = 0., fPy_out = 0., fPz_out = 0.;
+  Int_t      fStrip = -1;
+  Int_t      fPDG = -1;
   ClassDef(ERQTelescopeSiPoint,1)
 };
 #endif

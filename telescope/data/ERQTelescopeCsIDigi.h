@@ -13,14 +13,10 @@
 class ERQTelescopeCsIDigi : public ERDigi {
  public:
   ERQTelescopeCsIDigi() = default;
-  ERQTelescopeCsIDigi(Double_t edep, Double_t time, Int_t wallNb, Int_t channel);
+  ERQTelescopeCsIDigi(Double_t edep, Double_t time, Int_t channel);
   /** Output to screen **/
   virtual void Print(const Option_t* opt = 0) const;
-  /* Accessors */
-  Int_t WallNb() const {return fWallNb;}
  protected:
-  Int_t     fWallNb = -1;
- 
   ClassDef(ERQTelescopeCsIDigi,1)
 };
 

@@ -10,7 +10,16 @@
 				<stripCountX>32</stripCountX>
 				<stripCountY>32</stripCountY>
 				<doubleSiMedia>silicon</doubleSiMedia>
-			</doubleSi>	
+			</doubleSi>
+			<doubleSi id="DoubleSi_F06" twoSidedChannel="yes">
+				<doubleSiSize doubleSiX="100" doubleSiY="100" doubleSiZ="0.01"/>
+				<doubleSiSensAreaSize doubleSiSensX="100" doubleSiSensY="100" doubleSiSensZ="0.01"/>
+				<deadLayerThicknessFrontSide>0.00</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.00</deadLayerThicknessBackSide>
+				<stripCountX>1</stripCountX>
+				<stripCountY>1</stripCountY>
+				<doubleSiMedia>BC408</doubleSiMedia>
+			</doubleSi>
 		</doubleSiTypes>
 		<singleSiTypes>
 			<singleSi id="SingleSi_SSD20">
@@ -132,7 +141,7 @@
 				<deadLayerThicknessBackSide>0.0003</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
-			</singleSi>	
+			</singleSi>
 		</singleSiTypes>
 	</SiTypes>
 	<CsITypes>

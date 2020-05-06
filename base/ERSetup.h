@@ -9,49 +9,32 @@
 #ifndef ERSetup_H
 #define ERSetup_H
 
-#include "TGeoManager.h"
-#include "TROOT.h"
-
-#include "FairRootManager.h"
-#include "FairRunAna.h"
-#include "FairRun.h"
-#include "FairRuntimeDb.h"
-#include "FairGeoLoader.h"
-#include "FairGeoInterface.h"
-#include "FairGeoMedia.h"
-#include "FairGeoBuilder.h"
-#include "FairLogger.h"
-
+#include "ERGeoComponent.h"
 #include "ERGeoSubAssembly.h"
 
 class ERSetup {
 public:
-  ERSetup();
-  virtual ~ERSetup();
-
+  ERSetup() = default;
+  virtual ~ERSetup() = default;
   /* Modifiers */
-  void SetXMLParametersFile(TString xmlFileName) {fParamsXMLFileName = xmlFileName;} 
-  void SetGeoName(TString name) {fGeoName = name;}
-  void AddSubAssembly(TObject* subAssembly);
-  void AddSubAssembly(TObject* subAssembly, TVector3 position, TVector3 rotation);
+  void SetXMLParametersFile(const TString& xmlFileName) {fParamsXMLFileName = xmlFileName;} 
+  void SetGeoName(const TString& name) {fGeoName = name;}
+  void AddSubAssembly(ERGeoSubAssembly* subAssembly);
+  void AddSubAssembly(ERGeoSubAssembly* subAssembly, const TVector3& position, const TVector3& rotation);
   /* Accessors */
-  TString               GetGeoFileName()           const {return (fGeoName + ".temp.root");}
-  TString               GetGeoName()               const {return fGeoName;}
-  TString               GetXMLParametersFile(void) const {return fParamsXMLFileName;} 
-  std::vector<TString>* GetComponentNames()        const {return fComponentNames;}
+  TString GetGeoFileName() const {return (fGeoName + ".temp.root");}
+  TString GetGeoName() const {return fGeoName;}
+  TString GetXMLParametersFile(void) const {return fParamsXMLFileName;}
+  std::list<ERGeoComponent*> GetAllComponents();
+  ERGeoComponent* GetComponent(const TString& path);
 public:
   virtual void  ReadGeoParamsFromParContainer() = 0;
   virtual Int_t SetParContainers();
   virtual void  ConstructGeometry();
-
 protected:
-  static TGeoManager    *fGeoMan;
-  static FairGeoMedia   *fGeoMedia;
-  static FairGeoBuilder *fGeoBuild;
-  TString               fParamsXMLFileName;
-  TObjArray*            fSubAssembies;
-  TString               fGeoName;
-  std::vector<TString>  *fComponentNames;
+  TString fParamsXMLFileName;
+  std::map<TString, ERGeoSubAssembly*> fSubAssemblies;
+  TString fGeoName;
 
   ClassDef(ERSetup,1)
 };
