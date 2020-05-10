@@ -6,7 +6,7 @@
 Silicon strip detector calibration
 **********************************
 
-This section contains description of the Silicon Strip Detector (SSD) calibration using Ra226 alpha particle source.
+This section contains description of the Silicon Strip Detector (SSD) calibration using |Ra226| alpha particle source.
 
 .. contents:: Sections
    :local:
@@ -26,7 +26,7 @@ The main assumptions the method is based:
 
    E = aN + b,
 
-where :math:`E` -- energy in [eV] dimensionality, :math:`N` - readout value in ADC-channels count dimensionality, :math:`a` and :math:`b` - calibration coefficients;
+where :math:`E` - energy in [eV] dimensionality, :math:`N` - readout value in ADC-channels count dimensionality, :math:`a` and :math:`b` - calibration coefficients;
 
 #. Dead layer is uniform;
 #. G4EmStandardPhysics description of |alpha|-particle energy losses in silicon is sufficient;
@@ -35,7 +35,7 @@ where :math:`E` -- energy in [eV] dimensionality, :math:`N` - readout value in A
 Dead layer thickness estimation 
 -------------------------------
 
-|Ra226| |alpha|-particles source enables to perform calibration measures with several energies. In the under discussion method three lines are used: :math:`E_1`=4.7844 [MeV],  :math:`E_2`=6.0024 [MeV], :math:`E_3`=7.6869 [MeV].
+|Ra226| |alpha|-particles source enables to perform calibration measures with several energies. In the under discussion method three lines are used :math:`E_1 = 4.7844` [MeV],  :math:`E_2 = 6.0024` [MeV], :math:`E_3 = 7.6869` [MeV].
 
 Ionization losses depend on particle start energy and dead layer thickness which it passes through.
 
@@ -89,11 +89,13 @@ The typical form of the spectrum is shown in the figure 3.
 
        Figure 3. Typical spectrum. Red markers - peaks positions found by TSpectum algorithm
 
-Algorithms of peaks positions determination are described in the section :ref:`set-peak-search-algorithm-type`. The methodology of algorithm stability exploration is described in the section :ref:`calibration-stability-research`.
+Algorithms of peaks positions determination are described in the section :ref:`_set-peak-search-algorithm-type`. The methodology of algorithm stability exploration is described in the section :ref:`calibration-stability-research`.
 
 An accuracy of peak centroid position (RMS) determination by the 'sliding window' algorithm is about 0.05 ADC sampling step. In case of a large peak width accuracy goes downward. 
 
 The inaccuracy of the dead layer estimation concerned with the peak searching algorithm inaccuracy is 0.24 [|um|] in case of the dead layer thickness about 2 [|um|]. The assumption about strips-wise dead layer uniformity enables to treat each strip dead layer as averaged over the whole sensor. The averaging leads to accuracy in dead layer determination up to 0.06 |um| (RMS). 
+
+The dead layer thickness found in such a way also includes the dead layer of the source cover ~0.3 [|um|].
 
 In the case of a thin detector (about 20 |um|), the full stop of alpha-lines is occurred when the sensor is rotated for a significant angle (65 degrees) with respect to direct source exposure.
 An evaluated effective thickness must be re-calculated into real one according to angle.
@@ -110,21 +112,20 @@ The estimated dead layer thickness enables to evaluate energy deposit of |alpha|
 
        Figure 4. Calibration points linear approximation
 
-Energy loss approximation models
---------------------------------
-
-.. figure:: _images/ssd_calib/de_d_quad_approx.png
-       :scale: 80 %
-       :align: center
-       :alt: calib_line
-
-       Figure 5. :math:`dE(d)` quadratic approximation. Start energy 7.6869 [MeV]
-
-
 Program realization
 ===================
 
 The realization of algorithms is implemented as ROOT-macro. The input data is a file with raw data in a *.root format, produced by FLNR *.lmd life conversion library based on TNeEvent class using the Go4 system developed in GSI.
+
+All the classes are described in the source code Doxygen documentation.
+
+Calibration tools may be included to a user macro by the following:
+
+.. code-block:: c
+  #include "ERCalibrationSSD.cxx"
+
+  using namespace ERCalibrationSSD;
+  
 
 Class diagram
 -------------
@@ -138,98 +139,119 @@ The class diagram (figure 6) briefly presents relations between main program ent
 
        Figure 6. Class diagram
 
+`Task` class is the base for all processing methods and aggregates
 
-
-An Execution of a calibration macro produces results in the following folder structure 
+* `run_id` which is istantiated by a base of a raw input file name.
+* `CalibIOManager` class instance which is responsible for a unified access to resulting files. It deploys the folder structure for results
 
 ::
-    results
-    ├── [FILE_NAME]
-        ├── [SENSOR_NAME]
-            ├── preview
-            ├── calibration
-            ├── results
-            report_[FILE_NAME]_[SENSOR_NAME].txt
 
-[FILE_NAME] - base name of a raw input file.
-[FILE_NAME] - leaf name of a target sensor.
+  result
+  ├── [run_id]
+  │   ├── input - preprocessing resulting data.
+  │   └── [sensor_name]
+  │       ├── txt - text format results, thesholds, peaks position, etc.
+  │       ├── draw - ROOT format of results.
+  │       └── report_[run_id]_[sensor_name].txt
+  └── [run_id]
+      ├── input - preprocessing resulting data.
+      ├── [sensor_name_thin_sensor_name_thick] - files related to thin sensor thickness map building
+      ├── [sensor_name_thin] - thin sensor data
+      └── [sensor_name_thick] - thick sensor data
+
+
+`SensorRunInfo` class stores information about path to the raw data, station name and histogram parameters during the processing.
+
+.. code-block:: c
+  // Define input file path with raw data converted by TNEvent go4-based library
+  const TString file_calib_path = /path/input.root";
+  // [Prepare information about sensor in the calibration run]
+  // Constructor parameters: 
+  // * sensor branch name in raw data file
+  // * stips amount
+  // * bins amount in analysis histograms
+  // * raw data file path
+  //
+  auto ssd_1m_1 = new SensorRunInfo("SSD_1m_1", 16, 1024, file_calib_path);
+  auto ssd_1m_2 = new SensorRunInfo("SSD_1m_2", 16, 1024, file_calib_path);
+  auto ssd_1m_3 = new SensorRunInfo("SSD_1m_3", 16, 1024, file_calib_path);
+  auto ssd_1m_4 = new SensorRunInfo("SSD_1m_4", 16, 1024, file_calib_path);
+
 
 Preprocessing
 -------------
 
-The preprocessing is intended to clear input data for calibration and preview of histograms for choosing calibration algorithm parameters.
+The preprocessing is intended to clear input data for the calibration (or thin sensor thickness map) by leaving only analyzed stations leaves in a ROOT tree and preview of histograms for choosing calibration algorithm parameters.
 
 .. code-block:: c
 
-  auto ssd_1m_1 = new SensorRunInfo("SSD_1m_1", 16, fileName, treeName, branchName);
-  auto prep_ssd_1m_1 = new SensorPreprocessing(ssd_1m_1);
-  prep_ssd_1m_1->PreviewRawData();
-  prep_ssd_1m_1->FindThresholds("draw_on"); // finds noise threshold and draw markers on plot
-  prep_ssd_1m_1->MultiplicitySelection("draw_on"); // makes multiplicity equals one for each event
+  auto prep_ssd_1m_1 = new Preprocessing(file_calib_path);
+  // several sensors may be added
+  prep_ssd_1m_1->AddSensor(ssd_1m_1);
+  prep_ssd_1m_1->ConvertTree();
+  prep_ssd_1m_1->FindThresholds();
+  prep_ssd_1m_1->MultiplicitySelection();
 
+Using methods  `ConvertTree()`, `FindThresholds()` and `MultiplicitySelection()` one can control intermediary results (thresholds finding quality), but commands can be executed by the command
+
+.. code-block:: c
+
+  prep_ssd_1m_1->Exec();
 
 Solver
 ------
 
-Solver is a `Calibration` class entity.
+Calibration procedure is prosecced by `Calibration` class and includes the following steps.
+
+1) Peaks position determination. 
+2) Dead layer estimation. 
+3) Calibration coefficients calculation. 
+4) Report file printing.
+
+Class constructor in the current reazalion keep path to a raw data file as a parameter.
 
 .. code-block:: c
 
-    auto calib_ssd_1m_1 = new Calibration(ssd_1m_1);
-    // TSpectrum settings
+    auto calib_ssd_1m_1 = new Calibration(file_calib_path);
 
-
-Set energy loss approximation models
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The energy loss approximation model switch between Geant and LISE++ is set in Exec() method
-
-.. code-block:: c
-    calib_ssd_1m_1->Exec("lise_approx");
-
-or
-
-.. code-block:: c
-    calib_ssd_1m_1->Exec("geant_approx");
-
-
+The report file is stored by path `./result/[run_id]/[sensor_name]/report_[run_id]_[sensor_name].txt`.
 
 .. _set-peak-search-algorithm-type
-
 Set peak search algorithm type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Two peak search algorithms are implemented: 
 
-* 'Sliding window' - a window of fixed width is slides left-to-right in the bounded region around peaks found by TSpectrum algorithm.
-* Gauss - fit bu Gauss with pol1 in fixed width around peaks found by TSpectrum algorithm.
+* 'Sliding window' (default) - a window of fixed width is slides left-to-right in the bounded region around peaks found by TSpectrum algorithm.
+* 'Gauss' - fit bu Gauss with pol1 in fixed region around peaks found by TSpectrum algorithm.
 
-    // Common peak search parameter
+Proper algorithm is set by `SetPeakSearchMethod()` method. Algorithm options and realization details may be found in Doxygen documentation.
+
+.. code-block:: c
+
+    calib_ssd_1m_1->SetPeakSearchMethod("sliding_window");
+    // TSpectrum parameters
     calib_ssd_1m_1->SetFitMinSigma(6.);
     calib_ssd_1m_1->SetFitPeakThreshold(0.7);
-    // Sliding window settings
-    calib_ssd_1m_1->SetPeakSearchMethod("SLIDING_WINDOW");
-    calib_ssd_1m_1->SetIdentifyWindWidth(w);
-    calib_ssd_1m_1->SetSearchRegionWidth(2*w);
-    // Gauss search settings
-    calib_ssd_1m_1->SetPeakWidth(30);
-    // Choose the method
-    calib_ssd_1m_1->SetPeakSearchMethod("SLIDING_WINDOW");
-    // or
-    //calib_ssd_1m_1->SetPeakSearchMethod('GAUSS');
+    // 'Sliding window' parameters
+    calib_ssd_1m_1->SetSlideWindowWidth(10);
+    calib_ssd_1m_1->SetSearchRadius(15);
+
+or
+
+.. code-block:: c
+
+    calib_ssd_1m_1->SetPeakSearchMethod("gauss");
+    // TSpectrum parameters
+    calib_ssd_1m_1->SetFitMinSigma(6.);
+    calib_ssd_1m_1->SetFitPeakThreshold(0.7);
+    // Gaus + pol1 parameter
+    calib_ssd_1m_1->SetSearchRadius(15);
 
 Postprocessing
 --------------
 
-For now, the postprocessing is not implemented as class. User can validate results by reading the report file and viewing calibrated spectra. 
-
-The drawing of 
-
-.. code-block:: c
-
-    calib_ssd->DrawCalibratedSpetra();
-
-In the future, the postprocessing class may realize the handling of several run results to obtain comprehensive sensor analysis with different measurements.
+For now, the postprocessing is not implemented as a special utility. User can validate results by viewing the report file and the calibrated spectra.
 
 Data processing flow
 ====================
@@ -244,11 +266,98 @@ The full processing flow of calibration run data from readout to reconstruction 
        Figure 7. Data processing flow
 
 
-* AqqDAQ files for raw data conversion are available by link `ACCULINNA_go4_user_library <https://github.com/evovch/ACCULINNA_go4_user_library>`_ .
+* AqqDAQ files for raw data conversion are available by link `ACCULINNA_go4_user_library <https://github.com/evovch/ACCULINNA_go4_user_library>`_.
 
 * Full calibration run example `ExpertRoot SSD calibration <https://github.com/ExpertRootGroup/er/tree/443_SiDetecrorCalibration/macro/ssd_calibration>`_.
 
-* Digibuilding, reconctruction and analysis example `ExpertRoot SSD reconstruction <https://github.com/ExpertRootGroup/er/tree/_2sensors_reco/macro/QA/QTelescope/RecoOnCalibSource/exp1904/thin_and_thick>`_
+* Digibuilding, reconstruction and analysis example `ExpertRoot SSD reconstruction <https://github.com/ExpertRootGroup/er/tree/_2sensors_reco/macro/QA/QTelescope/RecoOnCalibSource/exp1904/thin_and_thick>`_
+
+LMD data conversion
+-------------------
+
+TNeEvent library
+^^^^^^^^^^^^^^^^
+TNeEvent is nominal name for a event library prepared for a certain experiment run.
+Library files `libGo4UserAnalysis.rootmap` and `libGo4UserAnalysis.so` should be in folder invoking Go4 library execution.
+
+Before conversion, environment variables must be initialized by the execution of the go4login script from the Go4 library install location.
+
+.. code-block:: bash
+
+  bash /path/go4login
+
+
+All the *lmd files from `dir_in` may be converted to *.root files to `dir_out` by the following bash-script.
+
+.. code-block:: bash
+
+  dir_in=/path/to/input/dir/
+  dir_out=/path/to/output/dir/
+  for file in dir*
+  do
+  fbname=$(basename "$file" .lmd)
+  if [ -f "$file" ]
+  then
+  go4analysis -file $file -store "{$dir_out}{$fbname}.root"
+  fi
+  done
+
+
+AqqDAQ + Digibuilder
+^^^^^^^^^^^^^^^^^^^^
+The first step is repacking *lmd data to *root by AqqDAQ utilities. All the instructions on `ACCULINNA_go4_user_library <https://github.com/evovch/ACCULINNA_go4_user_library>`_.
+
+The Digibuilder is set of ExpertRoot classes. Example of it's usage in the context of event reconstruction in thin sensor map building run may be found by the `link <https://github.com/ExpertRootGroup/er/blob/_2sensors_reco/macro/QA/QTelescope/RecoOnCalibSource/exp1904/thin_and_thick/digibuilder_postclbEXP1904.C>`_.
+
+Thickness map of the thin sensor 
+================================
+
+A thin sensor effective thickness is not uniform. It can be defined using data from the measurement with simultaneous radiation exposure of an assembly of a thick sensor and a thin in the front of it shown in Figure 8.
+
+.. figure:: _images/ssd_calib/non_uniform_map_buider_geo_scheme.png
+       :scale: 80 %
+       :align: center
+       :alt: non_uniform_map_buider_geo_scheme
+
+       Figure 8. Thin and thick sensors radiation exposure
+
+In such measurement only the high energy line comes throught thin sensor and registered in thick, so it is used for calibration.
+
+An energy deposit in the thin station with respect to linear calibration assumption for each pixel (data registered on cross of two strips: one from thin station and another from thin) may be estimated by expression:
+
+.. math::
+
+   \Delta E = a(N_2 - N_1),
+
+:math:`N_2` and :math:`N_1` - readout value  from run with thick and thin sensors and with thick only respectively, :math:`a` - calibration coefficient.
+
+The full effective thickness including both thin sensor and dead layer depending on energy deposit is evaluated by qubic shown in figure 9.
+
+.. figure:: _images/ssd_calib/dd_eloss_qubic.png
+       :scale: 80 %
+       :align: center
+       :alt: dd_eloss_qubic
+
+       Figure 9. Qubic approximation of d(\Delta E)
+
+The fit coefficients are listed in table 2.
+
+Table 2. Coefficients of the quadratic approximation 
+:math:`d(\Delta E)=p_3 \Delta E^3 + p_2 \Delta E^2 + p_1 \Delta E + p_0`
+
++-------------+-------------+-------------+-------------+
+| :math:`p_3` | :math:`p_2` | :math:`p_1` |  :math:`p_0`|
++=============+=============+=============+=============+
+| -0.0044059  | 0.00805579  |   9.18781   | -0.401229   |
++-------------+-------------+-------------+-------------+
+
+The last step is subtracting of the thick sensor dead layer:
+
+.. math::
+
+   d_thin = d_full - d_dead,
+
+where d_thin - thin sensor effective thickness, d_full - full thickness, d_dead - thick sensor dead layer thickness.
 
 Verification
 ============
@@ -256,12 +365,12 @@ Verification
 Ionization models comparison
 ----------------------------
 
-The following tables demonstrate difference between energy losses estimations evaluated by LISE++ program and Geant4 G4EmCalulator class. Dependencies listed in tables 2-4 are fitted by quadratic line. The approximation example is shown in the figure 5 for 7.6869 [MeV] start energy.
+The following tables demonstrate difference between energy losses estimations evaluated by LISE++ program and Geant4 G4EmCalulator class. Dependencies listed in tables 3-5 are fitted by quadratic line. The approximation example is shown in the figure 5 for 7.6869 [MeV] start energy.
 
-Table 2. Start energy - 4.7844 [MeV]. :math:`dE(d)` dependence evaluated by Geant G4EmCalculator and LISE++.
+Table 3. Start energy - 4.7844 [MeV]. :math:`dE(d)` dependence evaluated by Geant G4EmCalculator and LISE++.
 
 +-------------------+---------------+-------------+
-| :math:'d', [|um|] | Geant4, [MeV] | LISE, [MeV] |
+| :math:`d`, [|um|] | Geant4, [MeV] | LISE, [MeV] |
 +===================+===============+=============+
 | 2                 | 0.302624      | 0.30463     |
 +-------------------+---------------+-------------+
@@ -278,10 +387,10 @@ Table 2. Start energy - 4.7844 [MeV]. :math:`dE(d)` dependence evaluated by Gean
 | 20                | 4.130310      | 4.18250     |
 +-------------------+---------------+-------------+
 
-Table 3. Start energy - 6.0024 [MeV]. :math:`dE(d)` dependence evaluated by Geant G4EmCalculator and LISE++.
+Table 4. Start energy - 6.0024 [MeV]. :math:`dE(d)` dependence evaluated by Geant G4EmCalculator and LISE++.
 
 +-------------------+---------------+-------------+
-| :math:'d', [|um|] | Geant4, [MeV] | LISE, [MeV] |
+| :math:`d`, [|um|] | Geant4, [MeV] | LISE, [MeV] |
 +===================+===============+=============+
 | 2                 | 0.260404      | 0.25998     |
 +-------------------+---------------+-------------+
@@ -302,10 +411,10 @@ Table 3. Start energy - 6.0024 [MeV]. :math:`dE(d)` dependence evaluated by Gean
 | 28                | 5.057970      | 5.13250     |
 +-------------------+---------------+-------------+
  
-Table 4. Start energy - 7.6869 [MeV]. :math:`dE(d)` dependence evaluated by Geant G4EmCalculator and LISE++.
+Table 5. Start energy - 7.6869 [MeV]. :math:`dE(d)` dependence evaluated by Geant G4EmCalculator and LISE++.
 
 +-------------------+---------------+-------------+
-| :math:'d', [|um|] | Geant4, [MeV] | LISE, [MeV] |
+| :math:`d`, [|um|] | Geant4, [MeV] | LISE, [MeV] |
 +===================+===============+=============+
 | 2                 | 0.219688      | 0.22259     |
 +-------------------+---------------+-------------+
@@ -340,15 +449,31 @@ Calibration stability research
 Stability in time
 ^^^^^^^^^^^^^^^^^
 
+The calibration stability in time was checked in long runs enabling divide full statistics into several files.
+Maximal standart deviations of calibration coefficients are shown in table 6 and demonstrate good stability.
+
+Table 6. Maxumal standard devaitions of calibration coefficinets in time
+
++--------------+-----------------+-----------------+
+| Sensor       | :math:`sigma_a` | :math:`sigma_b` |
++==============+=================+=================+
+| Thin         |      5.5e-5     |     0.016       |
++--------------+-----------------+-----------------+
+| Thick        |      6.5e-6     |    0.0059       |
++--------------+-----------------+-----------------+
+
 On/off stability
 ^^^^^^^^^^^^^^^^
+
+Turn-off the sensor and remeasurement shows significant inaccuracy in peak positions: up to 9 discrete steps.
+This result speaks that there good reasons to do calibrations without sensors turning off and opening the experimental camera.
 
 Reconstruction
 --------------
 
 Parameters of
 
-Table 5. SSD_1m_1 thick sensor calibration results
+Table 7. SSD_1m_1 thick sensor calibration results
 
 +--------------+------------+-----------+---------------------+
 | Strip number | a          | b         | :math:`d`, [|um|]   |
@@ -388,7 +513,8 @@ Table 5. SSD_1m_1 thick sensor calibration results
 |              |            | Avg.      | 2.33134             |
 +--------------+------------+-----------+---------------------+
 
-Table 5. SSD_20u_1 thin sensor calibration results.
+Table 8. SSD_20u_1 thin sensor calibration results.
+
 +--------------+------------+------------+---------------------+
 | Strip number | a          | b          | :math:`d`, [|um|]   |
 +==============+============+============+=====================+
@@ -441,7 +567,7 @@ The reconstruction result for single thick detector is shown in figures 8-10. On
        :align: center
        :alt: reco_single_low_E
 
-       Figure 8. Reconstructed spectrum for the single thick sensor. Source passport energy 4.7844 MeV
+       Figure 10. Reconstructed spectrum for the single thick sensor. Source passport energy 4.7844 MeV
 
 
 .. figure:: _images/ssd_calib/reco_single_mid_E.png
@@ -449,7 +575,7 @@ The reconstruction result for single thick detector is shown in figures 8-10. On
        :align: center
        :alt: reco_single_mid_E
 
-       Figure 9. Reconstructed spectrum for the single thick sensor. Source passport energy 6.0024 MeV
+       Figure 11. Reconstructed spectrum for the single thick sensor. Source passport energy 6.0024 MeV
 
 
 .. figure:: _images/ssd_calib/reco_single_high_E.png
@@ -457,30 +583,8 @@ The reconstruction result for single thick detector is shown in figures 8-10. On
        :align: center
        :alt: reco_single_high_E
 
-       Figure 10. Reconstructed spectrum for the single thick sensor. Source passport energy 7.6869 MeV
-
+       Figure 12. Reconstructed spectrum for the single thick sensor. Source passport energy 7.6869 MeV
 
 Two sensors
 ^^^^^^^^^^^
-
-.. figure:: _images/ssd_calib/reco_2sens_map_mid.png
-       :scale: 80 %
-       :align: center
-       :alt: reco_2sens_map_mid
-
-       Figure 11. Map of difference between origin and reconstructed energies. Source passport energy 6.0024 MeV
-
-.. figure:: _images/ssd_calib/reco_2sens_map_high.png
-       :scale: 80 %
-       :align: center
-       :alt: reco_2sens_map_high
-
-       Figure 12. Map of difference between origin and reconstructed energies. Source passport energy 7.6869 MeV
-
-.. figure:: _images/ssd_calib/reco_2sens_all_13strip.png
-       :scale: 80 %
-       :align: center
-       :alt: reco_2sens_all_13strip
-
-       Figure 13. Example of a spectrum reconstruction in pixels of 13th X-strip
 
