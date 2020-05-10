@@ -122,6 +122,7 @@ All the classes are described in the source code Doxygen documentation.
 Calibration tools may be included to a user macro by the following:
 
 .. code-block:: c
+
   #include "ERCalibrationSSD.cxx"
 
   using namespace ERCalibrationSSD;
@@ -359,6 +360,44 @@ The last step is subtracting of the thick sensor dead layer:
 
 where d_thin - thin sensor effective thickness, d_full - full thickness, d_dead - thick sensor dead layer thickness.
 
+Code example. Thin sensor thickness map buildind 
+------------------------------------------------
+
+The `NonUniformityMapBuilder` class inherits `Task` class and inplements thin sensor thickness distribution calculation.
+It handles information about two stations and needs preliminary steps: thick sensor calibration, map building run data preprocessing.
+
+.. code-block:: c
+
+  const TString calib_run_path = "/thick_calib_path/file.root";
+  const TString map_run_path = "/map_path/file.root";
+  // Define run parameters
+  auto ssd_1m_1_cal = new SensorRunInfo("SSD_1m_1", 16, 1024, calib_run_path);
+  auto ssd_1m_1_map = new SensorRunInfo("SSD_1m_1", 16, 1024, map_run_path);
+  auto ssd_20u_1_map = new SensorRunInfo("SSD_20u_1", 16, 1024, map_run_path);
+  
+  auto thickness_map = new NonUniformityMapBuilder(map_run_path);
+  // Set sensors parameters
+  thickness_map->SetThickSensor(ssd_1m_1_map);
+  thickness_map->SetThinSensor(ssd_20u_1_map);
+  thickness_map->SetThickCalibSensor(ssd_1m_1_cal);
+  // Set peak search algorithm parameters
+  thickness_map->SetPeakSearchMethod("sliding_window");
+  thickness_map->SetFitMinSigma(6.);
+  thickness_map->SetFitPeakThreshold(0.7);
+  thickness_map->SetSlideWindowWidth(10);
+  thickness_map->SetSearchRadius(15);
+  // Run map builder
+  thickness_map->Exec();
+
+Resulting files are stored in text format in a `./result/[run_id]/[map_sensors_id]/txt/map_[...].txt` and ROOT histogram `./result/[run_id]/[map_sensors_id]/draw/map_[...].root`. The histogram is shown in figure 10.
+
+.. figure:: _images/ssd_calib/ssd_20u_1_map.png
+       :scale: 80 %
+       :align: center
+       :alt: ssd_20u_1_map
+
+       Figure 9. Thin sensor map ROOT file example
+
 Verification
 ============
 
@@ -471,7 +510,7 @@ This result speaks that there good reasons to do calibrations without sensors tu
 Reconstruction
 --------------
 
-Parameters of
+Calibration parameters used in the reconstruction validation are listed in tables 7-8.
 
 Table 7. SSD_1m_1 thick sensor calibration results
 
@@ -567,7 +606,7 @@ The reconstruction result for single thick detector is shown in figures 8-10. On
        :align: center
        :alt: reco_single_low_E
 
-       Figure 10. Reconstructed spectrum for the single thick sensor. Source passport energy 4.7844 MeV
+       Figure 11. Reconstructed spectrum for the single thick sensor. Source passport energy 4.7844 MeV
 
 
 .. figure:: _images/ssd_calib/reco_single_mid_E.png
@@ -575,7 +614,7 @@ The reconstruction result for single thick detector is shown in figures 8-10. On
        :align: center
        :alt: reco_single_mid_E
 
-       Figure 11. Reconstructed spectrum for the single thick sensor. Source passport energy 6.0024 MeV
+       Figure 12. Reconstructed spectrum for the single thick sensor. Source passport energy 6.0024 MeV
 
 
 .. figure:: _images/ssd_calib/reco_single_high_E.png
@@ -583,7 +622,7 @@ The reconstruction result for single thick detector is shown in figures 8-10. On
        :align: center
        :alt: reco_single_high_E
 
-       Figure 12. Reconstructed spectrum for the single thick sensor. Source passport energy 7.6869 MeV
+       Figure 13. Reconstructed spectrum for the single thick sensor. Source passport energy 7.6869 MeV
 
 Two sensors
 ^^^^^^^^^^^
