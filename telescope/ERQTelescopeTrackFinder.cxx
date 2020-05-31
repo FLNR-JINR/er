@@ -121,7 +121,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
   if (!fUserTargetPointIsSet) {
       ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
       if (!trackFromMWPC) {
-        fRun->MarkFill(kFALSE);
+        //fRun->MarkFill(kFALSE);
         return ;
       }
       fTargetX = trackFromMWPC->GetTargetX();

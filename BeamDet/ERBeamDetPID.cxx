@@ -65,7 +65,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
 
   if (!fBeamDetTrack->At(0) || !fBeamDetToFDigi1->At(0) || !fBeamDetToFDigi2->At(0)) {
     LOG(DEBUG)  << "[ERBeamDetPID] No track" << FairLogger::endl;
-    fRun->MarkFill(kFALSE);
+    //fRun->MarkFill(kFALSE);
     return;
   }
 
@@ -103,7 +103,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
 
   if(probability < fProbabilityThreshold) {
     LOG(DEBUG) << "[ERBeamDetPID] Probability " << probability << " less then threshold " << fProbabilityThreshold << FairLogger::endl;
-    fRun->MarkFill(kFALSE);
+    //fRun->MarkFill(kFALSE);
     return ;
   }
   LOG(DEBUG) << "[ERBeamDetPID] Mass " << fIonMass << FairLogger::endl;
@@ -111,7 +111,7 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   beta = distanceBetweenToF * 1e-2 / (ToF * 1e-9) / TMath::C();
   if(beta <= 0 || beta >= 1) {
     LOG(DEBUG) << "[ERBeamDetPID] Wrong beta " << beta << FairLogger::endl;
-    fRun->MarkFill(kFALSE);
+    //fRun->MarkFill(kFALSE);
     return ;
   }
 

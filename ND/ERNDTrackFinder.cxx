@@ -48,7 +48,7 @@ void ERNDTrackFinder::Exec(Option_t* opt) {
   if (!fUserTargetVertexIsSet) {
     ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
     if (!trackFromMWPC) {
-        fRun->MarkFill(kFALSE);
+        //fRun->MarkFill(kFALSE);
         return ;
     }
     fTargetVertex = TVector3(trackFromMWPC->GetTargetX(), trackFromMWPC->GetTargetY(),
