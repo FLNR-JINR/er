@@ -94,13 +94,11 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
     fTime   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
     fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
-    fMass = gMC->ParticleMass(gMC->TrackPid()); // GeV/c2
+    fMass = gMC->ParticleMass(gMC->TrackPid()) * 1000; // MeV
     fPDG = gMC->TrackPid();
-    // gMC->CurrentVolID(sensor);
-    // gMC->CurrentVolOffID(1, sector);
   }
 
-  fEloss += gMC->Edep(); // GeV //Return the energy lost in the current step
+  fEloss += gMC->Edep() * 1000; // MeV //Return the energy lost in the current step
 
   if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume
       gMC->IsTrackStop()       || //Return true if the track energy has fallen below the threshold

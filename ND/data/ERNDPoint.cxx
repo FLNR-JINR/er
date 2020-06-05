@@ -62,9 +62,9 @@ void ERNDPoint::Print(const Option_t* opt /* = 0*/) const
 {
   LOG(DEBUG2) << "    ERNDPoint: track " << fTrackID << " mother track = " << fMot0TrackID << FairLogger::endl;
   LOG(DEBUG2) << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << FairLogger::end;
-  LOG(DEBUG2) << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << FairLogger::end;
+  LOG(DEBUG2) << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") MeV" << FairLogger::end;
   LOG(DEBUG2) << "    Time " << fTime << " ns,  Length " << fLength << " cm" << FairLogger::end;
-  LOG(DEBUG2) << "    Energy loss " << fELoss << " keV "<< FairLogger::end;
+  LOG(DEBUG2) << "    Energy loss " << fELoss << " MeV "<< FairLogger::end;
 }
 // -------------------------------------------------------------------------
 

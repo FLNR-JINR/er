@@ -87,7 +87,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
 
             for (auto itValue : valueMap){
                 Int_t channel = GetChannelNumber(itValue.first, itStation.second->channelsMapping1);
-                Double_t amp = itValue.second.first /1000.; //to GeV
+                Double_t amp = itValue.second.first; // [MeV]
                 Double_t time = itValue.second.second;
                 AddSiDigi(amp,time,0,channel,itStation.second->bName);
             }
@@ -110,7 +110,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
 
                 for (auto itValue : valueMap){
                     Int_t channel = GetChannelNumber(itValue.first, itStation.second->channelsMapping2);
-                    Double_t amp = itValue.second.first /1000.; //to GeV
+                    Double_t amp = itValue.second.first; // [MeV]
                     Double_t time = itValue.second.second;
                     AddSiDigi(amp, time, 0, channel, itStation.second->bName2);
                 }
@@ -133,7 +133,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
 
             for (auto itValue : valueMap){
                 Int_t channel = GetChannelNumber(itValue.first, itStation.second->channelsMapping1);
-                Double_t amp = itValue.second.first /1000.; //to GeV
+                Double_t amp = itValue.second.first; // [MeV]
                 Double_t time = itValue.second.second;
                 AddCsIDigi(amp, time, -1, channel, itStation.second->bName);
             }

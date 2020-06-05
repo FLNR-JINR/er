@@ -77,8 +77,8 @@ public:
   /** @brief Sets selection box area on the ToF/dE scatter plot. 
    ** @param tof1  time value low boundary [ns]
    ** @param tof2  time value high boundary [ns] .
-   ** @param dE1   summary energy deposit low boundary [GeV]
-   ** @param dE2   summary energy deposit high boundary [GeV]
+   ** @param dE1   summary energy deposit low boundary [MeV]
+   ** @param dE2   summary energy deposit high boundary [MeV]
   **/
   void SetBoxPID(Double_t tof1, Double_t tof2, Double_t dE1, Double_t dE2) {
     fToF1 = tof1;

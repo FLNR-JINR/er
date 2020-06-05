@@ -46,9 +46,9 @@ ERQTelescopeCsIPoint::~ERQTelescopeCsIPoint() {
 void ERQTelescopeCsIPoint::Print(const Option_t* opt /* = 0*/) const {
   LOG(DEBUG) << "-I- ERQTelescopeCsIPoint: track " << fTrackID << " mother track = " << fMot0TrackID << FairLogger::endl;
   LOG(DEBUG) << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << FairLogger::endl;
-  LOG(DEBUG) << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << FairLogger::endl;
+  LOG(DEBUG) << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") MeV" << FairLogger::endl;
   LOG(DEBUG) << "    Time " << fTime << " ns,  Length " << fLength << " cm" << FairLogger::endl;
-  LOG(DEBUG) << "    Energy loss " << fELoss << " keV "<< FairLogger::endl;
+  LOG(DEBUG) << "    Energy loss " << fELoss << " MeV "<< FairLogger::endl;
 }
 //-------------------------------------------------------------------------------------------------
 Double_t ERQTelescopeCsIPoint::GetX(Double_t z) const {

@@ -49,9 +49,9 @@ void ERBeamDetMWPCPoint::Print(const Option_t* opt /* = 0*/) const
   cout << "-I- ERBeamDetMWPCPoint: track " << fTrackID << " mother track = " << fMot0TrackID << endl;
   cout << "    particle ID " << fPid << endl;
   cout << "    Position (" << fX << ", " << fY << ", " << fZ << ") cm" << endl;
-  cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") GeV" << endl;
+  cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz << ") MeV" << endl;
   cout << "    Time " << fTime << " ns,  Length " << fLength << " cm" << endl;
-  cout << "    Energy loss " << fELoss << " keV "<< endl;
+  cout << "    Energy loss " << fELoss << " MeV "<< endl;
 }
 // -------------------------------------------------------------------------
 // -----   Point x coordinate from linear extrapolation   ------------------

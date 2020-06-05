@@ -235,11 +235,11 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
     fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
     fPID = gMC->TrackPid();
-
     TString volName = gMC->CurrentVolName();
   }
-  fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
-  Double_t		  curLightYield = 0;
+  const Double_t stepEloss = gMC->Edep() * 1000; // [MeV] //Return the energy lost in the current step
+  fELoss += stepEloss; 
+  Double_t stepLightYield = 0;
   // Correction for all charge states
   if (gMC->TrackCharge()!=0) { // Return the charge of the track currently transported
     Double_t BirkC1Mod = 0;
@@ -250,10 +250,9 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
       BirkC1Mod=BirkC1;
 
     if (gMC->TrackStep()>0) {
-      Double_t dedxcm=gMC->Edep()*1000./gMC->TrackStep(); //[MeV/cm]
-      curLightYield=gMC->Edep()*1000./(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
-      curLightYield /= 1000.; //[GeV]
-      fLightYield+=curLightYield;
+      Double_t dedxcm = stepEloss / gMC->TrackStep(); //[MeV/cm]
+      stepLightYield= stepEloss / (1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
+      fLightYield += stepLightYield;
     }
   }
   if (gMC->IsTrackExiting()    || //Return true if this is the last step of the track in the current volume

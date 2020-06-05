@@ -49,8 +49,8 @@ Double_t CalcElossIntegralVolStep (Double_t kineticEnergy, const G4ParticleDefin
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (curStep < range) {
-    Double_t eloss = calc->GetDEDX(kineticEnergy * 1e3 /* MeV */, &particle, &material) * intStep 
-                     * 10 /* 1/mm */ * 1e-3 /* GeV */;
+    Double_t eloss = calc->GetDEDX(kineticEnergy /* MeV */, &particle, &material) * intStep 
+                     * 10 /* 1/mm */; // MeV
     integralEloss += eloss;
     kineticEnergy += eloss;
     curStep += intStep;

@@ -780,7 +780,7 @@ Double_t CalcElossIntegralVolStep (Double_t T, const G4ParticleDefinition* ion,
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (curStep <= range) {
-    Double_t eloss = calc->GetDEDX(T*1e3,ion,mat)*intStep*10*1e-3;
+    Double_t eloss = calc->GetDEDX(T /*MeV*/,ion,mat)*intStep*10; // [MeV]
     integralEloss += eloss;
     T -= eloss;
     curStep += intStep;

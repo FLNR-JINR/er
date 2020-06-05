@@ -33,11 +33,11 @@ class ERNDPoint : public FairMCPoint
    *@param mot0trackID Index of Mother MCTrack
    *@param posIn    Ccoordinates at entrance of point [cm]
    *@param posOut   Coordinates at exit of point [cm]
-   *@param momIn    Momentum of track at entrance [GeV]
-   *@param momOut   Momentum of track at exit [GeV]
+   *@param momIn    Momentum of track at entrance [MeV]
+   *@param momOut   Momentum of track at exit [MeV]
    *@param tof      Time since event start [ns]
    *@param length   Track length since creation [cm]
-   *@param eLoss    Energy deposit [KeV]
+   *@param eLoss    Energy deposit [MeV]
    **/
   ERNDPoint(Int_t eventID, Int_t trackID,
 		  Int_t mot0trackID,
