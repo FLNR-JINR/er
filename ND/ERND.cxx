@@ -96,11 +96,11 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
     time   = gMC->TrackTime() * 1.0e09;  // Return the current time of flight of the track being transported
     length = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
     mot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
-    pdg = gMC->TrackPid(); // GeV/c2
+    pdg = gMC->TrackPid();
     gMC->CurrentVolOffID(3,stilbenNr); 
   }
-  
-  eLoss += gMC->Edep(); // GeV //Return the energy lost in the current step
+  const Double_t stepEloss = gMC->Edep() * 1000; // MeV //Return the energy lost in the current step
+  eLoss += stepEloss;
   Double_t curLightYield = 0.;
   // Apply Birk's law ( Adapted from G3BIRK/Geant3)
   // Correction for all charge states
@@ -114,9 +114,8 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
 
     if (gMC->TrackStep()>0)
     {
-      Double_t dedxcm=gMC->Edep()*1000./gMC->TrackStep(); //[MeV/cm]
-      curLightYield=gMC->Edep()*1000./(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
-      curLightYield /= 1000.; //[GeV]
+      Double_t dedxcm = stepEloss/gMC->TrackStep(); //[MeV/cm]
+      curLightYield = stepEloss /(1.+BirkC1Mod*dedxcm+BirkC2*dedxcm*dedxcm); //[MeV]
       lightYield+=curLightYield;
     }
   }

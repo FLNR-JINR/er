@@ -33,11 +33,11 @@ class ERBeamDetMWPCPoint : public FairMCPoint
    *@param pid particle ID
    *@param posIn    Ccoordinates at entrance of point [cm]
    *@param posOut   Coordinates at exit of point [cm]
-   *@param momIn    Momentum of track at entrance [GeV]
-   *@param momOut   Momentum of track at exit [GeV]
+   *@param momIn    Momentum of track at entrance [MeV]
+   *@param momOut   Momentum of track at exit [MeV]
    *@param tof      Time since event start [ns]
    *@param length   Track length since creation [cm]
-   *@param eLoss    Energy deposit [KeV]
+   *@param eLoss    Energy deposit [MeV]
    **/
   ERBeamDetMWPCPoint(Int_t eventID, 
                   Int_t trackID,

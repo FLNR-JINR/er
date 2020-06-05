@@ -64,8 +64,7 @@ Bool_t ERNDUnpack::DoUnpack(Int_t* data, Int_t size){
         Int_t channel = itValue.first;
         Double_t amp, time, tac;
         std::tie(amp, time, tac) = itValue.second;
-        amp /= 1000.; //to GeV
-        ApplyCalibrations(channel, amp, time, tac);
+        ApplyCalibrations(channel, amp /*[MeV]*/, time, tac);
         AddNDDigi(amp,time,tac, GetChannelNumber(channel, fChannelsMapping));
     }
 }

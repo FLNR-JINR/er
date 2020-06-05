@@ -48,22 +48,22 @@ public:
   /** Modifiers **/
 
   /** @brief Sets energy threshold for ToF plastics. 
-   ** @param treshold   energy thershold [GeV]
+   ** @param treshold   energy thershold [MeV]
   **/
   void SetToFElossThreshold(Float_t treshold){fToFElossThreshold = treshold;}
 
   /** @brief Sets energy threshold for MWPC wires. 
-   ** @param treshold   energy thershold [GeV]
+   ** @param treshold   energy thershold [MeV]
   **/
   void SetMWPCElossThreshold(Float_t treshold){fMWPCElossThreshold = treshold;}
 
   /** @brief Sets standart deviation for energy losses in ToF plastics.
-   ** @param sigma   standart deviation [GeV]
+   ** @param sigma   standart deviation [MeV]
   **/
   void SetToFElossSigma(Float_t sigma) {fElossSigmaToF = sigma;}
 
   /** @brief Sets standart deviation for energy losses in MWPC wires. 
-   ** @param sigma   standart deviation [GeV]
+   ** @param sigma   standart deviation [MeV]
   **/
   void SetMWPCElossSigma(Float_t sigma) {fElossSigmaMWPC = sigma;}
 
@@ -80,7 +80,7 @@ public:
 
   /** @brief Sets standart deviation for time values in MWPC wires.
    ** Sigma for each summary energy losses is defined according to equation 
-   ** \f[ \frac{\sigma_{E}}{E}= \frac{a}{\sqrt{E/GeV}}\f]
+   ** \f[ \frac{\sigma_{E}}{E}= \frac{a}{\sqrt{E/MeV}}\f]
    ** , where \f$E\f$ - summary energy losses in plastic, \f$a\f$ -parameter.
    ** @param a   parameter of spreading.
   **/

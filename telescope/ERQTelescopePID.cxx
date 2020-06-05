@@ -104,7 +104,7 @@ void ERQTelescopePID::Exec(Option_t* opt) {
         const auto pdg = particleDescription.fPDG;
         auto* ionTable = G4IonTable::GetIonTable();
         const auto* particle = ionTable->GetIon(pdg);
-        const auto mass = particle->GetPDGMass() / 1000.; //GeV
+        const auto mass = particle->GetPDGMass(); // MeV
         // Find geometry point to start track back propagation.
         const auto backPropagationStartPoint = FindBackPropagationStartPoint(*track);
         // Calc particle energy deposites in setup using back propagation from start point 
@@ -169,8 +169,8 @@ Double_t CalcElossIntegralVolStep (Double_t kineticEnergy, const G4ParticleDefin
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (curStep < range) {
-    Double_t eloss = calc->GetDEDX(kineticEnergy * 1e3 /* MeV */, &particle, &material) * intStep 
-                     * 10 /* 1/mm */ * 1e-3 /* GeV */;
+    Double_t eloss = calc->GetDEDX(kineticEnergy /* MeV */, &particle, &material) * intStep 
+                     * 10 /* 1/mm */; // MeV
     integralEloss += eloss;
     kineticEnergy += eloss;
     curStep += intStep;
@@ -399,7 +399,7 @@ void ERQTelescopePID::FindEnergiesForDeEAnalysis(const TString& trackBranch,
   // de and E correction
   edepInThinStationCorrected = edepInThinStation * normalizedThickness / deSensetiveThickness;
   LOG(DEBUG) << "[ERQTelescopePID][FindEnergiesForDeEAnalysis] Digi from station " << deStation << " with edep = " << edepInThinStation 
-            << " [GeV] corrected to edep = " << edepInThinStationCorrected << ". Normalized thickness = " 
+            << " [MeV] corrected to edep = " << edepInThinStationCorrected << ". Normalized thickness = " 
             << normalizedThickness << ", step in sensetive volume = " << deSensetiveThickness
             << FairLogger::endl;
   edepInThickStationCorrected = edepInThickStation + edepInThinStation - edepInThinStationCorrected;
