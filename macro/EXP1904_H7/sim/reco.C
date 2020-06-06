@@ -42,13 +42,15 @@ void reco(Int_t nEvents = 100000){
   qtelescopeTrackFinder->SetHitStation("Telescope_2", "Telescope_2_SingleSi_SSD_2_X_4", "Telescope_2_SingleSi_SSD20_2_Y_3");
   qtelescopeTrackFinder->SetHitStation("Telescope_3", "Telescope_3_SingleSi_SSD20_3_X_6", "Telescope_3_SingleSi_SSD_3_Y_7");
   qtelescopeTrackFinder->SetHitStation("Telescope_4", "Telescope_4_SingleSi_SSD_4_X_10", "Telescope_4_SingleSi_SSD20_4_Y_9");
-  qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_DoubleSi_DSD_XY_0");
+  //qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_DoubleSi_DSD_XY_0");
+  qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_DoubleSi_DSD_XY_0_X","Central_telescope_DoubleSi_DSD_XY_0_Y");
   run->AddTask(qtelescopeTrackFinder);
   // ------   QTelescope TrackPID -----------------------------------------
   ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
   TString deStation1 = "SSD20_1";
   TString eStation1 = "SSD_1";
   Double_t normalizedThickness = 0.002; // [cm]
+  Double_t DSD_thickness = 0.15; // [cm]
   qtelescopePID->SetParticle("Telescope_1_SingleSi_SSD20_1_X_0Telescope_1_SingleSi_SSD_1_Y_1", 1000020030,
                               deStation1, eStation1, normalizedThickness);
   qtelescopePID->SetParticle("Telescope_2_SingleSi_SSD_2_X_4Telescope_2_SingleSi_SSD20_2_Y_3", 1000020030,
@@ -57,7 +59,7 @@ void reco(Int_t nEvents = 100000){
                              "SSD20_3", "SSD_3", normalizedThickness);
   qtelescopePID->SetParticle("Telescope_4_SingleSi_SSD_4_X_10Telescope_4_SingleSi_SSD20_4_Y_9", 1000020030,
                              "SSD20_4", "SSD_4", normalizedThickness);
-  qtelescopePID->SetParticle("Central_telescope_DoubleSi_DSD_XY_0", 1000010030);
+  qtelescopePID->SetParticle("Central_telescope_DoubleSi_DSD_XY_0_XCentral_telescope_DoubleSi_DSD_XY_0_Y",1000010030, "DSD", "CsI_0", DSD_thickness);
   //enum EdepAccountingStrategy {EdepFromXChannel, EdepFromYChannel, AverageEdep, SummarizedEdep};
   qtelescopePID->SetEdepAccountingStrategy("DSD", ERQTelescopePID::EdepAccountingStrategy::EdepFromYChannel);
   run->AddTask(qtelescopePID);
