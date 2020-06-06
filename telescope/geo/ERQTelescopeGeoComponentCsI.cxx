@@ -42,7 +42,7 @@ void ERQTelescopeGeoComponentCsI::ConstructGeometryVolume(void) {
   shellCsI->AddNode(boxCsISensitive, 1, new TGeoCombiTrans(0, 0, 0, new TGeoRotation()));
 
   //------------------ STRUCTURE  ---------------------------------------------
-  Int_t iBox = 1;
+  Int_t iBox = 0;
   for (Int_t iCsIX = 0; iCsIX < fCubesCountX; iCsIX++) {
     Double_t transX = -fullX/2 + fSizeX / 2. + fSplitSize / 2 + iCsIX *(fSizeX +fSplitSize);
     for (Int_t iCsIY = 0; iCsIY < fCubesCountY; iCsIY++) {
