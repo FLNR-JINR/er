@@ -60,9 +60,9 @@ void ERDigiCleaner::SetChannelCuts(
         const TString& detectorName, const TString& stationName,
         const std::map<Int_t, TCutG*>& channelGCuts, const std::map<Int_t, Double_t>& channelMinAmp,
         const std::map<Int_t, Double_t>& channelMaxAmp, const std::map<Int_t, Double_t>& channelMinTime,
-        const std::map<Int_t, Double_t>& channelMaxTime) {
+        const std::map<Int_t, Double_t>& channelMaxTime, const std::map<Int_t, Int_t>* raw2SimChannelsMapping /*= nullptr*/) {
     fStationsCuts.emplace_back(detectorName, stationName, channelGCuts, channelMinAmp, channelMaxAmp,
-                               channelMinTime, channelMaxTime);
+                               channelMinTime, channelMaxTime, raw2SimChannelsMapping);
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERDigiCleaner::Init() {
@@ -228,7 +228,7 @@ void ERDigiCleaner::ApplyChannelCuts() {
             if (!digi) {
                 LOG(FATAL) << "Recalibration is not available for branch " << branchName << FairLogger::endl;
             }
-            const auto channel = digi->Channel();
+            const auto channel = GetChannelNumber(digi->Channel(), stationCuts.fSim2RawChannelsMapping);
             const auto time = digi->Time() - tofTime;
             const auto edep = digi->Edep();
             const auto& channelsGCuts = stationCuts.fChannelGCuts;
@@ -318,3 +318,24 @@ fTACCalibration(TACCalibration) {
         }
     }
 }
+//--------------------------------------------------------------------------------------------------
+ERDigiCleaner::StationCuts::StationCuts(const TString& detectorName, const TString& stationName,
+                                        const std::map<Int_t, TCutG*>& channelGCuts,
+                                        const std::map<Int_t, Double_t>& channelMinAmp,
+                                        const std::map<Int_t, Double_t>& channelMaxAmp,
+                                        const std::map<Int_t, Double_t>& channelMinTime,
+                                        const std::map<Int_t, Double_t>& channelMaxTime,
+                                        const std::map<Int_t, Int_t>* raw2SimChannelsMapping/* = nullptr*/)
+    : fDetectorName(detectorName), fStationName(stationName),
+    fChannelGCuts(channelGCuts), fChannelMinAmp(channelMinAmp),
+    fChannelMaxAmp(channelMaxAmp), fChannelMinTime(channelMinTime),
+    fChannelMaxTime(channelMaxTime) 
+{
+    if (raw2SimChannelsMapping) {
+        fSim2RawChannelsMapping = new std::map<Int_t, Int_t>();
+        for (const auto raw2sim : *raw2SimChannelsMapping) {
+            (*fSim2RawChannelsMapping)[raw2sim.second] = raw2sim.first;
+        }
+    }
+}
+//--------------------------------------------------------------------------------------------------

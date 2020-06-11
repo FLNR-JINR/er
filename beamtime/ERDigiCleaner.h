@@ -51,16 +51,14 @@ class ERDigiCleaner : public ERTask {
         std::map<Int_t, Double_t> fChannelMaxAmp;
         std::map<Int_t, Double_t> fChannelMinTime;
         std::map<Int_t, Double_t> fChannelMaxTime;
+        std::map<Int_t, Int_t>* fSim2RawChannelsMapping = nullptr;
         StationCuts(const TString& detectorName, const TString& stationName,
                     const std::map<Int_t, TCutG*>& channelGCuts,
                     const std::map<Int_t, Double_t>& channelMinAmp,
                     const std::map<Int_t, Double_t>& channelMaxAmp,
                     const std::map<Int_t, Double_t>& channelMinTime,
-                    const std::map<Int_t, Double_t>& channelMaxTime)
-                    : fDetectorName(detectorName), fStationName(stationName),
-                      fChannelGCuts(channelGCuts), fChannelMinAmp(channelMinAmp),
-                      fChannelMaxAmp(channelMaxAmp), fChannelMinTime(channelMinTime),
-                      fChannelMaxTime(channelMaxTime) {}
+                    const std::map<Int_t, Double_t>& channelMaxTime,
+                    const std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
         StationCuts() = default;
     };
 
@@ -97,7 +95,8 @@ class ERDigiCleaner : public ERTask {
                       const std::map<Int_t, Double_t>& MinAmp,
                       const std::map<Int_t, Double_t>& MaxAmp,
                       const std::map<Int_t, Double_t>& MinTime,
-                      const std::map<Int_t, Double_t>& MaxTime);
+                      const std::map<Int_t, Double_t>& MaxTime,
+                      const std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
   protected:
     bool AreFewClustersInMWPC();
     void Recalibration();

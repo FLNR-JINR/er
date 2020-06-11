@@ -351,6 +351,8 @@ std::map<TString, const ERDigi*> ERQTelescopePID::FindDigisByNode(const TGeoNode
     Bool_t digiFound = false;
     for (Int_t iDigi = 0; iDigi < digis->GetEntriesFast(); iDigi++){
       const auto* digi = static_cast<ERDigi*>(digis->At(iDigi));
+       LOG(DEBUG) << "   [ERQTelescopePID][CalcEnergyDeposites]  Collection has digi with channel " 
+                  << digi->Channel() << " and edep " << digi->Edep() << FairLogger::endl;
       if (digi->Channel() != channel)
         continue;
       digiFound = true;
