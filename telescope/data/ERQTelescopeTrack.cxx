@@ -23,4 +23,17 @@ TVector3 ERQTelescopeTrack::GetDirection() const {
     return direction;
 }
 //--------------------------------------------------------------------------------------------------
+TVector3 ERQTelescopeTrack::GetVertexInZPlane(const Double_t z) const {
+    const auto direction = fXStationVertex - fTargetVertex;
+    return fTargetVertex + direction * ((z - fTargetVertex.Z()) / (direction.Z()));
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERQTelescopeTrack::GetXInZPlane(Double_t z) const {
+    return GetVertexInZPlane(z).X();
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERQTelescopeTrack::GetYInZPlane(Double_t z) const {
+    return GetVertexInZPlane(z).Y();
+}
+//--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeTrack)
