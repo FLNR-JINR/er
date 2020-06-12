@@ -4,6 +4,11 @@
 #include <string.h>
 #include <iostream>
 
+#include "G4IonTable.hh"
+#include "G4EmCalculator.hh"
+#include "G4NistManager.hh"
+#include "G4ParticleDefinition.hh"
+
 #include "FairLogger.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -299,3 +304,45 @@ int intrp4(double* x,double* y, double* c)
   
   return rp4;
 }
+
+
+Double_t CalcElossIntegralVolStep(Double_t T, const G4ParticleDefinition& ion, 
+                                   const G4Material& mat, const Double_t range, 
+                                   const Double_t intStep/*=1e-4 [1mk]*/) { 
+  if (mat.GetName() == "vacuum") {
+    return 0.;
+  }
+  if (range <= 0.)
+    return 0;
+  Double_t integralEloss = 0.;
+  Double_t curStep = 0.;
+  G4EmCalculator* calc = new G4EmCalculator();
+  while (curStep < range) {
+    Double_t eloss = calc->ComputeDEDX(T, &ion, "ionIoni", &mat) * intStep * 10 /*cm to mm*/;
+    integralEloss += eloss;
+    T += eloss;
+    curStep += intStep;
+  }
+  return integralEloss;
+}
+
+/*
+Double_t CalcElossIntegralVolStep (Double_t kineticEnergy, const G4ParticleDefinition& particle, 
+                                   const G4Material& material, const Double_t range) { 
+  //FIXME copy-past from ERBeamDetSetup
+  if (range <= 0.)
+    return 0;
+  Double_t integralEloss = 0.;
+  const Double_t intStep = range / 20;
+  Double_t curStep = 0.;
+  G4EmCalculator* calc = new G4EmCalculator();
+  while (curStep < range) {
+    Double_t eloss = calc->GetDEDX(kineticEnergy, &particle, &material) * intStep 
+                     * 10 ; // MeV
+    integralEloss += eloss;
+    kineticEnergy += eloss;
+    curStep += intStep;
+  }
+  return integralEloss;
+}
+*/

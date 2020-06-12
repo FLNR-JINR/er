@@ -27,6 +27,7 @@
 
 #include "ERBeamDetTrack.h"
 #include "ERRunAna.h"
+#include "ERSupport.h"
 
 //--------------------------------------------------------------------------------------------------
 ERQTelescopePID::ERQTelescopePID()
@@ -157,25 +158,6 @@ AddParticle(const TLorentzVector& lvInteraction, const Double_t kineticEnergy, c
   return new(col[col.GetEntriesFast()]) ERQTelescopeParticle(lvInteraction, kineticEnergy, deadEloss,
                                             edepInThickStation, edepInThinStation, 
                                             edepInThickStationCorrected, edepInThinStationCorrected);
-}
-//--------------------------------------------------------------------------------------------------
-Double_t CalcElossIntegralVolStep (Double_t kineticEnergy, const G4ParticleDefinition& particle, 
-                                   const G4Material& material, const Double_t range) { 
-  //FIXME copy-past from ERBeamDetSetup
-  if (range <= 0.)
-    return 0;
-  Double_t integralEloss = 0.;
-  const Double_t intStep = range / 20;
-  Double_t curStep = 0.;
-  G4EmCalculator* calc = new G4EmCalculator();
-  while (curStep < range) {
-    Double_t eloss = calc->GetDEDX(kineticEnergy /* MeV */, &particle, &material) * intStep 
-                     * 10 /* 1/mm */; // MeV
-    integralEloss += eloss;
-    kineticEnergy += eloss;
-    curStep += intStep;
-  }
-  return integralEloss;
 }
 //--------------------------------------------------------------------------------------------------
 TVector3 ERQTelescopePID::FindBackPropagationStartPoint(const ERQTelescopeTrack& track) {
