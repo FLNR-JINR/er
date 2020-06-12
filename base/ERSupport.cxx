@@ -316,12 +316,13 @@ Double_t CalcElossIntegralVolStep(Double_t T, const G4ParticleDefinition& ion,
     return 0;
   Double_t integralEloss = 0.;
   Double_t curStep = 0.;
+  const Double_t tempStep = range / 10.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (curStep < range) {
-    Double_t eloss = calc->ComputeDEDX(T, &ion, "ionIoni", &mat) * intStep * 10 /*cm to mm*/;
+    Double_t eloss = calc->ComputeDEDX(T, &ion, "ionIoni", &mat) * tempStep * 10 /*cm to mm*/;
     integralEloss += eloss;
     T += eloss;
-    curStep += intStep;
+    curStep += tempStep;
   }
   return integralEloss;
 }
