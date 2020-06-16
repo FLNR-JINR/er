@@ -63,7 +63,7 @@ void ERQTelescopeGeoNonUniformSingleSi::ConstructGeometryVolume(void) {
   for (Int_t iStripX = 0; iStripX < fXPseudoStripCount; iStripX++) {
     LOG(DEBUG) << "[ERQTelescopeGeoNonUniformSingleSi] Creating strip " << iStripX << FairLogger::endl;
     auto* strip = new TGeoVolumeAssembly("pseudoSiStrip_" + TString::Itoa(iStripX, 10 /*base*/));
-    const Double_t stripInStationTranslateX = fSensX / 2 - boxX *(iStripX)-(boxX / 2);
+    const Double_t stripInStationTranslateX = -fSensX / 2 + boxX *(iStripX)+(boxX / 2);
     fVolume->AddNode(strip, iStripX, new TGeoCombiTrans(stripInStationTranslateX, 0, 0, zeroRotation));
     for (Int_t iStripY = 0; iStripY < fYPseudoStripCount; iStripY++) {
       const Double_t fullThickness = fThicknessMap->GetBinContent(iStripX + 1, iStripY + 1) * 1e-4 /* mkm to cm */;

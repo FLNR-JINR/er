@@ -154,7 +154,7 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
           if (qtelescopeStationName.Contains("DoubleSi", TString::kIgnoreCase) ) {
             TGeoNode* doubleSiStrip;
             TString firstStripArrayName, secondStripArrayName;
-            if (qtelescopeStationName.Contains("YX")) {
+            if (qtelescopeStationName.Contains("XY")) {
               firstStripArrayName = qtelescopeStationName + "_X";
               secondStripArrayName = qtelescopeStationName + "_Y";
             } else {

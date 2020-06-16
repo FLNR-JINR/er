@@ -327,7 +327,7 @@ std::map<TString, const ERDigi*> ERQTelescopePID::FindDigisByNode(const TGeoNode
   for (const auto& digiBranchName : digiBranchNames) {
     const auto* digis = fQTelescopeDigi[digiBranchName];
     // @BUG Code only for XY doubleSi stations.
-    Int_t channel = (nodeOfDoubleSiStation && digiBranchName.EndsWith("_Y")) ? channels[1] : channels[0];
+    Int_t channel = (nodeOfDoubleSiStation && digiBranchName.EndsWith("_X")) ? channels[1] : channels[0];
     LOG(DEBUG) << "   [ERQTelescopePID][CalcEnergyDeposites] Finding digi with channel number " 
                << channel << " in branch " << digiBranchName << FairLogger::endl;
     Bool_t digiFound = false;

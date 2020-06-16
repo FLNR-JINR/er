@@ -86,7 +86,7 @@ void ERQTelescopeGeoComponentCsI::ConstructGeometryVolume(void) {
     Double_t transX = -fullX/2 + fSizeX / 2. + fSplitSize / 2 + iCsIX *(fSizeX +fSplitSize);
     for (Int_t iCsIY = 0; iCsIY < fCubesCountY; iCsIY++) {
       Double_t transY = -fullY/2 + fSizeY / 2. + fSplitSize / 2 + iCsIY*(fSizeY + fSplitSize);
-      fVolume->AddNode(shellCsI, iBox++, new TGeoCombiTrans(-transX,
+      fVolume->AddNode(shellCsI, iBox++, new TGeoCombiTrans(transX,
                                                             transY,
                                                             0., 
                                                             new TGeoRotation()));
