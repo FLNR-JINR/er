@@ -40,11 +40,14 @@ public:
     const TString fDeStation;
     const TString fEStation;
     const Double_t fNormalizedThickness = 0.002;
+    const std::vector<TString> fDoNotUseSignalFromStations;
     ParticleDescription() = default;
     ParticleDescription(PDG pdg, const TString& deStation, 
-                        const TString& eStation, Double_t normalizedThickness)
+                        const TString& eStation, Double_t normalizedThickness,
+                        const std::vector<TString>& doNotUseSignalFromStations)
         : fPDG(pdg), fDeStation(deStation), fEStation(eStation),
-          fNormalizedThickness(normalizedThickness) {}
+          fNormalizedThickness(normalizedThickness), 
+          fDoNotUseSignalFromStations(doNotUseSignalFromStations) {}
   };
   struct DigiOnTrack {
     const TString fBranch;
@@ -67,7 +70,7 @@ public:
   /* Modifiers */
   void SetParticle(const TString& trackBranchName, const PDG pdg, 
                    const TString& deStation = "", const TString& eStation = "",
-                   Double_t deNormalizedThickness = 0.002);
+                   Double_t deNormalizedThickness = 0.002, const std::vector<TString>& doNotUseSignalFromStations = {});
   void SetEdepAccountingStrategy(
       const TString& station, EdepAccountingStrategy strategy) {
     fEdepAccountingStrategies[station] = strategy;
@@ -97,7 +100,8 @@ protected:
   TVector3 FindBackPropagationStartPoint(const ERQTelescopeTrack& track);
   std::pair<Double_t, Double_t> CalcEnergyDeposites (
       const ERQTelescopeTrack& track, const TVector3& startPoint,
-      const G4ParticleDefinition& particle, std::list<DigiOnTrack>& digisOnTrack);
+      const G4ParticleDefinition& particle, std::list<DigiOnTrack>& digisOnTrack,
+      const std::vector<TString>& doNotUseSignalFromStations);
   std::map<TString, const ERDigi*> FindDigisByNode(const TGeoNode& node, const TString& nodePath);
   void FindEnergiesForDeEAnalysis(const TString& trackBranch,
                                   const std::list<DigiOnTrack>& digisOnTrack, 

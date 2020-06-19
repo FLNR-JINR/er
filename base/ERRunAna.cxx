@@ -72,7 +72,7 @@ void ERRunAna::Init(){
     cut.Write();
   }
   TG4RunConfiguration* runConfiguration
-              = new TG4RunConfiguration("geomRoot", "QGSP_BERT_HP", "specialCuts+stackPopper");
+              = new TG4RunConfiguration("geomRoot", "emStandard", "specialCuts+stackPopper");
   if (!fWithoutGeant) { 
     TGeant4* geant4 = new TGeant4("TGeant4", "The Geant4 Monte Carlo", runConfiguration);
 

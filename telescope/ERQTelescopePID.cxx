@@ -80,12 +80,13 @@ InitStatus ERQTelescopePID::Init() {
 void ERQTelescopePID::SetParticle(
     const TString& trackBranchName, const PDG pdg, 
     const TString& deStation /*= ""*/, const TString& eStation /*= ""*/,
-    const Double_t deNormalizedThickness /*= 0.002*/) {
+    const Double_t deNormalizedThickness /*= 0.002*/,
+    const std::vector<TString>& doNotUseSignalFromStations /* = {}*/) {
   if ((deStation == "" && eStation != "")
       || (deStation != "" && eStation == ""))
     LOG(FATAL) << "If one of dE or E station is defined, another should be defined." 
                << FairLogger::endl;
-  fParticleDescriptions[trackBranchName].emplace_back(pdg, deStation, eStation, deNormalizedThickness);
+  fParticleDescriptions[trackBranchName].emplace_back(pdg, deStation, eStation, deNormalizedThickness, doNotUseSignalFromStations);
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopePID::Exec(Option_t* opt) {
@@ -114,7 +115,8 @@ void ERQTelescopePID::Exec(Option_t* opt) {
         // energy deposites in digi and energy deposites in passive volumes (using G4EmCalculator).
         std::list<DigiOnTrack> digisOnTrack;
         const auto energyDeposites = CalcEnergyDeposites(
-            *track, backPropagationStartPoint, *particle, digisOnTrack);
+            *track, backPropagationStartPoint, *particle, digisOnTrack, 
+            particleDescription.fDoNotUseSignalFromStations);
         Double_t edepInThickStation = -1., edepInThinStation = -1., 
                  edepInThickStationCorrected = -1., edepInThinStationCorrected = -1.;
         FindEnergiesForDeEAnalysis(trackBranch, digisOnTrack, 
@@ -205,7 +207,8 @@ TVector3 ERQTelescopePID::FindBackPropagationStartPoint(const ERQTelescopeTrack&
 std::pair<Double_t, Double_t> ERQTelescopePID::
 CalcEnergyDeposites(const ERQTelescopeTrack& track, const TVector3& startPoint, 
                     const G4ParticleDefinition& particle,
-                    std::list<DigiOnTrack>& digisOnTrack ) {
+                    std::list<DigiOnTrack>& digisOnTrack,
+                    const std::vector<TString>& doNotUseSignalFromStations) {
   // Calc paritcle energy deposites in setup using back track propagation from start point.
   // Return pair: first - sum of energy deposites in digi(sensetive volumes); 
   //              second - sum of energy deposites in passive volumes (or dead energy deposite).
@@ -238,19 +241,32 @@ CalcEnergyDeposites(const ERQTelescopeTrack& track, const TVector3& startPoint,
       break;
     targetHasPassed = trackInTarget;
     // If track in sensetive volume, try to find digi
-    if (TString(gGeoManager->GetPath()).Contains("Sensitive")){
-      LOG(DEBUG) <<"[ERQTelescopePID] [CalcEnergyDeposites]"
-                 <<" Get energy deposite from digis." << FairLogger::endl;
-      const auto branchAndDigis = FindDigisByNode(*node, gGeoManager->GetPath());
-      for (const auto& branchAndDigi : branchAndDigis) {
-        const auto digiBranch = branchAndDigi.first;
-        const auto* digi = branchAndDigi.second;
-        digisOnTrack.emplace_back(digiBranch, digi, gGeoManager->GetStep());
+    Bool_t digisForNodeAreFound = kFALSE;
+    const TString nodePath = TString(gGeoManager->GetPath());
+    if (nodePath.Contains("Sensitive")){
+      const Bool_t nodeFromStationWithNotAccauntingSignal = 
+          std::find_if(doNotUseSignalFromStations.begin(), doNotUseSignalFromStations.end(), 
+                       [&nodePath](const TString& station) {return nodePath.Contains(station);})
+          != doNotUseSignalFromStations.end();
+      if (!nodeFromStationWithNotAccauntingSignal) {
+        LOG(DEBUG) <<"[ERQTelescopePID] [CalcEnergyDeposites]"
+                  <<" Get energy deposite from digis." << FairLogger::endl;
+        const auto branchAndDigis = FindDigisByNode(*node, gGeoManager->GetPath());
+        digisForNodeAreFound = !branchAndDigis.empty();
+        if (digisForNodeAreFound) {
+          for (const auto& branchAndDigi : branchAndDigis) {
+            const auto digiBranch = branchAndDigi.first;
+            const auto* digi = branchAndDigi.second;
+            digisOnTrack.emplace_back(digiBranch, digi, gGeoManager->GetStep());
+          }
+          const Double_t edepInStation = ApplyEdepAccountingStrategy(branchAndDigis);
+          kineticEnergy += edepInStation;
+          digiDepositesSum += edepInStation;
+        }
       }
-      const Double_t edepInStation = ApplyEdepAccountingStrategy(branchAndDigis);
-      kineticEnergy += edepInStation;
-      digiDepositesSum += edepInStation;
-    } else  { // track in passive volume
+    }
+    if (!digisForNodeAreFound){ 
+      // track in passive volume or treat sensetive volume as passive
       const auto step = gGeoManager->GetStep();
       // We take into account only half of step in target.
       const auto range = trackInTarget ? step / 2 : step;
