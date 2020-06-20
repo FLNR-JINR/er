@@ -15,9 +15,8 @@
 # don't store secondaries
 #/mcTracking/saveSecondaries true
 
-/mcPhysics/rangeCuts 1 mm
+/mcPhysics/rangeCuts 1e-3 mm
 /mcPhysics/rangeCutForGamma  1. mm
-/mcPhysics/rangeCutForElectron 1e-1 mm
 /mcPhysics/rangeCutForPositron 1. mm
 /mcPhysics/g4NeutronHPVerbose 0
 /mcPhysics/g4HadronicProcessStoreVerbose 0

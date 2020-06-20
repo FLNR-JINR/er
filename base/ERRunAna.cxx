@@ -57,7 +57,7 @@ bool AreSame(double a, double b, double eps)
     return fabs(a - b) < eps;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t CalcElossIntegralVolStepGet (Double_t T, const G4ParticleDefinition* ion, 
+Double_t CalcElossIntegralVolStepGetInverse (Double_t T, const G4ParticleDefinition* ion, 
                                       const G4Material* mat, const Double_t range) { 
   //FIXME copy-past from ERBeamDetSetup
   assert(mat);
@@ -65,18 +65,18 @@ Double_t CalcElossIntegralVolStepGet (Double_t T, const G4ParticleDefinition* io
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = 0.01; // range / fDivision;
+  const Double_t intStep = 1e-5; // range / fDivision;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (!AreSame(curStep, range, intStep / 2.)) {
-    Double_t eloss = calc->GetDEDX(T,ion,mat)*intStep*1e-4*10;
+    Double_t eloss = calc->GetDEDX(T,ion,mat)*intStep*1e-3;
     integralEloss += eloss;
     T += eloss;
     curStep += intStep;
   }
   return integralEloss;
 }//--------------------------------------------------------------------------------------------------
-Double_t CalcElossIntegralVolStepCompute (Double_t T, G4ParticleDefinition* ion, 
+Double_t CalcElossIntegralVolStepComputeInverse (Double_t T, G4ParticleDefinition* ion, 
                                           G4Material* mat, Double_t range) 
 { 
   //FIXME copy-past from ERBeamDetSetup
@@ -85,11 +85,11 @@ Double_t CalcElossIntegralVolStepCompute (Double_t T, G4ParticleDefinition* ion,
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = 0.01; // range / fDivision;
+  const Double_t intStep = 1e-5; // range / fDivision;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (!AreSame(curStep, range, intStep / 2.)) {
-    Double_t eloss = calc->ComputeDEDX(T,ion,"ionIoni",mat)*intStep*1e-4*10;
+    Double_t eloss = calc->ComputeDEDX(T,ion,"ionIoni",mat)*intStep*1e-3;
     integralEloss += eloss;
     T += eloss;
     curStep += intStep;
@@ -98,7 +98,7 @@ Double_t CalcElossIntegralVolStepCompute (Double_t T, G4ParticleDefinition* ion,
   return integralEloss;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t CalcElossIntegralVolStepGetInvDir (Double_t T, const G4ParticleDefinition* ion, 
+Double_t CalcElossIntegralVolStepGetDirect (Double_t T, const G4ParticleDefinition* ion, 
                                       const G4Material* mat, const Double_t range) { 
   //FIXME copy-past from ERBeamDetSetup
   assert(mat);
@@ -106,19 +106,19 @@ Double_t CalcElossIntegralVolStepGetInvDir (Double_t T, const G4ParticleDefiniti
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = 0.01; // range / fDivision;
+  const Double_t intStep = 1e-5; // range / fDivision;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (!AreSame(curStep, range, intStep / 2.)) {
-    Double_t eloss = calc->GetDEDX(T,ion,mat)*intStep*1e-4*10;
+    Double_t eloss = calc->GetDEDX(T,ion,mat)*intStep*1e-3;
     integralEloss += eloss;
     T -= eloss;
     curStep += intStep;
   }
   return integralEloss;
 }//--------------------------------------------------------------------------------------------------
-Double_t CalcElossIntegralVolStepComputeInvDir (Double_t T, G4ParticleDefinition* ion, 
-                                          G4Material* mat, Double_t range) 
+Double_t CalcElossIntegralVolStepComputeDirect (Double_t T /*[MeV]*/, G4ParticleDefinition* ion, 
+                                          G4Material* mat, Double_t range /*[um]*/) 
 { 
   //FIXME copy-past from ERBeamDetSetup
   assert(mat);
@@ -126,12 +126,12 @@ Double_t CalcElossIntegralVolStepComputeInvDir (Double_t T, G4ParticleDefinition
   if (range <= 0.)
     return 0;
   Double_t integralEloss = 0.;
-  const Double_t intStep = 0.01; // range / fDivision;
+  const Double_t intStep = 1e-5; // range / fDivision;
   // cout << "intStep " << intStep << endl;
   Double_t curStep = 0.;
   G4EmCalculator* calc = new G4EmCalculator();
   while (!AreSame(curStep, range, intStep / 2.)) {
-    Double_t eloss = calc->ComputeDEDX(T,ion,"ionIoni",mat)*intStep*1e-4*10;
+    Double_t eloss = calc->ComputeDEDX(T,ion,"ionIoni",mat)/*[MeV/mm]*/*intStep*1e-3;
     integralEloss += eloss;
     T -= eloss;
     curStep += intStep;
@@ -185,38 +185,41 @@ void ERRunAna::Init(){
   G4EmCalculator* calc = new G4EmCalculator();
   G4NistManager* nist = G4NistManager::Instance();
   G4Material* mat = nist->FindOrBuildMaterial("silicon");
-  double range = 1e-4;
-  double T = 7.68690;
-  std::vector<double> energies = {4.7844, 6.0024, 7.6869}; // [MeVs]
+  std::vector<double> energies = {7.6869}; // [MeVs]
   // std::vector<double> energies = {4.7844}; // [MeVs]
   // std::vector<double> thickCalc_dE = {2, 4, 6, 8, 12, 16, 20, 24, 28, 32, 36, 40}; // [um]
   // std::vector<double> thickCalc_dE = {8, 12, 16, 20, 24, 28, 32, 36}; // [um]
   // std::vector<double> thickCalc_dE = {1, 2, 3, 4, 5, 6}; // [um]
-  std::vector<double> thickCalc_dE = {2.33}; // [um]
+  std::vector<double> thickCalc_dE = {40}; // [um]
   // std::vector<double> thickCalc_dE  = {2, 4, 5, 5.56}; // [um]
-  cout << "d | edep_comp | edep_get " << endl;
+  cout << "d | edep_comp, [MeV] | edep_get, [MeV] | diff, [KeV] " << endl;
   // for (double div = 500; div <= 5000; div *= 10) {
   //   fDivision = div;
     for (auto itEnergies: energies) {
       cout << itEnergies << endl;
       for (auto itThickness: thickCalc_dE) {
-        double edep_comp_inv = CalcElossIntegralVolStepComputeInvDir(itEnergies, ion, mat, itThickness); 
-        double edep_get_inv = CalcElossIntegralVolStepGetInvDir(itEnergies, ion, mat, itThickness); 
-        double T_comp_after_dead = itEnergies - edep_comp_inv;
-        double T_get_after_dead = itEnergies - edep_get_inv;
-        // cout << itThickness << " & " << edep_comp_inv << " & " << edep_get_inv
-        //      << " & " << edep_comp_inv - edep_get_inv
+        double edep_comp_direct = CalcElossIntegralVolStepComputeDirect(itEnergies, ion, mat, itThickness); 
+        double edep_get_direct = CalcElossIntegralVolStepGetDirect(itEnergies, ion, mat, itThickness); 
+        double T_comp_after_dead = itEnergies - edep_comp_direct;
+        double T_get_after_dead = itEnergies - edep_get_direct;
+        // cout << itThickness << " & " << edep_comp_direct << " & " << edep_get_direct
+        //      << " & " << edep_comp_direct - edep_get_direct
         //      << " \\\\ " << endl
         //      << "\\hline" << endl;
-        cout << itThickness << " " << edep_comp_inv << " " << T_comp_after_dead << endl;
+        // cout << itThickness << " " << edep_comp_direct << " " << T_comp_after_dead << endl;
+        cout << itThickness << " " 
+             << edep_comp_direct * 1e3 << " " 
+             << edep_get_direct * 1e3 << " " 
+             << (edep_comp_direct - edep_get_direct) * 1e3 << endl;
 
 
-        double edep_comp = CalcElossIntegralVolStepCompute(T_comp_after_dead, ion, mat, itThickness); 
-        double edep_get = CalcElossIntegralVolStepGet(T_get_after_dead, ion, mat, itThickness); 
-        double T_restored_comp = T_comp_after_dead + edep_comp;
-        double T_restored_get = T_get_after_dead + edep_get;
+        // double edep_comp_inverse = CalcElossIntegralVolStepComputeInverse(T_comp_after_dead, ion, mat, itThickness); 
+        // double edep_get_inverse = CalcElossIntegralVolStepGetInverse(T_get_after_dead, ion, mat, itThickness); 
+        // double T_restored_comp = T_comp_after_dead + edep_comp_inverse;
+        // double T_restored_get = T_get_after_dead + edep_get_inverse;
         // cout << itThickness << " " << (itEnergies - T_restored_comp)*1e3 << " | " << (itEnergies - T_restored_get)*1e3 << endl;
-        cout << itThickness << " " << edep_comp << " " << T_restored_comp << endl;
+        // cout << itThickness << " " << edep_comp_inverse << " " << T_restored_comp << endl;
+        // cout << itThickness << " " << edep_comp_inverse << " " << edep_get_inverse << " " << edep_comp_inverse - edep_get_inverse << endl;
         // cout << (itEnergies - T_restored_comp)*1e3 << " | " << (itEnergies - T_restored_get)*1e3 << endl;
 
       }
