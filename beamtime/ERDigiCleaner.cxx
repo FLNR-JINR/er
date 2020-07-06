@@ -13,6 +13,7 @@
 #include "FairRun.h"
 
 #include "ERSupport.h"
+#include "ERRunAna.h"
 #include "ERDigi.h"
 #include "ERBeamDetMWPCDigi.h"
 #include "ERBeamDetTOFDigi.h"
@@ -86,7 +87,7 @@ void ERDigiCleaner::Exec(Option_t*) {
     if (fInputHeader)
         CopyEventHeader();
     if (fLonelyMWPCClusterCondition && AreFewClustersInMWPC())
-        fRun->MarkFill(kFALSE);
+        dynamic_cast<ERRunAna*>(fRun)->MarkFill(kFALSE);
     Recalibration();
     ApplyChannelCuts();
     ApplyStationMultiplicities();
@@ -277,7 +278,7 @@ void ERDigiCleaner::ApplyStationMultiplicities() {
                        << " of detector " << stationName << " not found." << FairLogger::endl;
         }
         if (digi->GetEntriesFast() > multiplicity) {
-            fRun->MarkFill(kFALSE);
+            dynamic_cast<ERRunAna*>(fRun)->MarkFill(kFALSE);
             return;
         }
     }
