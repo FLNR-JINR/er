@@ -22,6 +22,7 @@
 #include "ERBeamTimeEventHeader.h"
 
 class ERDigiCleaner : public ERTask {
+  using MultiplicityRange = std::pair<Int_t, Int_t>;
 
   public:
 
@@ -87,8 +88,8 @@ class ERDigiCleaner : public ERTask {
                           const TString& previousTACCalFile, const TString& TACCalFile,
                           std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
   void SetLonelyMWPCClusterCondition() { fLonelyMWPCClusterCondition = true; }
-  void SetStationMultiplicity(const TString& detectorName, const TString stationName, Int_t multiplicity) { 
-    fStationsMultiplicities[std::make_pair(detectorName, stationName)] = multiplicity;
+  void SetStationMultiplicity(const TString& detectorName, const TString& stationName, Int_t minMultiplicity, Int_t maxMultiplicity) { 
+    fStationsMultiplicities[std::make_pair(detectorName, stationName)] = std::make_pair(minMultiplicity, maxMultiplicity);
   }
   void SetChannelCuts(const TString& detectorName, const TString& stationName,
                       const std::map<Int_t, TCutG*>& GCuts, 
@@ -108,7 +109,7 @@ class ERDigiCleaner : public ERTask {
 
     std::list<RecalibrationTask> fStationsRecalibrations;
     std::list<StationCuts> fStationsCuts;
-    std::map<std::pair<TString, TString>, Int_t> fStationsMultiplicities;
+    std::map<std::pair<TString, TString>, MultiplicityRange> fStationsMultiplicities;
     bool fLonelyMWPCClusterCondition = false;
 
     std::unordered_map<std::string, TClonesArray*> fInputDigis;

@@ -270,15 +270,15 @@ void ERDigiCleaner::ApplyStationMultiplicities() {
         const auto detectorAndStation = detStationMultiplicity.first;
         const auto detectorName = detectorAndStation.first;
         const auto stationName = detectorAndStation.second;
-        const auto multiplicity = detStationMultiplicity.second;
-        const auto branchNameAndDigis = GetBranchNameAndDigis(detectorName, stationName);
-        const auto* digi = branchNameAndDigis.second;
+        const auto multiplicityRange = detStationMultiplicity.second;
+        auto branchNameAndDigis = GetBranchNameAndDigis(detectorName, stationName);
+        auto* digi = branchNameAndDigis.second;
         if (!digi) {
             LOG(FATAL) << "Digi branch for station " << detectorName 
                        << " of detector " << stationName << " not found." << FairLogger::endl;
         }
-        if (digi->GetEntriesFast() > multiplicity) {
-            dynamic_cast<ERRunAna*>(fRun)->MarkFill(kFALSE);
+        if (digi->GetEntriesFast() < multiplicityRange.first || digi->GetEntriesFast() > multiplicityRange.second) {
+            digi->Clear();
             return;
         }
     }

@@ -55,8 +55,8 @@ void digicleaner(Int_t nEvents = 100000) {
   cleaner->SetChannelCuts("Telescope_1", "SSD_1", SSD_1_gcuts, SSD_1_amp_min, SSD_1_amp_max,
                           SSD_1_time_min, SSD_1_time_max);
   // ...
-  cleaner->SetStationMultiplicity("Telescope_1", "SSD_1", 1);
-  cleaner->SetStationMultiplicity("Telescope_1", "SSD_V_1", 0);
+  cleaner->SetStationMultiplicity("Telescope_1", "SSD_1", 1, 1);
+  cleaner->SetStationMultiplicity("Telescope_1", "SSD_V_1", 0, 0);
   // ...
   run->AddTask(cleaner);
   // ------------------------------------------------------------------------
