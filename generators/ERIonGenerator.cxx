@@ -142,7 +142,10 @@ Bool_t ERIonGenerator::ReadEvent(FairPrimaryGenerator* primGen)
     LOG(DEBUG) << "    Momentum (" << fPx << ", " << fPy << ", " << fPz
         << ") Gev from vertex (" << fX << ", " << fY
         << ", " << fZ << ") cm" << FairLogger::endl;
-    primGen->AddTrack(pdgType, fPx, fPy, fPz, fX, fY, fZ);
+    TLorentzVector state;
+    state.SetXYZM(fPx, fPy, fPz, fIonMass);
+    primGen->AddTrack(pdgType, fPx, fPy, fPz, fX, fY, fZ, -1 /*parent*/, 
+                      true /*whanttracking*/, state.E() /*e*/, 0. /*tof*/, fIonMass, kPPrimary);
   }
 
   return kTRUE;
