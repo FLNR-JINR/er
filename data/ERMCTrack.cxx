@@ -225,17 +225,7 @@ Double_t ERMCTrack::GetPhi(){
 Double_t ERMCTrack::CalculateMass() {
   if ( TDatabasePDG::Instance() ) {
     TParticlePDG* particle = TDatabasePDG::Instance()->GetParticle(fPdgCode);
-    if ( particle ) {
-      TString particleName = particle->GetName();
-      TObjArray *userIons  = FairRunSim::Instance()->GetUserDefIons();
-      FairIon* ion = (FairIon*)userIons->FindObject(particleName);
-      if (ion) {
-        return ion->GetMass() + ion->GetExcEnergy();
-      } else {
-        return particle->Mass();
-      }
-    }
-    else return 0.;
+    return particle->Mass();
   }
   return 0.;
 }
