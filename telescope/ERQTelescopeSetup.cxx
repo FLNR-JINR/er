@@ -140,7 +140,7 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
   TGeoNode* qtelescopeStation = NULL;
   for (Int_t iNode = 0; iNode < cave->GetNdaughters(); iNode++) { // cycle by volumes in TOP
     TString detectorName = cave->GetDaughter(iNode)->GetName();
-    if ( detectorName.Contains("QTelescope", TString::kIgnoreCase) ) {
+    if ( detectorName.Contains("Telescope", TString::kIgnoreCase) ) {
       qtelescope = cave->GetDaughter(iNode); 
       for (Int_t iDetector = 0; iDetector < qtelescope->GetNdaughters(); iDetector++) { // cycle by subassemblies in QTelescope
         qtelescopeDetector = qtelescope->GetDaughter(iDetector);

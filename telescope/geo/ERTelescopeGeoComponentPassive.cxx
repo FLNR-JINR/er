@@ -6,10 +6,10 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#include "ERQTelescopeGeoComponentPassive.h"
+#include "ERTelescopeGeoComponentPassive.h"
 
 //--------------------------------------------------------------------------------
-ERQTelescopeGeoComponentPassive::ERQTelescopeGeoComponentPassive(
+ERTelescopeGeoComponentPassive::ERTelescopeGeoComponentPassive(
     const TString& fileName, const TString& topVolumeName, 
     const TVector3& position, const TVector3& rotation)
     : ERGeoComponent("None", fileName, position, rotation), fFileName(fileName), 
@@ -19,11 +19,11 @@ ERQTelescopeGeoComponentPassive::ERQTelescopeGeoComponentPassive(
     LOG(FATAL) << "Can not open file: " << fileName << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------
-void ERQTelescopeGeoComponentPassive::ConstructGeometryVolume() {
+void ERTelescopeGeoComponentPassive::ConstructGeometryVolume() {
   fVolume = static_cast<TGeoVolume*>(fGeoFile->Get(fTopVolumeName));
   if (!fVolume)
     LOG(FATAL) << "Volume " << fTopVolumeName << " not found in file " << fFileName 
                << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------
-ClassImp(ERQTelescopeGeoComponentPassive)
+ClassImp(ERTelescopeGeoComponentPassive)

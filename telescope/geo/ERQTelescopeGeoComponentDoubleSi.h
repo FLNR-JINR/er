@@ -9,12 +9,12 @@
 #ifndef ERQTelescopeGeoComponentDoubleSi_H
 #define ERQTelescopeGeoComponentDoubleSi_H
 
-#include "ERQTelescopeGeoComponentSensetive.h"
+#include "ERTelescopeGeoComponentSensetive.h"
 
 #include "TString.h"
 #include "TVector3.h"
 
-class ERQTelescopeGeoComponentDoubleSi : public ERQTelescopeGeoComponentSensetive {
+class ERQTelescopeGeoComponentDoubleSi : public ERTelescopeGeoComponentSensetive {
 public:
   ERQTelescopeGeoComponentDoubleSi() = default;
   ERQTelescopeGeoComponentDoubleSi(const TString& typeFromXML, const TString& id,

@@ -30,12 +30,14 @@
 #pragma link C++ class AculRaw+;
 #pragma link C++ class ERRTelescopeRawConverter+;
 
-#pragma link C++ class ERQTelescopeGeoComponentSensetive+;
+#pragma link C++ class ERTelescopeGeoComponentSensetive+;
+#pragma link C++ class ERTelescopeGeoComponentPassive+;
+#pragma link C++ class ERTelescopeGeoComponentSingleSi+;
+#pragma link C++ class ERRTelescopeGeoComponentSingleSi+;
+#pragma link C++ class ERQTelescopeGeoComponentSingleSi+;
 #pragma link C++ class ERQTelescopeGeoComponentDoubleSi+;
 #pragma link C++ class ERQTelescopeGeoNonUniformSingleSi+;
-#pragma link C++ class ERQTelescopeGeoComponentSingleSi+;
 #pragma link C++ class ERQTelescopeGeoComponentCsI+;
-#pragma link C++ class ERQTelescopeGeoComponentPassive+;
 
 #pragma link C++ class ERQTelescopeCalibrator+;
 #pragma link C++ class ERRTelescopeCalibrator+;

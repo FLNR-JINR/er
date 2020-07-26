@@ -23,7 +23,7 @@ Int_t ERQTelescopeGeoComponentDoubleSi::fConstructedObjCount = 0;
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(
     const TString& typeFromXML, const TString& id, const TString& orientAroundZ) 
-: ERQTelescopeGeoComponentSensetive(typeFromXML, id)
+: ERTelescopeGeoComponentSensetive(typeFromXML, id)
 {
   TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
   fOrientAroundZ = volumeNameInd;
@@ -33,7 +33,7 @@ ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(
 ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(
     const TString& typeFromXML, const TString& id, const TVector3& position, 
     const TVector3& rotation, const TString& orientAroundZ)
-: ERQTelescopeGeoComponentSensetive(typeFromXML, id, position, rotation)
+: ERTelescopeGeoComponentSensetive(typeFromXML, id, position, rotation)
 {
   TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
   fOrientAroundZ = volumeNameInd;

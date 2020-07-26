@@ -6,22 +6,22 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERQTelescopeGeoComponentSensetive_H
-#define ERQTelescopeGeoComponentSensetive_H
+#ifndef ERTelescopeGeoComponentSensetive_H
+#define ERTelescopeGeoComponentSensetive_H
 
 #include "TList.h"
 
 #include "ERGeoComponent.h"
 
-class ERQTelescopeGeoComponentSensetive : public ERGeoComponent {
+class ERTelescopeGeoComponentSensetive : public ERGeoComponent {
 public:
-  ERQTelescopeGeoComponentSensetive() = default;
-  ERQTelescopeGeoComponentSensetive(const TString& typeFromXML, const TString& id)
+  ERTelescopeGeoComponentSensetive() = default;
+  ERTelescopeGeoComponentSensetive(const TString& typeFromXML, const TString& id)
     : ERGeoComponent(typeFromXML, id) {}
-  ERQTelescopeGeoComponentSensetive(const TString& typeFromXML, const TString& id, 
+  ERTelescopeGeoComponentSensetive(const TString& typeFromXML, const TString& id, 
                            const TVector3& position, const TVector3& rotation)
     : ERGeoComponent(typeFromXML, id, position, rotation) {}
-  virtual ~ERQTelescopeGeoComponentSensetive() = default;
+  virtual ~ERTelescopeGeoComponentSensetive() = default;
   Bool_t HasTwoSidedChannel() const { return fHasTwoSidedChannel; }
   virtual std::list<TString> GetBranchNames(ERDataObjectType object) const;
   virtual TString GetBranchName(ERDataObjectType object, 
@@ -39,7 +39,7 @@ protected:
   Double_t fSizeY = 0.;
   Double_t fSizeZ = 0.;
   Bool_t fHasTwoSidedChannel = false;
-  ClassDef(ERQTelescopeGeoComponentSensetive,1)
+  ClassDef(ERTelescopeGeoComponentSensetive,1)
 };
 
 #endif

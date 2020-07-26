@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<QTelescopeParts>
+<TelescopeParts>
 	<SiTypes>
 		<doubleSiTypes>
 			<doubleSi id="DoubleSi_SQ_L">
@@ -72,7 +72,7 @@
 				<deadLayerThicknessBackSide>0.0001</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
-			</singleSi>	
+			</singleSi>
 		</singleSiTypes>
 	</SiTypes>
 	<CsITypes>
@@ -107,4 +107,16 @@
 			<CsIMedia>CsI</CsIMedia>
 		</CsI>
 	</CsITypes>
-</QTelescopeParts>
+	<RSiTypes>
+		<singleSiTypes>
+			<singleSi id="SingleSi_R1">
+				<size r_min="1" r_max="5" />
+				<sensetive_size r_min="1" r_max="5" z="0.2"/>
+				<dead_layer_front>0.0002</dead_layer_front>
+				<dead_layer_back>0.0001</dead_layer_back>
+				<strip_count>16</strip_count>
+				<media>silicon</media>
+			</singleSi>
+		</singleSiTypes>
+	</RSiTypes>
+</TelescopeParts>

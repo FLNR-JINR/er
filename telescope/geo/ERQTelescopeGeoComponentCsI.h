@@ -9,19 +9,19 @@
 #ifndef ERQTelescopeGeoComponentCsI_H
 #define ERQTelescopeGeoComponentCsI_H
 
-#include "ERQTelescopeGeoComponentSensetive.h"
+#include "ERTelescopeGeoComponentSensetive.h"
 
 #include "TString.h"
 #include "TVector3.h"
 
-class ERQTelescopeGeoComponentCsI : public ERQTelescopeGeoComponentSensetive {
+class ERQTelescopeGeoComponentCsI : public ERTelescopeGeoComponentSensetive {
 public:
   ERQTelescopeGeoComponentCsI() = default;
   ERQTelescopeGeoComponentCsI(const TString& typeFromXML, const TString& id)
-    : ERQTelescopeGeoComponentSensetive(typeFromXML, id) {}
+    : ERTelescopeGeoComponentSensetive(typeFromXML, id) {}
   ERQTelescopeGeoComponentCsI(const TString& typeFromXML, const TString& id, 
                               const TVector3& position, const TVector3& rotation)
-    : ERQTelescopeGeoComponentSensetive(typeFromXML, id, position, rotation) {}
+    : ERTelescopeGeoComponentSensetive(typeFromXML, id, position, rotation) {}
   virtual ~ERQTelescopeGeoComponentCsI() = default;
   virtual void ConstructGeometryVolume(void);
   virtual TString GetBranchName(ERDataObjectType object, 

@@ -6,24 +6,25 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERQTelescopeGeoComponentSingleSi_H
-#define ERQTelescopeGeoComponentSingleSi_H
+#ifndef ERRTelescopeGeoComponentSingleSi_H
+#define ERRTelescopeGeoComponentSingleSi_H
 
 #include "ERTelescopeGeoComponentSingleSi.h"
 
 #include "TString.h"
 #include "TVector3.h"
 
-class ERQTelescopeGeoComponentSingleSi : public ERTelescopeGeoComponentSingleSi {
+class ERRTelescopeGeoComponentSingleSi : public ERTelescopeGeoComponentSingleSi {
 public:
   using ERTelescopeGeoComponentSingleSi::ERTelescopeGeoComponentSingleSi;
   virtual void ConstructGeometryVolume(void);
 protected:
   virtual void ParseXmlParameters();
-  OrientationAroundZ fOrientAroundZ = OrientationAroundZ::Default;
-  Double_t fSensX = 0.;
-  Double_t fSensY = 0.;
-  Double_t fSensZ = 0.;
-  ClassDef(ERQTelescopeGeoComponentSingleSi,1)
+  Double_t fRMin = 0.;
+  Double_t fRMax = 0.;
+  Double_t fSensetiveRMin = 0;
+  Double_t fSensetiveRMax = 0;
+  Double_t fSensetiveZ = 0;
+  ClassDef(ERRTelescopeGeoComponentSingleSi,1)
 };
 #endif

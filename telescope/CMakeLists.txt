@@ -39,12 +39,15 @@ data/ERRTelescopeCsIDigi.cxx
 data/ERRTelescopeSiDigi.cxx
 data/ERRTelescopeHit.cxx
 
-geo/ERQTelescopeGeoComponentSensetive.cxx
-geo/ERQTelescopeGeoComponentDoubleSi.cxx
-geo/ERQTelescopeGeoNonUniformSingleSi.cxx
+geo/ERTelescopeGeoComponentSensetive.cxx
+geo/ERTelescopeGeoComponentPassive.cxx
+geo/ERTelescopeGeoComponentSingleSi.cxx
 geo/ERQTelescopeGeoComponentSingleSi.cxx
+geo/ERRTelescopeGeoComponentSingleSi.cxx
+geo/ERQTelescopeGeoNonUniformSingleSi.cxx
+geo/ERQTelescopeGeoComponentDoubleSi.cxx
 geo/ERQTelescopeGeoComponentCsI.cxx
-geo/ERQTelescopeGeoComponentPassive.cxx
+
 
 ERQTelescope.cxx
 ERQTelescopeDigitizer.cxx

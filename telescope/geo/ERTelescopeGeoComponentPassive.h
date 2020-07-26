@@ -6,8 +6,8 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERQTelescopeGeoComponentPassive_H
-#define ERQTelescopeGeoComponentPassive_H
+#ifndef ERTelescopeGeoComponentPassive_H
+#define ERTelescopeGeoComponentPassive_H
 
 #include "TString.h"
 #include "TVector3.h"
@@ -15,10 +15,10 @@
 
 #include "ERGeoComponent.h"
 
-class ERQTelescopeGeoComponentPassive : public ERGeoComponent {
+class ERTelescopeGeoComponentPassive : public ERGeoComponent {
   public:
-    ERQTelescopeGeoComponentPassive() = default;
-    ERQTelescopeGeoComponentPassive(const TString& fileName, const TString& topVolumeName,
+    ERTelescopeGeoComponentPassive() = default;
+    ERTelescopeGeoComponentPassive(const TString& fileName, const TString& topVolumeName,
                                     const TVector3& position, const TVector3& rotation);
     virtual void ConstructGeometryVolume();
   protected:
@@ -27,6 +27,6 @@ class ERQTelescopeGeoComponentPassive : public ERGeoComponent {
     TString fFileName;
     TString fTopVolumeName;
     
-    ClassDef(ERQTelescopeGeoComponentPassive,1)                            
+    ClassDef(ERTelescopeGeoComponentPassive,1)                            
 };
 #endif 

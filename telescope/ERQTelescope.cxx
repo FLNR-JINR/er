@@ -19,7 +19,7 @@
 #include "FairRuntimeDb.h"
 #include "FairLogger.h"
 
-#include "ERQTelescopeGeoComponentSensetive.h"
+#include "ERTelescopeGeoComponentSensetive.h"
 //-------------------------------------------------------------------------------------------------
 ERQTelescope::ERQTelescope() :
   ERDetector("ERQTelescope", kTRUE)
@@ -95,7 +95,7 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
     gMC->TrackPosition(fPosOut);
     gMC->TrackMomentum(fMomOut);
     const TString path = gMC->CurrentVolPath();
-    const auto* component = dynamic_cast<ERQTelescopeGeoComponentSensetive*>(fQTelescopeSetup->GetComponent(path));
+    const auto* component = dynamic_cast<ERTelescopeGeoComponentSensetive*>(fQTelescopeSetup->GetComponent(path));
     if (!component)
       LOG(FATAL) << "[ERQTelescope] Not found setup component for sensetive volume path" 
                   << path << FairLogger::endl;
@@ -126,7 +126,7 @@ void ERQTelescope::Register() {
   if (!ioman)
     Fatal("Init", "IO manager is not set");
   for (const auto* component : fQTelescopeSetup->GetAllComponents()) {
-    if (!dynamic_cast<const ERQTelescopeGeoComponentSensetive*>(component))
+    if (!dynamic_cast<const ERTelescopeGeoComponentSensetive*>(component))
       continue;
     for (const auto branchName : component->GetBranchNames(ERDataObjectType::Point)) {
       LOG(DEBUG) << "[ERQTelescope] Register branch " << branchName 
