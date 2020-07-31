@@ -101,7 +101,7 @@ public:
   **/
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
 private:
-  ERQTelescopeSetup* fQTelescopeSetup;
+  ERQTelescopeSetup* fQTelescopeSetup = nullptr; //!
   PointsPerComponent fPoints;
   Int_t                     fVersion = -1;           //! geometry version
   Int_t                     fEventID = -1;           //!  event index

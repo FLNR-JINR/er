@@ -57,7 +57,7 @@ void ERRTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
   } else {
     const Double_t stripPhi = 360. / fStripCount;
     TGeoVolume* strip = make_tubes("Sensitivestrip", media, fSensetiveRMin, fSensetiveRMax, 
-                                   fSensetiveZ / 2., 0 /*phi1*/, stripPhi);
+                                   fSensetiveZ / 2., -stripPhi/2., stripPhi/2.);
     for (Int_t iStrip = 0; iStrip < fStripCount; iStrip++) {
       auto* rotation = new TGeoRotation();
       rotation->RotateZ(stripPhi * iStrip);

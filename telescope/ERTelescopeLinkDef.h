@@ -17,7 +17,7 @@
 
 #pragma link C++ class ERQTelescope+;
 #pragma link C++ class ERQTelescopeDigitizer+;
-#pragma link C++ class ERQTelescopeSetup+;
+#pragma link C++ class ERQTelescopeSetup;
 #pragma link C++ class ERQTelescopeTrackFinder+;
 #pragma link C++ class ERQTelescopePID;
 

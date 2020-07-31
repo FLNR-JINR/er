@@ -96,7 +96,7 @@ void ERQTelescopePID::Exec(Option_t* opt) {
     const auto& tracks = itTrackBranches.second;
     if (tracks->GetEntriesFast() == 0)
       continue;
-    LOG(DEBUG) << "[ERQTelescopePID] Work with traks in " << trackBranch << FairLogger::endl;
+    LOG(DEBUG) << "[ERQTelescopePID] Work with traсks in " << trackBranch << FairLogger::endl;
     for (Int_t iTrack(0); iTrack < tracks->GetEntriesFast(); iTrack++) { 
       const auto* track = static_cast<ERQTelescopeTrack*>(tracks->At(iTrack));
       for (const auto particleDescription : fParticleDescriptions[trackBranch]) {

@@ -89,6 +89,10 @@ private:
                               const TVector3& xStationLocalVertex, const TVector3& yStationLocalVertex, 
                               Int_t xChannel, Int_t yChannel, Double_t xEdep, Double_t yEdep,
                               const TString& digiBranchName);
-  ClassDef(ERQTelescopeTrackFinder,1)
+  void CreateTrackInQTelescope(Int_t xChannelIndex, Int_t yChannelIndex, Int_t xChannel, Int_t yChannel, Double_t xEdep, Double_t yEdep,
+                               const TString& xBranchName, const TString& yBranchName, const TString& trackBranchName);
+  void CreateTrackInRTelescope(Int_t xChannelIndex, Int_t yChannelIndex, Int_t phiChannel, Int_t RChannel, Double_t phiEdep, Double_t rEdep,
+                               const TString& phiBranchName, const TString& rBranchName, const TString& trackBranchName);
+  ClassDef(ERQTelescopeTrackFinder, 1)
 };
 #endif
