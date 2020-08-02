@@ -19,26 +19,6 @@
 
 #include "ERQTelescopeSetup.h"
 
-Int_t ERQTelescopeGeoComponentDoubleSi::fConstructedObjCount = 0;
-//--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(
-    const TString& typeFromXML, const TString& id, const TString& orientAroundZ) 
-: ERTelescopeGeoComponentSensetive(typeFromXML, id)
-{
-  TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
-  fOrientAroundZ = volumeNameInd;
-  fVolumeName += volumeNameInd;
-}
-//--------------------------------------------------------------------------------------------------
-ERQTelescopeGeoComponentDoubleSi::ERQTelescopeGeoComponentDoubleSi(
-    const TString& typeFromXML, const TString& id, const TVector3& position, 
-    const TVector3& rotation, const TString& orientAroundZ)
-: ERTelescopeGeoComponentSensetive(typeFromXML, id, position, rotation)
-{
-  TString volumeNameInd = (orientAroundZ == "X") ? "_XY" : "_YX";  
-  fOrientAroundZ = volumeNameInd;
-  fVolumeName += volumeNameInd;
-}
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   ParseXmlParameters();
@@ -188,35 +168,5 @@ void ERQTelescopeGeoComponentDoubleSi::ParseXmlParameters() {
     }
   }
 }
-//--------------------------------------------------------------------------------------------------
-TString ERQTelescopeGeoComponentDoubleSi::GetBranchName(
-    ERDataObjectType objectType, OrientationAroundZ orientationAroundZ /*= OrientationAroundZ::Default*/,
-    ChannelSide channelSide /*= ChannelSide::None*/) const {
-  return GetBranchNamePrefix(SensetiveType::Si, objectType)
-         + "_" + OrientationAroundZStr(orientationAroundZ)
-         + (channelSide != ChannelSide::None ? TString("_") + ChannelSideStr(channelSide) : "");
-}
-//--------------------------------------------------------------------------------------------------
-std::list<OrientationAroundZ> ERQTelescopeGeoComponentDoubleSi::GetOrientationsAroundZ() const {
-  return {OrientationAroundZ::X, OrientationAroundZ::Y};
-}
-//--------------------------------------------------------------------------------------------------
-std::list<ChannelSide> ERQTelescopeGeoComponentDoubleSi::GetChannelSides() const {
-  if (fHasTwoSidedChannel) {
-    return {ChannelSide::First, ChannelSide::Second};
-  }
-  return {ChannelSide::None};
-}
-//--------------------------------------------------------------------------------------------------
-Int_t ERQTelescopeGeoComponentDoubleSi::GetChannelFromSensetiveNodePath(
-    const TString& path, OrientationAroundZ orientation /*= OrientationAroundZ::Default*/) const {
-  TString pathWithChannelPostfix = path;
-  if (orientation == OrientationAroundZ::Y)
-    pathWithChannelPostfix.Remove(pathWithChannelPostfix.Last('/'), pathWithChannelPostfix.Length());
-  const TString channelStr(pathWithChannelPostfix(pathWithChannelPostfix.Last('_') + 1,
-                                                  pathWithChannelPostfix.Length()));
-  return channelStr.Atoi();
-}
-//--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeGeoComponentDoubleSi)
 

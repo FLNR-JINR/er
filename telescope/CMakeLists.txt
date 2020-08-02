@@ -45,9 +45,10 @@ geo/ERTelescopeGeoComponentSingleSi.cxx
 geo/ERQTelescopeGeoComponentSingleSi.cxx
 geo/ERRTelescopeGeoComponentSingleSi.cxx
 geo/ERQTelescopeGeoNonUniformSingleSi.cxx
+geo/ERTelescopeGeoComponentDoubleSi.cxx
 geo/ERQTelescopeGeoComponentDoubleSi.cxx
+geo/ERRTelescopeGeoComponentDoubleSi.cxx
 geo/ERQTelescopeGeoComponentCsI.cxx
-
 
 ERQTelescope.cxx
 ERQTelescopeDigitizer.cxx

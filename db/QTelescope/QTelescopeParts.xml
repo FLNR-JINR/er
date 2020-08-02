@@ -126,5 +126,16 @@
 				<media>silicon</media>
 			</singleSi>
 		</singleSiTypes>
+		<doubleSiTypes>
+			<doubleSi id="DoubleSi_R">
+				<size r_min="1" r_max="5" />
+				<sensetive_size r_min="1" r_max="5" z="0.2"/>
+				<dead_layer_front>0.0002</dead_layer_front>
+				<dead_layer_back>0.0001</dead_layer_back>
+				<strip_count_phi>16</strip_count_phi>
+				<strip_count_r>16</strip_count_r>
+				<media>silicon</media>
+			</doubleSi>
+		</doubleSiTypes>
 	</RSiTypes>
 </TelescopeParts>
