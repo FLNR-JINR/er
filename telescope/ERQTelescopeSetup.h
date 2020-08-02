@@ -67,8 +67,8 @@ public:
 private:
   ERQTelescopeSetup();
   void GetTransInMotherNode (TGeoNode const* node, Double_t b[3]);
-  void FillRStrips(TGeoNode* r_station, const TString& station_name);
-
+  void FillRStrips(TGeoNode* r_station, const TString& branch_name);
+  void FillDoubleRStrips(TGeoNode* r_station, const TString& branch_name);
   std::map<TString, std::vector<ERQTelescopeStrip>> fStrips;
   std::map<TString, std::vector<ERRTelescopeStrip>> fRStrips;
   std::map<TString, TGeoHMatrix> fStationGlobalToLocalMatrixies;

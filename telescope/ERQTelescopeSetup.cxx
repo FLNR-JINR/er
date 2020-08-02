@@ -186,77 +186,92 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
           Double_t stripInStationTrans[3];
           Double_t stripInDetectorTrans[3];
           Double_t stripGlobTrans[3];
+          const bool is_r_station = qtelescopeStation->GetNdaughters() == 1 
+              && TString(qtelescopeStation->GetDaughter(0)->GetName()).Contains("r_station");
+          TString digiBranchName = qtelescopeStationName;
+          if (is_r_station) {
+            digiBranchName.Remove(digiBranchName.Last('_'), digiBranchName.Length());
+          }
           if (qtelescopeStationName.Contains("DoubleSi", TString::kIgnoreCase) ) {
-            TGeoNode* doubleSiStrip;
             TString firstStripArrayName, secondStripArrayName;
             if (qtelescopeStationName.Contains("YX")) {
-              firstStripArrayName = qtelescopeStationName + "_X";
-              secondStripArrayName = qtelescopeStationName + "_Y";
+              firstStripArrayName = digiBranchName + "_X";
+              secondStripArrayName = digiBranchName + "_Y";
             } else {
-              firstStripArrayName = qtelescopeStationName + "_Y";
-              secondStripArrayName = qtelescopeStationName + "_X";              
+              firstStripArrayName = digiBranchName + "_Y";
+              secondStripArrayName = digiBranchName + "_X";              
             }
-            Bool_t    flagFirstStripReaded = kFALSE;
-            Int_t     iDoubleSiStrip = 0;
-            for (; iDoubleSiStrip < qtelescopeStation->GetNdaughters(); iDoubleSiStrip++) {
-              doubleSiStrip = qtelescopeStation->GetDaughter(iDoubleSiStrip);
-              GetTransInMotherNode(doubleSiStrip, stripInStationTrans);
-              // Now we assume that QTelescope center in the global zero.
-              // It is neccesary to write clear function to find global coordinates
-              // by all forefathers nodes if possible. Maybe with some FairRoot methods
-              qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
-              qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
-              fStrips[firstStripArrayName].emplace_back(stripGlobTrans, stripInStationTrans);
-              LOG(DEBUG) << firstStripArrayName << " strip " 
-                              << fStrips[firstStripArrayName].size()-1 << " global coordinates: "
-                              << stripGlobTrans[0] << ", " 
-                              << stripGlobTrans[1] << ", " 
-                              << stripGlobTrans[2] ;
-              LOG(DEBUG)  << " | local coordinates: "
-                          << boxInStripTrans[0] << ", " 
-                          << boxInStripTrans[1] << ", " 
-                          << boxInStripTrans[2] << FairLogger::endl; 
-              TGeoNode* doubleSiBox;
-              Int_t iDoubleSiBox = 0;
-              if (!flagFirstStripReaded) {
-                for (; iDoubleSiBox < doubleSiStrip->GetNdaughters(); iDoubleSiBox++) {
-                  Double_t siBoxLocalTrans[3];
-                  doubleSiBox = doubleSiStrip->GetDaughter(iDoubleSiBox);
-                  TString siBoxName = doubleSiBox->GetName();
-                  GetTransInMotherNode(doubleSiBox, boxInStripTrans);
-                  (qtelescopeStationName.Contains("XY")) ? stripInStationTrans[0] = 0
-                                                         : stripInStationTrans[1] = 0;
-                  doubleSiStrip->LocalToMaster(boxInStripTrans, stripInStationTrans);
-                  qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
-                  qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
-                  fStrips[secondStripArrayName].emplace_back(stripGlobTrans, boxInStripTrans);
-                  LOG(DEBUG) << secondStripArrayName << " strip " 
-                              << fStrips[secondStripArrayName].size()-1 << " global coordinates: "
-                              << stripGlobTrans[0] << ", " 
-                              << stripGlobTrans[1] << ", " 
-                              << stripGlobTrans[2];
-                  LOG(DEBUG)  << " | local coordinates: "
-                              << boxInStripTrans[0] << ", " 
-                              << boxInStripTrans[1] << ", " 
-                              << boxInStripTrans[2] << FairLogger::endl;; 
+            if (is_r_station) {
+              LOG(DEBUG) << "Read geometry info for Double R station corresponded to volume " << qtelescopeStationName 
+                         << " and branch name " << digiBranchName << FairLogger::endl;
+              auto* r_station = qtelescopeStation->GetDaughter(0);
+              FillRStrips(r_station, firstStripArrayName);
+              auto* any_ring = r_station->GetDaughter(0);
+              FillRStrips(any_ring, secondStripArrayName);
+              fStationTypes[firstStripArrayName] = StationType::RStation;
+              fStationTypes[secondStripArrayName] = StationType::RStation;
+            } else {
+              TGeoNode* doubleSiStrip;
+              Bool_t    flagFirstStripReaded = kFALSE;
+              Int_t     iDoubleSiStrip = 0;
+              for (; iDoubleSiStrip < qtelescopeStation->GetNdaughters(); iDoubleSiStrip++) {
+                doubleSiStrip = qtelescopeStation->GetDaughter(iDoubleSiStrip);
+                GetTransInMotherNode(doubleSiStrip, stripInStationTrans);
+                // Now we assume that QTelescope center in the global zero.
+                // It is neccesary to write clear function to find global coordinates
+                // by all forefathers nodes if possible. Maybe with some FairRoot methods
+                qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
+                qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
+                fStrips[firstStripArrayName].emplace_back(stripGlobTrans, stripInStationTrans);
+                LOG(DEBUG) << firstStripArrayName << " strip " 
+                                << fStrips[firstStripArrayName].size()-1 << " global coordinates: "
+                                << stripGlobTrans[0] << ", " 
+                                << stripGlobTrans[1] << ", " 
+                                << stripGlobTrans[2] ;
+                LOG(DEBUG)  << " | local coordinates: "
+                            << boxInStripTrans[0] << ", " 
+                            << boxInStripTrans[1] << ", " 
+                            << boxInStripTrans[2] << FairLogger::endl; 
+                TGeoNode* doubleSiBox;
+                Int_t iDoubleSiBox = 0;
+                if (!flagFirstStripReaded) {
+                  for (; iDoubleSiBox < doubleSiStrip->GetNdaughters(); iDoubleSiBox++) {
+                    Double_t siBoxLocalTrans[3];
+                    doubleSiBox = doubleSiStrip->GetDaughter(iDoubleSiBox);
+                    TString siBoxName = doubleSiBox->GetName();
+                    GetTransInMotherNode(doubleSiBox, boxInStripTrans);
+                    (qtelescopeStationName.Contains("XY")) ? stripInStationTrans[0] = 0
+                                                          : stripInStationTrans[1] = 0;
+                    doubleSiStrip->LocalToMaster(boxInStripTrans, stripInStationTrans);
+                    qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
+                    qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
+                    fStrips[secondStripArrayName].emplace_back(stripGlobTrans, boxInStripTrans);
+                    LOG(DEBUG) << secondStripArrayName << " strip " 
+                                << fStrips[secondStripArrayName].size()-1 << " global coordinates: "
+                                << stripGlobTrans[0] << ", " 
+                                << stripGlobTrans[1] << ", " 
+                                << stripGlobTrans[2];
+                    LOG(DEBUG)  << " | local coordinates: "
+                                << boxInStripTrans[0] << ", " 
+                                << boxInStripTrans[1] << ", " 
+                                << boxInStripTrans[2] << FairLogger::endl;; 
 
+                  }
+                  flagFirstStripReaded = kTRUE;
                 }
-                flagFirstStripReaded = kTRUE;
               }
+              fStationTypes[firstStripArrayName] = StationType::QStation;
+              fStationTypes[secondStripArrayName] = StationType::QStation;
             }
             TString stationPath;
             stationPath.Form("cave/%s/%s/%s", qtelescope->GetName(), qtelescopeDetector->GetName(),
                              qtelescopeStationName.Data());
-            std::cerr << qtelescopeStationName << FairLogger::endl;
             fStationGlobalToLocalMatrixies[firstStripArrayName] = GetGlobalToLocalMatrix(stationPath);
             fStationGlobalToLocalMatrixies[secondStripArrayName] = fStationGlobalToLocalMatrixies[firstStripArrayName];
             fStationGlobalToLocalMatrixies[firstStripArrayName].Print();
-          }
-          TString digiBranchName = qtelescopeStationName; 
+          } 
           if (qtelescopeStationName.Contains("SingleSi", TString::kIgnoreCase) ) {
-            if (qtelescopeStation->GetNdaughters() == 1 
-                && TString(qtelescopeStation->GetDaughter(0)->GetName()).Contains("r_station")) {
-              digiBranchName.Remove(digiBranchName.Last('_'), digiBranchName.Length());
+            if (is_r_station) {
               LOG(DEBUG) << "Read geometry info for R station corresponded to volume " << qtelescopeStationName 
                          << " and branch name " << digiBranchName << FairLogger::endl;
               FillRStrips(qtelescopeStation->GetDaughter(0), digiBranchName);
@@ -285,7 +300,6 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
             TString stationPath;
             stationPath.Form("cave/%s/%s/%s", qtelescope->GetName(), qtelescopeDetector->GetName(),
                              qtelescopeStationName.Data());
-            std::cerr <<  stationPath <<FairLogger::endl;
             fStationGlobalToLocalMatrixies[digiBranchName] = GetGlobalToLocalMatrix(stationPath);
             fStationGlobalToLocalMatrixies[digiBranchName].Print();
           }
@@ -296,8 +310,8 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
   gGeoManager->CdTop();
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeSetup::FillRStrips(TGeoNode* r_station, const TString& station_name) {
-  const bool is_phi_station = station_name.Contains("_X");
+void ERQTelescopeSetup::FillRStrips(TGeoNode* r_station, const TString& branch_name) {
+  const bool is_phi_station = branch_name.EndsWith("_X");
   for (int i_strip = 0; i_strip < r_station->GetNdaughters(); i_strip++) {
     auto* strip = r_station->GetDaughter(i_strip);
     if (is_phi_station) {
@@ -306,8 +320,8 @@ void ERQTelescopeSetup::FillRStrips(TGeoNode* r_station, const TString& station_
         LOG(FATAL) << "Unexpected matrix type in R telescope station" << FairLogger::endl;
       }
       const auto phi = combi_trans->GetRotation()->GetPhiRotation();
-      fRStrips[station_name].emplace_back(phi, -1.);
-      LOG(DEBUG) << station_name << " strip " << i_strip << " phi = " << phi << FairLogger::endl;
+      fRStrips[branch_name].emplace_back(phi, -1.);
+      LOG(DEBUG) << branch_name << " strip " << i_strip << " phi = " << phi << FairLogger::endl;
     } else {
       auto shape = dynamic_cast<TGeoSphere*>(strip->GetVolume()->GetShape());
       if (!shape) {
@@ -316,10 +330,15 @@ void ERQTelescopeSetup::FillRStrips(TGeoNode* r_station, const TString& station_
       const auto r_min = TMath::Tan(shape->GetTheta1() * TMath::DegToRad()) * shape->GetRmin();
       const auto r_max = TMath::Tan(shape->GetTheta2() * TMath::DegToRad()) * shape->GetRmax();
       const auto r = (r_max + r_min) / 2.;
-      fRStrips[station_name].emplace_back(-1., r);
-      LOG(DEBUG) << station_name << " strip " << i_strip << " R = " << r << FairLogger::endl;
+      fRStrips[branch_name].emplace_back(-1., r);
+      LOG(DEBUG) << branch_name << " strip " << i_strip << " R = " << r << FairLogger::endl;
     }
   }
 }
 //--------------------------------------------------------------------------------------------------
+void ERQTelescopeSetup::FillDoubleRStrips(TGeoNode* r_station, const TString& branch_name) {
+  FillRStrips(r_station, branch_name + "_Y");
+  auto* any_ring = r_station->GetDaughter(0);
+  FillRStrips(any_ring, branch_name + "_X");
+}
 ClassImp(ERQTelescopeSetup)
