@@ -7,9 +7,12 @@
  ********************************************************************************/
 
 #include "ERGeoSubAssembly.h"
+
+#include "FairLogger.h"
 //--------------------------------------------------------------------------------------------------
 void ERGeoSubAssembly::AddComponent(ERGeoComponent* component) {
   component->SetVolumeNamePrefix(TString(this->GetName()) + "_");
+  LOG(DEBUG) << "Component " << component->GetVolumeName() << " added  to " << fName << FairLogger::endl;
   fComponents[component->GetVolumeName()] = component;
 }
 //--------------------------------------------------------------------------------------------------

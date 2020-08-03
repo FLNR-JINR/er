@@ -163,6 +163,8 @@ void ERQTelescopeSetup::GetTransInMotherNode (TGeoNode const* node, Double_t b[3
 //    Проход от самого низкого дочернего объема до родительского внтри одной функции
 // ------------------------------- -------------------------------------------------------------------
 void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
+  if (fGeometryInited)
+    return;
   LOG(DEBUG) << "Loading Telescope setup from parameters database file." << FairLogger::endl;
   if ( ! gGeoManager ) {
     std::cerr << "ERQTelescopeSetup: cannot initialise without TGeoManager!"<< std::endl;
@@ -189,12 +191,10 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
           const bool is_r_station = qtelescopeStation->GetNdaughters() == 1 
               && TString(qtelescopeStation->GetDaughter(0)->GetName()).Contains("r_station");
           TString digiBranchName = qtelescopeStationName;
-          if (is_r_station) {
-            digiBranchName.Remove(digiBranchName.Last('_'), digiBranchName.Length());
-          }
+          digiBranchName.Remove(digiBranchName.Last('_'), digiBranchName.Length());
           if (qtelescopeStationName.Contains("DoubleSi", TString::kIgnoreCase) ) {
             TString firstStripArrayName, secondStripArrayName;
-            if (qtelescopeStationName.Contains("YX")) {
+            if (qtelescopeStationName.Contains("XY")) {
               firstStripArrayName = digiBranchName + "_X";
               secondStripArrayName = digiBranchName + "_Y";
             } else {
@@ -205,9 +205,9 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
               LOG(DEBUG) << "Read geometry info for Double R station corresponded to volume " << qtelescopeStationName 
                          << " and branch name " << digiBranchName << FairLogger::endl;
               auto* r_station = qtelescopeStation->GetDaughter(0);
-              FillRStrips(r_station, firstStripArrayName);
+              FillRStrips(r_station, secondStripArrayName);
               auto* any_ring = r_station->GetDaughter(0);
-              FillRStrips(any_ring, secondStripArrayName);
+              FillRStrips(any_ring, firstStripArrayName);
               fStationTypes[firstStripArrayName] = StationType::RStation;
               fStationTypes[secondStripArrayName] = StationType::RStation;
             } else {
@@ -308,10 +308,12 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
     }
   }
   gGeoManager->CdTop();
+  fGeometryInited = true;
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeSetup::FillRStrips(TGeoNode* r_station, const TString& branch_name) {
   const bool is_phi_station = branch_name.EndsWith("_X");
+  std::cerr << 1 << std::endl;
   for (int i_strip = 0; i_strip < r_station->GetNdaughters(); i_strip++) {
     auto* strip = r_station->GetDaughter(i_strip);
     if (is_phi_station) {
@@ -336,9 +338,4 @@ void ERQTelescopeSetup::FillRStrips(TGeoNode* r_station, const TString& branch_n
   }
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeSetup::FillDoubleRStrips(TGeoNode* r_station, const TString& branch_name) {
-  FillRStrips(r_station, branch_name + "_Y");
-  auto* any_ring = r_station->GetDaughter(0);
-  FillRStrips(any_ring, branch_name + "_X");
-}
 ClassImp(ERQTelescopeSetup)

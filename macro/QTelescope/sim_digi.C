@@ -1,7 +1,7 @@
 void sim_digi(Int_t nEvents = 10)
 {
   //---------------------Files-----------------------------------------------
-  TString outFile= "sim.root";
+  TString outFile= "sim_digi.root";
   TString parFile= "par.root";
   TString workDirPath = gSystem->Getenv("VMCWORKDIR");
   TString paramFileQTelescope = workDirPath
@@ -56,13 +56,13 @@ void sim_digi(Int_t nEvents = 10)
                                                                                   TVector3(0., 0., 0.), TVector3(), "Y");
   ERQTelescopeGeoComponentSingleSi* veto1 = new ERQTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_SSD_V_1", 
                                                                                   TVector3(0., 0., 1.0), TVector3(), "Y");
-  ERQTelescopeGeoComponentPassive* passive = new ERQTelescopeGeoComponentPassive("passive_component.root", "PassiveElement",
-                                                                                  TVector3(0., 0., -3.), TVector3());                                                                                
+  /*ERQTelescopeGeoComponentPassive* passive = new ERQTelescopeGeoComponentPassive("passive_component.root", "PassiveElement",
+                                                                                  TVector3(0., 0., -3.), TVector3());    */                                                                            
   
   assembly_1->AddComponent(thin1);
   assembly_1->AddComponent(thick1);
   assembly_1->AddComponent(veto1);
-  assembly_1->AddComponent(passive);
+  //assembly_1->AddComponent(passive);
 
   setupQTelescope->AddSubAssembly(assembly_1);
 
@@ -132,6 +132,16 @@ void sim_digi(Int_t nEvents = 10)
   ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE, 1);
   run->AddModule(qtelescope);
 
+  // ------- QTelescope Digitizer -------------------------------------------
+  ERQTelescopeDigitizer* qtelescopeDigitizer = new ERQTelescopeDigitizer(0);
+  qtelescopeDigitizer->SetSiElossThreshold(0);
+  qtelescopeDigitizer->SetSiElossSigma(0);
+  qtelescopeDigitizer->SetSiTimeSigma(0);
+  qtelescopeDigitizer->SetCsIElossThreshold(0);
+  qtelescopeDigitizer->SetCsIElossSigma(0);
+  qtelescopeDigitizer->SetCsITimeSigma(0);
+  run->AddTask(qtelescopeDigitizer);
+
  // FairModule* target = new ERTarget("BeamDetTarget", kTRUE, 1);
   //target->SetGeometryFileName("target.h.geo.root");
   //run->AddModule(target);
@@ -141,15 +151,15 @@ void sim_digi(Int_t nEvents = 10)
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   Int_t pdgId = 2212; // proton  beam
-  Double32_t theta1 = -43.;  // polar angle distribution
-  Double32_t theta2 = 43.;  //ПОДОБРАТЬ ТЕТТА_1 и ТЕТТА_2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  Double32_t theta1 = 10.;  // polar angle distribution
+  Double32_t theta2 = 10.;  //ПОДОБРАТЬ ТЕТТА_1 и ТЕТТА_2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Double32_t kin_energy = .500; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdgId, 1);
   boxGen->SetThetaRange(theta1, theta2);
   boxGen->SetPRange(momentum, momentum);
-  boxGen->SetPhiRange(0, 360); // ?????????????????????????????????????????????????????????????????????
+  boxGen->SetPhiRange(0, 0); // ?????????????????????????????????????????????????????????????????????
   boxGen->SetBoxXYZ(0.,0.,0.,0.,0.);
 
   primGen->AddGenerator(boxGen);

@@ -21,6 +21,7 @@ class ERTelescopeGeoComponentPassive : public ERGeoComponent {
     ERTelescopeGeoComponentPassive(const TString& fileName, const TString& topVolumeName,
                                     const TVector3& position, const TVector3& rotation);
     virtual void ConstructGeometryVolume();
+    virtual std::list<TString> GetBranchNames(ERDataObjectType object) const {return {};}
   protected:
     virtual void ParseXmlParameters() {}
     TFile* fGeoFile = nullptr;
