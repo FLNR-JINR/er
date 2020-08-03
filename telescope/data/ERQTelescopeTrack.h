@@ -44,6 +44,9 @@ public:
   TVector3 GetYStationVertex() const {return fYStationVertex;}
   TVector3 GetXStationLocalVertex() const {return fXStationLocalVertex;}
   TVector3 GetYStationLocalVertex() const {return fYStationLocalVertex;}
+  TVector3 GetVertexInZPlane(Double_t z) const;
+  Double_t GetXInZPlane(Double_t z) const;
+  Double_t GetYInZPlane(Double_t z) const;
   TVector3 GetDirection() const;
   TVector3 GetBackDirection() const {return (-1.) * GetDirection();}
   Int_t GetXChannel() const {return fXChannel;}

@@ -196,15 +196,15 @@ void sim_digi (Int_t nEvents = 100000) {
   targetDecay->SetNuclearInteractionLength(20.);
   targetDecay->SetAngularDistribution("cos_tetta_cross.txt");
   targetDecay->SetH7Mass(massH7);
-  //targetDecay->SetDecayFile("pmom-pv-1_short.dat", 0.0005 /*excitation in file [GeV]*/);
+  //targetDecay->SetDecayFile("pmom-pv-1_short.dat", 0.0005 );
   //targetDecay->SetH7Exitation(0.0004, 0.00002355, 1);
   //targetDecay->SetH7Exitation(0.0012, 0.0002355, 1);
   targetDecay->SetMinStep(1e-1);
-  targetDecay->SetMaxPathLength(2./*2e-4 * 10 * 1.1*/);
+  targetDecay->SetMaxPathLength(2.);
 
   decayer->AddDecay(targetDecay);
   run->SetDecayer(decayer);
-
+  
   // ------- QTelescope Digitizer -------------------------------------------
   ERQTelescopeDigitizer* qtelescopeDigitizer = new ERQTelescopeDigitizer(verbose);
   qtelescopeDigitizer->SetSiElossThreshold(0);

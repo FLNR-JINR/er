@@ -19,6 +19,7 @@
 #include "FairLogger.h"
 
 #include "ERTrack.h"
+#include "ERSupport.h"
 //--------------------------------------------------------------------------------------------------
 ERNDPID::ERNDPID()
     : ERTask("ER ND particle reconstruction.") 
@@ -37,25 +38,6 @@ InitStatus ERNDPID::Init() {
   fSetup = ERNDSetup::Instance();
   fSetup->ReadGeoParamsFromParContainer();
   return kSUCCESS;
-}
-//--------------------------------------------------------------------------------------------------
-Double_t CalcElossIntegralVolStep (Double_t kineticEnergy, const G4ParticleDefinition& particle, 
-                                   const G4Material& material, const Double_t range) { 
-  //FIXME copy-past from ERBeamDetSetup
-  if (range <= 0.)
-    return 0;
-  Double_t integralEloss = 0.;
-  const Double_t intStep = range / 20;
-  Double_t curStep = 0.;
-  G4EmCalculator* calc = new G4EmCalculator();
-  while (curStep < range) {
-    Double_t eloss = calc->GetDEDX(kineticEnergy /* MeV */, &particle, &material) * intStep 
-                     * 10 /* 1/mm */; // MeV
-    integralEloss += eloss;
-    kineticEnergy += eloss;
-    curStep += intStep;
-  }
-  return integralEloss;
 }
 //--------------------------------------------------------------------------------------------------
 Double_t KineticEnergyOnTarget(const ERTrack& track, Double_t kineticEnergy) {

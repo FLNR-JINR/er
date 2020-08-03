@@ -129,6 +129,8 @@ void ERQTelescopeSetup::GetTransInMotherNode (TGeoNode const* node, Double_t b[3
 //    Проход от самого низкого дочернего объема до родительского внтри одной функции
 // ------------------------------- -------------------------------------------------------------------
 void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
+  if (fGeometryInited)
+    return;
   if ( ! gGeoManager ) {
     std::cerr << "ERQTelescopeSetup: cannot initialise without TGeoManager!"<< std::endl;
   }
@@ -151,15 +153,17 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
           Double_t stripInStationTrans[3];
           Double_t stripInDetectorTrans[3];
           Double_t stripGlobTrans[3];
+          TString digiBranchName = qtelescopeStationName;
+          digiBranchName.Remove(digiBranchName.Last('_'), digiBranchName.Length());
           if (qtelescopeStationName.Contains("DoubleSi", TString::kIgnoreCase) ) {
             TGeoNode* doubleSiStrip;
             TString firstStripArrayName, secondStripArrayName;
-            if (qtelescopeStationName.Contains("YX")) {
-              firstStripArrayName = qtelescopeStationName + "_X";
-              secondStripArrayName = qtelescopeStationName + "_Y";
+            if (qtelescopeStationName.Contains("XY")) {
+              firstStripArrayName = digiBranchName + "_X";
+              secondStripArrayName = digiBranchName + "_Y";
             } else {
-              firstStripArrayName = qtelescopeStationName + "_Y";
-              secondStripArrayName = qtelescopeStationName + "_X";              
+              firstStripArrayName = digiBranchName + "_Y";
+              secondStripArrayName = digiBranchName + "_X";              
             }
             Bool_t    flagFirstStripReaded = kFALSE;
             Int_t     iDoubleSiStrip = 0;
@@ -212,7 +216,6 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
             TString stationPath;
             stationPath.Form("cave/%s/%s/%s", qtelescope->GetName(), qtelescopeDetector->GetName(),
                              qtelescopeStationName.Data());
-            std::cerr << qtelescopeStationName << FairLogger::endl;
             fStationGlobalToLocalMatrixies[firstStripArrayName] = GetGlobalToLocalMatrix(stationPath);
             fStationGlobalToLocalMatrixies[secondStripArrayName] = fStationGlobalToLocalMatrixies[firstStripArrayName];
             fStationGlobalToLocalMatrixies[firstStripArrayName].Print();
@@ -234,20 +237,21 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
                   << stripInStationTrans[0] << ", " 
                   << stripInStationTrans[1] << ", " 
                   << stripInStationTrans[2] << FairLogger::endl; 
-              fStrips[qtelescopeStationName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans)); 
+              fStrips[digiBranchName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans)); 
             }
             TString stationPath;
             stationPath.Form("cave/%s/%s/%s", qtelescope->GetName(), qtelescopeDetector->GetName(),
                              qtelescopeStationName.Data());
             std::cerr <<  stationPath <<FairLogger::endl;
-            fStationGlobalToLocalMatrixies[qtelescopeStationName] = GetGlobalToLocalMatrix(stationPath);
-            fStationGlobalToLocalMatrixies[qtelescopeStationName].Print();
+            fStationGlobalToLocalMatrixies[digiBranchName] = GetGlobalToLocalMatrix(stationPath);
+            fStationGlobalToLocalMatrixies[digiBranchName].Print();
           }
         }
       }
     }
   }
   gGeoManager->CdTop();
+  fGeometryInited = true;
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERQTelescopeSetup)

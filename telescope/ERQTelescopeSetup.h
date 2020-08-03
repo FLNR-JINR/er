@@ -58,6 +58,7 @@ private:
   static std::map<TString, std::vector<const ERQTelescopeStrip*>> fStrips;
   static std::map<TString, TGeoHMatrix> fStationGlobalToLocalMatrixies; 
   static ERQTelescopeSetup* fInstance;
+  bool fGeometryInited = false;
 
   ClassDef(ERQTelescopeSetup,1)
 };

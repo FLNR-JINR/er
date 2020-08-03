@@ -40,6 +40,8 @@
 #include "FairGeoMedia.h"
 #include "FairLogger.h"
 
+#include "ERSupport.h"
+
 using namespace std;
 
 
@@ -768,26 +770,6 @@ void ERBeamDetSetup::ConstructGeometry() {
   geoFile->Close();
   // --------------------------------------------------------------------------
 }
-
-Double_t CalcElossIntegralVolStep (Double_t T, const G4ParticleDefinition* ion, 
-                                   const G4Material* mat, const Double_t range) {
-  assert(mat);
-  assert(ion);
-  if (range <= 0)
-    return 0.;
-  Double_t integralEloss = 0.;
-  const Double_t intStep = range / 5.;
-  Double_t curStep = 0.;
-  G4EmCalculator* calc = new G4EmCalculator();
-  while (curStep <= range) {
-    Double_t eloss = calc->GetDEDX(T /*MeV*/,ion,mat)*intStep*10; // [MeV]
-    integralEloss += eloss;
-    T -= eloss;
-    curStep += intStep;
-  }
-  return integralEloss;
-}
-
 //--------------------------------------------------------------------------------------------------
 Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom, Float_t mass){
   
@@ -823,6 +805,7 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
 
   Bool_t inTarget = kFALSE;
   Float_t tarEdep = 0.;
+  Bool_t firstTofAlreadySkipped = kFALSE;
 
   while(!gGeoManager->IsOutside()){
     
@@ -835,12 +818,21 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
       break;
     
     Double_t range = gGeoManager->GetStep();
+    LOG(DEBUG) << "[ERBeamDet][CalcEloss] path  = " <<  gGeoManager->GetPath() << FairLogger::FairLogger::endl;
+    if (!firstTofAlreadySkipped && TString(gGeoManager->GetPath()).Contains("ToF")) {
+      firstTofAlreadySkipped = kTRUE;
+      node = gGeoManager->Step();
+      continue;
+    }
     if (range == 0.)
       break;
-    Double_t edep = CalcElossIntegralVolStep(T, ion, mat, range);
+    if (!firstTofAlreadySkipped) {
+      node = gGeoManager->Step();
+      continue;
+    }
+    Double_t edep = CalcElossIntegralVolStep(T, *ion, *mat, range);
 
     node = gGeoManager->GetCurrentNode();
-    LOG(DEBUG) << "[ERBeamDet][CalcEloss] path  = " <<  gGeoManager->GetPath() << FairLogger::FairLogger::endl;
     LOG(DEBUG) <<"[ERBeamDet][CalcEloss] Kinetic Energy  = " << T 
                << " medium " << matName << " range  = " << range << " edep = " << edep << FairLogger::FairLogger::endl;
 
@@ -853,6 +845,10 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
     T -= edep;
     sumLoss += edep;
     node = gGeoManager->Step();
+  }
+
+  if (!firstTofAlreadySkipped) {
+    LOG(FATAL) << "[ERBeamDet][CalcEloss] ToF not found." << FairLogger::endl;
   }
   
   T += tarEdep/2.;

@@ -135,11 +135,11 @@ TString ERQTelescopeGeoComponentCsI::GetBranchName(
 }
 //--------------------------------------------------------------------------------------------------
 std::list<OrientationAroundZ> ERQTelescopeGeoComponentCsI::GetOrientationsAroundZ() const {
-  return {};
+  return {OrientationAroundZ::X};
 }
 //--------------------------------------------------------------------------------------------------
 std::list<ChannelSide> ERQTelescopeGeoComponentCsI::GetChannelSides() const {
-  return {};
+  return {ChannelSide::None};
 }
 //--------------------------------------------------------------------------------------------------
 Int_t ERQTelescopeGeoComponentCsI::GetChannelFromSensetiveNodePath(

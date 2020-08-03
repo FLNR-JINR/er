@@ -70,20 +70,14 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   fZeroRotation->RotateY(0.);
   fZeroRotation->RotateZ(0.);
   for (Int_t iBox = 0; iBox < fStripCountY ; ++iBox ) {
-    Double_t translateY = (fSensY / 2) 
-                        - boxY / 2 - boxY * iBox ;
+    Double_t translateY = (fSensY / 2) - boxY / 2 - boxY * iBox ;
     strip->AddNode(box, iBox, new TGeoCombiTrans(0, translateY, 0, fZeroRotation));
   }
 
   for (Int_t iStripX = 0; iStripX < fStripCountX; iStripX++) {
-    Double_t translateX = fSensX / 2 
-                        - stripX *(iStripX)-(stripX / 2);
-    Double_t translateZ = (fDeadLayerThicknessFrontSide 
-                        - fDeadLayerThicknessBackSide)/2. ;
+    Double_t translateX = fSensX / 2 - stripX *(iStripX)-(stripX / 2);
+    Double_t translateZ = (fDeadLayerThicknessFrontSide - fDeadLayerThicknessBackSide)/2. ;
     fVolume->AddNode(strip, iStripX, new TGeoCombiTrans(translateX, 0, translateZ, fZeroRotation));
-  }
-  if (fOrientAroundZ.Contains("Y")) {
-    fRotation.RotateZ(90.);
   }
   // TGeoRotation *rotation = new TGeoRotation();
   // rotation->RotateX(fRotation->X());
@@ -211,7 +205,7 @@ std::list<ChannelSide> ERQTelescopeGeoComponentDoubleSi::GetChannelSides() const
 Int_t ERQTelescopeGeoComponentDoubleSi::GetChannelFromSensetiveNodePath(
     const TString& path, OrientationAroundZ orientation /*= OrientationAroundZ::Default*/) const {
   TString pathWithChannelPostfix = path;
-  if (orientation == OrientationAroundZ::Y)
+  if (orientation == OrientationAroundZ::X)
     pathWithChannelPostfix.Remove(pathWithChannelPostfix.Last('/'), pathWithChannelPostfix.Length());
   const TString channelStr(pathWithChannelPostfix(pathWithChannelPostfix.Last('_') + 1,
                                                   pathWithChannelPostfix.Length()));
