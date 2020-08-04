@@ -205,9 +205,9 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
               LOG(DEBUG) << "Read geometry info for Double R station corresponded to volume " << qtelescopeStationName 
                          << " and branch name " << digiBranchName << FairLogger::endl;
               auto* r_station = qtelescopeStation->GetDaughter(0);
-              FillRStrips(r_station, secondStripArrayName);
-              auto* any_ring = r_station->GetDaughter(0);
-              FillRStrips(any_ring, firstStripArrayName);
+              FillRStrips(r_station, firstStripArrayName);
+              auto* any_segment = r_station->GetDaughter(0);
+              FillRStrips(any_segment, secondStripArrayName);
               fStationTypes[firstStripArrayName] = StationType::RStation;
               fStationTypes[secondStripArrayName] = StationType::RStation;
             } else {

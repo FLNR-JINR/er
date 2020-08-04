@@ -47,19 +47,20 @@ void ERRTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
   fVolume->AddNode(station, 0, new TGeoCombiTrans(0, 0., -sphere_r_min, new TGeoRotation()));
   const Double_t segmentDPhi = 360. / fStripCountX;
   const Double_t segmentDR = (fSensetiveRMax-fSensetiveRMin) / fStripCountY;
+  TGeoVolume* segment = make_tubes("Segment", media, fSensetiveRMin, fSensetiveRMax,
+                                   fSensetiveZ / 2., -segmentDPhi/2., segmentDPhi/2.);
   for (Int_t iRing = 0; iRing < fStripCountY; iRing++) {
     const Double_t r_min = fSensetiveRMin + iRing * segmentDR;
     const Double_t r_max = fSensetiveRMin + (iRing + 1) * segmentDR;
-    TGeoVolume* ring = make_tubes("ring", media, r_min, r_max, fSensetiveZ / 2., 0., 360.);
-    for (Int_t iSegment = 0; iSegment < fStripCountX; iSegment++) {
-      auto* rotation = new TGeoRotation();
-      rotation->RotateZ(segmentDPhi * iSegment);
-      TGeoVolume* segment = make_tubes("SensitiveSegment", media, r_min, r_max, fSensetiveZ / 2., 
-                                       -segmentDPhi/2., segmentDPhi/2.);
-      ring->AddNode(segment, iSegment, new TGeoCombiTrans(0, 0.,0., rotation));
-    }
+    TGeoVolume* sensetive_segment = make_tubes("SensitiveSegment", media, r_min, r_max, fSensetiveZ / 2.,
+                                               -segmentDPhi/2., segmentDPhi/2.);
+    segment->AddNode(sensetive_segment, iRing, new TGeoCombiTrans(0, 0., 0, new TGeoRotation()));
+  }
+  for (Int_t iSegment = 0; iSegment < fStripCountX; iSegment++) {
+    auto* rotation = new TGeoRotation();
+    rotation->RotateZ(segmentDPhi * iSegment);
     const Double_t zTranslation = (fDeadLayerThicknessFrontSide  - fDeadLayerThicknessBackSide) / 2.;
-    station->AddNode(ring, iRing, new TGeoCombiTrans(0, 0., zTranslation, new TGeoRotation()));
+    station->AddNode(segment, iSegment, new TGeoCombiTrans(0, 0., zTranslation, rotation));
   }
 }
 //--------------------------------------------------------------------------------------------------

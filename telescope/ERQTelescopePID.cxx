@@ -104,8 +104,9 @@ void ERQTelescopePID::Exec(Option_t* opt) {
       for (const auto particleDescription : fParticleDescriptions[trackBranch]) {
         // Get particle mass by PDG from G4IonTable
         const auto pdg = particleDescription.fPDG;
-        auto* ionTable = G4IonTable::GetIonTable();
-        const auto* particle = ionTable->GetIon(pdg);
+        const auto* particle = G4ParticleTable::GetParticleTable()->FindParticle(pdg);
+        if (!particle)
+          LOG(FATAL) << "Particle with code " << pdg << " not found in Geant database "<< FairLogger::endl;
         const auto mass = particle->GetPDGMass(); // MeV
         // Find geometry point to start track back propagation.
         const auto backPropagationStartPoint = FindBackPropagationStartPoint(*track);
@@ -294,22 +295,22 @@ std::map<TString, const ERDigi*> ERQTelescopePID::FindDigisByNode(const TGeoNode
   // example DSD: /cave_1/QTelescopeTmp_0/CT_3/CT_DoubleSi_DSD_XY_0/doubleSiStrip_XY_0/SensitiveDoubleSiBox_XY_16
   // example CsI: /cave_1/QTelescopeTmp_0/Central_telescope_3/Central_telescope_CsI_0/CsIBoxShell_8/SensitiveCsIBox_1
   // example NonUniform SSD: /cave_1/QTelescopeTmp_0/Telescope_1_1/Telescope_1_SingleSi_SSD20_1_X_0/pseudoSiStrip_4_4/SensitivePixelSiBox_X4_Y1_0
+  // example R SSD: /cave_1/QTelescopeTmp_0/Telescope_1_1/Telescope_1_SingleSi_Phi1_X_0/r_station_0/Sensitivestrip_12
+  // example R DSD: 
   std::map<TString, const ERDigi*> resultDigis;
   const bool nodeOfDoubleSiStation = nodePath.Contains("DoubleSi");
   //@TODO here Setup->GetComponent(path) interface should be used in future.
   const auto getDigiBranchSubString = [&node, &nodePath, nodeOfDoubleSiStation]() -> TString {
-    if (nodePath.Contains("SingleSi") && !nodePath.Contains("pseudo")) {
-      return node.GetMotherVolume()->GetName(); // for ex: Telescope_4_SingleSi_SSD_V_4_X
-    }
-    if (nodeOfDoubleSiStation || nodePath.Contains("CsI") || nodePath.Contains("pseudo")) {
-      TString digiBranchSubString = nodePath;
+    TString digiBranchSubString = nodePath;
+    digiBranchSubString.Remove(digiBranchSubString.Last('/'), digiBranchSubString.Length());
+    if (nodeOfDoubleSiStation || nodePath.Contains("CsI") || nodePath.Contains("pseudo"))
       digiBranchSubString.Remove(digiBranchSubString.Last('/'), digiBranchSubString.Length());
+    if (digiBranchSubString.EndsWith("r_station_0"))
       digiBranchSubString.Remove(digiBranchSubString.Last('/'), digiBranchSubString.Length());
-      digiBranchSubString.Remove(0, digiBranchSubString.Last('/') + 1);
-      // remove node id
-      digiBranchSubString.Remove(digiBranchSubString.Last('_'), digiBranchSubString.Length());
-      return digiBranchSubString; // for ex: CT_DoubleSi_DSD_XY, Central_telescope_CsI
-    }
+    digiBranchSubString.Remove(0, digiBranchSubString.Last('/') + 1);
+    // remove node id
+    digiBranchSubString.Remove(digiBranchSubString.Last('_'), digiBranchSubString.Length());
+    return digiBranchSubString; // for ex: Telescope_4_SingleSi_SSD_V_4_X
   };
   const auto digiBranchSubstring = getDigiBranchSubString();
   LOG(DEBUG) <<"   [ERQTelescopePID][CalcEnergyDeposites] Digi branch substring " 

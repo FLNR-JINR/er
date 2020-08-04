@@ -1,7 +1,7 @@
-void sim_digi(Int_t nEvents = 10)
+void sim_digi_single_si(Int_t nEvents = 10)
 {
   //---------------------Files-----------------------------------------------
-  TString outFile= "sim_digi.root";
+  TString outFile= "sim_digi_single_si.root";
   TString parFile= "par.root";
   TString workDirPath = gSystem->Getenv("VMCWORKDIR");
   TString paramFileQTelescope = workDirPath
@@ -38,8 +38,11 @@ void sim_digi(Int_t nEvents = 10)
   setupQTelescope->SetGeoName("QTelescopeTmp");
   TVector3 fZeroRotation(0., 0., 0.);
   ERGeoSubAssembly* assembly = new ERGeoSubAssembly("Telescope_1", TVector3(0., 0., 5.), fZeroRotation);
-  ERRTelescopeGeoComponentDoubleSi* rStation = new ERRTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_R", 
-                                                                                    TVector3(0., 0., 0.), TVector3(), "X");
+  ERRTelescopeGeoComponentSingleSi* rStation = new ERRTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_R1", 
+                                                                                    TVector3(0., 0., 0.), TVector3(), "Y");
+  ERRTelescopeGeoComponentSingleSi* phiStation = new ERRTelescopeGeoComponentSingleSi("SingleSi", "SingleSi_Phi1", 
+                                                                                      TVector3(0., 0., 5.), TVector3(), "X");
+  assembly->AddComponent(phiStation);
   assembly->AddComponent(rStation);
   setupQTelescope->AddSubAssembly(assembly);
   // ------QTelescope -------------------------------------------------------

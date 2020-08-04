@@ -61,7 +61,7 @@ std::list<ChannelSide> ERTelescopeGeoComponentDoubleSi::GetChannelSides() const 
 Int_t ERTelescopeGeoComponentDoubleSi::GetChannelFromSensetiveNodePath(
     const TString& path, OrientationAroundZ orientation /*= OrientationAroundZ::Default*/) const {
   TString pathWithChannelPostfix = path;
-  if (orientation == OrientationAroundZ::Y)
+  if (orientation == OrientationAroundZ::X)
     pathWithChannelPostfix.Remove(pathWithChannelPostfix.Last('/'), pathWithChannelPostfix.Length());
   const TString channelStr(pathWithChannelPostfix(pathWithChannelPostfix.Last('_') + 1,
                                                   pathWithChannelPostfix.Length()));
