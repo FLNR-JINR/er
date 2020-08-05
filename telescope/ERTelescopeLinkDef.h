@@ -40,6 +40,7 @@
 #pragma link C++ class ERRTelescopeGeoComponentDoubleSi+;
 #pragma link C++ class ERQTelescopeGeoNonUniformSingleSi+;
 #pragma link C++ class ERQTelescopeGeoComponentCsI+;
+#pragma link C++ class ERRTelescopeGeoComponentCsI+;
 
 #pragma link C++ class ERQTelescopeCalibrator+;
 #pragma link C++ class ERRTelescopeCalibrator+;

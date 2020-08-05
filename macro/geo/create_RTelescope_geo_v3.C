@@ -171,7 +171,7 @@ void create_RTelescope_geo_v3()
     Double_t t2_dz = 0.8763;
 
     //CsI crystall
-    thickness_dead = 0.0014;
+    Double_t thickness_dead = 0.0014;
     Double_t cr1_dx1 = t1_dx1 - thickness_dead*2;
     Double_t cr1_dx2 = t1_dx2 - thickness_dead*2;
     Double_t cr1_dy = t1_dy - thickness_dead*2;
@@ -247,18 +247,18 @@ void create_RTelescope_geo_v3()
     // Positioning ring1, ring2 and crystalArray inside top
     TGeoTranslation* ring1Trans = new TGeoTranslation(0., 0., -rsp_min - 1.);
     TGeoCombiTrans* ring1Combitrans = new TGeoCombiTrans(*ring1Trans, *zeroRot);
-    RTelescope1->AddNode(dead_ring1R1, 1, ring1Combitrans);
-    RTelescope2->AddNode(dead_ring1R2, 1, ring1Combitrans);
+    //RTelescope1->AddNode(dead_ring1R1, 1, ring1Combitrans);
+    //RTelescope2->AddNode(dead_ring1R2, 1, ring1Combitrans);
 
     TGeoTranslation* ring2Trans = new TGeoTranslation(0., 0., -rsp_min);
     TGeoCombiTrans* ring2Combitrans = new TGeoCombiTrans(*ring2Trans, *zeroRot);
-    RTelescope1->AddNode(dead_ring2R1, 2, ring2Combitrans);
-    RTelescope2->AddNode(dead_ring2R2, 2, ring2Combitrans);
+    //RTelescope1->AddNode(dead_ring2R1, 2, ring2Combitrans);
+    //RTelescope2->AddNode(dead_ring2R2, 2, ring2Combitrans);
 
     TGeoTranslation* CsIarrayTrans = new TGeoTranslation(0., 0., t1_dy/2 + thickness2 + 0.1);
     TGeoCombiTrans* CsIarrayCombitrans = new TGeoCombiTrans(*CsIarrayTrans, *zeroRot);
     RTelescope1->AddNode(CsIarrayR1, 3, CsIarrayCombitrans);
-    RTelescope2->AddNode(CsIarrayR2, 3, CsIarrayCombitrans);
+    //RTelescope2->AddNode(CsIarrayR2, 3, CsIarrayCombitrans);
 
     TGeoTranslation* rtelescope1Trans = new TGeoTranslation(0., 0., 0.);
     TGeoCombiTrans* rtelescope1Combitrans = new TGeoCombiTrans(*rtelescope1Trans, *zeroRot);

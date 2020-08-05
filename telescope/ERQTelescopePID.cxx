@@ -296,7 +296,8 @@ std::map<TString, const ERDigi*> ERQTelescopePID::FindDigisByNode(const TGeoNode
   // example CsI: /cave_1/QTelescopeTmp_0/Central_telescope_3/Central_telescope_CsI_0/CsIBoxShell_8/SensitiveCsIBox_1
   // example NonUniform SSD: /cave_1/QTelescopeTmp_0/Telescope_1_1/Telescope_1_SingleSi_SSD20_1_X_0/pseudoSiStrip_4_4/SensitivePixelSiBox_X4_Y1_0
   // example R SSD: /cave_1/QTelescopeTmp_0/Telescope_1_1/Telescope_1_SingleSi_Phi1_X_0/r_station_0/Sensitivestrip_12
-  // example R DSD: 
+  // example R DSD: /cave_1/QTelescopeTmp_0/Telescope_1_1/Telescope_1_DoubleSi_R_XY_0/r_station_0/Segment_3/SensitiveSegment_1
+  // example R CsI: /cave_1/QTelescopeTmp_0/Telescope_1_1/Telescope_1_CsI_Radial_0/CrystalShell_7/SensitiveCrystal_0
   std::map<TString, const ERDigi*> resultDigis;
   const bool nodeOfDoubleSiStation = nodePath.Contains("DoubleSi");
   //@TODO here Setup->GetComponent(path) interface should be used in future.

@@ -40,7 +40,10 @@ void sim_digi(Int_t nEvents = 10)
   ERGeoSubAssembly* assembly = new ERGeoSubAssembly("Telescope_1", TVector3(0., 0., 5.), fZeroRotation);
   ERRTelescopeGeoComponentDoubleSi* rStation = new ERRTelescopeGeoComponentDoubleSi("DoubleSi", "DoubleSi_R", 
                                                                                     TVector3(0., 0., 0.), TVector3(), "X");
+  ERRTelescopeGeoComponentCsI* csi = new ERRTelescopeGeoComponentCsI("CsI", "CsI_Radial", 
+                                                                     TVector3(0., 0., 5), TVector3());                
   assembly->AddComponent(rStation);
+  assembly->AddComponent(csi);
   setupQTelescope->AddSubAssembly(assembly);
   // ------QTelescope -------------------------------------------------------
   ERQTelescope* qtelescope= new ERQTelescope("ERTelescope", kTRUE, 1);
@@ -57,8 +60,8 @@ void sim_digi(Int_t nEvents = 10)
   // -----   Create PrimaryGenerator   --------------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   Int_t pdgId = 2212; // proton  beam
-  Double32_t theta1 = 20.;  // polar angle distribution
-  Double32_t theta2 = 30.;  
+  Double32_t theta1 = 15.;  // polar angle distribution
+  Double32_t theta2 = 15.;  
   Double32_t kin_energy = .050; //GeV
   Double_t mass = TDatabasePDG::Instance()->GetParticle(pdgId)->Mass();
   Double32_t momentum = TMath::Sqrt(kin_energy*kin_energy + 2.*kin_energy*mass); //GeV
