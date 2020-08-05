@@ -27,18 +27,6 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 
-#simulation
-ERRTelescope.cxx
-#ERRTelescopeDigitizer.cxx
-ERRTelescopeHitFinder.cxx
-ERRTelescopeSetup.cxx
-
-data/ERRTelescopeCsIPoint.cxx
-data/ERRTelescopeSiPoint.cxx
-data/ERRTelescopeCsIDigi.cxx
-data/ERRTelescopeSiDigi.cxx
-data/ERRTelescopeHit.cxx
-
 geo/ERTelescopeGeoComponentSensetive.cxx
 geo/ERTelescopeGeoComponentPassive.cxx
 geo/ERTelescopeGeoComponentSingleSi.cxx
@@ -59,25 +47,10 @@ ERQTelescopePID.cxx
 
 data/ERQTelescopeSiPoint.cxx
 data/ERQTelescopeSiDigi.cxx
-data/ERQTelescopeCsIPoint.cxx
 data/ERQTelescopeCsIDigi.cxx
 data/ERQTelescopeTrack.cxx
 data/ERQTelescopeParticle.cxx
 
-#AculRaw
-data/AculRaw.cxx
-
-
-#beamtest
-ERQTelescopeCalibrator.cxx
-ERRTelescopeCalibrator.cxx
-#ERTelescopeReconstructorNew.cxx
-
-data/ERRTelescopeEvent.cxx
-data/ERRTelescopeCalEvent.cxx
-data/ERQTelescopeEvent.cxx
-data/ERQTelescopeCalEvent.cxx
-#data/ERTelescopeRecoEvent.cxx
 )
 
 # fill list of header files from list of source files

@@ -15,7 +15,6 @@
 
 #include "ERDigitizer.h"
 #include "ERQTelescopeSiPoint.h"
-#include "ERQTelescopeCsIPoint.h"
 #include "ERQTelescopeSiDigi.h"
 #include "ERQTelescopeCsIDigi.h"
 #include "ERQTelescopeSetup.h"

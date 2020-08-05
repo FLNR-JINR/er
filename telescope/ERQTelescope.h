@@ -11,7 +11,6 @@
 
 #include "ERDetector.h"
 #include "ERQTelescopeSiPoint.h"
-#include "ERQTelescopeCsIPoint.h"
 #include "ERQTelescopeSetup.h"
 
 #include "TLorentzVector.h"

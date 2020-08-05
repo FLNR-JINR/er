@@ -26,7 +26,7 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-ERLi10Reconstructor.cxx
+#ERLi10Reconstructor.cxx
 #ERHe10Reconstructor.cxx
 data/ERHe10RecoEvent.cxx
 )
