@@ -144,9 +144,9 @@
 			<size y1="3.60742634" y2="0.8763" x1="0.556737" z1="1.9" z2="1.9" x3="1.02" z3="1.02"/>
 			<split_size>0.1</split_size>
 			<media>CsI</media>
-			<dead_layer_front>0.0004</dead_layer_front> 
-			<dead_layer_front_media>mylar</dead_layer_front_media>
-			<dead_layer_periphery>0.001</dead_layer_periphery>
+			<dead_layer>0.0004</dead_layer> 
+			<dead_layer_media>mylar</dead_layer_media>
+			<dead_layer_periphery>0.01</dead_layer_periphery>
 			<dead_layer_periphery_media>Tefflon</dead_layer_periphery_media>
 		</CsI>
 	</RCsITypes>

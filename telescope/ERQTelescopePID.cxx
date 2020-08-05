@@ -127,11 +127,11 @@ void ERQTelescopePID::Exec(Option_t* opt) {
         const auto digisDeposite = energyDeposites.first;
         const auto deadDeposite = energyDeposites.second;
         const auto kineticEnergy = digisDeposite + deadDeposite;
+        const Double_t fullEnergy = mass + kineticEnergy;
         // Calculate Lorentz vector of particle at the exit of the reaction in lab system.
-        const Double_t momentumMag = sqrt(pow(kineticEnergy, 2) + 2 * mass * kineticEnergy);
+        const Double_t momentumMag = sqrt(pow(fullEnergy, 2) - pow(mass, 2) );
         TVector3 direction = track->GetDirection();
         const auto momentum = momentumMag * direction;
-        const Double_t fullEnergy = sqrt(pow(momentumMag, 2)+pow(mass, 2));
         const TLorentzVector lvTarget (momentum, fullEnergy);
         // Add particle to collection.
         auto& particleCollection = *fQTelescopeParticle[trackBranch][pdg];

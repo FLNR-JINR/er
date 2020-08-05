@@ -42,8 +42,8 @@ private:
   Double_t fX3 = 0.;
   Double_t fZ3 = 0.;
   Double_t fSplitSize = 0.;
-  Double_t fDeadLayerFront = 0.;
-  TString fDeadLayerFrontMedia;
+  Double_t fDeadLayer = 0.;
+  TString fDeadLayerMedia;
   Double_t fDeadLayerPeriphery = 0.;
   TString fDeadLayerPeripheryMedia;
   ClassDef(ERRTelescopeGeoComponentCsI,1)

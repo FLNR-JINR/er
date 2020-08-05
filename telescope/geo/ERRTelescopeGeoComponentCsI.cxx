@@ -34,11 +34,12 @@ void ERRTelescopeGeoComponentCsI::ConstructGeometryVolume(void) {
   const Double_t x2 = (r_min + fY1) * tan_sector_angle * 2.;
   const Double_t sin_sector_angle = TMath::Sin(sector_angle /2. * TMath::DegToRad());
   const Double_t delta = fSplitSize / 2. / sin_sector_angle;
-  auto* dead_layer_front_media = fDeadLayerFrontMedia.Length() ? CreateMaterial(fDeadLayerFrontMedia) : media;
-  auto* dead_layer_periphery_media = fDeadLayerFrontMedia.Length() ? CreateMaterial(fDeadLayerPeripheryMedia) : media;
+  auto* dead_layer_media = fDeadLayerMedia.Length() ? CreateMaterial(fDeadLayerMedia) : media;
+  auto* dead_layer_periphery_media = fDeadLayerMedia.Length() ? CreateMaterial(fDeadLayerPeripheryMedia) : media;
   fVolume = new TGeoVolumeAssembly(this->GetVolumeName());
-  auto* crystal_shell = gGeoManager->MakeTrd2("CrystalShell", media, fX1/2.,  x2/2., fZ1/2., fZ2/2., fY1/2.);
-  auto* periphery_shell = gGeoManager->MakeTrd2("PeripheryShell", media, x2/2., fX3/2., fZ2/2., fZ3/2., fY2/2.);
+  auto* crystal_shell = gGeoManager->MakeTrd2("CrystalShell", dead_layer_media, fX1/2.,  x2/2., (fZ1 + fDeadLayer)/2., (fZ2 + fDeadLayer)/2., fY1/2.);
+  auto* periphery_shell = gGeoManager->MakeTrd2("PeripheryShell", dead_layer_periphery_media, x2/2., fX3/2.,
+                                                (fZ2 + fDeadLayerPeriphery)/2., (fZ3 + fDeadLayerPeriphery)/2., fY2/2.);
   auto* crystal = gGeoManager->MakeTrd2("SensitiveCrystal", media, fX1/2.,  x2/2., fZ1/2., fZ2/2., fY1/2.);
   auto* periphery = gGeoManager->MakeTrd2("SensitivePeriphery", media, x2/2., fX3/2., fZ2/2., fZ3/2., fY2/2.);
   crystal_shell->AddNode(crystal, 0, new TGeoCombiTrans(0., 0., 0., new TGeoRotation()));
@@ -132,11 +133,11 @@ void ERRTelescopeGeoComponentCsI::ParseXmlParameters() {
             if (!strcasecmp(curNode2->GetNodeName(), "media")) {
               fMedia = curNode2->GetText();
             }
-            if (!strcasecmp(curNode2->GetNodeName(), "dead_layer_front")) {
-              fDeadLayerFront = atof(curNode2->GetText());
+            if (!strcasecmp(curNode2->GetNodeName(), "dead_layer")) {
+              fDeadLayer = atof(curNode2->GetText());
             }
-            if (!strcasecmp(curNode2->GetNodeName(), "dead_layer_front_media")) {
-              fDeadLayerFrontMedia = curNode2->GetText();
+            if (!strcasecmp(curNode2->GetNodeName(), "dead_layer_media")) {
+              fDeadLayerMedia = curNode2->GetText();
             }
             if (!strcasecmp(curNode2->GetNodeName(), "dead_layer_periphery")) {
               fDeadLayerPeriphery = atof(curNode2->GetText());
