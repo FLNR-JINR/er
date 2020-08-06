@@ -11,8 +11,6 @@
 #pragma link C++ class ERQTelescopePID;
 
 #pragma link C++ class ERQTelescopeSiPoint+;
-#pragma link C++ class ERQTelescopeSiDigi+;
-#pragma link C++ class ERQTelescopeCsIDigi+;
 #pragma link C++ class ERQTelescopeTrack+;
 #pragma link C++ class ERQTelescopeParticle+;
 

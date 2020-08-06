@@ -22,14 +22,14 @@
 
 //-------------------------------------------------------------------------------------------------
 ERQTelescopeDigitizer::ERQTelescopeDigitizer()
-  : ERDigitizer("ER qtelescope digitization")
+  : ERDigitizer("ER telescope digitization")
 {
   fAvailibleRunManagers.push_back("ERRunSim");
   fAvailibleRunManagers.push_back("ERRunAna");
 }
 //-------------------------------------------------------------------------------------------------
 ERQTelescopeDigitizer::ERQTelescopeDigitizer(Int_t verbose)
-  : ERDigitizer("ER qtelescope digitization ", verbose)
+  : ERDigitizer("ER telescope digitization ", verbose)
 {
   fAvailibleRunManagers.push_back("ERRunSim");
   fAvailibleRunManagers.push_back("ERRunAna");
@@ -49,7 +49,7 @@ InitStatus ERQTelescopeDigitizer::Init() {
   while (bName = (TObjString*)nextBranch()) {
     TString bFullName = bName->GetString();
     LOG(DEBUG) << "Branch full name " << bFullName << FairLogger::endl;
-    if (bFullName.Contains("Point") && bFullName.Contains("QTelescope")) {
+    if (bFullName.Contains("Point") && bFullName.Contains("Telescope")) {
       // Rename input point branches to output digi branches by changing class name prefix
       // ERDetectorPoint_sensitiveVolNameNumber -> ERDetectorDigi_sensitiveVolNameNumber
       // In map of output collections first parameter is full input branch name without class prefix 
@@ -59,9 +59,9 @@ InitStatus ERQTelescopeDigitizer::Init() {
       TString bPrefixName(bFullName(0, bPrefixNameLength));
       bPrefixName.Replace(bPrefixNameLength - 5, bPrefixNameLength, "Digi");
       TString outBrName =  bPrefixName + "_" + brName;
-      fQTelescopeDigi[brName] = new TClonesArray(bPrefixName);
+      fQTelescopeDigi[brName] = new TClonesArray("ERDigi");
       LOG(DEBUG) << "Branch name " << brName << FairLogger::endl;
-      ioman->Register(outBrName, "QTelescope", fQTelescopeDigi[brName], kTRUE);
+      ioman->Register(outBrName, "Telescope", fQTelescopeDigi[brName], kTRUE);
     }
   }
   return kSUCCESS;
@@ -70,45 +70,31 @@ InitStatus ERQTelescopeDigitizer::Init() {
 void ERQTelescopeDigitizer::Exec(Option_t* opt) {
   Reset();
   for (const auto &itPointBranches : fQTelescopePoints) {
-    Float_t   edep = 0.; //sum edep in strip
-    Float_t   time = std::numeric_limits<float>::max(); // min time in strip
-    Int_t     pointType;
     Double_t  elossThreshold, timeThreshold;
     Double_t  elossSigma, timeSigma;
     std::map<Int_t, std::vector<Int_t>> sortedPoints;
     if (itPointBranches.first.Contains("Si")) {
-      pointType = 0;  // Si point
       elossThreshold = fSiElossThreshold;
       elossSigma     = fSiElossSigma;
       timeSigma      = fSiTimeSigma;
-      for (Int_t iPoint = 0; iPoint < itPointBranches.second->GetEntriesFast(); iPoint++){
-        ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)(itPointBranches.second->At(iPoint));
-        sortedPoints[point->GetStripNb()].push_back(iPoint);
-      }
     }
     if (itPointBranches.first.Contains("CsI")) {
-      pointType = 1;  // CsI point
       elossThreshold = fCsIElossThreshold;
       elossSigma     = fCsIElossSigma;
       timeSigma      = fCsITimeSigma;
-      for (Int_t iPoint = 0; iPoint < itPointBranches.second->GetEntriesFast(); iPoint++){
-        ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)(itPointBranches.second->At(iPoint));
-        sortedPoints[point->GetStripNb()].push_back(iPoint);
-      }
     }
-    FairMCPoint* mcPoint;
+    for (Int_t iPoint = 0; iPoint < itPointBranches.second->GetEntriesFast(); iPoint++){
+      ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)(itPointBranches.second->At(iPoint));
+      sortedPoints[point->GetStripNb()].push_back(iPoint);
+    }
     for (const auto &itPoint : sortedPoints) {
-      edep = 0;
+      Float_t   edep = 0.; //sum edep in strip
+      Float_t   time = std::numeric_limits<float>::max(); // min time in strip
       for (const auto itPointsForCurrentVolume : itPoint.second) {
-        if (pointType == 0) { // 0 - Si point, 1 - CsI point
-          mcPoint = (ERQTelescopeSiPoint*)(itPointBranches.second->At(itPointsForCurrentVolume));
-        }
-        if (pointType == 1) { // 0 - Si point, 1 - CsI point
-          mcPoint = (ERQTelescopeSiPoint*)(itPointBranches.second->At(itPointsForCurrentVolume));
-        }
-        edep += mcPoint->GetEnergyLoss();
-        if (mcPoint->GetTime() < time) {
-          time = mcPoint->GetTime();
+        const auto* point = (ERQTelescopeSiPoint*)(itPointBranches.second->At(itPointsForCurrentVolume));
+        edep += point->GetEnergyLoss();
+        if (point->GetTime() < time) {
+          time = point->GetTime();
         }
       }
       if (edep == 0) {  // if no points in input branch
@@ -117,26 +103,13 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt) {
       edep = gRandom->Gaus(edep, elossSigma);
       if (edep < elossThreshold)
         continue;
-
       time = gRandom->Gaus(time, timeSigma);
-
-      if (pointType == 0) { // 0 - Si point, 1 - CsI point
-        ERQTelescopeSiPoint* siPoint = (ERQTelescopeSiPoint*)(itPointBranches.second->At(0));
-        ERQTelescopeSiDigi* siDigi = AddSiDigi(edep, time, itPoint.first, itPointBranches.first);
-        for (const auto itPointsForCurrentVolume : itPoint.second) {
-          siDigi->AddLink(FairLink("ERQTelescopeSiPoint", itPointsForCurrentVolume));
-        }
-      }
-      if (pointType == 1) {
-        ERQTelescopeSiPoint* csiPoint = (ERQTelescopeSiPoint*)(itPointBranches.second->At(0));
-        ERQTelescopeCsIDigi* csiDigi = AddCsIDigi(edep, time, itPoint.first,itPointBranches.first);
-        for (const auto itPointsForCurrentVolume : itPoint.second) {
-          csiDigi->AddLink(FairLink("ERQTelescopeSiPoint", itPointsForCurrentVolume));
-        }
+      auto* digi = AddDigi(edep, time, itPoint.first, itPointBranches.first);
+      for (const auto itPointsForCurrentVolume : itPoint.second) {
+        digi->AddLink(FairLink("ERQTelescopeSiPoint", itPointsForCurrentVolume));
       }
     }
   }
-
   /*@TODO: This functionality can be transferred to ERDigitizer if the information 
   about the conformity of the trigger station and the digi collection moves there.*/
   for ( const auto &itDigiBranch : fQTelescopeDigi ) {
@@ -163,21 +136,10 @@ void ERQTelescopeDigitizer::Reset() {
 void ERQTelescopeDigitizer::Finish(){   
 }
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeSiDigi* ERQTelescopeDigitizer::AddSiDigi(Float_t edep, Double_t time, Int_t stripNb,
-                                                    TString digiBranchName)
-{
-  ERQTelescopeSiDigi *digi = new((*fQTelescopeDigi[digiBranchName])
-      [fQTelescopeDigi[digiBranchName]->GetEntriesFast()]) 
-      ERQTelescopeSiDigi(edep, time, stripNb);
-  return digi;
-}
-//-------------------------------------------------------------------------------------------------
-ERQTelescopeCsIDigi* ERQTelescopeDigitizer::AddCsIDigi(Float_t edep, Double_t time, Int_t blockNb,
-                                                       TString digiBranchName)
-{
-  ERQTelescopeCsIDigi *digi = new((*fQTelescopeDigi[digiBranchName])
-      [fQTelescopeDigi[digiBranchName]->GetEntriesFast()])
-      ERQTelescopeCsIDigi(edep, time, blockNb);
+ERDigi* ERQTelescopeDigitizer::AddDigi(Float_t edep, Double_t time, Int_t stripNb,
+                                       TString digiBranchName) {
+  ERDigi *digi = new((*fQTelescopeDigi[digiBranchName])
+      [fQTelescopeDigi[digiBranchName]->GetEntriesFast()]) ERDigi(edep, time, stripNb);
   return digi;
 }
 //-------------------------------------------------------------------------------------------------

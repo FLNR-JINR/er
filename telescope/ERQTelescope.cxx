@@ -132,7 +132,7 @@ void ERQTelescope::Register() {
       LOG(DEBUG) << "[ERQTelescope] Register branch " << branchName 
                  << " for component " << component->GetVolumeName() << FairLogger::endl;
       fPoints[component->GetVolumeName()][branchName] = new TClonesArray("ERQTelescopeSiPoint");
-      ioman->Register(branchName, "QTelescope", fPoints[component->GetVolumeName()][branchName], kTRUE);
+      ioman->Register(branchName, "Telescope", fPoints[component->GetVolumeName()][branchName], kTRUE);
     }
   }
 }

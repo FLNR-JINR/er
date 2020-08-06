@@ -51,11 +51,11 @@ InitStatus ERQTelescopePID::Init() {
   TObjString* bName;
   while (bName = (TObjString*)nextBranch()) {
     TString bFullName = bName->GetString();
-    if (bFullName.Contains("Digi") && bFullName.Contains("QTelescope")) {
+    if (bFullName.Contains("Digi") && bFullName.Contains("Telescope")) {
       fQTelescopeDigi[bFullName] = (TClonesArray*) ioman->GetObject(bFullName);
       LOG(DEBUG) << "Digi branch " << bFullName << FairLogger::endl; 
     }
-    if (bFullName.Contains("Track") && bFullName.Contains("QTelescope")) {
+    if (bFullName.Contains("Track") && bFullName.Contains("Telescope")) {
       Int_t bPrefixNameLength = bFullName.First('_'); 
       TString brName(bFullName(bPrefixNameLength + 1, bFullName.Length()));
       if (fParticleDescriptions.find(brName) == fParticleDescriptions.end())
@@ -67,7 +67,7 @@ InitStatus ERQTelescopePID::Init() {
         const auto pdg = particleDescription.fPDG;
         brParticleName.Form("%s_%d",brName.Data(), pdg);
         fQTelescopeParticle[brName][pdg] = new TClonesArray("ERQTelescopeParticle");
-        ioman->Register("ERQTelescopeParticle_" + brParticleName, "QTelescope", 
+        ioman->Register("ERTelescopeParticle_" + brParticleName, "Telescope", 
                         fQTelescopeParticle[brName][pdg], kTRUE);
       }
     }

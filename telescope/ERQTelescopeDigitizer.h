@@ -15,8 +15,7 @@
 
 #include "ERDigitizer.h"
 #include "ERQTelescopeSiPoint.h"
-#include "ERQTelescopeSiDigi.h"
-#include "ERQTelescopeCsIDigi.h"
+#include "ERDigi.h"
 #include "ERQTelescopeSetup.h"
 
 class ERQTelescopeSetup;
@@ -56,8 +55,7 @@ protected:
   Float_t       fCsIElossSigma = 0.;
   Float_t       fCsITimeSigma = 0.;
 protected:
-  ERQTelescopeSiDigi* AddSiDigi(Float_t edep, Double_t time, Int_t stripNb, TString digiBranchName);
-  ERQTelescopeCsIDigi* AddCsIDigi(Float_t edep, Double_t time, Int_t blockNb, TString digiBranchName);
+  ERDigi* AddDigi(Float_t edep, Double_t time, Int_t stripNb, TString digiBranchName);
 private:
   ClassDef(ERQTelescopeDigitizer,1)
 };

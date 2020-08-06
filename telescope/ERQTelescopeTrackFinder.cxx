@@ -20,6 +20,7 @@
 
 #include "ERBeamDetTrack.h"
 #include "ERRunAna.h"
+#include "ERDigi.h"
 
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeTrackFinder::ERQTelescopeTrackFinder()
@@ -82,7 +83,7 @@ InitStatus ERQTelescopeTrackFinder::Init() {
   std::vector<TString> pointBranches;
   while (bName = (TObjString*)nextBranch()) {
     TString bFullName = bName->GetString();
-    if (bFullName.Contains("Digi") && bFullName.Contains("QTelescope")) {
+    if (bFullName.Contains("Digi") && bFullName.Contains("Telescope")) {
       Int_t bPrefixNameLength = bFullName.First('_'); 
       TString brName(bFullName(bPrefixNameLength + 1, bFullName.Length()));
       fQTelescopeDigi[brName] = (TClonesArray*) ioman->GetObject(bFullName);
@@ -92,7 +93,7 @@ InitStatus ERQTelescopeTrackFinder::Init() {
   for (const auto itSubassemblies : fSiHitStationsPair) {
     for (const auto itComponent : itSubassemblies.second) {
       fQTelescopeTrack[itComponent.first] = new TClonesArray("ERQTelescopeTrack");
-      ioman->Register("ERQTelescopeTrack_" + itComponent.first, "QTelescope", 
+      ioman->Register("TelescopeTrack_" + itComponent.first, "Telescope", 
                       fQTelescopeTrack[itComponent.first], kTRUE);
     }
   }
@@ -150,21 +151,21 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
         continue;
       }
       for (Int_t iXDigi  = 0; iXDigi < xDigi->GetEntriesFast(); iXDigi++) {
-        const Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(iXDigi))->Edep();
+        const Double_t xStripEdep = ((ERDigi*)xDigi->At(iXDigi))->Edep();
         if (xStripEdep > fSiDigiEdepMin && xStripEdep < fSiDigiEdepMax) {
           correctStripsX.push_back(iXDigi);
         }
       }
       for (Int_t iYDigi  = 0; iYDigi < yDigi->GetEntriesFast(); iYDigi++) {
-        const Double_t yStripEdep = ((ERQTelescopeSiDigi*)yDigi->At(iYDigi))->Edep();
+        const Double_t yStripEdep = ((ERDigi*)yDigi->At(iYDigi))->Edep();
         if (yStripEdep > fSiDigiEdepMin && yStripEdep < fSiDigiEdepMax) {
           correctStripsY.push_back(iYDigi);
         }
       }
       for (const auto itCorrectStripsX : correctStripsX) {
-        const Double_t xStripEdep = ((ERQTelescopeSiDigi*)xDigi->At(itCorrectStripsX))->Edep();
+        const Double_t xStripEdep = ((ERDigi*)xDigi->At(itCorrectStripsX))->Edep();
         for (const auto itCorrectStripsY : correctStripsY) {
-          const Double_t yStripEdep = ((ERQTelescopeSiDigi*)yDigi->At(itCorrectStripsY))->Edep();
+          const Double_t yStripEdep = ((ERDigi*)yDigi->At(itCorrectStripsY))->Edep();
           if (TMath::Abs(xStripEdep - yStripEdep) < fEdepDiffXY) {
             hitTelescopePoint.push_back(std::pair<Int_t, Int_t>(itCorrectStripsX, itCorrectStripsY));
           }
@@ -176,8 +177,8 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
       for (const auto& itHitPoint : hitTelescopePoint) {
         const auto xChannelIndex = itHitPoint.first;
         const auto yChannelIndex = itHitPoint.second;
-        const auto* xStrip = dynamic_cast<ERQTelescopeSiDigi*>(xDigi->At(xChannelIndex));
-        const auto* yStrip = dynamic_cast<ERQTelescopeSiDigi*>(yDigi->At(yChannelIndex));
+        const auto* xStrip = dynamic_cast<ERDigi*>(xDigi->At(xChannelIndex));
+        const auto* yStrip = dynamic_cast<ERDigi*>(yDigi->At(yChannelIndex));
         if (!xStrip || !yStrip)
           continue;
         const auto xChannel = xStrip->Channel();

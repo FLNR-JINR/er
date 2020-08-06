@@ -62,8 +62,7 @@ class ERTelescopeUnpack : public ERUnpack
     void AddCsIStation(TString name,TString ampStName, TString timeStName, TString ampCalFile, TString timeCalFile,
                        std::map<Int_t, Int_t>* channelsMapping = nullptr, Bool_t skipAloneChannels = kTRUE);
   protected:
-    void AddSiDigi(Float_t edep, Double_t time, Int_t stripNb, TString digiBranchName);
-    void AddCsIDigi(Float_t edep, Double_t time, Int_t blockNb, TString digiBranchName);
+    void AddDigi(Float_t edep, Double_t time, Int_t stripNb, TString digiBranchName);
     TString FormBranchName(TString type, Int_t sideCount, TString stName, TString XY, TString XYside, Int_t volInd);
     void FormAllBranches();
     Bool_t ReadCalFiles();

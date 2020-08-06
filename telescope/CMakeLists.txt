@@ -46,8 +46,6 @@ ERQTelescopeTrackFinder.cxx
 ERQTelescopePID.cxx
 
 data/ERQTelescopeSiPoint.cxx
-data/ERQTelescopeSiDigi.cxx
-data/ERQTelescopeCsIDigi.cxx
 data/ERQTelescopeTrack.cxx
 data/ERQTelescopeParticle.cxx
 

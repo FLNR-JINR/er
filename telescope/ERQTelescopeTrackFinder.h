@@ -16,7 +16,6 @@
 #include "ERTask.h"
 #include "ERQTelescopeTrack.h"
 #include "ERQTelescopeSetup.h"
-#include "ERQTelescopeSiDigi.h"
 
 /** @class ERQTelescopeTrackFinder
  ** @brief 

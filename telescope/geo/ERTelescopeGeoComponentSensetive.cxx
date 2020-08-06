@@ -5,8 +5,7 @@
 //--------------------------------------------------------------------------------------------------
 TString ERTelescopeGeoComponentSensetive::GetBranchNamePrefix(
     SensetiveType sensetiveType, ERDataObjectType objectType) const {
-  return TString("ERQTelescope") + SensetiveTypeStr(sensetiveType) 
-         + ERDataObjectTypeStr(objectType) + "_" + GetVolumeName();
+  return TString("Telescope") + ERDataObjectTypeStr(objectType) + "_" + GetVolumeName();
 }
 //--------------------------------------------------------------------------------------------------
 std::list<TString> ERTelescopeGeoComponentSensetive::GetBranchNames(ERDataObjectType objectType) const {
