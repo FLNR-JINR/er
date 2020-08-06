@@ -14,7 +14,6 @@
 #include "TClonesArray.h"
 
 #include "ERDigitizer.h"
-#include "ERQTelescopeSiPoint.h"
 #include "ERDigi.h"
 #include "ERQTelescopeSetup.h"
 

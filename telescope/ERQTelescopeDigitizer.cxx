@@ -19,6 +19,7 @@
 #include "FairLogger.h"
 
 #include "ERDetectorList.h"
+#include "ERPoint.h"
 
 //-------------------------------------------------------------------------------------------------
 ERQTelescopeDigitizer::ERQTelescopeDigitizer()
@@ -84,14 +85,14 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt) {
       timeSigma      = fCsITimeSigma;
     }
     for (Int_t iPoint = 0; iPoint < itPointBranches.second->GetEntriesFast(); iPoint++){
-      ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)(itPointBranches.second->At(iPoint));
-      sortedPoints[point->GetStripNb()].push_back(iPoint);
+      ERPoint* point = (ERPoint*)(itPointBranches.second->At(iPoint));
+      sortedPoints[point->GetVolNb()].push_back(iPoint);
     }
     for (const auto &itPoint : sortedPoints) {
       Float_t   edep = 0.; //sum edep in strip
       Float_t   time = std::numeric_limits<float>::max(); // min time in strip
       for (const auto itPointsForCurrentVolume : itPoint.second) {
-        const auto* point = (ERQTelescopeSiPoint*)(itPointBranches.second->At(itPointsForCurrentVolume));
+        const auto* point = (ERPoint*)(itPointBranches.second->At(itPointsForCurrentVolume));
         edep += point->GetEnergyLoss();
         if (point->GetTime() < time) {
           time = point->GetTime();
@@ -106,7 +107,7 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt) {
       time = gRandom->Gaus(time, timeSigma);
       auto* digi = AddDigi(edep, time, itPoint.first, itPointBranches.first);
       for (const auto itPointsForCurrentVolume : itPoint.second) {
-        digi->AddLink(FairLink("ERQTelescopeSiPoint", itPointsForCurrentVolume));
+        digi->AddLink(FairLink("ERPoint", itPointsForCurrentVolume));
       }
     }
   }

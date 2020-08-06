@@ -10,7 +10,6 @@
 #define ERQTelescope_H
 
 #include "ERDetector.h"
-#include "ERQTelescopeSiPoint.h"
 #include "ERQTelescopeSetup.h"
 
 #include "TLorentzVector.h"

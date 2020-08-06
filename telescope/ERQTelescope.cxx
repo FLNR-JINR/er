@@ -20,6 +20,7 @@
 #include "FairLogger.h"
 
 #include "ERTelescopeGeoComponentSensetive.h"
+#include "ERPoint.h"
 //-------------------------------------------------------------------------------------------------
 ERQTelescope::ERQTelescope() :
   ERDetector("ERQTelescope", kTRUE)
@@ -60,13 +61,21 @@ void ERQTelescope::Initialize() {
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::AddPoint(TClonesArray& clref) {
-  new(clref[clref.GetEntriesFast()]) ERQTelescopeSiPoint(
-    fEventID, fTrackID, fMot0TrackID, fMass,
-    TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
+  TGeoHMatrix matrix;
+  gMC->GetTransformation(gMC->CurrentVolPath(), matrix);
+  Double_t globalPos[3],localPos[3];
+  fPosIn.Vect().GetXYZ(globalPos);
+  matrix.MasterToLocal(globalPos,localPos);
+  TVector3 pos_in_local_cs;
+  pos_in_local_cs.SetXYZ(localPos[0],localPos[1],localPos[2]);
+  new(clref[clref.GetEntriesFast()]) ERPoint(
+    fEventID, fTrackID, fMot0TrackID, fChannel, fMass,
+    TVector3(fPosIn.X(),   fPosIn.Y(),  fPosIn.Z()),
+    pos_in_local_cs,
     TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
     TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
     TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-    fTime, fLength, fEloss, fChannel,fPDG);
+    fTime, fTime, fLength, fEloss, -1 /*light yield*/,fPDG, -1 /*charge*/);
 }
 //-------------------------------------------------------------------------------------------------
 void ERQTelescope::ConstructGeometry() {
@@ -131,7 +140,7 @@ void ERQTelescope::Register() {
     for (const auto branchName : component->GetBranchNames(ERDataObjectType::Point)) {
       LOG(DEBUG) << "[ERQTelescope] Register branch " << branchName 
                  << " for component " << component->GetVolumeName() << FairLogger::endl;
-      fPoints[component->GetVolumeName()][branchName] = new TClonesArray("ERQTelescopeSiPoint");
+      fPoints[component->GetVolumeName()][branchName] = new TClonesArray("ERPoint");
       ioman->Register(branchName, "Telescope", fPoints[component->GetVolumeName()][branchName], kTRUE);
     }
   }
