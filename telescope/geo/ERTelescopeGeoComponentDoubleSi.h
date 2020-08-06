@@ -1,3 +1,4 @@
+
 /********************************************************************************
  *              Copyright (C) Joint Institute for Nuclear Research              *
  *                                                                              *
@@ -6,24 +7,23 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERQTelescopeGeoComponentCsI_H
-#define ERQTelescopeGeoComponentCsI_H
+#ifndef ERTelescopeGeoComponentDoubleSi_H
+#define ERTelescopeGeoComponentDoubleSi_H
 
 #include "ERTelescopeGeoComponentSensetive.h"
 
 #include "TString.h"
 #include "TVector3.h"
 
-class ERQTelescopeGeoComponentCsI : public ERTelescopeGeoComponentSensetive {
+class ERTelescopeGeoComponentDoubleSi : public ERTelescopeGeoComponentSensetive {
 public:
-  ERQTelescopeGeoComponentCsI() = default;
-  ERQTelescopeGeoComponentCsI(const TString& typeFromXML, const TString& id)
-    : ERTelescopeGeoComponentSensetive(typeFromXML, id) {}
-  ERQTelescopeGeoComponentCsI(const TString& typeFromXML, const TString& id, 
-                              const TVector3& position, const TVector3& rotation)
-    : ERTelescopeGeoComponentSensetive(typeFromXML, id, position, rotation) {}
-  virtual ~ERQTelescopeGeoComponentCsI() = default;
-  virtual void ConstructGeometryVolume(void);
+  ERTelescopeGeoComponentDoubleSi() = default;
+  ERTelescopeGeoComponentDoubleSi(const TString& typeFromXML, const TString& id,
+                                   const TString& orientAroundZ);
+  ERTelescopeGeoComponentDoubleSi(const TString& typeFromXML, const TString& id, 
+                                   const TVector3& position, const TVector3& rotation,
+                                   const TString& orientAroundZ);
+  virtual ~ERTelescopeGeoComponentDoubleSi() = default;
   virtual TString GetBranchName(ERDataObjectType object, 
                                 OrientationAroundZ orientationAroundZ = OrientationAroundZ::Default,
                                 ChannelSide side = ChannelSide::None) const;
@@ -31,12 +31,12 @@ public:
   virtual std::list<ChannelSide> GetChannelSides() const;
   virtual Int_t GetChannelFromSensetiveNodePath(
     const TString& path, OrientationAroundZ orientation = OrientationAroundZ::Default) const;
-private:
-  virtual void ParseXmlParameters();
-  Int_t    fCubesCountX = 0;
-  Int_t    fCubesCountY = 0;
-  Double_t fSplitSize = 0.;
-  Double_t fDeadLayer = 0.;
-  ClassDef(ERQTelescopeGeoComponentCsI,1)
+protected:
+  TString  fOrientAroundZ = "X";
+  Double_t fDeadLayerThicknessFrontSide = 0.;
+  Double_t fDeadLayerThicknessBackSide = 0.;
+  Int_t    fStripCountX = 0;
+  Int_t    fStripCountY = 0;
+  ClassDef(ERTelescopeGeoComponentDoubleSi, 1)
 };
 #endif

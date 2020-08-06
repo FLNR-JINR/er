@@ -12,9 +12,8 @@
 #include "DetEventStation.h"
 #include "DetMessage.h"
 
-#include "ERQTelescopeSiDigi.h"
-#include "ERQTelescopeCsIDigi.h"
 #include "ERSupport.h"
+#include "ERDigi.h"
 
 using namespace std;
 
@@ -89,7 +88,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
                 Int_t channel = GetChannelNumber(itValue.first, itStation.second->channelsMapping1);
                 Double_t amp = itValue.second.first; // [MeV]
                 Double_t time = itValue.second.second;
-                AddSiDigi(amp,time, channel,itStation.second->bName);
+                AddDigi(amp,time, channel,itStation.second->bName);
             }
 
             if (itStation.second->sideCount == 2){
@@ -112,7 +111,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
                     Int_t channel = GetChannelNumber(itValue.first, itStation.second->channelsMapping2);
                     Double_t amp = itValue.second.first; // [MeV]
                     Double_t time = itValue.second.second;
-                    AddSiDigi(amp, time, channel, itStation.second->bName2);
+                    AddDigi(amp, time, channel, itStation.second->bName2);
                 }
             }
         }
@@ -135,7 +134,7 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
                 Int_t channel = GetChannelNumber(itValue.first, itStation.second->channelsMapping1);
                 Double_t amp = itValue.second.first; // [MeV]
                 Double_t time = itValue.second.second;
-                AddCsIDigi(amp, time, channel, itStation.second->bName);
+                AddDigi(amp, time, channel, itStation.second->bName);
             }
         } 
 
@@ -143,18 +142,10 @@ Bool_t ERTelescopeUnpack::DoUnpack(Int_t* data, Int_t size){
     return kTRUE;
 }
 //--------------------------------------------------------------------------------------------------
-void ERTelescopeUnpack::AddSiDigi(Float_t edep, Double_t time, Int_t stripNb, TString digiBranchName)
+void ERTelescopeUnpack::AddDigi(Float_t edep, Double_t time, Int_t stripNb, TString digiBranchName)
 {
-  ERQTelescopeSiDigi *digi = new((*fDigiCollections[digiBranchName])
-        [fDigiCollections[digiBranchName]->GetEntriesFast()])
-        ERQTelescopeSiDigi(edep, time, stripNb);
-}
-//-------------------------------------------------------------------------------------------------
-void ERTelescopeUnpack::AddCsIDigi(Float_t edep, Double_t time, Int_t blockNb, TString digiBranchName)
-{
-  ERQTelescopeCsIDigi *digi = new((*fDigiCollections[digiBranchName])
-        [fDigiCollections[digiBranchName]->GetEntriesFast()])
-        ERQTelescopeCsIDigi(edep, time, blockNb);
+  new((*fDigiCollections[digiBranchName])
+        [fDigiCollections[digiBranchName]->GetEntriesFast()])ERDigi(edep, time, stripNb);
 }
 //--------------------------------------------------------------------------------------------------
 TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString stName, 
@@ -166,15 +157,13 @@ TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString
         stNumber = 1;
 
     TString bName = "";
-    if (type == TString("Si"))
-        if (sideCount == 1)
-            bName.Form("ERQTelescopeSiDigi_%s_SingleSi_%s_%s_%d",fDetName.Data(),stName.Data(),
-			                                         XYside.Data(), volInd);
-        else
-            bName.Form("ERQTelescopeSiDigi_%s_DoubleSi_%s_%s_%d_%s",fDetName.Data(),stName.Data(),
-			                                            XY.Data(),volInd,XYside.Data());
-    if (type == TString("CsI"))
-        bName.Form("ERQTelescopeCsIDigi_%s_%s_%d",fDetName.Data(),stName.Data(), volInd);
+    if (sideCount == 1) {
+        bName.Form("TelescopeDigi_%s_%s_%s_%d",fDetName.Data(),stName.Data(),
+                                                    XYside.Data(), volInd);
+    } else {
+        bName.Form("TelescopeDigi_%s_%s_%s_%d_%s",fDetName.Data(),stName.Data(),
+                                                    XY.Data(),volInd,XYside.Data());
+    }
     return bName;
 }
 //--------------------------------------------------------------------------------------------------

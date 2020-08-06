@@ -27,52 +27,27 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 
-#simulation
-ERRTelescope.cxx
-#ERRTelescopeDigitizer.cxx
-ERRTelescopeHitFinder.cxx
-ERRTelescopeSetup.cxx
-
-data/ERRTelescopeCsIPoint.cxx
-data/ERRTelescopeSiPoint.cxx
-data/ERRTelescopeCsIDigi.cxx
-data/ERRTelescopeSiDigi.cxx
-data/ERRTelescopeHit.cxx
-
-geo/ERQTelescopeGeoComponentSensetive.cxx
-geo/ERQTelescopeGeoComponentDoubleSi.cxx
-geo/ERQTelescopeGeoNonUniformSingleSi.cxx
+geo/ERTelescopeGeoComponentSensetive.cxx
+geo/ERTelescopeGeoComponentPassive.cxx
+geo/ERTelescopeGeoComponentSingleSi.cxx
 geo/ERQTelescopeGeoComponentSingleSi.cxx
+geo/ERRTelescopeGeoComponentSingleSi.cxx
+geo/ERQTelescopeGeoNonUniformSingleSi.cxx
+geo/ERTelescopeGeoComponentDoubleSi.cxx
+geo/ERQTelescopeGeoComponentDoubleSi.cxx
+geo/ERRTelescopeGeoComponentDoubleSi.cxx
 geo/ERQTelescopeGeoComponentCsI.cxx
-geo/ERQTelescopeGeoComponentPassive.cxx
+geo/ERRTelescopeGeoComponentCsI.cxx
 
-ERQTelescope.cxx
-ERQTelescopeDigitizer.cxx
-ERQTelescopeSetup.cxx
-ERQTelescopeTrackFinder.cxx
-ERQTelescopePID.cxx
+ERTelescope.cxx
+ERTelescopeDigitizer.cxx
+ERTelescopeSetup.cxx
+ERTelescopeTrackFinder.cxx
+ERTelescopePID.cxx
 
-data/ERQTelescopeSiPoint.cxx
-data/ERQTelescopeSiDigi.cxx
-data/ERQTelescopeCsIPoint.cxx
-data/ERQTelescopeCsIDigi.cxx
-data/ERQTelescopeTrack.cxx
-data/ERQTelescopeParticle.cxx
+data/ERTelescopeTrack.cxx
+data/ERTelescopeParticle.cxx
 
-#AculRaw
-data/AculRaw.cxx
-
-
-#beamtest
-ERQTelescopeCalibrator.cxx
-ERRTelescopeCalibrator.cxx
-#ERTelescopeReconstructorNew.cxx
-
-data/ERRTelescopeEvent.cxx
-data/ERRTelescopeCalEvent.cxx
-data/ERQTelescopeEvent.cxx
-data/ERQTelescopeCalEvent.cxx
-#data/ERTelescopeRecoEvent.cxx
 )
 
 # fill list of header files from list of source files

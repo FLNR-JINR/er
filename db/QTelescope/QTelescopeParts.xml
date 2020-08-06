@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<QTelescopeParts>
+<TelescopeParts>
 	<SiTypes>
 		<doubleSiTypes>
 			<doubleSi id="DoubleSi_SQ_L">
@@ -72,7 +72,7 @@
 				<deadLayerThicknessBackSide>0.0001</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
-			</singleSi>	
+			</singleSi>
 		</singleSiTypes>
 	</SiTypes>
 	<CsITypes>
@@ -107,4 +107,47 @@
 			<CsIMedia>CsI</CsIMedia>
 		</CsI>
 	</CsITypes>
-</QTelescopeParts>
+	<RSiTypes>
+		<singleSiTypes>
+			<singleSi id="SingleSi_R1">
+				<size r_min="1" r_max="5" />
+				<sensetive_size r_min="1" r_max="5" z="0.2"/>
+				<dead_layer_front>0.0002</dead_layer_front>
+				<dead_layer_back>0.0001</dead_layer_back>
+				<strip_count>16</strip_count>
+				<media>silicon</media>
+			</singleSi>
+			<singleSi id="SingleSi_Phi1">
+				<size r_min="1" r_max="5" />
+				<sensetive_size r_min="1" r_max="5" z="0.2"/>
+				<dead_layer_front>0.0002</dead_layer_front>
+				<dead_layer_back>0.0001</dead_layer_back>
+				<strip_count>16</strip_count>
+				<media>silicon</media>
+			</singleSi>
+		</singleSiTypes>
+		<doubleSiTypes>
+			<doubleSi id="DoubleSi_R">
+				<size r_min="1" r_max="5" />
+				<sensetive_size r_min="1" r_max="5" z="0.2"/>
+				<dead_layer_front>0.0002</dead_layer_front>
+				<dead_layer_back>0.0001</dead_layer_back>
+				<strip_count_phi>16</strip_count_phi>
+				<strip_count_r>16</strip_count_r>
+				<media>silicon</media>
+			</doubleSi>
+		</doubleSiTypes>
+	</RSiTypes>
+	<RCsITypes>
+		<CsI id="CsI_Radial">
+			<count>16</count>
+			<size y1="3.60742634" y2="0.8763" x1="0.556737" z1="1.9" z2="1.9" x3="1.02" z3="1.02"/>
+			<split_size>0.1</split_size>
+			<media>CsI</media>
+			<dead_layer>0.0004</dead_layer> 
+			<dead_layer_media>mylar</dead_layer_media>
+			<dead_layer_periphery>0.01</dead_layer_periphery>
+			<dead_layer_periphery_media>Tefflon</dead_layer_periphery_media>
+		</CsI>
+	</RCsITypes>
+</TelescopeParts>

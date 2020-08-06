@@ -6,23 +6,25 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERQTelescopeGeoComponentDoubleSi_H
-#define ERQTelescopeGeoComponentDoubleSi_H
+#ifndef ERRTelescopeGeoComponentDoubleSiSi_H
+#define ERRTelescopeGeoComponentDoubleSiSi_H
 
 #include "ERTelescopeGeoComponentDoubleSi.h"
 
 #include "TString.h"
 #include "TVector3.h"
 
-class ERQTelescopeGeoComponentDoubleSi : public ERTelescopeGeoComponentDoubleSi {
+class ERRTelescopeGeoComponentDoubleSi : public ERTelescopeGeoComponentDoubleSi {
 public:
   using ERTelescopeGeoComponentDoubleSi::ERTelescopeGeoComponentDoubleSi;
   virtual void ConstructGeometryVolume(void);
-private:
+protected:
   virtual void ParseXmlParameters();
-  Double_t fSensX = 0.;
-  Double_t fSensY = 0.;
-  Double_t fSensZ = 0.;
-  ClassDef(ERQTelescopeGeoComponentDoubleSi,1)
+  Double_t fRMin = 0.;
+  Double_t fRMax = 0.;
+  Double_t fSensetiveRMin = 0;
+  Double_t fSensetiveRMax = 0;
+  Double_t fSensetiveZ = 0;
+  ClassDef(ERRTelescopeGeoComponentDoubleSi,1)
 };
 #endif

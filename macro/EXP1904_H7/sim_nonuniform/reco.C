@@ -33,31 +33,31 @@ void reco(Int_t nEvents = 100000){
   beamdetPid->SetBoxPID(0., 1000., 0., 1000.);
   beamdetPid->SetOffsetToF(0.);
   beamdetPid->SetProbabilityThreshold(0);
-  beamdetPid->SetIonMass(7.4825396);
+  beamdetPid->SetIonMass(7482.5396);
   beamdetPid->SetPID(1000020080);
   run->AddTask(beamdetPid);
   // ------- QTelescope TrackFinder -------------------------------------------
-  ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
-  qtelescopeTrackFinder->SetHitStation("Telescope_1", "Telescope_1_SingleSi_SSD20_1_X_0", "Telescope_1_SingleSi_SSD_1_Y_1");
-  qtelescopeTrackFinder->SetHitStation("Telescope_2", "Telescope_2_SingleSi_SSD_2_X_4", "Telescope_2_SingleSi_SSD20_2_Y_3");
-  qtelescopeTrackFinder->SetHitStation("Telescope_3", "Telescope_3_SingleSi_SSD20_3_X_6", "Telescope_3_SingleSi_SSD_3_Y_7");
-  qtelescopeTrackFinder->SetHitStation("Telescope_4", "Telescope_4_SingleSi_SSD_4_X_10", "Telescope_4_SingleSi_SSD20_4_Y_9");
-  qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_DoubleSi_DSD_XY_0");
+  ERTelescopeTrackFinder* qtelescopeTrackFinder = new ERTelescopeTrackFinder(verbose);
+  qtelescopeTrackFinder->SetHitStation("Telescope_1", "Telescope_1_SingleSi_SSD20_1_X", "Telescope_1_SingleSi_SSD_1_Y");
+  qtelescopeTrackFinder->SetHitStation("Telescope_2", "Telescope_2_SingleSi_SSD_2_X", "Telescope_2_SingleSi_SSD20_2_Y");
+  qtelescopeTrackFinder->SetHitStation("Telescope_3", "Telescope_3_SingleSi_SSD20_3_X", "Telescope_3_SingleSi_SSD_3_Y");
+  qtelescopeTrackFinder->SetHitStation("Telescope_4", "Telescope_4_SingleSi_SSD_4_X", "Telescope_4_SingleSi_SSD20_4_Y");
+  qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_DoubleSi_DSD_XY");
   run->AddTask(qtelescopeTrackFinder);
   // ------   QTelescope TrackPID -----------------------------------------
-  ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
+  ERTelescopePID* qtelescopePID = new ERTelescopePID(verbose);
   TString deStation1 = "SSD20_1";
   TString eStation1 = "SSD_1";
   Double_t normalizedThickness = 0.002; // [cm]
-  qtelescopePID->SetParticle("Telescope_1_SingleSi_SSD20_1_X_0Telescope_1_SingleSi_SSD_1_Y_1", 1000020030,
+  qtelescopePID->SetParticle("Telescope_1_SingleSi_SSD20_1_XTelescope_1_SingleSi_SSD_1_Y", 1000020030,
                               deStation1, eStation1, normalizedThickness);
-  qtelescopePID->SetParticle("Telescope_2_SingleSi_SSD_2_X_4Telescope_2_SingleSi_SSD20_2_Y_3", 1000020030,
+  qtelescopePID->SetParticle("Telescope_2_SingleSi_SSD_2_XTelescope_2_SingleSi_SSD20_2_Y", 1000020030,
                              "SSD20_2", "SSD_2", normalizedThickness);
-  qtelescopePID->SetParticle("Telescope_3_SingleSi_SSD20_3_X_6Telescope_3_SingleSi_SSD_3_Y_7", 1000020030,
+  qtelescopePID->SetParticle("Telescope_3_SingleSi_SSD20_3_XTelescope_3_SingleSi_SSD_3_Y", 1000020030,
                              "SSD20_3", "SSD_3", normalizedThickness);
-  qtelescopePID->SetParticle("Telescope_4_SingleSi_SSD_4_X_10Telescope_4_SingleSi_SSD20_4_Y_9", 1000020030,
+  qtelescopePID->SetParticle("Telescope_4_SingleSi_SSD_4_XTelescope_4_SingleSi_SSD20_4_Y", 1000020030,
                              "SSD20_4", "SSD_4", normalizedThickness);
-  qtelescopePID->SetParticle("Central_telescope_DoubleSi_DSD_XY_0", 1000010030);
+  qtelescopePID->SetParticle("Central_telescope_DoubleSi_DSD_XY", 1000010030);
   run->AddTask(qtelescopePID);
   // ------------------------ND track finder --------------------------------
   ERNDTrackFinder* NDTrackFinder = new ERNDTrackFinder();

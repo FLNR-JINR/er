@@ -6,23 +6,23 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERQTelescopeGeoComponentCsI_H
-#define ERQTelescopeGeoComponentCsI_H
+#ifndef ERRTelescopeGeoComponentCsI_H
+#define ERRTelescopeGeoComponentCsI_H
 
 #include "ERTelescopeGeoComponentSensetive.h"
 
 #include "TString.h"
 #include "TVector3.h"
 
-class ERQTelescopeGeoComponentCsI : public ERTelescopeGeoComponentSensetive {
+class ERRTelescopeGeoComponentCsI : public ERTelescopeGeoComponentSensetive {
 public:
-  ERQTelescopeGeoComponentCsI() = default;
-  ERQTelescopeGeoComponentCsI(const TString& typeFromXML, const TString& id)
+  ERRTelescopeGeoComponentCsI() = default;
+  ERRTelescopeGeoComponentCsI(const TString& typeFromXML, const TString& id)
     : ERTelescopeGeoComponentSensetive(typeFromXML, id) {}
-  ERQTelescopeGeoComponentCsI(const TString& typeFromXML, const TString& id, 
+  ERRTelescopeGeoComponentCsI(const TString& typeFromXML, const TString& id, 
                               const TVector3& position, const TVector3& rotation)
     : ERTelescopeGeoComponentSensetive(typeFromXML, id, position, rotation) {}
-  virtual ~ERQTelescopeGeoComponentCsI() = default;
+  virtual ~ERRTelescopeGeoComponentCsI() = default;
   virtual void ConstructGeometryVolume(void);
   virtual TString GetBranchName(ERDataObjectType object, 
                                 OrientationAroundZ orientationAroundZ = OrientationAroundZ::Default,
@@ -33,10 +33,19 @@ public:
     const TString& path, OrientationAroundZ orientation = OrientationAroundZ::Default) const;
 private:
   virtual void ParseXmlParameters();
-  Int_t    fCubesCountX = 0;
-  Int_t    fCubesCountY = 0;
+  Int_t    fCrystalCount = 0;
+  Double_t fY1 = 0.;
+  Double_t fY2 = 0.;
+  Double_t fX1 = 0.;
+  Double_t fZ1 = 0.;
+  Double_t fZ2 = 0.;
+  Double_t fX3 = 0.;
+  Double_t fZ3 = 0.;
   Double_t fSplitSize = 0.;
   Double_t fDeadLayer = 0.;
-  ClassDef(ERQTelescopeGeoComponentCsI,1)
+  TString fDeadLayerMedia;
+  Double_t fDeadLayerPeriphery = 0.;
+  TString fDeadLayerPeripheryMedia;
+  ClassDef(ERRTelescopeGeoComponentCsI,1)
 };
 #endif

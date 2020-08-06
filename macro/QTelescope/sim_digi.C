@@ -37,9 +37,9 @@ void sim_digi(Int_t nEvents = 10)
   cave->SetGeometryFileName("cave.geo");
   run->AddModule(cave);
   // -----  QTelescope Setup ------------------------------------------------
-  ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
+  ERTelescopeSetup* setupQTelescope = ERTelescopeSetup::Instance();
   setupQTelescope->SetXMLParametersFile(paramFileQTelescope);
-  setupQTelescope->SetGeoName("QTelescopeTmp");
+  setupQTelescope->SetGeoName("TelescopeTmp");
 
   // ----- 1 parameters ----------------------------------------------------
   Double_t x, y, z;
@@ -129,11 +129,11 @@ void sim_digi(Int_t nEvents = 10)
 
   setupQTelescope->AddSubAssembly(assembly_4);
   // ------QTelescope -------------------------------------------------------
-  ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE, 1);
+  ERTelescope* qtelescope= new ERTelescope("ERTelescope", kTRUE, 1);
   run->AddModule(qtelescope);
 
   // ------- QTelescope Digitizer -------------------------------------------
-  ERQTelescopeDigitizer* qtelescopeDigitizer = new ERQTelescopeDigitizer(0);
+  ERTelescopeDigitizer* qtelescopeDigitizer = new ERTelescopeDigitizer(0);
   qtelescopeDigitizer->SetSiElossThreshold(0);
   qtelescopeDigitizer->SetSiElossSigma(0);
   qtelescopeDigitizer->SetSiTimeSigma(0);
