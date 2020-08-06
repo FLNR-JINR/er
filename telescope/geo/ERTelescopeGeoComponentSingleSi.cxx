@@ -17,8 +17,6 @@
 
 #include "FairLogger.h"
 
-#include "ERQTelescopeSetup.h"
-
 using namespace std;
 
 //--------------------------------------------------------------------------------------------------

@@ -6,8 +6,8 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERQTelescopePID_H
-#define ERQTelescopePID_H
+#ifndef ERTelescopePID_H
+#define ERTelescopePID_H
 
 #include <limits>
 #include <map>
@@ -19,19 +19,19 @@
 
 #include "ERTask.h"
 #include "ERDigi.h"
-#include "ERQTelescopeTrack.h"
-#include "ERQTelescopeParticle.h"
-#include "ERQTelescopeSetup.h"
+#include "ERTelescopeTrack.h"
+#include "ERTelescopeParticle.h"
+#include "ERTelescopeSetup.h"
 
 class G4ParticleDefinition;
 
-/** @class ERQTelescopePID
+/** @class ERTelescopePID
  ** @brief 
  ** @author V.Schetinin <schetinin@jinr.ru>
  ** @version 1.0
 **/
 
-class ERQTelescopePID : public ERTask {
+class ERTelescopePID : public ERTask {
   using PDG = Int_t;
 public:
   enum EdepAccountingStrategy {EdepFromXChannel, EdepFromYChannel, AverageEdep, SummarizedEdep};
@@ -60,13 +60,13 @@ public:
   };
                                                      
   /** @brief Default constructor **/
-  ERQTelescopePID();
+  ERTelescopePID();
   /** @brief Constructor 
    ** @param verbosity level
   **/
-  ERQTelescopePID(Int_t verbose);
+  ERTelescopePID(Int_t verbose);
   /** @brief Destructor **/
-  ~ERQTelescopePID() = default;
+  ~ERTelescopePID() = default;
   /* Modifiers */
   void SetParticle(const TString& trackBranchName, const PDG pdg, 
                    const TString& deStation = "", const TString& eStation = "",
@@ -88,7 +88,7 @@ public:
   virtual void Reset();
 protected:
   //Paramaters
-  ERQTelescopeSetup* fQTelescopeSetup = nullptr; ///< access to ERQTelescopeSetup class instance
+  ERTelescopeSetup* fQTelescopeSetup = nullptr; ///< access to ERTelescopeSetup class instance
   std::map<TString, std::list<ParticleDescription>> fParticleDescriptions;
   std::map<TString, EdepAccountingStrategy> fEdepAccountingStrategies;
   //Input arrays
@@ -97,9 +97,9 @@ protected:
   //Output arrays
   std::map<TString, std::map<PDG, TClonesArray*> >  fQTelescopeParticle;
 protected:
-  TVector3 FindBackPropagationStartPoint(const ERQTelescopeTrack& track);
+  TVector3 FindBackPropagationStartPoint(const ERTelescopeTrack& track);
   std::pair<Double_t, Double_t> CalcEnergyDeposites (
-      const ERQTelescopeTrack& track, const TVector3& startPoint,
+      const ERTelescopeTrack& track, const TVector3& startPoint,
       const G4ParticleDefinition& particle, std::list<DigiOnTrack>& digisOnTrack,
       const std::vector<TString>& doNotUseSignalFromStations);
   std::map<TString, const ERDigi*> FindDigisByNode(const TGeoNode& node, const TString& nodePath);
@@ -111,11 +111,11 @@ protected:
                                   Double_t& edepInThickStationCorrected, Double_t& edepInThinStationCorrected);
   Double_t ApplyEdepAccountingStrategy(const std::map<TString, const ERDigi*>& digisByBranchName);
   Double_t ApplyEdepAccountingStrategy(const std::list<DigiOnTrack>& digisOnTrack);
-  /** @brief Adds a ERQTelescopeParticles to the output Collection **/
-  ERQTelescopeParticle* AddParticle(const TLorentzVector& lvInteraction, Double_t kineticEnergy,
+  /** @brief Adds a ERTelescopeParticles to the output Collection **/
+  ERTelescopeParticle* AddParticle(const TLorentzVector& lvInteraction, Double_t kineticEnergy,
                                     Double_t deadEloss, Double_t edepInThickStation, Double_t edepInThinStation,
                                     Double_t edepInThickStationCorrected, Double_t edepInThinStationCorrected,
                                     TClonesArray& col);
-  ClassDef(ERQTelescopePID, 1)
+  ClassDef(ERTelescopePID, 1)
 };
 #endif

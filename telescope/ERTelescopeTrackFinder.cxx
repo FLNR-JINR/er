@@ -6,7 +6,7 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#include "ERQTelescopeTrackFinder.h"
+#include "ERTelescopeTrackFinder.h"
 
 #include <cassert>
 
@@ -23,29 +23,29 @@
 #include "ERDigi.h"
 
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeTrackFinder::ERQTelescopeTrackFinder()
-  : ERTask("ER qtelescope track finding scheme"),
+ERTelescopeTrackFinder::ERTelescopeTrackFinder()
+  : ERTask("ER telescope track finding scheme"),
     fUserTargetPointIsSet(kFALSE),
     fBeamDetTrack(NULL)
     //@Todo инициализация всех переменных
 {
   fAvailibleRunManagers.push_back("ERRunAna");
-  fQTelescopeSetup = ERQTelescopeSetup::Instance();
+  fQTelescopeSetup = ERTelescopeSetup::Instance();
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeTrackFinder::ERQTelescopeTrackFinder(Int_t verbose)
-  : ERTask("ER qtelescope track finding scheme ", verbose),
+ERTelescopeTrackFinder::ERTelescopeTrackFinder(Int_t verbose)
+  : ERTask("ER telescope track finding scheme ", verbose),
     fUserTargetPointIsSet(kFALSE),
     fBeamDetTrack(NULL)
 {
   fAvailibleRunManagers.push_back("ERRunAna");
-  fQTelescopeSetup = ERQTelescopeSetup::Instance();
+  fQTelescopeSetup = ERTelescopeSetup::Instance();
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeTrackFinder::~ERQTelescopeTrackFinder() {
+ERTelescopeTrackFinder::~ERTelescopeTrackFinder() {
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString componentId) {
+void ERTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString componentId) {
   TString xStripArrayName = componentId;
   TString yStripArrayName = componentId;
   fSiHitStationsPair[subassemblyName].emplace(
@@ -53,25 +53,25 @@ void ERQTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString com
                                                               yStripArrayName.Append("_Y"))));
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString componentIdX,
+void ERTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString componentIdX,
                                                                      TString componentIdY) 
 {
   fSiHitStationsPair[subassemblyName].emplace(
       std::make_pair(componentIdX + componentIdY, std::pair<TString, TString>(componentIdX, componentIdY)));
 }//--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::SetStripEdepRange(Double_t edepMin, Double_t edepMax) {
+void ERTelescopeTrackFinder::SetStripEdepRange(Double_t edepMin, Double_t edepMax) {
   fSiDigiEdepMin = edepMin; 
   fSiDigiEdepMax = edepMax;
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::SetTargetPoint(Double_t x, Double_t y, Double_t z) {
+void ERTelescopeTrackFinder::SetTargetPoint(Double_t x, Double_t y, Double_t z) {
   fUserTargetPointIsSet = kTRUE;
   fTargetX = x;
   fTargetY = y;
   fTargetZ = z;
 }
 //--------------------------------------------------------------------------------------------------
-InitStatus ERQTelescopeTrackFinder::Init() {
+InitStatus ERTelescopeTrackFinder::Init() {
   if (ERTask::Init() != kSUCCESS)
     return kFATAL;
 
@@ -92,7 +92,7 @@ InitStatus ERQTelescopeTrackFinder::Init() {
   // Register output track branches only for stations that are setted by interface SetStation(){
   for (const auto itSubassemblies : fSiHitStationsPair) {
     for (const auto itComponent : itSubassemblies.second) {
-      fQTelescopeTrack[itComponent.first] = new TClonesArray("ERQTelescopeTrack");
+      fQTelescopeTrack[itComponent.first] = new TClonesArray("ERTelescopeTrack");
       ioman->Register("TelescopeTrack_" + itComponent.first, "Telescope", 
                       fQTelescopeTrack[itComponent.first], kTRUE);
     }
@@ -101,22 +101,22 @@ InitStatus ERQTelescopeTrackFinder::Init() {
   fBeamDetTrack = (TClonesArray*) ioman->GetObject("BeamDetTrack");   
   if (!fUserTargetPointIsSet) {
     if (!fBeamDetTrack) {
-      LOG(DEBUG) << "ERQTelescopeTrackFinder: target point not initialized by user " 
+      LOG(DEBUG) << "ERTelescopeTrackFinder: target point not initialized by user " 
                  << "(by means of SetTargetPoint()) and there is no ERBeamDetTrack branch" 
                  <<FairLogger::endl;
       return kFATAL;
     } 
   }
 
-  fQTelescopeSetup->ERQTelescopeSetup::ReadGeoParamsFromParContainer();
+  fQTelescopeSetup->ERTelescopeSetup::ReadGeoParamsFromParContainer();
 
   //@TODO check setup and digi branch names
   
   return kSUCCESS;
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::Exec(Option_t* opt) { 
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder]------------Started--------------------------------------"
+void ERTelescopeTrackFinder::Exec(Option_t* opt) { 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder]------------Started--------------------------------------"
              << FairLogger::endl;
   Reset();
   if (!fUserTargetPointIsSet) {
@@ -171,9 +171,9 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
           }
         }
       }
-      LOG(DEBUG) << "[ERQTelescopeTrackFinder] Strips array pair " << itComponent.second.first << " " 
+      LOG(DEBUG) << "[ERTelescopeTrackFinder] Strips array pair " << itComponent.second.first << " " 
                                          << itComponent.second.second << FairLogger::endl;
-      LOG(DEBUG) << "[ERQTelescopeTrackFinder] Hits count on pair " << hitTelescopePoint.size() << FairLogger::endl;
+      LOG(DEBUG) << "[ERTelescopeTrackFinder] Hits count on pair " << hitTelescopePoint.size() << FairLogger::endl;
       for (const auto& itHitPoint : hitTelescopePoint) {
         const auto xChannelIndex = itHitPoint.first;
         const auto yChannelIndex = itHitPoint.second;
@@ -183,7 +183,7 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
           continue;
         const auto xChannel = xStrip->Channel();
         const auto yChannel = yStrip->Channel();
-        if (fQTelescopeSetup->GetStationType(xDigiBranchName) == ERQTelescopeSetup::StationType::QStation) {
+        if (fQTelescopeSetup->GetStationType(xDigiBranchName) == ERTelescopeSetup::StationType::QStation) {
           CreateTrackInQTelescope(xChannelIndex, yChannelIndex, xChannel, yChannel, 
                                   xStrip->Edep(), yStrip->Edep(), xDigiBranchName, yDigiBranchName,
                                   itComponent.first);
@@ -195,17 +195,17 @@ void ERQTelescopeTrackFinder::Exec(Option_t* opt) {
       }
     }
   }
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder]------------Finished--------------------------------------"
+  LOG(DEBUG) << "[ERTelescopeTrackFinder]------------Finished--------------------------------------"
              << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::CreateTrackInQTelescope(
+void ERTelescopeTrackFinder::CreateTrackInQTelescope(
     const Int_t xChannelIndex, const Int_t yChannelIndex, const Int_t xChannel, const Int_t yChannel,
     const Double_t xEdep, const Double_t yEdep, const TString& xDigiBranchName, const TString& yDigiBranchName,
     const TString& trackBranchName) {
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] Branch names X:" << xDigiBranchName 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] Branch names X:" << xDigiBranchName 
               << " Y: " << yDigiBranchName << FairLogger::endl;
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] Strips pair numbers " << xChannel << " " 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] Strips pair numbers " << xChannel << " " 
               << yChannel << FairLogger::endl;
   // Calc unknown coordinated using condition: target, hit on first station(closest) and
   // hit on second station lie on line :
@@ -225,14 +225,14 @@ void ERQTelescopeTrackFinder::CreateTrackInQTelescope(
   if (xStationIsClosest) { // find y1, x2 from equation
     x1 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xChannel);
     y2 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yChannel);
-    LOG(DEBUG) << "[ERQTelescopeTrackFinder] Coordinates from strips. x1 = " << x1 
+    LOG(DEBUG) << "[ERTelescopeTrackFinder] Coordinates from strips. x1 = " << x1 
                 << " y2 = " << y2 << " z1 = " << z1 << " z2 = " << z2 << FairLogger::endl;
     y1 = (-1./k)*((1. - k)*fTargetY - y2);
     x2 = (1. - k)*fTargetX + k*x1;
   } else { // find x1, y2 from equation
     x2 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xChannel);
     y1 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yChannel);
-    LOG(DEBUG) << "[ERQTelescopeTrackFinder] Coordinates from strips. x2 = " << x2 
+    LOG(DEBUG) << "[ERTelescopeTrackFinder] Coordinates from strips. x2 = " << x2 
                 << " y1 = " << y1 << " z1 = " << z1 << " z2 = " << z2 << FairLogger::endl;
     x1 = (-1./k)*((1. - k)*fTargetX - x2);
     y2 = (1. - k)*fTargetY + k*y1;
@@ -241,13 +241,13 @@ void ERQTelescopeTrackFinder::CreateTrackInQTelescope(
   const auto& yStationVertex = xStationIsClosest ? TVector3(x2, y2, z2) : TVector3(x1, y1, z1);
   const auto& xStationLocalVertex = fQTelescopeSetup->ToStationCoordinateSystem(xDigiBranchName, xStationVertex);
   const auto& yStationLocalVertex = fQTelescopeSetup->ToStationCoordinateSystem(yDigiBranchName, yStationVertex);
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] X Station Vertex (" << xStationVertex.x() << " " << xStationVertex.y() 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] X Station Vertex (" << xStationVertex.x() << " " << xStationVertex.y() 
               << " " << xStationVertex.z() << ")" << FairLogger::endl;
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] Y Station Vertex (" << yStationVertex.x() << " " << yStationVertex.y() 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] Y Station Vertex (" << yStationVertex.x() << " " << yStationVertex.y() 
               << " " << yStationVertex.z() << ")" << FairLogger::endl;
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] X Station Vertex in station CS (" << xStationLocalVertex.x() << " " << xStationLocalVertex.y() 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] X Station Vertex in station CS (" << xStationLocalVertex.x() << " " << xStationLocalVertex.y() 
               << " " << xStationLocalVertex.z() << ")" << FairLogger::endl;
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] Y Station Vertex in station CS (" << yStationLocalVertex.x() << " " << yStationLocalVertex.y() 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] Y Station Vertex in station CS (" << yStationLocalVertex.x() << " " << yStationLocalVertex.y() 
               << " " << yStationLocalVertex.z() << ")" << FairLogger::endl;
   auto* track = AddTrack(TVector3(fTargetX, fTargetY, fTargetZ), xStationVertex, yStationVertex,
                           xStationLocalVertex, yStationLocalVertex, xChannel, yChannel, xEdep, yEdep,
@@ -256,13 +256,13 @@ void ERQTelescopeTrackFinder::CreateTrackInQTelescope(
   track->AddLink(FairLink(yDigiBranchName, yChannelIndex));
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::CreateTrackInRTelescope(
+void ERTelescopeTrackFinder::CreateTrackInRTelescope(
     const Int_t phiChannelIndex, const Int_t rChannelIndex, const Int_t phiChannel, const Int_t rChannel,
     const Double_t phiEdep, const Double_t rEdep, const TString& phiDigiBranchName, const TString& rDigiBranchName,
     const TString& trackBranchName) {
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] Branch names phi:" << phiDigiBranchName 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] Branch names phi:" << phiDigiBranchName 
               << " R: " << rDigiBranchName << FairLogger::endl;
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] phi channel = " << phiChannel << " r channel = " 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] phi channel = " << phiChannel << " r channel = " 
               << rChannel << FairLogger::endl;
   // Calc unknown coordinated using condition: target, hit on first station(closest) and
   // hit on second station lie on line :
@@ -298,15 +298,15 @@ void ERQTelescopeTrackFinder::CreateTrackInRTelescope(
   const TVector3 global_vertex2 = target + k * (global_vertex1 - target);
   const TVector3 local_vertex2 = global_vertex2 - station2;
   const Double_t phi2 = TMath::ACos(local_vertex2.X() / r2) * TMath::RadToDeg();
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] phi station: phi = " << phi1 << " r = " << r1 << FairLogger::endl;
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] r station: phi = " << phi2 << " r = " << r2 << FairLogger::endl;
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] phi station: local vertex = (" << local_vertex1.x() << " " << local_vertex1.y() 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] phi station: phi = " << phi1 << " r = " << r1 << FairLogger::endl;
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] r station: phi = " << phi2 << " r = " << r2 << FairLogger::endl;
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] phi station: local vertex = (" << local_vertex1.x() << " " << local_vertex1.y() 
              << " " << local_vertex1.z() << ")" << FairLogger::endl;
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] r station: local vertex = (" << local_vertex2.x() << " " << local_vertex2.y() 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] r station: local vertex = (" << local_vertex2.x() << " " << local_vertex2.y() 
              << " " << local_vertex2.z() << ")" << FairLogger::endl;
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] phi station: global vertex = (" << global_vertex1.x() << " " << global_vertex1.y() 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] phi station: global vertex = (" << global_vertex1.x() << " " << global_vertex1.y() 
              << " " << global_vertex1.z() << ")" << FairLogger::endl;
-  LOG(DEBUG) << "[ERQTelescopeTrackFinder] r station: global vertex = (" << global_vertex2.x() << " " << global_vertex2.y() 
+  LOG(DEBUG) << "[ERTelescopeTrackFinder] r station: global vertex = (" << global_vertex2.x() << " " << global_vertex2.y() 
              << " " << global_vertex2.z() << ")" << FairLogger::endl;
   auto* track = AddTrack(TVector3(fTargetX, fTargetY, fTargetZ), global_vertex1, global_vertex2,
                           local_vertex1, local_vertex2, phiChannel, rChannel, phiEdep, rEdep,
@@ -315,7 +315,7 @@ void ERQTelescopeTrackFinder::CreateTrackInRTelescope(
   track->AddLink(FairLink(rDigiBranchName, rChannelIndex));
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::Reset() {
+void ERTelescopeTrackFinder::Reset() {
   for (const auto itTrackBranches : fQTelescopeTrack) {
     if (itTrackBranches.second) {
       itTrackBranches.second->Delete();
@@ -323,17 +323,17 @@ void ERQTelescopeTrackFinder::Reset() {
   }
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeTrackFinder::Finish() {   
+void ERTelescopeTrackFinder::Finish() {   
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeTrack* ERQTelescopeTrackFinder::AddTrack(
+ERTelescopeTrack* ERTelescopeTrackFinder::AddTrack(
     const TVector3& targetVertex, const TVector3& xStationVertex, const TVector3& yStationVertex,
     const TVector3& xStationLocalVertex, const TVector3& yStationLocalVertex, 
     const Int_t xChannel, const Int_t yChannel, const Double_t xEdep, const Double_t yEdep,
     const TString& digiBranchName) {
   return new((*fQTelescopeTrack[digiBranchName]) [fQTelescopeTrack[digiBranchName]->GetEntriesFast()])
-      ERQTelescopeTrack(targetVertex, xStationVertex, yStationVertex, xStationLocalVertex,
+      ERTelescopeTrack(targetVertex, xStationVertex, yStationVertex, xStationLocalVertex,
                         yStationLocalVertex, xChannel, yChannel, xEdep, yEdep);
 }
 //--------------------------------------------------------------------------------------------------
-ClassImp(ERQTelescopeTrackFinder)
+ClassImp(ERTelescopeTrackFinder)

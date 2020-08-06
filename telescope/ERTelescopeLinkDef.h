@@ -4,14 +4,14 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class ERQTelescope+;
-#pragma link C++ class ERQTelescopeDigitizer+;
-#pragma link C++ class ERQTelescopeSetup;
-#pragma link C++ class ERQTelescopeTrackFinder+;
-#pragma link C++ class ERQTelescopePID;
+#pragma link C++ class ERTelescope+;
+#pragma link C++ class ERTelescopeDigitizer+;
+#pragma link C++ class ERTelescopeSetup;
+#pragma link C++ class ERTelescopeTrackFinder+;
+#pragma link C++ class ERTelescopePID;
 
-#pragma link C++ class ERQTelescopeTrack+;
-#pragma link C++ class ERQTelescopeParticle+;
+#pragma link C++ class ERTelescopeTrack+;
+#pragma link C++ class ERTelescopeParticle+;
 
 #pragma link C++ class ERTelescopeGeoComponentSensetive+;
 #pragma link C++ class ERTelescopeGeoComponentPassive+;

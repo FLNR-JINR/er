@@ -5,25 +5,25 @@
  *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
-#ifndef ERQTelescopeTrack_H
-#define ERQTelescopeTrack_H
+#ifndef ERTelescopeTrack_H
+#define ERTelescopeTrack_H
 
 #include "TNamed.h"
 #include "TVector3.h"
 
 #include "FairMultiLinkedData.h"
 
-/** @class ERQTelescopeTrackFinder
+/** @class ERTelescopeTrackFinder
  ** @brief 
  ** @author M.Kozlov <kozlov.m.your@yandex.ru>
  ** @version 1.0
 **/
 
-class ERQTelescopeTrack : public FairMultiLinkedData{
+class ERTelescopeTrack : public FairMultiLinkedData{
 
 public:
   /** @brief Default constructor **/
-  ERQTelescopeTrack() = default;
+  ERTelescopeTrack() = default;
   /** @brief Constructor 
    ** @param fTargetVertex - Track vertex on target;
    ** @param fXStationVertex - Track vertex on telescope station, which produced X coordinate;
@@ -35,7 +35,7 @@ public:
    ** @param fXEdep - Edep in telescope station, which produced X coordinate;
    ** @param fYEdep - Edep in telescope station, which produced Y coordinate;
   **/
-  ERQTelescopeTrack(const TVector3& targetVertex, const TVector3& xStationVertex, const TVector3& yStationVertex,
+  ERTelescopeTrack(const TVector3& targetVertex, const TVector3& xStationVertex, const TVector3& yStationVertex,
                     const TVector3& xStationLocalVertex, const TVector3& yStationLocalVertex, 
                     Int_t xChannel, Int_t yChannel, Double_t xEdep, Double_t yEdep);
   /* Accessors */
@@ -64,7 +64,7 @@ private:
   Double_t fXEdep = -1.;
   Double_t fYEdep = -1.;
 
-  ClassDef(ERQTelescopeTrack, 1)
+  ClassDef(ERTelescopeTrack, 1)
 };
 
 #endif

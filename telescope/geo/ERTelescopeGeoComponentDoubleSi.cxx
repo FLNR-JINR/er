@@ -17,8 +17,6 @@
 
 #include "FairLogger.h"
 
-#include "ERQTelescopeSetup.h"
-
 //--------------------------------------------------------------------------------------------------
 ERTelescopeGeoComponentDoubleSi::ERTelescopeGeoComponentDoubleSi(
     const TString& typeFromXML, const TString& id, const TString& orientAroundZ) 

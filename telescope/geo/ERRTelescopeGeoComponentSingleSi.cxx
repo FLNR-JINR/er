@@ -17,7 +17,7 @@
 
 #include "FairLogger.h"
 
-#include "ERQTelescopeSetup.h"
+#include "ERTelescopeSetup.h"
 
 #include <iostream>
 using namespace std;
@@ -68,7 +68,7 @@ void ERRTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
 }
 //--------------------------------------------------------------------------------------------------
 void ERRTelescopeGeoComponentSingleSi::ParseXmlParameters() {
-  TString xmlFile = ERQTelescopeSetup::Instance()->GetXMLParametersFile();
+  TString xmlFile = ERTelescopeSetup::Instance()->GetXMLParametersFile();
   TDOMParser *domParser;
   domParser = new TDOMParser;
   domParser->SetValidate(false); // do not validate with DTD

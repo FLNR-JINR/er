@@ -5,26 +5,26 @@
  *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
-#ifndef ERQTelescopeParticle_H
-#define ERQTelescopeParticle_H
+#ifndef ERTelescopeParticle_H
+#define ERTelescopeParticle_H
 
 #include "TNamed.h"
 #include "TLorentzVector.h"
 
-/** @class ERQTelescopeParticle
+/** @class ERTelescopeParticle
  ** @brief 
  ** @author V.Schetinin <schetinin@jinr.ru>
  ** @version 1.0
 **/
 
-class ERQTelescopeParticle : public TNamed {
+class ERTelescopeParticle : public TNamed {
 public:
-  ERQTelescopeParticle() = default;
+  ERTelescopeParticle() = default;
   /** @brief Constructor 
    ** @param deadEloss - eloss in passive detector volumes;
    ** @param lvInteraction - Lorentz vector in interaction;
   **/
-  ERQTelescopeParticle(TLorentzVector lvinteraction, Double_t deadEloss,
+  ERTelescopeParticle(TLorentzVector lvinteraction, Double_t deadEloss,
                        Double_t kineticEnergy, Double_t edepInThickStation = -1.,
                        Double_t edepInThinStation = -1., Double_t correctedEdepInThickStation = -1.,
                        Double_t correctedEdepInThinStation = -1.);
@@ -43,7 +43,7 @@ private:
   Double_t  fEdepInThinStation = -1.;
   Double_t  fCorrectedEdepInThickStation = -1.;
   Double_t  fCorrectedEdepInThinStation = -1.;
-  ClassDef(ERQTelescopeParticle, 1)
+  ClassDef(ERTelescopeParticle, 1)
 };
 
 #endif

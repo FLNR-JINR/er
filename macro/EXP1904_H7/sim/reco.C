@@ -37,8 +37,7 @@ void reco(Int_t nEvents = 100000){
   beamdetPid->SetPID(1000020080);
   run->AddTask(beamdetPid);
   // ------- QTelescope TrackFinder -------------------------------------------
-  ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
-  qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
+  ERTelescopeTrackFinder* qtelescopeTrackFinder = new ERTelescopeTrackFinder(verbose);
   qtelescopeTrackFinder->SetHitStation("Telescope_1", "Telescope_1_SingleSi_SSD20_1_X", "Telescope_1_SingleSi_SSD_1_Y");
   qtelescopeTrackFinder->SetHitStation("Telescope_2", "Telescope_2_SingleSi_SSD_2_X", "Telescope_2_SingleSi_SSD20_2_Y");
   qtelescopeTrackFinder->SetHitStation("Telescope_3", "Telescope_3_SingleSi_SSD20_3_X", "Telescope_3_SingleSi_SSD_3_Y");
@@ -47,7 +46,7 @@ void reco(Int_t nEvents = 100000){
   qtelescopeTrackFinder->SetHitStation("Central_telescope", "Central_telescope_DoubleSi_DSD_XY_X","Central_telescope_DoubleSi_DSD_XY_Y");
   run->AddTask(qtelescopeTrackFinder);
   // ------   QTelescope TrackPID -----------------------------------------
-  ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
+  ERTelescopePID* qtelescopePID = new ERTelescopePID(verbose);
   TString deStation1 = "SSD20_1";
   TString eStation1 = "SSD_1";
   Double_t normalizedThickness = 0.002; // [cm]
@@ -62,7 +61,7 @@ void reco(Int_t nEvents = 100000){
                              "SSD20_4", "SSD_4", normalizedThickness);
   qtelescopePID->SetParticle("Central_telescope_DoubleSi_DSD_XY_XCentral_telescope_DoubleSi_DSD_XY_Y",1000010030, "DSD", "CsI", DSD_thickness);
   //enum EdepAccountingStrategy {EdepFromXChannel, EdepFromYChannel, AverageEdep, SummarizedEdep};
-  qtelescopePID->SetEdepAccountingStrategy("DSD", ERQTelescopePID::EdepAccountingStrategy::EdepFromYChannel);
+  qtelescopePID->SetEdepAccountingStrategy("DSD", ERTelescopePID::EdepAccountingStrategy::EdepFromYChannel);
   run->AddTask(qtelescopePID);
   // ------------------------ND track finder --------------------------------
   ERNDTrackFinder* NDTrackFinder = new ERNDTrackFinder();

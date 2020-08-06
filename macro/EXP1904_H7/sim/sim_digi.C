@@ -67,7 +67,7 @@ void sim_digi (Int_t nEvents = 100000) {
   run->AddModule(target);
 
   // -----  QTelescope Setup ------------------------------------------------
-  ERQTelescopeSetup* setupQTelescope = ERQTelescopeSetup::Instance();
+  ERTelescopeSetup* setupQTelescope = ERTelescopeSetup::Instance();
   setupQTelescope->SetXMLParametersFile(paramFileQTelescope);
   setupQTelescope->SetGeoName("QTelescopeTmp");
 
@@ -156,7 +156,7 @@ void sim_digi (Int_t nEvents = 100000) {
 
   setupQTelescope->AddSubAssembly(assembly_4);
   // ------QTelescope -------------------------------------------------------
-  ERQTelescope* qtelescope= new ERQTelescope("ERQTelescope", kTRUE,verbose);
+  ERTelescope* qtelescope= new ERTelescope("ERTelescope", kTRUE,verbose);
   run->AddModule(qtelescope);
   // ------BeamDet ----------------------------------------------------------
   ERBeamDet* beamdet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
@@ -206,7 +206,7 @@ void sim_digi (Int_t nEvents = 100000) {
   run->SetDecayer(decayer);
   
   // ------- QTelescope Digitizer -------------------------------------------
-  ERQTelescopeDigitizer* qtelescopeDigitizer = new ERQTelescopeDigitizer(verbose);
+  ERTelescopeDigitizer* qtelescopeDigitizer = new ERTelescopeDigitizer(verbose);
   qtelescopeDigitizer->SetSiElossThreshold(0);
   qtelescopeDigitizer->SetSiElossSigma(0);
   qtelescopeDigitizer->SetSiTimeSigma(0);

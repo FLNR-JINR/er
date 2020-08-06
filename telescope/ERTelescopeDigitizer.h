@@ -6,8 +6,8 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERQTelescopeDigitizer_H
-#define ERQTelescopeDigitizer_H
+#ifndef ERTelescopeDigitizer_H
+#define ERTelescopeDigitizer_H
 
 #include <limits>
 
@@ -15,18 +15,18 @@
 
 #include "ERDigitizer.h"
 #include "ERDigi.h"
-#include "ERQTelescopeSetup.h"
+#include "ERTelescopeSetup.h"
 
-class ERQTelescopeSetup;
+class ERTelescopeSetup;
 
-class ERQTelescopeDigitizer : public ERDigitizer {
+class ERTelescopeDigitizer : public ERDigitizer {
  public:
-  ERQTelescopeDigitizer();
+  ERTelescopeDigitizer();
   /** Constructor 
   ** verbose: 1 - only standard log print, 2 - print digi information 
   **/
-  ERQTelescopeDigitizer(Int_t verbose);
-  virtual ~ERQTelescopeDigitizer() = default;
+  ERTelescopeDigitizer(Int_t verbose);
+  virtual ~ERTelescopeDigitizer() = default;
   /** Virtual method Init **/
   virtual InitStatus Init();
   /** Virtual method Exec **/
@@ -56,7 +56,7 @@ protected:
 protected:
   ERDigi* AddDigi(Float_t edep, Double_t time, Int_t stripNb, TString digiBranchName);
 private:
-  ClassDef(ERQTelescopeDigitizer,1)
+  ClassDef(ERTelescopeDigitizer,1)
 };
 
 #endif

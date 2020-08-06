@@ -6,7 +6,7 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#include "ERQTelescopeDigitizer.h"
+#include "ERTelescopeDigitizer.h"
 
 #include "TVector3.h"
 #include "TGeoMatrix.h"
@@ -22,21 +22,21 @@
 #include "ERPoint.h"
 
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeDigitizer::ERQTelescopeDigitizer()
+ERTelescopeDigitizer::ERTelescopeDigitizer()
   : ERDigitizer("ER telescope digitization")
 {
   fAvailibleRunManagers.push_back("ERRunSim");
   fAvailibleRunManagers.push_back("ERRunAna");
 }
 //-------------------------------------------------------------------------------------------------
-ERQTelescopeDigitizer::ERQTelescopeDigitizer(Int_t verbose)
+ERTelescopeDigitizer::ERTelescopeDigitizer(Int_t verbose)
   : ERDigitizer("ER telescope digitization ", verbose)
 {
   fAvailibleRunManagers.push_back("ERRunSim");
   fAvailibleRunManagers.push_back("ERRunAna");
 }
 //-------------------------------------------------------------------------------------------------
-InitStatus ERQTelescopeDigitizer::Init() {
+InitStatus ERTelescopeDigitizer::Init() {
   if (ERTask::Init() != kSUCCESS)
     return kFATAL;
   // Get input array
@@ -68,7 +68,7 @@ InitStatus ERQTelescopeDigitizer::Init() {
   return kSUCCESS;
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescopeDigitizer::Exec(Option_t* opt) {
+void ERTelescopeDigitizer::Exec(Option_t* opt) {
   Reset();
   for (const auto &itPointBranches : fQTelescopePoints) {
     Double_t  elossThreshold, timeThreshold;
@@ -126,7 +126,7 @@ void ERQTelescopeDigitizer::Exec(Option_t* opt) {
   }
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescopeDigitizer::Reset() {
+void ERTelescopeDigitizer::Reset() {
   for (const auto itDigiBranches : fQTelescopeDigi) {
     if (itDigiBranches.second) {
       itDigiBranches.second->Delete();
@@ -134,14 +134,14 @@ void ERQTelescopeDigitizer::Reset() {
   }
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescopeDigitizer::Finish(){   
+void ERTelescopeDigitizer::Finish(){   
 }
 //-------------------------------------------------------------------------------------------------
-ERDigi* ERQTelescopeDigitizer::AddDigi(Float_t edep, Double_t time, Int_t stripNb,
+ERDigi* ERTelescopeDigitizer::AddDigi(Float_t edep, Double_t time, Int_t stripNb,
                                        TString digiBranchName) {
   ERDigi *digi = new((*fQTelescopeDigi[digiBranchName])
       [fQTelescopeDigi[digiBranchName]->GetEntriesFast()]) ERDigi(edep, time, stripNb);
   return digi;
 }
 //-------------------------------------------------------------------------------------------------
-ClassImp(ERQTelescopeDigitizer)
+ClassImp(ERTelescopeDigitizer)

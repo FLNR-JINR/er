@@ -5,9 +5,9 @@
  *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
-#include "ERQTelescopeTrack.h"
+#include "ERTelescopeTrack.h"
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeTrack::ERQTelescopeTrack(const TVector3& targetVertex, const TVector3& xStationVertex, 
+ERTelescopeTrack::ERTelescopeTrack(const TVector3& targetVertex, const TVector3& xStationVertex, 
                                      const TVector3& yStationVertex, const TVector3& xStationLocalVertex,
                                      const TVector3& yStationLocalVertex, const Int_t xChannel, const Int_t yChannel,
                                      const Double_t xEdep, const Double_t yEdep)
@@ -17,23 +17,23 @@ ERQTelescopeTrack::ERQTelescopeTrack(const TVector3& targetVertex, const TVector
 {
 }
 //--------------------------------------------------------------------------------------------------
-TVector3 ERQTelescopeTrack::GetDirection() const {
+TVector3 ERTelescopeTrack::GetDirection() const {
     auto direction = fXStationVertex - fTargetVertex;
     direction.SetMag(1.);
     return direction;
 }
 //--------------------------------------------------------------------------------------------------
-TVector3 ERQTelescopeTrack::GetVertexInZPlane(const Double_t z) const {
+TVector3 ERTelescopeTrack::GetVertexInZPlane(const Double_t z) const {
     const auto direction = fXStationVertex - fTargetVertex;
     return fTargetVertex + direction * ((z - fTargetVertex.Z()) / (direction.Z()));
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERQTelescopeTrack::GetXInZPlane(Double_t z) const {
+Double_t ERTelescopeTrack::GetXInZPlane(Double_t z) const {
     return GetVertexInZPlane(z).X();
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERQTelescopeTrack::GetYInZPlane(Double_t z) const {
+Double_t ERTelescopeTrack::GetYInZPlane(Double_t z) const {
     return GetVertexInZPlane(z).Y();
 }
 //--------------------------------------------------------------------------------------------------
-ClassImp(ERQTelescopeTrack)
+ClassImp(ERTelescopeTrack)

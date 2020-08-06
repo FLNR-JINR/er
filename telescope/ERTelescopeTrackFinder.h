@@ -6,37 +6,37 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERQTelescopeTrackFinder_H
-#define ERQTelescopeTrackFinder_H
+#ifndef ERTelescopeTrackFinder_H
+#define ERTelescopeTrackFinder_H
 
 #include <utility>
 #include <limits>
 #include "TClonesArray.h"
 
 #include "ERTask.h"
-#include "ERQTelescopeTrack.h"
-#include "ERQTelescopeSetup.h"
+#include "ERTelescopeTrack.h"
+#include "ERTelescopeSetup.h"
 
-/** @class ERQTelescopeTrackFinder
+/** @class ERTelescopeTrackFinder
  ** @brief 
  ** @author M.Kozlov <kozlov.m.your@yandex.ru>
  ** @version 1.0
 **/
 
-class ERQTelescopeTrackFinder : public ERTask {
+class ERTelescopeTrackFinder : public ERTask {
 
 public:
 
   /** @brief Default constructor **/
-  ERQTelescopeTrackFinder();
+  ERTelescopeTrackFinder();
 
   /** @brief Constructor 
    ** @param verbosity level
   **/
-  ERQTelescopeTrackFinder(Int_t verbose);
+  ERTelescopeTrackFinder(Int_t verbose);
 
   /** @brief Destructor **/
-  ~ERQTelescopeTrackFinder();
+  ~ERTelescopeTrackFinder();
 
   /* Modifiers */
   void SetHitStation(TString subassemblyName, TString componentIdX, TString componentIdY); 
@@ -64,7 +64,7 @@ public:
   
 protected:
   //Paramaters
-  ERQTelescopeSetup                   *fQTelescopeSetup;      ///< access to ERQTelescopeSetup class instance
+  ERTelescopeSetup                   *fQTelescopeSetup;      ///< access to ERTelescopeSetup class instance
   //Input arrays
   std::map<TString, TClonesArray*>    fQTelescopeDigi;
   TClonesArray                        *fBeamDetTrack;
@@ -83,8 +83,8 @@ protected:
   Bool_t   fUserTargetPointIsSet = false;
 
 private:
-  /** @brief Adds a ERQTelescopeTrack to the output Collection **/
-  ERQTelescopeTrack* AddTrack(const TVector3& targetVertex, const TVector3& xStationVertex, const TVector3& yStationVertex,
+  /** @brief Adds a ERTelescopeTrack to the output Collection **/
+  ERTelescopeTrack* AddTrack(const TVector3& targetVertex, const TVector3& xStationVertex, const TVector3& yStationVertex,
                               const TVector3& xStationLocalVertex, const TVector3& yStationLocalVertex, 
                               Int_t xChannel, Int_t yChannel, Double_t xEdep, Double_t yEdep,
                               const TString& digiBranchName);
@@ -92,6 +92,6 @@ private:
                                const TString& xBranchName, const TString& yBranchName, const TString& trackBranchName);
   void CreateTrackInRTelescope(Int_t xChannelIndex, Int_t yChannelIndex, Int_t phiChannel, Int_t RChannel, Double_t phiEdep, Double_t rEdep,
                                const TString& phiBranchName, const TString& rBranchName, const TString& trackBranchName);
-  ClassDef(ERQTelescopeTrackFinder, 1)
+  ClassDef(ERTelescopeTrackFinder, 1)
 };
 #endif

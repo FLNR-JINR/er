@@ -6,7 +6,7 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#include "ERQTelescopeSetup.h"
+#include "ERTelescopeSetup.h"
 
 #include <ostream>
 #include <iostream>
@@ -33,9 +33,9 @@
 #include "FairGeoMedia.h"
 #include "FairLogger.h"
 
-ERQTelescopeSetup* ERQTelescopeSetup::fInstance = nullptr;  
+ERTelescopeSetup* ERTelescopeSetup::fInstance = nullptr;  
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeStrip::ERQTelescopeStrip(Double_t globalX, Double_t globalY, Double_t globalZ,
+ERTelescopeStrip::ERTelescopeStrip(Double_t globalX, Double_t globalY, Double_t globalZ,
                                      Double_t  localX, Double_t  localY, Double_t localZ) 
 {
   fGlobalX = globalX;
@@ -46,7 +46,7 @@ ERQTelescopeStrip::ERQTelescopeStrip(Double_t globalX, Double_t globalY, Double_
   fLocalZ = localZ;
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeStrip::ERQTelescopeStrip(Double_t* globTrans, Double_t* localTrans) {
+ERTelescopeStrip::ERTelescopeStrip(Double_t* globTrans, Double_t* localTrans) {
   fGlobalX = globTrans[0]; 
   fGlobalY = globTrans[1]; 
   fGlobalZ = globTrans[2];
@@ -55,16 +55,16 @@ ERQTelescopeStrip::ERQTelescopeStrip(Double_t* globTrans, Double_t* localTrans) 
   fLocalZ = localTrans[2];
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeSetup::ERQTelescopeSetup(): ERSetup() {
-  LOG(DEBUG) << "ERQTelescopeSetup initialized! "<< FairLogger::endl;
+ERTelescopeSetup::ERTelescopeSetup(): ERSetup() {
+  LOG(DEBUG) << "ERTelescopeSetup initialized! "<< FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeSetup::~ERQTelescopeSetup() {
+ERTelescopeSetup::~ERTelescopeSetup() {
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeSetup* ERQTelescopeSetup::Instance(){
+ERTelescopeSetup* ERTelescopeSetup::Instance(){
   if (fInstance == NULL) {
-    fInstance = new ERQTelescopeSetup();
+    fInstance = new ERTelescopeSetup();
     return fInstance;
   }
   else
@@ -72,31 +72,31 @@ ERQTelescopeSetup* ERQTelescopeSetup::Instance(){
 }
 
 //--------------------------------------------------------------------------------------------------
-Double_t ERQTelescopeSetup::GetStripGlobalX(const TString& componentBranchName, Int_t stripNb) const {
+Double_t ERTelescopeSetup::GetStripGlobalX(const TString& componentBranchName, Int_t stripNb) const {
   return fStrips.at(componentBranchName).at(stripNb).fGlobalX;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERQTelescopeSetup::GetStripGlobalY(const TString& componentBranchName, Int_t stripNb) const {
+Double_t ERTelescopeSetup::GetStripGlobalY(const TString& componentBranchName, Int_t stripNb) const {
   return fStrips.at(componentBranchName).at(stripNb).fGlobalY;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERQTelescopeSetup::GetStripGlobalZ(const TString& componentBranchName, Int_t stripNb) const {
+Double_t ERTelescopeSetup::GetStripGlobalZ(const TString& componentBranchName, Int_t stripNb) const {
   return fStrips.at(componentBranchName).at(stripNb).fGlobalZ;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERQTelescopeSetup::GetStripLocalX(const TString& componentBranchName, Int_t stripNb) const {
+Double_t ERTelescopeSetup::GetStripLocalX(const TString& componentBranchName, Int_t stripNb) const {
   return fStrips.at(componentBranchName).at(stripNb).fLocalX;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERQTelescopeSetup::GetStripLocalY(const TString& componentBranchName, Int_t stripNb) const {
+Double_t ERTelescopeSetup::GetStripLocalY(const TString& componentBranchName, Int_t stripNb) const {
   return fStrips.at(componentBranchName).at(stripNb).fLocalY;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERQTelescopeSetup::GetStripLocalZ(const TString& componentBranchName, Int_t stripNb) const {
+Double_t ERTelescopeSetup::GetStripLocalZ(const TString& componentBranchName, Int_t stripNb) const {
   return fStrips.at(componentBranchName).at(stripNb).fLocalZ;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERQTelescopeSetup::GetStripPhi(const TString& componentBranchName, const Int_t stripNb) const {
+Double_t ERTelescopeSetup::GetStripPhi(const TString& componentBranchName, const Int_t stripNb) const {
   if (fRStrips.find(componentBranchName) == fRStrips.end()) {
     LOG(FATAL) << "R strips has not been filled for " << componentBranchName << FairLogger::endl;
   }
@@ -109,7 +109,7 @@ Double_t ERQTelescopeSetup::GetStripPhi(const TString& componentBranchName, cons
   return fRStrips.at(componentBranchName).at(stripNb).fPhi;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERQTelescopeSetup::GetStripR(const TString& componentBranchName, const Int_t stripNb) const {
+Double_t ERTelescopeSetup::GetStripR(const TString& componentBranchName, const Int_t stripNb) const {
   if (fRStrips.find(componentBranchName) == fRStrips.end()) {
     LOG(FATAL) << "R strips has not been filled for " << componentBranchName << FairLogger::endl;
   }
@@ -122,17 +122,17 @@ Double_t ERQTelescopeSetup::GetStripR(const TString& componentBranchName, const 
   return fRStrips.at(componentBranchName).at(stripNb).fR;
 }
 //--------------------------------------------------------------------------------------------------
-TVector3 ERQTelescopeSetup::GetStationTranslation(const TString& componentBranchName) const {
+TVector3 ERTelescopeSetup::GetStationTranslation(const TString& componentBranchName) const {
   return fStationGlobalToLocalMatrixies.at(componentBranchName).GetTranslation();
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeSetup::StationType ERQTelescopeSetup::GetStationType(const TString& componentBranchName) const {
+ERTelescopeSetup::StationType ERTelescopeSetup::GetStationType(const TString& componentBranchName) const {
   if (fStationTypes.find(componentBranchName) == fStationTypes.end())
     LOG(FATAL) << "Station type has not been filled for " << componentBranchName << FairLogger::endl;
   return fStationTypes.at(componentBranchName);
 }
 //--------------------------------------------------------------------------------------------------
-TVector3 ERQTelescopeSetup::ToStationCoordinateSystem (const TString& componentBranchName, 
+TVector3 ERTelescopeSetup::ToStationCoordinateSystem (const TString& componentBranchName, 
                                                        const TVector3& vectorInGlobalCS) const {
   Double_t global[3], local[3];
   
@@ -155,19 +155,19 @@ TGeoHMatrix GetGlobalToLocalMatrix(const TString& path) {
   return nullptr;
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeSetup::GetTransInMotherNode (TGeoNode const* node, Double_t b[3]) {
+void ERTelescopeSetup::GetTransInMotherNode (TGeoNode const* node, Double_t b[3]) {
   memcpy(b, node->GetMatrix()->GetTranslation(), sizeof(double)*3);
 }
 // Написать несколько методов для работы с объемами:
 // 1) Функция получения координаты в глобальной СК. (скорее всего функция в п.1) 
 //    Проход от самого низкого дочернего объема до родительского внтри одной функции
 // ------------------------------- -------------------------------------------------------------------
-void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
+void ERTelescopeSetup::ReadGeoParamsFromParContainer() {
   if (fGeometryInited)
     return;
   LOG(DEBUG) << "Loading Telescope setup from parameters database file." << FairLogger::endl;
   if ( ! gGeoManager ) {
-    std::cerr << "ERQTelescopeSetup: cannot initialise without TGeoManager!"<< std::endl;
+    std::cerr << "ERTelescopeSetup: cannot initialise without TGeoManager!"<< std::endl;
   }
   gGeoManager->CdTop();
   
@@ -311,7 +311,7 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
   fGeometryInited = true;
 }
 //--------------------------------------------------------------------------------------------------
-void ERQTelescopeSetup::FillRStrips(TGeoNode* r_station, const TString& branch_name) {
+void ERTelescopeSetup::FillRStrips(TGeoNode* r_station, const TString& branch_name) {
   const bool is_phi_station = branch_name.EndsWith("_X");
   std::cerr << 1 << std::endl;
   for (int i_strip = 0; i_strip < r_station->GetNdaughters(); i_strip++) {
@@ -338,4 +338,4 @@ void ERQTelescopeSetup::FillRStrips(TGeoNode* r_station, const TString& branch_n
   }
 }
 //--------------------------------------------------------------------------------------------------
-ClassImp(ERQTelescopeSetup)
+ClassImp(ERTelescopeSetup)

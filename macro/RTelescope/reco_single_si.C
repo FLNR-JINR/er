@@ -17,12 +17,12 @@ void reco_single_si(Int_t nEvents = 100000){
   run->SetEventHeader(header);
   // ------- QTelescope TrackFinder -------------------------------------------
   Int_t verbose = 0;
-  ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
+  ERTelescopeTrackFinder* qtelescopeTrackFinder = new ERTelescopeTrackFinder(verbose);
   qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
   qtelescopeTrackFinder->SetHitStation("Telescope_1", "Telescope_1_SingleSi_Phi1_X", "Telescope_1_SingleSi_R1_Y");
   run->AddTask(qtelescopeTrackFinder);
   // ------   QTelescope TrackPID -----------------------------------------
-  ERQTelescopePID* qtelescopePID = new ERQTelescopePID(verbose);
+  ERTelescopePID* qtelescopePID = new ERTelescopePID(verbose);
   qtelescopePID->SetParticle("Telescope_1_SingleSi_Phi1_XTelescope_1_SingleSi_R1_Y", 2212);
   run->AddTask(qtelescopePID);
   // -----------Runtime DataBase info ---------------------------------------

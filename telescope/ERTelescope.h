@@ -6,11 +6,11 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERQTelescope_H
-#define ERQTelescope_H
+#ifndef ERTelescope_H
+#define ERTelescope_H
 
 #include "ERDetector.h"
-#include "ERQTelescopeSetup.h"
+#include "ERTelescopeSetup.h"
 
 #include "TLorentzVector.h"
 
@@ -18,25 +18,25 @@ class TClonesArray;
 class FairVolume;
 class TF1;
 
-class ERQTelescope : public ERDetector {
+class ERTelescope : public ERDetector {
   using BranchName = TString;
   using ComponentPoints = std::map<BranchName, TClonesArray*>;
   using PointsPerComponent = std::map<TString, ComponentPoints>;
 public:
   /** Default constructor **/
-  ERQTelescope();
+  ERTelescope();
   /** Standard constructor.
-   *@param name    ERQTelescope ERQTelescope name
+   *@param name    ERTelescope ERTelescope name
    *@param active  sensitivity flag
    *@param verbose Verbosity level. 1 - only standart logs, 2 - Print points after each event, 3 - GEANT Step information
    **/
-  ERQTelescope(const char* name, Bool_t active, Int_t verbose);
+  ERTelescope(const char* name, Bool_t active, Int_t verbose);
   /** Destructor **/
-  virtual ~ERQTelescope();
+  virtual ~ERTelescope();
   /** Virtual method ProcessHits
    **
    ** Defines the action to be taken when a step is inside the
-   ** active volume. Creates a ERQTelescopePoint and adds it to the
+   ** active volume. Creates a ERTelescopePoint and adds it to the
    ** collection.
    *@param vol  Pointer to the active volume
    **/
@@ -79,7 +79,7 @@ public:
 			  Int_t offset);
    /** Virtaul method Initialize
    **
-   ** Initialize ERQTelescope data
+   ** Initialize ERTelescope data
    **/
   virtual void Initialize();
   /** @brief Builds geometry and writes it to temporary file
@@ -99,7 +99,7 @@ public:
   **/
   void SetGeomVersion(Int_t vers ) { fVersion = vers; }
 private:
-  ERQTelescopeSetup* fQTelescopeSetup = nullptr; //!
+  ERTelescopeSetup* fQTelescopeSetup = nullptr; //!
   PointsPerComponent fPoints;
   Int_t                     fVersion = -1;           //! geometry version
   Int_t                     fEventID = -1;           //!  event index
@@ -125,7 +125,7 @@ private:
    **/
   void ResetParameters();
 
-  ClassDef(ERQTelescope, 1);
+  ClassDef(ERTelescope, 1);
 };
 
 #endif

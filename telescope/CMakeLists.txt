@@ -39,14 +39,14 @@ geo/ERRTelescopeGeoComponentDoubleSi.cxx
 geo/ERQTelescopeGeoComponentCsI.cxx
 geo/ERRTelescopeGeoComponentCsI.cxx
 
-ERQTelescope.cxx
-ERQTelescopeDigitizer.cxx
-ERQTelescopeSetup.cxx
-ERQTelescopeTrackFinder.cxx
-ERQTelescopePID.cxx
+ERTelescope.cxx
+ERTelescopeDigitizer.cxx
+ERTelescopeSetup.cxx
+ERTelescopeTrackFinder.cxx
+ERTelescopePID.cxx
 
-data/ERQTelescopeTrack.cxx
-data/ERQTelescopeParticle.cxx
+data/ERTelescopeTrack.cxx
+data/ERTelescopeParticle.cxx
 
 )
 

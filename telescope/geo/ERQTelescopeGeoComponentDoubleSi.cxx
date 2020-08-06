@@ -17,7 +17,7 @@
 
 #include "FairLogger.h"
 
-#include "ERQTelescopeSetup.h"
+#include "ERTelescopeSetup.h"
 
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
@@ -68,7 +68,7 @@ void ERQTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
 }
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeGeoComponentDoubleSi::ParseXmlParameters() {
-  TString xmlFile = ERQTelescopeSetup::Instance()->GetXMLParametersFile();
+  TString xmlFile = ERTelescopeSetup::Instance()->GetXMLParametersFile();
   TDOMParser *domParser;//
   //gROOT->ProcessLine(".O 0");
   domParser = new TDOMParser;

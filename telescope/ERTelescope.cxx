@@ -6,7 +6,7 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#include "ERQTelescope.h"
+#include "ERTelescope.h"
 
 #include "TClonesArray.h"
 #include "TParticle.h"
@@ -22,29 +22,29 @@
 #include "ERTelescopeGeoComponentSensetive.h"
 #include "ERPoint.h"
 //-------------------------------------------------------------------------------------------------
-ERQTelescope::ERQTelescope() :
-  ERDetector("ERQTelescope", kTRUE)
+ERTelescope::ERTelescope() :
+  ERDetector("ERTelescope", kTRUE)
 {
   ResetParameters();
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
-  fQTelescopeSetup = ERQTelescopeSetup::Instance();
+  fQTelescopeSetup = ERTelescopeSetup::Instance();
   fVerboseLevel = 1;
   fVersion = 1;
 }
 //-------------------------------------------------------------------------------------------------
-ERQTelescope::ERQTelescope(const char* name, Bool_t active, Int_t verbose)
+ERTelescope::ERTelescope(const char* name, Bool_t active, Int_t verbose)
   : ERDetector(name, active,1)
 {
   ResetParameters();
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
-  fQTelescopeSetup = ERQTelescopeSetup::Instance();
+  fQTelescopeSetup = ERTelescopeSetup::Instance();
   fVersion = 1;
   fVerboseLevel = verbose;
 }
 //-------------------------------------------------------------------------------------------------
-ERQTelescope::~ERQTelescope() {
+ERTelescope::~ERTelescope() {
 /*  if (fSiPoint) {
     fSiPoint->Delete();
     delete fSiPoint;
@@ -56,11 +56,11 @@ ERQTelescope::~ERQTelescope() {
   */
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescope::Initialize() {
+void ERTelescope::Initialize() {
   FairDetector::Initialize();
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescope::AddPoint(TClonesArray& clref) {
+void ERTelescope::AddPoint(TClonesArray& clref) {
   TGeoHMatrix matrix;
   gMC->GetTransformation(gMC->CurrentVolPath(), matrix);
   Double_t globalPos[3],localPos[3];
@@ -78,13 +78,13 @@ void ERQTelescope::AddPoint(TClonesArray& clref) {
     fTime, fTime, fLength, fEloss, -1 /*light yield*/,fPDG, -1 /*charge*/);
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescope::ConstructGeometry() {
+void ERTelescope::ConstructGeometry() {
   fQTelescopeSetup->ConstructGeometry();
   SetGeometryFileName(fQTelescopeSetup->GetGeoFileName());
   ConstructRootGeometry();
 }
 //-------------------------------------------------------------------------------------------------
-Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
+Bool_t ERTelescope::ProcessHits(FairVolume* vol) {
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
     fEloss  = 0.;
     fEventID = gMC->CurrentEvent();
@@ -106,7 +106,7 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
     const TString path = gMC->CurrentVolPath();
     const auto* component = dynamic_cast<ERTelescopeGeoComponentSensetive*>(fQTelescopeSetup->GetComponent(path));
     if (!component)
-      LOG(FATAL) << "[ERQTelescope] Not found setup component for sensetive volume path" 
+      LOG(FATAL) << "[ERTelescope] Not found setup component for sensetive volume path" 
                   << path << FairLogger::endl;
     for (const auto orientation : component->GetOrientationsAroundZ()) {
       for (const auto channelSide : component->GetChannelSides()) {
@@ -120,17 +120,17 @@ Bool_t ERQTelescope::ProcessHits(FairVolume* vol) {
   return kTRUE;
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescope::BeginEvent() {
+void ERTelescope::BeginEvent() {
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescope::EndOfEvent() {
+void ERTelescope::EndOfEvent() {
   if (fVerboseLevel > 1) {
     Print();
   }
   Reset();
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescope::Register() {
+void ERTelescope::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
     Fatal("Init", "IO manager is not set");
@@ -138,7 +138,7 @@ void ERQTelescope::Register() {
     if (!dynamic_cast<const ERTelescopeGeoComponentSensetive*>(component))
       continue;
     for (const auto branchName : component->GetBranchNames(ERDataObjectType::Point)) {
-      LOG(DEBUG) << "[ERQTelescope] Register branch " << branchName 
+      LOG(DEBUG) << "[ERTelescope] Register branch " << branchName 
                  << " for component " << component->GetVolumeName() << FairLogger::endl;
       fPoints[component->GetVolumeName()][branchName] = new TClonesArray("ERPoint");
       ioman->Register(branchName, "Telescope", fPoints[component->GetVolumeName()][branchName], kTRUE);
@@ -146,7 +146,7 @@ void ERQTelescope::Register() {
   }
 }
 //-------------------------------------------------------------------------------------------------
-TClonesArray* ERQTelescope::GetCollection(Int_t iColl) const {
+TClonesArray* ERTelescope::GetCollection(Int_t iColl) const {
  /* if (iColl == 0)
     return fSiPoint;
   if (iColl == 0)
@@ -155,25 +155,25 @@ TClonesArray* ERQTelescope::GetCollection(Int_t iColl) const {
   return NULL;
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescope::Print(Option_t *option) const {
+void ERTelescope::Print(Option_t *option) const {
 /*  if(fSiPoint->GetEntriesFast() > 0) {
     LOG(DEBUG) << "======== Si Points ==================" << FairLogger::endl;
     for (Int_t iPoint = 0; iPoint < fSiPoint->GetEntriesFast(); iPoint++){
-      ERQTelescopeSiPoint* point = (ERQTelescopeSiPoint*)fSiPoint->At(iPoint);
+      ERTelescopeSiPoint* point = (ERTelescopeSiPoint*)fSiPoint->At(iPoint);
       point->Print();
     }
   }
   if(fCsIPoint->GetEntriesFast() > 0) {
     LOG(DEBUG) << "======== CsI Points ==================" << FairLogger::endl;
     for (Int_t iPoint = 0; iPoint < fCsIPoint->GetEntriesFast(); iPoint++){
-      ERQTelescopeCsIPoint* point = (ERQTelescopeCsIPoint*)fCsIPoint->At(iPoint);
+      ERTelescopeCsIPoint* point = (ERTelescopeCsIPoint*)fCsIPoint->At(iPoint);
       point->Print();
     }
   }
 */
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescope::Reset() {
+void ERTelescope::Reset() {
   for(auto& componentPoints : fPoints) {
     for (auto& branchPoints : componentPoints.second) {
       branchPoints.second->Clear();
@@ -182,24 +182,24 @@ void ERQTelescope::Reset() {
   ResetParameters();
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
-/*  LOG(INFO) << "   ERQTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)"
+void ERTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
+/*  LOG(INFO) << "   ERTelescope::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)"
             << FairLogger::endl;
   Int_t nEntries = cl1->GetEntriesFast();
   LOG(INFO) << "QTelescope: " << nEntries << " entries to add" << FairLogger::endl;
   TClonesArray& clref = *cl2;
-  ERQTelescopeSiPoint* oldpoint = NULL;
+  ERTelescopeSiPoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
-  oldpoint = (ERQTelescopeSiPoint*) cl1->At(i);
+  oldpoint = (ERTelescopeSiPoint*) cl1->At(i);
    Int_t index = oldpoint->GetTrackID() + offset;
    oldpoint->SetTrackID(index);
-   new (clref[cl2->GetEntriesFast()]) ERQTelescopeSiPoint(*oldpoint);
+   new (clref[cl2->GetEntriesFast()]) ERTelescopeSiPoint(*oldpoint);
   }
   LOG(INFO) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 */
 }
 //-------------------------------------------------------------------------------------------------
-Bool_t ERQTelescope::CheckIfSensitive(std::string name) {
+Bool_t ERTelescope::CheckIfSensitive(std::string name) {
   TString volName = name;
   if(volName.BeginsWith("Sensitive")) {
     return kTRUE;
@@ -207,8 +207,8 @@ Bool_t ERQTelescope::CheckIfSensitive(std::string name) {
   return kFALSE;
 }
 //-------------------------------------------------------------------------------------------------
-void ERQTelescope::ResetParameters() {
+void ERTelescope::ResetParameters() {
 };
 //-------------------------------------------------------------------------------------------------
-ClassImp(ERQTelescope)
+ClassImp(ERTelescope)
 

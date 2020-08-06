@@ -20,8 +20,6 @@
 
 #include "FairLogger.h"
 
-#include "ERQTelescopeSetup.h"
-
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeGeoNonUniformSingleSi::ERQTelescopeGeoNonUniformSingleSi(
     const TString& xmlTypeSingleSi, const TString& id, const TVector3& position, 

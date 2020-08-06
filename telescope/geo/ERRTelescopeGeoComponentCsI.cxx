@@ -20,7 +20,7 @@
 
 #include <iostream>
 
-#include "ERQTelescopeSetup.h"
+#include "ERTelescopeSetup.h"
 //--------------------------------------------------------------------------------------------------
 void ERRTelescopeGeoComponentCsI::ConstructGeometryVolume(void) {
   ParseXmlParameters();
@@ -62,7 +62,7 @@ void ERRTelescopeGeoComponentCsI::ConstructGeometryVolume(void) {
 }
 //--------------------------------------------------------------------------------------------------
 void ERRTelescopeGeoComponentCsI::ParseXmlParameters() {
-  TString xmlFile = ERQTelescopeSetup::Instance()->GetXMLParametersFile();
+  TString xmlFile = ERTelescopeSetup::Instance()->GetXMLParametersFile();
   TDOMParser *domParser;//
   //gROOT->ProcessLine(".O 0");
   domParser = new TDOMParser;
