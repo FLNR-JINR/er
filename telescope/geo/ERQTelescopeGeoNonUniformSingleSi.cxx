@@ -63,10 +63,12 @@ void ERQTelescopeGeoNonUniformSingleSi::ConstructGeometryVolume(void) {
   for (Int_t iStripX = 0; iStripX < fXPseudoStripCount; iStripX++) {
     LOG(DEBUG) << "[ERQTelescopeGeoNonUniformSingleSi] Creating strip " << iStripX << FairLogger::endl;
     auto* strip = new TGeoVolumeAssembly("pseudoSiStrip_" + TString::Itoa(iStripX, 10 /*base*/));
-    const Double_t stripInStationTranslateX = -fSensX / 2 + boxX *(iStripX)+(boxX / 2);
+    const Double_t stripInStationTranslateX = -fSensX / 2 + boxX * iStripX + boxX / 2;
     fVolume->AddNode(strip, iStripX, new TGeoCombiTrans(stripInStationTranslateX, 0, 0, zeroRotation));
     for (Int_t iStripY = 0; iStripY < fYPseudoStripCount; iStripY++) {
-      const Double_t fullThickness = fThicknessMap->GetBinContent(iStripX + 1, iStripY + 1) * 1e-4 /* mkm to cm */;
+      const Double_t fullThickness = (fComponentId.Contains("SSD20_3") || fComponentId.Contains("SSD20_4")) 
+        ? fThicknessMap->GetBinContent(iStripX + 1, iStripY + 1) * 1e-4 /* mkm to cm */
+        : fThicknessMap->GetBinContent(fXPseudoStripCount - iStripX, fYPseudoStripCount - iStripY) * 1e-4 /* mkm to cm */;
       const auto sensetiveThickness = fullThickness - fDeadLayerThicknessFrontSide - fDeadLayerThicknessBackSide;
       LOG(DEBUG) << "[ERQTelescopeGeoNonUniformSingleSi] Create box " << iStripY 
                  << " with full thickness = " << fullThickness << " and sensetive thickness = " 
@@ -83,7 +85,7 @@ void ERQTelescopeGeoNonUniformSingleSi::ConstructGeometryVolume(void) {
                                                 boxX / 2, boxY / 2, fDeadLayerThicknessBackSide / 2);
       backDeadBox->SetLineColor(kGreen);
       backDeadBox->SetTransparency(60);
-      const Double_t translationInStripY = (fSensY / 2) - boxY / 2 - boxY * iStripY;
+      const Double_t translationInStripY = -(fSensY / 2) + boxY / 2 + boxY * iStripY;
       strip->AddNode(sensetiveBox, 0, new TGeoCombiTrans(0, translationInStripY, 0, zeroRotation));
       const Double_t transFrontDeadZ = - (fDeadLayerThicknessFrontSide + sensetiveThickness) / 2;
       strip->AddNode(frontDeadBox, 0, new TGeoCombiTrans(0, translationInStripY, transFrontDeadZ, zeroRotation));

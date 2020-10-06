@@ -29,6 +29,8 @@
 #include "ERRunAna.h"
 #include "ERSupport.h"
 
+#include "TGeoBBox.h"
+
 //--------------------------------------------------------------------------------------------------
 ERQTelescopePID::ERQTelescopePID()
   : ERTask("ER qtelescope particle identification scheme") {
@@ -257,6 +259,10 @@ CalcEnergyDeposites(const ERQTelescopeTrack& track, const TVector3& startPoint,
           for (const auto& branchAndDigi : branchAndDigis) {
             const auto digiBranch = branchAndDigi.first;
             const auto* digi = branchAndDigi.second;
+            auto* box = dynamic_cast<TGeoBBox*>(gGeoManager->GetCurrentNode()->GetVolume()->GetShape());
+            if (box) {
+              LOG(DEBUG) <<"[ERQTelescopePID] [CalcEnergyDeposites] Station thickness = " << box->GetDZ()* 2 << FairLogger::endl;
+            }
             digisOnTrack.emplace_back(digiBranch, digi, gGeoManager->GetStep());
           }
           const Double_t edepInStation = ApplyEdepAccountingStrategy(branchAndDigis);
