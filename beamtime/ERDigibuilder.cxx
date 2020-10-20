@@ -43,19 +43,14 @@ ERDigibuilder::~ERDigibuilder(){
 Bool_t ERDigibuilder::Init(){
     //input files opening
     if (fPath.size() == 0)
-        Fatal("ERDigibuilder", "No files for source ERDigibuilder");
-
+        LOG(FATAL) << "No files for source ERDigibuilder" << FairLogger::endl;
     if (fSetupFile == "")
-
+        LOG(FATAL) << "Setup file name is not defined" << FairLogger::endl;
     FairRun* run = FairRun::Instance();
-
-    if (OpenNextFile() == -1)
+    if (OpenNextFile() != 0)
         return kFALSE;
-
     fSetupConfiguration = new SetupConfiguration(fSetupFile);
-
     InitUnpackers();
-    
     return kTRUE;
 }
 //--------------------------------------------------------------------------------------------------
@@ -80,10 +75,8 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
     Reset();
     FairRootManager* ioman = FairRootManager::Instance();
     if ( ! ioman ) Fatal("Init", "No FairRootManager");
-
     if (ioman->GetEntryNr()%10000 == 0)
         LOG(INFO) << "[Digibuilder] Event " << ioman->GetEntryNr() << FairLogger::endl;
-
     Int_t curEventInCurFile = ioman->GetEntryNr()-fOldEvents;
     //Проверяем есть ли еще события для обработки
     if (fReader->GetNEventsTotal() == curEventInCurFile){
@@ -93,10 +86,8 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
         if (OpenNextFile())
             return 1;
     }
-
     FairRun* run = FairRun::Instance();
     ERBeamTimeEventHeader* header = (ERBeamTimeEventHeader*) run->GetEventHeader();
-
     if (fUserCut != "") {
         if (!fEventsForProcessing->GetBinContent(curEventInCurFile)){
             LOG(DEBUG) << "[Digibuilder]  Skip event with user cut" << FairLogger::endl;
@@ -106,17 +97,13 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
             return 0;
         }
     }
-
     DetEventFull* event = fReader->ReadEvent(curEventInCurFile);
-    
     DetEventCommon* common  = (DetEventCommon*)event->GetChild("DetEventCommon");
     if (!common){
         LOG(FATAL) << "[Digibuilder] DetEventCommon event element not found!" << FairLogger::endl;
         return 1;
     }
-
     header->SetTrigger(common->trigger);
-
     for (auto itUnpack : fUnpacks){
         if (itUnpack.second->IsInited()){
             if (event->GetChild(itUnpack.first)){
@@ -128,7 +115,6 @@ Int_t ERDigibuilder::ReadEvent(UInt_t id){
                                     << " not found in event!" << FairLogger::endl;
         }
     }
-
     return 0;
 }
 //--------------------------------------------------------------------------------------------------
@@ -161,9 +147,9 @@ Int_t ERDigibuilder::OpenNextFile(){
             return -1;
         }
         if (!fEventsForProcessing->GetEntries()) {
-          LOG(DEBUG) << "[Digibuilder] No data for analysis with defined user cut: "
+          LOG(WARNING) << "[Digibuilder] No data for analysis with defined user cut: "
                     << fUserCut << FairLogger::endl;
-          OpenNextFile();
+          return OpenNextFile();
         }
     }
     
