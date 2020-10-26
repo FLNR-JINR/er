@@ -58,9 +58,9 @@ public:
   Float_t ProbabilityC() const {return fProbabilityC;}
 protected:
   //Input arrays
-  TClonesArray *fNDPoints;
+  TClonesArray* fNDPoints = nullptr;
   //Output arrays
-  TClonesArray *fNDDigis;
+  TClonesArray* fNDDigis = nullptr;
 
   static Int_t fEvent;
   Float_t fEdepErrorA, fEdepErrorB, fEdepErrorC;
@@ -71,10 +71,9 @@ protected:
   Float_t fProbabilityB;
   Float_t fProbabilityC;
 
-  ERNDSetup* fSetup;
+  ERNDSetup* fSetup = nullptr;
 protected:
-  ERNDDigi* AddDigi(Int_t detID, TVector3& pos, TVector3& dpos, 
-          Int_t point_index, Float_t edep, Float_t lightYield, Float_t time, Float_t neutronProb);
+  ERNDDigi* AddDigi(Int_t stilbenNb, Float_t edep, Float_t lightYield, Float_t time, Float_t neutronProb);
   Float_t NeutronProbability(Float_t edep, Float_t ly);
 private:
   virtual void SetParContainers();

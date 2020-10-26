@@ -86,7 +86,7 @@ InitStatus ERNDDigitizer::Init()
     Fatal("Init", "Can`t find collection NDPoint!"); 
 
   // Register output array fNDDigis
-  fNDDigis = new TClonesArray("ERNDDigi",1000);
+  fNDDigis = new TClonesArray("ERNDDigi",10);
 
   ioman->Register("NDDigi", "ND digi", fNDDigis, kTRUE);
 
@@ -116,14 +116,6 @@ void ERNDDigitizer::Exec(Option_t* opt)
     Float_t time = std::numeric_limits<float>::max();   // first time in crystall
     Float_t ly = 0.;    // sum ligth yield in crystall
 
-    //@TODO it must be in ERNDHitFinder and by digi
-    //calc digi position by first point
-    TVector3 pos;       // position of crystall in global
-    ERNDPoint* firstPoint = (ERNDPoint*)fNDPoints->At((*(itCrystall.second.begin())));
-    TVector3 pointPos;
-    firstPoint->Position(pointPos);
-    fSetup->PMTPos(pointPos,pos);
-
     //loop over points in crysrall itCrystall.first()
     for (const auto iPoint : itCrystall.second){
       ERNDPoint* point = (ERNDPoint*)fNDPoints->At(iPoint);
@@ -150,9 +142,8 @@ void ERNDDigitizer::Exec(Option_t* opt)
     time = gRandom->Gaus(time, timeSigma);
 
     Float_t neutronProb = NeutronProbability(edep,ly);
-    
-    TVector3 dpos = TVector3(0.01, 0.01, 0.01); //ошибка пока фиксирована
-    AddDigi(kND, pos, dpos,itCrystall.first,edep, ly, time, neutronProb);
+  
+    AddDigi(itCrystall.first,edep, ly, time, neutronProb);
   }
   LOG(DEBUG) << "Digis count: " << fNDDigis->GetEntriesFast() << FairLogger::endl;
 }
@@ -174,11 +165,11 @@ void ERNDDigitizer::Finish()
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-ERNDDigi* ERNDDigitizer::AddDigi(Int_t detID, TVector3& pos, TVector3& dpos,
-                       Int_t point_index, Float_t edep, Float_t ly, Float_t time,Float_t neutronProb)
+ERNDDigi* ERNDDigitizer::AddDigi(Int_t stilbenNb, Float_t edep, Float_t ly,
+                                 Float_t time,Float_t neutronProb)
 {
   ERNDDigi *Digi = new((*fNDDigis)[fNDDigis->GetEntriesFast()])
-              ERNDDigi(pos, dpos, point_index, edep, ly, time, neutronProb);
+              ERNDDigi(stilbenNb, edep, ly, time, neutronProb);
   return Digi;
 }
 // ----------------------------------------------------------------------------

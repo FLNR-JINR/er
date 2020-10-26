@@ -256,16 +256,35 @@ Int_t ERBeamDetSetup::SetParContainers(){
 
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERBeamDetSetup::GetWireGlobX(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
-  return fWires[mwpcNb][planeNb][wireNb]->fGlobX;
+Double_t ERBeamDetSetup::GetWireGlobX(const TString& digi_branch_name, const ERChannel channel) { 
+  return GetWireGlobCoord(digi_branch_name, channel, &ERBeamDetWire::fGlobX);
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERBeamDetSetup::GetWireGlobY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
-  return fWires[mwpcNb][planeNb][wireNb]->fGlobY;
+Double_t ERBeamDetSetup::GetWireGlobY(const TString& digi_branch_name, const ERChannel channel){
+  return GetWireGlobCoord(digi_branch_name, channel, &ERBeamDetWire::fGlobY);
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERBeamDetSetup::GetWireGlobZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb){
-  return fWires[mwpcNb][planeNb][wireNb]->fGlobZ;
+Double_t ERBeamDetSetup::GetWireGlobZ(const TString& digi_branch_name, const ERChannel channel){
+  return GetWireGlobCoord(digi_branch_name, channel, &ERBeamDetWire::fGlobZ);
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERBeamDetSetup::GetWireGlobCoord(const TString& digi_branch_name, ERChannel channel, float ERBeamDetWire::* coord) {
+  const auto mwpc_and_plane = GetMwpcAndPlaneNumbers(digi_branch_name);
+  return fWires.at(mwpc_and_plane.first).at(mwpc_and_plane.second).at(channel)->*coord;
+}
+//--------------------------------------------------------------------------------------------------
+std::pair<unsigned short, unsigned short> ERBeamDetSetup::GetMwpcAndPlaneNumbers(const TString& digi_branch_name) {
+  if (digi_branch_name == "BeamDetMWPCDigiX1") {
+    return {0, 0};
+  } else if (digi_branch_name == "BeamDetMWPCDigiY1") {
+    return {0, 1};
+  } else if (digi_branch_name == "BeamDetMWPCDigiX2") {
+    return {1, 0};
+  } else if (digi_branch_name == "BeamDetMWPCDigiY2") {
+    return {1, 1};
+  } else {
+    LOG(FATAL) << "Unknown MWPC branch name " << digi_branch_name << FairLogger::endl;
+  }
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetSetup::GetToFParameters(TXMLNode *node) {
@@ -273,7 +292,7 @@ void ERBeamDetSetup::GetToFParameters(TXMLNode *node) {
   for(Int_t i = 0; i < fToFCount; i++) {
     TXMLNode* curNode = node;
     for(; curNode; curNode = curNode->GetNextNode()) {
-      LOG(DEBUG) << "Pasrsing ToF " << curNode->GetNodeName() << FairLogger::endl;
+      LOG(DEBUG) << "Parsing ToF " << curNode->GetNodeName() << FairLogger::endl;
       TList *attrList;
       TXMLAttr *attr = 0;
       if (curNode->HasAttributes()){

@@ -4,6 +4,7 @@
 
 #include "TObjArray.h"
 #include "TTree.h"
+#include "TTreeCache.h"
 
 #include "FairRootManager.h"
 #include "FairRun.h"

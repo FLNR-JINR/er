@@ -20,11 +20,13 @@ using namespace std;
 
 #include "ERBeamDetTrack.h"
 
+#include "ERSupport.h"
+
 struct ERBeamDetWire{
-  Float_t fGlobX;
-  Float_t fGlobY;
-  Float_t fGlobZ;
-  ERBeamDetWire(Float_t xGlob, Float_t yGlob, Float_t zGlob) :
+  float fGlobX;
+  float fGlobY;
+  float fGlobZ;
+  ERBeamDetWire(float xGlob, float yGlob, float zGlob) :
     fGlobX(xGlob), fGlobY(yGlob), fGlobZ(zGlob) {}
 };
 
@@ -35,15 +37,16 @@ public:
   static ERBeamDetSetup* Instance();
 
   /* Accessors */
-  static Double_t GetWireGlobX(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
-  static Double_t GetWireGlobY(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
-  static Double_t GetWireGlobZ(Int_t mwpcNb, Int_t planeNb, Int_t wireNb);
+  static Double_t GetWireGlobX(const TString& digi_branch_name, ERChannel channel);
+  static Double_t GetWireGlobY(const TString& digi_branch_name, ERChannel channel);
+  static Double_t GetWireGlobZ(const TString& digi_branch_name, ERChannel channel);
   static Bool_t   CheckIfTargetIsSet(void) {return fSensitiveTargetIsSet;}
   static Double_t DistanceBetweenMWPC() {return fDistanceBetweenMWPC;}
   static Double_t TargetR() {return fTargetR;}
   static void     PrintDetectorParameters(void);
   static void     PrintDetectorParametersToFile(TString fileName);
   static TString  GetToFType(Int_t number);
+  static std::pair<unsigned short, unsigned short> GetMwpcAndPlaneNumbers(const TString& digi_branch_name);
 
   /* Modifiers */
   static void SetXmlParametersFile(TString xmlFileName) {fParamsXmlFileName = xmlFileName;}
@@ -81,7 +84,7 @@ private:
   static void ParseXmlParameters();
   static void GetToFParameters(TXMLNode *node);
   static void GetMWPCParameters(TXMLNode *node);
-
+  static Double_t GetWireGlobCoord(const TString& digi_branch_name, ERChannel channel, float ERBeamDetWire::* coord);
   static ERBeamDetSetup* fInstance;
   static Bool_t          fIsGettingGeoPar;
   static Int_t           fMWPCCount;

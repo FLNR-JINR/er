@@ -15,7 +15,6 @@
 #include "FairIon.h"
 
 #include "ERTask.h"
-#include "ERBeamDetTOFDigi.h"
 #include "ERBeamDetTrack.h"
 #include "ERBeamDetParticle.h"
 #include "ERBeamDetSetup.h"

@@ -252,8 +252,8 @@ void ERTelescopeTrackFinder::CreateTrackInQTelescope(
   auto* track = AddTrack(TVector3(fTargetX, fTargetY, fTargetZ), xStationVertex, yStationVertex,
                           xStationLocalVertex, yStationLocalVertex, xChannel, yChannel, xEdep, yEdep,
                           trackBranchName);
-  track->AddLink(FairLink(xDigiBranchName, xChannelIndex));
-  track->AddLink(FairLink(yDigiBranchName, yChannelIndex));
+  //track->AddLink(FairLink(xDigiBranchName, xChannelIndex));
+  //track->AddLink(FairLink(yDigiBranchName, yChannelIndex));
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopeTrackFinder::CreateTrackInRTelescope(
@@ -311,8 +311,8 @@ void ERTelescopeTrackFinder::CreateTrackInRTelescope(
   auto* track = AddTrack(TVector3(fTargetX, fTargetY, fTargetZ), global_vertex1, global_vertex2,
                           local_vertex1, local_vertex2, phiChannel, rChannel, phiEdep, rEdep,
                           trackBranchName);
-  track->AddLink(FairLink(phiDigiBranchName, phiChannelIndex));
-  track->AddLink(FairLink(rDigiBranchName, rChannelIndex));
+  //track->AddLink(FairLink(phiDigiBranchName, phiChannelIndex));
+  //track->AddLink(FairLink(rDigiBranchName, rChannelIndex));
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopeTrackFinder::Reset() {

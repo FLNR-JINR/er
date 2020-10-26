@@ -13,7 +13,6 @@
 #include "TRandom3.h"
 
 #include "ERTask.h"
-#include "ERBeamDetMWPCDigi.h"
 #include "ERBeamDetTrack.h"
 #include "ERBeamDetSetup.h"
 
@@ -97,13 +96,13 @@ private:
   /** @brief Checks if the collection of digies contatains only neigbour wires.
    ** @param digiArray   collection of digies.
   **/
-  Bool_t   IsCluster (TClonesArray* digiArray);
+  Bool_t   IsCluster(TClonesArray* digiArray);
 
   /** @brief Calculates an arithmetic average value in array of consequent wires.
    ** @param digiArray   collection of digies
    ** @param coordType   type of coordinate (can take values 'X', 'Y' or 'Z')
   **/
-  Double_t CalcCoordinateAvg (TClonesArray* digiArray, char coordType);
+  Double_t CalcCoordinateAvg(const TString& digi_branch_name, const TClonesArray* digiArray, char coordType);
 
 
   ClassDef(ERBeamDetTrackFinder,1)

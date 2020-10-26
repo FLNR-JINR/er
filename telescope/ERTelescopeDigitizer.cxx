@@ -106,9 +106,9 @@ void ERTelescopeDigitizer::Exec(Option_t* opt) {
         continue;
       time = gRandom->Gaus(time, timeSigma);
       auto* digi = AddDigi(edep, time, itPoint.first, itPointBranches.first);
-      for (const auto itPointsForCurrentVolume : itPoint.second) {
-        digi->AddLink(FairLink("ERPoint", itPointsForCurrentVolume));
-      }
+      //for (const auto itPointsForCurrentVolume : itPoint.second) {
+      //  digi->AddLink(FairLink("ERPoint", itPointsForCurrentVolume));
+      //}
     }
   }
   /*@TODO: This functionality can be transferred to ERDigitizer if the information 
