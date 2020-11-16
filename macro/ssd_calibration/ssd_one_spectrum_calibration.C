@@ -15,7 +15,7 @@ void ssd_one_spectrum_calibration() {
   auto ntetra_x = new SensorRunInfo("Ntetra_x", 16, 2500, file_calib_path);
   ntetra_x->SetNoiseThreshold(200);
   auto ntetra_y = new SensorRunInfo("Ntetra_y", 16, 2500, file_calib_path);
-  ntetra_y->SetNoiseThreshold(100);
+  ntetra_y->SetNoiseThreshold(200);
 
   // [Preprocessing]
   // Constructor parameter is a raw data file path.
@@ -52,7 +52,8 @@ void ssd_one_spectrum_calibration() {
   //  ./resu lt/[run_id]/[sensor_name]/draw/spectra_[run_id]_[sensor_name].root
   //   Tree with a data is in the
   //  ./result/[run_id]/input/mult_one_[run_id]_[sensor_name].root
-  prep_ntetra->MultiplicitySelection(ntetra_x, {ntetra_y});
+  prep_ntetra->MultiplicitySelection(ntetra_x);
+  prep_ntetra->MultiplicitySelection(ntetra_y);
   exit(0);
 
   // [Calibration] (http://er.jinr.ru/si_detector_calibration.html)

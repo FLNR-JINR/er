@@ -853,13 +853,13 @@ public:
   ** @param opt draw option. 'draw_off' -- draws resulting threshold positions in a file
   ** [WORKING_DIR]/[SENSOR_NAME]/draw/multiplicity_*.root.
   **/
-  void MultiplicitySelection(const SensorRunInfo* sensor, std::vector<SensorRunInfo*> sensorsZeroSignal);
+  void MultiplicitySelection(const SensorRunInfo* sensor, std::vector<SensorRunInfo*> sensorsZeroSignal = std::vector<SensorRunInfo*>());
 
   /** @brief Creates strips spectra for the further analysis analysis.
   ** Saves resulting hists for each sensor by path
   **   [WORKING_DIR]/[SENSOR_NAME]/draw/spectra_*.root.
   **/  
-  void CreateSpectraHists();
+  void CreateSpectraHists(const SensorRunInfo* sensor);
 
   void Exec();
 
@@ -951,7 +951,7 @@ void Preprocessing::FindThresholds(const TString& opt = "draw_off") {
 }
 
 void Preprocessing::MultiplicitySelection(
-  const SensorRunInfo* sensor, std::vector<SensorRunInfo*> sensorsZeroSignal) {
+  const SensorRunInfo* sensor, std::vector<SensorRunInfo*> sensorsZeroSignal = std::vector<SensorRunInfo*>()) {
   // Read input file
   const TString inFilePath = fIOManager->GetPath(ROOT_INPUT_REDUCED_TREE_PATH, fRunId, fSensors);
   auto inFile = fIOManager->OpenRootFile(inFilePath);
@@ -985,23 +985,21 @@ void Preprocessing::MultiplicitySelection(
   for (Long64_t eventNb = 0; eventNb < inTree->GetEntries(); eventNb++) {
     inTree->GetEntry(eventNb);
     bool saveEvent = true;
-    for (int i = 0; i < fSensors->size(); i++) {
-      const int sensorMult = CheckDataMultiplicity(sensorData, sensorThresholds);
-      if (sensorMult != 1) {
+    const int sensorMult = CheckDataMultiplicity(sensorData, sensorThresholds);
+    if (sensorMult != 1) {
+      saveEvent = false;
+      continue;
+    }
+    for (int j = 0; j < sensorsZeroSignal.size(); j++) {
+      int multiplicityNoSignalSensor = CheckDataMultiplicity(zeroSignalSensorData->at(j), zeroSignalSensorThresholds->at(j));
+      if (multiplicityNoSignalSensor != 0) {
         saveEvent = false;
-        break;
       }
-      for (int j = 0; j < sensorsZeroSignal.size(); j++) {
-        int multiplicityNoSignalSensor = CheckDataMultiplicity(zeroSignalSensorData->at(j), zeroSignalSensorThresholds->at(j));
-        if (multiplicityNoSignalSensor != 0) {
-          saveEvent = false;
-        }
-      }
-      if (saveEvent) {
-        outTree->Fill();
-      } else {
-        continue;
-      }
+    }
+    if (saveEvent) {
+      outTree->Fill();
+    } else {
+      continue;
     }
   }
   Info("Preprocessing::MultiplicitySelection", "Output tree entries: %lld", outTree->GetEntries());
@@ -1009,22 +1007,19 @@ void Preprocessing::MultiplicitySelection(
   outFile->Write();
   outFile->Close();
   inFile->Close();
-  CreateSpectraHists();
+  CreateSpectraHists(sensor);
 }
 
-void Preprocessing::CreateSpectraHists() {
+void Preprocessing::CreateSpectraHists(const SensorRunInfo* sensor) {
   const TString multSelectPath = fIOManager->GetPath(ROOT_MULT_SELECTED_PATH, fRunId, fSensors);
-  for (const auto *sensor: *fSensors) {
-    auto inFile = fIOManager->OpenRootFile(multSelectPath);
-    const auto tree = static_cast<TTree*>(GetObjectFromRootFile(inFile));    
-    auto thresholds = fIOManager->GetSensorThresholds<UShort_t>(sensor, fRunId);
-
-    const TString histSpectraPath = fIOManager->GetPath(ROOT_HIST_SPECTRA_PATH, fRunId, sensor);
-    auto histSpectraFile = fIOManager->CreateRootFile(histSpectraPath);
-    DrawSensorSpectraByStrip(tree, sensor, thresholds);
-    histSpectraFile->Close();
-    inFile->Close();
-  }
+  auto inFile = fIOManager->OpenRootFile(multSelectPath);
+  const auto tree = static_cast<TTree*>(GetObjectFromRootFile(inFile));    
+  auto thresholds = fIOManager->GetSensorThresholds<UShort_t>(sensor, fRunId);
+  const TString histSpectraPath = fIOManager->GetPath(ROOT_HIST_SPECTRA_PATH, fRunId, sensor);
+  auto histSpectraFile = fIOManager->CreateRootFile(histSpectraPath);
+  DrawSensorSpectraByStrip(tree, sensor, thresholds);
+  histSpectraFile->Close();
+  inFile->Close();
 }
 
 void Preprocessing::Exec() {
