@@ -18,7 +18,7 @@ void addLineMultiGraph(TMultiGraph *multyGraph, const Double_t *x, const Double_
   gLegend->AddEntry(gr, name, "p");
 }
 
-void fir_eta () {
+void fit_eta () {
   auto canv = new TCanvas();
   gLegend->SetHeader("Legend","C"); // option "C" allows to center the header 
   vector<vector<Double_t>> liseEdep  = { /*[KeV]*/
