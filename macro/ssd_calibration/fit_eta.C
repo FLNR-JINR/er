@@ -58,8 +58,9 @@ void fit_eta () {
 
   addLineMultiGraph(mgEta, &eta_emCalcEdep[0], &dead_reg6pts[0], 
                     kBlue,  22, eta_emCalcEdep.size(), "EmCalculator");
-  addLineMultiGraph(mgEta, &eta_lise[0], &dead_lise[0],
-                    kGreen,  23, dead_lise.size(), "Lise");
+  // Uncomment to draw line based on the LISE++ data too.
+  //addLineMultiGraph(mgEta, &eta_lise[0], &dead_lise[0],
+  //                   kGreen,  23, dead_lise.size(), "Lise");
   gLegend->Draw();
   mgEta->GetXaxis()->SetTitle("eta = (E3-E2)/(E3-E1),\n [1]");
   mgEta->GetYaxis()->SetTitle("d, [um]");
