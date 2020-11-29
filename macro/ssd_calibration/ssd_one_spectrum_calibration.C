@@ -14,8 +14,8 @@ void ssd_one_spectrum_calibration() {
   //
   auto ntetra_x = new SensorRunInfo("Ntetra_x", 16, 2500, file_calib_path);
   ntetra_x->SetNoiseThreshold(200);
-  auto ntetra_y = new SensorRunInfo("Ntetra_y", 16, 2500, file_calib_path);
-  ntetra_y->SetNoiseThreshold(200);
+  // auto ntetra_y = new SensorRunInfo("Ntetra_y", 16, 2500, file_calib_path);
+  // ntetra_y->SetNoiseThreshold(200);
 
   // [Preprocessing]
   // Constructor parameter is a raw data file path.
@@ -28,7 +28,7 @@ void ssd_one_spectrum_calibration() {
   // preprocessing by AddSensor() method
   auto prep_ntetra = new Preprocessing(file_calib_path);
   prep_ntetra->AddSensor(ntetra_x);
-  prep_ntetra->AddSensor(ntetra_y);
+  // prep_ntetra->AddSensor(ntetra_y);
 
   // Execution of preprocessing may be performed fully automaticaly by call Exec()
   // method
@@ -52,9 +52,9 @@ void ssd_one_spectrum_calibration() {
   //  ./resu lt/[run_id]/[sensor_name]/draw/spectra_[run_id]_[sensor_name].root
   //   Tree with a data is in the
   //  ./result/[run_id]/input/mult_one_[run_id]_[sensor_name].root
-  prep_ntetra->MultiplicitySelection(ntetra_x);
-  prep_ntetra->MultiplicitySelection(ntetra_y);
-  exit(0);
+  // prep_ntetra->MultiplicitySelection(ntetra_x);
+  // prep_ntetra->MultiplicitySelection(ntetra_y);
+  // exit(0);
 
   // [Calibration] (http://er.jinr.ru/si_detector_calibration.html)
   auto calib_ntetra_x = new Calibration(file_calib_path);
@@ -79,10 +79,10 @@ void ssd_one_spectrum_calibration() {
 
   // If "sliding_window" set by SetPeakSearchMethod()
   // * Sliding window width [bins] (w_width) 
-  calib_ntetra_x->SetSlideWindowWidth(10);
+  calib_ntetra_x->SetSlideWindowWidth(40);
   // * Interval of rearch around TSpectrum found peak (tspec_val) 
   //   is defined by [tspec_val - w_width; tspec_val + w_width]
-  calib_ntetra_x->SetSearchRadius(15);
+  calib_ntetra_x->SetSearchRadius(50);
 
   // If "gauss" set by SetPeakSearchMethod() 
   // the same option works
@@ -100,5 +100,10 @@ void ssd_one_spectrum_calibration() {
   //    ./result/[run_id]/[sensor_name]/txt/coeff_[run_id]_[sensor_name].txt
   // 4) Report file printing containing all the information about calubration run
   //    ./result/[run_id]/[sensor_name]/report_[run_id]_[sensor_name].txt
-  calib_ntetra_x->Exec();
+  calib_ntetra_x->SearchPeaks();
+  calib_ntetra_x->DeadLayerEstimation();
+  ntetra_x->SetDeadLayersPerStrip(
+    {2.6, 2.7, 2.6, 2.6, 2.6, 2.6, 2.6, 2.6, 2.6, 2.6, 2.6, 2.6, 2.6, 2.6, 2.6, 2.6}
+  );
+  calib_ntetra_x->CalcCalibrationCoefficients(true);
 }

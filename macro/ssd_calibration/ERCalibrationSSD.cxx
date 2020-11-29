@@ -26,6 +26,10 @@ namespace ERCalibrationSSD {
   * More log messages for each significant step
 */
 
+struct CalibrationOptions {
+  std::vector<Double_t> fNoiseThresholds;
+  std::vector<Double_t> fDeadLayerValues; // dead layer values per strips
+};
 
 TString GetFileNameBaseFromPath(const TString& path);
 
@@ -52,6 +56,7 @@ public:
   void SetThresholdFile(const TString &path) {fThresholdFilePath = path;}
 
   void SetNoiseThreshold(const Int_t noiseThreshold) {fNoiseThreshold = noiseThreshold;}
+  void SetDeadLayersPerStrip(const std::vector<Double_t> &deadLayers);
 
   void ReadThresholds();
 public:
@@ -61,7 +66,10 @@ public:
   Int_t fStripAmount = 16;
   Int_t fBinAmount = 1024;
   TString fRunId;
-  Int_t fNoiseThreshold = 0; 
+  Int_t fNoiseThreshold = 0;
+
+  Bool_t fIsDeadLayerPerStripsSet = false;
+  std::vector<Double_t> fDeadLayers = std::vector<Double_t>();
 };
 
 SensorRunInfo::SensorRunInfo(const TString& name, const Int_t stripAmount, 
@@ -70,6 +78,18 @@ SensorRunInfo::SensorRunInfo(const TString& name, const Int_t stripAmount,
   fStripAmount(stripAmount), 
   fBinAmount(binAmount), 
   fRunId(GetFileNameBaseFromPath(runId)) {
+}
+
+void SensorRunInfo::SetDeadLayersPerStrip(const std::vector<Double_t> &deadLayersPerStrip) {
+  if (deadLayersPerStrip.size() != this->fStripAmount) {
+    Error(
+      "SensorRunInfo::SetDeadLayersPerStrip", 
+      "Dead thickness amount set by user (%ld) doesn't equal strips amount (%d)", 
+      deadLayersPerStrip.size(), this->fStripAmount);
+    exit(1);
+  }
+  fIsDeadLayerPerStripsSet = true;
+  fDeadLayers = deadLayersPerStrip;
 }
 
 /**
@@ -1237,6 +1257,11 @@ public:
   ** 4) Report file printing.
   **/  
   void Exec();
+
+  void SearchPeaks();
+
+  void DeadLayerEstimation();
+  void CalcCalibrationCoefficients(Bool_t fitLastTwoPoints = false);
 private:
   /**
   ** @brief Finds peaks with a set algorithm method.
@@ -1251,10 +1276,6 @@ private:
   ** ...
   ** value_low_energy_strip_N, value_middle_energy_strip_N, value_high_energy_strip_N
   **/
-  void SearchPeaks();
-
-  void DeadLayerEstimation();
-  void CalcCalibrationCoefficients();
   void PrintReport(const std::vector<std::vector<Double_t>>& peaks,
                    const std::vector<Double_t>& deadVec,
                    const Double_t avgDead,
@@ -1354,30 +1375,41 @@ std::vector<Double_t> Calibration::GetAlphaEnergiesAfterDeadLayer (const Double_
 }
 
 
-void Calibration::CalcCalibrationCoefficients() {
+void Calibration::CalcCalibrationCoefficients(Bool_t fitOnlyLastTwoPointsNvsE = false) {
   // read peaks from file
   const TString peakDataPath = fIOManager->GetPath(TXT_PEAK_DATA_PATH, fRunId, fSensor);
   auto peaks = Read2DDoubleVectorFromFile(peakDataPath);
-  // read dead layers from file
-  const TString deadDataPath = fIOManager->GetPath(TXT_DEAD_LAYER_PATH, fRunId, fSensor);
-  auto deadVec = ReadDoubleVectorFromFile(deadDataPath);
-  const Double_t avgDead = CalculateAvg(deadVec);
-  auto energies = GetAlphaEnergiesAfterDeadLayer(avgDead);
+  std::vector<Double_t> deadVec;
+  std::vector<std::vector<Double_t>> energies;
+  Double_t avgDead;
+  if (fSensor->fIsDeadLayerPerStripsSet) {
+    for (Int_t iStrip = 0; iStrip < fSensor->fStripAmount; iStrip++) {
+      energies.push_back(GetAlphaEnergiesAfterDeadLayer(fSensor->fDeadLayers[iStrip]));
+      deadVec = fSensor->fDeadLayers;
+      avgDead = CalculateAvg(deadVec);
+    }
+  } else {
+    // read dead layers from file
+    const TString deadDataPath = fIOManager->GetPath(TXT_DEAD_LAYER_PATH, fRunId, fSensor);
+    deadVec = ReadDoubleVectorFromFile(deadDataPath);
+    avgDead = CalculateAvg(deadVec);
+    auto energies_avg = GetAlphaEnergiesAfterDeadLayer(avgDead);
+    for (Int_t iStrip = 0; iStrip < fSensor->fStripAmount; iStrip++) {
+      energies.push_back(energies_avg);
+    }
+  }
 
   std::vector<std::vector<Double_t>> coeffsAB;
   for (Int_t iStrip = 0; iStrip < peaks.size(); iStrip++) {
-    auto gr = new TGraph(energies.size(), &peaks[iStrip][0], &energies[0]);
+    TGraph* gr = (fitOnlyLastTwoPointsNvsE)
+               ? new TGraph(energies[0].size() - 1, &peaks[iStrip][1], &energies[iStrip][1])
+               : new TGraph(energies[0].size(), &peaks[iStrip][0], &energies[iStrip][0]);
     TFitResultPtr fitRes = gr->Fit("pol1","S");
     const Double_t a = fitRes->Parameter(1);
     const Double_t b = fitRes->Parameter(0);
     std::vector<Double_t> coeffs = {a, b}; 
     coeffsAB.push_back(coeffs);
   }
-
-  const TString deadPath = fIOManager->GetPath(TXT_DEAD_LAYER_PATH, fRunId, fSensor);
-  auto fileDead = fIOManager->CreateTextFile(deadPath);
-  DumpVector(deadVec, fileDead);
-  fileDead.close();
 
   const TString calibPath = fIOManager->GetPath(TXT_CALIB_COEFF_PATH, fRunId, fSensor);
   auto fileCalib = fIOManager->CreateTextFile(calibPath);
