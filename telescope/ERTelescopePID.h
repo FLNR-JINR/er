@@ -75,6 +75,7 @@ public:
       const TString& station, EdepAccountingStrategy strategy) {
     fEdepAccountingStrategies[station] = strategy;
   }
+  void SetInteractionVolumeName(const TString& name) { fInteractionVolumeName = name; }
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding.
@@ -96,6 +97,7 @@ protected:
   std::map<TString, TClonesArray*> fQTelescopeTrack;
   //Output arrays
   std::map<TString, std::map<PDG, TClonesArray*> >  fQTelescopeParticle;
+  TString fInteractionVolumeName = "target";
 protected:
   TVector3 FindBackPropagationStartPoint(const ERTelescopeTrack& track);
   std::pair<Double_t, Double_t> CalcEnergyDeposites (

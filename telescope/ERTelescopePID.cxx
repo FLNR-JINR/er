@@ -233,13 +233,11 @@ CalcEnergyDeposites(const ERTelescopeTrack& track, const TVector3& startPoint,
   // While track not in target volume or outside the setup,
   // accumulate energy deposites and kinetic energy.
   Bool_t targetHasPassed = kFALSE;
-  while(!gGeoManager->IsOutside()) {
+  while(!gGeoManager->IsOutside() && !targetHasPassed) {
     gGeoManager->FindNextBoundary();
     LOG(DEBUG) <<"[ERTelescopePID] [CalcEnergyDeposites] path  = " 
                << gGeoManager->GetPath() << FairLogger::endl;
-    const bool trackInTarget = TString(gGeoManager->GetPath()).Contains("target");
-    if (targetHasPassed && !trackInTarget)
-      break;
+    const bool trackInTarget = gGeoManager->GetCurrentVolume()->GetName() == fInteractionVolumeName;
     targetHasPassed = trackInTarget;
     // If track in sensetive volume, try to find digi
     Bool_t digisForNodeAreFound = kFALSE;
@@ -274,7 +272,7 @@ CalcEnergyDeposites(const ERTelescopeTrack& track, const TVector3& startPoint,
       const TString materialName = node->GetMedium()->GetMaterial()->GetName();
       const auto* material = G4NistManager::Instance()->FindOrBuildMaterial(materialName.Data());
       LOG(DEBUG) <<"[ERTelescopePID] [CalcEnergyDeposites]"
-                 <<" Calc energy deposite for range " << range << " in materail "
+                 <<" Calc energy deposite for range " << range << " in material "
                  << materialName << " with kinetic energy " << kineticEnergy << FairLogger::endl;
       const auto deadDeposite = CalcElossIntegralVolStep(kineticEnergy, particle, *material, range);
       kineticEnergy += deadDeposite;
