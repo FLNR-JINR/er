@@ -222,16 +222,16 @@ void ERTelescopeUnpack::FormAllBranches(){
     for (auto itStation : fStations){
         TString bName = itStation.second->bName;
         if (itStation.second->type == "Si"){
-            fDigiCollections[bName] = new TClonesArray("ERQTelescopeSiDigi",1000);
+            fDigiCollections[bName] = new TClonesArray("ERDigi",1000);
             ioman->Register(bName,fDetName, fDigiCollections[bName], kTRUE);
             if (itStation.second->sideCount == 2){
                 TString bName2 = itStation.second->bName2;
-                fDigiCollections[bName2] = new TClonesArray("ERQTelescopeSiDigi",1000);
+                fDigiCollections[bName2] = new TClonesArray("ERDigi",1000);
                 ioman->Register(bName2,fDetName, fDigiCollections[bName2], kTRUE);
             }
         }
         if (itStation.second->type == "CsI"){
-            fDigiCollections[bName] = new TClonesArray("ERQTelescopeCsIDigi",1000);
+            fDigiCollections[bName] = new TClonesArray("ERDigi",1000);
             ioman->Register(bName,fDetName, fDigiCollections[bName], kTRUE);
         }
     }
