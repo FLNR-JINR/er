@@ -43,13 +43,13 @@ void ERRTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
   };
   const auto fullZ = fSensetiveZ + fDeadLayerThicknessFrontSide + fDeadLayerThicknessBackSide;
   fVolume = new TGeoVolumeAssembly(this->GetVolumeName());
-  auto* station = make_tubes("r_station", media, fRMin, fRMax, fullZ / 2., 0., 360.);
+  auto* station = make_tubes("r_station", media, fRMin, fRMax, fullZ, 0., 360.);
   fVolume->AddNode(station, 0, new TGeoCombiTrans(0, 0., -sphere_r_min, new TGeoRotation()));
   if (fOrientAroundZ == OrientationAroundZ::Y) {
     const Double_t stripDR = (fSensetiveRMax-fSensetiveRMin) / fStripCount;
     for (Int_t iStrip = 0; iStrip < fStripCount; iStrip++) {
       TGeoVolume* strip = make_tubes("Sensitivestrip", media, fSensetiveRMin + iStrip * stripDR, 
-                                     fSensetiveRMin + (iStrip + 1) * stripDR, fSensetiveZ / 2.,
+                                     fSensetiveRMin + (iStrip + 1) * stripDR, fSensetiveZ,
                                      0., 360.);
       const Double_t zTranslation = (fDeadLayerThicknessFrontSide  - fDeadLayerThicknessBackSide) / 2.;
       station->AddNode(strip, iStrip, new TGeoCombiTrans(0, 0., zTranslation, new TGeoRotation()));
@@ -57,7 +57,7 @@ void ERRTelescopeGeoComponentSingleSi::ConstructGeometryVolume(void) {
   } else {
     const Double_t stripPhi = 360. / fStripCount;
     TGeoVolume* strip = make_tubes("Sensitivestrip", media, fSensetiveRMin, fSensetiveRMax, 
-                                   fSensetiveZ / 2., -stripPhi/2., stripPhi/2.);
+                                   fSensetiveZ, -stripPhi/2., stripPhi/2.);
     for (Int_t iStrip = 0; iStrip < fStripCount; iStrip++) {
       auto* rotation = new TGeoRotation();
       rotation->RotateZ(stripPhi * iStrip);
