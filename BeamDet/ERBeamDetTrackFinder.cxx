@@ -23,18 +23,15 @@
 
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::ERBeamDetTrackFinder()
-  : ERTask("ER BeamDet track finding scheme"),
-  fTargetVolName("") {
+  : ERTask("ER BeamDet track finding scheme")
+{
   fAvailibleRunManagers.push_back("ERRunAna");
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrackFinder::ERBeamDetTrackFinder(Int_t verbose)
-  : ERTask("ER BeamDet track finding scheme ", verbose),
-  fTargetVolName("") {
+  : ERTask("ER BeamDet track finding scheme ", verbose)
+{
   fAvailibleRunManagers.push_back("ERRunAna");
-}
-//--------------------------------------------------------------------------------------------------
-ERBeamDetTrackFinder::~ERBeamDetTrackFinder() {
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERBeamDetTrackFinder::Init() {
@@ -53,7 +50,7 @@ InitStatus ERBeamDetTrackFinder::Init() {
   fBeamDetMWPCDigiY1 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiY1");
   fBeamDetMWPCDigiY2 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiY2");
   // Register output array fBeamDetHits
-  fBeamDetTrack = new TClonesArray("ERBeamDetTrack",1000);
+  fBeamDetTrack = new TClonesArray("ERBeamDetTrack",10);
   //fBeamDetTrack = (ERBeamDetTrack*)new ERBeamDetTrack();
 
   ioman->Register("BeamDetTrack", "BeamDet track", fBeamDetTrack, kTRUE);
@@ -81,9 +78,11 @@ Bool_t ERBeamDetTrackFinder::IsCluster(TClonesArray* digiArray) {
   return isCluster;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERBeamDetTrackFinder::CalcCoordinateAvg(const TString& digi_branch_name, const TClonesArray* digis, char coordType) {
+Double_t ERBeamDetTrackFinder::CalcCoordinateAvg(const TString& digi_branch_name, 
+                                                 const TClonesArray* digis, char coordType) {
   if (!digis->GetEntriesFast())
-    LOG(FATAL) << "ERBeamDetTrackFinder::CalcCoordinateAvg: empty digi collection" <<  FairLogger::endl;
+    LOG(FATAL) << "ERBeamDetTrackFinder::CalcCoordinateAvg: empty digi collection" 
+               <<  FairLogger::endl;
   ERChannel channel_of_first_digi = dynamic_cast<ERDigi*>(digis->At(0))->Channel();
   ERChannel channel_of_last_digi = channel_of_first_digi;
   for (int iDigi(0); iDigi < digis->GetEntriesFast(); ++iDigi) {
@@ -104,7 +103,8 @@ Double_t ERBeamDetTrackFinder::CalcCoordinateAvg(const TString& digi_branch_name
       return 0.5*(fBeamDetSetup->GetWireGlobZ(digi_branch_name, channel_of_first_digi-1) 
                   + fBeamDetSetup->GetWireGlobZ(digi_branch_name, channel_of_last_digi-1)); 
     default:
-      LOG(FATAL) << "ERBeamDetTrackFinder::CalcCoordinateAvg: Unknown coordinate type " << FairLogger::endl;
+      LOG(FATAL) << "ERBeamDetTrackFinder::CalcCoordinateAvg: Unknown coordinate type " 
+                 << FairLogger::endl;
   }
 }
 //--------------------------------------------------------------------------------------------------
@@ -132,7 +132,8 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
   if(fBeamDetMWPCDigiX1->GetEntriesFast() > 1) { // If multiplicity in wires array is more than one 
     cluster = IsCluster(fBeamDetMWPCDigiX1);    // check that all wires in array have are neigbours
     if(cluster) {
-      xFar = ERBeamDetTrackFinder::CalcCoordinateAvg("BeamDetMWPCDigiX1", fBeamDetMWPCDigiX1, 'X'); // calculate average coordinate of wires
+      // calculate average coordinate of wires
+      xFar = ERBeamDetTrackFinder::CalcCoordinateAvg("BeamDetMWPCDigiX1", fBeamDetMWPCDigiX1, 'X'); 
       zFar = ERBeamDetTrackFinder::CalcCoordinateAvg("BeamDetMWPCDigiX1", fBeamDetMWPCDigiX1, 'Z');
     } else {
       //fRun->MarkFill(kFALSE);
@@ -149,7 +150,8 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
   if(fBeamDetMWPCDigiX2->GetEntriesFast() > 1) { // If multiplicity in wires array is more than one 
     cluster = IsCluster (fBeamDetMWPCDigiX2);    // check that all wires in array have are neigbours
     if(cluster) {
-      xClose = ERBeamDetTrackFinder::CalcCoordinateAvg("BeamDetMWPCDigiX2",fBeamDetMWPCDigiX2, 'X'); // calculate average coordinate of wires
+      // calculate average coordinate of wires
+      xClose = ERBeamDetTrackFinder::CalcCoordinateAvg("BeamDetMWPCDigiX2",fBeamDetMWPCDigiX2, 'X'); 
     } else {
       //fRun->MarkFill(kFALSE);
       return;
@@ -162,7 +164,8 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
   if(fBeamDetMWPCDigiY1->GetEntriesFast() > 1 ) { // If multiplicity in wires array is more than one 
     cluster = IsCluster (fBeamDetMWPCDigiY1);     // check that all wires in array have are neigbours
     if(cluster) {
-      yFar = ERBeamDetTrackFinder::CalcCoordinateAvg("BeamDetMWPCDigiY1", fBeamDetMWPCDigiY1, 'Y'); // calculate average coordinate of wires
+      // calculate average coordinate of wires
+      yFar = ERBeamDetTrackFinder::CalcCoordinateAvg("BeamDetMWPCDigiY1", fBeamDetMWPCDigiY1, 'Y'); 
     } else {
       //fRun->MarkFill(kFALSE);
       return;
@@ -175,7 +178,8 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
   if(fBeamDetMWPCDigiY2->GetEntriesFast() > 1 ) { // If multiplicity in wires array is more than one 
     cluster = IsCluster(fBeamDetMWPCDigiY2);     // check that all wires in array have are neigbours
     if(cluster) {
-      yClose = ERBeamDetTrackFinder::CalcCoordinateAvg("BeamDetMWPCDigiY2", fBeamDetMWPCDigiY2, 'Y'); // calculate average coordinate of wires
+      // calculate average coordinate of wires
+      yClose = ERBeamDetTrackFinder::CalcCoordinateAvg("BeamDetMWPCDigiY2", fBeamDetMWPCDigiY2, 'Y'); 
       zClose = ERBeamDetTrackFinder::CalcCoordinateAvg("BeamDetMWPCDigiY2", fBeamDetMWPCDigiY2, 'Z'); 
     } else {
       //fRun->MarkFill(kFALSE);
@@ -247,9 +251,6 @@ void ERBeamDetTrackFinder::Reset() {
   if (fBeamDetTrack) {
     fBeamDetTrack->Clear();
   }
-}
-//--------------------------------------------------------------------------------------------------
-void ERBeamDetTrackFinder::Finish() {   
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetTrack* ERBeamDetTrackFinder::AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v)

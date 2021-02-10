@@ -20,34 +20,25 @@
 #include "ERBeamDet.h"
 
 //-------------------------------------------------------------------------------------------------
-ERBeamDet::ERBeamDet() :
-  ERDetector("ERBeamDet", kTRUE),
-  fToFPoints(NULL), 
-  fMWPCPoints(NULL),
-  fTargetPoints(NULL)
+ERBeamDet::ERBeamDet()
+  : ERDetector("ERBeamDet", kTRUE)
 {
   fToFPoints    = new TClonesArray("ERBeamDetTOFPoint");
   fMWPCPoints   = new TClonesArray("ERBeamDetMWPCPoint");
-
   if (fSensitiveTargetIsSet) {
     fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
   }
   //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
-
   fVerboseLevel = 1;
 }
 //-------------------------------------------------------------------------------------------------
 ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
-  : ERDetector(name, active, 1),
-    fToFPoints(NULL), 
-    fMWPCPoints(NULL),
-    fTargetPoints(NULL)
+  : ERDetector(name, active, 1)
 {
   fToFPoints    = new TClonesArray("ERBeamDetTOFPoint");
   fMWPCPoints   = new TClonesArray("ERBeamDetMWPCPoint");
-  
   if (fSensitiveTargetIsSet) {
     fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
   }
@@ -55,7 +46,6 @@ ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
  //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
-
   fVerboseLevel = verbose;
 }
 //-------------------------------------------------------------------------------------------------
@@ -78,9 +68,6 @@ ERBeamDet::~ERBeamDet() {
 //-------------------------------------------------------------------------------------------------
 void ERBeamDet::Initialize() {
   FairDetector::Initialize();
-}
-//-------------------------------------------------------------------------------------------------
-void ERBeamDet::BeginEvent() {
 }
 //-------------------------------------------------------------------------------------------------
 void ERBeamDet::EndOfEvent() {

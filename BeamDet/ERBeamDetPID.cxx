@@ -22,13 +22,16 @@ ERBeamDetPID::ERBeamDetPID()
 }
 //--------------------------------------------------------------------------------------------------
 ERBeamDetPID::ERBeamDetPID(Int_t verbose)
-  : ERTask("ER BeamDet particle finding scheme ", verbose),
-  fPID(-1)
+  : ERTask("ER BeamDet particle finding scheme ", verbose)
 {
   fAvailibleRunManagers.push_back("ERRunAna");
 }
 //--------------------------------------------------------------------------------------------------
-ERBeamDetPID::~ERBeamDetPID() {
+void ERBeamDetPID::SetBoxPID(Double_t tof1, Double_t tof2, Double_t dE1, Double_t dE2) {
+  fToF1 = tof1;
+  fToF2 = tof2;
+  fdE1  = dE1;
+  fdE2  = dE2;
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERBeamDetPID::Init() {
@@ -46,7 +49,7 @@ InitStatus ERBeamDetPID::Init() {
   fBeamDetToFDigi2 = (TClonesArray*) ioman->GetObject("BeamDetToFDigi2");
   fBeamDetTrack    = (TClonesArray*) ioman->GetObject("BeamDetTrack");
 
-  fProjectile = new TClonesArray("ERBeamDetParticle",1000);
+  fProjectile = new TClonesArray("ERBeamDetParticle",10);
 
   // Register output object fProjectile
 
@@ -89,9 +92,11 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   LOG(DEBUG) << "[ERBeamDetPID] dE2 = " << dE2 << " ToF2 = " << ToF2 << FairLogger::endl;
 
   dE = dE1 + dE2;
-  LOG(DEBUG) << "[ERBeamDetPID] dE = " << dE << " Gev; " << " ToF1 = " << ToF1 << " ns;" << " ToF2 = " << ToF2 << " ns;" << FairLogger::endl;
+  LOG(DEBUG) << "[ERBeamDetPID] dE = " << dE << " Gev; " << " ToF1 = " << ToF1 << " ns;" 
+             << " ToF2 = " << ToF2 << " ns;" << FairLogger::endl;
   ToF = TMath::Abs(ToF2 - ToF1) + fOffsetToF;
-  LOG(DEBUG) << "[ERBeamDetPID] dE = " << dE << " Gev; " << " ToF = " << ToF << " ns;" << FairLogger::endl;
+  LOG(DEBUG) << "[ERBeamDetPID] dE = " << dE << " Gev; " << " ToF = " << ToF << " ns;" 
+             << FairLogger::endl;
 
   if(ToF <= fToF1 || ToF >= fToF2 || dE <= fdE1 || dE >= fdE2){
     probability = 0;
@@ -101,7 +106,8 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   }
 
   if(probability < fProbabilityThreshold) {
-    LOG(DEBUG) << "[ERBeamDetPID] Probability " << probability << " less then threshold " << fProbabilityThreshold << FairLogger::endl;
+    LOG(DEBUG) << "[ERBeamDetPID] Probability " << probability << " less then threshold "
+               << fProbabilityThreshold << FairLogger::endl;
     //fRun->MarkFill(kFALSE);
     return ;
   }
@@ -126,8 +132,9 @@ void ERBeamDetPID::Exec(Option_t* opt) {
   pz = p * TMath::Cos(track->GetVector().Theta());
 
   energy = fIonMass * gamma;
-  LOG(DEBUG) << "[ERBeamDetPID] TOF State:: PID: " << fPID << "; px: " << px << "; py: " << py << "; pz: " << pz 
-            << " energy: " << energy << "; probability " << probability << FairLogger::endl;
+  LOG(DEBUG) << "[ERBeamDetPID] TOF State:: PID: " << fPID << "; px: " << px << "; py: " << py 
+            << "; pz: " << pz << " energy: " << energy << "; probability " << probability 
+            << FairLogger::endl;
 
   //eloss calculation, T-kinetic energy on target
   Double_t T = fBeamDetSetup->CalcEloss(*track,fPID,p,fIonMass);
@@ -155,9 +162,6 @@ void ERBeamDetPID::Reset() {
   }
 }
 //--------------------------------------------------------------------------------------------------
-void ERBeamDetPID::Finish(){    
-}
-//--------------------------------------------------------------------------------------------------
 void ERBeamDetPID::SetIonMassNumber(Int_t a) {
   TDatabasePDG* pdgDB = TDatabasePDG::Instance();
   TParticlePDG* kProton = pdgDB->GetParticle(2212);
@@ -165,7 +169,8 @@ void ERBeamDetPID::SetIonMassNumber(Int_t a) {
   fIonMass = kProtonMass * Double_t(a);
 }
 //--------------------------------------------------------------------------------------------------
-ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector tofState, TLorentzVector targetState, Double_t probability){
+ERBeamDetParticle* ERBeamDetPID::AddParticle(Int_t pid, TLorentzVector tofState, 
+                                             TLorentzVector targetState, Double_t probability){
  return new((*fProjectile)[fProjectile->GetEntriesFast()])
               ERBeamDetParticle(pid, tofState, targetState,  probability); 
 }

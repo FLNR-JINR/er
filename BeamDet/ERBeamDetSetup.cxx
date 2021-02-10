@@ -268,12 +268,14 @@ Double_t ERBeamDetSetup::GetWireGlobZ(const TString& digi_branch_name, const ERC
   return GetWireGlobCoord(digi_branch_name, channel, &ERBeamDetWire::fGlobZ);
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERBeamDetSetup::GetWireGlobCoord(const TString& digi_branch_name, ERChannel channel, float ERBeamDetWire::* coord) {
+Double_t ERBeamDetSetup::GetWireGlobCoord(const TString& digi_branch_name, ERChannel channel,
+                                          float ERBeamDetWire::* coord) {
   const auto mwpc_and_plane = GetMwpcAndPlaneNumbers(digi_branch_name);
   return fWires.at(mwpc_and_plane.first).at(mwpc_and_plane.second).at(channel)->*coord;
 }
 //--------------------------------------------------------------------------------------------------
-std::pair<unsigned short, unsigned short> ERBeamDetSetup::GetMwpcAndPlaneNumbers(const TString& digi_branch_name) {
+std::pair<unsigned short, unsigned short> ERBeamDetSetup::
+GetMwpcAndPlaneNumbers(const TString& digi_branch_name) {
   if (digi_branch_name == "BeamDetMWPCDigiX1") {
     return {0, 0};
   } else if (digi_branch_name == "BeamDetMWPCDigiY1") {

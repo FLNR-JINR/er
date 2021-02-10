@@ -30,81 +30,54 @@
  ** (\f$X_1, Y_1, X_2, Y_2\f$) for each wire by means of global geo manager in ERBeamDetSetup.
  ** After that calculate arithmetic averages (\f$<X_1>, <Y_1>, <X_2>, <Y_2>\f$) .
  ** Ion track approximated by straight line passing through (\f$<X_1>,<Y_1>\f$) and
- ** (\f$<X_2>, <Y_2>\f$) points.
-**/
-
+ ** (\f$<X_2>, <Y_2>\f$) points. **/
 class ERBeamDetTrackFinder : public ERTask {
-
 public:
   /** @brief Default constructor **/
   ERBeamDetTrackFinder();
-
   /** @brief Constructor 
-   ** @param verbosity level
-  **/
+   ** @param verbosity level **/
   ERBeamDetTrackFinder(Int_t verbose);
-
   /** @brief Destructor **/
-  ~ERBeamDetTrackFinder();
-
+  ~ERBeamDetTrackFinder() = default;
   /* Modifiers */
   void SetTargetVolume(TString volName) {fTargetVolName = volName;}
-
 public:
   /** @brief Defines all input and output object colletions participates
-   ** in track finding.
-  **/
+   ** in track finding. **/
   virtual InitStatus Init();
-
   /** @brief Defines the transformation actions for all input data (MWPCDigi) to 
-   ** output data (Track) for each event. 
-  **/
+   ** output data (Track) for each event. **/
   virtual void Exec(Option_t* opt);
-
   /** @brief Resets all output data. **/
   virtual void Reset();
-
-  /** @brief Defines actions in the end of track finding. **/
-  virtual void Finish();
-
 protected:
   //Paramaters
-  ERBeamDetSetup *fBeamDetSetup;      ///< access to ERBeamDetSetup class instance
-  
+  ERBeamDetSetup* fBeamDetSetup = nullptr; ///< access to ERBeamDetSetup class instance
   //Input arrays
-  TClonesArray   *fBeamDetMWPCDigiX1; 
-  TClonesArray   *fBeamDetMWPCDigiX2;
-  TClonesArray   *fBeamDetMWPCDigiY1;
-  TClonesArray   *fBeamDetMWPCDigiY2; ///< input collection of MWPC Digi
-
+  TClonesArray* fBeamDetMWPCDigiX1 = nullptr; 
+  TClonesArray* fBeamDetMWPCDigiX2 = nullptr;
+  TClonesArray* fBeamDetMWPCDigiY1 = nullptr;
+  TClonesArray* fBeamDetMWPCDigiY2 = nullptr; ///< input collection of MWPC Digi
   //Output arrays
-  TClonesArray   *fBeamDetTrack ;     ///< output collection of tracks
-
-  Int_t   fMultipicityMWPCX1;
-  Int_t   fMultipicityMWPCY1;
-  Int_t   fMultipicityMWPCX2;
-  Int_t   fMultipicityMWPCY2;
-
-  TRandom3 *fRand;
-
-  TString fTargetVolName;
+  TClonesArray* fBeamDetTrack = nullptr;     ///< output collection of tracks
+  Int_t fMultipicityMWPCX1 = -1;
+  Int_t fMultipicityMWPCY1 = -1;
+  Int_t fMultipicityMWPCX2 = -1;
+  Int_t fMultipicityMWPCY2 = -1;
+  TRandom3* fRand = nullptr;
+  TString fTargetVolName = "target";
 private:
-
   /** @brief Adds a ERBeamDetTrack to the output Collection **/
   ERBeamDetTrack* AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
-
   /** @brief Checks if the collection of digies contatains only neigbour wires.
-   ** @param digiArray   collection of digies.
-  **/
+   ** @param digiArray   collection of digies. **/
   Bool_t   IsCluster(TClonesArray* digiArray);
-
   /** @brief Calculates an arithmetic average value in array of consequent wires.
    ** @param digiArray   collection of digies
-   ** @param coordType   type of coordinate (can take values 'X', 'Y' or 'Z')
-  **/
-  Double_t CalcCoordinateAvg(const TString& digi_branch_name, const TClonesArray* digiArray, char coordType);
-
-
+   ** @param coordType   type of coordinate (can take values 'X', 'Y' or 'Z') **/
+  Double_t CalcCoordinateAvg(const TString& digi_branch_name, const TClonesArray* digiArray,
+                             char coordType);
   ClassDef(ERBeamDetTrackFinder,1)
 };
 #endif

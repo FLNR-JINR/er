@@ -24,47 +24,12 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 ERBeamDetDigitizer::ERBeamDetDigitizer()
-  : ERDigitizer("ER beamdet digitization"), 
-  fBeamDetToFPoints(NULL), 
-  fBeamDetMWPCPoints(NULL), 
-  fBeamDetToFDigi1(NULL), 
-  fBeamDetToFDigi2(NULL), 
-  fBeamDetMWPCDigiX1(NULL),
-  fBeamDetMWPCDigiX2(NULL),
-  fBeamDetMWPCDigiY1(NULL),
-  fBeamDetMWPCDigiY2(NULL),
-  fElossSigmaToF(0),
-  fTimeSigmaToF(0),
-  fElossSigmaMWPC(0),
-  fTimeSigmaMWPC(0),
-  fMWPCElossThreshold(0),
-  fToFElossThreshold(0)
-{
-}
+  : ERDigitizer("ER beamdet digitization")
+{}
 //--------------------------------------------------------------------------------------------------
 ERBeamDetDigitizer::ERBeamDetDigitizer(Int_t verbose)
-  : ERDigitizer("ER beamdet digitization ", verbose),
-  fBeamDetToFPoints(NULL), 
-  fBeamDetMWPCPoints(NULL), 
-  fBeamDetToFDigi1(NULL), 
-  fBeamDetToFDigi2(NULL), 
-  fBeamDetMWPCDigiX1(NULL),
-  fBeamDetMWPCDigiX2(NULL),
-  fBeamDetMWPCDigiY1(NULL),
-  fBeamDetMWPCDigiY2(NULL),
-  fElossSigmaToF(0),
-  fTimeSigmaToF(0),
-  fElossSigmaMWPC(0),
-  fTimeSigmaMWPC(0),
-  fMWPCElossThreshold(0),
-  fToFElossThreshold(0),
-  fElossSigmaOverElossToF(0),
-  fSigmaEOverEToFIsSet(0)
-{
-}
-//--------------------------------------------------------------------------------------------------
-ERBeamDetDigitizer::~ERBeamDetDigitizer() {
-}
+  : ERDigitizer("ER beamdet digitization ", verbose)
+{}
 //--------------------------------------------------------------------------------------------------
 InitStatus ERBeamDetDigitizer::Init() {
   if (ERTask::Init() != kSUCCESS)
@@ -83,13 +48,13 @@ InitStatus ERBeamDetDigitizer::Init() {
     Fatal("Init", "Can`t find collection BeamDetMWPCPoint!"); 
 
   // Register output array fRTelescopeHits
-  fBeamDetToFDigi1 = new TClonesArray("ERDigi",1000);
-  fBeamDetToFDigi2 = new TClonesArray("ERDigi",1000);
+  fBeamDetToFDigi1 = new TClonesArray("ERDigi",1);
+  fBeamDetToFDigi2 = new TClonesArray("ERDigi",1);
 
-  fBeamDetMWPCDigiX1 = new TClonesArray("ERDigi",1000);
-  fBeamDetMWPCDigiX2 = new TClonesArray("ERDigi",1000);
-  fBeamDetMWPCDigiY1 = new TClonesArray("ERDigi",1000);
-  fBeamDetMWPCDigiY2 = new TClonesArray("ERDigi",1000);
+  fBeamDetMWPCDigiX1 = new TClonesArray("ERDigi",100);
+  fBeamDetMWPCDigiX2 = new TClonesArray("ERDigi",100);
+  fBeamDetMWPCDigiY1 = new TClonesArray("ERDigi",100);
+  fBeamDetMWPCDigiY2 = new TClonesArray("ERDigi",100);
 
 
   ioman->Register("BeamDetToFDigi1", "BeamDetToF Digi", fBeamDetToFDigi1, kTRUE);
@@ -106,9 +71,7 @@ InitStatus ERBeamDetDigitizer::Init() {
   return kSUCCESS;
 }
 //--------------------------------------------------------------------------------------------------
-void ERBeamDetDigitizer::Exec(Option_t* opt)
-{
-
+void ERBeamDetDigitizer::Exec(Option_t* opt) {
   Reset();
 
   map<Int_t, vector<Int_t>> pointsToF;
@@ -186,7 +149,8 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
 
         time = gRandom->Gaus(time, fTimeSigmaMWPC);
 
-        ERDigi *digi = AddMWPCDigi(edep, time, itMWPC->first, itPlane->first, static_cast<ERChannel>(itWire->first));
+        ERDigi *digi = AddMWPCDigi(edep, time, itMWPC->first, itPlane->first, 
+                                   static_cast<ERChannel>(itWire->first));
         itMWPCPoint = itWire->second.begin();
         //for (; itMWPCPoint != itWire->second.end(); ++itMWPCPoint){
         //  digi->AddLink(FairLink("BeamDetMWPCPoint", *itMWPCPoint));
@@ -200,11 +164,9 @@ void ERBeamDetDigitizer::Exec(Option_t* opt)
   ERBeamDetSetup* setup = ERBeamDetSetup::Instance();
   ApplyTrigger(setup->GetToFType(0),fBeamDetToFDigi1);
   ApplyTrigger(setup->GetToFType(1),fBeamDetToFDigi2);
-
 }
 //--------------------------------------------------------------------------------------------------
-void ERBeamDetDigitizer::Reset()
-{
+void ERBeamDetDigitizer::Reset() {
   if (fBeamDetMWPCDigiX1) {
     fBeamDetMWPCDigiX1->Delete();
   }
@@ -225,10 +187,8 @@ void ERBeamDetDigitizer::Reset()
   }
 }
 //--------------------------------------------------------------------------------------------------
-void ERBeamDetDigitizer::Finish() {
-}
-//--------------------------------------------------------------------------------------------------
-ERDigi* ERBeamDetDigitizer::AddMWPCDigi(float edep, float time, Int_t mwpcNb, Int_t planeNb, ERChannel wireNb) {
+ERDigi* ERBeamDetDigitizer::AddMWPCDigi(float edep, float time, Int_t mwpcNb, 
+                                        Int_t planeNb, ERChannel wireNb) {
   ERDigi *digi;
   if(mwpcNb == 1) {
     if(planeNb == 1) {
@@ -242,10 +202,10 @@ ERDigi* ERBeamDetDigitizer::AddMWPCDigi(float edep, float time, Int_t mwpcNb, In
   if(mwpcNb == 2) {
     if(planeNb == 1) {
       digi = new((*fBeamDetMWPCDigiX2)[fBeamDetMWPCDigiX2->GetEntriesFast()])
-              ERDigi(edep, time, wireNb);
+             ERDigi(edep, time, wireNb);
     } else {
       digi = new((*fBeamDetMWPCDigiY2)[fBeamDetMWPCDigiY2->GetEntriesFast()])
-              ERDigi(edep, time, wireNb);
+             ERDigi(edep, time, wireNb);
     }
   }
   return digi;
