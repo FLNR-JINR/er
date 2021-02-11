@@ -8,28 +8,28 @@
 #ifndef ERDigi_H
 #define ERDigi_H
 
-#include "FairMultiLinkedData.h"
+#include "TObject.h"
 
-class ERDigi : public FairMultiLinkedData
-{
+#include "ERSupport.h"
+
+class ERDigi : public TObject {
  public:
   ERDigi() = default;
-  ERDigi(Double_t edep, Double_t time, Int_t channel);
+  ERDigi(float edep, float time, ERChannel channel);
   /** Output to screen **/
-  virtual void Print(const Option_t* opt = 0) const;
+  void Print() const;
   /* Accessors */
-  Double_t Edep() const {return fEdep;}
-  Double_t Time() const {return fTime;}
-  Int_t Channel() const {return fChannel;}
+  float Edep() const {return fEdep;}
+  float Time() const {return fTime;}
+  ERChannel Channel() const {return fChannel;}
   /* Modifiers */
-  void SetTime(const Double_t time) {fTime = time;}
-  void SetEdep (const Double_t edep) {fEdep = edep;}
-  void SetChannel (const Int_t channel) {fChannel = channel;} 
+  void SetTime(const float time) {fTime = time;}
+  void SetEdep (const float edep) {fEdep = edep;}
+  void SetChannel (const int channel) {fChannel = channel;} 
  protected:
-  Int_t     fChannel = -1;
-  Double_t  fTime = -1.;
-  Double_t  fEdep = -1.;
-  
+  ERChannel fChannel = consts::undefined_channel;
+  float  fTime = -1.;
+  float  fEdep = -1.;
   ClassDef(ERDigi,1)
 };
 

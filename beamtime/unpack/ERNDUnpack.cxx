@@ -19,7 +19,7 @@
 //--------------------------------------------------------------------------------------------------
 ERNDUnpack::ERNDUnpack(TString detName, TString ampStation, TString timeStation, TString tacStation,
                        TString ampCalFile, TString timeCalFile, TString tacCalFile,
-                       std::map<Int_t, Int_t>* channelsMapping /*=nullptr*/,
+                       ChannelsMapping* channelsMapping /*=nullptr*/,
                        Bool_t skipAloneChannels/*= kTRUE*/) : 
     ERUnpack(detName),
     fAmpStation(ampStation),
@@ -46,7 +46,7 @@ Bool_t ERNDUnpack::Init(SetupConfiguration* setupConf){
         return kTRUE;
     FairRootManager* ioman = FairRootManager::Instance();
   	if ( ! ioman ) Fatal("Init", "No FairRootManager");
-    fDigiCollections["NDDigis"] = new TClonesArray("ERNDDigi", 1000);
+    fDigiCollections["NDDigis"] = new TClonesArray("ERNDDigi", 10);
 	ioman->Register("NDDigi", "ND", fDigiCollections["NDDigis"], kTRUE /* save to file */);
     if (!CheckSetup())
         Fatal("Init", "Error in ERNDUnpack setup checking !");
@@ -57,20 +57,20 @@ Bool_t ERNDUnpack::DoUnpack(Int_t* data, Int_t size){
         return kTRUE;
     DetEventFull* event = (DetEventFull*)data;
     DetEventDetector* detEvent = (DetEventDetector* )event->GetChild(fDetName);
-    std::map<Int_t, std::tuple<Double_t, Double_t, Double_t>> valueMap;
+    Channel2AmplitudeTimeTac valueMap;
     UnpackAmpTimeTACStation(detEvent, fAmpStation, fTimeStation, fTACStation,
                             valueMap, fSkipAloneChannels);
     for (auto itValue : valueMap){
-        Int_t channel = itValue.first;
-        Double_t amp, time, tac;
+        ERChannel channel = itValue.first;
+        float amp, time, tac;
         std::tie(amp, time, tac) = itValue.second;
         ApplyCalibrations(channel, amp /*[MeV]*/, time, tac);
         AddNDDigi(amp,time,tac, GetChannelNumber(channel, fChannelsMapping));
     }
 }
 //--------------------------------------------------------------------------------------------------
-void ERNDUnpack::ApplyCalibrations(const Int_t channel, Double_t& amp, Double_t& time, Double_t& tac) {
-    const auto applyCalibration = [this, channel](Double_t& value, const TMatrixD* table) {
+void ERNDUnpack::ApplyCalibrations(const ERChannel channel, float& amp, float& time, float& tac) {
+    const auto applyCalibration = [this, channel](float& value, const TMatrixD* table) {
         if (!table)
             return;
         if (channel >= table->GetNrows()){
@@ -84,11 +84,11 @@ void ERNDUnpack::ApplyCalibrations(const Int_t channel, Double_t& amp, Double_t&
     applyCalibration(tac, fTACCalTable);
 }
 //--------------------------------------------------------------------------------------------------
-void ERNDUnpack::AddNDDigi(const Float_t edep, const Double_t time, const Int_t tac, const Int_t channelNb) {
-    TVector3 pos, dpos; // fields for simulation info  
+void ERNDUnpack::AddNDDigi(const float edep, const float time, const float tac, 
+                           const ERChannel channelNb) { 
     auto* digiCollection = fDigiCollections["NDDigis"];
     new((*digiCollection) [digiCollection->GetEntriesFast()])
-        ERNDDigi(pos, dpos, channelNb, edep, -1. /*lightYield*/, time, -1. /*neutronProb*/, tac);
+        ERNDDigi(channelNb, edep, -1. /*lightYield*/, time, -1. /*neutronProb*/, tac);
 }
 //--------------------------------------------------------------------------------------------------
 Bool_t ERNDUnpack::CheckSetup() {
