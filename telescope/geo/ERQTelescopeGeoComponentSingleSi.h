@@ -20,7 +20,6 @@ public:
   virtual void ConstructGeometryVolume(void);
 protected:
   virtual void ParseXmlParameters();
-  OrientationAroundZ fOrientAroundZ = OrientationAroundZ::Default;
   Double_t fSensX = 0.;
   Double_t fSensY = 0.;
   Double_t fSensZ = 0.;
