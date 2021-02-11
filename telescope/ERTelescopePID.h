@@ -38,14 +38,14 @@ public:
   struct ParticleDescription {
     const PDG fPDG = -1;
     const TString fDeStation;
-    const TString fEStation;
+    const std::list<TString> fEStations;
     const Double_t fNormalizedThickness = 0.002;
     const std::vector<TString> fDoNotUseSignalFromStations;
     ParticleDescription() = default;
     ParticleDescription(PDG pdg, const TString& deStation, 
-                        const TString& eStation, Double_t normalizedThickness,
+                        const std::list<TString>& eStations, Double_t normalizedThickness,
                         const std::vector<TString>& doNotUseSignalFromStations)
-        : fPDG(pdg), fDeStation(deStation), fEStation(eStation),
+        : fPDG(pdg), fDeStation(deStation), fEStations(eStations),
           fNormalizedThickness(normalizedThickness), 
           fDoNotUseSignalFromStations(doNotUseSignalFromStations) {}
   };
@@ -70,11 +70,17 @@ public:
   /* Modifiers */
   void SetParticle(const TString& trackBranchName, const PDG pdg, 
                    const TString& deStation = "", const TString& eStation = "",
-                   Double_t deNormalizedThickness = 0.002, const std::vector<TString>& doNotUseSignalFromStations = {});
+                   Double_t deNormalizedThickness = 0.002, 
+                   const std::vector<TString>& doNotUseSignalFromStations = {});
+  void SetParticle(const TString& trackBranchName, const PDG pdg, 
+                   const TString& deStation = "", const std::list<TString>& eStations = {},
+                   Double_t deNormalizedThickness = 0.002, 
+                   const std::vector<TString>& doNotUseSignalFromStations = {});
   void SetEdepAccountingStrategy(
       const TString& station, EdepAccountingStrategy strategy) {
     fEdepAccountingStrategies[station] = strategy;
   }
+  void SetInteractionVolumeName(const TString& name) { fInteractionVolumeName = name; }
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding.
@@ -96,6 +102,7 @@ protected:
   std::map<TString, TClonesArray*> fQTelescopeTrack;
   //Output arrays
   std::map<TString, std::map<PDG, TClonesArray*> >  fQTelescopeParticle;
+  TString fInteractionVolumeName = "target";
 protected:
   TVector3 FindBackPropagationStartPoint(const ERTelescopeTrack& track);
   std::pair<Double_t, Double_t> CalcEnergyDeposites (
@@ -105,7 +112,8 @@ protected:
   std::map<TString, const ERDigi*> FindDigisByNode(const TGeoNode& node, const TString& nodePath);
   void FindEnergiesForDeEAnalysis(const TString& trackBranch,
                                   const std::list<DigiOnTrack>& digisOnTrack, 
-                                  const TString& eStation, const TString& deStation, 
+                                  const std::list<TString>& eStations, 
+                                  const TString& deStation, 
                                   const Double_t normalizedThickness,
                                   Double_t& edepInThickStation, Double_t& edepInThinStation,
                                   Double_t& edepInThickStationCorrected, Double_t& edepInThinStationCorrected);

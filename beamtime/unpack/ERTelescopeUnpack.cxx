@@ -218,7 +218,7 @@ void ERTelescopeUnpack::FormAllBranches(){
     }
     for (auto itStation : fStations){
         TString bName = itStation.second->bName;
-        if (itStation.second->type == "Si"){
+        if (itStation.second->type == "Si") {
             fDigiCollections[bName] = new TClonesArray("ERDigi", 10);
             ioman->Register(bName,fDetName, fDigiCollections[bName], kTRUE);
             if (itStation.second->sideCount == 2){

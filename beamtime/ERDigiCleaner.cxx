@@ -277,7 +277,6 @@ void ERDigiCleaner::ApplyStationMultiplicities() {
         }
         if (digi->GetEntriesFast() < multiplicityRange.first || digi->GetEntriesFast() > multiplicityRange.second) {
             digi->Clear();
-            return;
         }
     }
 }

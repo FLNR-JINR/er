@@ -83,11 +83,25 @@ void ERTelescopePID::SetParticle(
     const TString& deStation /*= ""*/, const TString& eStation /*= ""*/,
     const Double_t deNormalizedThickness /*= 0.002*/,
     const std::vector<TString>& doNotUseSignalFromStations /* = {}*/) {
-  if ((deStation == "" && eStation != "")
-      || (deStation != "" && eStation == ""))
+  if ((deStation == "" && eStation != "") || (deStation != "" && eStation == ""))
     LOG(FATAL) << "If one of dE or E station is defined, another should be defined." 
                << FairLogger::endl;
-  fParticleDescriptions[trackBranchName].emplace_back(pdg, deStation, eStation, deNormalizedThickness, doNotUseSignalFromStations);
+  std::list<TString> eStations;
+  if (eStation != "" )
+    eStations.push_back(eStation);
+  fParticleDescriptions[trackBranchName].emplace_back(pdg, deStation, eStations,
+                                                      deNormalizedThickness,
+                                                      doNotUseSignalFromStations);
+}
+//--------------------------------------------------------------------------------------------------
+void ERTelescopePID::SetParticle(
+    const TString& trackBranchName, const PDG pdg, 
+    const TString& deStation /*= ""*/, const std::list<TString>& eStations /*= {}*/,
+    const Double_t deNormalizedThickness /*= 0.002*/,
+    const std::vector<TString>& doNotUseSignalFromStations /* = {}*/) {
+  fParticleDescriptions[trackBranchName].emplace_back(pdg, deStation, eStations,
+                                                      deNormalizedThickness,
+                                                      doNotUseSignalFromStations);
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopePID::Exec(Option_t* opt) {
@@ -122,7 +136,7 @@ void ERTelescopePID::Exec(Option_t* opt) {
         Double_t edepInThickStation = -1., edepInThinStation = -1., 
                  edepInThickStationCorrected = -1., edepInThinStationCorrected = -1.;
         FindEnergiesForDeEAnalysis(trackBranch, digisOnTrack, 
-                                   particleDescription.fEStation, particleDescription.fDeStation,
+                                   particleDescription.fEStations, particleDescription.fDeStation,
                                    particleDescription.fNormalizedThickness, edepInThickStation, edepInThinStation,
                                    edepInThickStationCorrected, edepInThinStationCorrected);
         const auto digisDeposite = energyDeposites.first;
@@ -234,13 +248,11 @@ CalcEnergyDeposites(const ERTelescopeTrack& track, const TVector3& startPoint,
   // While track not in target volume or outside the setup,
   // accumulate energy deposites and kinetic energy.
   Bool_t targetHasPassed = kFALSE;
-  while(!gGeoManager->IsOutside()) {
+  while(!gGeoManager->IsOutside() && !targetHasPassed) {
     gGeoManager->FindNextBoundary();
     LOG(DEBUG) <<"[ERTelescopePID] [CalcEnergyDeposites] path  = " 
                << gGeoManager->GetPath() << FairLogger::endl;
-    const bool trackInTarget = TString(gGeoManager->GetPath()).Contains("target");
-    if (targetHasPassed && !trackInTarget)
-      break;
+    const bool trackInTarget = gGeoManager->GetCurrentVolume()->GetName() == fInteractionVolumeName;
     targetHasPassed = trackInTarget;
     // If track in sensetive volume, try to find digi
     Bool_t digisForNodeAreFound = kFALSE;
@@ -275,7 +287,7 @@ CalcEnergyDeposites(const ERTelescopeTrack& track, const TVector3& startPoint,
       const TString materialName = node->GetMedium()->GetMaterial()->GetName();
       const auto* material = G4NistManager::Instance()->FindOrBuildMaterial(materialName.Data());
       LOG(DEBUG) <<"[ERTelescopePID] [CalcEnergyDeposites]"
-                 <<" Calc energy deposite for range " << range << " in materail "
+                 <<" Calc energy deposite for range " << range << " in material "
                  << materialName << " with kinetic energy " << kineticEnergy << FairLogger::endl;
       const auto deadDeposite = CalcElossIntegralVolStep(kineticEnergy, particle, *material, range);
       kineticEnergy += deadDeposite;
@@ -372,10 +384,12 @@ std::map<TString, const ERDigi*> ERTelescopePID::FindDigisByNode(const TGeoNode&
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopePID::FindEnergiesForDeEAnalysis(const TString& trackBranch, 
-    const std::list<DigiOnTrack>& digisOnTrack, const TString& eStation, const TString& deStation,
-    const Double_t normalizedThickness, Double_t& edepInThickStation, Double_t& edepInThinStation,
-    Double_t& edepInThickStationCorrected, Double_t& edepInThinStationCorrected) {
-  if (eStation == "" || deStation == "")
+    const std::list<DigiOnTrack>& digisOnTrack, const std::list<TString>& eStations,
+    const TString& deStation, const Double_t normalizedThickness, Double_t& edepInThickStation,
+    Double_t& edepInThinStation, Double_t& edepInThickStationCorrected,
+    Double_t& edepInThinStationCorrected) {
+  const TString log_prefix = "[ERTelescopePID][FindEnergiesForDeEAnalysis] ";
+  if (eStations.empty() || deStation == "")
     return;
   const auto getDigisOnTrack = [&digisOnTrack](const TString& stationName) -> std::list<DigiOnTrack> {
     std::list<DigiOnTrack> digisOnTrackInStation;
@@ -388,27 +402,43 @@ void ERTelescopePID::FindEnergiesForDeEAnalysis(const TString& trackBranch,
   };
   const auto deDigisOnTrack = getDigisOnTrack(deStation);
   if (deDigisOnTrack.empty()) {
-    LOG(WARNING) << "[ERTelescopePID][FindEnergiesForDeEAnalysis] Digi for station " << deStation 
+    LOG(WARNING) << log_prefix << "Digi for station " << deStation 
                  << " not found on track from " << trackBranch << " path." << FairLogger::endl;
     return;
   }
-  const auto eDigisOnTrack = getDigisOnTrack(eStation);
-  if (eDigisOnTrack.empty()) {
-    LOG(WARNING) << "[ERTelescopePID][FindEnergiesForDeEAnalysis] Digi for station " << eStation 
-                 << " not found on track from " << trackBranch << " path" << FairLogger::endl;
+  TString eStations_string;
+  for (const auto& eStation : eStations) {
+    const auto eDigisOnTrack = getDigisOnTrack(eStation);
+    if (eDigisOnTrack.empty()) {
+      LOG(WARNING) << log_prefix << "Digi for station " << eStation 
+                  << " not found on track from " << trackBranch << " path" << FairLogger::endl;
+      continue;
+    }
+    if (edepInThickStation == -1.) {
+      edepInThickStation = ApplyEdepAccountingStrategy(eDigisOnTrack);
+      eStations_string += eStation;
+    } else {
+      edepInThickStation += ApplyEdepAccountingStrategy(eDigisOnTrack);
+      eStations_string += TString(", ") + eStation;
+    }
+    
+  }
+  if (edepInThickStation == -1.) {
+    LOG(WARNING) << log_prefix << "No digis found for E stations in de-E analysis." << FairLogger::endl;
     return;
   }
-  edepInThickStation = ApplyEdepAccountingStrategy(eDigisOnTrack);
   edepInThinStation = ApplyEdepAccountingStrategy(deDigisOnTrack);
   const auto deSensetiveThickness = deDigisOnTrack.front().fSensetiveThickness;
   // de and E correction
   edepInThinStationCorrected = edepInThinStation * normalizedThickness / deSensetiveThickness;
-  LOG(DEBUG) << "[ERTelescopePID][FindEnergiesForDeEAnalysis] Digi from station " << deStation << " with edep = " << edepInThinStation 
-            << " [MeV] corrected to edep = " << edepInThinStationCorrected << ". Normalized thickness = " 
+  LOG(DEBUG) << log_prefix <<  "Digi from station " << deStation 
+            << " with edep = " << edepInThinStation << " [MeV] corrected to edep = " 
+            << edepInThinStationCorrected << ". Normalized thickness = " 
             << normalizedThickness << ", step in sensetive volume = " << deSensetiveThickness
             << FairLogger::endl;
   edepInThickStationCorrected = edepInThickStation + edepInThinStation - edepInThinStationCorrected;
-  LOG(DEBUG) << "[ERTelescopePID][FindEnergiesForDeEAnalysis] Digi from station " << eStation << " with edep = " << edepInThickStation 
+  LOG(DEBUG) << log_prefix << "Digis from stations " << eStations_string 
+             << " with edep = " << edepInThickStation 
              << " corrected to " << edepInThickStationCorrected << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
