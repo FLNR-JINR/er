@@ -40,8 +40,8 @@ class ERBeamDet : public ERDetector {
     ERBeamDet(const char* name, Bool_t active, Int_t verbose);
     /** @brief Destructor **/
     virtual ~ERBeamDet();
-    void SetIonName(TString ionName){fIonName = ionName; fIonPIDIsSet = kTRUE;}
-    void SetIonPID(Int_t ionPID){fIonPID = ionPID; fIonPIDIsSet = kTRUE;}
+    void SetIonName(const TString& ionName) {fIonName = ionName; fIonPIDIsSet = kTRUE;}
+    void SetIonPID(int ionPID) {fIonPID = ionPID; fIonPIDIsSet = kTRUE;}
   public:
     /** @brief Defines the action to be taken when a step is inside the
      ** active volume. Creates a ERBeamDetPoint and adds it to the
@@ -84,6 +84,7 @@ class ERBeamDet : public ERDetector {
      ** Virtual from FairDetector. **/
     virtual void ConstructGeometry();
   private:
+    ERBeamDetSetup* fSetup = nullptr;
     /** @brief Adds a ERBeamDetToFPoint to the ToFPoints Collection **/
     ERBeamDetTOFPoint*    AddTOFPoint();
     /** @brief Adds a ERBeamDetMWPCPoint to the MWPCPoints Collection **/
@@ -91,8 +92,6 @@ class ERBeamDet : public ERDetector {
     /** @brief Adds a ERBeamDetTargetPoint to the TargetPoints Collection **/
     ERBeamDetTargetPoint* AddTargetPoint();
   private:
-    ///Object for assignment geometry parameters by ERBeamDetSetup class methods
-    ERBeamDetSetup* fBeamDetSetup = nullptr; 
     TClonesArray* fToFPoints = nullptr; ///< The ToFPoint collection
     TClonesArray* fMWPCPoints = nullptr; ///< The MWPCPoint collection
     TClonesArray* fTargetPoints = nullptr; ///< The TargetPoint collection

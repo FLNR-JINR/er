@@ -15,6 +15,18 @@ using ERChannel = unsigned short;
 using ChannelsMapping = std::map<ERChannel, ERChannel>;
 namespace consts {
   const unsigned short undefined_channel = std::numeric_limits<ERChannel>::max();
+  // Averaged numbers of objects in events. Used as TClonesArray capacitance.
+  // Сan affect the efficiency of calculations in case of an obvious 
+  // mismatch with the real numbers of objects.
+  const int approx_beamdet_point_number = 100;
+  const int approx_beamdet_tof_digi_number = 10;
+  const int approx_beamdet_mwpc_digi_number = 100;
+  const int approx_beamdet_track_number = 10;
+  const int approx_beamdet_particle_number = 10;
+  const int approx_telescope_point_number = 100;
+  const int approx_telescope_digi_number = 10;
+  const int approx_telescope_track_number = 10;
+  const int approx_telescope_particle_number = 10;
 }
 enum ERDataObjectType {Point, Digi, Track, Particle};
 inline TString ERDataObjectTypeStr(ERDataObjectType object) {

@@ -49,7 +49,7 @@ InitStatus ERBeamDetPID::Init() {
   fBeamDetToFDigi2 = (TClonesArray*) ioman->GetObject("BeamDetToFDigi2");
   fBeamDetTrack    = (TClonesArray*) ioman->GetObject("BeamDetTrack");
 
-  fProjectile = new TClonesArray("ERBeamDetParticle",10);
+  fProjectile = new TClonesArray("ERBeamDetParticle", consts::approx_beamdet_particle_number);
 
   // Register output object fProjectile
 

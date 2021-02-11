@@ -92,7 +92,8 @@ InitStatus ERTelescopeTrackFinder::Init() {
   // Register output track branches only for stations that are setted by interface SetStation(){
   for (const auto itSubassemblies : fSiHitStationsPair) {
     for (const auto itComponent : itSubassemblies.second) {
-      fQTelescopeTrack[itComponent.first] = new TClonesArray("ERTelescopeTrack");
+      fQTelescopeTrack[itComponent.first] = new TClonesArray("ERTelescopeTrack", 
+                                                             consts::approx_telescope_track_number);
       ioman->Register("TelescopeTrack_" + itComponent.first, "Telescope", 
                       fQTelescopeTrack[itComponent.first], kTRUE);
     }

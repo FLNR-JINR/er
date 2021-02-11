@@ -29,7 +29,6 @@ set(SRCS
     data/ERBeamDetTargetPoint.cxx
 	data/ERBeamDetTrack.cxx
 	data/ERBeamDetParticle.cxx
-
 	ERBeamDet.cxx
 	ERBeamDetDigitizer.cxx
 	ERBeamDetTrackFinder.cxx

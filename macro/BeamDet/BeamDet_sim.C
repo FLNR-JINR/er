@@ -42,7 +42,7 @@ void BeamDet_sim(Int_t nEvents = 10){
   */
   Int_t verbose = 0;
   ERBeamDet* beamDet= new ERBeamDet("ERBeamDet", kTRUE,verbose);
-  //beamDet->SetGeometryFileName("beamdet.temp.root");
+  beamDet->SetGeometryFileName("beamdet.temp.root");
   ERBeamDetSetup* setup = ERBeamDetSetup::Instance();
 
   setup->SetXmlParametersFile(partsFile);
@@ -102,7 +102,7 @@ void BeamDet_sim(Int_t nEvents = 10){
   FairLogger::GetLogger()->SetLogVerbosityLevel("LOW");
   // —– Initialize simulation run ———————————— 
   run->Init();
-  setup->PrintDetectorParametersToFile("listing.txt");
+  //setup->PrintDetectorParametersToFile("listing.txt");
   Int_t nSteps = -15000;
 
   // —– Runtime database ——————————————— 
@@ -113,7 +113,7 @@ void BeamDet_sim(Int_t nEvents = 10){
   rtdb->saveOutput(); 
   rtdb->print(); // 
   // -----   Run simulation  ------------------------------------------------
-    run->Run(nEvents);
+  run->Run(nEvents);
 
     // -----   Finish   -------------------------------------------------------
     timer.Stop();

@@ -36,43 +36,38 @@ ERBeamDetUnpack::~ERBeamDetUnpack(){
 Bool_t ERBeamDetUnpack::Init(SetupConfiguration* setupConf){
 	if (!ERUnpack::Init(setupConf))
 		return kTRUE;
-
 	FairRootManager* ioman = FairRootManager::Instance();
   	if ( ! ioman ) Fatal("Init", "No FairRootManager");
-
 	fSetupConfiguration = setupConf;
-
 	//@TODO check setup
-
 	fMwpcAmpTimeStations["MWPC1"] = 0;
 	fMwpcAmpTimeStations["MWPC2"] = 1;
 	fMwpcAmpTimeStations["MWPC3"] = 2;
 	fMwpcAmpTimeStations["MWPC4"] = 3;
-
 	fMwpcBnames["MWPC1"] = "BeamDetMWPCDigiX1";
 	fMwpcBnames["MWPC2"] = "BeamDetMWPCDigiY1";
 	fMwpcBnames["MWPC3"] = "BeamDetMWPCDigiX2";
 	fMwpcBnames["MWPC4"] = "BeamDetMWPCDigiY2";
-
 	const std::map<TString, unsigned short> stList = fSetupConfiguration->GetStationList(fDetName);
 	for (auto itSt : stList){
 		if (itSt.first == TString("F3")){
-			fDigiCollections["BeamDetToFDigi1"] = new TClonesArray("ERDigi",4);
+			fDigiCollections["BeamDetToFDigi1"] = new TClonesArray("ERDigi",
+                                                             consts::approx_beamdet_tof_digi_number);
 			ioman->Register("BeamDetToFDigi1", "BeamDet", fDigiCollections["BeamDetToFDigi1"], kTRUE);
 		}
 		if (itSt.first == TString("F5")){
-			fDigiCollections["BeamDetToFDigi2"] = new TClonesArray("ERDigi",10);
+			fDigiCollections["BeamDetToFDigi2"] = new TClonesArray("ERDigi",
+                                                             consts::approx_beamdet_tof_digi_number);
 			ioman->Register("BeamDetToFDigi2", "BeamDet", fDigiCollections["BeamDetToFDigi2"], kTRUE);
 		}
 		for (auto itMwpcStation : fMwpcAmpTimeStations){
 			TString bName = fMwpcBnames[itMwpcStation.first];
 			if (itSt.first == itMwpcStation.first){
-				fDigiCollections[bName] = new TClonesArray("ERDigi",10);
+				fDigiCollections[bName] = new TClonesArray("ERDigi",consts::approx_beamdet_mwpc_digi_number);
 				ioman->Register(bName, "BeamDet", fDigiCollections[bName], kTRUE);
 			}
 		}
 	}
-
 	return kTRUE;
 }
 //--------------------------------------------------------------------------------------------------

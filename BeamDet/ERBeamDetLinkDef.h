@@ -4,7 +4,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class ERBeamDet;
+#pragma link C++ class ERBeamDet+;
 #pragma link C++ class ERBeamDetDigitizer;
 #pragma link C++ class ERBeamDetTrackFinder;
 #pragma link C++ class ERBeamDetSetup;

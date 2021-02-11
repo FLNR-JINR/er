@@ -37,30 +37,23 @@ ERBeamDetTrackFinder::ERBeamDetTrackFinder(Int_t verbose)
 InitStatus ERBeamDetTrackFinder::Init() {
   if (ERTask::Init() != kSUCCESS)
     return kFATAL;
-
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
-
   if (fTargetVolName == "") 
     Fatal("Init", "TargetVolumeName for ERBeamDetTrackFinder not defined! ");
-  
   fBeamDetMWPCDigiX1 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiX1");
   fBeamDetMWPCDigiX2 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiX2");
   fBeamDetMWPCDigiY1 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiY1");
   fBeamDetMWPCDigiY2 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiY2");
   // Register output array fBeamDetHits
-  fBeamDetTrack = new TClonesArray("ERBeamDetTrack",10);
+  fBeamDetTrack = new TClonesArray("ERBeamDetTrack", consts::approx_beamdet_track_number);
   //fBeamDetTrack = (ERBeamDetTrack*)new ERBeamDetTrack();
-
   ioman->Register("BeamDetTrack", "BeamDet track", fBeamDetTrack, kTRUE);
-
   fBeamDetSetup = ERBeamDetSetup::Instance();
   fBeamDetSetup->SetParContainers();
   fBeamDetSetup->GetGeoParamsFromParContainer();
-
   fRand = new TRandom3();
-
   return kSUCCESS;
 }
 //--------------------------------------------------------------------------------------------------
