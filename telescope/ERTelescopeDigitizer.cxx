@@ -60,7 +60,7 @@ InitStatus ERTelescopeDigitizer::Init() {
       TString bPrefixName(bFullName(0, bPrefixNameLength));
       bPrefixName.Replace(bPrefixNameLength - 5, bPrefixNameLength, "Digi");
       TString outBrName =  bPrefixName + "_" + brName;
-      fQTelescopeDigi[brName] = new TClonesArray("ERDigi");
+      fQTelescopeDigi[brName] = new TClonesArray("ERDigi", consts::approx_telescope_digi_number);
       LOG(DEBUG) << "Branch name " << brName << FairLogger::endl;
       ioman->Register(outBrName, "Telescope", fQTelescopeDigi[brName], kTRUE);
     }
@@ -106,9 +106,9 @@ void ERTelescopeDigitizer::Exec(Option_t* opt) {
         continue;
       time = gRandom->Gaus(time, timeSigma);
       auto* digi = AddDigi(edep, time, itPoint.first, itPointBranches.first);
-      for (const auto itPointsForCurrentVolume : itPoint.second) {
-        digi->AddLink(FairLink("ERPoint", itPointsForCurrentVolume));
-      }
+      //for (const auto itPointsForCurrentVolume : itPoint.second) {
+      //  digi->AddLink(FairLink("ERPoint", itPointsForCurrentVolume));
+      //}
     }
   }
   /*@TODO: This functionality can be transferred to ERDigitizer if the information 

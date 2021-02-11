@@ -140,7 +140,8 @@ void ERTelescope::Register() {
     for (const auto branchName : component->GetBranchNames(ERDataObjectType::Point)) {
       LOG(DEBUG) << "[ERTelescope] Register branch " << branchName 
                  << " for component " << component->GetVolumeName() << FairLogger::endl;
-      fPoints[component->GetVolumeName()][branchName] = new TClonesArray("ERPoint");
+      fPoints[component->GetVolumeName()][branchName] = 
+          new TClonesArray("ERPoint", consts::approx_telescope_point_number);
       ioman->Register(branchName, "Telescope", fPoints[component->GetVolumeName()][branchName], kTRUE);
     }
   }

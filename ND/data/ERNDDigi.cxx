@@ -8,12 +8,10 @@
 
 #include "ERNDDigi.h"
 
-ERNDDigi::ERNDDigi(TVector3& pos, TVector3& dpos, Int_t stilbenNb, 
-				   Double_t edep, Double_t lightYoeld, Double_t time, 
-				   Double_t neutronProb, Double_t tac/*-1*/)
-	: ERDigi(edep, time, stilbenNb), fPos(pos), fDPos(dpos), fLightYield(lightYoeld),
-	  fNeutronProb(neutronProb), fTAC(tac)
-{
-}
+ERNDDigi::ERNDDigi(ERChannel stilbenNb, float edep, float lightYoeld, float time, 
+				           float neutronProb, float tac/*-1*/)
+	: ERDigi(edep, time, stilbenNb), fLightYield(lightYoeld),
+		fNeutronProb(neutronProb), fTAC(tac) 
+{}
 
 ClassImp(ERNDDigi)

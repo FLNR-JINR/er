@@ -46,7 +46,7 @@ TMatrixD* ReadCalFile(TString fileName) {
     return calTable;
 }
 //--------------------------------------------------------------------------------------------------
-Int_t GetChannelNumber(const Int_t rawChannel, const std::map<Int_t, Int_t>* channelsMapping) {
+ERChannel GetChannelNumber(const ERChannel rawChannel, const ChannelsMapping* channelsMapping) {
     if (!channelsMapping)
         return rawChannel;
     if (channelsMapping->find(rawChannel) == channelsMapping->end())

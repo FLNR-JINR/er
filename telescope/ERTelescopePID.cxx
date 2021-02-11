@@ -66,7 +66,8 @@ InitStatus ERTelescopePID::Init() {
         TString brParticleName;
         const auto pdg = particleDescription.fPDG;
         brParticleName.Form("%s_%d",brName.Data(), pdg);
-        fQTelescopeParticle[brName][pdg] = new TClonesArray("ERTelescopeParticle");
+        fQTelescopeParticle[brName][pdg] = new TClonesArray("ERTelescopeParticle",
+                                                            consts::approx_telescope_particle_number);
         ioman->Register("ERTelescopeParticle_" + brParticleName, "Telescope", 
                         fQTelescopeParticle[brName][pdg], kTRUE);
       }

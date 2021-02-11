@@ -20,67 +20,35 @@
 #include "ERBeamDet.h"
 
 //-------------------------------------------------------------------------------------------------
-ERBeamDet::ERBeamDet() :
-  ERDetector("ERBeamDet", kTRUE),
-  fToFPoints(NULL), 
-  fMWPCPoints(NULL),
-  fTargetPoints(NULL)
+ERBeamDet::ERBeamDet()
+  : ERDetector("ERBeamDet", kTRUE)
 {
-  fToFPoints    = new TClonesArray("ERBeamDetTOFPoint");
-  fMWPCPoints   = new TClonesArray("ERBeamDetMWPCPoint");
-
-  if (fSensitiveTargetIsSet) {
-    fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
-  }
   //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
-
   fVerboseLevel = 1;
 }
 //-------------------------------------------------------------------------------------------------
 ERBeamDet::ERBeamDet(const char* name, Bool_t active, Int_t verbose)
-  : ERDetector(name, active, 1),
-    fToFPoints(NULL), 
-    fMWPCPoints(NULL),
-    fTargetPoints(NULL)
+  : ERDetector(name, active, 1)
 {
-  fToFPoints    = new TClonesArray("ERBeamDetTOFPoint");
-  fMWPCPoints   = new TClonesArray("ERBeamDetMWPCPoint");
-  
-  if (fSensitiveTargetIsSet) {
-    fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
-  }
-  fBeamDetSetup = ERBeamDetSetup::Instance();
  //Это нужно сделать для того, чтобы геометрия в симуляции автоматом писалась в файл runtime db
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
-
   fVerboseLevel = verbose;
 }
 //-------------------------------------------------------------------------------------------------
 ERBeamDet::~ERBeamDet() {
-  if (fToFPoints) {
-    fToFPoints->Delete();
-    delete fToFPoints;
-  }
-  if (fMWPCPoints) {
-    fMWPCPoints->Delete();
-    delete fMWPCPoints;
-  } 
-  if (fSensitiveTargetIsSet) {
-    if (fTargetPoints) {
-      fTargetPoints->Delete();
-      delete fTargetPoints;
+  for (auto* collection : {fToFPoints, fMWPCPoints, fTargetPoints}) {
+    if (collection) {
+      collection->Delete();
+      delete collection;
     }
   }
 }
 //-------------------------------------------------------------------------------------------------
 void ERBeamDet::Initialize() {
   FairDetector::Initialize();
-}
-//-------------------------------------------------------------------------------------------------
-void ERBeamDet::BeginEvent() {
 }
 //-------------------------------------------------------------------------------------------------
 void ERBeamDet::EndOfEvent() {
@@ -93,9 +61,13 @@ void ERBeamDet::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
     Fatal("Init", "IO manager is not set");
+  fToFPoints = new TClonesArray("ERBeamDetTOFPoint");
+  fMWPCPoints = new TClonesArray("ERBeamDetMWPCPoint");
+  if (fSensitiveTargetIsSet) {
+    fTargetPoints = new TClonesArray("ERBeamDetTargetPoint");
+  }
   ioman->Register("BeamDetToFPoint","BeamDet", fToFPoints, kTRUE);
   ioman->Register("BeamDetMWPCPoint","BeamDet", fMWPCPoints, kTRUE);
-
   if (fSensitiveTargetIsSet) {
     ioman->Register("BeamDetTargetPoint","BeamDet", fTargetPoints, kTRUE);
   }
@@ -127,20 +99,19 @@ void ERBeamDet::Print(Option_t *option) const
       point->Print();
     }
   }
-  if (fSensitiveTargetIsSet) {
-    if(fSensitiveTargetIsSet && fTargetPoints->GetEntriesFast() > 0) {
-      for (Int_t iPoint = 0; iPoint < fTargetPoints->GetEntriesFast(); iPoint++) {
-        ERBeamDetTargetPoint* point = (ERBeamDetTargetPoint*)fTargetPoints->At(iPoint);
-        point->Print();
-      }
+  if(fSensitiveTargetIsSet && fTargetPoints->GetEntriesFast() > 0) {
+    for (Int_t iPoint = 0; iPoint < fTargetPoints->GetEntriesFast(); iPoint++) {
+      ERBeamDetTargetPoint* point = (ERBeamDetTargetPoint*)fTargetPoints->At(iPoint);
+      point->Print();
     }
   }
 }
 //-------------------------------------------------------------------------------------------------
 void ERBeamDet::Reset() {
-  fToFPoints->Clear();
-  fMWPCPoints->Clear();
-  fTargetPoints->Clear();
+  for (auto* collection : {fTargetPoints, fMWPCPoints, fToFPoints}) {
+    if (collection)
+      collection->Clear();
+  }
 }
 //-------------------------------------------------------------------------------------------------
 void ERBeamDet::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
@@ -158,6 +129,8 @@ void ERBeamDet::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
 }
 //-------------------------------------------------------------------------------------------------
 ERBeamDetTargetPoint* ERBeamDet::AddTargetPoint() {
+  if (!fTargetPoints)
+    return nullptr;
   TClonesArray& clref = *fTargetPoints;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) ERBeamDetTargetPoint(fEventID, fTrackID, fMot0TrackID, fPID,
@@ -206,15 +179,14 @@ Bool_t ERBeamDet::CheckIfSensitive(std::string name) {
 }
 //-------------------------------------------------------------------------------------------------
 void ERBeamDet::ConstructGeometry() {
-  fBeamDetSetup->ConstructGeometry();
+  fSetup->ConstructGeometry();
   SetGeometryFileName("beamdet.temp.root");
   ConstructRootGeometry();
-  fSensitiveTargetIsSet = fBeamDetSetup->CheckIfTargetIsSet();
-
+  fSensitiveTargetIsSet = fSetup->CheckIfTargetIsSet();
   //  calculation of the distance between the first ToF's back side and the last ToF's front side
-  Double_t distBtwToFCenters = fBeamDetSetup->GetDistanceBetweenToF(0, fBeamDetSetup->GetToFCount() - 1);
-  Double_t halfThicknessFirstToF = fBeamDetSetup->GetToFThickness(1) / 2;                     
-  Double_t halfThicknessLastToF  = fBeamDetSetup->GetToFThickness(fBeamDetSetup->GetToFCount()) / 2;                     
+  Double_t distBtwToFCenters = fSetup->GetDistanceBetweenToF(0, fSetup->GetToFCount() - 1);
+  Double_t halfThicknessFirstToF = fSetup->GetToFThickness(1) / 2;                     
+  Double_t halfThicknessLastToF  = fSetup->GetToFThickness(fSetup->GetToFCount()) / 2;                     
   fDistanceBetweenToFs = distBtwToFCenters - halfThicknessFirstToF - halfThicknessLastToF;
 }
 //-------------------------------------------------------------------------------------------------

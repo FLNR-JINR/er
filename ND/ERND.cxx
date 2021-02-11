@@ -1,7 +1,11 @@
-// -------------------------------------------------------------------------
-// -----                        ERND source file                   -----
-// -----                  Created data  by developerName               -----
-// -------------------------------------------------------------------------
+/********************************************************************************
+ *              Copyright (C) Joint Institute for Nuclear Research              *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+
 #include "ERND.h"
 
 #include "TClonesArray.h"
@@ -11,49 +15,37 @@
 
 #include "FairRootManager.h"
 #include "FairLogger.h"
-
-// -----   Default constructor   -------------------------------------------
-ERND::ERND() : 
-  FairDetector("ERND", kTRUE),
-   fNDPoints(NULL),
-   fStep(1)
+//--------------------------------------------------------------------------------------------------
+ERND::ERND()
+  : FairDetector("ERND", kTRUE)
 {
   LOG(INFO) << "  ERND::ERND()" << FairLogger::endl;
-  ResetParameters();
   fNDPoints = new TClonesArray("ERNDPoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
   fVerboseLevel = 1;
-  fVersion = 1;
 }
-// -------------------------------------------------------------------------
-
-// -----   Standard constructor   ------------------------------------------
+//--------------------------------------------------------------------------------------------------
 ERND::ERND(const char* name, Bool_t active, Int_t verbose) 
-  : FairDetector(name, active,verbose),
-   fNDPoints(NULL),
-   fStep(1)
-  {
-  ResetParameters();
+  : FairDetector(name, active,verbose)
+{
   fNDPoints = new TClonesArray("ERNDPoint");
   flGeoPar = new TList();
   flGeoPar->SetName( GetName());
-  fVersion = 1;
 }
-
+//--------------------------------------------------------------------------------------------------
 ERND::~ERND() {
   if (fNDPoints) {
     fNDPoints->Delete();
     delete fNDPoints;
   }
 }
-
+//--------------------------------------------------------------------------------------------------
 void ERND::Initialize()
 {
   FairDetector::Initialize();
 }
-
-
+//--------------------------------------------------------------------------------------------------
 Bool_t ERND::ProcessHits(FairVolume* vol) {
   // Set constants for Birk's Law implentation (Geant 4parametrization)
   /*
@@ -138,54 +130,38 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
   }
   return kTRUE;
 }
-
-// -----   Public method EndOfEvent   -----------------------------------------
-void ERND::BeginEvent() {
-}
-
-
+//--------------------------------------------------------------------------------------------------
 void ERND::EndOfEvent() {
   LOG(DEBUG) << "ND Points Count: " << fNDPoints->GetEntriesFast() << FairLogger::endl;
   Print();
   Reset();
 }
-
-// -----   Public method Register   -------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void ERND::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
 	Fatal("Init", "IO manager is not set");	
   ioman->Register("NDPoint","ND", fNDPoints, kTRUE);
 }
-// ----------------------------------------------------------------------------
-
-// -----   Public method GetCollection   --------------------------------------
+//--------------------------------------------------------------------------------------------------
 TClonesArray* ERND::GetCollection(Int_t iColl) const {
   if (iColl == 0) 
     return fNDPoints;
   else 
     return NULL;
 }
-// ----------------------------------------------------------------------------
-
-// -----   Public method Print   ----------------------------------------------
-void ERND::Print(Option_t *option) const
-{
+//--------------------------------------------------------------------------------------------------
+void ERND::Print(Option_t *option) const {
   for (Int_t i_point = 0; i_point < fNDPoints->GetEntriesFast(); i_point++){
     ERNDPoint* point = (ERNDPoint*)fNDPoints->At(i_point);
     point->Print();
   }
 }
-// ----------------------------------------------------------------------------
-
-// -----   Public method Reset   ----------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void ERND::Reset() {
   fNDPoints->Clear();
-  ResetParameters();
 }
-// ----------------------------------------------------------------------------
-
-// -----   Public method CopyClones   -----------------------------------------
+//--------------------------------------------------------------------------------------------------
 void ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
   LOG(DEBUG) << "   ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)" 
             << FairLogger::endl;
@@ -201,9 +177,7 @@ void ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
   }
   LOG(DEBUG) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 }
-// ----------------------------------------------------------------------------
-
-// -----   Private method AddPoint   --------------------------------------------
+//--------------------------------------------------------------------------------------------------
 ERNDPoint* ERND::AddPoint(Int_t eventID, Int_t trackID,
 				    Int_t mot0trackID,
 				    Int_t pdg,
@@ -217,9 +191,7 @@ ERNDPoint* ERND::AddPoint(Int_t eventID, Int_t trackID,
 					  posIn, posOut, momIn, momOut, time, length, eLoss,stilbenNr,lightYield);
 	
 }
-// ----------------------------------------------------------------------------
-
-// -----   Public method ConstructGeometry   ----------------------------------
+//--------------------------------------------------------------------------------------------------
 void ERND::ConstructGeometry() {
   TString fileName = GetGeometryFileName();
   if(fileName.EndsWith(".root")) {
@@ -230,9 +202,7 @@ void ERND::ConstructGeometry() {
   }
   
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 Bool_t ERND::CheckIfSensitive(std::string name)
 {
   TString volName = name;
@@ -242,10 +212,5 @@ Bool_t ERND::CheckIfSensitive(std::string name)
 
   return kFALSE;
 }
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-void ERND::ResetParameters() {
-};
-// ----------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 ClassImp(ERND)
