@@ -41,7 +41,14 @@ public:
   /** @brief Destructor **/
   ~ERBeamDetTrackFinder() = default;
   /* Modifiers */
-  void SetTargetVolume(TString volName) {fTargetVolName = volName;}
+  /** @brief Defines position of interaction - final position of beamdet track.
+   ** @param volume_name - name of volume to propagate track for. 
+   ** @param depth_ration - ratio of track range in interaction volume to max track range 
+   **        in this volume with track direction.**/
+  void SetInteractionPosition(const TString& volume_name, float depth_ratio = 0.5) {
+    interaction_volume_name_ = volume_name; depth_ratio_ = depth_ratio;
+  }
+  void SetTargetVolume(const TString& volume_name) { interaction_volume_name_ = volume_name; }
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding. **/
@@ -66,7 +73,8 @@ protected:
   Int_t fMultipicityMWPCX2 = -1;
   Int_t fMultipicityMWPCY2 = -1;
   TRandom3* fRand = nullptr;
-  TString fTargetVolName = "target";
+  TString interaction_volume_name_ = "target";
+  float depth_ratio_ = 0.5;
 private:
   /** @brief Adds a ERBeamDetTrack to the output Collection **/
   ERBeamDetTrack* AddTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v);

@@ -24,7 +24,7 @@ void reco(Int_t nEvents = 100000){
   // ------------------------BeamDetTrackFinger--------------------------------
   Int_t verbose = 1; // 1 - only standard log print, 2 - print digi information 
   ERBeamDetTrackFinder* trackFinder = new ERBeamDetTrackFinder(verbose);
-  trackFinder->SetTargetVolume("tubeD2");
+  trackFinder->SetInteractionPosition("tubeD2", 0.5);
   run->AddTask(trackFinder);
   // -----------------------BeamDetTrackPID----------------------------------s
   Int_t Z = 2, A = 8, Q = 2;

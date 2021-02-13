@@ -24,25 +24,17 @@
 
 //--------------------------------------------------------------------------------------------------
 ERTelescopeTrackFinder::ERTelescopeTrackFinder()
-  : ERTask("ER telescope track finding scheme"),
-    fUserTargetPointIsSet(kFALSE),
-    fBeamDetTrack(NULL)
-    //@Todo инициализация всех переменных
+  : ERTask("ER telescope track finding scheme")
 {
   fAvailibleRunManagers.push_back("ERRunAna");
   fQTelescopeSetup = ERTelescopeSetup::Instance();
 }
 //--------------------------------------------------------------------------------------------------
 ERTelescopeTrackFinder::ERTelescopeTrackFinder(Int_t verbose)
-  : ERTask("ER telescope track finding scheme ", verbose),
-    fUserTargetPointIsSet(kFALSE),
-    fBeamDetTrack(NULL)
+  : ERTask("ER telescope track finding scheme ", verbose)
 {
   fAvailibleRunManagers.push_back("ERRunAna");
   fQTelescopeSetup = ERTelescopeSetup::Instance();
-}
-//--------------------------------------------------------------------------------------------------
-ERTelescopeTrackFinder::~ERTelescopeTrackFinder() {
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString componentId) {
@@ -64,11 +56,11 @@ void ERTelescopeTrackFinder::SetStripEdepRange(Double_t edepMin, Double_t edepMa
   fSiDigiEdepMax = edepMax;
 }
 //--------------------------------------------------------------------------------------------------
-void ERTelescopeTrackFinder::SetTargetPoint(Double_t x, Double_t y, Double_t z) {
-  fUserTargetPointIsSet = kTRUE;
-  fTargetX = x;
-  fTargetY = y;
-  fTargetZ = z;
+void ERTelescopeTrackFinder::SetInteractionPosition(double x, double y, double z) {
+  interaction_position_is_set_ = true;
+  interaction_x_ = x;
+  interaction_y_ = y;
+  interaction_z_ = z;
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERTelescopeTrackFinder::Init() {
@@ -100,7 +92,7 @@ InitStatus ERTelescopeTrackFinder::Init() {
   }
 
   fBeamDetTrack = (TClonesArray*) ioman->GetObject("BeamDetTrack");   
-  if (!fUserTargetPointIsSet) {
+  if (!interaction_position_is_set_) {
     if (!fBeamDetTrack) {
       LOG(DEBUG) << "ERTelescopeTrackFinder: target point not initialized by user " 
                  << "(by means of SetTargetPoint()) and there is no ERBeamDetTrack branch" 
@@ -120,15 +112,15 @@ void ERTelescopeTrackFinder::Exec(Option_t* opt) {
   LOG(DEBUG) << "[ERTelescopeTrackFinder]------------Started--------------------------------------"
              << FairLogger::endl;
   Reset();
-  if (!fUserTargetPointIsSet) {
+  if (!interaction_position_is_set_) {
       ERBeamDetTrack* trackFromMWPC = (ERBeamDetTrack*)fBeamDetTrack->At(0);
       if (!trackFromMWPC) {
         //fRun->MarkFill(kFALSE);
         return ;
       }
-      fTargetX = trackFromMWPC->GetTargetX();
-      fTargetY = trackFromMWPC->GetTargetY();
-      fTargetZ = trackFromMWPC->GetTargetZ();
+      interaction_x_ = trackFromMWPC->GetTargetX();
+      interaction_y_ = trackFromMWPC->GetTargetY();
+      interaction_z_ = trackFromMWPC->GetTargetZ();
   }
   for (const auto& itSubassemblies : fSiHitStationsPair) {
     for (const auto& itComponent : itSubassemblies.second) {
@@ -210,7 +202,7 @@ void ERTelescopeTrackFinder::CreateTrackInQTelescope(
               << yChannel << FairLogger::endl;
   // Calc unknown coordinated using condition: target, hit on first station(closest) and
   // hit on second station lie on line :
-  // {x2, y2, z2} = {fTargetX, fTargetY, fTargetZ} + k * ({x1, y1, z1} - {fTargetX, fTargetY, fTargetZ}).
+  // {x2, y2, z2} = {interaction_x_, interaction_y_, interaction_z_} + k * ({x1, y1, z1} - {interaction_x_, interaction_y_, interaction_z_}).
   const bool xStationIsClosest = fQTelescopeSetup->GetStripGlobalZ(xDigiBranchName, xChannel)
                                   < fQTelescopeSetup->GetStripGlobalZ(yDigiBranchName, yChannel);
   // We know all about z coordinate, so 
@@ -220,23 +212,23 @@ void ERTelescopeTrackFinder::CreateTrackInQTelescope(
   const double z2 =  xStationIsClosest 
                     ? fQTelescopeSetup->GetStripGlobalZ(yDigiBranchName, yChannel)
                     : fQTelescopeSetup->GetStripGlobalZ(xDigiBranchName, xChannel);
-  assert(z1 != fTargetZ);
-  const double k = (z2 - fTargetZ) / (z1 - fTargetZ);
+  assert(z1 != interaction_z_);
+  const double k = (z2 - interaction_z_) / (z1 - interaction_z_);
   double x1 = 0., x2 = 0., y1 = 0., y2 = 0.;
   if (xStationIsClosest) { // find y1, x2 from equation
     x1 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xChannel);
     y2 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yChannel);
     LOG(DEBUG) << "[ERTelescopeTrackFinder] Coordinates from strips. x1 = " << x1 
                 << " y2 = " << y2 << " z1 = " << z1 << " z2 = " << z2 << FairLogger::endl;
-    y1 = (-1./k)*((1. - k)*fTargetY - y2);
-    x2 = (1. - k)*fTargetX + k*x1;
+    y1 = (-1./k)*((1. - k)*interaction_y_ - y2);
+    x2 = (1. - k)*interaction_x_ + k*x1;
   } else { // find x1, y2 from equation
     x2 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xChannel);
     y1 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yChannel);
     LOG(DEBUG) << "[ERTelescopeTrackFinder] Coordinates from strips. x2 = " << x2 
                 << " y1 = " << y1 << " z1 = " << z1 << " z2 = " << z2 << FairLogger::endl;
-    x1 = (-1./k)*((1. - k)*fTargetX - x2);
-    y2 = (1. - k)*fTargetY + k*y1;
+    x1 = (-1./k)*((1. - k)*interaction_x_ - x2);
+    y2 = (1. - k)*interaction_y_ + k*y1;
   }
   const auto& xStationVertex = xStationIsClosest ? TVector3(x1, y1, z1) : TVector3(x2, y2, z2);
   const auto& yStationVertex = xStationIsClosest ? TVector3(x2, y2, z2) : TVector3(x1, y1, z1);
@@ -250,7 +242,7 @@ void ERTelescopeTrackFinder::CreateTrackInQTelescope(
               << " " << xStationLocalVertex.z() << ")" << FairLogger::endl;
   LOG(DEBUG) << "[ERTelescopeTrackFinder] Y Station Vertex in station CS (" << yStationLocalVertex.x() << " " << yStationLocalVertex.y() 
               << " " << yStationLocalVertex.z() << ")" << FairLogger::endl;
-  auto* track = AddTrack(TVector3(fTargetX, fTargetY, fTargetZ), xStationVertex, yStationVertex,
+  auto* track = AddTrack(TVector3(interaction_x_, interaction_y_, interaction_z_), xStationVertex, yStationVertex,
                           xStationLocalVertex, yStationLocalVertex, xChannel, yChannel, xEdep, yEdep,
                           trackBranchName);
   //track->AddLink(FairLink(xDigiBranchName, xChannelIndex));
@@ -267,31 +259,31 @@ void ERTelescopeTrackFinder::CreateTrackInRTelescope(
               << rChannel << FairLogger::endl;
   // Calc unknown coordinated using condition: target, hit on first station(closest) and
   // hit on second station lie on line :
-  // {x2, y2, z2} = {fTargetX, fTargetY, fTargetZ} + k * ({x1, y1, z1} - {fTargetX, fTargetY, fTargetZ}).
+  // {x2, y2, z2} = {interaction_x_, interaction_y_, interaction_z_} + k * ({x1, y1, z1} - {interaction_x_, interaction_y_, interaction_z_}).
   // x = x_station + r * cos(phi); y = y_station + r * sin(phi)
   // Lets 1 - phi station(we know phi1), 2 - r station (we know r2)
-  // r2 cos(phi2) = fTargetX - x_station2 + k(x_station1 + r1 cos(phi1) - fTargetX)
-  // r2 sin(phi2) = fTargetY - y_station2 + k(y_station1 + r1 sin(phi1) - fTargetX)
-  // k = (z2 - fTargetZ) / (z1 - fTargetZ)
+  // r2 cos(phi2) = interaction_x_ - x_station2 + k(x_station1 + r1 cos(phi1) - interaction_x_)
+  // r2 sin(phi2) = interaction_y_ - y_station2 + k(y_station1 + r1 sin(phi1) - interaction_x_)
+  // k = (z2 - interaction_z_) / (z1 - interaction_z_)
   // ----
-  // r1: r2^2 = (fTargetX - x_station2 + k(x_station1 + r1 cos(phi1) - fTargetX))^2 
-  //            + (fTargetY - y_station2 + k(y_station1 + r1 sin(phi1) - fTargetY))^2
-  // A = fTargetX - x_station2 + k(x_station1 - fTargetX)
+  // r1: r2^2 = (interaction_x_ - x_station2 + k(x_station1 + r1 cos(phi1) - interaction_x_))^2 
+  //            + (interaction_y_ - y_station2 + k(y_station1 + r1 sin(phi1) - interaction_y_))^2
+  // A = interaction_x_ - x_station2 + k(x_station1 - interaction_x_)
   // B = k cos(phi1)
-  // C = fTargetY - y_station2 + k(y_station1 - fTargetY)
+  // C = interaction_y_ - y_station2 + k(y_station1 - interaction_y_)
   // D = k sin(phi1)
   // r2^2 = (A + Br1)^2 + (C + Dr1)^2
   // r1 = -/+(sqrt(D^2(r2^2 - A^2)+2ABCD +B^2(r2^2 - C^2)) +- AB +/- CD) / (B^2 +D^2)
   // r1 = -/+(sqrt(D^2(r2^2 - A^2)+2ABCD +B^2(r2^2 - C^2)) +- AB +/- CD) / k^2
   const TVector3 station1 = fQTelescopeSetup->GetStationTranslation(phiDigiBranchName);
   const TVector3 station2 = fQTelescopeSetup->GetStationTranslation(rDigiBranchName);
-  const TVector3 target(fTargetX, fTargetY, fTargetZ);
+  const TVector3 target(interaction_x_, interaction_y_, interaction_z_);
   const Double_t phi1 = fQTelescopeSetup->GetStripPhi(phiDigiBranchName, phiChannel);
   const Double_t r2 = fQTelescopeSetup->GetStripR(rDigiBranchName, rChannel);
-  const Double_t k = (station2.Z() - fTargetZ) / (station1.Z() - fTargetZ);
-  const Double_t A = fTargetX - station2.X() + k * (station1.X() - fTargetX); 
+  const Double_t k = (station2.Z() - interaction_z_) / (station1.Z() - interaction_z_);
+  const Double_t A = interaction_x_ - station2.X() + k * (station1.X() - interaction_x_); 
   const Double_t B = k * TMath::Cos(phi1*TMath::RadToDeg());
-  const Double_t C = fTargetY - station2.Y() + k * (station1.Y() - fTargetY);
+  const Double_t C = interaction_y_ - station2.Y() + k * (station1.Y() - interaction_y_);
   const Double_t D = k * TMath::Sin(phi1*TMath::RadToDeg());
   const Double_t r1 = (TMath::Sqrt(D*D*(r2*r2 - A*A) + 2*A*B*C*D +B*B*(r2*r2 - C*C)) - A*B - C*D) / (k*k);
   const TVector3 local_vertex1(r1 * TMath::Cos(phi1*TMath::DegToRad()), r1 * TMath::Sin(phi1*TMath::DegToRad()), 0.);
@@ -309,7 +301,7 @@ void ERTelescopeTrackFinder::CreateTrackInRTelescope(
              << " " << global_vertex1.z() << ")" << FairLogger::endl;
   LOG(DEBUG) << "[ERTelescopeTrackFinder] r station: global vertex = (" << global_vertex2.x() << " " << global_vertex2.y() 
              << " " << global_vertex2.z() << ")" << FairLogger::endl;
-  auto* track = AddTrack(TVector3(fTargetX, fTargetY, fTargetZ), global_vertex1, global_vertex2,
+  auto* track = AddTrack(TVector3(interaction_x_, interaction_y_, interaction_z_), global_vertex1, global_vertex2,
                           local_vertex1, local_vertex2, phiChannel, rChannel, phiEdep, rEdep,
                           trackBranchName);
   //track->AddLink(FairLink(phiDigiBranchName, phiChannelIndex));
@@ -322,9 +314,6 @@ void ERTelescopeTrackFinder::Reset() {
       itTrackBranches.second->Delete();
     }
   }
-}
-//--------------------------------------------------------------------------------------------------
-void ERTelescopeTrackFinder::Finish() {   
 }
 //--------------------------------------------------------------------------------------------------
 ERTelescopeTrack* ERTelescopeTrackFinder::AddTrack(

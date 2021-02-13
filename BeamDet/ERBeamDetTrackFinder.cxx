@@ -40,7 +40,7 @@ InitStatus ERBeamDetTrackFinder::Init() {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
-  if (fTargetVolName == "") 
+  if (interaction_volume_name_ == "") 
     Fatal("Init", "TargetVolumeName for ERBeamDetTrackFinder not defined! ");
   fBeamDetMWPCDigiX1 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiX1");
   fBeamDetMWPCDigiX2 = (TClonesArray*) ioman->GetObject("BeamDetMWPCDigiX2");
@@ -203,25 +203,25 @@ void ERBeamDetTrackFinder::Exec(Option_t* opt) {
   Double_t targetMiddleThicknessY;
   Double_t targetMiddleThicknessZ;
 
-  Bool_t targetAffected = kFALSE;
+  Bool_t target_affected = kFALSE;
   while(!gGeoManager->IsOutside()){    
     node = gGeoManager->FindNextBoundaryAndStep();
     if (!node)
       break;
-    if ((TString(node->GetName()).Contains(fTargetVolName))) {
-      targetAffected = kTRUE;
+    if ((TString(node->GetName()).Contains(interaction_volume_name_))) {
+      target_affected = kTRUE;
       break;
     }
   }
-  if (!targetAffected){
+  if (!target_affected){
     LOG(WARNING) << "Target is not affected" << FairLogger::endl;
     return;
   }
 
   node = gGeoManager->FindNextBoundary();
 
-  Double_t matThickness = gGeoManager->GetStep();
-  gGeoManager->SetStep(matThickness / 2.);
+  const double max_track_range_in_interaction_volume = gGeoManager->GetStep();
+  gGeoManager->SetStep(max_track_range_in_interaction_volume * depth_ratio_);
   gGeoManager->Step();
 
   targetMiddleThicknessX = gGeoManager->GetCurrentPoint()[0];

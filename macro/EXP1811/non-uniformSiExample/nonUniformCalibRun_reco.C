@@ -29,7 +29,7 @@ void nonUniformCalibRun_reco(){
   Int_t verbose = 1;
   // ------- QTelescope TrackFinder -------------------------------------------
   ERQTelescopeTrackFinder* qtelescopeTrackFinder = new ERQTelescopeTrackFinder(verbose);
-  qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
+  qtelescopeTrackFinder->SetInteractionPosition(0., 0., 0.);
   // qtelescopeTrackFinder->SetHitStation("Left_telescope", "Left_telescope_SingleSi_SSD20_L_sim_frDead_1um_X_0",
   //                                                        "Left_telescope_DoubleSi_DSD_L_XY_0_Y");
   qtelescopeTrackFinder->SetHitStation("Left_telescope", "Left_telescope_SingleSi_SSD20_L_X_0",

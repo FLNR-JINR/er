@@ -801,81 +801,67 @@ Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom
   }
 
   //calclculation ion energy loss in BeamDet volumes
-  TVector3 targetVertex = track.GetTargetVertex();
-  LOG(DEBUG) << "[ERBeamDet][CalcEloss] Eloss calculation with target vertex = (" << targetVertex.X() << ","
-            << targetVertex.Y() << "," << targetVertex.Z() << "), direction on target = ("
+  TVector3 target_vertex = track.GetTargetVertex();
+  LOG(DEBUG) << "[ERBeamDet][CalcEloss] Eloss calculation with target vertex = (" << target_vertex.X() << ","
+            << target_vertex.Y() << "," << target_vertex.Z() << "), direction on target = ("
             << track.GetVector().X() << "," << track.GetVector().Y() << "," << track.GetVector().Z() << ")" << FairLogger::FairLogger::endl;
   
   Float_t zStart = -3000.;//@TODO change to BeamDet start position
-  Float_t xStart = targetVertex.X() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Cos(track.GetVector().Phi());
-  Float_t yStart = targetVertex.Y() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Sin(track.GetVector().Phi());
-
-  LOG(DEBUG) << "[ERBeamDet][CalcEloss] Eloss calculation start vertex = (" << xStart << "," << yStart << "," << zStart << ")" << FairLogger::FairLogger::endl; 
-
+  Float_t xStart = target_vertex.X() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Cos(track.GetVector().Phi());
+  Float_t yStart = target_vertex.Y() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Sin(track.GetVector().Phi());
+  LOG(DEBUG) << "[ERBeamDet][CalcEloss] Eloss calculation start vertex = (" << xStart << "," 
+             << yStart << "," << zStart << ")" << FairLogger::FairLogger::endl; 
   G4IonTable* ionTable = G4IonTable::GetIonTable();
   G4ParticleDefinition* ion =  ionTable->GetIon(pid);
   G4EmCalculator* calc = new G4EmCalculator();
   G4NistManager* nist = G4NistManager::Instance();
-
-  TGeoNode* node;
-  node = gGeoManager->InitTrack(xStart,yStart,zStart,track.GetVector().X(),track.GetVector().Y(),track.GetVector().Z());
-  
+  const auto track_direction = track.GetDirection();
+  TGeoNode* node = gGeoManager->InitTrack(xStart,yStart,zStart, track_direction.X(),
+                                          track_direction.Y(), track_direction.Z());
   Float_t E = TMath::Sqrt(mom*mom + mass*mass);
   Float_t T = E - mass;
   Float_t sumLoss = 0.;
-
-  Bool_t inTarget = kFALSE;
-  Float_t tarEdep = 0.;
   Bool_t firstTofAlreadySkipped = kFALSE;
-
   while(!gGeoManager->IsOutside()){
-    
     TString matName = node->GetMedium()->GetMaterial()->GetName();
-    G4Material* mat = nist->FindOrBuildMaterial(matName.Data());
-    
+    G4Material* mat = nist->FindOrBuildMaterial(matName.Data()); 
     node = gGeoManager->FindNextBoundary();
-
-    if (inTarget && !(TString(gGeoManager->GetPath()).Contains("target")))
-      break;
-    
-    Double_t range = gGeoManager->GetStep();
-    LOG(DEBUG) << "[ERBeamDet][CalcEloss] path  = " <<  gGeoManager->GetPath() << FairLogger::FairLogger::endl;
+    Double_t step = gGeoManager->GetStep();
+    const TVector3 current_position(gGeoManager->GetCurrentPoint());
+    LOG(DEBUG) << "[ERBeamDet][CalcEloss] track position (" << current_position.X() << ", " 
+               << current_position.Y() << ", " << current_position.Z() << ")" << FairLogger::endl;
+    LOG(DEBUG) << "[ERBeamDet][CalcEloss] path  = " <<  gGeoManager->GetPath() 
+               << FairLogger::FairLogger::endl;
     if (!firstTofAlreadySkipped && TString(gGeoManager->GetPath()).Contains("ToF")) {
       firstTofAlreadySkipped = kTRUE;
       node = gGeoManager->Step();
       continue;
     }
-    if (range == 0.)
+    if (step == 0.)
       break;
     if (!firstTofAlreadySkipped) {
       node = gGeoManager->Step();
       continue;
     }
-    Double_t edep = CalcElossIntegralVolStep(T, *ion, *mat, range);
-
+    const double position_z = (current_position + step * track_direction).Z();
+    const bool is_last_step = position_z >= target_vertex.Z();
+    step = is_last_step
+            ? (target_vertex.Z() - current_position.Z()) / (position_z - current_position.Z()) * step
+            : step;
+    Double_t edep = CalcElossIntegralVolStep(T, *ion, *mat, step);
     node = gGeoManager->GetCurrentNode();
     LOG(DEBUG) <<"[ERBeamDet][CalcEloss] Kinetic Energy  = " << T 
-               << " medium " << matName << " range  = " << range << " edep = " << edep << FairLogger::FairLogger::endl;
-
-    if (TString(gGeoManager->GetPath()).Contains("target"))
-      inTarget = kTRUE;
-
-    if (inTarget)
-      tarEdep+=edep;
-
+               << " medium " << matName << " step  = " << step << " edep = " 
+               << edep << FairLogger::FairLogger::endl;
     T -= edep;
     sumLoss += edep;
+    if (is_last_step)
+      break;
     node = gGeoManager->Step();
   }
-
   if (!firstTofAlreadySkipped) {
     LOG(FATAL) << "[ERBeamDet][CalcEloss] ToF not found." << FairLogger::endl;
   }
-  
-  T += tarEdep/2.;
-  sumLoss -= tarEdep/2.;
-  
-  LOG(DEBUG) <<"[ERBeamDet][CalcEloss] Target Eloss = " <<  tarEdep << FairLogger::FairLogger::endl;
   LOG(DEBUG) <<"[ERBeamDet][CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::FairLogger::endl;
   return T;
 }
