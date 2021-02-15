@@ -24,9 +24,10 @@ struct ERQTelescopeStrip{
   Double_t fLocalX;
   Double_t fLocalY;
   Double_t fLocalZ;
+  Double_t fWidth;
   ERQTelescopeStrip(Double_t globalX, Double_t globalY, Double_t globalZ,
-                    Double_t  localX, Double_t  localY, Double_t localZ);
-  ERQTelescopeStrip(Double_t* globTrans, Double_t* localTrans);
+                    Double_t  localX, Double_t  localY, Double_t localZ, Double_t width);
+  ERQTelescopeStrip(Double_t* globTrans, Double_t* localTrans, Double_t width);
 };
 
 class ERQTelescopeSetup : public ERSetup {
@@ -43,9 +44,13 @@ public:
   Double_t GetStripLocalX (TString componentBranchName, Int_t stripNb);
   Double_t GetStripLocalY (TString componentBranchName, Int_t stripNb);
   Double_t GetStripLocalZ (TString componentBranchName, Int_t stripNb);
-  TVector3 ToStationCoordinateSystem (const TString& componentBranchName, 
-                                      const TVector3& vectorInGlobalCS);
-
+  Double_t GetStripWidth(TString componentBranchName, Int_t stripNb) const;
+  TVector3 GetStripLocalPosition(const TString& componentBranchName,
+                                 unsigned int stripNb) const;
+  TVector3 ToStationCoordinateSystem(const TString& componentBranchName, 
+                                     const TVector3& vectorInGlobalCS) const;
+  TVector3 ToGlobalCoordinateSystem(const TString& componentBranchName,
+                                    const TVector3& vectorInStationCS) const;
 public:
   virtual void ReadGeoParamsFromParContainer();
   // static void PrintDetectorParameters(void);

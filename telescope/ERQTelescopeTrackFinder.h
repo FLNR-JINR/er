@@ -40,12 +40,13 @@ public:
   ~ERQTelescopeTrackFinder();
 
   /* Modifiers */
-  void SetHitStation(TString subassemblyName, TString componentIdX, TString componentIdY); 
+  void SetHitStation(TString subassemblyName, TString componentIdX, TString componentIdY);
   void SetHitStation(TString subassemblyName, TString componentId);
+  void SetTrackPositionCorrection(const TString& station_name, unsigned int channel,
+                                  float strip_fraction);
   void SetStripEdepRange(Double_t edepMin, Double_t edepMax);
   void SetEdepMaxDiffXY(Double_t edepDiff) {fEdepDiffXY = edepDiff;}
   void SetTargetPoint(Double_t x, Double_t y, Double_t z);
-
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding.
@@ -64,6 +65,7 @@ public:
   virtual void Finish();
   
 protected:
+  TVector3 GetGlobalTrackPositionByStrip(const TString& branch_name, int channel) const;
   //Paramaters
   ERQTelescopeSetup                   *fQTelescopeSetup;      ///< access to ERQTelescopeSetup class instance
   //Input arrays
@@ -72,7 +74,8 @@ protected:
   //Output arrays
   std::map<TString, TClonesArray*>    fQTelescopeTrack;
   
-  std::map<TString, std::map<TString, std::pair<TString, TString>>> fSiHitStationsPair; //// map<subassembly,map<component, pair<xBranch, yBranch>>> 
+  std::map<TString, std::map<TString, std::pair<TString, TString>>> fSiHitStationsPair; //// map<subassembly,map<component, pair<xBranch, yBranch>>>
+  std::map<TString, std::map<unsigned int, float>> track_position_corrections_;
 
 
   Double_t fSiDigiEdepMin = std::numeric_limits<double>::min();

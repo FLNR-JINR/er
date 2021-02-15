@@ -38,7 +38,8 @@ std::map<TString, std::vector<const ERQTelescopeStrip*>> ERQTelescopeSetup::fStr
 std::map<TString, TGeoHMatrix> ERQTelescopeSetup::fStationGlobalToLocalMatrixies;       
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeStrip::ERQTelescopeStrip(Double_t globalX, Double_t globalY, Double_t globalZ,
-                                     Double_t  localX, Double_t  localY, Double_t localZ) 
+                                     Double_t localX, Double_t  localY, Double_t localZ,
+                                     Double_t width)
 {
   fGlobalX = globalX; 
   fGlobalY = globalY; 
@@ -46,15 +47,17 @@ ERQTelescopeStrip::ERQTelescopeStrip(Double_t globalX, Double_t globalY, Double_
   fLocalX = localX; 
   fLocalY = localY; 
   fLocalZ = localZ;
+  fWidth = width;
 }
 //--------------------------------------------------------------------------------------------------
-ERQTelescopeStrip::ERQTelescopeStrip(Double_t* globTrans, Double_t* localTrans) {
+ERQTelescopeStrip::ERQTelescopeStrip(Double_t* globTrans, Double_t* localTrans, Double_t width) {
   fGlobalX = globTrans[0]; 
   fGlobalY = globTrans[1]; 
   fGlobalZ = globTrans[2];
   fLocalX = localTrans[0]; 
   fLocalY = localTrans[1]; 
   fLocalZ = localTrans[2];
+  fWidth = width;
 }
 //--------------------------------------------------------------------------------------------------
 ERQTelescopeSetup::ERQTelescopeSetup(): ERSetup() {
@@ -98,14 +101,33 @@ Double_t ERQTelescopeSetup::GetStripLocalZ(TString componentBranchName, Int_t st
   return fStrips[componentBranchName][stripNb]->fLocalZ;
 }
 //--------------------------------------------------------------------------------------------------
-TVector3 ERQTelescopeSetup::ToStationCoordinateSystem (const TString& componentBranchName, 
-                                                       const TVector3& vectorInGlobalCS) {
+Double_t ERQTelescopeSetup::GetStripWidth(TString componentBranchName, Int_t stripNb) const {
+  return fStrips[componentBranchName][stripNb]->fWidth;
+}
+//--------------------------------------------------------------------------------------------------
+TVector3 ERQTelescopeSetup::
+GetStripLocalPosition(const TString& componentBranchName, const unsigned int stripNb) const {
+  return TVector3(fStrips[componentBranchName][stripNb]->fLocalX,
+                  fStrips[componentBranchName][stripNb]->fLocalY,
+                  fStrips[componentBranchName][stripNb]->fLocalZ);
+}
+//--------------------------------------------------------------------------------------------------
+TVector3 ERQTelescopeSetup::ToStationCoordinateSystem(const TString& componentBranchName, 
+                                                      const TVector3& vectorInGlobalCS) const {
   Double_t global[3], local[3];
-  
   for (int i(0); i < 3; i++)
     global[i] = vectorInGlobalCS[i];
   fStationGlobalToLocalMatrixies.at(componentBranchName).MasterToLocal(global, local);
   return TVector3(local);
+}
+//--------------------------------------------------------------------------------------------------
+TVector3 ERQTelescopeSetup::ToGlobalCoordinateSystem(const TString& componentBranchName, 
+                                                     const TVector3& vectorInStationCS) const {
+  Double_t global[3], local[3];
+  for (int i(0); i < 3; i++)
+    local[i] = vectorInStationCS[i];
+  fStationGlobalToLocalMatrixies.at(componentBranchName).LocalToMaster(local, global);
+  return TVector3(global);
 }
 //--------------------------------------------------------------------------------------------------
 TGeoHMatrix GetGlobalToLocalMatrix(const TString& path) {
@@ -138,6 +160,12 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
   TGeoNode* qtelescope  = NULL;
   TGeoNode* qtelescopeDetector = NULL;
   TGeoNode* qtelescopeStation = NULL;
+  const auto strip_width = [](TGeoNode* strip_node) {
+    const auto strip_shape = strip_node->GetVolume()->GetShape();
+    double low, high;
+    return TMath::Min(strip_shape->GetAxisRange(1, low, high),
+                      strip_shape->GetAxisRange(2, low, high));
+  };
   for (Int_t iNode = 0; iNode < cave->GetNdaughters(); iNode++) { // cycle by volumes in TOP
     TString detectorName = cave->GetDaughter(iNode)->GetName();
     if ( detectorName.Contains("QTelescope", TString::kIgnoreCase) ) {
@@ -171,7 +199,8 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
               // by all forefathers nodes if possible. Maybe with some FairRoot methods
               qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
               qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
-              fStrips[firstStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans));
+              fStrips[firstStripArrayName].push_back(
+                  new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans, strip_width(doubleSiStrip)));
               LOG(DEBUG) << firstStripArrayName << " strip " 
                               << fStrips[firstStripArrayName].size()-1 << " global coordinates: "
                               << stripGlobTrans[0] << ", " 
@@ -194,7 +223,8 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
                   doubleSiStrip->LocalToMaster(boxInStripTrans, stripInStationTrans);
                   qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
                   qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
-                  fStrips[secondStripArrayName].push_back(new ERQTelescopeStrip(stripGlobTrans, boxInStripTrans));
+                  fStrips[secondStripArrayName].push_back(
+                      new ERQTelescopeStrip(stripGlobTrans, boxInStripTrans, strip_width(doubleSiBox)));
                   LOG(DEBUG) << secondStripArrayName << " strip " 
                               << fStrips[secondStripArrayName].size()-1 << " global coordinates: "
                               << stripGlobTrans[0] << ", " 
@@ -234,7 +264,8 @@ void ERQTelescopeSetup::ReadGeoParamsFromParContainer() {
                   << stripInStationTrans[0] << ", " 
                   << stripInStationTrans[1] << ", " 
                   << stripInStationTrans[2] << FairLogger::endl; 
-              fStrips[qtelescopeStationName].push_back(new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans)); 
+              fStrips[qtelescopeStationName].push_back(
+                  new ERQTelescopeStrip(stripGlobTrans, stripInStationTrans, strip_width(singleSiStrip))); 
             }
             TString stationPath;
             stationPath.Form("cave/%s/%s/%s", qtelescope->GetName(), qtelescopeDetector->GetName(),
