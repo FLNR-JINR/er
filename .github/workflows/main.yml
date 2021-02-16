@@ -1,0 +1,11 @@
+on: [push]
+
+jobs:
+    container:
+        image: 'Dockerfile'
+    name: 'build'
+    steps:
+    - name: Test initialization
+      with:
+        entrypoint: /bin/bash
+        args: source /opt/er/build/config.sh
