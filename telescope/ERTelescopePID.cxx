@@ -124,14 +124,14 @@ void ERTelescopePID::Exec(Option_t* opt) {
           LOG(FATAL) << "Particle with code " << pdg << " not found in Geant database "<< FairLogger::endl;
         const auto mass = particle->GetPDGMass(); // MeV
         // Find geometry point to start track back propagation.
-        const auto backPropagationstart_point = FindBackPropagationStartPoint(*track);
+        const auto back_propagation_start_point = FindBackPropagationStartPoint(*track);
         // Calc particle energy deposites in setup using back propagation from start point 
         // to middle of target volume. We assume that kinetic energy 
         // is fully detected by the setup, so calculate it as sum of 
         // energy deposites in digi and energy deposites in passive volumes (using G4EmCalculator).
         std::list<DigiOnTrack> digisOnTrack;
         const auto energyDeposites = CalcEnergyDeposites(
-            *track, backPropagationstart_point, *particle, digisOnTrack, 
+            *track, back_propagation_start_point, *particle, digisOnTrack, 
             particleDescription.fDoNotUseSignalFromStations);
         Double_t edepInThickStation = -1., edepInThinStation = -1., 
                  edepInThickStationCorrected = -1., edepInThinStationCorrected = -1.;
@@ -183,10 +183,11 @@ TVector3 ERTelescopePID::FindBackPropagationStartPoint(const ERTelescopeTrack& t
   // on its direct propagation. If sensetive volume was not found, return 
   // track telescope vertex.
   const TVector3 telescopeVertex = track.GetXStationVertex();
-  TVector3 backPropagationstart_point = telescopeVertex;
+  TVector3 back_propagation_start_point = telescopeVertex;
   const auto direction = track.GetDirection();
-  TGeoNode* currentNode = gGeoManager->InitTrack(telescopeVertex.X(), telescopeVertex.Y(), telescopeVertex.Z(),
-                                                 direction.X(), direction.Y(), direction.Z());
+  TGeoNode* currentNode = gGeoManager->InitTrack(
+                              telescopeVertex.X(), telescopeVertex.Y(), telescopeVertex.Z(),
+                              direction.X(), direction.Y(), direction.Z());
   TGeoNode* lastSensetiveNode = nullptr;
   TString lastSensetivePath;
   TVector3 lastSensetivePosition;
@@ -207,7 +208,7 @@ TVector3 ERTelescopePID::FindBackPropagationStartPoint(const ERTelescopeTrack& t
     }
   }
   if (lastSensetiveNode) {
-    backPropagationstart_point = lastSensetivePosition;
+    back_propagation_start_point = lastSensetivePosition;
     LOG(DEBUG) << "[FindBackPropagationStartPoint] Last sensetive volume for track "
                << lastSensetivePath << FairLogger::endl;
   } else {
@@ -215,9 +216,9 @@ TVector3 ERTelescopePID::FindBackPropagationStartPoint(const ERTelescopeTrack& t
                << "Track telescope vertex will be used as start point for back propagation\n";
   }
   LOG(DEBUG) << "[FindBackPropagationStartPoint] Back propagation start point " 
-             << "(" << backPropagationstart_point.X() << "," << backPropagationstart_point.Y()
-             << "," << backPropagationstart_point.Z() << ")" << FairLogger::endl;
-  return backPropagationstart_point;
+             << "(" << back_propagation_start_point.X() << "," << back_propagation_start_point.Y()
+             << "," << back_propagation_start_point.Z() << ")" << FairLogger::endl;
+  return back_propagation_start_point;
 }
 //--------------------------------------------------------------------------------------------------
 std::pair<Double_t, Double_t> ERTelescopePID::
@@ -283,13 +284,10 @@ CalcEnergyDeposites(const ERTelescopeTrack& track, const TVector3& start_point,
     if (!digisForNodeAreFound){ 
       // track in passive volume or treat sensetive volume as passive
       auto step = gGeoManager->GetStep();
-      const double position_z = (current_position + step * back_direction).Z();
       const auto target_vertex = track.GetTargetVertex();
-      is_last_step = position_z <= target_vertex.Z();
-      step = is_last_step
-            ? abs((target_vertex.Z() - current_position.Z())
-                  / (position_z - current_position.Z())) * step
-            : step;
+      const double step_to_target_vertex = (target_vertex - current_position).Mag();
+      is_last_step = step_to_target_vertex <= step;
+      step = is_last_step ? step_to_target_vertex : step;
       const TString materialName = node->GetMedium()->GetMaterial()->GetName();
       const auto* material = G4NistManager::Instance()->FindOrBuildMaterial(materialName.Data());
       LOG(DEBUG) << log_prefix <<" Calc energy deposite for range " << step << " in material "
