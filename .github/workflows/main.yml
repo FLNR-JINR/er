@@ -6,8 +6,7 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Hello world action step
+    - name: init step
       uses: ./ # Uses an action in the root directory
-      id: hello
       with:
-        args: echo "Hello"
+        args: -c 'echo "Hello"'
