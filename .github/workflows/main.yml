@@ -10,4 +10,4 @@ jobs:
       uses: ./ # Uses an action in the root directory
       id: hello
       with:
-        input_command: 'echo "Hello"'
+        args: echo "Hello"
