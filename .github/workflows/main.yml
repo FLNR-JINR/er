@@ -3,7 +3,7 @@ on: [push]
 jobs:
     container:
         image: 'Dockerfile'
-    name: 'build'
+    name: build
     steps:
     - name: Test initialization
       with:
