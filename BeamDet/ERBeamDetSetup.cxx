@@ -25,11 +25,6 @@
 #include <TList.h>
 #include "TSystem.h"
 
-#include "G4IonTable.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4EmCalculator.hh"
-#include "G4NistManager.hh"
-
 #include "FairRootManager.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
@@ -790,94 +785,6 @@ void ERBeamDetSetup::ConstructGeometry() {
   top->Write();
   geoFile->Close();
   // --------------------------------------------------------------------------
-}
-//--------------------------------------------------------------------------------------------------
-Double_t ERBeamDetSetup::CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom, Float_t mass){
-  
-  FairRun* run = FairRun::Instance();
-  if (!TString(run->ClassName()).Contains("ERRunAna")){
-    LOG(FATAL) << "[ERBeamDet] Use ERRunAna for ERBeamDetSetup::CalcEloss!!!" << FairLogger::FairLogger::endl;
-    return 0;
-  }
-
-  //calclculation ion energy loss in BeamDet volumes
-  TVector3 targetVertex = track.GetTargetVertex();
-  LOG(DEBUG) << "[ERBeamDet][CalcEloss] Eloss calculation with target vertex = (" << targetVertex.X() << ","
-            << targetVertex.Y() << "," << targetVertex.Z() << "), direction on target = ("
-            << track.GetVector().X() << "," << track.GetVector().Y() << "," << track.GetVector().Z() << ")" << FairLogger::FairLogger::endl;
-  
-  Float_t zStart = -3000.;//@TODO change to BeamDet start position
-  Float_t xStart = targetVertex.X() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Cos(track.GetVector().Phi());
-  Float_t yStart = targetVertex.Y() + zStart*TMath::Sin(track.GetVector().Theta()) * TMath::Sin(track.GetVector().Phi());
-
-  LOG(DEBUG) << "[ERBeamDet][CalcEloss] Eloss calculation start vertex = (" << xStart << "," << yStart << "," << zStart << ")" << FairLogger::FairLogger::endl; 
-
-  G4IonTable* ionTable = G4IonTable::GetIonTable();
-  G4ParticleDefinition* ion =  ionTable->GetIon(pid);
-  G4EmCalculator* calc = new G4EmCalculator();
-  G4NistManager* nist = G4NistManager::Instance();
-
-  TGeoNode* node;
-  node = gGeoManager->InitTrack(xStart,yStart,zStart,track.GetVector().X(),track.GetVector().Y(),track.GetVector().Z());
-  
-  Float_t E = TMath::Sqrt(mom*mom + mass*mass);
-  Float_t T = E - mass;
-  Float_t sumLoss = 0.;
-
-  Bool_t inTarget = kFALSE;
-  Float_t tarEdep = 0.;
-  Bool_t firstTofAlreadySkipped = kFALSE;
-
-  while(!gGeoManager->IsOutside()){
-    
-    TString matName = node->GetMedium()->GetMaterial()->GetName();
-    G4Material* mat = nist->FindOrBuildMaterial(matName.Data());
-    
-    node = gGeoManager->FindNextBoundary();
-
-    if (inTarget && !(TString(gGeoManager->GetPath()).Contains("target")))
-      break;
-    
-    Double_t range = gGeoManager->GetStep();
-    LOG(DEBUG) << "[ERBeamDet][CalcEloss] path  = " <<  gGeoManager->GetPath() << FairLogger::FairLogger::endl;
-    if (!firstTofAlreadySkipped && TString(gGeoManager->GetPath()).Contains("ToF")) {
-      firstTofAlreadySkipped = kTRUE;
-      node = gGeoManager->Step();
-      continue;
-    }
-    if (range == 0.)
-      break;
-    if (!firstTofAlreadySkipped) {
-      node = gGeoManager->Step();
-      continue;
-    }
-    Double_t edep = CalcElossIntegralVolStep(T, *ion, *mat, range);
-
-    node = gGeoManager->GetCurrentNode();
-    LOG(DEBUG) <<"[ERBeamDet][CalcEloss] Kinetic Energy  = " << T 
-               << " medium " << matName << " range  = " << range << " edep = " << edep << FairLogger::FairLogger::endl;
-
-    if (TString(gGeoManager->GetPath()).Contains("target"))
-      inTarget = kTRUE;
-
-    if (inTarget)
-      tarEdep+=edep;
-
-    T -= edep;
-    sumLoss += edep;
-    node = gGeoManager->Step();
-  }
-
-  if (!firstTofAlreadySkipped) {
-    LOG(FATAL) << "[ERBeamDet][CalcEloss] ToF not found." << FairLogger::endl;
-  }
-  
-  T += tarEdep/2.;
-  sumLoss -= tarEdep/2.;
-  
-  LOG(DEBUG) <<"[ERBeamDet][CalcEloss] Target Eloss = " <<  tarEdep << FairLogger::FairLogger::endl;
-  LOG(DEBUG) <<"[ERBeamDet][CalcEloss] Sum Eloss = " <<  sumLoss << FairLogger::FairLogger::endl;
-  return T;
 }
 //--------------------------------------------------------------------------------------------------
 TString ERBeamDetSetup::GetToFType(Int_t number)

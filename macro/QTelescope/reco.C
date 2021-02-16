@@ -17,7 +17,7 @@ void reco(Int_t nEvents = 100000){
   run->SetEventHeader(header);
   // ------- QTelescope TrackFinder -------------------------------------------
   ERTelescopeTrackFinder* qtelescopeTrackFinder = new ERTelescopeTrackFinder(0);
-  qtelescopeTrackFinder->SetTargetPoint(0., 0., 0.);
+  qtelescopeTrackFinder->SetInteractionPosition(0., 0., 0.);
   qtelescopeTrackFinder->SetHitStation("Telescope_1", "Telescope_1_SingleSi_SSD20_1_X", "Telescope_1_SingleSi_SSD_1_Y");
   qtelescopeTrackFinder->SetHitStation("Telescope_2", "Telescope_2_SingleSi_SSD_2_X", "Telescope_2_SingleSi_SSD20_2_Y");
   qtelescopeTrackFinder->SetHitStation("Telescope_3", "Telescope_3_SingleSi_SSD20_3_X", "Telescope_3_SingleSi_SSD_3_Y");
