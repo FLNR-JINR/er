@@ -1,11 +1,13 @@
 on: [push]
 
 jobs:
-    container:
-        image: 'Dockerfile'
     name: build
+    runs-on: ubuntu-latest
     steps:
-    - name: Test initialization
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Hello world action step
+      uses: ./ # Uses an action in the root directory
+      id: hello
       with:
-        entrypoint: /bin/bash
-        args: source /opt/er/build/config.sh
+        input_command: 'echo "Hello"'

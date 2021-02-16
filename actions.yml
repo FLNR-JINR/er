@@ -1,0 +1,10 @@
+description: 'Run command inside container with er'
+inputs:
+  input_command: 
+    description: 'Input command'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.input_command }}

@@ -23,4 +23,4 @@ RUN cd /opt && git clone https://github.com/flnr-jinr/er &&\
 	cmake ../ -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DACCULINNA_GO4=/opt/accdaq/install &&\
 	make -j4
 
-
+ENTRYPOINT ["/bin/bash"]
