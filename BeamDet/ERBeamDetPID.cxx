@@ -6,13 +6,13 @@
 #include "TParticlePDG.h"
 #include "TGeoManager.h"
 
-#include "FairRootManager.h"
-#include "FairRuntimeDb.h"
-#include "FairLogger.h"
-
 #include "G4IonTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4NistManager.hh"
+
+#include "FairRootManager.h"
+#include "FairRuntimeDb.h"
+#include "FairLogger.h"
 
 #include "ERRunAna.h"
 #include "ERDetectorList.h"
