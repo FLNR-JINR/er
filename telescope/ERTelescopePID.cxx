@@ -10,15 +10,15 @@
 
 #include <numeric>
 
-#include "TVector3.h"
-#include "TMath.h"
-#include "TGeoNode.h"
-#include "TGeoManager.h"
-
 #include "G4IonTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4EmCalculator.hh"
 #include "G4NistManager.hh"
+
+#include "TVector3.h"
+#include "TMath.h"
+#include "TGeoNode.h"
+#include "TGeoManager.h"
 
 #include "FairRootManager.h"
 #include "FairRuntimeDb.h"
