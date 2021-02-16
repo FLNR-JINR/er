@@ -9,4 +9,4 @@ jobs:
     - name: init step
       uses: ./ # Uses an action in the root directory
       with:
-        args: /bin/bash -c 'source /opt/er/build/config.sh'
+        args: /bin/bash -c "source /opt/er/build/config.sh"
