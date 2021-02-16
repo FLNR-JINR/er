@@ -1,13 +1,13 @@
 on: [push]
 
 jobs:
-    name: build
+  build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+        uses: actions/checkout@v2
     - name: Hello world action step
-      uses: ./ # Uses an action in the root directory
-      id: hello
-      with:
+        uses: ./ # Uses an action in the root directory
+        id: hello
+        with:
         input_command: 'echo "Hello"'
