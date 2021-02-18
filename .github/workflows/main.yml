@@ -6,7 +6,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: init step
-      uses: ./ # Uses an action in the root directory
-      with:
-        args: /bin/bash -c "source /opt/er/build/config.sh"
+    - name: build
+      run: docker build --build-arg --build-arg ER=dev
+
