@@ -7,7 +7,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: build
-      run: docker build --build-arg ER=$GITHUB_SHA -t er 
+      run: docker build --build-arg ER=$GITHUB_SHA -t er .
     - name: init
       run: docker run er root -l -q
 
