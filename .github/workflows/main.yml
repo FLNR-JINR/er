@@ -7,5 +7,5 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: build
-      run: docker build --build-arg --build-arg ER=dev
+      run: docker build - --build-arg --build-arg ER=dev
 
