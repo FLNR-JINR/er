@@ -1,7 +1,43 @@
-# ExpertRoot
-Program tools for simulation, reconstruction, data acquisition and analysis of low energy physics experiments
+# ER
+Program tools for simulation, reconstruction, data acquisition and analysis of low energy physics experiments.
+_er_ integrated with [accdaq](https://github.com/FLNR-JINR/ACCULINNA_go4_user_library) 
+go4 library in order to work with experimental data.
+
+## Run using docker
+
+We highly recommend using [docker](https://www.docker.com) to work with er, because it has many dependencies.
+
+Here we demonstrate how to build and run a docker container for dev branch of er.
+It contains _accdaq_ on board.
+
+
+1. Install docker desktop on your system: https://www.docker.com/get-started
+2. Clone er repository:
+
+```
+git clone https://github.com/ExpertRootGroup/er/ .
+git checkout dev
+```
+
+3. Build docker image with _er_:
+
+```
+docker build --build-arg ER=dev -t er .
+```
+
+4. Run your commads with _root_, _go4_, _accdaq_ and _er_ functionality:
+
+```
+docker run er root -b -q er_sim.C
+docker run er ${GO4SYS}/bin/go4analysis -v -lib libAccDaqUserAnalysis.so -number ${NEVENTS} -asf ${AUTOSAVEFILE} -file ${INPUTFILE} -args ${OUTPUTFILE} ${SETUPFILE}
+docker run er run.sh
+```
+
 
 ## Step by Step installation
+
+If you need to install all the dependencies on your system, then here is the instruction.
+
 ### 1. Install [FairSoft](https://github.com/FairRootGroup/FairSoft/tree/dev)
 
 ```
@@ -43,77 +79,33 @@ BRANCH_NAME=v-17.10
 
 ```
 # Set the shell variable FAIRROOTPATH to the FairRoot installation directory
-export FAIRROOTPATH=~/fair_install/
-FairRootInst
-```
-
-Далее предполагается, что expertroot будет находиться в папке expertroot в домашней папке пользователя, т.е. в '~/expertroot'.
-
-```
+export FAIRROOTPATH=~/fair_install/FairRootInst
 cd ~
 mkdir expertroot
 cd expertroot
-```
-
-Создайте локальный репозиторий путём клонирования 'центрального' репозитория с github и ОБЯЗАТЕЛЬНО перейдите на требуемую ветку.
-
-```
 git clone https://github.com/ExpertRootGroup/er/ .
 git checkout BRANCH_NAME
-```
-
-Альтернативно, можно воспользоваться командой:
-
-```
-git checkout -b <local_branch_name> <remote_branch_name>
-```
-
-BRANCH_NAME=master - для установки текущей стабильной версии
-
-BRANCH_NAME=dev - для установки версии разработчиков
-
-Для того чтобы получить полный список веток, воспользуйтесь командой:
-
-```
-git branch --all
-```
-
-Директория, в которой будет собран expertroot может находиться как внутри репозитория, так и за его пределами.
-Настоятельно рекомендуется использовать второй подход.
-Для этого создайте папку build на одном уровне с папкой expertroot (либо в любом другом месте):
-
-```
 cd ../
 mkdir build
 cd build
-```
-
-Чтобы собрать expertroot необходимо сначала сгенерировать исходники с помощью cmake, а затем выполнить компиляцию с помощью make.
-
-```
-cmake ../
-make
-```
-
-При выполнении cmake возможно появление ошибки, в которой говорится о несоответствии компиляторов.
-В таком случае рекомендуется явно указывать компилятор, а не использовать флаг -DUSE_DIFFERENT_COMPILER.
-
-```
 cmake ../ -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+make
 ```
 
 ## CMake options
 
-Тут будут перечислены опции cmake влиящие на процесс сборки.
+There will be cmake options that affect the build process.
 
-Для использования _ERDigibuilder_ для чтения экспериментальных данных, полученных с помощью _ACCULINNA\_go4\_user\_library_ используйте флаг _-DACCULINNA\_GO4=acculina\_go4\_install\_path_. В котором следует указать в какую директорию была установлена библиотека.
+* To use _ERDigibuilder_ to read experimental data from _ACCULINNA \ _go4 \ _user \ _library_ use the _-DACCULINNA \ _GO4 = acculina \ _go4 \ _install \ _path_ flag.
+  In which you should indicate in which directory the library was installed. 
 
 # Initialize
 
-Перед работой с expertroot необходимо объявить специальные переменные окружения. Для этого, находясь в папке, где собран expertroot (т.е. build), выполните следующую команду:
+Before working with expertroot, you need to declare special environment variables.
+To do this, while in the folder where expertroot is built (i.e. build), run the following command: 
 
 ```
 . ./config.sh
 ```
 
-Объявленные переммые активны только в текущей сессии терминала.
+The declared variables are active only in the current terminal session. 
