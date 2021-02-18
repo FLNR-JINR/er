@@ -7,5 +7,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: build
-      run: docker build - --build-arg --build-arg ER=dev
+      run: docker build - --build-arg ER=dev -t er < Dockerfile
+    - name: init
+      run: docker run er /bin/bash -c '/opt/er/build/config.sh'
 
