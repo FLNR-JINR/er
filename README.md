@@ -117,3 +117,17 @@ cmake ../ -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
 ```
 
 Объявленные переммые активны только в текущей сессии терминала.
+
+# Run tests
+
+To run the entire test suite:
+
+```
+cd build && cmake build . && ctest .
+```
+
+To run specific test:
+
+```
+cd build && cmake build . && ctest -R exp1904_h7_sim
+```
