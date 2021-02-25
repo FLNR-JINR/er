@@ -1,4 +1,19 @@
 namespace ERCalibrationSSD {
+
+  class Options {
+  public:
+    Options();
+    ~Options();
+
+  };
+
+  class Preprocessor
+  {
+  public:
+    Preprocessor();
+    ~Preprocessor();
+    
+  };
 /*
   Namespace includes code for a Silicon Strip Detector (SSD) calibration.
   The common scheme of handling process
@@ -1130,6 +1145,8 @@ protected:
 
   Int_t fSearchRadius = 10; // radius of algorithm search aroun initial guess points (applicable for Sliding window (SW) and Gauss)
   Int_t fSlideWindowWidth = 10; // sliding window width (applicable for SW)
+
+  std::vector<std::vector<float>> fIntegralInWindow; // stores events integral for peaks found by SLIDINIG_WINDOW algorithm
 };
 
 void PeakSearch::SetPeakSearchMethod(const TString& peakSearchAlgorithm) {
@@ -1167,6 +1184,7 @@ PeakSearch::SlidingWindowPeakSearch(TH1* hist, const std::list<Double_t>& initGu
                                     const Int_t searchRadius) 
 {
   std::list<Double_t> peaks;
+  std::vector<float> peaksIntegral;
   for (const auto& guessPos: initGuess) {
     // gStyle->SetStatFormat("6.8g");
     const Int_t peakBinNb = hist->GetXaxis()->FindBin(guessPos);
@@ -1182,8 +1200,10 @@ PeakSearch::SlidingWindowPeakSearch(TH1* hist, const std::list<Double_t>& initGu
         // peakRMS = hist->GetStdDev();
       }
     }
+    peaksIntegral.push_back(maxIntegral);
     peaks.push_back(peakMean);
   }
+  fIntegralInWindow.push_back(peaksIntegral);
   return peaks;
 }
 
@@ -1459,6 +1479,21 @@ void Calibration::PrintReport(const std::vector<std::vector<Double_t>>& peaks,
            << setw(20) << stripPeaks[2] << endl;
   }
   report << endl;
+
+  report << "Integral over the window ([Counts]):" << endl;
+  report << "StripNb" << std::right 
+         << setw(20) << "E_low" 
+         << setw(20) << "E_middle" 
+         << setw(20) << "E_high"  << endl;
+  iStrip = 0;
+  for (const auto& integral: fIntegralInWindow) {
+    report << iStrip++ << std::right 
+           << setw(20) << integral[0] 
+           << setw(20) << integral[1] 
+           << setw(20) << integral[2] << endl;
+  }
+  report << endl;
+
   report << "Dead layer estimation [um] by strips: " << endl;
   report << "StripNb" << setw(20) << "Dead layer"<< endl;
   iStrip = 0;
