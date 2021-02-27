@@ -84,7 +84,7 @@ git checkout BRANCHE_NAME
 ```
 BRANCH_NAME=oct17p4
 
-### 2. Install [FairRoot] (https://github.com/FairRootGroup/FairRoot)
+### 2. Install [FairRoot](https://github.com/FairRootGroup/FairRoot)
 
 ```
 # Set the shell variable SIMPATH to the installation directory
@@ -102,7 +102,7 @@ make install
 ```
 BRANCH_NAME=v-17.10
 
-### 3. Install [ExpertRoot] (#)
+### 3. Install [ExpertRoot](#)
 
 ```
 # Set the shell variable FAIRROOTPATH to the FairRoot installation directory
@@ -123,7 +123,7 @@ make
 
 If you need to handle a raw experimental data, please install the _Go4_ and _AqqDAQ_
 
-### Install [Go4] (https://www.gsi.de/en/work/research/experiment_electronics/data_processing/data_analysis/the_go4_home_page.htm)
+### Install [Go4](https://www.gsi.de/en/work/research/experiment_electronics/data_processing/data_analysis/the_go4_home_page.htm)
 
 ```
 wget -O go4.tar.gz http://web-docs.gsi.de/~go4/software/download.php?http://web-docs.gsi.de/~go4/download/go4-6.0.0.tar.gz &&\
@@ -135,7 +135,7 @@ wget -O go4.tar.gz http://web-docs.gsi.de/~go4/software/download.php?http://web-
     make withqt=no -j4
 ```
 
-### Install [AccDAQ] (https://github.com/FLNR-JINR/ACCULINNA_go4_user_library)
+### Install [AccDAQ](https://github.com/FLNR-JINR/ACCULINNA_go4_user_library)
 
 ```
 git clone https://github.com/flnr-jinr/ACCULINNA_go4_user_library accdaq &&\
