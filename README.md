@@ -10,7 +10,7 @@ Primarily developed for the needs of experiments on fragment separator
 Simulation, reconstruction and analysis in the ER is based on
 * [FairSoft](https://github.com/FairRootGroup/FairSoft/tree/dev) - includes widespread Geant4, ROOT,
    VMC and others utilities.
-* [FairRoot] (https://github.com/FairRootGroup/FairRoot) - framework which provides the base classes
+* [FairRoot](https://github.com/FairRootGroup/FairRoot) - framework which provides the base classes
   for IO-management, base classes event-based _tasks_ for the simulation and reconstruction.
 
 Experimental data processing
