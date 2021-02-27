@@ -1,5 +1,5 @@
 # ER
-ExpertRoot is a [FairRoot](https://github.com/FairRootGroup/FairRoot)-based framework dedicated
+ExpertRoot(ER) is a [FairRoot](https://github.com/FairRootGroup/FairRoot)-based framework dedicated
 to the simulation, reconstruction, data acquisition, and analysis of the nuclear physics experiments.
 Primarily developed for the needs of experiments on fragment separator 
 [ACCULLINA-2](http://aculina.jinr.ru/a-2.html) at Fleurov Nuclear Research in JINR and experiment
@@ -26,8 +26,8 @@ for different studies.
 ## Key features:
 
 * User-defined interactions: reactions and decays.
-* It is possible to take into account energy losses of projectiles in the beam analysis system
-  and the target. 
+* It is possible to take into account energy losses of projectiles in the target and the beam 
+  detector components such as ToF scintillators and MWPC stations.
 * Simulation and analysis of cocktail and defocusing beam.
 * Accounting for energy losses in the dead layers of the detector during reconstruction of ejectiles
   energies by experimental data.
@@ -121,31 +121,31 @@ make
 
 ### Experimental data preprocessing
 
-If you need to handle a raw experimental data, please install the _Go4_ and _AqqDAQ_
+If you need to handle a raw experimental data, please install the _Go4_ and _AccDAQ_
 
 ### Install [Go4](https://www.gsi.de/en/work/research/experiment_electronics/data_processing/data_analysis/the_go4_home_page.htm)
 
 ```
-wget -O go4.tar.gz http://web-docs.gsi.de/~go4/software/download.php?http://web-docs.gsi.de/~go4/download/go4-6.0.0.tar.gz &&\
-    tar xzf go4.tar.gz &&\
-    rm go4.tar.gz &&\
-    mv go4-6.0.0 go4 &&\
-    cd go4 &&\
-    source $SIMPATH/bin/thisroot.sh &&\
-    make withqt=no -j4
+wget -O go4.tar.gz http://web-docs.gsi.de/~go4/software/download.php?http://web-docs.gsi.de/~go4/download/go4-6.0.0.tar.gz
+tar xzf go4.tar.gz
+rm go4.tar.gz
+mv go4-6.0.0 go4
+cd go4
+source $SIMPATH/bin/thisroot.sh
+make withqt=no -j4
 ```
 
 ### Install [AccDAQ](https://github.com/FLNR-JINR/ACCULINNA_go4_user_library)
 
 ```
 git clone https://github.com/flnr-jinr/ACCULINNA_go4_user_library accdaq &&\
-	cd accdaq &&\
-	git checkout dev &&\
-	mkdir build && cd build &&\
-	source $SIMPATH/bin/thisroot.sh &&\
-	source $GO4_PATH/go4login &&\
-	cmake ../ -DCMAKE_INSTALL_PREFIX=<installtion directory path> &&\
-	make install -j4 
+cd accdaq
+git checkout master
+mkdir build && cd build
+source $SIMPATH/bin/thisroot.sh
+source $GO4_PATH/go4login
+cmake ../ -DCMAKE_INSTALL_PREFIX=<installtion directory path>
+make install -j4
 ```
 
 
@@ -153,8 +153,10 @@ git clone https://github.com/flnr-jinr/ACCULINNA_go4_user_library accdaq &&\
 
 There will be cmake options that affect the build process.
 
-* To use _ERDigibuilder_ to read experimental data from _ACCULINNA \ _go4 \ _user \ _library_ use the _-DACCULINNA \ _GO4 = acculina \ _go4 \ _install \ _path_ flag.
-  In which you should indicate in which directory the library was installed. 
+* ```-DACCULINNA_GO4 = <acculina_go4_install_path_> ```
+
+To use _ERDigibuilder_ to read experimental data from _AccDAQ_.
+You should indicate in which directory the library was installed. 
 
 # Initialize
 
