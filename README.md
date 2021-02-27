@@ -28,7 +28,7 @@ for different studies.
 * User-defined interactions: reactions and decays.
 * It is possible to take into account energy losses of projectiles in the beam analysis system
   and the target. 
-* Simulation and analysis of dirty and defocusing beam.
+* Simulation and analysis of cocktail and defocusing beam.
 * Accounting for energy losses in the dead layers of the detector during reconstruction of ejectiles
   energies by experimental data.
 
