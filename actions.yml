@@ -1,0 +1,4 @@
+description: 'Run command inside container with er'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
