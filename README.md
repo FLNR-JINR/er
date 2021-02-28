@@ -167,3 +167,17 @@ source <path_to_build>/config.sh
 ```
 
 Otherwise ER won't work.
+
+# Run tests
+
+To run the entire test suite:
+
+```
+cd build && cmake build . && ctest .
+```
+
+To run a specific test:
+
+```
+cd build && cmake build . && ctest -R exp1904_h7_sim
+```

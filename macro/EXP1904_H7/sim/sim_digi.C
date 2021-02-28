@@ -49,7 +49,7 @@ void sim_digi (Int_t nEvents = 100000) {
   // -----  BeamDet Setup ---------------------------------------------------
   ERBeamDetSetup* setupBeamDet = ERBeamDetSetup::Instance();
   setupBeamDet->SetXmlParametersFile(paramFileBeamDet);
-
+   
   // -----  BeamDet parameters ----------------------------------------------
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF - BeamDetLToF);     
   setupBeamDet->AddToF("ToF1", BeamDetPosZToF);    //  BeamDet parts should be added in ascending order   
