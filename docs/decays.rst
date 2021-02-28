@@ -6,7 +6,7 @@ The *ER* has its own approach for adding interactions to the particle transport 
 This approach is based on the ability of the user to write their own *Stepping Action* for
 transport and the ability to add new tracks with defined properties to the *track stack*.
 
-It allows to take into account energy losses of projectiles in the beam analysis system and the target.
+It allows to take into account energy losses of projectiles in the beam diagnostics system and the target.
 This is a necessity in low energy physics modeling.
 
 Interaction position
@@ -14,8 +14,7 @@ Interaction position
 
 We assume the exponential distribution of the interaction position along the trajectory of an ion
 inside the target. It could be true in the case of constant (energy independent) total interaction
-cross section. In reality we deal with a kind of approximation. One can reproduce uniform distribution
-of interactions in the target setting very large value of :math:`\Lambda`.
+cross section. In reality we deal with a kind of approximation.
 
 The survival probability :math:`p_s` of an ion after passing the path :math:`x` is:
 
@@ -24,55 +23,57 @@ The survival probability :math:`p_s` of an ion after passing the path :math:`x` 
  
 where :math:`\Lambda` is the Nuclear Interaction Length. The interaction probability :math:`p_i=1-p_s`.
 
-The path :math:`l` of an ion passing without interaction through the target of an arbitrary convex shape
+One can reproduce uniform distribution of interactions in the target setting very large value 
+of :math:`\Lambda`.The path :math:`l` of an ion passing without interaction through the target of an arbitrary convex shape
 along given trajectory depends on the position and orientation of the ion trajectory 
 (scattering neglected). The longer is the :math:`l` the greater is the interaction probability for ions at
-the same trajectory. One can introduce so called maximum path length :math:`A` such that any ion in the 
+the same trajectory. One can introduce so called maximum path length :math:`M` such that any ion in the 
 simulation has the path inside the target less than this value. The Maximum path length is used
 for renormalization of the interaction probability for each trajectory: 
 
 .. math::
-  R_i=\frac{1-\exp(\frac{-l}{\Lambda})}{1-\exp(\frac{-A}{\Lambda})}.
+  R_i=\frac{1-\exp(\frac{-l}{\Lambda})}{1-\exp(\frac{-M}{\Lambda})}.
 
 Thus for the hypothetical trajectory with the maximum path length inside the target the interaction
 must happen (:math:`R_i=1`). Renormalization of the interaction probability allows to minimize the number
 of the ions sampled in MC preserving correct spatial distribution of the interaction points.
 
-In the picture below the target is black, the beam axis is lilac, the trajectory of an ion is orange,
-the maximum possible path of an ion in the target :math:`A` is green. The path inside the target is thick
+In the picture below the target is black, the beam axis is magenta, the trajectory of an ion is orange,
+the maximum possible path of an ion in the target :math:`M` is green. The path inside the target is thick
 orange, it has the length :math:`l`. :math:`X` - is the interaction point. :math:`X_0` and :math:`X_0+l` -
 the points where the trajectory of the ion crosses the target boundary.
 
-.. figure:: _images/interaction_position.png
+.. figure:: _images/interaction_position.jpeg
        :scale: 60%
        :align: center
 
-The ion transport in the target is controlled by the following interfaces. This value defines how 
-steep is the exponential distribution of the interaction points inside the target along the trajectory:
+The ion transport in the target is controlled by the following interfaces.
+
+* This value defines how steep is the exponential distribution of the interaction points inside the target along the trajectory:
 
 ::
 
   interaction->SetNuclearInteractionLength(20.); 
 
-The value which is greater than the path in the target for any possible ion:
+* The value which is greater than the path in the target for any possible ion:
 
 ::
 
   interaction->SetMaxPathLength(0.051);
 
-Interaction should happen in following geometry volume:
+* Interaction should happen in following geometry volume:
 
 ::
 
   interaction->SetInteractionVolumeName("tubeD2");
 
-To control coordinate resolution one need to control max step of transport:
+* To control coordinate resolution one need to control max step of transport:
 
 ::
 
   interaction->SetMinStep(1e-5);
 
-But for thick target one need to remember about limit of max step count in volume (specified in g4Config.C):
+* But for thick target one need to remember about limit of max step count (specified in g4Config.C) in volume:
 
 ::
 
@@ -86,7 +87,7 @@ ion in the interaction point is used for calculation of the reaction products' 4
 interaction point.
 
 On the user request transport of an incident ion till the given energy (for resonance reactions) and
-till the point distributed according to - tabulated distribution can be easily implemented.
+till the point distributed according to user defined tabulated distribution can be easily implemented.
 
 Elastic scattering
 ------------------
