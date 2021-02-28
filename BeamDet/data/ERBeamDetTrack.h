@@ -15,10 +15,11 @@ private:
   Double_t fXt, fYt, fZt;          // point coordinates on target
   TVector3 fVectorOnTarget;
 public:
-  ERBeamDetTrack();
+  ERBeamDetTrack() = default;
   ERBeamDetTrack(TString name);
   ERBeamDetTrack(Double_t xt, Double_t yt, Double_t zt, TVector3 v);
   TVector3 GetVector(void) const {return fVectorOnTarget;}
+  TVector3 GetDirection() const;
   Double_t GetTargetX(void) const {return fXt;}
   Double_t GetTargetY(void) const {return fYt;}
   Double_t GetTargetZ(void) const {return fZt;}

@@ -66,7 +66,6 @@ public:
   static Double_t GetDistanceBetweenToF(Int_t tof1Ind, Int_t tof2Ind);
   static void     ConstructGeometry();
   static Int_t    SetParContainers();
-  static Double_t CalcEloss(ERBeamDetTrack& track, Int_t pid, Float_t mom, Float_t mass);
 protected:
   /** @brief Returns translation \f$(X,Y,Z)\f$ of the certain node in a mother node frame
    ** @param node  node for which translation is obtained

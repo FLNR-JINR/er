@@ -80,6 +80,7 @@ public:
    ** @param mass - ion mass. **/
   void SetIonMass(Float_t mass){fIonMass = mass;}
 protected:
+  double CalcEloss(ERBeamDetTrack& track, int pid, float mom, float mass);
   //Paramaters
   ERBeamDetSetup* fBeamDetSetup = nullptr; ///< access to ERBeamDetSetup class instance
   //Input arrays
