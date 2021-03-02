@@ -1,19 +1,4 @@
 namespace ERCalibrationSSD {
-
-  class Options {
-  public:
-    Options();
-    ~Options();
-
-  };
-
-  class Preprocessor
-  {
-  public:
-    Preprocessor();
-    ~Preprocessor();
-    
-  };
 /*
   Namespace includes code for a Silicon Strip Detector (SSD) calibration.
   The common scheme of handling process
@@ -40,11 +25,6 @@ namespace ERCalibrationSSD {
    run id.
   * More log messages for each significant step
 */
-
-struct CalibrationOptions {
-  std::vector<Double_t> fNoiseThresholds;
-  std::vector<Double_t> fDeadLayerValues; // dead layer values per strips
-};
 
 TString GetFileNameBaseFromPath(const TString& path);
 
@@ -1245,6 +1225,14 @@ std::list<Double_t> PeakSearch::GetPeaks(TH1* hist, const std::list<Double_t>& i
   }
   // restore hist range
   hist->GetXaxis()->SetRange(0, hist->GetXaxis()->GetNbins());
+  // std::sort(peaks.begin(), peaks.end(), [](const Double_t& first,const Double_t& second) {
+  //       return first < second; 
+  // });
+  peaks.sort();
+  for (const auto &peak: peaks) {
+    std::cout << peak << " ";
+  }
+  std::cout << std::endl;
   return peaks;
 }
 
@@ -1637,6 +1625,12 @@ void NonUniformityMapBuilder::SearchPixelHighEnergyPeak() {
     ROOT_HIST_PIXEL_PATH, fMapSensors->at(0)->fRunId, fMapSensors
   );
   auto histFile = fIOManager->OpenRootFile(pixelSpectraPath);
+
+  const TString peaksHistPath = fIOManager->GetPath(
+    ROOT_HIST_PEAKS_PATH, fMapSensors->at(0)->fRunId, fMapSensors
+  );
+  const auto peakHists = fIOManager->CreateRootFile(peaksHistPath);
+
   std::vector<std::vector<Double_t>> peaks;
   for (Int_t iStripThick = 0; iStripThick < fMapSensors->at(0)->fStripAmount; iStripThick++) {
     std::vector<Double_t> stripPeaks;
@@ -1659,6 +1653,7 @@ void NonUniformityMapBuilder::SearchPixelHighEnergyPeak() {
         peakPos = std::numeric_limits<double>::quiet_NaN();
       }
       stripPeaks.push_back(peakPos);
+      hist->Write();
     }
     peaks.push_back(stripPeaks);
   }
@@ -1669,6 +1664,7 @@ void NonUniformityMapBuilder::SearchPixelHighEnergyPeak() {
   Dump2DVector(peaks, peaksFile);
   peaksFile.close();
   histFile->Close();
+  peakHists->Close();
 }
 
 void NonUniformityMapBuilder::CreateThinSensorMap() {

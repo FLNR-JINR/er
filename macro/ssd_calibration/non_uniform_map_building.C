@@ -4,28 +4,28 @@ using namespace ERCalibrationSSD;
 // For thin sensor thickness map building initially two data files are needed:
 // * thick sensor calibration run data;
 const TString calib_run_path = 
-  "/mnt/analysis_nas/exp201904/clb/oldLib/postClb/grouped/calib_1mm_90_since25to33.root";
+  "./input/clb_09_tetra_00to19.root";
 // * data from the simultaneous radiation exposure of an assembly of a thick sensor and a thin
 //   in the front of it
 const TString map_run_path = 
-  "/mnt/analysis_nas/exp201904/clb/oldLib/postClb/alltel_90.root";
+  "./input/clb_05_tetra_all.root";
 
 // Define run parameters
-auto ssd_1m_1_cal = new SensorRunInfo("SSD_1m_1", 16, 1024, calib_run_path);
-auto ssd_1m_1_map = new SensorRunInfo("SSD_1m_1", 16, 1024, map_run_path);
-auto ssd_20u_1_map = new SensorRunInfo("SSD_20u_1", 16, 1024, map_run_path);
+auto ntetra_y_cal = new SensorRunInfo("Ntetra_y", 16, 1024, calib_run_path);
+auto ntetra_y_map = new SensorRunInfo("Ntetra_y", 16, 1024, map_run_path);
+auto ntetra_x_map = new SensorRunInfo("Ntetra_x", 16, 1024, map_run_path);
 
 
 void thick_sensor_preprocessing() {
   auto preproc = new Preprocessing(calib_run_path);
-  preproc->AddSensor(ssd_1m_1_cal);
+  preproc->AddSensor(ntetra_y_cal);
   preproc->Exec();
   delete preproc;
 }
 
 void thick_sensor_calibration() {
   auto calibration = new Calibration(calib_run_path);
-  calibration->SetSensor(ssd_1m_1_cal);
+  calibration->SetSensor(ntetra_y_cal);
   calibration->SetPeakSearchMethod("sliding_window");
   calibration->SetFitMinSigma(6.);
   calibration->SetFitPeakThreshold(0.7);
@@ -37,8 +37,10 @@ void thick_sensor_calibration() {
 
 void map_sensors_preprocessing() {
   auto preproc = new Preprocessing(map_run_path);
-  preproc->AddSensor(ssd_1m_1_map);
-  preproc->AddSensor(ssd_20u_1_map);
+  ntetra_y_map->SetNoiseThreshold(120);
+  ntetra_x_map->SetNoiseThreshold(200);
+  preproc->AddSensor(ntetra_y_map);
+  preproc->AddSensor(ntetra_x_map);
   preproc->Exec();
   delete preproc;
 }
@@ -46,9 +48,9 @@ void map_sensors_preprocessing() {
 void build_non_uniform_map() {
   auto thickness_map = new NonUniformityMapBuilder(map_run_path);
   // Set sensors parameters
-  thickness_map->SetThickSensor(ssd_1m_1_map);
-  thickness_map->SetThinSensor(ssd_20u_1_map);
-  thickness_map->SetThickCalibSensor(ssd_1m_1_cal);
+  thickness_map->SetThickSensor(ntetra_y_map);
+  thickness_map->SetThinSensor(ntetra_x_map);
+  thickness_map->SetThickCalibSensor(ntetra_y_cal);
   // Set peak search algorithm parameters
   thickness_map->SetPeakSearchMethod("sliding_window");
   thickness_map->SetFitMinSigma(6.);
@@ -61,8 +63,8 @@ void build_non_uniform_map() {
 }
 
 void non_uniform_map_building() {
-  thick_sensor_preprocessing();
+  // thick_sensor_preprocessing();
+  // thick_sensor_calibration();
   map_sensors_preprocessing();
-  thick_sensor_calibration();
   build_non_uniform_map();
 }
