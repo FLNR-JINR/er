@@ -3,24 +3,27 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 
 #include "TString.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TCut.h"
 #include "TH1I.h"
+#include "TChain.h"
 
 #include "FairSource.h"
 
-#include "Reader.h"
 #include "SetupConfiguration.h"
-#include "DetEventDetector.h"
 
 #include "ERUnpack.h"
 
+class ERBeamTimeEventHeader;
+
 class ERDigibuilder : public FairSource {
  public:
-  ERDigibuilder() = default;
+  ERDigibuilder();
+  ERDigibuilder(const TString& tree_name);
   virtual Bool_t Init();
   virtual Int_t ReadEvent(UInt_t=0);
   virtual void Close();
@@ -29,20 +32,27 @@ class ERDigibuilder : public FairSource {
   virtual void SetParUnpackers() {}
   virtual Bool_t InitUnpackers();
   virtual Bool_t ReInitUnpackers() { return kTRUE; }
-  void AddUnpack(ERUnpack* unpack){ unpacks_[unpack->GetDetName()] = unpack; }
-  void AddFile(const TString& path) { file_paths_.push_back(path); }
-  void SetUserCut(const TCut& cut, bool fill_skipped_events = true);
+  void AddUnpack(ERUnpack* unpack){ unpacks_[unpack->DetectorName()].reset(unpack); }
+  void AddFile(const TString& path);
+  void SetUserCut(const TCut& cut, bool hold_events_count = true);
  private:
-  std::map<TString, ERUnpack*> unpacks_;
-  std::vector<TString> file_paths_;
-  uint current_file_index_ = 0;
-  uint events_count_in_already_processed_files_ = 0;
-  SetupConfiguration* setup_configuration_ = nullptr;
+  bool LoadEvent(uint event_number);
+  void ApplyUserCut();
+  static uint EventNumber();
+  bool UserCutIsDefined() const;
+  bool EventShouldBeProcessed(const uint event_number, ERBeamTimeEventHeader*) const;
+  static void CheckEventHeader();
+  void ConnectEventCommon();
+  TChain input_chain_of_events_;
+  std::map<TString, std::unique_ptr<ERUnpack>> unpacks_;
+  /** Configuration of setup: detector named, station names, channel numbers.
+    * Loaded from first file added with AddFile. **/ 
+  std::shared_ptr<const SetupConfiguration> setup_configuration_;
+  EventCommon* common_part_of_event_ = nullptr;
   TCut user_cut_;
-  bool fill_skipped_events_ = true;
-  TH1I* events_for_processing_ = nullptr;
+  bool hold_events_count_ = true;
+  TH1I events_for_processing_;
   //void DumpRawToScreen(DetEventDetector* det);
-  Int_t OpenNextFile();
   ClassDef(ERDigibuilder, 1)
 };
 

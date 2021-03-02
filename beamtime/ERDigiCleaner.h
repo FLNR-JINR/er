@@ -20,6 +20,7 @@
 
 #include "ERTask.h"
 #include "ERBeamTimeEventHeader.h"
+#include "ERBeamTimeCommon.h"
 
 class ERDigiCleaner : public ERTask {
   using MultiplicityRange = std::pair<Int_t, Int_t>;
@@ -35,12 +36,12 @@ class ERDigiCleaner : public ERTask {
         TMatrixD* fAmpCalibration = nullptr;
         TMatrixD* fPreviousTACCalibration = nullptr;
         TMatrixD* fTACCalibration = nullptr;
-        std::map<Int_t, Int_t>* fSim2RawChannelsMapping = nullptr;
+        ChannelMapping* fSim2RawChannelMapping = nullptr;
         RecalibrationTask(const TString& detectorName, const TString& stationName, 
                           TMatrixD* previousTimeCalibration, TMatrixD* timeCalibration,
                           TMatrixD* previousAmpCalibration, TMatrixD* ampCalibration,
                           TMatrixD* previousTACCalibration = nullptr, TMatrixD* TACCalibration = nullptr,
-                          std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
+                          ChannelMapping* raw2SimChannelMapping = nullptr);
         RecalibrationTask() = default;
     };
 
@@ -52,14 +53,14 @@ class ERDigiCleaner : public ERTask {
         std::map<Int_t, Double_t> fChannelMaxAmp;
         std::map<Int_t, Double_t> fChannelMinTime;
         std::map<Int_t, Double_t> fChannelMaxTime;
-        std::map<Int_t, Int_t>* fSim2RawChannelsMapping = nullptr;
+        ChannelMapping* fSim2RawChannelMapping = nullptr;
         StationCuts(const TString& detectorName, const TString& stationName,
                     const std::map<Int_t, TCutG*>& channelGCuts,
                     const std::map<Int_t, Double_t>& channelMinAmp,
                     const std::map<Int_t, Double_t>& channelMaxAmp,
                     const std::map<Int_t, Double_t>& channelMinTime,
                     const std::map<Int_t, Double_t>& channelMaxTime,
-                    const std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
+                    const ChannelMapping* raw2SimChannelMapping = nullptr);
         StationCuts() = default;
     };
 
@@ -81,12 +82,12 @@ class ERDigiCleaner : public ERTask {
   void Recalibrate(const TString& detectorName, const TString& stationName,
                    const TString& previousTimeCalFile, const TString& timeCalFile,
                    const TString& previousAmpCalFile, const TString& ampCalFile,
-                   std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
+                   ChannelMapping* raw2SimChannelMapping = nullptr);
   void RecalibrateWithTAC(const TString& detectorName, const TString& stationName,
                           const TString& previousTimeCalFile, const TString& timeCalFile,
                           const TString& previousAmpCalFile, const TString& ampCalFile,
                           const TString& previousTACCalFile, const TString& TACCalFile,
-                          std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
+                          ChannelMapping* raw2SimChannelMapping = nullptr);
   void SetLonelyMWPCClusterCondition() { fLonelyMWPCClusterCondition = true; }
   void SetStationMultiplicity(const TString& detectorName, const TString& stationName, Int_t minMultiplicity, Int_t maxMultiplicity) { 
     fStationsMultiplicities[std::make_pair(detectorName, stationName)] = std::make_pair(minMultiplicity, maxMultiplicity);
@@ -97,7 +98,7 @@ class ERDigiCleaner : public ERTask {
                       const std::map<Int_t, Double_t>& MaxAmp,
                       const std::map<Int_t, Double_t>& MinTime,
                       const std::map<Int_t, Double_t>& MaxTime,
-                      const std::map<Int_t, Int_t>* raw2SimChannelsMapping = nullptr);
+                      const ChannelMapping* raw2SimChannelMapping = nullptr);
   protected:
     bool AreFewClustersInMWPC();
     void Recalibration();
