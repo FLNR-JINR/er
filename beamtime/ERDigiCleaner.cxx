@@ -27,7 +27,7 @@ void ERDigiCleaner::Recalibrate(
         const TString& detectorName, const TString& stationName,
         const TString& previousTimeCalFile, const TString& timeCalFile,
         const TString& previousAmpCalFile, const TString& ampCalFile,
-        ChannelsMapping* raw2SimChannelsMapping/* = nullptr*/) {
+        ChannelMapping* raw2SimChannelsMapping/* = nullptr*/) {
     fStationsRecalibrations.emplace_back(
         detectorName, stationName, 
         previousTimeCalFile != "" ? ReadCalFile(previousTimeCalFile) : nullptr,
@@ -43,7 +43,7 @@ void ERDigiCleaner::RecalibrateWithTAC(
         const TString& previousTimeCalFile, const TString& timeCalFile,
         const TString& previousAmpCalFile, const TString& ampCalFile,
         const TString& previousTACCalFile, const TString& TACCalFile,
-        ChannelsMapping* raw2SimChannelsMapping/* = nullptr*/) {
+        ChannelMapping* raw2SimChannelsMapping/* = nullptr*/) {
     fStationsRecalibrations.emplace_back(
         detectorName, stationName, 
         previousTimeCalFile != "" ? ReadCalFile(previousTimeCalFile) : nullptr,
@@ -59,7 +59,7 @@ void ERDigiCleaner::SetChannelCuts(
         const TString& detectorName, const TString& stationName,
         const std::map<Int_t, TCutG*>& channelGCuts, const std::map<Int_t, Double_t>& channelMinAmp,
         const std::map<Int_t, Double_t>& channelMaxAmp, const std::map<Int_t, Double_t>& channelMinTime,
-        const std::map<Int_t, Double_t>& channelMaxTime, const ChannelsMapping* raw2SimChannelsMapping /*= nullptr*/) {
+        const std::map<Int_t, Double_t>& channelMaxTime, const ChannelMapping* raw2SimChannelsMapping /*= nullptr*/) {
     fStationsCuts.emplace_back(detectorName, stationName, channelGCuts, channelMinAmp, channelMaxAmp,
                                channelMinTime, channelMaxTime, raw2SimChannelsMapping);
 }
@@ -151,7 +151,7 @@ void ERDigiCleaner::Recalibration() {
             if (!digi) {
                 LOG(FATAL) << "[Recalibration] Recalibration is not available for branch " << branchName << FairLogger::endl;
             }
-            const auto channel = GetChannelNumber(digi->Channel(), recalibrationTask.fSim2RawChannelsMapping);
+            const auto channel = GetChannelNumber(digi->Channel(), recalibrationTask.fSim2RawChannelMapping);
             if (prevTimeCalibration && timeCalibration) {
                 if (channel >= prevTimeCalibration->GetNrows() || channel >= timeCalibration->GetNrows()) {
                     LOG(FATAL) << "[Recalibration] Channel " << channel << " not found time in calibration tables of station " 
@@ -227,7 +227,7 @@ void ERDigiCleaner::ApplyChannelCuts() {
             if (!digi) {
                 LOG(FATAL) << "Recalibration is not available for branch " << branchName << FairLogger::endl;
             }
-            const auto channel = GetChannelNumber(digi->Channel(), stationCuts.fSim2RawChannelsMapping);
+            const auto channel = GetChannelNumber(digi->Channel(), stationCuts.fSim2RawChannelMapping);
             const auto time = digi->Time() - tofTime;
             const auto edep = digi->Edep();
             const auto& channelsGCuts = stationCuts.fChannelGCuts;
@@ -301,7 +301,7 @@ ERDigiCleaner::RecalibrationTask::RecalibrationTask(const TString& detectorName,
                                     TMatrixD* previousTimeCalibration, TMatrixD* timeCalibration,
                                     TMatrixD* previousAmpCalibration, TMatrixD* ampCalibration,
                                     TMatrixD* previousTACCalibration /*= nullptr*/, TMatrixD* TACCalibration/*= nullptr*/,
-                                    ChannelsMapping* raw2SimChannelsMapping/* = nullptr*/)
+                                    ChannelMapping* raw2SimChannelsMapping/* = nullptr*/)
 : fDetectorName(detectorName), fStationName(stationName),
 fPreviousAmpCalibration(previousAmpCalibration),
 fAmpCalibration(ampCalibration),
@@ -310,9 +310,9 @@ fTimeCalibration(timeCalibration),
 fPreviousTACCalibration(previousTACCalibration),
 fTACCalibration(TACCalibration) {
     if (raw2SimChannelsMapping) {
-        fSim2RawChannelsMapping = new ChannelsMapping();
+        fSim2RawChannelMapping = new ChannelMapping();
         for (const auto raw2sim : *raw2SimChannelsMapping) {
-            (*fSim2RawChannelsMapping)[raw2sim.second] = raw2sim.first;
+            (*fSim2RawChannelMapping)[raw2sim.second] = raw2sim.first;
         }
     }
 }
@@ -323,16 +323,16 @@ ERDigiCleaner::StationCuts::StationCuts(const TString& detectorName, const TStri
                                         const std::map<Int_t, Double_t>& channelMaxAmp,
                                         const std::map<Int_t, Double_t>& channelMinTime,
                                         const std::map<Int_t, Double_t>& channelMaxTime,
-                                        const ChannelsMapping* raw2SimChannelsMapping/* = nullptr*/)
+                                        const ChannelMapping* raw2SimChannelsMapping/* = nullptr*/)
     : fDetectorName(detectorName), fStationName(stationName),
     fChannelGCuts(channelGCuts), fChannelMinAmp(channelMinAmp),
     fChannelMaxAmp(channelMaxAmp), fChannelMinTime(channelMinTime),
     fChannelMaxTime(channelMaxTime) 
 {
     if (raw2SimChannelsMapping) {
-        fSim2RawChannelsMapping = new ChannelsMapping();
+        fSim2RawChannelMapping = new ChannelMapping();
         for (const auto raw2sim : *raw2SimChannelsMapping) {
-            (*fSim2RawChannelsMapping)[raw2sim.second] = raw2sim.first;
+            (*fSim2RawChannelMapping)[raw2sim.second] = raw2sim.first;
         }
     }
 }

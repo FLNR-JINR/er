@@ -45,14 +45,6 @@ TMatrixD* ReadCalFile(TString fileName) {
 
     return calTable;
 }
-//--------------------------------------------------------------------------------------------------
-ERChannel GetChannelNumber(const ERChannel rawChannel, const ChannelsMapping* channelsMapping) {
-    if (!channelsMapping)
-        return rawChannel;
-    if (channelsMapping->find(rawChannel) == channelsMapping->end())
-        return rawChannel;
-    return channelsMapping->at(rawChannel);
-}
 //-----------------------------------------------------------------------------
 double EiEo(double tableER[][105],double Tp,double Rp){
   if(Tp<0.1||Tp>1000.)
