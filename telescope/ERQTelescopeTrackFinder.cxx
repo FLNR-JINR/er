@@ -72,10 +72,11 @@ void ERQTelescopeTrackFinder::SetTargetPoint(Double_t x, Double_t y, Double_t z)
 //--------------------------------------------------------------------------------------------------
 void ERQTelescopeTrackFinder::
 SetTrackPositionCorrection(const TString& station_name, unsigned int channel, float strip_fraction) {
+  /*
   if (strip_fraction < -0.5 || strip_fraction > 0.5) {
     LOG(FATAL) << "Correction of track position in strip should be in range [-0.5, 0.5]"
                << FairLogger::endl;
-  }
+  }*/
   track_position_corrections_[station_name][channel] = strip_fraction;
 }
 //--------------------------------------------------------------------------------------------------
