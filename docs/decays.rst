@@ -3,11 +3,11 @@ Interactions
 ============
 
 The *ER* has its own approach for adding interactions to the particle transport process.
-This approach is based on the ability of the user to write their own *Stepping Action* for
+This approach is based on the ability of users to write their own *Stepping Action* for
 transport and the ability to add new tracks with defined properties to the *track stack*.
 
 It allows to take into account energy losses of projectiles in the beam diagnostics system and the target.
-This is a necessity in low energy physics modeling.
+This is a necessity in low energy physics simulations.
 
 Interaction position
 --------------------
@@ -24,7 +24,9 @@ The survival probability :math:`p_s` of an ion after passing the path :math:`x` 
 where :math:`\Lambda` is the Nuclear Interaction Length. The interaction probability :math:`p_i=1-p_s`.
 
 One can reproduce uniform distribution of interactions in the target setting very large value 
-of :math:`\Lambda`.The path :math:`l` of an ion passing without interaction through the target of an arbitrary convex shape
+of :math:`\Lambda`.
+
+The path :math:`l` of an ion passing without interaction through the target of an arbitrary convex shape
 along given trajectory depends on the position and orientation of the ion trajectory 
 (scattering neglected). The longer is the :math:`l` the greater is the interaction probability for ions at
 the same trajectory. One can introduce so called maximum path length :math:`M` such that any ion in the 
