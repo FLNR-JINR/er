@@ -1,94 +1,150 @@
-Installation
-============
+Getting started
+===============
 
-FairSoft installation
----------------------
+Run using Docker
+----------------
+
+Due to high dependencies on the external packages of various versions, we strongly recommend to use
+the docker-image to deploy ER installation.
+
+1. Install docker desktop on your system: https://www.docker.com/get-started
+2. Clone ER repository:
 
 ::
 
-	mkdir ~/fair_install
-	cd ~/fair_install
-	git clone https://github.com/FairRootGroup/FairSoft.git
-	cd FairSoft
-	git checkout BRANCHE_NAME
-	./configure.sh
-	# 1) gcc (on Linux) 5) Clang (on OSX)
-	# 2) No Debug Info
-	# 3) Yes (ROOT6)
-	# 4) Yes (Install engines)
-	# 5) Internet (install G4 files from internet)
-	# 6) No (without python)
-	# path: ~/fair_install/FairSoftInst
+	git clone https://github.com/FLNR-JINR/er/
+	cd er
+	git checkout dev
+
+
+3. Build docker image with *ER*:
+
+::
+
+  docker build --build-arg ER=dev -t er .
+
+4. Enjoy  *ROOT*, *Go4*, *AccDAQ* and *ER*:
+
+::
+
+  docker run er root -b -q er_sim.C
+  docker run er ${GO4SYS}/bin/go4analysis -v -lib libAccDaqUserAnalysis.so -number ${NEVENTS} -asf ${AUTOSAVEFILE} -file ${INPUTFILE} -args ${OUTPUTFILE} ${SETUPFILE}
+  docker run er run.sh
+
+
+Step by Step installation
+-------------------------
+
+In case Docker-image installation is not preferable or impossible in some reasons one can install 
+all dependencies using the following instructions.
+
+Install `FairSoft <https://github.com/FairRootGroup/FairSoft/tree/dev>`_
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+::
+
+  mkdir ~/fair_install
+  cd ~/fair_install
+  git clone https://github.com/FairRootGroup/FairSoft.git
+  cd FairSoft
+  git checkout BRANCHE_NAME
+  ./configure.sh
+  # 1) gcc (on Linux) 5) Clang (on OSX)
+  # 2) No Debug Info
+  # 3) Yes (ROOT6)
+  # 4) Yes (Install engines)
+  # 5) Internet (install G4 files from internet)
+  # 6) No (without python)
+  # path: ~/fair_install/FairSoftInst
 
 BRANCH_NAME=oct17p4
 
-In case the installation is stopped due to missing packages, check "~ / fair_install / FairSoft / DEPENDENCIES" and follow the instructions from it.
-
-FairRoot installation
----------------------
+Install `FairRoot <https://github.com/FairRootGroup/FairRoot>`_
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ::
 
-	# Set the shell variable SIMPATH to the installation directory
-	export SIMPATH=~/fair_install/FairSoftInst
+  # Set the shell variable SIMPATH to the installation directory
+  export SIMPATH=~/fair_install/FairSoftInst
 
-	cd ~/fair_install
-	git clone https://github.com/FairRootGroup/FairRoot.git
-	cd FairRoot
-	git checkout BRANCH_NAME
-	mkdir build
-	cd build
-	cmake -DCMAKE_INSTALL_PREFIX="~/fair_install/FairRootInst" ..
-	make
-	make install
+  cd ~/fair_install
+  git clone https://github.com/FairRootGroup/FairRoot.git
+  cd FairRoot
+  git checkout BRANCH_NAME
+  mkdir build
+  cd build
+  cmake -DCMAKE_INSTALL_PREFIX="~/fair_install/FairRootInst" ..
+  make
+  make install
 
 BRANCH_NAME=v-17.10
 
-ExpertRoot installation
------------------------
+Install ExpertRoot
+++++++++++++++++++
 
 ::
 
-	# Set the shell variable FAIRROOTPATH to the FairRoot installation directory
-	export FAIRROOTPATH=~/fair_install/FairRootInst
+  # Set the shell variable FAIRROOTPATH to the FairRoot installation directory
+  export FAIRROOTPATH=~/fair_install/FairRootInst
+  cd ~
+  mkdir expertroot
+  cd expertroot
+  git clone https://github.com/ExpertRootGroup/er/ .
+  git checkout BRANCH_NAME
+  cd ../
+  mkdir build
+  cd build
+  cmake ../ -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+  make
 
-	mkdir ~/expertroot
-	cd ~/expertroot
-	git clone https://github.com/ExpertRootGroup/er/ .
-	git checkout BRANCH_NAME
-	mkdir build
-	cd build
-	cmake ../ -DUSE_DIFFERENT_COMPILER=TRUE
-	make
+Experimental data preprocessing
+-------------------------------
 
-* BRANCH_NAME=dev
+If you need to handle a raw experimental data, please install the *Go4* and *AccDAQ*
 
-
-CMake options
-~~~~~~~~~~~~~
-
-This will list the cmake options that affect the build process.
-
-To use _ERDigibuilder_ to read experimental data obtained with _ACCULINNA\_go4\_user\_library_, use the _-DACCULINNA\_GO4 = acculina\_go4\_install\_path_ flag, which should indicate directory the library was installed.
-
-ExpertRoot initialization
--------------------------
-
-To initialize package environment variables, you must call:
+Install `Go4 <https://www.gsi.de/en/work/research/experiment_electronics/data_processing/data_analysis/the_go4_home_page.htm>`_
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ::
 
-	. ~/expertroot/build/config.sh
+  wget -O go4.tar.gz http://web-docs.gsi.de/~go4/software/download.php?http://web-docs.gsi.de/~go4/download/go4-6.0.0.tar.gz
+  tar xzf go4.tar.gz
+  rm go4.tar.gz
+  mv go4-6.0.0 go4
+  cd go4
+  source $SIMPATH/bin/thisroot.sh
+  make withqt=no -j4
 
-To use the package, it is desirable to create a separate run directory. After that, you can copy the standard macro and macro folders, modify it and run it.
+Install `AccDAQ <https://github.com/FLNR-JINR/ACCULINNA_go4_user_library>`_
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ::
 
-	cd ~/expertroot/
-	mkdir run
-	cd run
-	cp ../macro/NeuRad/NeuRad_sim.C
-	root -l NeuRad_sim.C
+  git clone https://github.com/flnr-jinr/ACCULINNA_go4_user_library accdaq
+  cd accdaq
+  git checkout dev
+  mkdir build && cd build
+  source $SIMPATH/bin/thisroot.sh
+  source $GO4_PATH/go4login
+  cmake ../ -DCMAKE_INSTALL_PREFIX=<installtion directory path>
+  make install -j4
+
+ER for working with experimental data
++++++++++++++++++++++++++++++++++++++
+
+To use *ERDigibuilder* to read experimental data from AccDAQ use the cmake flag `-DACCULINNA_GO4 = <acculina_go4_install_path_>` 
+in er compilation. In which you should indicate in which directory the library was installed. 
+
+Initialization
+--------------
+
+Environment variables must be initialized in **every** terminal session.
+
+::
+
+  source <path_to_build>/config.sh
+
+Otherwise ER won't work.
 
 Local documentation building
 ----------------------------
