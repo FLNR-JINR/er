@@ -41,6 +41,9 @@ void map_sensors_preprocessing() {
   ntetra_x_map->SetNoiseThreshold(200);
   preproc->AddSensor(ntetra_y_map);
   preproc->AddSensor(ntetra_x_map);
+  // preproc->ConvertTree();
+  preproc->FindThresholds();
+  preproc->MultiplicitySelection({ntetra_y_map, ntetra_x_map});
   preproc->Exec();
   delete preproc;
 }

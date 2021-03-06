@@ -870,6 +870,14 @@ public:
   **/
   void MultiplicitySelection(const SensorRunInfo* sensor, std::vector<SensorRunInfo*> sensorsZeroSignal = std::vector<SensorRunInfo*>());
 
+  /**
+  ** Method creates a tree where all analyzed sensors have only one channel
+  ** with amplitude value higher then noise thresholds in each event.
+  **
+  ** @param sensors - list of sensor each of those has a single multuplicity
+  **/
+  void MultiplicitySelection(std::vector<SensorRunInfo*> sensors, std::vector<SensorRunInfo*> sensorsZeroSignal = std::vector<SensorRunInfo*>());
+
   /** @brief Creates strips spectra for the further analysis analysis.
   ** Saves resulting hists for each sensor by path
   **   [WORKING_DIR]/[SENSOR_NAME]/draw/spectra_*.root.
@@ -1025,6 +1033,82 @@ void Preprocessing::MultiplicitySelection(
   CreateSpectraHists(sensor);
 }
 
+void Preprocessing::MultiplicitySelection(std::vector<SensorRunInfo*> sensors, 
+                                          std::vector<SensorRunInfo*> sensorsZeroSignal = std::vector<SensorRunInfo*>()) {
+  // Read input file
+  const TString inFilePath = fIOManager->GetPath(ROOT_INPUT_REDUCED_TREE_PATH, fRunId, fSensors);
+  auto inFile = fIOManager->OpenRootFile(inFilePath);
+  const auto inTree = static_cast<TTree*>(GetObjectFromRootFile(inFile));
+  // Create output file and tree
+  const TString outFilePath = fIOManager->GetPath(ROOT_MULT_SELECTED_PATH, fRunId, fSensors);
+  auto outFile = fIOManager->CreateRootFile(outFilePath);
+  TTree *outTree = new TTree(inTree->GetName(), "Tree with a single multiplicity");
+  // Create internal tree objects structure
+  inTree->SetMakeClass(1);
+
+  std::vector<std::vector<UShort_t>> sensorsData;
+  std::vector<std::vector<UShort_t>> sensorsThresholds;
+
+  for (const auto &sensor: sensors) {
+    sensorsData.push_back(std::vector<UShort_t>(sensor->fStripAmount));
+    sensorsThresholds.push_back(fIOManager->GetSensorThresholds<UShort_t>(sensor, fRunId));
+    TString brName = inTree->GetAlias(sensor->fName);
+    inTree->SetBranchAddress(brName, &(sensorsData.back()[0]));
+    outTree->Branch(sensor->fName, &(sensorsData.back()[0]), brName + "/s");
+  }
+
+
+  auto *zeroSignalSensorData = new std::vector<std::vector<UShort_t>>();
+  auto *zeroSignalSensorThresholds = new std::vector<std::vector<UShort_t>>();
+  for (const auto *zeroSignalSensor: sensorsZeroSignal) {
+    zeroSignalSensorData->push_back(std::vector<UShort_t>(zeroSignalSensor->fStripAmount));
+    TString branchName = inTree->GetAlias(zeroSignalSensor->fName);
+    inTree->SetBranchAddress(branchName, &(zeroSignalSensorData->back()[0]));
+    // Connect data variables with tree branches
+    outTree->Branch(zeroSignalSensor->fName, &(zeroSignalSensorData->back()[0]), branchName + "/s");
+    // Read sensor's thresholds
+    auto sensorThresholds = fIOManager->GetSensorThresholds<UShort_t>(zeroSignalSensor, fRunId);
+    zeroSignalSensorThresholds->push_back(sensorThresholds);
+  }
+  Info("Preprocessing::MultiplicitySelection", "Begin multiplicity selection");
+  Info("Preprocessing::MultiplicitySelection", "Input tree entries: %lld", inTree->GetEntries());
+  for (Long64_t eventNb = 0; eventNb < inTree->GetEntries(); eventNb++) {
+    inTree->GetEntry(eventNb);
+    bool saveEvent = true;
+    if (!(eventNb % 100000)) {
+      std::cout << "Event number " << eventNb << std::endl;
+    }
+    for (int sensorNb = 0; sensorNb < sensors.size(); sensorNb++) {
+      const int sensorMult = CheckDataMultiplicity(sensorsData[sensorNb], sensorsThresholds[sensorNb]);
+      if (sensorMult != 1) {
+        saveEvent = false;
+        break;
+      }
+      for (int j = 0; j < sensorsZeroSignal.size(); j++) {
+        int multiplicityNoSignalSensor = CheckDataMultiplicity(zeroSignalSensorData->at(j), zeroSignalSensorThresholds->at(j));
+        if (multiplicityNoSignalSensor != 0) {
+          saveEvent = false;
+          break;
+        }
+      }
+    }
+    if (saveEvent) {
+      outTree->Fill();
+    } else {
+      continue;
+    }
+  }
+  Info("Preprocessing::MultiplicitySelection", "Output tree entries: %lld", outTree->GetEntries());
+  outTree->Write();
+  outFile->Write();
+  outFile->Close();
+  inFile->Close();
+  for (int sensorNb = 0; sensorNb < sensors.size(); sensorNb++) {
+    CreateSpectraHists(sensors[sensorNb]); 
+  }
+}
+
+
 void Preprocessing::CreateSpectraHists(const SensorRunInfo* sensor) {
   const TString multSelectPath = fIOManager->GetPath(ROOT_MULT_SELECTED_PATH, fRunId, fSensors);
   auto inFile = fIOManager->OpenRootFile(multSelectPath);
@@ -1038,8 +1122,10 @@ void Preprocessing::CreateSpectraHists(const SensorRunInfo* sensor) {
 }
 
 void Preprocessing::Exec() {
-  ConvertTree();
-  FindThresholds();
+  // ConvertTree();
+  Error("Preprocessing::Exec", "Method is obsolete, please use the sequence:");
+  Error("Preprocessing::Exec", "  ConvertTree() -> FindThresholds() -> MultiplicitySelection()");
+  // FindThresholds();
   // MultiplicitySelection();
 }
 
