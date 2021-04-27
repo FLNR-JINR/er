@@ -1,0 +1,56 @@
+{
+//========= Macro generated from object: CUTG/Graph
+//========= by ROOT version6.10/08
+   
+   TCutG *cutg = new TCutG("CUTG",45);
+   cutg->SetVarX("a1_1+a20_1_un");
+   cutg->SetVarY("a20_1");
+   cutg->SetTitle("Graph");
+   cutg->SetFillColor(1);
+   cutg->SetPoint(0,4.53606,3.89723);
+   cutg->SetPoint(1,5.24514,3.46504);
+   cutg->SetPoint(2,5.95421,3.08452);
+   cutg->SetPoint(3,6.9064,2.73689);
+   cutg->SetPoint(4,7.69652,2.48791);
+   cutg->SetPoint(5,8.95259,2.19665);
+   cutg->SetPoint(6,10.3505,1.96647);
+   cutg->SetPoint(7,11.951,1.75977);
+   cutg->SetPoint(8,13.4907,1.59535);
+   cutg->SetPoint(9,15.0506,1.46851);
+   cutg->SetPoint(10,16.408,1.37925);
+   cutg->SetPoint(11,17.7654,1.29939);
+   cutg->SetPoint(12,19.3051,1.23362);
+   cutg->SetPoint(13,20.7233,1.16316);
+   cutg->SetPoint(14,22.1819,1.09739);
+   cutg->SetPoint(15,23.7419,1.04102);
+   cutg->SetPoint(16,24.9575,1.00813);
+   cutg->SetPoint(17,26.72,0.956458);
+   cutg->SetPoint(18,28.3408,0.918877);
+   cutg->SetPoint(19,29.7792,0.885993);
+   cutg->SetPoint(20,29.7792,0.683991);
+   cutg->SetPoint(21,28.0774,0.740364);
+   cutg->SetPoint(22,26.8213,0.777945);
+   cutg->SetPoint(23,25.5855,0.810829);
+   cutg->SetPoint(24,24.2281,0.857806);
+   cutg->SetPoint(25,22.5061,0.909481);
+   cutg->SetPoint(26,20.5612,0.975249);
+   cutg->SetPoint(27,18.7581,1.05981);
+   cutg->SetPoint(28,16.3067,1.17725);
+   cutg->SetPoint(29,14.6049,1.29469);
+   cutg->SetPoint(30,13.3489,1.39335);
+   cutg->SetPoint(31,12.0725,1.50609);
+   cutg->SetPoint(32,10.7962,1.67051);
+   cutg->SetPoint(33,9.58063,1.84433);
+   cutg->SetPoint(34,8.56767,2.02284);
+   cutg->SetPoint(35,7.61548,2.22014);
+   cutg->SetPoint(36,6.76459,2.46442);
+   cutg->SetPoint(37,6.21758,2.65233);
+   cutg->SetPoint(38,5.85292,2.81675);
+   cutg->SetPoint(39,5.50851,2.96238);
+   cutg->SetPoint(40,5.18436,3.09862);
+   cutg->SetPoint(41,4.67788,3.38048);
+   cutg->SetPoint(42,4.27269,3.62476);
+   cutg->SetPoint(43,3.8675,3.85964);
+   cutg->SetPoint(44,4.53606,3.89723);
+   cutg->Draw("");
+}
