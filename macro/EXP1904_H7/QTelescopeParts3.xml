@@ -24,32 +24,32 @@
 			<singleSi id="SingleSi_SSD20_1">
 				<singleSiSize singleSiX="5" singleSiY="5" singleSiZ="0.002"/>
 				<singleSiSensAreaSize singleSiSensX="5" singleSiSensY="5" singleSiSensZ="0.002"/>
-				<deadLayerThicknessFrontSide>0.000074</deadLayerThicknessFrontSide>
-				<deadLayerThicknessBackSide>0.000086</deadLayerThicknessBackSide>
+				<deadLayerThicknessFrontSide>0.0000</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0000</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>
 			<singleSi id="SingleSi_SSD20_2">
 				<singleSiSize singleSiX="5" singleSiY="5" singleSiZ="0.002"/>
 				<singleSiSensAreaSize singleSiSensX="5" singleSiSensY="5" singleSiSensZ="0.002"/>
-				<deadLayerThicknessFrontSide>0.000074</deadLayerThicknessFrontSide>
-				<deadLayerThicknessBackSide>0.000086</deadLayerThicknessBackSide>
+				<deadLayerThicknessFrontSide>0.0000</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0000</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>
 			<singleSi id="SingleSi_SSD20_3">
 				<singleSiSize singleSiX="5" singleSiY="5" singleSiZ="0.002"/>
 				<singleSiSensAreaSize singleSiSensX="5" singleSiSensY="5" singleSiSensZ="0.002"/>
-				<deadLayerThicknessFrontSide>0.000077</deadLayerThicknessFrontSide>
-				<deadLayerThicknessBackSide>0.000086</deadLayerThicknessBackSide>
+				<deadLayerThicknessFrontSide>0.0000</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0000</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>
 			<singleSi id="SingleSi_SSD20_4">
 				<singleSiSize singleSiX="5" singleSiY="5" singleSiZ="0.002"/>
 				<singleSiSensAreaSize singleSiSensX="5" singleSiSensY="5" singleSiSensZ="0.002"/>
-				<deadLayerThicknessFrontSide>0.000066</deadLayerThicknessFrontSide>
-				<deadLayerThicknessBackSide>0.000086</deadLayerThicknessBackSide>
+				<deadLayerThicknessFrontSide>0.0000</deadLayerThicknessFrontSide>
+				<deadLayerThicknessBackSide>0.0000</deadLayerThicknessBackSide>
 				<stripCount>16</stripCount>
 				<singleSiMedia>silicon</singleSiMedia>
 			</singleSi>	

@@ -25,7 +25,7 @@ void digicleaner(TString inFile,TString outFile) {
   ERRunAna *run = ERRunAna::Instance();
   run->HoldEventsCount(); //forbid different entry number in the input and output file
   run->WithoutGeant(); //do not init Geant
-  run->SetUserCut("EventHeader.fTrigger!=1");
+  //run->SetUserCut("EventHeader.fTrigger!=1");
   run->SetInputFile(inFile);
   run->SetOutputFile(outFile);
   ERBeamTimeEventHeader* header = new ERBeamTimeEventHeader();
@@ -44,26 +44,26 @@ void digicleaner(TString inFile,TString outFile) {
   //                      );
   const std::map<Int_t, TCutG*>& SSD20_1_gcuts = {};
   const std::map<Int_t, Double_t> SSD20_1_amp_min = {
-    {0, 0.3},
-    {1, 0.3},
-    {2, 0.3},
-    {3, 0.3},
-    {4, 0.3},
-    {5, 0.3},
-    {6, 0.3},
-    {7, 0.3},
-    {8, 0.3},
-    {9, 0.3},
-    {10, 0.3},
-    {11, 0.3},
-    {12, 0.3},
-    {13, 0.3},
-    {14, 0.3},
-    {15, 0.3}
+    {0, 0.2},
+    {1, 0.2},
+    {2, 0.2},
+    {3, 0.2},
+    {4, 0.2},
+    {5, 0.2},
+    {6, 0.2},
+    {7, 0.2},
+    {8, 0.2},
+    {9, 0.2},
+    {10, 0.2},
+    {11, 0.2},
+    {12, 0.2},
+    {13, 0.2},
+    {14, 0.2},
+    {15, 0.2}
   };
   const std::map<Int_t, Double_t> SSD20_1_amp_max = {};
   const std::map<Int_t, Double_t> SSD20_1_time_min = {
-    {0, 0.},    
+     {0, 0.},    
     {1, 0.},
     {2, 0.},
     {3, 0.},
@@ -109,59 +109,28 @@ void digicleaner(TString inFile,TString outFile) {
     //                   );
   const std::map<Int_t, TCutG*>& SSD1_1_gcuts = {};
   const std::map<Int_t, Double_t> SSD1_1_amp_min = {
-    {0, 0.5},    
-    {1, 0.5},
-    {2, 0.5},
-    {3, 0.5},
-    {4, 0.5},
-    {5, 0.5},
-    {6, 0.5},
-    {7, 0.5},
-    {8, 0.5},
-    {9, 0.5},
-    {10, 0.5},
-    {11, 0.5},
-    {12, 0.5},
-    {13, 0.5},
-    {14, 0.5},
-    {15, 0.5}
+    {0, 0.2},    
+    {1, 0.2},
+    {2, 0.2},
+    {3, 0.2},
+    {4, 0.2},
+    {5, 0.2},
+    {6, 0.2},
+    {7, 0.2},
+    {8, 0.2},
+    {9, 0.2},
+    {10, 0.2},
+    {11, 0.2},
+    {12, 0.2},
+    {13, 0.2},
+    {14, 0.2},
+    {15, 0.2}
   };
   const std::map<Int_t, Double_t> SSD1_1_amp_max = {};
   const std::map<Int_t, Double_t> SSD1_1_time_min = {
-    {0, 0.},    
-    {1, 0.},
-    {2, 0.},
-    {3, 0.},
-    {4, 0.},
-    {5, 0.},
-    {6, 0.},
-    {7, 0.},
-    {8, 0.},
-    {9, 0.},
-    {10, 0.},
-    {11, 0.},
-    {12, 0.},
-    {13, 0.},
-    {14, 0.},
-    {15, 0.}
+
   };
   const std::map<Int_t, Double_t> SSD1_1_time_max = {
-    {0, 60.},    
-    {1, 60.},
-    {2, 60.},
-    {3, 60.},
-    {4, 60.},
-    {5, 60.},
-    {6, 60.},
-    {7, 60.},
-    {8, 60.},
-    {9, 60.},
-    {10, 60.},
-    {11, 60.},
-    {12, 60.},
-    {13, 60.},
-    {14, 60.},
-    {15, 60.}
   };
   cleaner->SetChannelCuts("Telescope_1", "SSD_1", SSD1_1_gcuts,SSD1_1_amp_min,SSD1_1_amp_max,
                           SSD1_1_time_min, SSD1_1_time_max);

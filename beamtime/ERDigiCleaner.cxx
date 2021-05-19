@@ -86,8 +86,11 @@ InitStatus ERDigiCleaner::Init() {
 void ERDigiCleaner::Exec(Option_t*) {
     if (fInputHeader)
         CopyEventHeader();
-    if (fLonelyMWPCClusterCondition && AreFewClustersInMWPC())
+    if (fLonelyMWPCClusterCondition && AreFewClustersInMWPC()) {
         dynamic_cast<ERRunAna*>(fRun)->MarkFill(kFALSE);
+        Reset();
+        return;
+    }
     Recalibration();
     ApplyChannelCuts();
     ApplyStationMultiplicities();
@@ -234,28 +237,38 @@ void ERDigiCleaner::ApplyChannelCuts() {
             const auto edep = digi->Edep();
             const auto& channelsGCuts = stationCuts.fChannelGCuts;
             if (channelsGCuts.find(channel) != channelsGCuts.end()) {
-                if (!channelsGCuts.at(channel)->IsInside(time, edep))
+                if (!channelsGCuts.at(channel)->IsInside(time, edep)) {
                     digisToRemove.push_back(digi);
+                    continue;
+                }
             }
             const auto& channelsMinAmp = stationCuts.fChannelMinAmp;
             if (channelsMinAmp.find(channel) != channelsMinAmp.end()) {
-                if (channelsMinAmp.at(channel) > edep)
+                if (channelsMinAmp.at(channel) > edep) {
                     digisToRemove.push_back(digi);
+                    continue;
+                }
             }            
             const auto& channelsMaxAmp = stationCuts.fChannelMaxAmp;
             if (channelsMaxAmp.find(channel) != channelsMaxAmp.end()) {
-                if (channelsMaxAmp.at(channel) < edep)
+                if (channelsMaxAmp.at(channel) < edep) {
                     digisToRemove.push_back(digi);
+                    continue;
+                }
             }
             const auto& channelsMinTime = stationCuts.fChannelMinTime;
             if (channelsMinTime.find(channel) != channelsMinTime.end()) {
-                if (channelsMinTime.at(channel) > time)
+                if (channelsMinTime.at(channel) > time) {
                     digisToRemove.push_back(digi);
+                    continue;
+                }
             }
             const auto& channelsMaxTime = stationCuts.fChannelMaxTime;
             if (channelsMaxTime.find(channel) != channelsMaxTime.end()) {
-                if (channelsMaxTime.at(channel) < time)
+                if (channelsMaxTime.at(channel) < time) {
                     digisToRemove.push_back(digi);
+                    continue;
+                }
             }
         }
         for (auto* digi : digisToRemove) {

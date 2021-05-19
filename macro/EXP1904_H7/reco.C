@@ -90,6 +90,12 @@ void reco(TString inFile,TString outFile) {
   qtelescopePID->SetEdepAccountingStrategy("DSD", ERQTelescopePID::EdepAccountingStrategy::EdepFromXChannel);
   qtelescopeTrackFinder->SetTrackPositionCorrection("SSD_1_Y", 0, 0.25);
   qtelescopeTrackFinder->SetTrackPositionCorrection("SSD_1_Y", 15, -0.25);
+  qtelescopeTrackFinder->SetTrackPositionCorrection("SSD_2_X_4", 0, 0.25);
+  qtelescopeTrackFinder->SetTrackPositionCorrection("SSD_2_X_4", 15, -0.25);
+  qtelescopeTrackFinder->SetTrackPositionCorrection("SSD_3_Y_7", 0, 0.25);
+  qtelescopeTrackFinder->SetTrackPositionCorrection("SSD_3_Y_7", 15, -0.25);
+  qtelescopeTrackFinder->SetTrackPositionCorrection("SSD_4_X_10", 0, 0.25);
+  qtelescopeTrackFinder->SetTrackPositionCorrection("SSD_4_X_10", 15, -0.25);
   run->AddTask(qtelescopePID);
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
