@@ -11,8 +11,7 @@
 
 #include "FairLogger.h"
 
-using ERChannel = unsigned short;
-using ChannelsMapping = std::map<ERChannel, ERChannel>;
+using ERChannel = ushort;
 namespace consts {
   const unsigned short undefined_channel = std::numeric_limits<ERChannel>::max();
   // Averaged numbers of objects in events. Used as TClonesArray capacitance.
@@ -79,7 +78,6 @@ class G4Material;
 #define AMU 931.494028 /* atomic mass unit (MeV) */
 
 TMatrixD* ReadCalFile(TString fileName);
-ERChannel GetChannelNumber(const ERChannel rawChannel, const ChannelsMapping* channelsMapping);
 double EiEo(double tableER[][105],double Tp,double Rp);
 int ReadRint(char* Fname,double Ranges[][105]);
 int intrp4(double* x,double* y, double* c);

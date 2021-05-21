@@ -1,49 +1,51 @@
 #ifndef ERUnpack_H
 #define ERUnpack_H
 
-#include <map>
-#include <vector>
 #include <tuple>
 
 #include "TString.h"
 #include "TClonesArray.h"
 #include "TMatrixD.h"
+#include "TChain.h"
 
 #include "FairUnpack.h"
 
 #include "SetupConfiguration.h"
-#include "DetEventDetector.h"
 
-#include "ERSupport.h"
-
-using Channel2Value = std::map<Int_t, float>;
-using Channel2AmplitudeTime = std::map<ERChannel, std::pair<float, float>>;
-using Channel2AmplitudeTimeTac = std::map<ERChannel, std::tuple<float, float, float>>;
+#include "ERBeamTimeCommon.h"
 
 class ERUnpack : public FairUnpack {
  public:
-  ERUnpack(TString detName);
-  virtual ~ERUnpack();
-  virtual Bool_t Init() {return kTRUE;}
-  virtual Bool_t Init(SetupConfiguration* setupConf);
+  
+  ERUnpack(const TString& detector_name);
+  virtual ~ERUnpack() = default;
+  virtual Bool_t Init(){return kTRUE;}
+  virtual Bool_t Init(const SetupConfiguration*, TChain& input_chain_of_events);
   virtual Bool_t DoUnpack(Int_t* data, Int_t size);
-  virtual void   Reset();
-  TString GetDetName() const {return fDetName;}
-  Bool_t IsInited() const {return fInited;}
+  virtual void  Reset();
+  TString DetectorName() { return detector_name_; }
+  Bool_t IsInited() { return inited_; }
  protected:
-  virtual void Register() {};
-  void UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,
-                            Channel2AmplitudeTime& valueMap, Bool_t skipAloneChannels = kTRUE);
-  void UnpackAmpTimeTACStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,
-                                TString tacStation, Channel2AmplitudeTimeTac& valueMap, Bool_t skipAloneChannels = kTRUE);
-  void UnpackStation(DetEventDetector* detEvent, TString station, Channel2Value& valueMap);
- protected:
-  SetupConfiguration* fSetupConfiguration = nullptr;
-  Bool_t fInited;
-  Bool_t fUnpacked;
-  TString fDetName;
-  std::map<TString,TClonesArray*> fDigiCollections;
- public:
+  virtual void ConnectToInputBranches(TChain& input_chain_of_events, 
+                                      const std::vector<TString>& branch_names);
+  virtual void UnpackSignalFromStations() = 0;
+  virtual std::vector<TString> InputBranchNames() const = 0;
+  void UnpackStation(SignalsAndChannelCount signals_from_station, 
+                     ChannelToSignal& channel_to_signal);
+  void UnpackAmpTimeStation(SignalsAndChannelCount signals_from_amplitude_station,
+                            SignalsAndChannelCount signals_from_time_station,
+                            ChannelToAmpTime& channel_to_signals,
+                            bool skip_alone_channels = true);
+  void UnpackAmpTimeTACStation(SignalsAndChannelCount signals_from_amplitude_station,
+                               SignalsAndChannelCount signals_from_time_station,
+                               SignalsAndChannelCount signals_from_tac_station,
+                               ChannelToAmpTimeTac& channel_to_signals,
+                               bool skip_alone_channels = true);
+  const SetupConfiguration* setup_configuration_;
+  bool inited_ = false;
+  TString detector_name_;
+  std::map<TString, SignalsAndChannelCount> signals_from_stations_;
+  std::map<TString, TClonesArray*> digi_collections_;
   ClassDef(ERUnpack, 0)
 };
 

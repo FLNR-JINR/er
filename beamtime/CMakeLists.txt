@@ -72,6 +72,8 @@ if (ACCULINNA_GO4)
 	list(APPEND LINK_DIRECTORIES ${ACCULINNA_GO4}/lib/)
 	list(APPEND DEPENDENCIES AccDaqData)
 	list(APPEND DEPENDENCIES AccDaqReader)
+	list(APPEND DEPENDENCIES AccDaqSetupConfig)
+	list(APPEND DEPENDENCIES AccDaqSetupConfigCppWrapper)
 endif()
 
 # fill list of header files from list of source files

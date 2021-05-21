@@ -3,225 +3,174 @@
 #include <iostream>
 #include <vector>
 
-
 #include "FairLogger.h"
 
-#include "DetEventStation.h"
-#include "DetMessage.h"
-
-using namespace std;
 //--------------------------------------------------------------------------------------------------
-ERUnpack::ERUnpack(TString detName):
-FairUnpack(0,0,0,0,0),
-fDetName(detName),
-fInited(kFALSE),
-fUnpacked(kFALSE)
-{
-
+ERUnpack::ERUnpack(const TString& detector_name)
+  : FairUnpack(0,0,0,0,0),
+    detector_name_(detector_name)
+{}
+//--------------------------------------------------------------------------------------------------
+Bool_t ERUnpack::Init(const SetupConfiguration* setup_configuration,
+                      TChain& input_chain_of_events) {
+  if (inited_)
+    return kFALSE;
+  setup_configuration_ = setup_configuration;
+  Register();
+  ConnectToInputBranches(input_chain_of_events, this->InputBranchNames());
+  inited_ = true;
+  return kTRUE;
 }
 //--------------------------------------------------------------------------------------------------
-ERUnpack::~ERUnpack(){
-
+void ERUnpack::ConnectToInputBranches(TChain& input_chain_of_events, 
+                                      const std::vector<TString>& branch_names) {
+  if (!setup_configuration_)
+    LOG(FATAL) << "[ERUnpack] Setup configuration was not inited." << FairLogger::endl;
+  for (const auto& station_name : branch_names) {
+    const auto channel_count = setup_configuration_->GetChannelCount(detector_name_, station_name);
+    if (channel_count == -1) {
+      LOG(FATAL) << "[ERUnpack] Setup does not contain station " << station_name 
+                 << FairLogger::endl;
+    }
+    if (!input_chain_of_events.FindBranch(station_name)) {
+      LOG(FATAL) << "[ERUnpack] Input file does not contain branch for station " 
+                 << station_name << FairLogger::endl;
+    }
+    auto* signals = new short[channel_count];
+    input_chain_of_events.SetBranchAddress(station_name, signals);
+    signals_from_stations_[station_name] = std::make_pair(signals, channel_count);
+  }
 }
 //--------------------------------------------------------------------------------------------------
-Bool_t ERUnpack::Init(SetupConfiguration* setupConf){
-    fSetupConfiguration = setupConf;
-
-    if (fInited)
-        return kFALSE;
-    else
-        fInited = kTRUE;
-
-    return kTRUE;
+Bool_t ERUnpack::DoUnpack(Int_t* data, Int_t size) {
+  Reset();
+  UnpackSignalFromStations();
+  return kTRUE;
 }
 //--------------------------------------------------------------------------------------------------
-Bool_t ERUnpack::DoUnpack(Int_t* data, Int_t size){
-    if (fUnpacked)
-        return kFALSE;
-    else
-        fUnpacked = kTRUE;
-
-    Reset();
-
-    return kTRUE;
+void ERUnpack::Reset() {
+  for (auto& station_name_and_collection : digi_collections_) {
+    auto& digi_collection = station_name_and_collection.second;
+    digi_collection->Delete();
+  }
 }
 //--------------------------------------------------------------------------------------------------
-void ERUnpack::Reset(){
-    fUnpacked = kFALSE;
-    for (auto itCol : fDigiCollections)
-        itCol.second->Delete();
+void FillContainersWithSignals(const Signal* signals, const ERChannel channels_count, Channels& channels, 
+                               ChannelToSignal& channel_to_signal) {
+  for (ERChannel channel = 0; channel < channels_count; ++channel) {
+    if (signals[channel] == no_signal)
+      continue;
+    channels.push_back(channel);
+    channel_to_signal[channel] = signals[channel];
+  }                                              
+};
+//--------------------------------------------------------------------------------------------------
+void ERUnpack::UnpackStation(SignalsAndChannelCount signals_from_station, 
+                             ChannelToSignal& channel_to_signal) {
+  Channels channels;
+  FillContainersWithSignals(signals_from_station.first, signals_from_station.second,
+                            channels, channel_to_signal);                     
 }
 //--------------------------------------------------------------------------------------------------
-void ERUnpack::UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,
-                                    Channel2AmplitudeTime& valueMap, Bool_t skipAloneChannels/* = kTRUE*/) {
-    const std::map<TString, unsigned short> stList = fSetupConfiguration->GetStationList(fDetName);
-    TString ampEventElement,timeEventElement;
-    ampEventElement.Form("%s_%s",fDetName.Data(),ampStation.Data());
-    timeEventElement.Form("%s_%s",fDetName.Data(),timeStation.Data());
-    DetEventStation* ampStationEvent = (DetEventStation*)detEvent->GetChild(ampEventElement);
-    DetEventStation* timeStationEvent = (DetEventStation*)detEvent->GetChild(timeEventElement);
-    if (!ampStationEvent || !timeStationEvent){
-        LOG(FATAL) << "Amplitude event element or time event element not found for " << ampStation << FairLogger::endl;
-        return;
+void ERUnpack::UnpackAmpTimeStation(const SignalsAndChannelCount signals_from_amplitude_station,
+                                    const SignalsAndChannelCount signals_from_time_station,
+                                    ChannelToAmpTime& channel_to_signals,
+                                    const bool skip_alone_channels/*= true*/) {
+  ChannelToSignal channels_to_time_signals, channels_to_amp_signals;
+  Channels amplitude_channels, time_channels;
+  FillContainersWithSignals(signals_from_time_station.first, 
+                            signals_from_time_station.second,
+                            time_channels, channels_to_time_signals);
+  FillContainersWithSignals(signals_from_amplitude_station.first, 
+                            signals_from_amplitude_station.second,
+                            amplitude_channels, channels_to_amp_signals);
+  // sort for intersection and difference algorithm                                                     
+  std::sort(time_channels.begin(), time_channels.end());
+  std::sort(amplitude_channels.begin(), amplitude_channels.end());
+  // found intersection in amplitude and time channels
+  Channels intersection_channels;
+  std::set_intersection(time_channels.begin(), time_channels.end(),
+                        amplitude_channels.begin(), amplitude_channels.end(),
+                        std::back_inserter(intersection_channels));
+  // found alone time and amplitude channels
+  Channels alone_time_channels, alone_amplitude_channels;
+  std::set_difference(time_channels.begin(), time_channels.end(),
+                      intersection_channels.begin(), intersection_channels.end(), 
+                      std::inserter(alone_time_channels, alone_time_channels.begin()));
+  std::set_difference(amplitude_channels.begin(), amplitude_channels.end(),
+                      intersection_channels.begin(), intersection_channels.end(), 
+                      std::inserter(alone_amplitude_channels, alone_amplitude_channels.begin()));
+  // save it
+  for (const auto channel : intersection_channels) {
+    channel_to_signals[channel] = std::make_pair(channels_to_amp_signals[channel],
+                                                 channels_to_time_signals[channel]);
+  }
+  if (!skip_alone_channels) {
+    for (const auto channel : alone_time_channels) {
+      channel_to_signals[channel] = std::make_pair(no_signal, channels_to_time_signals[channel]);
     }
-    TClonesArray* ampMessages = ampStationEvent->GetDetMessages();
-    TClonesArray* timeMessages = timeStationEvent->GetDetMessages();
-    // just copy TClonesArray to map and vector
-    Channel2Value time_map,amp_map;
-    vector<ERChannel> amp_channels, time_channels;
-    for (Int_t iAmpMassage(0); iAmpMassage < ampMessages->GetEntriesFast(); ++iAmpMassage){
-        DetMessage* ampMes = (DetMessage*)ampMessages->At(iAmpMassage);
-        amp_map[static_cast<ERChannel>(ampMes->GetStChannel())] = static_cast<float>(ampMes->GetValue());
-        amp_channels.push_back(static_cast<ERChannel>(ampMes->GetStChannel()));
+    for (const auto channel : alone_amplitude_channels) {
+      channel_to_signals[channel] = std::make_pair(channels_to_amp_signals[channel], no_signal);
     }
-    for (Int_t iTimeMessage(0); iTimeMessage < timeMessages->GetEntriesFast(); ++iTimeMessage){
-        DetMessage* timeMes = (DetMessage*)timeMessages->At(iTimeMessage);
-        time_map[static_cast<ERChannel>(timeMes->GetStChannel())] = static_cast<float>(timeMes->GetValue());
-        time_channels.push_back(static_cast<ERChannel>(timeMes->GetStChannel()));
-    }
-    // sort for intersection and difference algorithm
-    sort(time_channels.begin(), time_channels.end());
-    sort(amp_channels.begin(), amp_channels.end());
-    // found intersection in amplitude and time channels
-    vector<ERChannel> intersection_channels;
-    set_intersection(time_channels.begin(), time_channels.end(),
-                     amp_channels.begin(), amp_channels.end(),
-                     back_inserter(intersection_channels));
-    // found alone time and amplitude channels
-    vector<ERChannel> time_dif_channels;
-    vector<ERChannel> amp_dif_channels;
-    set_difference(time_channels.begin(), time_channels.end(),
-                   intersection_channels.begin(), intersection_channels.end(), 
-                   inserter(time_dif_channels, time_dif_channels.begin()));
-    set_difference(amp_channels.begin(), amp_channels.end(),
-                   intersection_channels.begin(), intersection_channels.end(), 
-                   inserter(amp_dif_channels, amp_dif_channels.begin()));
-    LOG(DEBUG) << "Time and amplitude coincidence channels number: " << intersection_channels.size() 
-               << FairLogger::endl;
-    LOG(DEBUG) << "Alone time channels number: " << time_dif_channels.size() 
-               << FairLogger::endl;
-    LOG(DEBUG) << "Alone amplitude channels number: " << amp_dif_channels.size() 
-               << FairLogger::endl;
-    LOG(DEBUG) << "Option skip alone channels is " << skipAloneChannels
-               << FairLogger::endl;
-    // save it
-    for (auto iIntesectionChannel : intersection_channels)
-        valueMap[iIntesectionChannel] = make_pair(amp_map[iIntesectionChannel],
-                                                  time_map[iIntesectionChannel]);
-    if (!skipAloneChannels){
-        for (auto iAloneChannel : time_dif_channels)
-            valueMap[iAloneChannel] = make_pair(-1.,time_map[iAloneChannel]);
-        for (auto iAloneChannel : amp_dif_channels)
-            valueMap[iAloneChannel] = make_pair(amp_map[iAloneChannel],-1.);
-    }
+  }
 }
 //--------------------------------------------------------------------------------------------------
-void ERUnpack::UnpackAmpTimeTACStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,
-                                       TString tacStation, Channel2AmplitudeTimeTac& valueMap,
-                                       Bool_t skipAloneChannels/* = kTRUE*/) {
-    const auto stList = fSetupConfiguration->GetStationList(fDetName);
-    TString ampEventElement,timeEventElement, tacEventElement;
-    ampEventElement.Form("%s_%s",fDetName.Data(),ampStation.Data());
-    timeEventElement.Form("%s_%s",fDetName.Data(),timeStation.Data());
-    tacEventElement.Form("%s_%s",fDetName.Data(),tacStation.Data());
-    DetEventStation* ampStationEvent = static_cast<DetEventStation*>(detEvent->GetChild(ampEventElement));
-    DetEventStation* timeStationEvent = static_cast<DetEventStation*>(detEvent->GetChild(timeEventElement));
-    DetEventStation* tacStationEvent = static_cast<DetEventStation*>(detEvent->GetChild(tacEventElement));
-    if (!ampStationEvent || !timeStationEvent || !tacStationEvent){
-        LOG(FATAL) << "Amplitude event element, time or tac event element not found for " << ampStation << FairLogger::endl;
-        return;
-    }
-    TClonesArray* ampMessages = ampStationEvent->GetDetMessages();
-    TClonesArray* timeMessages = timeStationEvent->GetDetMessages();
-    TClonesArray* tacMessages = tacStationEvent->GetDetMessages();
-    // just copy TClonesArray to map and vector
-    Channel2Value time_map,amp_map,tac_map;
-    vector<ERChannel> amp_channels, time_channels, tac_channels;
-    for (Int_t iAmpMassage(0); iAmpMassage < ampMessages->GetEntriesFast(); ++iAmpMassage){
-        DetMessage* ampMes = (DetMessage*)ampMessages->At(iAmpMassage);
-        amp_map[static_cast<unsigned short>(ampMes->GetStChannel())] = static_cast<float>(ampMes->GetValue());
-        amp_channels.push_back(static_cast<unsigned short>(ampMes->GetStChannel()));
-    }
-    for (Int_t iTimeMessage(0); iTimeMessage < timeMessages->GetEntriesFast(); ++iTimeMessage){
-        DetMessage* timeMes = (DetMessage*)timeMessages->At(iTimeMessage);
-        time_map[static_cast<unsigned short>(timeMes->GetStChannel())] = static_cast<float>(timeMes->GetValue());
-        time_channels.push_back(static_cast<unsigned short>(timeMes->GetStChannel()));
-    }
-    for (Int_t iTacMessage(0); iTacMessage < tacMessages->GetEntriesFast(); ++iTacMessage){
-        DetMessage* tacMes = (DetMessage*)tacMessages->At(iTacMessage);
-        tac_map[static_cast<unsigned short>(tacMes->GetStChannel())] =static_cast<float>(tacMes->GetValue());
-        tac_channels.push_back(static_cast<unsigned short>(tacMes->GetStChannel()));
-    }
-    // sort for intersection and difference algorithm
-    sort(time_channels.begin(), time_channels.end());
-    sort(amp_channels.begin(), amp_channels.end());
-    sort(tac_channels.begin(), tac_channels.end());
-    // found intersection in amplitude and time channels
-    vector<ERChannel> amp_time_intersection_channels;
-    set_intersection(time_channels.begin(), time_channels.end(),
-                     amp_channels.begin(), amp_channels.end(),
-                     back_inserter(amp_time_intersection_channels));
-    // intersect with tac
-    vector<ERChannel> intersection_channels;
-    set_intersection(amp_time_intersection_channels.begin(), amp_time_intersection_channels.end(),
-                     tac_channels.begin(), tac_channels.end(),
-                     back_inserter(intersection_channels));
-    // found alone time and amplitude channels
-    vector<ERChannel> time_dif_channels;
-    vector<ERChannel> amp_dif_channels;
-    vector<ERChannel> tac_dif_channels;
-    set_difference(time_channels.begin(), time_channels.end(),
-                   intersection_channels.begin(), intersection_channels.end(), 
-                   inserter(time_dif_channels, time_dif_channels.begin()));
-    set_difference(amp_channels.begin(), amp_channels.end(),
-                   intersection_channels.begin(), intersection_channels.end(), 
-                   inserter(amp_dif_channels, amp_dif_channels.begin()));
-    set_difference(tac_channels.begin(), tac_channels.end(),
-                   intersection_channels.begin(), intersection_channels.end(), 
-                   inserter(tac_dif_channels, tac_dif_channels.begin()));
-    LOG(DEBUG) << "Time, amplitude and tac coincidence channels number: " << intersection_channels.size() 
-               << FairLogger::endl;
-    LOG(DEBUG) << "Alone time channels number: " << time_dif_channels.size() 
-               << FairLogger::endl;
-    LOG(DEBUG) << "Alone amplitude channels number: " << amp_dif_channels.size() 
-               << FairLogger::endl;
-    LOG(DEBUG) << "Alone tac channels number: " << tac_dif_channels.size() 
-               << FairLogger::endl;
-    LOG(DEBUG) << "Option skip alone channels is " << skipAloneChannels
-               << FairLogger::endl;
-    // save it
-    for (auto iIntesectionChannel : intersection_channels)
-        valueMap[iIntesectionChannel] = make_tuple(amp_map[iIntesectionChannel],
-                                                   time_map[iIntesectionChannel],
-                                                   tac_map[iIntesectionChannel]);
-    if (!skipAloneChannels){
-        for (auto iAloneChannel : time_dif_channels)
-            valueMap[iAloneChannel] = make_tuple(-1., time_map[iAloneChannel], -1.);
-        for (auto iAloneChannel : amp_dif_channels)
-            valueMap[iAloneChannel] = make_tuple(amp_map[iAloneChannel], -1., -1.);
-        for (auto iAloneChannel : tac_dif_channels)
-            valueMap[iAloneChannel] = make_tuple(-1., -1., tac_map[iAloneChannel]);
-    }
-}
-//--------------------------------------------------------------------------------------------------
-void ERUnpack::UnpackStation(DetEventDetector* detEvent, TString station, Channel2Value& valueMap){
-    const std::map<TString, unsigned short> stList = fSetupConfiguration->GetStationList(fDetName);
-    float amp = -1.;
-    ERChannel channel = consts::undefined_channel;
-    TString eventElementName;
-    eventElementName.Form("%s_%s",fDetName.Data(),station.Data());
-    DetEventStation* stationEvent = (DetEventStation*)detEvent->GetChild(eventElementName);
-    if (!stationEvent){
-        LOG(FATAL) << "Event element not found for " << station << FairLogger::endl;
-        return;
-    }
-    TClonesArray* ampMessages = stationEvent->GetDetMessages();
-    for (Int_t iAmpMassage(0); iAmpMassage < ampMessages->GetEntriesFast(); ++iAmpMassage){
-        DetMessage* ampMes = (DetMessage*)ampMessages->At(iAmpMassage);
-        amp = static_cast<float>(ampMes->GetValue());
-        channel = static_cast<ERChannel>(ampMes->GetStChannel());
-        valueMap[channel] = amp;
-    }   
+void ERUnpack::UnpackAmpTimeTACStation(SignalsAndChannelCount signals_from_amplitude_station,
+                                       SignalsAndChannelCount signals_from_time_station,
+                                       SignalsAndChannelCount signals_from_tac_station,
+                                       ChannelToAmpTimeTac& channel_to_signals,
+                                       bool skip_alone_channels/*= true*/) {
+  ChannelToSignal channels_to_time_signals, channels_to_amp_signals, channels_to_tac_signals;
+  Channels amp_channels, time_channels, tac_channels;
+  FillContainersWithSignals(signals_from_time_station.first, 
+                            signals_from_time_station.second,
+                            time_channels, channels_to_time_signals);
+  FillContainersWithSignals(signals_from_amplitude_station.first, 
+                            signals_from_amplitude_station.second,
+                            amp_channels, channels_to_amp_signals);
+  FillContainersWithSignals(signals_from_tac_station.first, 
+                            signals_from_tac_station.second,
+                            tac_channels, channels_to_tac_signals);
+  // sort for intersection and difference algorithm                                                     
+  std::sort(time_channels.begin(), time_channels.end());
+  std::sort(amp_channels.begin(), amp_channels.end());
+  std::sort(tac_channels.begin(), tac_channels.end());
+  // find intersection in amplitude and time channels
+  Channels amp_time_intersection_channels;
+  std::set_intersection(time_channels.begin(), time_channels.end(),
+                        amp_channels.begin(), amp_channels.end(),
+                        std::back_inserter(amp_time_intersection_channels));
+  // intersect with tac
+  Channels intersection_channels;
+  std::set_intersection(amp_time_intersection_channels.begin(), amp_time_intersection_channels.end(),
+                        tac_channels.begin(), tac_channels.end(),
+                        std::back_inserter(intersection_channels));
+  // find alone time and amplitude channels
+  Channels time_dif_channels;
+  Channels amp_dif_channels;
+  Channels tac_dif_channels;
+  std::set_difference(time_channels.begin(), time_channels.end(),
+                      intersection_channels.begin(), intersection_channels.end(), 
+                      std::inserter(time_dif_channels, time_dif_channels.begin()));
+  std::set_difference(amp_channels.begin(), amp_channels.end(),
+                      intersection_channels.begin(), intersection_channels.end(), 
+                      std::inserter(amp_dif_channels, amp_dif_channels.begin()));
+  std::set_difference(tac_channels.begin(), tac_channels.end(),
+                      intersection_channels.begin(), intersection_channels.end(), 
+                      std::inserter(tac_dif_channels, tac_dif_channels.begin()));
+  for (const auto channel : intersection_channels) {
+    channel_to_signals[channel] = std::make_tuple(channels_to_amp_signals[channel],
+                                                  channels_to_time_signals[channel],
+                                                  channels_to_tac_signals[channel]);
+  }
+  if (!skip_alone_channels){
+    for (const auto channel : time_dif_channels)
+      channel_to_signals[channel] = std::make_tuple(no_signal, channels_to_time_signals[channel], no_signal);
+    for (const auto channel : amp_dif_channels)
+      channel_to_signals[channel] = std::make_tuple(channels_to_amp_signals[channel], no_signal, no_signal);
+    for (const auto channel : tac_dif_channels)
+      channel_to_signals[channel] = std::make_tuple(no_signal, no_signal, channels_to_tac_signals[channel]);
+  }
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERUnpack)

@@ -17,164 +17,159 @@
 #include "DetEventCommon.h"
 #include "TGo4EventElement.h"
 
-
 #include "ERBeamTimeEventHeader.h"
 
-using namespace std;
-
-ERDigibuilder::ERDigibuilder():
-fCurFile(0),
-fOldEvents(0),
-fSetupFile(""),
-fReader(NULL),
-fSetupConfiguration(NULL),
-fUserCut(""),
-fFillSkippedEvents(kTRUE),
-fEventsForProcessing(NULL)
-{
+//--------------------------------------------------------------------------------------------------
+ERDigibuilder::ERDigibuilder()
+  : input_chain_of_events_("accdaq")
+{}
+//--------------------------------------------------------------------------------------------------
+ERDigibuilder::ERDigibuilder(const TString& tree_name)
+  : input_chain_of_events_(tree_name)
+{}
+//--------------------------------------------------------------------------------------------------
+void ERDigibuilder::AddFile(const TString& path) {
+  input_chain_of_events_.Add(path);
+  if (!setup_configuration_) {
+    TFile file(path);
+    std::cerr << setup_configuration_ << std::endl;
+    setup_configuration_ = dynamic_cast<SetupConfiguration*>(file.Get("SetupConfiguration"));
+    std::cerr << setup_configuration_ << std::endl;
+    if (!setup_configuration_)
+      LOG(FATAL) << "Cannot load setup configuration from file " << path << FairLogger::endl;
+  }
 }
 //--------------------------------------------------------------------------------------------------
-ERDigibuilder::ERDigibuilder(const ERDigibuilder& source){
-}
-//--------------------------------------------------------------------------------------------------
-ERDigibuilder::~ERDigibuilder(){
-
-}
-//--------------------------------------------------------------------------------------------------
-Bool_t ERDigibuilder::Init(){
-    //input files opening
-    if (fPath.size() == 0)
-        LOG(FATAL) << "No files for source ERDigibuilder" << FairLogger::endl;
-    if (fSetupFile == "")
-        LOG(FATAL) << "Setup file name is not defined" << FairLogger::endl;
-    FairRun* run = FairRun::Instance();
-    if (OpenNextFile() != 0)
-        return kFALSE;
-    fSetupConfiguration = new SetupConfiguration(fSetupFile);
-    InitUnpackers();
-    return kTRUE;
+Bool_t ERDigibuilder::Init() {
+  if (input_chain_of_events_.GetEntriesFast() == 0)
+    LOG(FATAL) << "No events for processing in source ERDigibuilder" << FairLogger::endl;
+  ApplyUserCut();
+  CheckEventHeader();
+  InitUnpackers();
+  ConnectEventCommon();
+  return kTRUE;
 }
 //--------------------------------------------------------------------------------------------------
 Bool_t ERDigibuilder::InitUnpackers(){
-    const std::map<TString, unsigned short> detList = fSetupConfiguration->GetDetectorList();
-    for (auto itDet : detList){
-        if (fUnpacks.find(itDet.first) != fUnpacks.end())
-            fUnpacks[itDet.first]->Init(fSetupConfiguration);
-        else
-            LOG(WARNING) << "[Digibuilder] " << itDet.first << " is defined in setup file, but unpacker is not added!" << FairLogger::endl;
+  const std::map<TString, unsigned short> detectors = setup_configuration_->GetDetectorList();
+  for (const auto& detector : detectors) {
+    const auto detector_name = detector.first;
+    if (unpacks_.find(detector_name) != unpacks_.end()) {
+      unpacks_[detector_name]->Init(setup_configuration_, input_chain_of_events_);
+    } else {
+      LOG(WARNING) << "[Digibuilder] " << detector_name << " is defined in setup "
+                    << "configuration, but unpacker is not added!" << FairLogger::endl;
     }
-
-    for (auto itUnpack : fUnpacks){
-        if (!itUnpack.second->IsInited())
-            LOG(WARNING) << "[Digibuilder] Detector " << itUnpack.first << " not found in setup file. Unpacker has not inited!" << FairLogger::endl;
+  }
+  for (const auto& detector_name_and_unpack : unpacks_) {
+    const auto& detector_name = detector_name_and_unpack.first;
+    const auto& unpack = detector_name_and_unpack.second;
+    if (!unpack->IsInited()) {
+      LOG(WARNING) << "[Digibuilder] Detector " << detector_name << " not found in setup file. "
+                   << "Unpacker has not inited!" << FairLogger::endl;
     }
-
-    return kTRUE;
+  }
+  return kTRUE;
 }
 //--------------------------------------------------------------------------------------------------
-Int_t ERDigibuilder::ReadEvent(UInt_t id){
-    Reset();
-    FairRootManager* ioman = FairRootManager::Instance();
-    if ( ! ioman ) Fatal("Init", "No FairRootManager");
-    if (ioman->GetEntryNr()%10000 == 0)
-        LOG(INFO) << "[Digibuilder] Event " << ioman->GetEntryNr() << FairLogger::endl;
-    Int_t curEventInCurFile = ioman->GetEntryNr()-fOldEvents;
-    //Проверяем есть ли еще события для обработки
-    if (fReader->GetNEventsTotal() == curEventInCurFile){
-        //файл закончился
-        fOldEvents += fReader->GetNEventsTotal();
-        curEventInCurFile = 0;
-        if (OpenNextFile())
-            return 1;
-    }
-    FairRun* run = FairRun::Instance();
-    ERBeamTimeEventHeader* header = (ERBeamTimeEventHeader*) run->GetEventHeader();
-    if (fUserCut != "") {
-        if (!fEventsForProcessing->GetBinContent(curEventInCurFile)){
-            LOG(DEBUG) << "[Digibuilder]  Skip event with user cut" << FairLogger::endl;
-            header->SetTrigger(-1);
-            if (!fFillSkippedEvents)
-                run->MarkFill(kFALSE);
-            return 0;
-        }
-    }
-    DetEventFull* event = fReader->ReadEvent(curEventInCurFile);
-    DetEventCommon* common  = (DetEventCommon*)event->GetChild("DetEventCommon");
-    if (!common){
-        LOG(FATAL) << "[Digibuilder] DetEventCommon event element not found!" << FairLogger::endl;
-        return 1;
-    }
-    header->SetTrigger(common->trigger);
-    for (auto itUnpack : fUnpacks){
-        if (itUnpack.second->IsInited()){
-            if (event->GetChild(itUnpack.first)){
-                DumpRawToScreen((DetEventDetector*)event->GetChild(itUnpack.first));
-                itUnpack.second->DoUnpack((Int_t*)event,0);
-            }
-            else
-                LOG(WARNING) << "Event element for detector " << itUnpack.first 
-                                    << " not found in event!" << FairLogger::endl;
-        }
-    }
+Int_t ERDigibuilder::ReadEvent(UInt_t) {
+  if (!common_part_of_event_)
+    LOG(FATAL) << "Object fot store common part of event was not inited" << FairLogger::endl;
+  Reset();
+  const auto event_number = EventNumber();
+  if (!LoadEvent(event_number))
+    return 1; // all events have been already processed
+  FairRun* run = FairRun::Instance();
+  auto* header = dynamic_cast<ERBeamTimeEventHeader*>(run->GetEventHeader());
+  if (!EventShouldBeProcessed(event_number, header))
     return 0;
+  header->SetTrigger(common_part_of_event_->trigger);
+  for (auto& detector_name_and_unpack : unpacks_) {
+    const auto& detector_name = detector_name_and_unpack.first;
+    auto& unpack = detector_name_and_unpack.second;
+    if (unpack->IsInited()) {
+      unpack->DoUnpack(nullptr, 0);
+    }
+  }
+  return 0;
 }
 //--------------------------------------------------------------------------------------------------
-void ERDigibuilder::Close(){
-    FairRootManager* ioman = FairRootManager::Instance();
-    LOG(INFO) << "[Digibuilder] " << ioman->GetEntryNr() << " events were processed" << FairLogger::endl;
+uint ERDigibuilder::EventNumber() {
+  FairRootManager* ioman = FairRootManager::Instance();
+  if (!ioman)
+    LOG(FATAL) << "No FairRootManager" << FairLogger::endl;
+  return static_cast<uint>(ioman->GetEntryNr());
+}
+//--------------------------------------------------------------------------------------------------
+bool ERDigibuilder::LoadEvent(const uint event_number) {
+  if (event_number % 10000 == 0)
+    LOG(INFO) << "[Digibuilder] Event " << event_number << FairLogger::endl;
+  return input_chain_of_events_.GetEntry(event_number);
+}
+//--------------------------------------------------------------------------------------------------
+void ERDigibuilder::Close() {
+  LOG(INFO) << "[Digibuilder] " << EventNumber() << " events were processed" << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
 void ERDigibuilder::Reset(){
-    for (auto itUnpack : fUnpacks)
-        itUnpack.second->Reset();
+  for (auto& detector_name_and_unpack : unpacks_) {
+    auto& unpack = detector_name_and_unpack.second;
+    unpack->Reset();
+  }
 }
 //--------------------------------------------------------------------------------------------------
-Int_t ERDigibuilder::OpenNextFile(){
-    if (fReader)
-        delete fReader;
-    if (fEventsForProcessing)
-        delete fEventsForProcessing;
-    if (fCurFile == fPath.size())
-        return 1;
-    fReader = new Reader(fPath[fCurFile++],fSetupFile);
-    
-    if (fUserCut != ""){
-        TTree* tr = fReader->GetInTree();
-        fEventsForProcessing =  new TH1I ("hist", "Events for processing", tr->GetEntries(), 1, tr->GetEntries());
-        Int_t res = 0;
-        res = tr->Draw("Entry$>>hist",fUserCut,"goff");
-        if (res == -1){
-            LOG(FATAL) << "[Digibuilder] Error in user cut expression" << endl;
-            return -1;
-        }
-        if (!fEventsForProcessing->GetEntries()) {
-          LOG(WARNING) << "[Digibuilder] No data for analysis with defined user cut: "
-                    << fUserCut << FairLogger::endl;
-          return OpenNextFile();
-        }
+void ERDigibuilder::ApplyUserCut(){
+  if (!UserCutIsDefined())
+    return;
+  events_for_processing_ = new TH1I("events_for_processing", "Events for processing",
+                                    input_chain_of_events_.GetEntries(), 1,
+                                    input_chain_of_events_.GetEntries());
+  if (input_chain_of_events_.Draw("Entry$>>events_for_processing", user_cut_, "goff") == -1)
+    LOG(FATAL) << "[Digibuilder] Error in user cut expression: " << user_cut_ << FairLogger::endl;
+}
+//--------------------------------------------------------------------------------------------------
+bool ERDigibuilder::UserCutIsDefined() const {
+  return user_cut_ != "";
+}
+//--------------------------------------------------------------------------------------------------
+bool ERDigibuilder::EventShouldBeProcessed(const uint event_number,
+                                           ERBeamTimeEventHeader* header) const {
+  if (!UserCutIsDefined())
+    return true;
+  if (!events_for_processing_->GetBinContent(event_number)) {
+    LOG(DEBUG) << "[Digibuilder] Event is skipped due user cut. " << FairLogger::endl;
+    if (header)
+      header->SetTrigger(-1);
+    if (!hold_events_count_) {
+      FairRun* run = FairRun::Instance();
+      run->MarkFill(kFALSE);
     }
-    
-    return 0;
+    return false;
+  }
+  return true;
 }
 //--------------------------------------------------------------------------------------------------
-void ERDigibuilder::DumpRawToScreen(DetEventDetector* det){
-    LOG(DEBUG) << "[Digibuilder] Dump raw of " << det->GetName() << FairLogger::endl;
-    for (Int_t iSt(0); iSt<det->getMaxIndex(); iSt++){
-        if (det->getEventElement(iSt)){
-            DetEventStation* st = (DetEventStation*)det->getEventElement(iSt);
-            LOG(DEBUG) << "\t" <<  st->GetName() << FairLogger::endl;
-            TClonesArray* timeMessages = st->GetDetMessages();
-            for (Int_t iTimeMessage(0); iTimeMessage < timeMessages->GetEntriesFast(); ++iTimeMessage){
-                DetMessage* curTimeMes = (DetMessage*)timeMessages->At(iTimeMessage);
-                LOG(DEBUG) << "\t\t" << curTimeMes->GetStChannel() << " " <<  curTimeMes->GetValue() << FairLogger::endl;
-            }
-        }
-    }
+void ERDigibuilder::CheckEventHeader() {
+  FairRun* run = FairRun::Instance();
+  if (!dynamic_cast<ERBeamTimeEventHeader*>(run->GetEventHeader())) {
+    LOG(WARNING) << "[Digibuilder] ERBeamTimeEventHeader is not used in digibuilding. "
+                 << "Trigger and another common information will not be written to output file."
+                 << FairLogger::endl;
+  }
 }
 //--------------------------------------------------------------------------------------------------
-void ERDigibuilder::SetUserCut(TCut cut,Bool_t fillSkippedEvents/*=kTRUE*/){
-    fUserCut = cut;
-    fFillSkippedEvents=fillSkippedEvents;
+void ERDigibuilder::ConnectEventCommon() {
+  if (!input_chain_of_events_.FindBranch("common")) {
+    LOG(FATAL) << "Input file does not contain branch common with trigger"
+               << " and another common information" << FairLogger::endl;
+  }
+  common_part_of_event_ = new EventCommon();
+  input_chain_of_events_.SetBranchAddress("common", &common_part_of_event_);
+}
+//--------------------------------------------------------------------------------------------------
+void ERDigibuilder::SetUserCut(const TCut& cut, const bool hold_events_count/*= true*/){
+    user_cut_ = cut;
+    hold_events_count_ = hold_events_count;
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERDigibuilder)
