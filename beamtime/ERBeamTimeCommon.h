@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <tuple>
 
 #include "ERSupport.h"
 
@@ -11,7 +12,8 @@ using AmplitudeAndTime = std::pair<Signal, Signal>;
 using SignalsAndChannelCount = std::pair<Signal*, ERChannel>;
 using Channels = std::vector<ERChannel>;
 using ChannelToSignal = std::map<ERChannel, Signal>;
-using ChannelToAmplitudeAndTimeSignals = std::map<ERChannel, AmplitudeAndTime>;
+using ChannelToAmpTime = std::map<ERChannel, AmplitudeAndTime>;
+using ChannelToAmpTimeTac = std::map<ERChannel, std::tuple<Signal, Signal, Signal>>;
 using ChannelMapping = std::map<ERChannel, ERChannel>;
 const Signal no_signal = 0;
 

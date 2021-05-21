@@ -54,25 +54,10 @@ void ERBeamDetUnpack::Register() {
 	}
 }
 //--------------------------------------------------------------------------------------------------
-void ERBeamDetUnpack::ConnectToInputBranches(TChain& input_chain_of_events) {
-  if (!setup_configuration_)
-    LOG(FATAL) << "[ERBeamDetUnpack] Setup configuration was not inited." << FairLogger::endl;
-  for (const auto& station_name : {TString("F3"), TString("tF3"), TString("F5"), TString("tF5"),
-                                   TString("tMWPC"), TString("MWPC1"), TString("MWPC2"),
-                                   TString("MWPC3"), TString("MWPC4")}) {
-    const auto channel_count = setup_configuration_->GetChannelCount(detector_name_, station_name);
-    if (channel_count == -1) {
-      LOG(FATAL) << "[ERBeamDetUnpack] Setup does not contain station " << station_name 
-                 << FairLogger::endl;
-    }
-    if (!input_chain_of_events.FindBranch(station_name)) {
-      LOG(FATAL) << "[ERBeamDetUnpack] Input file does not contain branch for station " 
-                 << station_name << FairLogger::endl;
-    }
-    auto* signals = new short[channel_count];
-    input_chain_of_events.SetBranchAddress(station_name, signals);
-    signals_from_stations_[station_name] = std::make_pair(signals, channel_count);
-  }
+std::vector<TString> ERBeamDetUnpack::InputBranchNames() const {
+  return {TString("F3"), TString("tF3"), TString("F5"), TString("tF5"),
+          TString("tMWPC"), TString("MWPC1"), TString("MWPC2"),
+          TString("MWPC3"), TString("MWPC4")};
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetUnpack::UnpackSignalFromStations() {
@@ -83,7 +68,7 @@ void ERBeamDetUnpack::UnpackSignalFromStations() {
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetUnpack::UnpackToFStation(const TString& amplitude_station, 
                                        const TString& time_station, const ushort tof_number) {
-  ChannelToAmplitudeAndTimeSignals channel_to_signals;
+  ChannelToAmpTime channel_to_signals;
   UnpackAmpTimeStation(signals_from_stations_[amplitude_station], 
                        signals_from_stations_[time_station], 
                        channel_to_signals);

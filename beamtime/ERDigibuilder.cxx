@@ -32,7 +32,9 @@ void ERDigibuilder::AddFile(const TString& path) {
   input_chain_of_events_.Add(path);
   if (!setup_configuration_) {
     TFile file(path);
-    setup_configuration_.reset(dynamic_cast<SetupConfiguration*>(file.Get("SetupConfiguration")));
+    std::cerr << setup_configuration_ << std::endl;
+    setup_configuration_ = dynamic_cast<SetupConfiguration*>(file.Get("SetupConfiguration"));
+    std::cerr << setup_configuration_ << std::endl;
     if (!setup_configuration_)
       LOG(FATAL) << "Cannot load setup configuration from file " << path << FairLogger::endl;
   }
@@ -119,9 +121,9 @@ void ERDigibuilder::Reset(){
 void ERDigibuilder::ApplyUserCut(){
   if (!UserCutIsDefined())
     return;
-  events_for_processing_ = std::move(TH1I("events_for_processing", "Events for processing",
-                                          input_chain_of_events_.GetEntries(), 1,
-                                          input_chain_of_events_.GetEntries()));
+  events_for_processing_ = new TH1I("events_for_processing", "Events for processing",
+                                    input_chain_of_events_.GetEntries(), 1,
+                                    input_chain_of_events_.GetEntries());
   if (input_chain_of_events_.Draw("Entry$>>events_for_processing", user_cut_, "goff") == -1)
     LOG(FATAL) << "[Digibuilder] Error in user cut expression: " << user_cut_ << FairLogger::endl;
 }
@@ -134,16 +136,17 @@ bool ERDigibuilder::EventShouldBeProcessed(const uint event_number,
                                            ERBeamTimeEventHeader* header) const {
   if (!UserCutIsDefined())
     return true;
-  if (events_for_processing_.GetBinContent(event_number))
-    return true;
-  LOG(DEBUG) << "[Digibuilder] Event is skipped due user cut. " << FairLogger::endl;
-  if (header)
-    header->SetTrigger(-1);
-  if (!hold_events_count_) {
-    FairRun* run = FairRun::Instance();
-    run->MarkFill(kFALSE);
+  if (!events_for_processing_->GetBinContent(event_number)) {
+    LOG(DEBUG) << "[Digibuilder] Event is skipped due user cut. " << FairLogger::endl;
+    if (header)
+      header->SetTrigger(-1);
+    if (!hold_events_count_) {
+      FairRun* run = FairRun::Instance();
+      run->MarkFill(kFALSE);
+    }
+    return false;
   }
-  return false;
+  return true;
 }
 //--------------------------------------------------------------------------------------------------
 void ERDigibuilder::CheckEventHeader() {
@@ -163,22 +166,6 @@ void ERDigibuilder::ConnectEventCommon() {
   common_part_of_event_ = new EventCommon();
   input_chain_of_events_.SetBranchAddress("common", &common_part_of_event_);
 }
-//--------------------------------------------------------------------------------------------------
-/*
-void ERDigibuilder::DumpRawToScreen(DetEventDetector* det){
-    LOG(DEBUG) << "[Digibuilder] Dump raw of " << det->GetName() << FairLogger::endl;
-    for (Int_t iSt(0); iSt<det->getMaxIndex(); iSt++){
-        if (det->getEventElement(iSt)){
-            DetEventStation* st = (DetEventStation*)det->getEventElement(iSt);
-            LOG(DEBUG) << "\t" <<  st->GetName() << FairLogger::endl;
-            TClonesArray* timeMessages = st->GetDetMessages();
-            for (Int_t iTimeMessage(0); iTimeMessage < timeMessages->GetEntriesFast(); ++iTimeMessage){
-                DetMessage* curTimeMes = (DetMessage*)timeMessages->At(iTimeMessage);
-                LOG(DEBUG) << "\t\t" << curTimeMes->GetStChannel() << " " <<  curTimeMes->GetValue() << FairLogger::endl;
-            }
-        }
-    }
-}*/
 //--------------------------------------------------------------------------------------------------
 void ERDigibuilder::SetUserCut(const TCut& cut, const bool hold_events_count/*= true*/){
     user_cut_ = cut;

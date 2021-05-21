@@ -20,30 +20,28 @@ class ERUnpack : public FairUnpack {
   ERUnpack(const TString& detector_name);
   virtual ~ERUnpack() = default;
   virtual Bool_t Init(){return kTRUE;}
-  virtual Bool_t Init(std::shared_ptr<const SetupConfiguration>, TChain& input_chain_of_events);
+  virtual Bool_t Init(const SetupConfiguration*, TChain& input_chain_of_events);
   virtual Bool_t DoUnpack(Int_t* data, Int_t size);
   virtual void  Reset();
   TString DetectorName() { return detector_name_; }
   Bool_t IsInited() { return inited_; }
  protected:
-  virtual void ConnectToInputBranches(TChain& input_chain_of_events) = 0;
+  virtual void ConnectToInputBranches(TChain& input_chain_of_events, 
+                                      const std::vector<TString>& branch_names);
   virtual void UnpackSignalFromStations() = 0;
-  /*
-  void UnpackAmpTimeStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,
-                            std::map<Int_t, std::pair<Double_t, Double_t> >& valueMap,
-                            Bool_t skipAloneChannels = kTRUE);*/
+  virtual std::vector<TString> InputBranchNames() const = 0;
+  void UnpackStation(SignalsAndChannelCount signals_from_station, 
+                     ChannelToSignal& channel_to_signal);
   void UnpackAmpTimeStation(SignalsAndChannelCount signals_from_amplitude_station,
                             SignalsAndChannelCount signals_from_time_station,
-                            ChannelToAmplitudeAndTimeSignals& channel_to_signals,
+                            ChannelToAmpTime& channel_to_signals,
                             bool skip_alone_channels = true);
-  void UnpackStation(SignalsAndChannelCount signals_from_station, ChannelToSignal& channel_to_signal);
-  /*
-  void UnpackAmpTimeTACStation(DetEventDetector* detEvent, TString ampStation, TString timeStation,
-                               TString tacStation,
-                               std::map<Int_t, std::tuple<Double_t, Double_t, Double_t> >& valueMap,
-                               Bool_t skipAloneChannels = kTRUE);
-  void UnpackStation(DetEventDetector* detEvent, TString station, std::map<Int_t,Double_t>& valueMap);*/
-  std::shared_ptr<const SetupConfiguration> setup_configuration_;
+  void UnpackAmpTimeTACStation(SignalsAndChannelCount signals_from_amplitude_station,
+                               SignalsAndChannelCount signals_from_time_station,
+                               SignalsAndChannelCount signals_from_tac_station,
+                               ChannelToAmpTimeTac& channel_to_signals,
+                               bool skip_alone_channels = true);
+  const SetupConfiguration* setup_configuration_;
   bool inited_ = false;
   TString detector_name_;
   std::map<TString, SignalsAndChannelCount> signals_from_stations_;

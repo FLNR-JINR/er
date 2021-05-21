@@ -47,12 +47,11 @@ class ERDigibuilder : public FairSource {
   std::map<TString, std::unique_ptr<ERUnpack>> unpacks_;
   /** Configuration of setup: detector named, station names, channel numbers.
     * Loaded from first file added with AddFile. **/ 
-  std::shared_ptr<const SetupConfiguration> setup_configuration_;
+  SetupConfiguration* setup_configuration_ = nullptr;
   EventCommon* common_part_of_event_ = nullptr;
   TCut user_cut_;
   bool hold_events_count_ = true;
-  TH1I events_for_processing_;
-  //void DumpRawToScreen(DetEventDetector* det);
+  TH1I* events_for_processing_ = nullptr;
   ClassDef(ERDigibuilder, 1)
 };
 

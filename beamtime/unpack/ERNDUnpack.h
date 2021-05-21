@@ -11,12 +11,13 @@ class ERNDUnpack : public ERUnpack {
  public:
   ERNDUnpack(TString detName, TString ampStation, TString timeStation, TString tacStation,
               TString ampCalFile, TString timeCalFile, TString tacCalFile,
-              ChannelsMapping* channelsMapping = nullptr,
+              ChannelMapping* channelsMapping = nullptr,
               Bool_t skipAloneChannels = kTRUE);
-  virtual ~ERNDUnpack();
-  virtual Bool_t Init(SetupConfiguration* setupConf);
-  virtual Bool_t DoUnpack(Int_t* data, Int_t size);
+  virtual ~ERNDUnpack() = default;
  protected:
+  virtual void Register();
+  virtual std::vector<TString> InputBranchNames() const;
+  virtual void UnpackSignalFromStations();
   void AddNDDigi(float edep, float time, float tac, ERChannel channelNb);
   void ApplyCalibrations(const ERChannel channel, float& amp, float& time, float& tac);
   Bool_t CheckSetup();
@@ -27,7 +28,7 @@ class ERNDUnpack : public ERUnpack {
   TMatrixD* fAmpCalTable = nullptr;
   TMatrixD* fTimeCalTable = nullptr;
   TMatrixD* fTACCalTable = nullptr;
-  ChannelsMapping* fChannelsMapping = nullptr;
+  ChannelMapping* fChannelMapping = nullptr;
   Bool_t fSkipAloneChannels = false;
  public:
   ClassDef(ERNDUnpack, 0)

@@ -14,8 +14,8 @@ class ERBeamDetUnpack : public ERUnpack {
   void SetMWPCMapping(const ChannelMapping& mapping) { mwpc_channels_mapping_ = mapping;}
  protected:
   virtual void Register();
-  virtual void ConnectToInputBranches(TChain& input_chain_of_events);
   virtual void UnpackSignalFromStations();
+  virtual std::vector<TString> InputBranchNames() const;
   void UnpackToFStation(const TString& amplitude_station, const TString& time_station,
                         ushort tof_number);
   void UnpackMWPCStations();
