@@ -36,30 +36,17 @@
 ERTelescopeSetup* ERTelescopeSetup::fInstance = nullptr;  
 //--------------------------------------------------------------------------------------------------
 ERTelescopeStrip::ERTelescopeStrip(Double_t globalX, Double_t globalY, Double_t globalZ,
-                                     Double_t  localX, Double_t  localY, Double_t localZ) 
+                                   Double_t  localX, Double_t  localY, Double_t localZ,
+                                   Double_t width)
+    : fGlobalX(globalX), fGlobalY(globalY), fGlobalZ(globalZ),
+      fLocalX(localX), fLocalY(localY), fLocalZ(localZ), fWidth(width)
 {
-  fGlobalX = globalX;
-  fGlobalY = globalY; 
-  fGlobalZ = globalZ;
-  fLocalX = localX; 
-  fLocalY = localY; 
-  fLocalZ = localZ;
 }
 //--------------------------------------------------------------------------------------------------
-ERTelescopeStrip::ERTelescopeStrip(Double_t* globTrans, Double_t* localTrans) {
-  fGlobalX = globTrans[0]; 
-  fGlobalY = globTrans[1]; 
-  fGlobalZ = globTrans[2];
-  fLocalX = localTrans[0]; 
-  fLocalY = localTrans[1]; 
-  fLocalZ = localTrans[2];
-}
-//--------------------------------------------------------------------------------------------------
-ERTelescopeSetup::ERTelescopeSetup(): ERSetup() {
-  LOG(DEBUG) << "ERTelescopeSetup initialized! "<< FairLogger::endl;
-}
-//--------------------------------------------------------------------------------------------------
-ERTelescopeSetup::~ERTelescopeSetup() {
+ERTelescopeStrip::ERTelescopeStrip(Double_t* globTrans, Double_t* localTrans, Double_t width)
+    : fGlobalX(globTrans[0]), fGlobalY(globTrans[1]), fGlobalZ(globTrans[2]),
+      fLocalX(localTrans[0]), fLocalY(localTrans[1]), fLocalZ(localTrans[2]), fWidth(width)
+{
 }
 //--------------------------------------------------------------------------------------------------
 ERTelescopeSetup* ERTelescopeSetup::Instance(){
@@ -70,7 +57,6 @@ ERTelescopeSetup* ERTelescopeSetup::Instance(){
   else
     return fInstance;
 }
-
 //--------------------------------------------------------------------------------------------------
 Double_t ERTelescopeSetup::GetStripGlobalX(const TString& componentBranchName, Int_t stripNb) const {
   return fStrips.at(componentBranchName).at(stripNb).fGlobalX;
@@ -94,6 +80,10 @@ Double_t ERTelescopeSetup::GetStripLocalY(const TString& componentBranchName, In
 //--------------------------------------------------------------------------------------------------
 Double_t ERTelescopeSetup::GetStripLocalZ(const TString& componentBranchName, Int_t stripNb) const {
   return fStrips.at(componentBranchName).at(stripNb).fLocalZ;
+}
+//--------------------------------------------------------------------------------------------------
+Double_t ERTelescopeSetup::GetStripWidth(TString componentBranchName, Int_t stripNb) const {
+  return fStrips.at(componentBranchName).at(stripNb).fWidth;
 }
 //--------------------------------------------------------------------------------------------------
 Double_t ERTelescopeSetup::GetStripPhi(const TString& componentBranchName, const Int_t stripNb) const {
@@ -122,6 +112,13 @@ Double_t ERTelescopeSetup::GetStripR(const TString& componentBranchName, const I
   return fRStrips.at(componentBranchName).at(stripNb).fR;
 }
 //--------------------------------------------------------------------------------------------------
+TVector3 ERTelescopeSetup::
+GetStripLocalPosition(const TString& componentBranchName, const unsigned int stripNb) const {
+  return TVector3(fStrips.at(componentBranchName).at(stripNb).fLocalX,
+                  fStrips.at(componentBranchName).at(stripNb).fLocalY,
+                  fStrips.at(componentBranchName).at(stripNb).fLocalZ);
+}
+//--------------------------------------------------------------------------------------------------
 TVector3 ERTelescopeSetup::GetStationTranslation(const TString& componentBranchName) const {
   return fStationGlobalToLocalMatrixies.at(componentBranchName).GetTranslation();
 }
@@ -135,11 +132,19 @@ ERTelescopeSetup::StationType ERTelescopeSetup::GetStationType(const TString& co
 TVector3 ERTelescopeSetup::ToStationCoordinateSystem (const TString& componentBranchName, 
                                                        const TVector3& vectorInGlobalCS) const {
   Double_t global[3], local[3];
-  
   for (int i(0); i < 3; i++)
     global[i] = vectorInGlobalCS[i];
   fStationGlobalToLocalMatrixies.at(componentBranchName).MasterToLocal(global, local);
   return TVector3(local);
+}
+//--------------------------------------------------------------------------------------------------
+TVector3 ERTelescopeSetup::ToGlobalCoordinateSystem(const TString& componentBranchName, 
+                                                      const TVector3& vectorInStationCS) const {
+  Double_t global[3], local[3];
+  for (int i(0); i < 3; i++)
+    local[i] = vectorInStationCS[i];
+  fStationGlobalToLocalMatrixies.at(componentBranchName).LocalToMaster(local, global);
+  return TVector3(global);
 }
 //--------------------------------------------------------------------------------------------------
 TGeoHMatrix GetGlobalToLocalMatrix(const TString& path) {
@@ -161,7 +166,7 @@ void ERTelescopeSetup::GetTransInMotherNode (TGeoNode const* node, Double_t b[3]
 // Написать несколько методов для работы с объемами:
 // 1) Функция получения координаты в глобальной СК. (скорее всего функция в п.1) 
 //    Проход от самого низкого дочернего объема до родительского внтри одной функции
-// ------------------------------- -------------------------------------------------------------------
+// ------------------------------- -----------------------------------------------------------------
 void ERTelescopeSetup::ReadGeoParamsFromParContainer() {
   if (fGeometryInited)
     return;
@@ -175,6 +180,12 @@ void ERTelescopeSetup::ReadGeoParamsFromParContainer() {
   TGeoNode* qtelescope  = NULL;
   TGeoNode* qtelescopeDetector = NULL;
   TGeoNode* qtelescopeStation = NULL;
+  const auto strip_width = [](TGeoNode* strip_node) {
+    const auto strip_shape = strip_node->GetVolume()->GetShape();
+    double low, high;
+    return TMath::Min(strip_shape->GetAxisRange(1, low, high),
+                      strip_shape->GetAxisRange(2, low, high));
+  };
   for (Int_t iNode = 0; iNode < cave->GetNdaughters(); iNode++) { // cycle by volumes in TOP
     TString detectorName = cave->GetDaughter(iNode)->GetName();
     if ( detectorName.Contains("Telescope", TString::kIgnoreCase) ) {
@@ -222,7 +233,8 @@ void ERTelescopeSetup::ReadGeoParamsFromParContainer() {
                 // by all forefathers nodes if possible. Maybe with some FairRoot methods
                 qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
                 qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
-                fStrips[firstStripArrayName].emplace_back(stripGlobTrans, stripInStationTrans);
+                fStrips[firstStripArrayName].emplace_back(stripGlobTrans, stripInStationTrans,
+                                                          strip_width(doubleSiStrip));
                 LOG(DEBUG) << firstStripArrayName << " strip " 
                                 << fStrips[firstStripArrayName].size()-1 << " global coordinates: "
                                 << stripGlobTrans[0] << ", " 
@@ -245,7 +257,8 @@ void ERTelescopeSetup::ReadGeoParamsFromParContainer() {
                     doubleSiStrip->LocalToMaster(boxInStripTrans, stripInStationTrans);
                     qtelescopeStation->LocalToMaster(stripInStationTrans, stripInDetectorTrans);
                     qtelescopeDetector->LocalToMaster(stripInDetectorTrans, stripGlobTrans);
-                    fStrips[secondStripArrayName].emplace_back(stripGlobTrans, boxInStripTrans);
+                    fStrips[secondStripArrayName].emplace_back(stripGlobTrans, boxInStripTrans,
+                                                               strip_width(doubleSiBox));
                     LOG(DEBUG) << secondStripArrayName << " strip " 
                                 << fStrips[secondStripArrayName].size()-1 << " global coordinates: "
                                 << stripGlobTrans[0] << ", " 
@@ -293,7 +306,8 @@ void ERTelescopeSetup::ReadGeoParamsFromParContainer() {
                     << stripInStationTrans[0] << ", " 
                     << stripInStationTrans[1] << ", " 
                     << stripInStationTrans[2] << FairLogger::endl; 
-                fStrips[digiBranchName].emplace_back(stripGlobTrans, stripInStationTrans); 
+                fStrips[digiBranchName].emplace_back(stripGlobTrans, stripInStationTrans,
+                                                     strip_width(singleSiStrip)); 
               }
               fStationTypes[digiBranchName] = StationType::QStation;
             }

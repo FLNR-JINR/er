@@ -24,10 +24,12 @@ struct ERTelescopeStrip{
   Double_t fLocalX = -1.;
   Double_t fLocalY = -1.;
   Double_t fLocalZ = -1.;
+  Double_t fWidth = -1.;
   ERTelescopeStrip() = default;
   ERTelescopeStrip(Double_t globalX, Double_t globalY, Double_t globalZ,
-                    Double_t  localX, Double_t  localY, Double_t localZ);
-  ERTelescopeStrip(Double_t* globTrans, Double_t* localTrans);
+                   Double_t  localX, Double_t  localY, Double_t localZ,
+                   Double_t width);
+  ERTelescopeStrip(Double_t* globTrans, Double_t* localTrans, Double_t width);
 };
 
 struct ERRTelescopeStrip {
@@ -40,10 +42,8 @@ struct ERRTelescopeStrip {
 class ERTelescopeSetup : public ERSetup {
 public:
   enum StationType {QStation, RStation};
-  ~ERTelescopeSetup();
-
+  virtual ~ERTelescopeSetup() = default;
   static ERTelescopeSetup* Instance();
-
   /* Modifiers */
   /* Accessors */
   Double_t GetStripGlobalX(const TString& componentBranchName, Int_t stripNb) const;
@@ -55,17 +55,21 @@ public:
   Double_t GetStripPhi(const TString& componentBranchName, Int_t stripNb) const;
   Double_t GetStripR(const TString& componentBranchName, Int_t stripNb) const;
   TVector3 GetStationTranslation(const TString& componentBranchName) const;
-  TVector3 ToStationCoordinateSystem (const TString& componentBranchName, 
-                                      const TVector3& vectorInGlobalCS) const;
+  Double_t GetStripWidth(TString componentBranchName, Int_t stripNb) const;
+  TVector3 GetStripLocalPosition(const TString& componentBranchName,
+                                unsigned int stripNb) const;
+  TVector3 ToStationCoordinateSystem(const TString& componentBranchName, 
+                                    const TVector3& vectorInGlobalCS) const;
+  TVector3 ToGlobalCoordinateSystem(const TString& componentBranchName,
+                                    const TVector3& vectorInStationCS) const;
   StationType GetStationType(const TString& componentBranchName) const; 
 
 public:
   virtual void ReadGeoParamsFromParContainer();
   // static void PrintDetectorParameters(void);
   // static void PrintDetectorParametersToFile(TString fileName);
-
 private:
-  ERTelescopeSetup();
+  ERTelescopeSetup() = default;
   void GetTransInMotherNode (TGeoNode const* node, Double_t b[3]);
   void FillRStrips(TGeoNode* r_station, const TString& branch_name);
   std::map<TString, std::vector<ERTelescopeStrip>> fStrips;
@@ -74,7 +78,6 @@ private:
   std::map<TString, StationType> fStationTypes;
   static ERTelescopeSetup* fInstance;
   bool fGeometryInited = false;
-
   ClassDef(ERTelescopeSetup,1)
 };
 #endif

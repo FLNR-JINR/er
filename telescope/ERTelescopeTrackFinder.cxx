@@ -50,7 +50,17 @@ void ERTelescopeTrackFinder::SetHitStation(TString subassemblyName, TString comp
 {
   fSiHitStationsPair[subassemblyName].emplace(
       std::make_pair(componentIdX + componentIdY, std::pair<TString, TString>(componentIdX, componentIdY)));
-}//--------------------------------------------------------------------------------------------------
+}
+//--------------------------------------------------------------------------------------------------
+void ERTelescopeTrackFinder::
+SetTrackPositionCorrection(const TString& station_name, ERChannel channel, float strip_fraction) {
+  if (strip_fraction < -0.5 || strip_fraction > 0.5) {
+    LOG(FATAL) << "Correction of track position in strip should be in range [-0.5, 0.5]"
+              << FairLogger::endl;
+  }
+  track_position_corrections_[station_name][channel] = strip_fraction;
+}
+//--------------------------------------------------------------------------------------------------
 void ERTelescopeTrackFinder::SetStripEdepRange(Double_t edepMin, Double_t edepMax) {
   fSiDigiEdepMin = edepMin; 
   fSiDigiEdepMax = edepMax;
@@ -61,6 +71,30 @@ void ERTelescopeTrackFinder::SetInteractionPosition(double x, double y, double z
   interaction_x_ = x;
   interaction_y_ = y;
   interaction_z_ = z;
+}
+//--------------------------------------------------------------------------------------------------
+TVector3 ERTelescopeTrackFinder::
+GetGlobalTrackPositionByStrip(const TString& branch_name, const ERChannel channel) const {
+  // Local position of strip center
+  auto local_position = fQTelescopeSetup->GetStripLocalPosition(branch_name, channel);
+  const auto strip_width = fQTelescopeSetup->GetStripWidth(branch_name, channel);
+  // Apply user coorections                                                     
+  for (const auto& station_to_channels : track_position_corrections_) {
+    const auto station_name = station_to_channels.first;
+    if (!branch_name.Contains(station_name))
+      continue;
+    const auto channel_to_position_correction = station_to_channels.second;
+    const auto channel_and_correction = channel_to_position_correction.find(channel);
+    if (channel_and_correction == channel_to_position_correction.end())
+      continue;
+    const auto correction = channel_and_correction->second;
+    const auto current_position = local_position[0];
+    local_position[0] = current_position + strip_width * correction;
+    LOG(DEBUG) << "[ERQTelescopeTrackFinder] Local position of strip " << channel << " of " 
+              << station_name << " corrected from " << current_position << " to " 
+              << local_position[0] << FairLogger::endl;
+  }
+  return fQTelescopeSetup->ToGlobalCoordinateSystem(branch_name, local_position);                                              
 }
 //--------------------------------------------------------------------------------------------------
 InitStatus ERTelescopeTrackFinder::Init() {
@@ -216,15 +250,15 @@ void ERTelescopeTrackFinder::CreateTrackInQTelescope(
   const double k = (z2 - interaction_z_) / (z1 - interaction_z_);
   double x1 = 0., x2 = 0., y1 = 0., y2 = 0.;
   if (xStationIsClosest) { // find y1, x2 from equation
-    x1 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xChannel);
-    y2 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yChannel);
+    x1 = GetGlobalTrackPositionByStrip(xDigiBranchName, xChannel)[0];
+    y2 = GetGlobalTrackPositionByStrip(yDigiBranchName, yChannel)[1];
     LOG(DEBUG) << "[ERTelescopeTrackFinder] Coordinates from strips. x1 = " << x1 
                 << " y2 = " << y2 << " z1 = " << z1 << " z2 = " << z2 << FairLogger::endl;
     y1 = (-1./k)*((1. - k)*interaction_y_ - y2);
     x2 = (1. - k)*interaction_x_ + k*x1;
   } else { // find x1, y2 from equation
-    x2 = fQTelescopeSetup->GetStripGlobalX(xDigiBranchName, xChannel);
-    y1 = fQTelescopeSetup->GetStripGlobalY(yDigiBranchName, yChannel);
+    x2 = GetGlobalTrackPositionByStrip(xDigiBranchName, xChannel)[0];
+    y1 = GetGlobalTrackPositionByStrip(yDigiBranchName, yChannel)[1];
     LOG(DEBUG) << "[ERTelescopeTrackFinder] Coordinates from strips. x2 = " << x2 
                 << " y1 = " << y1 << " z1 = " << z1 << " z2 = " << z2 << FairLogger::endl;
     x1 = (-1./k)*((1. - k)*interaction_x_ - x2);

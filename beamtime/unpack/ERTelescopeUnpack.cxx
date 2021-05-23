@@ -99,10 +99,10 @@ TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString
         branch_name.Form("TelescopeDigi_%s_%s",detector_name_.Data(),stName.Data());
     } else {
         if (sideCount == 1) {
-            branch_name.Form("TelescopeDigi_%s_%s_%s",detector_name_.Data(),stName.Data(),
+            branch_name.Form("TelescopeDigi_%s_SingleSi_%s_%s",detector_name_.Data(),stName.Data(),
                                                       XYside.Data());
         } else {
-            branch_name.Form("TelescopeDigi_%s_%s_%s_%s",detector_name_.Data(), stName.Data(),
+            branch_name.Form("TelescopeDigi_%s_DoubleSi_%s_%s_%s",detector_name_.Data(), stName.Data(),
                                                          XY.Data(), XYside.Data());
         }
     }

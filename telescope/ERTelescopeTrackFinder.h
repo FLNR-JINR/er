@@ -35,6 +35,8 @@ public:
   /* Modifiers */
   void SetHitStation(TString subassemblyName, TString componentIdX, TString componentIdY); 
   void SetHitStation(TString subassemblyName, TString componentId);
+  void SetTrackPositionCorrection(const TString& station_name, ERChannel channel,
+                                  float strip_fraction);
   void SetStripEdepRange(Double_t edepMin, Double_t edepMax);
   void SetEdepMaxDiffXY(Double_t edepDiff) {fEdepDiffXY = edepDiff;}
   void SetInteractionPosition(double x, double y, double z);
@@ -56,7 +58,8 @@ protected:
   //Output arrays
   std::map<TString, TClonesArray*> fQTelescopeTrack;
   //// map<subassembly,map<component, pair<xBranch, yBranch>>> 
-  std::map<TString, std::map<TString, std::pair<TString, TString>>> fSiHitStationsPair; 
+  std::map<TString, std::map<TString, std::pair<TString, TString>>> fSiHitStationsPair;
+  std::map<TString, std::map<ERChannel, float>> track_position_corrections_; 
   Double_t fSiDigiEdepMin = std::numeric_limits<double>::min();
   Double_t fSiDigiEdepMax = std::numeric_limits<double>::max();
   Double_t fEdepDiffXY = std::numeric_limits<double>::max();
@@ -74,6 +77,7 @@ private:
                                const TString& xBranchName, const TString& yBranchName, const TString& trackBranchName);
   void CreateTrackInRTelescope(Int_t xChannelIndex, Int_t yChannelIndex, Int_t phiChannel, Int_t RChannel, Double_t phiEdep, Double_t rEdep,
                                const TString& phiBranchName, const TString& rBranchName, const TString& trackBranchName);
+  TVector3 GetGlobalTrackPositionByStrip(const TString& branch_name, ERChannel channel) const;
   ClassDef(ERTelescopeTrackFinder, 1)
 };
 #endif
