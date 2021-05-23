@@ -23,7 +23,7 @@
 #include "ERBeamTimeCommon.h"
 
 class ERDigiCleaner : public ERTask {
-  using MultiplicityRange = std::pair<Int_t, Int_t>;
+  using MultiplicityRange = std::pair<ushort, ushort>;
 
   public:
 
@@ -48,18 +48,18 @@ class ERDigiCleaner : public ERTask {
     struct StationCuts {
         TString fDetectorName;
         TString fStationName;
-        std::map<Int_t, TCutG*> fChannelGCuts;
-        std::map<Int_t, Double_t> fChannelMinAmp;
-        std::map<Int_t, Double_t> fChannelMaxAmp;
-        std::map<Int_t, Double_t> fChannelMinTime;
-        std::map<Int_t, Double_t> fChannelMaxTime;
+        std::map<ERChannel, TCutG*> fChannelGCuts;
+        std::map<ERChannel, Double_t> fChannelMinAmp;
+        std::map<ERChannel, Double_t> fChannelMaxAmp;
+        std::map<ERChannel, Double_t> fChannelMinTime;
+        std::map<ERChannel, Double_t> fChannelMaxTime;
         ChannelMapping* fSim2RawChannelMapping = nullptr;
         StationCuts(const TString& detectorName, const TString& stationName,
-                    const std::map<Int_t, TCutG*>& channelGCuts,
-                    const std::map<Int_t, Double_t>& channelMinAmp,
-                    const std::map<Int_t, Double_t>& channelMaxAmp,
-                    const std::map<Int_t, Double_t>& channelMinTime,
-                    const std::map<Int_t, Double_t>& channelMaxTime,
+                    const std::map<ERChannel, TCutG*>& channelGCuts,
+                    const std::map<ERChannel, Double_t>& channelMinAmp,
+                    const std::map<ERChannel, Double_t>& channelMaxAmp,
+                    const std::map<ERChannel, Double_t>& channelMinTime,
+                    const std::map<ERChannel, Double_t>& channelMaxTime,
                     const ChannelMapping* raw2SimChannelMapping = nullptr);
         StationCuts() = default;
     };
@@ -89,15 +89,16 @@ class ERDigiCleaner : public ERTask {
                           const TString& previousTACCalFile, const TString& TACCalFile,
                           ChannelMapping* raw2SimChannelMapping = nullptr);
   void SetLonelyMWPCClusterCondition() { fLonelyMWPCClusterCondition = true; }
-  void SetStationMultiplicity(const TString& detectorName, const TString& stationName, Int_t minMultiplicity, Int_t maxMultiplicity) { 
+  void SetStationMultiplicity(const TString& detectorName, const TString& stationName,
+                              ushort minMultiplicity, ushort maxMultiplicity) { 
     fStationsMultiplicities[std::make_pair(detectorName, stationName)] = std::make_pair(minMultiplicity, maxMultiplicity);
   }
   void SetChannelCuts(const TString& detectorName, const TString& stationName,
-                      const std::map<Int_t, TCutG*>& GCuts, 
-                      const std::map<Int_t, Double_t>& MinAmp,
-                      const std::map<Int_t, Double_t>& MaxAmp,
-                      const std::map<Int_t, Double_t>& MinTime,
-                      const std::map<Int_t, Double_t>& MaxTime,
+                      const std::map<ERChannel, TCutG*>& GCuts, 
+                      const std::map<ERChannel, Double_t>& MinAmp,
+                      const std::map<ERChannel, Double_t>& MaxAmp,
+                      const std::map<ERChannel, Double_t>& MinTime,
+                      const std::map<ERChannel, Double_t>& MaxTime,
                       const ChannelMapping* raw2SimChannelMapping = nullptr);
   protected:
     bool AreFewClustersInMWPC();

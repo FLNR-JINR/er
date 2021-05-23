@@ -14,10 +14,6 @@
 #include "ERSupport.h"
 #include "ERDigi.h"
 
-Int_t ERTelescopeUnpack::fSingleSiStationNewId = 0;
-Int_t ERTelescopeUnpack::fSingleCsIStationNewId = 0;
-Int_t ERTelescopeUnpack::fDoubleSiStationNewId = 0;     
-
 //--------------------------------------------------------------------------------------------------
 ERTelescopeUnpack::ERTelescopeUnpack(TString detName):
  ERUnpack(detName) { }
@@ -83,7 +79,7 @@ void ERTelescopeUnpack::UnpackSignalFromStations() {
                                station->ampCalTable, station->timeCalTable, itStation.second->channelsMapping1,
                                station->skipAloneChannels);
     if (station->sideCount == 2) {
-      CreateDigisFromRawStations(itStation.first, station->bName, station->ampStName2, station->timeStName2,
+      CreateDigisFromRawStations(itStation.first, station->bName2, station->ampStName2, station->timeStName2,
                                  station->ampCalTable2, station->timeCalTable2, itStation.second->channelsMapping2,
                                  station->skipAloneChannels);
     }
@@ -97,22 +93,20 @@ void ERTelescopeUnpack::AddDigi(float edep, float time, ERChannel stripNb, TStri
 }
 //--------------------------------------------------------------------------------------------------
 TString ERTelescopeUnpack::FormBranchName(TString type, Int_t sideCount, TString stName, 
-		                                  TString XY, TString XYside, Int_t volInd)
-{
-    //@todo убрать это по возможности
-    Int_t stNumber = 0;
-    if (detector_name_.Contains("Right"))
-        stNumber = 1;
-
-    TString bName = "";
-    if (sideCount == 1) {
-        bName.Form("TelescopeDigi_%s_%s_%s_%d",detector_name_.Data(),stName.Data(),
-                                                    XYside.Data(), volInd);
+		                                  TString XY, TString XYside) {
+    TString branch_name;
+    if (type == "CsI") {
+        branch_name.Form("TelescopeDigi_%s_%s",detector_name_.Data(),stName.Data());
     } else {
-        bName.Form("TelescopeDigi_%s_%s_%s_%d_%s",detector_name_.Data(),stName.Data(),
-                                                    XY.Data(),volInd,XYside.Data());
+        if (sideCount == 1) {
+            branch_name.Form("TelescopeDigi_%s_%s_%s",detector_name_.Data(),stName.Data(),
+                                                      XYside.Data());
+        } else {
+            branch_name.Form("TelescopeDigi_%s_%s_%s_%s",detector_name_.Data(), stName.Data(),
+                                                         XY.Data(), XYside.Data());
+        }
     }
-    return bName;
+    return branch_name;
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopeUnpack::AddSingleSiStation(TString name, TString ampStName, TString timeStName,
@@ -148,22 +142,19 @@ void ERTelescopeUnpack::FormAllBranches(){
   for (auto itStation : fStations){
       if( itStation.second->sideCount == 2){
           if (itStation.second->XY == "XY"){
-              itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","X", fDoubleSiStationNewId);
-              itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","Y", fDoubleSiStationNewId);
+              itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","X");
+              itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","Y");
           }
           else{
-              itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","Y", fDoubleSiStationNewId);
-              itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","X", fDoubleSiStationNewId);
+              itStation.second->bName = FormBranchName("Si",2,itStation.first,"XY","Y");
+              itStation.second->bName2 = FormBranchName("Si",2,itStation.first,"XY","X");
           }
-        fDoubleSiStationNewId++;
       }
       else {
           itStation.second->bName = FormBranchName(itStation.second->type,
                                                   itStation.second->sideCount,
                                                   itStation.first,"",
-                                                  itStation.second->XYside,
-                                      itStation.second->type == "Si" 
-                                                  ? fSingleSiStationNewId++ : fSingleCsIStationNewId++);
+                                                  itStation.second->XYside);
       }
   }
   for (auto itStation : fStations){
@@ -177,7 +168,7 @@ void ERTelescopeUnpack::FormAllBranches(){
               ioman->Register(bName2,detector_name_, digi_collections_[bName2], kTRUE);
           }
       }
-      if (itStation.second->type == "CsI"){
+      if (itStation.second->type == "CsI") {
           digi_collections_[bName] = new TClonesArray("ERDigi", 10);
           ioman->Register(bName,detector_name_, digi_collections_[bName], kTRUE);
       }

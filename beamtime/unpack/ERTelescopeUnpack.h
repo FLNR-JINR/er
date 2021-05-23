@@ -65,7 +65,7 @@ class ERTelescopeUnpack : public ERUnpack {
                                   TMatrixD* amp_cal_table, TMatrixD* time_cal_table,
                                   const ChannelMapping* channel_mapping, bool skip_alone_channels);  
   void AddDigi(float edep, float time, ERChannel channel, TString digiBranchName);
-  TString FormBranchName(TString type, int sideCount, TString stName, TString XY, TString XYside, int volInd);
+  TString FormBranchName(TString type, int sideCount, TString stName, TString XY, TString XYside);
   void FormAllBranches();
   Bool_t ReadCalFiles();
   void DumpStationsInfo();
@@ -74,9 +74,6 @@ class ERTelescopeUnpack : public ERUnpack {
   Bool_t CheckSetup();
  protected:
   std::map<TString, ERTelescopeStation*> fStations;
-  static Int_t fSingleSiStationNewId;
-  static Int_t fDoubleSiStationNewId;
-  static Int_t fSingleCsIStationNewId;
 public:
   ClassDef(ERTelescopeUnpack, 0)
 };
