@@ -1,0 +1,44 @@
+{
+//========= Macro generated from object: CUTG/Graph
+//========= by ROOT version6.10/08
+   
+   TCutG *cutg = new TCutG("CUTG",32);
+   cutg->SetVarX("a1_1+a20_1_un");
+   cutg->SetVarY("a20_1");
+   cutg->SetTitle("Graph");
+   cutg->SetFillColor(1);
+   cutg->SetPoint(0,3.89223,3.63057);
+   cutg->SetPoint(1,4.59391,3.22423);
+   cutg->SetPoint(2,5.35939,2.86122);
+   cutg->SetPoint(3,6.14612,2.53073);
+   cutg->SetPoint(4,6.6777,2.37361);
+   cutg->SetPoint(5,7.46444,2.16772);
+   cutg->SetPoint(6,9.03791,1.8589);
+   cutg->SetPoint(7,10.1861,1.68553);
+   cutg->SetPoint(8,11.0154,1.57175);
+   cutg->SetPoint(9,12.1849,1.44714);
+   cutg->SetPoint(10,13.7583,1.30627);
+   cutg->SetPoint(11,15.2255,1.18707);
+   cutg->SetPoint(12,17.3943,1.08413);
+   cutg->SetPoint(13,19.2868,1.00286);
+   cutg->SetPoint(14,21.5832,0.910758);
+   cutg->SetPoint(15,23.8158,0.834907);
+   cutg->SetPoint(16,25.0916,0.802399);
+   cutg->SetPoint(17,25.1341,0.764474);
+   cutg->SetPoint(18,25.0491,0.737384);
+   cutg->SetPoint(19,23.9434,0.737384);
+   cutg->SetPoint(20,22.9015,0.726548);
+   cutg->SetPoint(21,21.732,0.726548);
+   cutg->SetPoint(22,18.8402,0.813235);
+   cutg->SetPoint(23,15.4806,0.948684);
+   cutg->SetPoint(24,12.2912,1.17624);
+   cutg->SetPoint(25,9.08044,1.52841);
+   cutg->SetPoint(26,7.14549,1.8589);
+   cutg->SetPoint(27,5.97602,2.15147);
+   cutg->SetPoint(28,4.70023,2.63367);
+   cutg->SetPoint(29,3.65833,3.15379);
+   cutg->SetPoint(30,3.0417,3.6089);
+   cutg->SetPoint(31,3.89223,3.63057);
+   cutg->Draw("");
+   cutg->SaveAs("he3_0.root");
+}
