@@ -49,7 +49,7 @@ void reco(TString inFile,TString outFile) {
   beamdetPid->SetProbabilityThreshold(0);
   beamdetPid->SetIonMass(7482.5396);
   beamdetPid->SetPID(1000020080);
-  //run->AddTask(beamdetPid);
+  run->AddTask(beamdetPid);
   // ------   QTelescope TrackPID -----------------------------------------
   ERTelescopePID* qtelescopePID = new ERTelescopePID(verbose);
   TString deStation1 = "SSD20_1";

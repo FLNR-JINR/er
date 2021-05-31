@@ -1,7 +1,7 @@
 TString MakeConditionBeamID();
 TString MakeConditionMWPCtime();
 
-#include "./cuts/beamCut.C"
+#include "./cuts/beamCut.c"
 
 void digibuilder(TString InFile, TString OutFile) {
 
@@ -174,7 +174,21 @@ void digibuilder(TString InFile, TString OutFile) {
     {14, 4},
     {15, 0}
   };
-  ctUnpack->AddCsIStation("CsI","CsI","tCsI",inputdir + "CsI_anh.cal",inputdir + "V775_caen_tdc_pars.cal", 
+  TString csi_cal = "CsI_anh.cal";
+  if (InFile.Contains("h7_ct_0")) {
+    csi_cal = "CsI_0.cal";
+  } else if(InFile.Contains("h7_ct_1")) {
+    csi_cal = "CsI_1.cal";
+  } else if(InFile.Contains("h7_ct_2")) {
+    csi_cal = "CsI_2.cal";
+  } else if(InFile.Contains("h7_ct_3")) {
+    csi_cal = "CsI_3.cal";
+  } else if(InFile.Contains("h7_ct_4")) {
+    csi_cal = "CsI_4.cal";
+  } else if(InFile.Contains("h7_ct_5") || InFile.Contains("h7_ct_6")) {
+    csi_cal = "CsI_5.cal";
+  }
+  ctUnpack->AddCsIStation("CsI","CsI","tCsI",inputdir + csi_cal,inputdir + "V775_caen_tdc_pars.cal", 
                           &csiMapping);
 
 
