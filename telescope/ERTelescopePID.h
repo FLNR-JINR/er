@@ -114,13 +114,15 @@ protected:
                                   const TString& deStation, 
                                   const Double_t normalizedThickness,
                                   Double_t& edepInThickStation, Double_t& edepInThinStation,
-                                  Double_t& edepInThickStationCorrected, Double_t& edepInThinStationCorrected);
+                                  Double_t& edepInThickStationCorrected, Double_t& edepInThinStationCorrected,
+                                  ERChannel& channelOfThinStation, ERChannel& channelOfThickStation);
   Double_t ApplyEdepAccountingStrategy(const std::map<TString, const ERDigi*>& digisByBranchName);
   Double_t ApplyEdepAccountingStrategy(const std::list<DigiOnTrack>& digisOnTrack);
   /** @brief Adds a ERTelescopeParticles to the output Collection **/
   ERTelescopeParticle* AddParticle(const TLorentzVector& lvInteraction, Double_t kineticEnergy,
                                     Double_t deadEloss, Double_t edepInThickStation, Double_t edepInThinStation,
                                     Double_t edepInThickStationCorrected, Double_t edepInThinStationCorrected,
+                                    ERChannel channelOfThinStaion, ERChannel channelOfThickStation,
                                     TClonesArray& col);
   ClassDef(ERTelescopePID, 1)
 };

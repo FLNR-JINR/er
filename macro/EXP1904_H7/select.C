@@ -1,17 +1,14 @@
 #include "./cuts/scripts/create_IDs.C"
 
-
-void drawDeE() {
+void select() {
     create_IDs();
 
-    auto c = new TCanvas("c", "c");
-    c->Divide(4, 3);
-    c->cd(1);
     TChain* t_er = new TChain("er");
     t_er->Add("results/h7_ct_00_0001.lmd.reco.root");
-    TChain* reco_er = new TChain("er");
-    reco_er->Add("results/h7_ct_00_0001.lmd.cleaned.root");
-    t_er->AddFriend(reco_er);
+    TChain* cleaned_er = new TChain("er");
+    cleaned_er->Add("results/h7_ct_00_0001.lmd.cleaned.root");
+    t_er->AddFriend(cleaned_er);
+
     t_er->SetAlias("trigger1", "EventHeader.fTrigger != 1");
 
     t_er->SetAlias("fXt", "TelescopeTrack_Telescope_1_SingleSi_SSD20_1_XTelescope_1_SingleSi_SSD_1_Y.fTargetVertex.X()");
@@ -51,10 +48,8 @@ void drawDeE() {
     t_er->SetAlias("aCsI", "TelescopeParticle_Central_telescope_DoubleSi_DSD_XY_1000010030.fEdepInThickStation");
     t_er->SetAlias("CsI_ch", "TelescopeParticle_Central_telescope_DoubleSi_DSD_XY_1000010030.fChannelOfThickStation"); 
 
-    //t_er->SetAlias("MM_t1", "h7_lv_t1.Mag() - 4*939.565 - 2808.920");
-    //t_er->SetAlias("triton_ekin_in_cm_t1", "h3_lv_cm_t1.T() - h3_lv_cm_t1.Mag()");
     auto create_he3_cut = [](int telescope_number) {
-          std::map<ushort, ushort> inverse16Mapping = {
+        std::map<ushort, ushort> inverse16Mapping = {
             {0, 15},
             {1, 14},
             {2, 13},
@@ -87,6 +82,7 @@ void drawDeE() {
         cut += ")";
         return cut;
     };
+
     auto create_h3_cut = []() {
         std::map<ushort, ushort> csiMapping = {
             {0, 15},
@@ -118,35 +114,43 @@ void drawDeE() {
         cut += ")";
         return cut;
     };
-    auto h3_cut = create_h3_cut();
-    TFile* f = TFile::Open("deE.root","RECREATE");
-    c->cd(1);
-    Int_t nentries = t_er->Draw("a20_1 : a1_1 + a20_1_un", TString("mult1_a20 && mult1_a && target_position && ") + create_he3_cut(1));
-    std::cout << nentries << std::endl;
-    c->cd(2);
-    nentries = t_er->Draw("a20_2 : a1_2 + a20_2_un", TString("mult2_a20 && mult2_a && target_position && ") + create_he3_cut(2));
-    std::cout << nentries << std::endl;
-    c->cd(3);
-    nentries = t_er->Draw("a20_3 : a1_3 + a20_3_un", TString("mult3_a20 && mult3_a && target_position && ") + create_he3_cut(3));
-    std::cout << nentries << std::endl;
-    c->cd(4);
-    nentries = t_er->Draw("a20_4 : a1_4 + a20_4_un", TString("mult4_a20 && mult4_a && target_position && ") + create_he3_cut(4));
-    std::cout << nentries << std::endl;
-    c->cd(5);
-    nentries = t_er->Draw("a20_1 : a1_1 + a20_1_un", "mult1_a20 && mult1_a && target_position && cuthe4_1");
-    std::cout << nentries << std::endl;
-    c->cd(6);
-    nentries = t_er->Draw("a20_2 : a1_2 + a20_2_un", "mult2_a20 && mult2_a && target_position && cuthe4_2");
-    std::cout << nentries << std::endl;
-    c->cd(7);
-    nentries = t_er->Draw("a20_3 : a1_3 + a20_3_un", "mult3_a20 && mult3_a && target_position && cuthe4_3");
-    std::cout << nentries << std::endl;
-    c->cd(8);
-    nentries = t_er->Draw("a20_4 : a1_4 + a20_4_un", "mult4_a20 && mult4_a && target_position && cuthe4_4");
-    std::cout << nentries << std::endl;
-    c->cd(9);
-    nentries = t_er->Draw("X_C. : aCsI", h3_cut);
-    std::cout << nentries << std::endl;
-    c->Write();
+    
+    TFile* f = TFile::Open("selected.root","RECREATE");
+
+    auto h3_in_ct = create_h3_cut();
+    auto he3_in_t1 = TString("mult1_a20 && mult1_a && ") + create_he3_cut(1);
+    auto he3_in_t2 = TString("mult2_a20 && mult2_a && ") + create_he3_cut(2);
+    auto he3_in_t3 = TString("mult3_a20 && mult3_a && ") + create_he3_cut(3);
+    auto he3_in_t4 = TString("mult4_a20 && mult4_a && ") + create_he3_cut(4);
+    auto he4_in_t1 = TString("mult1_a20 && mult1_a && ") + "cuthe4_1";
+    auto he4_in_t2 = TString("mult2_a20 && mult2_a && ") + "cuthe4_2";
+    auto he4_in_t3 = TString("mult3_a20 && mult3_a && ") + "cuthe4_3";
+    auto he4_in_t4 = TString("mult4_a20 && mult4_a && ") + "cuthe4_4";
+
+    f->cd();
+    auto* h7_by_t1 = t_er->CopyTree(h3_in_ct + " && " + he3_in_t1 + " && target_position");
+    h7_by_t1->SetName("h7_by_t1");
+    h7_by_t1->Write();
+    auto* h7_by_t2 = t_er->CopyTree(h3_in_ct + " && " + he3_in_t2 + " && target_position");
+    h7_by_t2->SetName("h7_by_t2");
+    h7_by_t2->Write();
+    auto* h7_by_t3 = t_er->CopyTree(h3_in_ct + " && " + he3_in_t3 + " && target_position");
+    h7_by_t3->SetName("h7_by_t3");
+    h7_by_t3->Write();
+    auto* h7_by_t4 = t_er->CopyTree(h3_in_ct + " && " + he3_in_t4 + " && target_position");
+    h7_by_t4->SetName("h7_by_t4");
+    h7_by_t4->Write();
+    auto* h6_by_t1 = t_er->CopyTree(h3_in_ct + " && " + he4_in_t1 + " && target_position");
+    h6_by_t1->SetName("h6_by_t1");
+    h6_by_t1->Write();
+    auto* h6_by_t2 = t_er->CopyTree(h3_in_ct + " && " + he4_in_t2 + " && target_position");
+    h6_by_t2->SetName("h6_by_t2");
+    h6_by_t2->Write();
+    auto* h6_by_t3 = t_er->CopyTree(h3_in_ct + " && " + he4_in_t3 + " && target_position");
+    h6_by_t3->SetName("h6_by_t3");
+    h6_by_t3->Write();
+    auto* h6_by_t4 = t_er->CopyTree(h3_in_ct + " && " + he4_in_t4 + " && target_position");
+    h6_by_t4->SetName("h6_by_t4");
+    h6_by_t4->Write();
     f->Write();
 }

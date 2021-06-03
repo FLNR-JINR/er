@@ -135,10 +135,13 @@ void ERTelescopePID::Exec(Option_t* opt) {
             particleDescription.fDoNotUseSignalFromStations);
         Double_t edepInThickStation = -1., edepInThinStation = -1., 
                  edepInThickStationCorrected = -1., edepInThinStationCorrected = -1.;
+        ERChannel channelOfThinStation = consts::undefined_channel;
+        ERChannel channelOfThickStation = consts::undefined_channel;
         FindEnergiesForDeEAnalysis(trackBranch, digisOnTrack, 
                                    particleDescription.fEStations, particleDescription.fDeStation,
                                    particleDescription.fNormalizedThickness, edepInThickStation, edepInThinStation,
-                                   edepInThickStationCorrected, edepInThinStationCorrected);
+                                   edepInThickStationCorrected, edepInThinStationCorrected,
+                                   channelOfThinStation, channelOfThickStation);
         const auto digisDeposite = energyDeposites.first;
         const auto deadDeposite = energyDeposites.second;
         const auto kineticEnergy = digisDeposite + deadDeposite;
@@ -151,7 +154,8 @@ void ERTelescopePID::Exec(Option_t* opt) {
         // Add particle to collection.
         auto& particleCollection = *fQTelescopeParticle[trackBranch][pdg];
         AddParticle(lvTarget, kineticEnergy, deadDeposite, edepInThickStation, edepInThinStation,
-                    edepInThickStationCorrected, edepInThinStationCorrected, particleCollection);
+                    edepInThickStationCorrected, edepInThinStationCorrected,
+                    channelOfThinStation, channelOfThickStation, particleCollection);
       }
     }
   }
@@ -172,10 +176,12 @@ ERTelescopeParticle* ERTelescopePID::
 AddParticle(const TLorentzVector& lvInteraction, const Double_t kineticEnergy, const Double_t deadEloss,
             Double_t edepInThickStation, Double_t edepInThinStation,
             Double_t edepInThickStationCorrected, Double_t edepInThinStationCorrected,
+            const ERChannel channelOfThinStation, const ERChannel channelOfThickStation,
             TClonesArray& col) {
   return new(col[col.GetEntriesFast()]) ERTelescopeParticle(lvInteraction, kineticEnergy, deadEloss,
                                             edepInThickStation, edepInThinStation, 
-                                            edepInThickStationCorrected, edepInThinStationCorrected);
+                                            edepInThickStationCorrected, edepInThinStationCorrected,
+                                            channelOfThinStation, channelOfThickStation);
 }
 //--------------------------------------------------------------------------------------------------
 TVector3 ERTelescopePID::FindBackPropagationStartPoint(const ERTelescopeTrack& track) {
@@ -391,7 +397,8 @@ void ERTelescopePID::FindEnergiesForDeEAnalysis(const TString& trackBranch,
     const std::list<DigiOnTrack>& digisOnTrack, const std::list<TString>& eStations,
     const TString& deStation, const Double_t normalizedThickness, Double_t& edepInThickStation,
     Double_t& edepInThinStation, Double_t& edepInThickStationCorrected,
-    Double_t& edepInThinStationCorrected) {
+    Double_t& edepInThinStationCorrected, ERChannel& channelOfThinStation, 
+    ERChannel& channelOfThickStation) {
   const TString log_prefix = "[ERTelescopePID][FindEnergiesForDeEAnalysis] ";
   if (eStations.empty() || deStation == "")
     return;
@@ -410,6 +417,7 @@ void ERTelescopePID::FindEnergiesForDeEAnalysis(const TString& trackBranch,
                  << " not found on track from " << trackBranch << " path." << FairLogger::endl;
     return;
   }
+  channelOfThinStation = deDigisOnTrack.front().fDigi->Channel();
   TString eStations_string;
   for (const auto& eStation : eStations) {
     const auto eDigisOnTrack = getDigisOnTrack(eStation);
@@ -425,7 +433,8 @@ void ERTelescopePID::FindEnergiesForDeEAnalysis(const TString& trackBranch,
       edepInThickStation += ApplyEdepAccountingStrategy(eDigisOnTrack);
       eStations_string += TString(", ") + eStation;
     }
-    
+    //TODO: Works only for single e station
+    channelOfThickStation = eDigisOnTrack.front().fDigi->Channel();
   }
   if (edepInThickStation == -1.) {
     LOG(WARNING) << log_prefix << "No digis found for E stations in de-E analysis." << FairLogger::endl;
