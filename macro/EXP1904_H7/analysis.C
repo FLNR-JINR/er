@@ -1,96 +1,72 @@
-void analysis(TString in_file, TString out_file) { 
-   // input
-   TFile* reco_file = new TFile(in_file);
-   TTree* reco_tree = (TTree*)reco_file->Get("er");
-   TClonesArray* beamdet_he8 = new TClonesArray("ERBeamDetParticle", 10);
-   reco_tree->SetBranchAddress("BeamDetParticle.",&beamdet_he8);
-   TClonesArray* t1_he3 = new TClonesArray("ERTelescopeParticle", 10);
-   reco_tree->SetBranchAddress("TelescopeParticle_Telescope_1_SingleSi_SSD20_1_XTelescope_1_SingleSi_SSD_1_Y_1000020030", &t1_he3);
-   TClonesArray* t2_he3 = new TClonesArray("ERTelescopeParticle", 10);
-   reco_tree->SetBranchAddress("TelescopeParticle_Telescope_2_SingleSi_SSD_2_XTelescope_2_SingleSi_SSD20_2_Y_1000020030", &t2_he3);
-   TClonesArray* t3_he3 = new TClonesArray("ERTelescopeParticle", 10);
-   reco_tree->SetBranchAddress("TelescopeParticle_Telescope_3_SingleSi_SSD20_3_XTelescope_3_SingleSi_SSD_3_Y_1000020030", &t3_he3);
-   TClonesArray* t4_he3 = new TClonesArray("ERTelescopeParticle", 10);
-   reco_tree->SetBranchAddress("TelescopeParticle_Telescope_4_SingleSi_SSD_4_XTelescope_4_SingleSi_SSD20_4_Y_1000020030", &t4_he3);
-   TClonesArray* ct_triton = new TClonesArray("ERTelescopeParticle", 10);
-   reco_tree->SetBranchAddress("TelescopeParticle_Central_telescope_DoubleSi_DSD_XY_1000010030", &ct_triton);
-   
-   TFile* file = new TFile(out_file, "recreate");
-   TTree* tree = new TTree("analysis", "analysis");
-   TLorentzVector* h7_lv_t1 = new TLorentzVector();
-   tree->Branch("h7_lv_t1.", "TLorentzVector", &h7_lv_t1);
-   TLorentzVector* h7_lv_t2 = new TLorentzVector();
-   tree->Branch("h7_lv_t2.", "TLorentzVector", &h7_lv_t2);
-   TLorentzVector* h7_lv_t3 = new TLorentzVector();
-   tree->Branch("h7_lv_t3.", "TLorentzVector", &h7_lv_t3);
-   TLorentzVector* h7_lv_t4 = new TLorentzVector();
-   tree->Branch("h7_lv_t4.", "TLorentzVector", &h7_lv_t4);
-   TLorentzVector* h3_lv_cm_t1 = new TLorentzVector();
-   tree->Branch("h3_lv_cm_t1.", "TLorentzVector", &h3_lv_cm_t1);
-   TLorentzVector* h3_lv_cm_t2 = new TLorentzVector();
-   tree->Branch("h3_lv_cm_t2.", "TLorentzVector", &h3_lv_cm_t2);
-   TLorentzVector* h3_lv_cm_t3 = new TLorentzVector();
-   tree->Branch("h3_lv_cm_t3.", "TLorentzVector", &h3_lv_cm_t3);
-   TLorentzVector* h3_lv_cm_t4 = new TLorentzVector();
-   tree->Branch("h3_lv_cm_t4.", "TLorentzVector", &h3_lv_cm_t4);
-   // event loop
-   for (Long64_t i=0; i < reco_tree->GetEntriesFast(); i++) {
-      reco_tree->GetEntry(i);
-      h7_lv_t1->SetXYZM(0., 0., 0., 0.);
-      h7_lv_t2->SetXYZM(0., 0., 0., 0.);
-      h7_lv_t3->SetXYZM(0., 0., 0., 0.);
-      h7_lv_t4->SetXYZM(0., 0., 0., 0.);
-      h3_lv_cm_t1->SetXYZM(0., 0., 0., 0.);
-      h3_lv_cm_t2->SetXYZM(0., 0., 0., 0.);
-      h3_lv_cm_t3->SetXYZM(0., 0., 0., 0.);
-      h3_lv_cm_t4->SetXYZM(0., 0., 0., 0.);
 
-      const auto* he8  = beamdet_he8->GetEntriesFast() == 1 ? dynamic_cast<ERBeamDetParticle*>(beamdet_he8->At(0)) : nullptr;
+void calc_mm(TFile* input, TFile* output, TString tree_name, TString out_tree_name, TString branch_with_he, TString result_name) {
+   TTree* tree = (TTree*)input->Get(tree_name);
+   TClonesArray* he8_ar = new TClonesArray("ERBeamDetParticle", 10);
+   tree->SetBranchAddress("BeamDetParticle.",&he8_ar);
+   TClonesArray* he_ar = new TClonesArray("ERTelescopeParticle", 10);
+   tree->SetBranchAddress(branch_with_he, &he_ar);
+   TClonesArray* triton_ar = new TClonesArray("ERTelescopeParticle", 10);
+   tree->SetBranchAddress("TelescopeParticle_Central_telescope_DoubleSi_DSD_XY_1000010030", &triton_ar);
+   output->cd();
+   TTree* output_tree = new TTree(out_tree_name, out_tree_name);
+   TLorentzVector* h7_lv = new TLorentzVector();
+   output_tree->Branch(result_name, "TLorentzVector", &h7_lv);
+   TLorentzVector* h7_lv_cm = new TLorentzVector();
+   output_tree->Branch(result_name + "_in_cm", "TLorentzVector", &h7_lv_cm);
+   TLorentzVector* he8_lv_in_cm = new TLorentzVector();
+   output_tree->Branch("he8_lv_in_cm", "TLorentzVector", &he8_lv_in_cm);
+   TLorentzVector* h3_lv_in_cm = new TLorentzVector();
+   output_tree->Branch("h3_lv_in_cm", "TLorentzVector", &h3_lv_in_cm);
+   Float_t theta_cm;
+   output_tree->Branch("theta_cm", &theta_cm, "theta_cm/F");
+   
+   
+   for (Long64_t i=0; i < tree->GetEntriesFast(); i++) {
+      tree->GetEntry(i);
+      const auto* he8  = he8_ar->GetEntriesFast() == 1 ? dynamic_cast<ERBeamDetParticle*>(he8_ar->At(0)) : nullptr;
       if (!he8) {
-         tree->Fill();
-         continue;
+         std::cerr << "He8 not found in entry!" << std::endl;
+         exit(-1);
       }
       const auto he8_lv = he8->GetLVTarget();
-      const TLorentzVector h2_lv(0., 0., 0., 1875.612);     
-      const auto he3_t1 = t1_he3->GetEntriesFast() == 1 ? dynamic_cast<ERTelescopeParticle*>(t1_he3->At(0)) : 
-                                                         nullptr;
-      const auto he3_t2 = t2_he3->GetEntriesFast() == 1 ? dynamic_cast<ERTelescopeParticle*>(t2_he3->At(0)) : 
-                                                         nullptr;
-      const auto he3_t3 = t3_he3->GetEntriesFast() == 1 ? dynamic_cast<ERTelescopeParticle*>(t3_he3->At(0)) : 
-                                                         nullptr;
-      const auto he3_t4 = t4_he3->GetEntriesFast() == 1 ? dynamic_cast<ERTelescopeParticle*>(t4_he3->At(0)) : 
-                                                         nullptr;
-      auto calc_h7 = [&he8_lv, &h2_lv](const ERTelescopeParticle* he3, TLorentzVector* h7_lv) {
-         if (!he3)
-            return;
-         const auto he3_lv = he3->GetLVInteraction();                                       
-         *h7_lv = he8_lv + h2_lv - he3_lv;
-      };
-      calc_h7(he3_t1, h7_lv_t1);
-      calc_h7(he3_t2, h7_lv_t2);
-      calc_h7(he3_t3, h7_lv_t3);
-      calc_h7(he3_t4, h7_lv_t4);
       
-      const auto triton = ct_triton->GetEntriesFast() == 1 ? dynamic_cast<ERTelescopeParticle*>(ct_triton->At(0)) : 
-                                                         nullptr;
-      if (triton) {
-         const auto h3_lv = triton->GetLVInteraction();
-         *h3_lv_cm_t1 = h3_lv;
-         *h3_lv_cm_t2 = h3_lv;
-         *h3_lv_cm_t3 = h3_lv;
-         *h3_lv_cm_t4 = h3_lv;
-         auto calc_h3_cm = [](const ERTelescopeParticle* he3, TLorentzVector* h7,  TLorentzVector* h3) {
-            if (!he3)
-               return;
-            h3->Boost(-h7->BoostVector());
-         };
-         calc_h3_cm(he3_t1, h7_lv_t1, h3_lv_cm_t1);
-         calc_h3_cm(he3_t2, h7_lv_t2, h3_lv_cm_t2);
-         calc_h3_cm(he3_t3, h7_lv_t3, h3_lv_cm_t3);
-         calc_h3_cm(he3_t4, h7_lv_t4, h3_lv_cm_t4);
+      const auto he = he_ar->GetEntriesFast() == 1 ? dynamic_cast<ERTelescopeParticle*>(he_ar->At(0)) : nullptr;
+      if (!he) {
+         std::cerr << "He3 or He4 not found in entry!" << std::endl;
+         exit(-1);
       }
-      tree->Fill();
+      const auto he_lv = he->GetLVInteraction();  
+      const TLorentzVector h2_lv(0., 0., 0., 1875.612);
+      *h7_lv = he8_lv + h2_lv - he_lv;
+
+      *h7_lv_cm = *h7_lv;
+      h7_lv_cm->Boost(-(h2_lv + he8_lv).BoostVector());
+      *he8_lv_in_cm = he8_lv;
+      he8_lv_in_cm->Boost(-(h2_lv + he8_lv).BoostVector());
+      theta_cm = h7_lv_cm->Angle(he8_lv_in_cm->Vect()) * 180. /  TMath::Pi();
+      const auto triton = triton_ar->GetEntriesFast() == 1 ? dynamic_cast<ERTelescopeParticle*>(triton_ar->At(0)) : nullptr;
+      if (!triton) {
+         std::cerr << "H3 not found in entry!" << std::endl;
+         exit(-1);
+      }
+      const auto h3_lv = triton->GetLVInteraction();
+      *h3_lv_in_cm = h3_lv;
+      h3_lv_in_cm->Boost(-h7_lv->BoostVector());
+      output_tree->Fill();
    }
-   tree->Write();
-   file->Write();
+}
+
+void analysis(TString input_name, TString output_name) { 
+   // input
+   TFile* input = new TFile(input_name);
+   TFile* output = new TFile(output_name, "recreate");
+   calc_mm(input, output, "t1", "t1_h7", "TelescopeParticle_Telescope_1_SingleSi_SSD20_1_XTelescope_1_SingleSi_SSD_1_Y_1000020030", "h7_lv");
+   calc_mm(input, output, "t2", "t2_h7", "TelescopeParticle_Telescope_2_SingleSi_SSD_2_XTelescope_2_SingleSi_SSD20_2_Y_1000020030", "h7_lv");
+   calc_mm(input, output, "t3", "t3_h7", "TelescopeParticle_Telescope_3_SingleSi_SSD20_3_XTelescope_3_SingleSi_SSD_3_Y_1000020030", "h7_lv");
+   calc_mm(input, output, "t4", "t4_h7", "TelescopeParticle_Telescope_4_SingleSi_SSD_4_XTelescope_4_SingleSi_SSD20_4_Y_1000020030", "h7_lv");
+   calc_mm(input, output, "t1", "t1_h6", "TelescopeParticle_Telescope_1_SingleSi_SSD20_1_XTelescope_1_SingleSi_SSD_1_Y_1000020040", "h6_lv");
+   calc_mm(input, output, "t2", "t2_h6", "TelescopeParticle_Telescope_2_SingleSi_SSD_2_XTelescope_2_SingleSi_SSD20_2_Y_1000020040", "h6_lv");
+   calc_mm(input, output, "t3", "t3_h6", "TelescopeParticle_Telescope_3_SingleSi_SSD20_3_XTelescope_3_SingleSi_SSD_3_Y_1000020040", "h6_lv");
+   calc_mm(input, output, "t4", "t4_h6", "TelescopeParticle_Telescope_4_SingleSi_SSD_4_XTelescope_4_SingleSi_SSD20_4_Y_1000020040", "h6_lv");
+   output->Write();
 }

@@ -1,4 +1,6 @@
 #include "./cuts/scripts/create_IDs.C"
+#include "./cuts/er_cuts.C"
+
 
 
 void drawDeE() {
@@ -8,9 +10,9 @@ void drawDeE() {
     c->Divide(4, 3);
     c->cd(1);
     TChain* t_er = new TChain("er");
-    t_er->Add("results/h7_ct_00_0001.lmd.reco.root");
+    t_er->Add("results/h7_ct_*.lmd.reco.root");
     TChain* reco_er = new TChain("er");
-    reco_er->Add("results/h7_ct_00_0001.lmd.cleaned.root");
+    reco_er->Add("results/h7_ct_*.lmd.cleaned.root");
     t_er->AddFriend(reco_er);
     t_er->SetAlias("trigger1", "EventHeader.fTrigger != 1");
 
@@ -51,80 +53,14 @@ void drawDeE() {
     t_er->SetAlias("aCsI", "TelescopeParticle_Central_telescope_DoubleSi_DSD_XY_1000010030.fEdepInThickStation");
     t_er->SetAlias("CsI_ch", "TelescopeParticle_Central_telescope_DoubleSi_DSD_XY_1000010030.fChannelOfThickStation"); 
 
-    //t_er->SetAlias("MM_t1", "h7_lv_t1.Mag() - 4*939.565 - 2808.920");
-    //t_er->SetAlias("triton_ekin_in_cm_t1", "h3_lv_cm_t1.T() - h3_lv_cm_t1.Mag()");
-    auto create_he3_cut = [](int telescope_number) {
-          std::map<ushort, ushort> inverse16Mapping = {
-            {0, 15},
-            {1, 14},
-            {2, 13},
-            {3, 12},
-            {4, 11},
-            {5, 10},
-            {6, 9},
-            {7, 8},
-            {8, 7},
-            {9, 6},
-            {10, 5},
-            {11, 4},
-            {12, 3},
-            {13, 2},
-            {14, 1},
-            {15, 0}
-        };
-        TString cut = "(";
-        for (ushort i = 0; i < 16; i++) {
-            TString channel_cut;
-            ushort er_channel = i;
-            if (telescope_number == 1 || telescope_number == 2) {
-                er_channel = inverse16Mapping[i];
-            }
-            channel_cut.Form("(a20_%d_ch == %d && cuthe3_%d_%d)",telescope_number, er_channel, telescope_number, i);
-            cut += channel_cut;
-            if (i != 15)
-                cut += " || ";
-        }
-        cut += ")";
-        return cut;
-    };
-    auto create_h3_cut = []() {
-        std::map<ushort, ushort> csiMapping = {
-            {0, 15},
-            {1, 11},
-            {2, 7},
-            {3, 3},
-            {4, 14},
-            {5, 10},
-            {6, 6},
-            {7, 2},
-            {8, 13},
-            {9, 9},
-            {10, 5},
-            {11, 1},
-            {12, 12},
-            {13, 8},
-            {14, 4},
-            {15, 0}
-        };
-        TString cut = "(";
-        for (ushort i = 0; i < 16; i++) {
-            TString channel_cut;
-            const ushort er_channel = csiMapping[i];
-            channel_cut.Form("(CsI_ch == %d && cut3h_%d)", er_channel, i);
-            cut += channel_cut;
-            if (i != 15)
-                cut += " || ";
-        }
-        cut += ")";
-        return cut;
-    };
     auto h3_cut = create_h3_cut();
     TFile* f = TFile::Open("deE.root","RECREATE");
     c->cd(1);
     Int_t nentries = t_er->Draw("a20_1 : a1_1 + a20_1_un", TString("mult1_a20 && mult1_a && target_position && ") + create_he3_cut(1));
     std::cout << nentries << std::endl;
     c->cd(2);
-    nentries = t_er->Draw("a20_2 : a1_2 + a20_2_un", TString("mult2_a20 && mult2_a && target_position && ") + create_he3_cut(2));
+    nentries = t_er->Draw("a20_2 : a1_2 + a20_2_un", TString("mult2_a20 && mult2_a && target_position"));
+    cuthe3_2[0]->Draw("same");
     std::cout << nentries << std::endl;
     c->cd(3);
     nentries = t_er->Draw("a20_3 : a1_3 + a20_3_un", TString("mult3_a20 && mult3_a && target_position && ") + create_he3_cut(3));

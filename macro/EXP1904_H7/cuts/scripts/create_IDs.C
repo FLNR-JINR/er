@@ -1167,8 +1167,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[1]->SetPoint(28,4.86008,2.40045);
 
    cuthe3_2[2] = new TCutG("cuthe3_2_2",28);
-   cuthe3_2[2]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[2]->SetVarY("a20_1");
+   cuthe3_2[2]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[2]->SetVarY("a20_2");
    cuthe3_2[2]->SetTitle("Graph");
    cuthe3_2[2]->SetFillColor(1);
    cuthe3_2[2]->SetPoint(0,4.54275,2.49748);
@@ -1201,8 +1201,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[2]->SetPoint(27,4.54275,2.49748);
 
    cuthe3_2[3] = new TCutG("cuthe3_2_3",28);
-   cuthe3_2[3]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[3]->SetVarY("a20_1");
+   cuthe3_2[3]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[3]->SetVarY("a20_2");
    cuthe3_2[3]->SetTitle("Graph");
    cuthe3_2[3]->SetFillColor(1);
    cuthe3_2[3]->SetPoint(0,4.83651,2.37558);
@@ -1235,8 +1235,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[3]->SetPoint(27,4.83651,2.37558);
 
    cuthe3_2[4] = new TCutG("cuthe3_2_4",28);
-   cuthe3_2[4]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[4]->SetVarY("a20_1");
+   cuthe3_2[4]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[4]->SetVarY("a20_2");
    cuthe3_2[4]->SetTitle("Graph");
    cuthe3_2[4]->SetFillColor(1);
    cuthe3_2[4]->SetPoint(0,4.6015,2.48007);
@@ -1269,8 +1269,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[4]->SetPoint(27,4.6015,2.48007);
 
    cuthe3_2[5] = new TCutG("cuthe3_2_5",28);
-   cuthe3_2[5]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[5]->SetVarY("a20_1");
+   cuthe3_2[5]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[5]->SetVarY("a20_2");
    cuthe3_2[5]->SetTitle("Graph");
    cuthe3_2[5]->SetFillColor(1);
    cuthe3_2[5]->SetPoint(0,3.77104,3.64141);
@@ -1303,8 +1303,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[5]->SetPoint(27,3.77104,3.64141);
 
    cuthe3_2[6] = new TCutG("cuthe3_2_6",24);
-   cuthe3_2[6]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[6]->SetVarY("a20_1");
+   cuthe3_2[6]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[6]->SetVarY("a20_2");
    cuthe3_2[6]->SetTitle("Graph");
    cuthe3_2[6]->SetFillColor(1);
    cuthe3_2[6]->SetPoint(0,3.75797,3.53305);
@@ -1333,8 +1333,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[6]->SetPoint(23,3.75797,3.53305);
 
    cuthe3_2[7] = new TCutG("cuthe3_2_7",29);
-   cuthe3_2[7]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[7]->SetVarY("a20_1");
+   cuthe3_2[7]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[7]->SetVarY("a20_2");
    cuthe3_2[7]->SetTitle("Graph");
    cuthe3_2[7]->SetFillColor(1);
    cuthe3_2[7]->SetPoint(0,3.84441,3.54389);
@@ -1368,8 +1368,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[7]->SetPoint(28,3.84441,3.54389);
 
    cuthe3_2[8] = new TCutG("cuthe3_2_8",26);
-   cuthe3_2[8]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[8]->SetVarY("a20_1");
+   cuthe3_2[8]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[8]->SetVarY("a20_2");
    cuthe3_2[8]->SetTitle("Graph");
    cuthe3_2[8]->SetFillColor(1);
    cuthe3_2[8]->SetPoint(0,3.64992,3.65224);
@@ -1400,8 +1400,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[8]->SetPoint(25,3.64992,3.65224);
 
    cuthe3_2[9] = new TCutG("cuthe3_2_9",27);
-   cuthe3_2[9]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[9]->SetVarY("a20_1");
+   cuthe3_2[9]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[9]->SetVarY("a20_2");
    cuthe3_2[9]->SetTitle("Graph");
    cuthe3_2[9]->SetFillColor(1);
    cuthe3_2[9]->SetPoint(0,3.73636,3.58723);
@@ -1433,8 +1433,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[9]->SetPoint(26,3.73636,3.58723);
 
    cuthe3_2[10] = new TCutG("cuthe3_2_10",29);
-   cuthe3_2[10]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[10]->SetVarY("a20_1");
+   cuthe3_2[10]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[10]->SetVarY("a20_2");
    cuthe3_2[10]->SetTitle("Graph");
    cuthe3_2[10]->SetFillColor(1);
    cuthe3_2[10]->SetPoint(0,3.62831,3.61974);
@@ -1468,8 +1468,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[10]->SetPoint(28,3.62831,3.61974);
 
    cuthe3_2[11] = new TCutG("cuthe3_2_11",29);
-   cuthe3_2[11]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[11]->SetVarY("a20_1");
+   cuthe3_2[11]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[11]->SetVarY("a20_2");
    cuthe3_2[11]->SetTitle("Graph");
    cuthe3_2[11]->SetFillColor(1);
    cuthe3_2[11]->SetPoint(0,4.40627,2.75361);
@@ -1503,8 +1503,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[11]->SetPoint(28,4.40627,2.75361);
 
    cuthe3_2[12] = new TCutG("cuthe3_2_12",26);
-   cuthe3_2[12]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[12]->SetVarY("a20_1");
+   cuthe3_2[12]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[12]->SetVarY("a20_2");
    cuthe3_2[12]->SetTitle("Graph");
    cuthe3_2[12]->SetFillColor(1);
    cuthe3_2[12]->SetPoint(0,3.73636,3.60348);
@@ -1535,8 +1535,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[12]->SetPoint(25,3.73636,3.60348);
 
    cuthe3_2[13] = new TCutG("cuthe3_2_13",25);
-   cuthe3_2[13]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[13]->SetVarY("a20_1");
+   cuthe3_2[13]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[13]->SetVarY("a20_2");
    cuthe3_2[13]->SetTitle("Graph");
    cuthe3_2[13]->SetFillColor(1);
    cuthe3_2[13]->SetPoint(0,3.64992,3.54389);
@@ -1566,8 +1566,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[13]->SetPoint(24,3.64992,3.54389);
 
    cuthe3_2[14] = new TCutG("cuthe3_2_14",27);
-   cuthe3_2[14]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[14]->SetVarY("a20_1");
+   cuthe3_2[14]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[14]->SetVarY("a20_2");
    cuthe3_2[14]->SetTitle("Graph");
    cuthe3_2[14]->SetFillColor(1);
    cuthe3_2[14]->SetPoint(0,3.77958,3.63599);
@@ -1599,8 +1599,8 @@ void create_he3_T2_cuts() {
    cuthe3_2[14]->SetPoint(26,3.77958,3.63599);
 
    cuthe3_2[15] = new TCutG("cuthe3_2_15",25);
-   cuthe3_2[15]->SetVarX("a1_1+a20_1_un");
-   cuthe3_2[15]->SetVarY("a20_1");
+   cuthe3_2[15]->SetVarX("a1_2+a20_2_un");
+   cuthe3_2[15]->SetVarY("a20_2");
    cuthe3_2[15]->SetTitle("Graph");
    cuthe3_2[15]->SetFillColor(1);
    cuthe3_2[15]->SetPoint(0,3.54187,3.55472);
@@ -1634,8 +1634,8 @@ void create_he3_T2_cuts() {
 void create_he3_T3_cuts() {
 
    cuthe3_3[0] = new TCutG("cuthe3_3_0",24);
-   cuthe3_3[0]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[0]->SetVarY("a20_1");
+   cuthe3_3[0]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[0]->SetVarY("a20_3");
    cuthe3_3[0]->SetTitle("Graph");
    cuthe3_3[0]->SetFillColor(1);
    cuthe3_3[0]->SetPoint(0,4.1381,3.51912);
@@ -1664,8 +1664,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[0]->SetPoint(23,4.1381,3.51912);
 
    cuthe3_3[1] = new TCutG("cuthe3_3_1",31);
-   cuthe3_3[1]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[1]->SetVarY("a20_1");
+   cuthe3_3[1]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[1]->SetVarY("a20_3");
    cuthe3_3[1]->SetTitle("Graph");
    cuthe3_3[1]->SetFillColor(1);
    cuthe3_3[1]->SetPoint(0,4.99318,2.52651);
@@ -1701,8 +1701,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[1]->SetPoint(30,4.99318,2.52651);
 
    cuthe3_3[2] = new TCutG("cuthe3_3_2",30);
-   cuthe3_3[2]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[2]->SetVarY("a20_1");
+   cuthe3_3[2]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[2]->SetVarY("a20_3");
    cuthe3_3[2]->SetTitle("Graph");
    cuthe3_3[2]->SetFillColor(1);
    cuthe3_3[2]->SetPoint(0,4.10494,3.49883);
@@ -1737,8 +1737,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[2]->SetPoint(29,4.10494,3.49883);
 
    cuthe3_3[3] = new TCutG("cuthe3_3_3",30);
-   cuthe3_3[3]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[3]->SetVarY("a20_1");
+   cuthe3_3[3]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[3]->SetVarY("a20_3");
    cuthe3_3[3]->SetTitle("Graph");
    cuthe3_3[3]->SetFillColor(1);
    cuthe3_3[3]->SetPoint(0,5.11791,2.46544);
@@ -1773,8 +1773,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[3]->SetPoint(29,5.11791,2.46544);
 
    cuthe3_3[4] = new TCutG("cuthe3_3_4",30);
-   cuthe3_3[4]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[4]->SetVarY("a20_1");
+   cuthe3_3[4]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[4]->SetVarY("a20_3");
    cuthe3_3[4]->SetTitle("Graph");
    cuthe3_3[4]->SetFillColor(1);
    cuthe3_3[4]->SetPoint(0,5.72569,2.27661);
@@ -1809,8 +1809,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[4]->SetPoint(29,5.72569,2.27661);
 
    cuthe3_3[5] = new TCutG("cuthe3_3_5",26);
-   cuthe3_3[5]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[5]->SetVarY("a20_1");
+   cuthe3_3[5]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[5]->SetVarY("a20_3");
    cuthe3_3[5]->SetTitle("Graph");
    cuthe3_3[5]->SetFillColor(1);
    cuthe3_3[5]->SetPoint(0,4.42909,3.45343);
@@ -1841,8 +1841,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[5]->SetPoint(25,4.42909,3.45343);
 
    cuthe3_3[6] = new TCutG("cuthe3_3_6",30);
-   cuthe3_3[6]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[6]->SetVarY("a20_1");
+   cuthe3_3[6]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[6]->SetVarY("a20_3");
    cuthe3_3[6]->SetTitle("Graph");
    cuthe3_3[6]->SetFillColor(1);
    cuthe3_3[6]->SetPoint(0,4.2009,3.47496);
@@ -1877,8 +1877,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[6]->SetPoint(29,4.2009,3.47496);
 
    cuthe3_3[7] = new TCutG("cuthe3_3_7",25);
-   cuthe3_3[7]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[7]->SetVarY("a20_1");
+   cuthe3_3[7]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[7]->SetVarY("a20_3");
    cuthe3_3[7]->SetTitle("Graph");
    cuthe3_3[7]->SetFillColor(1);
    cuthe3_3[7]->SetPoint(0,3.88209,3.48928);
@@ -1908,8 +1908,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[7]->SetPoint(24,3.88209,3.48928);
 
    cuthe3_3[8] = new TCutG("cuthe3_3_8",29);
-   cuthe3_3[8]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[8]->SetVarY("a20_1");
+   cuthe3_3[8]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[8]->SetVarY("a20_3");
    cuthe3_3[8]->SetTitle("Graph");
    cuthe3_3[8]->SetFillColor(1);
    cuthe3_3[8]->SetPoint(0,3.94287,3.49755);
@@ -1943,8 +1943,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[8]->SetPoint(28,3.94287,3.49755);
 
    cuthe3_3[9] = new TCutG("cuthe3_3_9",34);
-   cuthe3_3[9]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[9]->SetVarY("a20_1");
+   cuthe3_3[9]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[9]->SetVarY("a20_3");
    cuthe3_3[9]->SetTitle("Graph");
    cuthe3_3[9]->SetFillColor(1);
    cuthe3_3[9]->SetPoint(0,4.00365,3.46734);
@@ -1983,8 +1983,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[9]->SetPoint(33,4.00365,3.46734);
 
    cuthe3_3[10] = new TCutG("cuthe3_3_10",33);
-   cuthe3_3[10]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[10]->SetVarY("a20_1");
+   cuthe3_3[10]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[10]->SetVarY("a20_3");
    cuthe3_3[10]->SetTitle("Graph");
    cuthe3_3[10]->SetFillColor(1);
    cuthe3_3[10]->SetPoint(0,4.18598,3.47496);
@@ -2022,8 +2022,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[10]->SetPoint(32,4.18598,3.47496);
 
    cuthe3_3[11] = new TCutG("cuthe3_3_11",27);
-   cuthe3_3[11]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[11]->SetVarY("a20_1");
+   cuthe3_3[11]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[11]->SetVarY("a20_3");
    cuthe3_3[11]->SetTitle("Graph");
    cuthe3_3[11]->SetFillColor(1);
    cuthe3_3[11]->SetPoint(0,3.96313,3.46996);
@@ -2055,8 +2055,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[11]->SetPoint(26,3.96313,3.46996);
 
    cuthe3_3[12] = new TCutG("cuthe3_3_12",29);
-   cuthe3_3[12]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[12]->SetVarY("a20_1");
+   cuthe3_3[12]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[12]->SetVarY("a20_3");
    cuthe3_3[12]->SetTitle("Graph");
    cuthe3_3[12]->SetFillColor(1);
    cuthe3_3[12]->SetPoint(0,3.78079,3.49755);
@@ -2090,8 +2090,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[12]->SetPoint(28,3.78079,3.49755);
 
    cuthe3_3[13] = new TCutG("cuthe3_3_13",31);
-   cuthe3_3[13]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[13]->SetVarY("a20_1");
+   cuthe3_3[13]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[13]->SetVarY("a20_3");
    cuthe3_3[13]->SetTitle("Graph");
    cuthe3_3[13]->SetFillColor(1);
    cuthe3_3[13]->SetPoint(0,4.30754,2.66182);
@@ -2127,8 +2127,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[13]->SetPoint(30,4.30754,2.66182);
 
    cuthe3_3[14] = new TCutG("cuthe3_3_14",29);
-   cuthe3_3[14]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[14]->SetVarY("a20_1");
+   cuthe3_3[14]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[14]->SetVarY("a20_3");
    cuthe3_3[14]->SetTitle("Graph");
    cuthe3_3[14]->SetFillColor(1);
    cuthe3_3[14]->SetPoint(0,3.84502,3.50441);
@@ -2162,8 +2162,8 @@ void create_he3_T3_cuts() {
    cuthe3_3[14]->SetPoint(28,3.84502,3.50441);
 
    cuthe3_3[15] = new TCutG("cuthe3_3_15",30);
-   cuthe3_3[15]->SetVarX("a1_1+a20_1_un");
-   cuthe3_3[15]->SetVarY("a20_1");
+   cuthe3_3[15]->SetVarX("a1_3+a20_3_un");
+   cuthe3_3[15]->SetVarY("a20_3");
    cuthe3_3[15]->SetTitle("Graph");
    cuthe3_3[15]->SetFillColor(1);
    cuthe3_3[15]->SetPoint(0,3.82131,3.52723);
@@ -2202,8 +2202,8 @@ void create_he3_T3_cuts() {
 void create_he3_T4_cuts() {
 
    cuthe3_4[0] = new TCutG("cuthe3_4_0",32);
-   cuthe3_4[0]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[0]->SetVarY("a20_1");
+   cuthe3_4[0]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[0]->SetVarY("a20_4");
    cuthe3_4[0]->SetTitle("Graph");
    cuthe3_4[0]->SetFillColor(1);
    cuthe3_4[0]->SetPoint(0,4.7735,3.2399);
@@ -2240,8 +2240,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[0]->SetPoint(31,4.7735,3.2399);
 
    cuthe3_4[1] = new TCutG("cuthe3_4_1",27);
-   cuthe3_4[1]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[1]->SetVarY("a20_1");
+   cuthe3_4[1]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[1]->SetVarY("a20_4");
    cuthe3_4[1]->SetTitle("Graph");
    cuthe3_4[1]->SetFillColor(1);
    cuthe3_4[1]->SetPoint(0,4.38857,3.34518);
@@ -2273,8 +2273,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[1]->SetPoint(26,4.38857,3.34518);
 
    cuthe3_4[2] = new TCutG("cuthe3_4_2",31);
-   cuthe3_4[2]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[2]->SetVarY("a20_1");
+   cuthe3_4[2]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[2]->SetVarY("a20_4");
    cuthe3_4[2]->SetTitle("Graph");
    cuthe3_4[2]->SetFillColor(1);
    cuthe3_4[2]->SetPoint(0,5.11311,3.01981);
@@ -2310,8 +2310,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[2]->SetPoint(30,5.11311,3.01981);
 
    cuthe3_4[3] = new TCutG("cuthe3_4_3",29);
-   cuthe3_4[3]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[3]->SetVarY("a20_1");
+   cuthe3_4[3]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[3]->SetVarY("a20_4");
    cuthe3_4[3]->SetTitle("Graph");
    cuthe3_4[3]->SetFillColor(1);
    cuthe3_4[3]->SetPoint(0,4.87811,3.25693);
@@ -2345,8 +2345,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[3]->SetPoint(28,4.87811,3.25693);
 
    cuthe3_4[4] = new TCutG("cuthe3_4_4",25);
-   cuthe3_4[4]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[4]->SetVarY("a20_1");
+   cuthe3_4[4]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[4]->SetVarY("a20_4");
    cuthe3_4[4]->SetTitle("Graph");
    cuthe3_4[4]->SetFillColor(1);
    cuthe3_4[4]->SetPoint(0,4.89769,3.14625);
@@ -2376,8 +2376,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[4]->SetPoint(24,4.89769,3.14625);
 
    cuthe3_4[5] = new TCutG("cuthe3_4_5",30);
-   cuthe3_4[5]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[5]->SetVarY("a20_1");
+   cuthe3_4[5]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[5]->SetVarY("a20_4");
    cuthe3_4[5]->SetTitle("Graph");
    cuthe3_4[5]->SetFillColor(1);
    cuthe3_4[5]->SetPoint(0,5.03478,3.08999);
@@ -2412,8 +2412,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[5]->SetPoint(29,5.03478,3.08999);
 
    cuthe3_4[6] = new TCutG("cuthe3_4_6",32);
-   cuthe3_4[6]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[6]->SetVarY("a20_1");
+   cuthe3_4[6]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[6]->SetVarY("a20_4");
    cuthe3_4[6]->SetTitle("Graph");
    cuthe3_4[6]->SetFillColor(1);
    cuthe3_4[6]->SetPoint(0,4.95644,3.09091);
@@ -2450,8 +2450,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[6]->SetPoint(31,4.95644,3.09091);
 
    cuthe3_4[7] = new TCutG("cuthe3_4_7",32);
-   cuthe3_4[7]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[7]->SetVarY("a20_1");
+   cuthe3_4[7]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[7]->SetVarY("a20_4");
    cuthe3_4[7]->SetTitle("Graph");
    cuthe3_4[7]->SetFillColor(1);
    cuthe3_4[7]->SetPoint(0,4.97603,3.01156);
@@ -2523,8 +2523,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[8]->SetPoint(28,4.91727,3.03633);
 
    cuthe3_4[9] = new TCutG("cuthe3_4_9",29);
-   cuthe3_4[9]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[9]->SetVarY("a20_1");
+   cuthe3_4[9]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[9]->SetVarY("a20_4");
    cuthe3_4[9]->SetTitle("Graph");
    cuthe3_4[9]->SetFillColor(1);
    cuthe3_4[9]->SetPoint(0,4.91727,3.05685);
@@ -2558,8 +2558,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[9]->SetPoint(28,4.91727,3.05685);
 
    cuthe3_4[10] = new TCutG("cuthe3_4_10",34);
-   cuthe3_4[10]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[10]->SetVarY("a20_1");
+   cuthe3_4[10]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[10]->SetVarY("a20_4");
    cuthe3_4[10]->SetTitle("Graph");
    cuthe3_4[10]->SetFillColor(1);
    cuthe3_4[10]->SetPoint(0,5.1327,3.02872);
@@ -2598,8 +2598,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[10]->SetPoint(33,5.1327,3.02872);
 
    cuthe3_4[11] = new TCutG("cuthe3_4_11",29);
-   cuthe3_4[11]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[11]->SetVarY("a20_1");
+   cuthe3_4[11]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[11]->SetVarY("a20_4");
    cuthe3_4[11]->SetTitle("Graph");
    cuthe3_4[11]->SetFillColor(1);
    cuthe3_4[11]->SetPoint(0,5.09353,3.0117);
@@ -2633,8 +2633,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[11]->SetPoint(28,5.09353,3.0117);
 
    cuthe3_4[12] = new TCutG("cuthe3_4_12",30);
-   cuthe3_4[12]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[12]->SetVarY("a20_1");
+   cuthe3_4[12]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[12]->SetVarY("a20_4");
    cuthe3_4[12]->SetTitle("Graph");
    cuthe3_4[12]->SetFillColor(1);
    cuthe3_4[12]->SetPoint(0,5.19145,3.0077);
@@ -2669,8 +2669,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[12]->SetPoint(29,5.19145,3.0077);
 
    cuthe3_4[13] = new TCutG("cuthe3_4_13",29);
-   cuthe3_4[13]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[13]->SetVarY("a20_1");
+   cuthe3_4[13]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[13]->SetVarY("a20_4");
    cuthe3_4[13]->SetTitle("Graph");
    cuthe3_4[13]->SetFillColor(1);
    cuthe3_4[13]->SetPoint(0,4.99561,3.0055);
@@ -2704,8 +2704,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[13]->SetPoint(28,4.99561,3.0055);
 
    cuthe3_4[14] = new TCutG("cuthe3_4_14",28);
-   cuthe3_4[14]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[14]->SetVarY("a20_1");
+   cuthe3_4[14]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[14]->SetVarY("a20_4");
    cuthe3_4[14]->SetTitle("Graph");
    cuthe3_4[14]->SetFillColor(1);
    cuthe3_4[14]->SetPoint(0,4.99561,2.93971);
@@ -2738,8 +2738,8 @@ void create_he3_T4_cuts() {
    cuthe3_4[14]->SetPoint(27,4.99561,2.93971);
 
    cuthe3_4[15] = new TCutG("cuthe3_4_15",30);
-   cuthe3_4[15]->SetVarX("a1_1+a20_1_un");
-   cuthe3_4[15]->SetVarY("a20_1");
+   cuthe3_4[15]->SetVarX("a1_4+a20_4_un");
+   cuthe3_4[15]->SetVarY("a20_4");
    cuthe3_4[15]->SetTitle("Graph");
    cuthe3_4[15]->SetFillColor(1);
    cuthe3_4[15]->SetPoint(0,5.21103,2.90409);
