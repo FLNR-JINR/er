@@ -39,6 +39,8 @@ public:
   Double_t GetEdepInThinStation() const {return fEdepInThinStation;}
   Double_t GetCorrectedEdepInThickStation() const {return fCorrectedEdepInThickStation;}
   Double_t GetCorrectedEdepInThinStation() const {return fCorrectedEdepInThinStation;}
+  ERChannel ChannelOfThinStation() const {return fChannelOfThinStation;}
+  ERChannel ChannelOfThickStation() const {return fChannelOfThickStation;}
 private:
   TLorentzVector fLVInteraction;
   Double_t  fKineticEnergy = 0.;
