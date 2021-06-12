@@ -82,7 +82,8 @@ void ERTelescopePID::SetParticle(
     const TString& trackBranchName, const PDG pdg, 
     const TString& deStation /*= ""*/, const TString& eStation /*= ""*/,
     const Double_t deNormalizedThickness /*= 0.002*/,
-    const std::vector<TString>& doNotUseSignalFromStations /* = {}*/) {
+    const std::vector<TString>& stations_to_use_em_calculator_for_de_e /* = {}*/,
+    const std::vector<TString>& stations_to_use_em_calculator_for_kinetic_energy/*= {}*/) {
   if ((deStation == "" && eStation != "") || (deStation != "" && eStation == ""))
     LOG(FATAL) << "If one of dE or E station is defined, another should be defined." 
                << FairLogger::endl;
@@ -91,17 +92,20 @@ void ERTelescopePID::SetParticle(
     eStations.push_back(eStation);
   fParticleDescriptions[trackBranchName].emplace_back(pdg, deStation, eStations,
                                                       deNormalizedThickness,
-                                                      doNotUseSignalFromStations);
+                                                      stations_to_use_em_calculator_for_de_e,
+                                                      stations_to_use_em_calculator_for_kinetic_energy);
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopePID::SetParticle(
     const TString& trackBranchName, const PDG pdg, 
     const TString& deStation /*= ""*/, const std::list<TString>& eStations /*= {}*/,
     const Double_t deNormalizedThickness /*= 0.002*/,
-    const std::vector<TString>& doNotUseSignalFromStations /* = {}*/) {
+    const std::vector<TString>& stations_to_use_em_calculator_for_de_e /* = {}*/,
+    const std::vector<TString>& stations_to_use_em_calculator_for_kinetic_energy/*= {}*/) {
   fParticleDescriptions[trackBranchName].emplace_back(pdg, deStation, eStations,
                                                       deNormalizedThickness,
-                                                      doNotUseSignalFromStations);
+                                                      stations_to_use_em_calculator_for_de_e,
+                                                      stations_to_use_em_calculator_for_kinetic_energy);
 }
 //--------------------------------------------------------------------------------------------------
 void ERTelescopePID::Exec(Option_t* opt) {
@@ -132,7 +136,8 @@ void ERTelescopePID::Exec(Option_t* opt) {
         std::list<DigiOnTrack> digisOnTrack;
         const auto energyDeposites = CalcEnergyDeposites(
             *track, back_propagation_start_point, *particle, digisOnTrack, 
-            particleDescription.fDoNotUseSignalFromStations);
+            particleDescription.stations_to_use_em_calculator_for_de_e_,
+            particleDescription.stations_to_use_em_calculator_for_kinetic_energy_);
         Double_t edepInThickStation = -1., edepInThinStation = -1., 
                  edepInThickStationCorrected = -1., edepInThinStationCorrected = -1.;
         ERChannel channelOfThinStation = consts::undefined_channel;
@@ -144,8 +149,8 @@ void ERTelescopePID::Exec(Option_t* opt) {
                                    channelOfThinStation, channelOfThickStation);
         const auto digisDeposite = energyDeposites.first;
         const auto deadDeposite = energyDeposites.second;
-        const auto kineticEnergy = digisDeposite + deadDeposite;
-        const Double_t fullEnergy = mass + kineticEnergy;
+        const auto kinetic_energy = digisDeposite + deadDeposite;
+        const Double_t fullEnergy = mass + kinetic_energy;
         // Calculate Lorentz vector of particle at the exit of the reaction in lab system.
         const Double_t momentumMag = sqrt(pow(fullEnergy, 2) - pow(mass, 2) );
         TVector3 direction = track->GetDirection();
@@ -153,7 +158,7 @@ void ERTelescopePID::Exec(Option_t* opt) {
         const TLorentzVector lvTarget (momentum, fullEnergy);
         // Add particle to collection.
         auto& particleCollection = *fQTelescopeParticle[trackBranch][pdg];
-        AddParticle(lvTarget, kineticEnergy, deadDeposite, edepInThickStation, edepInThinStation,
+        AddParticle(lvTarget, kinetic_energy, deadDeposite, edepInThickStation, edepInThinStation,
                     edepInThickStationCorrected, edepInThinStationCorrected,
                     channelOfThinStation, channelOfThickStation, particleCollection);
       }
@@ -173,12 +178,12 @@ void ERTelescopePID::Reset() {
 }
 //--------------------------------------------------------------------------------------------------
 ERTelescopeParticle* ERTelescopePID::
-AddParticle(const TLorentzVector& lvInteraction, const Double_t kineticEnergy, const Double_t deadEloss,
+AddParticle(const TLorentzVector& lvInteraction, const Double_t kinetic_energy, const Double_t deadEloss,
             Double_t edepInThickStation, Double_t edepInThinStation,
             Double_t edepInThickStationCorrected, Double_t edepInThinStationCorrected,
             const ERChannel channelOfThinStation, const ERChannel channelOfThickStation,
             TClonesArray& col) {
-  return new(col[col.GetEntriesFast()]) ERTelescopeParticle(lvInteraction, kineticEnergy, deadEloss,
+  return new(col[col.GetEntriesFast()]) ERTelescopeParticle(lvInteraction, kinetic_energy, deadEloss,
                                             edepInThickStation, edepInThinStation, 
                                             edepInThickStationCorrected, edepInThinStationCorrected,
                                             channelOfThinStation, channelOfThickStation);
@@ -231,7 +236,8 @@ std::pair<Double_t, Double_t> ERTelescopePID::
 CalcEnergyDeposites(const ERTelescopeTrack& track, const TVector3& start_point, 
                     const G4ParticleDefinition& particle,
                     std::list<DigiOnTrack>& digisOnTrack,
-                    const std::vector<TString>& doNotUseSignalFromStations) {
+                    const std::vector<TString>& stations_to_use_em_calculator_for_de_e,
+                    const std::vector<TString>& stations_to_use_em_calculator_for_kinetic_energy) {
   // Calc paritcle energy deposites in setup using back track propagation from start point.
   // Return pair: first - sum of energy deposites in digi(sensetive volumes); 
   //              second - sum of energy deposites in passive volumes (or dead energy deposite).
@@ -242,7 +248,7 @@ CalcEnergyDeposites(const ERTelescopeTrack& track, const TVector3& start_point,
   // which track has passed in setup. If the track stopped earlier, 
   // it will be taken into account automatically, because particle 
   // with zero kinetic energy can not loss energy ;)
-  Double_t kineticEnergy = 0.;
+  Double_t kinetic_energy = 0.;
   // Init track in back direction.
   auto back_direction = track.GetBackDirection();
   const TString log_prefix = "[ERTelescopePID] [CalcEnergyDeposites] ";
@@ -251,6 +257,14 @@ CalcEnergyDeposites(const ERTelescopeTrack& track, const TVector3& start_point,
              << start_point.Y() << "," << start_point.Z() << "; and direction = " 
              << back_direction.X() << "," << back_direction.Y() << "," << back_direction.Z()
              << FairLogger::endl;
+  const auto calc_edep_using_em_calulator = 
+  [&log_prefix, &particle](TGeoNode* node, float step, float T) {
+    const TString materialName = node->GetMedium()->GetMaterial()->GetName();
+    const auto* material = G4NistManager::Instance()->FindOrBuildMaterial(materialName.Data());
+    LOG(DEBUG) << log_prefix <<" Calc energy deposite for range " << step << " in material "
+                << materialName << " with kinetic energy " << T << FairLogger::endl;
+    return CalcElossIntegralVolStep(T, particle, *material, step);
+  };
   TGeoNode* node = gGeoManager->InitTrack(start_point.X(), start_point.Y(), start_point.Z(),
                                           back_direction.X(), back_direction.Y(), back_direction.Z());
   // While track not in interaction volume or outside the setup,
@@ -263,57 +277,64 @@ CalcEnergyDeposites(const ERTelescopeTrack& track, const TVector3& start_point,
     LOG(DEBUG) << log_prefix << "path  = " 
                << gGeoManager->GetPath() << FairLogger::endl;
     // If track in sensetive volume, try to find digi
-    Bool_t digisForNodeAreFound = kFALSE;
     const TString nodePath = TString(gGeoManager->GetPath());
-    if (nodePath.Contains("Sensitive")){
-      const Bool_t nodeFromStationWithNotAccauntingSignal = 
-          std::find_if(doNotUseSignalFromStations.begin(), doNotUseSignalFromStations.end(), 
-                       [&nodePath](const TString& station) {return nodePath.Contains(station);})
-          != doNotUseSignalFromStations.end();
-      if (!nodeFromStationWithNotAccauntingSignal) {
-        LOG(DEBUG) << log_prefix <<" Get energy deposite from digis." << FairLogger::endl;
-        const auto branchAndDigis = FindDigisByNode(*node, gGeoManager->GetPath());
-        digisForNodeAreFound = !branchAndDigis.empty();
-        if (digisForNodeAreFound) {
-          for (const auto& branchAndDigi : branchAndDigis) {
-            const auto digiBranch = branchAndDigi.first;
-            const auto* digi = branchAndDigi.second;
-            digisOnTrack.emplace_back(digiBranch, digi, gGeoManager->GetStep());
-          }
-          const Double_t edepInStation = ApplyEdepAccountingStrategy(branchAndDigis);
-          kineticEnergy += edepInStation;
-          digiDepositesSum += edepInStation;
-        }
-      }
-    }
     bool is_last_step = false;
-    if (!digisForNodeAreFound){ 
-      // track in passive volume or treat sensetive volume as passive
+    if (nodePath.Contains("Sensitive")){
+      const Bool_t use_em_calcaulator_for_de_e = 
+        std::find_if(stations_to_use_em_calculator_for_de_e.begin(),
+                     stations_to_use_em_calculator_for_de_e.end(), 
+                     [&nodePath](const TString& station) {return nodePath.Contains(station);})
+        != stations_to_use_em_calculator_for_de_e.end();
+      const Bool_t use_em_calcaulator_for_kinetic_energy = 
+        std::find_if(stations_to_use_em_calculator_for_kinetic_energy.begin(),
+                     stations_to_use_em_calculator_for_kinetic_energy.end(), 
+                     [&nodePath](const TString& station) {return nodePath.Contains(station);})
+        != stations_to_use_em_calculator_for_kinetic_energy.end();
+      LOG(DEBUG) << log_prefix <<" Finding digis..." << FairLogger::endl;
+      auto branchAndDigis = FindDigisByNode(*node, gGeoManager->GetPath());
+      Bool_t digis_for_node_are_found = !branchAndDigis.empty();
+      float edep_using_em_calculator = -1.;
+      if (!digis_for_node_are_found 
+          || use_em_calcaulator_for_de_e 
+          || use_em_calcaulator_for_kinetic_energy) {
+        edep_using_em_calculator = calc_edep_using_em_calulator(node, gGeoManager->GetStep(),
+                                                                kinetic_energy);
+      }
+      for (auto& branchAndDigi : branchAndDigis) {
+        const auto digiBranch = branchAndDigi.first;
+        auto* digi = branchAndDigi.second;
+        if (use_em_calcaulator_for_de_e)
+          digi->SetEdep(edep_using_em_calculator);
+        digisOnTrack.emplace_back(digiBranch, digi, gGeoManager->GetStep());
+      }
+      const Double_t edepInStation = digis_for_node_are_found && !use_em_calcaulator_for_kinetic_energy
+                                     ? ApplyEdepAccountingStrategy(branchAndDigis)
+                                     : edep_using_em_calculator;
+      kinetic_energy += edepInStation;
+      digiDepositesSum += edepInStation;
+    } else {
+      // track in passive volume
       auto step = gGeoManager->GetStep();
       const auto target_vertex = track.GetTargetVertex();
       const double step_to_target_vertex = (target_vertex - current_position).Mag();
       is_last_step = step_to_target_vertex <= step;
       step = is_last_step ? step_to_target_vertex : step;
-      const TString materialName = node->GetMedium()->GetMaterial()->GetName();
-      const auto* material = G4NistManager::Instance()->FindOrBuildMaterial(materialName.Data());
-      LOG(DEBUG) << log_prefix <<" Calc energy deposite for range " << step << " in material "
-                 << materialName << " with kinetic energy " << kineticEnergy << FairLogger::endl;
-      const auto deadDeposite = CalcElossIntegralVolStep(kineticEnergy, particle, *material, step);
-      kineticEnergy += deadDeposite;
+      const auto deadDeposite = calc_edep_using_em_calulator(node, step, kinetic_energy);
+      kinetic_energy += deadDeposite;
       deadDepositesSum += deadDeposite;
     }
-    LOG(DEBUG) << log_prefix << "Current kinetic Energy  = " << kineticEnergy << FairLogger::endl;
+    LOG(DEBUG) << log_prefix << "Current kinetic Energy  = " << kinetic_energy << FairLogger::endl;
     if (is_last_step)
       break;
     node = gGeoManager->Step();
   }
   LOG(DEBUG) << log_prefix << "Finish deposite calculation with Kinetic energy = " 
-             << kineticEnergy << " = digis sum deposite  : " << digiDepositesSum
+             << kinetic_energy << " = digis sum deposite  : " << digiDepositesSum
              << " + dead deposites sum : " << deadDepositesSum << FairLogger::endl;
   return {digiDepositesSum, deadDepositesSum};
 }
 //--------------------------------------------------------------------------------------------------
-std::map<TString, const ERDigi*> ERTelescopePID::FindDigisByNode(const TGeoNode& node, const TString& nodePath) {
+std::map<TString, ERDigi*> ERTelescopePID::FindDigisByNode(const TGeoNode& node, const TString& nodePath) {
   // example SSD: /cave_1/QTelescopeTmp_0/Telescope_4_5/Telescope_4_SingleSi_SSD_V_4_X_11/SensitiveSingleSiStrip_X_2
   // example DSD: /cave_1/QTelescopeTmp_0/CT_3/CT_DoubleSi_DSD_XY_0/doubleSiStrip_XY_0/SensitiveDoubleSiBox_XY_16
   // example CsI: /cave_1/QTelescopeTmp_0/Central_telescope_3/Central_telescope_CsI_0/CsIBoxShell_8/SensitiveCsIBox_1
@@ -321,7 +342,7 @@ std::map<TString, const ERDigi*> ERTelescopePID::FindDigisByNode(const TGeoNode&
   // example R SSD: /cave_1/QTelescopeTmp_0/Telescope_1_1/Telescope_1_SingleSi_Phi1_X_0/r_station_0/Sensitivestrip_12
   // example R DSD: /cave_1/QTelescopeTmp_0/Telescope_1_1/Telescope_1_DoubleSi_R_XY_0/r_station_0/Segment_3/SensitiveSegment_1
   // example R CsI: /cave_1/QTelescopeTmp_0/Telescope_1_1/Telescope_1_CsI_Radial_0/CrystalShell_7/SensitiveCrystal_0
-  std::map<TString, const ERDigi*> resultDigis;
+  std::map<TString, ERDigi*> resultDigis;
   const bool nodeOfDoubleSiStation = nodePath.Contains("DoubleSi");
   //@TODO here Setup->GetComponent(path) interface should be used in future.
   const auto getDigiBranchSubString = [&node, &nodePath, nodeOfDoubleSiStation]() -> TString {
@@ -368,14 +389,14 @@ std::map<TString, const ERDigi*> ERTelescopePID::FindDigisByNode(const TGeoNode&
   };
   const auto channels = getChannels();
   for (const auto& digiBranchName : digiBranchNames) {
-    const auto* digis = fQTelescopeDigi[digiBranchName];
+    auto* digis = fQTelescopeDigi[digiBranchName];
     // @BUG Code only for XY doubleSi stations.
     Int_t channel = (nodeOfDoubleSiStation && digiBranchName.EndsWith("_X")) ? channels[1] : channels[0];
     LOG(DEBUG) << "   [ERTelescopePID][CalcEnergyDeposites] Finding digi with channel number " 
                << channel << " in branch " << digiBranchName << FairLogger::endl;
     Bool_t digiFound = false;
     for (Int_t iDigi = 0; iDigi < digis->GetEntriesFast(); iDigi++){
-      const auto* digi = static_cast<ERDigi*>(digis->At(iDigi));
+      auto* digi = static_cast<ERDigi*>(digis->At(iDigi));
        LOG(DEBUG) << "   [ERTelescopePID][CalcEnergyDeposites]  Collection has digi with channel " 
                   << digi->Channel() << " and edep " << digi->Edep() << FairLogger::endl;
       if (digi->Channel() != channel)
@@ -455,7 +476,7 @@ void ERTelescopePID::FindEnergiesForDeEAnalysis(const TString& trackBranch,
              << " corrected to " << edepInThickStationCorrected << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t ERTelescopePID::ApplyEdepAccountingStrategy(const std::map<TString, const ERDigi*>& digisByBranchName) {
+Double_t ERTelescopePID::ApplyEdepAccountingStrategy(const std::map<TString, ERDigi*>& digisByBranchName) {
   if (digisByBranchName.empty())
     return 0;
   // @TODO setup->GetComponent(branchName) and component->ComponentName() should be used here
@@ -496,8 +517,8 @@ Double_t ERTelescopePID::ApplyEdepAccountingStrategy(const std::map<TString, con
 }
 //--------------------------------------------------------------------------------------------------
 Double_t ERTelescopePID::ApplyEdepAccountingStrategy(const std::list<DigiOnTrack>& digisOnTrack) {
-  std::map<TString, const ERDigi*> digisByBranchName;
-  for (const auto& digiOnTrack : digisOnTrack) {
+  std::map<TString, ERDigi*> digisByBranchName;
+  for (auto& digiOnTrack : digisOnTrack) {
     digisByBranchName[digiOnTrack.fBranch] = digiOnTrack.fDigi;
   }
   return ApplyEdepAccountingStrategy(digisByBranchName);

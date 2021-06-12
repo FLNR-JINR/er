@@ -57,21 +57,21 @@ void reco(TString inFile,TString outFile) {
   Double_t normalizedThickness = 0.002; // [cm]
   Double_t DSD_thickness = 0.15; // [cm]
   qtelescopePID->SetParticle("Telescope_1_SingleSi_SSD20_1_XTelescope_1_SingleSi_SSD_1_Y", 1000020030,
-                              deStation1, eStation1, normalizedThickness);
+                              deStation1, eStation1, normalizedThickness, {}, {"SSD20_1"});
   qtelescopePID->SetParticle("Telescope_2_SingleSi_SSD_2_XTelescope_2_SingleSi_SSD20_2_Y", 1000020030,
-                             "SSD20_2", "SSD_2", normalizedThickness);
+                             "SSD20_2", "SSD_2", normalizedThickness, {}, {"SSD20_2"});
   qtelescopePID->SetParticle("Telescope_3_SingleSi_SSD20_3_XTelescope_3_SingleSi_SSD_3_Y", 1000020030,
-                             "SSD20_3", "SSD_3", normalizedThickness);
+                             "SSD20_3", "SSD_3", normalizedThickness, {}, {"SSD20_3"});
   qtelescopePID->SetParticle("Telescope_4_SingleSi_SSD_4_XTelescope_4_SingleSi_SSD20_4_Y", 1000020030,
-                             "SSD20_4", "SSD_4", normalizedThickness);
+                             "SSD20_4", "SSD_4", normalizedThickness, {}, {"SSD20_4"});
   qtelescopePID->SetParticle("Telescope_1_SingleSi_SSD20_1_XTelescope_1_SingleSi_SSD_1_Y", 1000020040,
-                              deStation1, eStation1, normalizedThickness);
+                              deStation1, eStation1, normalizedThickness, {}, {"SSD20_1"});
   qtelescopePID->SetParticle("Telescope_2_SingleSi_SSD_2_XTelescope_2_SingleSi_SSD20_2_Y", 1000020040,
-                             "SSD20_2", "SSD_2", normalizedThickness);
+                             "SSD20_2", "SSD_2", normalizedThickness, {}, {"SSD20_2"});
   qtelescopePID->SetParticle("Telescope_3_SingleSi_SSD20_3_XTelescope_3_SingleSi_SSD_3_Y", 1000020040,
-                             "SSD20_3", "SSD_3", normalizedThickness);
+                             "SSD20_3", "SSD_3", normalizedThickness, {}, {"SSD20_3"});
   qtelescopePID->SetParticle("Telescope_4_SingleSi_SSD_4_XTelescope_4_SingleSi_SSD20_4_Y", 1000020040,
-                             "SSD20_4", "SSD_4", normalizedThickness);
+                             "SSD20_4", "SSD_4", normalizedThickness, {}, {"SSD20_4"});
   qtelescopePID->SetParticle("Central_telescope_DoubleSi_DSD_XY", 1000010030, "DSD", "CsI", DSD_thickness);
   qtelescopePID->SetEdepAccountingStrategy("DSD", ERTelescopePID::EdepAccountingStrategy::EdepFromXChannel);
   qtelescopeTrackFinder->SetTrackPositionCorrection("SSD_1_Y", 0, 0.25);

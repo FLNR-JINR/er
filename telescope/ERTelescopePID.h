@@ -40,21 +40,24 @@ public:
     const TString fDeStation;
     const std::list<TString> fEStations;
     const Double_t fNormalizedThickness = 0.002;
-    const std::vector<TString> fDoNotUseSignalFromStations;
+    const std::vector<TString> stations_to_use_em_calculator_for_de_e_;
+    const std::vector<TString> stations_to_use_em_calculator_for_kinetic_energy_;
     ParticleDescription() = default;
     ParticleDescription(PDG pdg, const TString& deStation, 
                         const std::list<TString>& eStations, Double_t normalizedThickness,
-                        const std::vector<TString>& doNotUseSignalFromStations)
+                        const std::vector<TString>& stations_to_use_em_calculator_for_de_e,
+                        const std::vector<TString>& stations_to_use_em_calculator_for_kinetic_energy)
         : fPDG(pdg), fDeStation(deStation), fEStations(eStations),
           fNormalizedThickness(normalizedThickness), 
-          fDoNotUseSignalFromStations(doNotUseSignalFromStations) {}
+          stations_to_use_em_calculator_for_de_e_(stations_to_use_em_calculator_for_de_e),
+          stations_to_use_em_calculator_for_kinetic_energy_(stations_to_use_em_calculator_for_kinetic_energy) {}
   };
   struct DigiOnTrack {
     const TString fBranch;
-    const ERDigi* fDigi = nullptr;
+    ERDigi* fDigi = nullptr;
     const Double_t fSensetiveThickness = 0.;
     DigiOnTrack() = default;
-    DigiOnTrack(const TString& branch, const ERDigi* digi, Double_t sensetiveThickness) :
+    DigiOnTrack(const TString& branch, ERDigi* digi, Double_t sensetiveThickness) :
         fBranch(branch), fDigi(digi), fSensetiveThickness(sensetiveThickness) {}
     bool IsFound() const { return fDigi != nullptr; }
   };
@@ -71,11 +74,13 @@ public:
   void SetParticle(const TString& trackBranchName, const PDG pdg, 
                    const TString& deStation = "", const TString& eStation = "",
                    Double_t deNormalizedThickness = 0.002, 
-                   const std::vector<TString>& doNotUseSignalFromStations = {});
+                   const std::vector<TString>& stations_to_use_em_calculator_for_de_e = {},
+                   const std::vector<TString>& stations_to_use_em_calculator_for_kinetic_energy = {});
   void SetParticle(const TString& trackBranchName, const PDG pdg, 
                    const TString& deStation = "", const std::list<TString>& eStations = {},
                    Double_t deNormalizedThickness = 0.002, 
-                   const std::vector<TString>& doNotUseSignalFromStations = {});
+                   const std::vector<TString>& stations_to_use_em_calculator_for_de_e = {},
+                   const std::vector<TString>& stations_to_use_em_calculator_for_kinetic_energy = {});
   void SetEdepAccountingStrategy(
       const TString& station, EdepAccountingStrategy strategy) {
     fEdepAccountingStrategies[station] = strategy;
@@ -106,8 +111,9 @@ protected:
   std::pair<Double_t, Double_t> CalcEnergyDeposites (
       const ERTelescopeTrack& track, const TVector3& startPoint,
       const G4ParticleDefinition& particle, std::list<DigiOnTrack>& digisOnTrack,
-      const std::vector<TString>& doNotUseSignalFromStations);
-  std::map<TString, const ERDigi*> FindDigisByNode(const TGeoNode& node, const TString& nodePath);
+      const std::vector<TString>& stations_to_use_em_calculator_for_de_e,
+      const std::vector<TString>& stations_to_use_em_calculator_for_kinetic_energy);
+  std::map<TString, ERDigi*> FindDigisByNode(const TGeoNode& node, const TString& nodePath);
   void FindEnergiesForDeEAnalysis(const TString& trackBranch,
                                   const std::list<DigiOnTrack>& digisOnTrack, 
                                   const std::list<TString>& eStations, 
@@ -116,7 +122,7 @@ protected:
                                   Double_t& edepInThickStation, Double_t& edepInThinStation,
                                   Double_t& edepInThickStationCorrected, Double_t& edepInThinStationCorrected,
                                   ERChannel& channelOfThinStation, ERChannel& channelOfThickStation);
-  Double_t ApplyEdepAccountingStrategy(const std::map<TString, const ERDigi*>& digisByBranchName);
+  Double_t ApplyEdepAccountingStrategy(const std::map<TString, ERDigi*>& digisByBranchName);
   Double_t ApplyEdepAccountingStrategy(const std::list<DigiOnTrack>& digisOnTrack);
   /** @brief Adds a ERTelescopeParticles to the output Collection **/
   ERTelescopeParticle* AddParticle(const TLorentzVector& lvInteraction, Double_t kineticEnergy,
