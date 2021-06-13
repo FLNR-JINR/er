@@ -434,7 +434,7 @@ void ERBeamDetSetup::GetMWPCParameters(TXMLNode *node) {
 }
 //--------------------------------------------------------------------------------------------------
 Double_t ERBeamDetSetup::GetDistanceBetweenToF(Int_t tof1Ind, Int_t tof2Ind) {
-  return TMath::Abs(fPositionToF[0] - fPositionToF[tof2Ind]);
+  return TMath::Abs(fPositionToF[tof1Ind] - fPositionToF[tof2Ind]);
 }
 //--------------------------------------------------------------------------------------------------
 void ERBeamDetSetup::PrintDetectorParameters(void) {
@@ -760,16 +760,8 @@ void ERBeamDetSetup::ConstructGeometry() {
     beamdet->AddNode(MWPC[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionMWPC[i], fGlobalRotation));
   }
   // ---------------- ToF -----------------------------------------------------
-  beamdet->AddNode(fictitiousFirstPlastic, 0, new TGeoCombiTrans(global_X, global_Y, fPositionToF[0], fGlobalRotation));
   for(Int_t i = 0; i < fToFCount; i++) {
-    if (!i) {
-      beamdet->AddNode(plastic[i], i+1, new TGeoCombiTrans(global_X, 
-                                                           global_Y, 
-                                                           fPositionToF[GetToFCount() - 1] - fPlasticZ[i] / 2, 
-                                                           fGlobalRotation));      
-      continue;
-    }
-    beamdet->AddNode(plastic[i], i+1, new TGeoCombiTrans(global_X, global_Y, fPositionToF[i], fGlobalRotation));
+    beamdet->AddNode(plastic[i], i, new TGeoCombiTrans(global_X, global_Y, fPositionToF[i], fGlobalRotation));
   }
 
   top->AddNode(beamdet, 1, new TGeoCombiTrans(global_X ,global_Y, global_Z, fGlobalRotation));

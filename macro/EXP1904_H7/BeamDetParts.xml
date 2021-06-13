@@ -3,7 +3,7 @@
 	<ToFTypes>
 		<ToF id="ToF1">
 			<plasticGeometry X="100" Y="100" Z="0.01"/>
-			<plasticMedia>BC408</plasticMedia>
+			<plasticMedia>vacuum</plasticMedia>
 		</ToF>
 		<ToF id="ToF2">
 			<plasticGeometry X="100" Y="100" Z="0.01"/>

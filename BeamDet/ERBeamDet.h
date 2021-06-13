@@ -115,7 +115,6 @@ class ERBeamDet : public ERDetector {
     TString fIonName;
     Int_t fIonPID = -1;
     Bool_t fIonPIDIsSet = kFALSE;
-    Double_t fDistanceBetweenToFs = 0.;
     ClassDef(ERBeamDet,1);
 };
 

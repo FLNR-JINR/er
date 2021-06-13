@@ -183,11 +183,6 @@ void ERBeamDet::ConstructGeometry() {
   SetGeometryFileName("beamdet.temp.root");
   ConstructRootGeometry();
   fSensitiveTargetIsSet = fSetup->CheckIfTargetIsSet();
-  //  calculation of the distance between the first ToF's back side and the last ToF's front side
-  Double_t distBtwToFCenters = fSetup->GetDistanceBetweenToF(0, fSetup->GetToFCount() - 1);
-  Double_t halfThicknessFirstToF = fSetup->GetToFThickness(1) / 2;                     
-  Double_t halfThicknessLastToF  = fSetup->GetToFThickness(fSetup->GetToFCount()) / 2;                     
-  fDistanceBetweenToFs = distBtwToFCenters - halfThicknessFirstToF - halfThicknessLastToF;
 }
 //-------------------------------------------------------------------------------------------------
 Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
@@ -237,16 +232,6 @@ Bool_t ERBeamDet::ProcessHits(FairVolume* vol) {
     if (fELoss > 0.){
       if(volName.Contains("plastic")) {
         gMC->CurrentVolID(fToFNb);
-        if (fToFNb == 0) {
-          return kTRUE;
-        }
-        if (fToFNb == 1 && fMot0TrackID == -1) {
-          Double_t flightDistance;  // particle flight distance between first and last ToF plastics
-          Double_t v;               // track speed
-          v = fMomOut.Beta() * TMath::C();
-          flightDistance = fDistanceBetweenToFs * 1e-2 / TMath::Cos(fMomOut.Theta());
-          fTime -= flightDistance * 1e9 / v;
-        }
         AddTOFPoint();
         if (fMot0TrackID != -1) {
           gMC->StopTrack();
