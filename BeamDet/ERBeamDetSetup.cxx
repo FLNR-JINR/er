@@ -761,7 +761,7 @@ void ERBeamDetSetup::ConstructGeometry() {
   }
   // ---------------- ToF -----------------------------------------------------
   for(Int_t i = 0; i < fToFCount; i++) {
-    beamdet->AddNode(plastic[i], i, new TGeoCombiTrans(global_X, global_Y, fPositionToF[i], fGlobalRotation));
+    beamdet->AddNode(plastic[i], i + 1, new TGeoCombiTrans(global_X, global_Y, fPositionToF[i], fGlobalRotation));
   }
 
   top->AddNode(beamdet, 1, new TGeoCombiTrans(global_X ,global_Y, global_Z, fGlobalRotation));

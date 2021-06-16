@@ -106,6 +106,12 @@ void drawH7() {
     h7_by_t3->Draw("mm >> +all_mm_cut", create_he3_cut(3) + " && triton_ekin_in_cm < 4./7. * mm", "same");
     h7_by_t4->Draw("mm >> +all_mm_cut", create_he3_cut(4) +  " && triton_ekin_in_cm < 4./7. * mm", "same");
 
+    h7_by_t1->SetLineColor(kGreen);
+    h7_by_t1->Draw("mm >> all_mm_cut10(25,0,25)", create_he3_cut(1) + " && triton_ekin_in_cm < 2./7. * mm", "same");
+    h7_by_t2->Draw("mm >> +all_mm_cut10", create_he3_cut(2) +  " && triton_ekin_in_cm < 2./7. * mm", "same");
+    h7_by_t3->Draw("mm >> +all_mm_cut10", create_he3_cut(3) + " && triton_ekin_in_cm < 2./7. * mm", "same");
+    h7_by_t4->Draw("mm >> +all_mm_cut10", create_he3_cut(4) +  " && triton_ekin_in_cm < 2./7. * mm", "same");
+
     c1->cd(2);
 
     h7_by_t1->SetLineColor(kRed);
@@ -113,13 +119,13 @@ void drawH7() {
     h7_by_t2->Draw("mm >> +all_mm_cut2", create_he3_cut(2) +  " && triton_ekin_in_cm < 4./7. * mm");
     h7_by_t3->Draw("mm >> +all_mm_cut2", create_he3_cut(3) + " && triton_ekin_in_cm < 4./7. * mm");
     h7_by_t4->Draw("mm >> +all_mm_cut2", create_he3_cut(4) +  " && triton_ekin_in_cm < 4./7. * mm");
-
+    /*
     h7_by_t1->SetLineColor(kGreen);
     h7_by_t1->Draw("mm >> all_mm_cut3(25,0,25)", create_he3_cut(1) + " && triton_ekin_in_cm < 4./7. * mm && theta_cm < 18", "same");
     h7_by_t2->Draw("mm >> +all_mm_cut3", create_he3_cut(2) +  " && triton_ekin_in_cm < 4./7. * mm && theta_cm < 18", "same");
     h7_by_t3->Draw("mm >> +all_mm_cut3", create_he3_cut(3) + " && triton_ekin_in_cm < 4./7. * mm && theta_cm < 18", "same");
     h7_by_t4->Draw("mm >> +all_mm_cut3", create_he3_cut(4) +  " && triton_ekin_in_cm < 4./7. * mm && theta_cm < 18", "same");
-
+    */
     c1->cd(3);
     h7_by_t1->Draw("triton_ekin_in_cm:mm", create_he3_cut(1));
     h7_by_t2->Draw("triton_ekin_in_cm:mm", create_he3_cut(2), "same");
