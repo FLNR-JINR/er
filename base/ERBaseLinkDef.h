@@ -18,4 +18,6 @@
 #pragma link C++ class ERRunAna+;
 #pragma link C++ class ERRecoMCApplication+;
 
+#pragma link C++ class ElossCalculator+;
+
 #endif

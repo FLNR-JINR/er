@@ -336,3 +336,31 @@ Double_t CalcElossIntegralVolStep (Double_t kineticEnergy, const G4ParticleDefin
   }
   return integralEloss;
 }
+
+Double_t ElossCalculator::CalcDeDx(const TString& material_name, const int pdg, const double kineticEnergy) {
+  const auto* particle = G4ParticleTable::GetParticleTable()->FindParticle(pdg);
+  const auto* material = G4NistManager::Instance()->FindOrBuildMaterial(material_name.Data());
+  G4EmCalculator calc;
+  return calc.GetDEDX(kineticEnergy, particle, material);
+}
+
+Double_t ElossCalculator::CalcDeDx_long(const TString& material_name, const int pdg, double kineticEnergy, const Double_t range) {
+  const auto* particle = G4ParticleTable::GetParticleTable()->FindParticle(pdg);
+  const auto* material = G4NistManager::Instance()->FindOrBuildMaterial(material_name.Data());
+  G4EmCalculator calc;
+  
+  Double_t integralEloss = 0.;
+  const Double_t intStep = range / 20;
+  Double_t curStep = 0.;
+  
+ while (curStep < range) {
+   Double_t eloss = calc.GetDEDX(kineticEnergy, particle, material) * intStep * 10 ; // MeV
+    integralEloss += eloss;
+    kineticEnergy += eloss;
+    curStep += intStep;
+  }
+  return integralEloss;
+  //return calc.GetDEDX(kineticEnergy, particle, material);
+}
+
+ClassImp(ElossCalculator)

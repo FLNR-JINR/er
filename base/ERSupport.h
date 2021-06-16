@@ -86,4 +86,11 @@ Double_t CalcElossIntegralVolStep(Double_t T, const G4ParticleDefinition& ion,
                                    const G4Material& mat, const Double_t range, 
                                    const Double_t intStep=1e-4);
 
+class ElossCalculator {
+    public:
+        static double CalcDeDx_long(const TString& material, int pdg, double kineticEnergy,const Double_t range);
+        static double CalcDeDx(const TString& material, int pdg, double kineticEnergy);
+    ClassDef(ElossCalculator,1)
+};
+
 #endif
