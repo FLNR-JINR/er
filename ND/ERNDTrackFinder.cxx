@@ -27,7 +27,7 @@ InitStatus ERNDTrackFinder::Init() {
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   fNDDigis = (TClonesArray*) ioman->GetObject("NDDigi");
   if (!fNDDigis) Fatal("Init", "Can`t find collection NDDigi!"); 
-  fNDTracks = new TClonesArray("ERTrack",1000);
+  fNDTracks = new TClonesArray("ERNDTrack",1000);
   ioman->Register("NDTrack", "ND track", fNDTracks, kTRUE);
   fSetup = ERNDSetup::Instance();
   if (!fUserTargetVertexIsSet) {
@@ -56,7 +56,7 @@ void ERNDTrackFinder::Exec(Option_t* opt) {
   }
   for (Int_t iDigi(0); iDigi < fNDDigis->GetEntriesFast(); iDigi++) {
     const auto* digi = static_cast<ERNDDigi*>(fNDDigis->At(iDigi));
-    AddTrack(fSetup->Pos(digi->Channel()), fTargetVertex, digi->Edep());
+    AddTrack(fSetup->Pos(digi->Channel()), fTargetVertex, digi->Edep(), digi->Time(), digi->TAC());
   }
 }
 
@@ -69,8 +69,9 @@ void ERNDTrackFinder::SetTargetVertex(const TVector3& vertex) {
   fUserTargetVertexIsSet = true;
 }
 
-ERTrack* ERNDTrackFinder::AddTrack(const TVector3& detectorVertex, 
-                                   const TVector3& targetVertex, Double_t edep) {
+ERNDTrack* ERNDTrackFinder::AddTrack(const TVector3& detectorVertex, 
+                                     const TVector3& targetVertex,
+                                     float edep, float time, float tac) {
     return new((*fNDTracks)[fNDTracks->GetEntriesFast()])
-        ERTrack(detectorVertex, targetVertex, edep);
+                            ERNDTrack(detectorVertex, targetVertex, edep, time, tac);
 }

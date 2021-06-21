@@ -18,7 +18,8 @@
 
 #include "FairLogger.h"
 
-#include "ERTrack.h"
+#include "ERNDTrack.h"
+#include "ERBeamDetParticle.h"
 #include "ERSupport.h"
 //--------------------------------------------------------------------------------------------------
 ERNDPID::ERNDPID()
@@ -33,14 +34,18 @@ InitStatus ERNDPID::Init() {
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   fNDTracks = (TClonesArray*) ioman->GetObject("NDTrack");
   if (!fNDTracks) Fatal("Init", "Can`t find collection NDTrack!"); 
-  fNDParticles = new TClonesArray("ERParticle",1000);
+  fNDParticles = new TClonesArray("ERNDParticle",1000);
   ioman->Register("NDParticle", "ND particle", fNDParticles, kTRUE);
   fSetup = ERNDSetup::Instance();
   fSetup->ReadGeoParamsFromParContainer();
+  fBeamDetParticle = (TClonesArray*) ioman->GetObject("BeamDetParticle.");
+  if (!fBeamDetParticle) {
+    LOG(FATAL) << "Branch BeamDetParticle not found." << FairLogger::endl;
+  }
   return kSUCCESS;
 }
 //--------------------------------------------------------------------------------------------------
-Double_t KineticEnergyOnTarget(const ERTrack& track, Double_t kineticEnergy) {
+Double_t KineticEnergyOnTarget(const ERNDTrack& track, Double_t kineticEnergy) {
   // Init track in back direction.
   auto backDirection = (track.TargetVertex() - track.DetectorVertex());
   backDirection.SetMag(1.);
@@ -76,8 +81,13 @@ Double_t KineticEnergyOnTarget(const ERTrack& track, Double_t kineticEnergy) {
 //--------------------------------------------------------------------------------------------------
 void ERNDPID::Exec(Option_t* opt) {
   Reset();
-  const Double_t mass = 0.93957;
-  const auto calcState = [mass](const ERTrack* track, Double_t kineticEnergy) -> TLorentzVector {
+  ERBeamDetParticle* beamdet_particle = (ERBeamDetParticle*)fBeamDetParticle->At(0);
+  if (!beamdet_particle) {
+      //fRun->MarkFill(kFALSE);
+      return ;
+  }
+  const Double_t mass = 939.57;
+  const auto calcState = [mass](const ERNDTrack* track, Double_t kineticEnergy) -> TLorentzVector {
     const Double_t momentumMag = sqrt(pow(kineticEnergy, 2) + 2 * mass * kineticEnergy);
     TVector3 direction = (track->DetectorVertex()-track->TargetVertex());
     direction.SetMag(1.);
@@ -86,12 +96,27 @@ void ERNDPID::Exec(Option_t* opt) {
     return TLorentzVector(momentum, fullEnergy);
   };
   for (Int_t iTrack(0); iTrack < fNDTracks->GetEntriesFast(); iTrack++) {
-    const auto* track = static_cast<ERTrack*>(fNDTracks->At(iTrack));
+    const auto* track = static_cast<ERNDTrack*>(fNDTracks->At(iTrack));
     auto kineticEnergy = track->Edep();
     TLorentzVector detectorState = calcState(track, kineticEnergy);
-    kineticEnergy = KineticEnergyOnTarget(*track, kineticEnergy);
-    TLorentzVector targetState = calcState(track, kineticEnergy);
-    AddParticle(detectorState, targetState);
+    auto time_on_target = beamdet_particle->time_on_target();
+    auto time = track->Time();
+    auto tof = time - time_on_target;
+    auto distance_between_target_and_detector = (track->DetectorVertex() - track->TargetVertex()).Mag();
+    auto beta = distance_between_target_and_detector * 1e-2 / (tof * 1e-9) / TMath::C();
+
+    if(beta <= 0 || beta >= 1) {
+      LOG(DEBUG) << "[ERNDPID] Wrong beta " << beta << FairLogger::endl;
+      return ;
+    }
+    auto gamma = 1. / TMath::Sqrt(1.- beta * beta);
+    auto p = beta * gamma * mass;
+    auto E = TMath::Sqrt(p * p + mass * mass);
+    TLorentzVector lv(p * TMath::Sin(track->Direction().Theta()) * TMath::Cos(track->Direction().Phi()),
+                      p * TMath::Sin(track->Direction().Theta()) * TMath::Sin(track->Direction().Phi()),
+                      p * TMath::Cos(track->Direction().Theta()),
+                      E);
+    AddParticle(lv, tof);
   }
 }
 //--------------------------------------------------------------------------------------------------
@@ -99,10 +124,9 @@ void ERNDPID::Reset() {
     fNDParticles->Clear();
 }
 //--------------------------------------------------------------------------------------------------
-ERParticle* ERNDPID::AddParticle(const TLorentzVector& detectorState, 
-                                 const TLorentzVector& targetState) {
+ERNDParticle* ERNDPID::AddParticle(const TLorentzVector& lv, float tof) {
   return new((*fNDParticles)[fNDParticles->GetEntriesFast()])
-      ERParticle(detectorState, targetState);
+                             ERNDParticle(lv, tof);
 }
 //--------------------------------------------------------------------------------------------------
 ClassImp(ERNDPID)

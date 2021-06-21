@@ -49,6 +49,7 @@ void ERNDSetup::ReadGeoParamsFromParContainer() {
     const auto* airBox = nd->GetDaughter(0);
     for (Int_t iStilben = 0; iStilben < airBox->GetNdaughters(); iStilben++) {
         const auto* node = airBox->GetDaughter(iStilben);
+        const auto* translation = node->GetMatrix()->GetTranslation();
         fChannel2Node[node->GetNumber()] = node;
     }
   }

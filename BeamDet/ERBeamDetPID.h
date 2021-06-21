@@ -80,7 +80,8 @@ public:
    ** @param mass - ion mass. **/
   void SetIonMass(Float_t mass){fIonMass = mass;}
 protected:
-  double CalcEloss(ERBeamDetTrack& track, int pid, float mom, float mass);
+  std::pair<float, float> CalcEkinAndTimeOnTarget(ERBeamDetTrack& track, int pid, float mom,
+                                                  float mass, float time_on_tof5);
   //Paramaters
   ERBeamDetSetup* fBeamDetSetup = nullptr; ///< access to ERBeamDetSetup class instance
   //Input arrays
@@ -99,7 +100,8 @@ protected:
 private:
   /** @brief Adds a ERBeamDetParticle to the output Collection **/
   ERBeamDetParticle* AddParticle(Int_t pid, TLorentzVector tofState, 
-                                 TLorentzVector targetState, Double_t probability);
+                                 TLorentzVector targetState, float time_on_target,
+                                 float probability);
   ClassDef(ERBeamDetPID,1)
 };
 #endif

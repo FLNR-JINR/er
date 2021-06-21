@@ -32,6 +32,8 @@ ERNDPID.cxx
 ERNDSetup.cxx
 data/ERNDPoint.cxx
 data/ERNDDigi.cxx
+data/ERNDTrack.cxx
+data/ERNDParticle.cxx
 )
 
 # fill list of header files from list of source files

@@ -13,7 +13,7 @@
 #include "TVector3.h"
 
 #include "ERTask.h"
-#include "ERTrack.h"
+#include "ERNDTrack.h"
 #include "ERNDSetup.h"
 
 class ERNDTrackFinder : public ERTask {
@@ -32,7 +32,8 @@ class ERNDTrackFinder : public ERTask {
     ERNDSetup* fSetup = nullptr;
     TVector3 fTargetVertex;
     bool fUserTargetVertexIsSet = false;
-    ERTrack* AddTrack(const TVector3& detectorVertex, const TVector3& targetVertex, Double_t edep);
+    ERNDTrack* AddTrack(const TVector3& detectorVertex, const TVector3& targetVertex,
+                        float edep, float time, float tac);
     ClassDef(ERNDTrackFinder,1)
 };
 

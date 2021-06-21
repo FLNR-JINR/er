@@ -83,13 +83,17 @@ void reco(TString inFile,TString outFile) {
   qtelescopeTrackFinder->SetTrackPositionCorrection("SSD_4_X", 0, 0.25);
   qtelescopeTrackFinder->SetTrackPositionCorrection("SSD_4_X", 15, -0.25);
   run->AddTask(qtelescopePID);
+  // ------------------------------------------------------------------------;
+  ERNDTrackFinder* nd_track_finder = new ERNDTrackFinder();
+  run->AddTask(nd_track_finder);
+  ERNDPID* nd_pid = new ERNDPID();
+  run->AddTask(nd_pid);
   // -----------Runtime DataBase info ---------------------------------------
   FairRuntimeDb* rtdb = run->GetRuntimeDb();
   // -----   Intialise and run   --------------------------------------------
   FairLogger::GetLogger()->SetLogScreenLevel("FATAL");
   run->Init();
-  // run->Run(0, nEvents);
-  run->Run(0, 10000000);
+  run->Run(0, nEvents);
   // ------------------------------------------------------------------------;
   //rtdb->setOutput(parIO);
   //rtdb->saveOutput();

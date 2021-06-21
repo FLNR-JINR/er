@@ -193,7 +193,7 @@ void digibuilder(TString InFile, TString OutFile) {
 
 
   ERNDUnpack* ndUnpack = new ERNDUnpack("ND", "ND_AMP", "ND_TIME", "ND_TAC",
-                                        "", "", inputdir + "ND_tac.cal");
+                                        "", inputdir + "ND_times.cal", inputdir + "ND_tac.cal");
   
  
   builder->AddUnpack(beamDetUnpack);

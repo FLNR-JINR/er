@@ -2776,7 +2776,7 @@ void create_he3_T4_cuts() {
 }
 
 void create_neutron_cut() {
-   cutNeutron = new TCutG("CUTG",10);
+   cutNeutron = new TCutG("neutron_cutg",10);
    cutNeutron->SetVarX("ND_amp ");
    cutNeutron->SetVarY("ND_tac");
    cutNeutron->SetTitle("Graph");

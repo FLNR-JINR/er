@@ -23,7 +23,7 @@ void sim_digi(Int_t events_count = 1) {
   TString paramFileBeamDet = "BeamDetParts.xml";
   TString targetGeoFileName = workDirPath + "/geometry/target_exp1904.root";
   TString frameGeoFileName = workDirPath + "/geometry/housingFrames.root";  
-  TString ndGeoFileName = workDirPath + "/geometry/ND.geo.root";
+  TString ndGeoFileName = workDirPath + "/geometry/ND.geo.exp1904.root";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer; 

@@ -6,31 +6,19 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#ifndef ERNDPID_H
-#define ERNDPID_H
+#ifndef ERNDParticle_H
+#define ERNDParticle_H
 
-#include "TClonesArray.h"
 #include "TLorentzVector.h"
 
-#include "ERTask.h"
-#include "ERNDParticle.h"
-#include "ERNDSetup.h"
-
-class ERNDPID : public ERTask {
+class ERNDParticle: public TObject {
   public:
-    ERNDPID();
-    virtual InitStatus Init(); 
-    virtual void Exec(Option_t* opt);
-    virtual void Reset();
+	ERNDParticle() = default;
+	ERNDParticle(const TLorentzVector& lv, float tof);
   protected:
-    //Input arrays
-    TClonesArray* fNDTracks = nullptr;
-    TClonesArray* fBeamDetParticle = nullptr; 
-    //Output arrays
-    TClonesArray *fNDParticles = nullptr;
-    ERNDSetup* fSetup = nullptr;
-    ERNDParticle* AddParticle(const TLorentzVector& lv, float tof);
-    ClassDef(ERNDPID,1)
+    TLorentzVector fLV;
+    float fToF = -1.;
+	ClassDef(ERNDParticle,1);
 };
 
 #endif
