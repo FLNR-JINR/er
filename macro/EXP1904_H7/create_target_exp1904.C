@@ -40,7 +40,7 @@ void create_target_exp1904() {
   // --------------------------------------------------------------------------
 
   // -------   Geometry file name (output)   ----------------------------------
-  TString geoFileName = geoPath + "/geometry/target_exp1904.root";
+  TString geoFileName = "target_exp1904.root";
   // --------------------------------------------------------------------------
   
   // -----------------   Get and create the required media    -----------------

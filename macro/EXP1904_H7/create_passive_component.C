@@ -9,7 +9,7 @@ void create_passive_component() {
     Double_t zOffset = 0.;
 
     TString erPath = gSystem->Getenv("VMCWORKDIR");
-    TString geoFileName = erPath + "/geometry/housingFrames.root";    
+    TString geoFileName = "housingFrames.root";    
     TString medFile = erPath + "/geometry/media.geo";
     // Materials and media
     FairGeoLoader* geoLoad = new FairGeoLoader("TGeo", "FairGeoLoader");

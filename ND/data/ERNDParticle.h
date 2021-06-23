@@ -15,6 +15,8 @@ class ERNDParticle: public TObject {
   public:
 	ERNDParticle() = default;
 	ERNDParticle(const TLorentzVector& lv, float tof);
+    TLorentzVector LV() const { return fLV; }
+    float ToF() const { return fToF; }
   protected:
     TLorentzVector fLV;
     float fToF = -1.;

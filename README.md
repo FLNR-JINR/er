@@ -53,12 +53,37 @@ docker build --build-arg ER=dev -t er .
 
 4. Enjoy  _ROOT_, _Go4_, _AccDAQ_ and _ER_:
 
+* To run simulation in interactive session:
+
 ```
-docker run er root -b -q er_sim.C
-docker run er ${GO4SYS}/bin/go4analysis -v -lib libAccDaqUserAnalysis.so -number ${NEVENTS} -asf ${AUTOSAVEFILE} -file ${INPUTFILE} -args ${OUTPUTFILE} ${SETUPFILE}
-docker run er run.sh
+docker run -v /home/vitaliy/er/macro/EXP1904_H7:/opt/run -w /opt/run -e DISPLAY=0 -it er /bin/bash
+root -l -q create_passive_component.C
+root -l -q create_target_exp1904.C
+root -l -q sim_digi.C
+root -l sim_digi.root
+```
+where -v is used to map your host working directory '/home/vitaliy/er/macro/EXP1904_H7' and working 
+directory  '/opt/run' inside container; -w /opt/run - set working directory for interactive session;
+-e DISPLAY=0 is needed to forward gui from container to host machine; -it - to set interactive session.
+
+* To run macro in batch mode:
+
+```
+docker run -v /Users/vitaliy/er/macro/EXP1904_H7:/opt/run -w /opt/run  er root -l -b -q create_passive_component.C
 ```
 
+5. _ER_ developing:
+
+Map _ER_ source directory on host machine and container to compile updated sources:
+
+```
+docker run -v /home/vitaliy/er:/opt/er -v /home/vitaliy/er/macro/EXP1904_H7:/opt/run -w /opt/run -e DISPLAY=0 -it er /bin/bash
+cd /opt/er/build
+make
+# to run with new build
+cd /opt/run/
+root -l sim_digi.C
+```
 
 ## Step by Step installation
 

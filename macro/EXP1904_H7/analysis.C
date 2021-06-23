@@ -7,6 +7,8 @@ void calc_mm(TFile* input, TFile* output, TString tree_name, TString out_tree_na
    tree->SetBranchAddress(branch_with_he, &he_ar);
    TClonesArray* triton_ar = new TClonesArray("ERTelescopeParticle", 10);
    tree->SetBranchAddress("TelescopeParticle_Central_telescope_DoubleSi_DSD_XY_1000010030", &triton_ar);
+   TClonesArray* neutron_ar = new TClonesArray("ERNDParticle", 10);
+   tree->SetBranchAddress("NDParticle", &neutron_ar);
    output->cd();
    TTree* output_tree = new TTree(out_tree_name, out_tree_name);
    TLorentzVector* h7_lv = new TLorentzVector();
@@ -17,6 +19,8 @@ void calc_mm(TFile* input, TFile* output, TString tree_name, TString out_tree_na
    output_tree->Branch("he8_lv_in_cm", "TLorentzVector", &he8_lv_in_cm);
    TLorentzVector* h3_lv_in_cm = new TLorentzVector();
    output_tree->Branch("h3_lv_in_cm", "TLorentzVector", &h3_lv_in_cm);
+   TLorentzVector* n_lv_in_cm = new TLorentzVector();
+   output_tree->Branch("n_lv_in_cm", "TLorentzVector", &n_lv_in_cm);
    Float_t theta_cm;
    output_tree->Branch("theta_cm", &theta_cm, "theta_cm/F");
    
@@ -52,6 +56,14 @@ void calc_mm(TFile* input, TFile* output, TString tree_name, TString out_tree_na
       const auto h3_lv = triton->GetLVInteraction();
       *h3_lv_in_cm = h3_lv;
       h3_lv_in_cm->Boost(-h7_lv->BoostVector());
+
+      n_lv_in_cm->SetXYZT(0, 0, 0, 0);
+      const auto neutron = neutron_ar->GetEntriesFast() == 1 ? dynamic_cast<ERNDParticle*>(neutron_ar->At(0)) : nullptr;
+      if (neutron) {
+         const auto n_lv = neutron->LV();
+         *n_lv_in_cm = n_lv;
+         n_lv_in_cm->Boost(-h7_lv->BoostVector());
+      }
       output_tree->Fill();
    }
 }

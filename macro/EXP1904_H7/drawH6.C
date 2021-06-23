@@ -17,6 +17,8 @@ TTree* setup_tree(int telescope, TString tree_name, TString ana_tree_name, TStri
     h7_by_t1->SetAlias(alias, he_branch_name + ".fEdepInThickStation");
     h7_by_t1->SetAlias("DSD", "TelescopeParticle_Central_telescope_DoubleSi_DSD_XY_1000010030.fEdepInThinStation");
     h7_by_t1->SetAlias("CsI", "TelescopeParticle_Central_telescope_DoubleSi_DSD_XY_1000010030.fEdepInThickStation");
+    h7_by_t1->SetAlias("ND_amp", "NDTrack.fEdep");
+    h7_by_t1->SetAlias("ND_tac", "NDTrack.fTAC");
     h7_by_t1->SetMarkerStyle(3);
     return h7_by_t1;
 }
@@ -140,6 +142,12 @@ void drawH6() {
     h6_by_t2->Draw("mm >> +all_mm_cut3", "cuthe4_2 && triton_ekin_in_cm < 0.5 * mm && theta_cm < 16.", "same");
     h6_by_t3->Draw("mm >> +all_mm_cut3", "cuthe4_3 && triton_ekin_in_cm < 0.5 * mm && theta_cm < 16.", "same");
     h6_by_t4->Draw("mm >> +all_mm_cut3", "cuthe4_4 && triton_ekin_in_cm < 0.5 * mm && theta_cm < 16.", "same");
+
+    h6_by_t1->SetLineColor(kMagenta);
+    h6_by_t1->Draw("mm >> all_mm_cut4(25,0,25)","cuthe4_1 && triton_ekin_in_cm < 0.5 * mm && theta_cm < 16. && neutron_cutg", "same");
+    h6_by_t2->Draw("mm >> +all_mm_cut4", "cuthe4_2 && triton_ekin_in_cm < 0.5 * mm && theta_cm < 16. && neutron_cutg", "same");
+    h6_by_t3->Draw("mm >> +all_mm_cut4", "cuthe4_3 && triton_ekin_in_cm < 0.5 * mm && theta_cm < 16. && neutron_cutg", "same");
+    h6_by_t4->Draw("mm >> +all_mm_cut4", "cuthe4_4 && triton_ekin_in_cm < 0.5 * mm && theta_cm < 16. && neutron_cutg", "same");
 
     c1->cd(3);
     h6_by_t1->Draw("triton_ekin_in_cm:mm", "cuthe4_1");
