@@ -32,7 +32,7 @@ void create_target_exp1904() {
   FairGeoLoader*    geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
   TString geoPath = gSystem->Getenv("VMCWORKDIR");
-  TString medFile = geoPath + "/geometry/media1.geo";
+  TString medFile = geoPath + "/geometry/media.geo";
 
   geoFace->setMediaFile(medFile);
   geoFace->readMedia();
@@ -183,7 +183,7 @@ void create_target_exp1904() {
   mylarWin->SetLineColor(kGreen);
   mylarWin->SetTransparency(30);
 
-  top->Draw("ogl");
+  //top->Draw("ogl");
 
   TFile* geoFile = new TFile(geoFileName, "RECREATE");
   top->Write();

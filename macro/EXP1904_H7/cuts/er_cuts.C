@@ -49,12 +49,35 @@ auto create_he3_cut = [](int telescope_number) {
         {14, 1},
         {15, 0}
     };
+
+    std::map<ushort, ushort> sq20_3Mapping = {
+    {0, 0},
+    {1, 1},
+    {2, 2},
+    {3, 3},
+    {4, 4},
+    {5, 5},
+    {6, 6},
+    {7, 8},
+    {8, 7},
+    {9, 9},
+    {10, 10},
+    {11, 11},
+    {12, 12},
+    {13, 13},
+    {14, 14},
+    {15, 15}
+  };
+
+
     TString cut = "(";
     for (ushort i = 0; i < 16; i++) {
         TString channel_cut;
         ushort er_channel = i;
         if (telescope_number == 1 || telescope_number == 2) {
             er_channel = inverse16Mapping[i];
+        } else if (telescope_number == 3) {
+            er_channel = sq20_3Mapping[i];
         }
         channel_cut.Form("(a20_ch == %d && cuthe3_%d_%d)", er_channel, telescope_number, i);
         cut += channel_cut;

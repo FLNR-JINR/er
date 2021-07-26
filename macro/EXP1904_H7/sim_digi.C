@@ -21,8 +21,8 @@ void sim_digi(Int_t events_count = 1) {
   TString workDirPath = gSystem->Getenv("VMCWORKDIR");
   TString paramFileQTelescope = "QTelescopeParts3.xml";
   TString paramFileBeamDet = "BeamDetParts.xml";
-  TString targetGeoFileName = "target_exp1904.root";
-  TString frameGeoFileName = "housingFrames.root";  
+  TString targetGeoFileName = "/opt/er/macro/EXP1904_H7/target_exp1904.root";
+  TString frameGeoFileName = "/opt/er/macro/EXP1904_H7/housingFrames.root";  
   TString ndGeoFileName = workDirPath + "/geometry/ND.geo.exp1904.root";
   
   // -----   Timer   --------------------------------------------------------

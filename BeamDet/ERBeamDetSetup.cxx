@@ -627,22 +627,26 @@ void ERBeamDetSetup::ConstructGeometry() {
     if ( ! pMedCF4[i] ) Fatal("Main", "Medium for gasStrip not found");
 
     mKaptonWindow.push_back(geoMedia->getMedium(fKaptonWindowMedia[i]));
-    if ( ! mKaptonWindow[i] ) Fatal("Main", "FairMedium kapton not found");
+    if ( ! mKaptonWindow[i] ) 
+      LOG(FATAL) << "FairMedium " << fKaptonWindowMedia[i] << " not found" << FairLogger::endl;
     geoBuild->createMedium(mKaptonWindow[i]);
     pMedKaptonWindow.push_back(gGeoMan->GetMedium(fKaptonWindowMedia[i]));
-    if ( ! pMedKaptonWindow[i] ) Fatal("Main", "Medium kapton not found");
-
+    if ( ! pMedKaptonWindow[i] )
+      LOG(FATAL) << "Medium " << fKaptonWindowMedia[i] << " not found" << FairLogger::endl;
     mCathode.push_back(geoMedia->getMedium(fCathodeMedia[i]));
-    if ( ! mCathode[i] ) Fatal("Main", "FairMedium aluminium not found");
+    if ( ! mCathode[i] )
+      LOG(FATAL) << "FairMedium " <<  fCathodeMedia[i] << " not found" << FairLogger::endl;
     geoBuild->createMedium(mCathode[i]); 
     pMedCathode.push_back(gGeoMan->GetMedium(fCathodeMedia[i]));
-    if ( ! pMedCathode[i] ) Fatal("Main", "Medium aluminium not found");
-
+    if ( ! pMedCathode[i] ) 
+      LOG(FATAL) << "Medium " << fCathodeMedia[i] << " not found" << FairLogger::endl;
     mAnodeWire.push_back(geoMedia->getMedium(fAnodeWireMedia[i]));
-    if ( ! mAnodeWire[i] ) Fatal("Main", "FairMedium tungsten not found");
+    if ( ! mAnodeWire[i] )
+      LOG(FATAL) << "FairMedium " << fAnodeWireMedia[i] << " not found" << FairLogger::endl;
     geoBuild->createMedium(mAnodeWire[i]);
     pMedAnodeWire.push_back(gGeoMan->GetMedium(fAnodeWireMedia[i]));
-    if ( ! pMedAnodeWire[i] ) Fatal("Main", "Medium tungsten not found");
+    if ( ! pMedAnodeWire[i] )
+      LOG(FATAL) << "Medium " << fAnodeWireMedia[i] << " not found" << FairLogger::endl;
   }
   // ------ Create media for Target -------------------------------------------
   FairGeoMedium* mH2 = geoMedia->getMedium("H2");

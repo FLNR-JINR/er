@@ -6,34 +6,34 @@
 			<plasticMedia>vacuum</plasticMedia>
 		</ToF>
 		<ToF id="ToF2">
-			<plasticGeometry X="100" Y="100" Z="0.01"/>
+			<plasticGeometry X="100" Y="100" Z="0.025"/>
 			<plasticMedia>BC408</plasticMedia>
 		</ToF>
 	</ToFTypes>
 	<MWPCTypes>
 		<MWPC id="MWPC1">
 			<gasVolGeometry X="4" Y="4" Z="8.2"/>
-			<gasStripGeometry X="0.125" Y="4" Z="1.5"/>
+			<gasStripGeometry X="0.125" Y="4" Z="0.6"/>
 			<gasPlanesOffset X="-0.09" Y="-0.3"/>
-			<distBetweenXandYStrips>1</distBetweenXandYStrips>
-			<cathodeThickness>0.0005</cathodeThickness>
+			<distBetweenXandYStrips>1.2</distBetweenXandYStrips>
+			<cathodeThickness>0.0006</cathodeThickness>
 			<kaptonWindowThickness>0.00125</kaptonWindowThickness>
-			<anodeWireDiameter>0.002</anodeWireDiameter>
+			<anodeWireDiameter>0.0025</anodeWireDiameter>
 			<kaptonWindowMedia>kapton</kaptonWindowMedia>
-			<cathodeMedia>aluminium</cathodeMedia>
+			<cathodeMedia>Steel</cathodeMedia>
 			<anodeWireMedia>tungsten</anodeWireMedia>
 			<gasMedia>CF4_CH4</gasMedia>
 		</MWPC>
 		<MWPC id="MWPC2">
 			<gasVolGeometry X="4" Y="4" Z="8.2"/>
-			<gasStripGeometry X="0.125" Y="4" Z="1.5"/>
+			<gasStripGeometry X="0.125" Y="4" Z="0.6"/>
 			<gasPlanesOffset X="0.03" Y="-0.155"/>
-			<distBetweenXandYStrips>1</distBetweenXandYStrips>
-			<cathodeThickness>0.0005</cathodeThickness>
+			<distBetweenXandYStrips>1.2</distBetweenXandYStrips>
+			<cathodeThickness>0.0006</cathodeThickness>
 			<kaptonWindowThickness>0.00125</kaptonWindowThickness>
-			<anodeWireDiameter>0.002</anodeWireDiameter>
+			<anodeWireDiameter>0.0025</anodeWireDiameter>
 			<kaptonWindowMedia>kapton</kaptonWindowMedia>
-			<cathodeMedia>aluminium</cathodeMedia>
+			<cathodeMedia>Steel</cathodeMedia>
 			<anodeWireMedia>tungsten</anodeWireMedia>
 			<gasMedia>CF4_CH4</gasMedia>
 		</MWPC>
