@@ -250,6 +250,19 @@ TObject* GetObjectFromRootFile(const TString& filePath, const TString& objName =
 ** @brief Deserializes a reaquired TKey object by name from a ROOT-file object.
 **  If a name is not set the first key is returned.
 ** @param file ROOT-file pointer.
+** @param objName deserealized object key index.
+**/
+TObject* GetObjectFromRootFile(TFile* file, const unsigned object_ind) {
+  auto obj = file->Get(file->GetListOfKeys()->At(object_ind)->GetName());
+  Info("Info", "%s", obj->GetName());
+  return obj;
+}
+
+
+/**
+** @brief Deserializes a reaquired TKey object by name from a ROOT-file object.
+**  If a name is not set the first key is returned.
+** @param file ROOT-file pointer.
 ** @param objName deserealized object name.
 **/
 TObject* GetObjectFromRootFile(TFile* file, const TString& objName = "") {
@@ -759,7 +772,12 @@ TString CalibIOManager::GetPath(const Int_t fileType,
 TString CalibIOManager::GetPath(const Int_t fileType,
                                 const TString& nameRoot,
                                 const SensorRunInfo* sensor = nullptr) {
-  auto sensors = new std::vector<SensorRunInfo*>(1, const_cast<SensorRunInfo*>(sensor));
+  std::vector<SensorRunInfo*>* sensors;
+  if (sensor == nullptr) {
+    sensors = nullptr; // new std::vector<SensorRunInfo*>;
+  } else {
+    sensors = new std::vector<SensorRunInfo*>(1, const_cast<SensorRunInfo*>(sensor));
+  }
   TString path = GetPath(fileType, nameRoot, sensors);
   delete sensors;
   return path;
@@ -1333,6 +1351,7 @@ const static std::vector<Double_t> fAlphaE = {4.7844, 6.0024, 7.6869};
 const static std::vector<std::vector<Double_t>> fElossApprox = {{0.0010319, 0.146954, 0.00181655},
                                                                 {0.0004273, 0.127711, 0.00106127},
                                                                 {0.0001624, 0.108467, 0.000589357}};
+
 class Calibration: public TaskManager, public PeakSearch {
 /* @class Calibration
   @brief Class implements SSD calibration procedure described 
@@ -1356,7 +1375,13 @@ public:
 
   void DeadLayerEstimation();
   void CalcCalibrationCoefficients(Bool_t fitLastTwoPoints = false);
-private:
+
+  /* Set path containing user's custom spectra. If set, prepocessing results are ignored,
+  only spectra from the defined folder are used.
+  */
+  void SetPathToCustomSpectra(const TString& path) {fSpectraHistPath = path;}
+
+protected:
   /**
   ** @brief Finds peaks with a set algorithm method.
   ** Stores statistic files in the directory [WORK_DIR]/run_id/sensor_name/statistics/ :
@@ -1386,7 +1411,8 @@ private:
   **/
   Double_t GetDeadLayerByEta (const Double_t eta);
 
-private:
+protected:
+  TString fSpectraHistPath = "";
   SensorRunInfo* fSensor = nullptr;
 };
 
@@ -1395,8 +1421,10 @@ Calibration::Calibration(const TString& rawDataPath) : TaskManager(rawDataPath) 
 }
 
 void Calibration::SearchPeaks() {
-  const TString spectraHistPath = fIOManager->GetPath(ROOT_HIST_SPECTRA_PATH, fRunId, fSensor);
-  const auto histFile = fIOManager->OpenRootFile(spectraHistPath);
+  if (fSpectraHistPath == "") {
+    fSpectraHistPath = fIOManager->GetPath(ROOT_HIST_SPECTRA_PATH, fRunId, fSensor);
+  }
+  const auto histFile = fIOManager->OpenRootFile(fSpectraHistPath);
 
   const TString peaksHistPath = fIOManager->GetPath(ROOT_HIST_PEAKS_PATH, fRunId, fSensor);
   const auto peakHists = fIOManager->CreateRootFile(peaksHistPath);
@@ -1404,7 +1432,12 @@ void Calibration::SearchPeaks() {
   std::vector<std::list<Double_t>> peaks;
   for (Int_t iStrip = 0; iStrip < fSensor->fStripAmount; iStrip++) {
     const TString histName = Form("strip_%d", iStrip);
-    const auto hist = static_cast<TH1D*>(GetObjectFromRootFile(histFile, histName));
+    // const auto hist = static_cast<TH1D*>(GetObjectFromRootFile(histFile, histName));
+    // TODO: check if hists in file deordered and we should not get object by key id
+    const auto hist = static_cast<TH1D*>(GetObjectFromRootFile(histFile, iStrip));
+    if (fSensor->fNoiseThreshold > 0) {
+      hist->GetXaxis()->SetRange(fSensor->fNoiseThreshold, fSensor->fBinAmount);
+    }
     const auto peaksTSpec = GetPeaksTSpectrum(hist, fFitMinSigma, fFitPeakThreshold);
     auto stripPeaks = GetPeaks(hist, peaksTSpec);
     if (stripPeaks.size() == 4) {
@@ -1467,7 +1500,6 @@ std::vector<Double_t> Calibration::GetAlphaEnergiesAfterDeadLayer (const Double_
   }
   return energies;
 }
-
 
 void Calibration::CalcCalibrationCoefficients(Bool_t fitOnlyLastTwoPointsNvsE = false) {
   // read peaks from file
