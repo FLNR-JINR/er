@@ -26,7 +26,6 @@ namespace ERCalibrationSSD {
   * More log messages for each significant step
 */
 
-
 TString GetFileNameBaseFromPath(const TString& path);
 
 class SensorRunInfo {
@@ -51,14 +50,21 @@ public:
   **/
   void SetThresholdFile(const TString &path) {fThresholdFilePath = path;}
 
+  void SetNoiseThreshold(const Int_t noiseThreshold) {fNoiseThreshold = noiseThreshold;}
+  void SetDeadLayersPerStrip(const std::vector<Double_t> &deadLayers);
+
   void ReadThresholds();
 public:
   TString fName; // name of a propper leaf in a tree
-  TString fThresholdFilePath; //
+  TString fThresholdFilePath;
   TString fCalibFilePath;
   Int_t fStripAmount = 16;
   Int_t fBinAmount = 1024;
   TString fRunId;
+  Int_t fNoiseThreshold = 0;
+
+  Bool_t fIsDeadLayerPerStripsSet = false;
+  std::vector<Double_t> fDeadLayers = std::vector<Double_t>();
 };
 
 SensorRunInfo::SensorRunInfo(const TString& name, const Int_t stripAmount, 
@@ -67,6 +73,18 @@ SensorRunInfo::SensorRunInfo(const TString& name, const Int_t stripAmount,
   fStripAmount(stripAmount), 
   fBinAmount(binAmount), 
   fRunId(GetFileNameBaseFromPath(runId)) {
+}
+
+void SensorRunInfo::SetDeadLayersPerStrip(const std::vector<Double_t> &deadLayersPerStrip) {
+  if (deadLayersPerStrip.size() != this->fStripAmount) {
+    Error(
+      "SensorRunInfo::SetDeadLayersPerStrip", 
+      "Dead thickness amount set by user (%ld) doesn't equal strips amount (%d)", 
+      deadLayersPerStrip.size(), this->fStripAmount);
+    exit(1);
+  }
+  fIsDeadLayerPerStripsSet = true;
+  fDeadLayers = deadLayersPerStrip;
 }
 
 /**
@@ -797,7 +815,6 @@ TaskManager::TaskManager(const TString& rawDataPath)
   fIOManager->ChangeDir(fWorkDir);
 }
 
-
 class Preprocessing: public TaskManager {
 /** @class Preprocessing
  ** @brief Class makes preliminary handling of a raw calibration data, including:
@@ -813,9 +830,6 @@ public:
   Preprocessing() = default;
   Preprocessing(const TString& rawDataPath);
   ~Preprocessing() = default;
-
-  // void DrawRawData();
-  // void DrawMultiplicitySelected();
 
   /**
   ** @brief Adds sensor to a current preprocessing.
@@ -846,7 +860,7 @@ public:
   ** [WORKING_DIR]/[SENSOR_NAME]/draw/thresholds_*.root.
   **/
   void FindThresholds(const TString& opt = "draw_off");
-  
+
   /** @brief Performs multiplicity selection of a data.
   ** Method creates a tree where in each event analyzed sensors have only one channel
   ** with amplitude value higher then noise thresholds.
@@ -854,13 +868,21 @@ public:
   ** @param opt draw option. 'draw_off' -- draws resulting threshold positions in a file
   ** [WORKING_DIR]/[SENSOR_NAME]/draw/multiplicity_*.root.
   **/
-  void MultiplicitySelection(const TString& opt = "draw_off");
+  void MultiplicitySelection(const SensorRunInfo* sensor, std::vector<SensorRunInfo*> sensorsZeroSignal = std::vector<SensorRunInfo*>());
+
+  /**
+  ** Method creates a tree where all analyzed sensors have only one channel
+  ** with amplitude value higher then noise thresholds in each event.
+  **
+  ** @param sensors - list of sensor each of those has a single multuplicity
+  **/
+  void MultiplicitySelection(std::vector<SensorRunInfo*> sensors, std::vector<SensorRunInfo*> sensorsZeroSignal = std::vector<SensorRunInfo*>());
 
   /** @brief Creates strips spectra for the further analysis analysis.
   ** Saves resulting hists for each sensor by path
   **   [WORKING_DIR]/[SENSOR_NAME]/draw/spectra_*.root.
   **/  
-  void CreateSpectraHists();
+  void CreateSpectraHists(const SensorRunInfo* sensor);
 
   void Exec();
 
@@ -902,52 +924,57 @@ void Preprocessing::ConvertTree(const TString& option = "neevent") {
 
 void Preprocessing::FindThresholds(const TString& opt = "draw_off") {
   for (const auto *sensor: *fSensors) {
-    // read tree from a generated input file name
-    const TString filePath = fIOManager->GetPath(ROOT_INPUT_REDUCED_TREE_PATH, fRunId, fSensors);
-    auto inFile = fIOManager->OpenRootFile(filePath);
-    const auto tree = static_cast<TTree*>(GetObjectFromRootFile(inFile));
-    Info("Preprocessing::FindThresholds", "Tree entries: %lld", tree->GetEntries());
     std::vector<Double_t> thersholdArray; 
-    thersholdArray.resize(sensor->fStripAmount);
-    // parameters exclude zero bin from a histograms because in the zero bin 
-    // a high amplitude value is occured sometimes
-    const Int_t excludeBins = 1;
-    const TString histParams = Form(
-      "(%d,%d,%d)", sensor->fBinAmount - excludeBins, excludeBins, sensor->fBinAmount
-      );
-    for (Int_t iStrip = 0; iStrip < sensor->fStripAmount; iStrip++) {
-      const TString histName = Form("threshold_strip_%d", iStrip);
-      const TString drawExpression = Form(
-        "%s[%d]>>%s%s", sensor->fName.Data(), iStrip, histName.Data(), histParams.Data()
-      ); 
-      tree->Draw(drawExpression,"","");
-      const TH1F *histThreshold = static_cast<TH1F*>(gDirectory->Get(histName));
-      const Int_t binsAmount = histThreshold->GetXaxis()->GetNbins();
-      // Get a number of a bin with the maximal amplitude
-      const Int_t maxBinNb = histThreshold->GetMaximumBin();
-      Bool_t minBinObtained = false;
-      Int_t  thresholdBinNb = 0;
-      Int_t  prevBinContent = histThreshold->GetBinContent(maxBinNb);
-      // Starting from the maximum value bin, find the first bin with not decreasing value
-      for (Int_t binNb = maxBinNb + 1; binNb < binsAmount && !minBinObtained; binNb++) {
-        const Int_t binContent = histThreshold->GetBinContent(binNb);
-        if (prevBinContent <= binContent) {
-          minBinObtained = true;
-          thresholdBinNb = binNb;
+    if (sensor->fNoiseThreshold > 0) {
+      thersholdArray = std::vector<Double_t>(sensor->fStripAmount, sensor->fNoiseThreshold);
+    } else { // automatic threshold search
+      thersholdArray.resize(sensor->fStripAmount);
+      // read tree from a generated input file name
+      const TString filePath = fIOManager->GetPath(ROOT_INPUT_REDUCED_TREE_PATH, fRunId, fSensors);
+      auto inFile = fIOManager->OpenRootFile(filePath);
+      const auto tree = static_cast<TTree*>(GetObjectFromRootFile(inFile));
+      Info("Preprocessing::FindThresholds", "Tree entries: %lld", tree->GetEntries());
+      // parameters exclude zero bin from a histograms because in the zero bin 
+      // a high amplitude value is occured sometimes
+      const Int_t excludeBins = 1;
+      const TString histParams = Form(
+        "(%d,%d,%d)", sensor->fBinAmount - excludeBins, excludeBins, sensor->fBinAmount
+        );
+      for (Int_t iStrip = 0; iStrip < sensor->fStripAmount; iStrip++) {
+        const TString histName = Form("threshold_strip_%d", iStrip);
+        const TString drawExpression = Form(
+          "%s[%d]>>%s%s", sensor->fName.Data(), iStrip, histName.Data(), histParams.Data()
+        ); 
+        tree->Draw(drawExpression,"","");
+        const TH1F *histThreshold = static_cast<TH1F*>(gDirectory->Get(histName));
+        const Int_t binsAmount = histThreshold->GetXaxis()->GetNbins();
+        // Get a number of a bin with the maximal amplitude
+        const Int_t maxBinNb = histThreshold->GetMaximumBin();
+        Bool_t minBinObtained = false;
+        Int_t  thresholdBinNb = 0;
+        Int_t  prevBinContent = histThreshold->GetBinContent(maxBinNb);
+        // Starting from the maximum value bin, find the first bin with not decreasing value
+        for (Int_t binNb = maxBinNb + 1; binNb < binsAmount && !minBinObtained; binNb++) {
+          const Int_t binContent = histThreshold->GetBinContent(binNb);
+          if (prevBinContent <= binContent) {
+            minBinObtained = true;
+            thresholdBinNb = binNb;
+          }
+          prevBinContent = binContent;
         }
-        prevBinContent = binContent;
+        thersholdArray[iStrip] = --thresholdBinNb;
       }
-      thersholdArray[iStrip] = --thresholdBinNb;
+      inFile->Close();
     }
     const TString thresholdsPath = fIOManager->GetPath(TXT_THRESHOLD_PATH, fRunId, sensor);
     auto file = fIOManager->CreateTextFile(thresholdsPath);
     DumpVector(thersholdArray, file);
     file.close();
-    inFile->Close();
   }  
 }
 
-void Preprocessing::MultiplicitySelection(const TString& opt = "draw_off") {
+void Preprocessing::MultiplicitySelection(
+  const SensorRunInfo* sensor, std::vector<SensorRunInfo*> sensorsZeroSignal = std::vector<SensorRunInfo*>()) {
   // Read input file
   const TString inFilePath = fIOManager->GetPath(ROOT_INPUT_REDUCED_TREE_PATH, fRunId, fSensors);
   auto inFile = fIOManager->OpenRootFile(inFilePath);
@@ -958,26 +985,44 @@ void Preprocessing::MultiplicitySelection(const TString& opt = "draw_off") {
   TTree *outTree = new TTree(inTree->GetName(), "Tree with a single multiplicity");
   // Create internal tree objects structure
   inTree->SetMakeClass(1);
-  auto *sensorsData = new std::vector<std::vector<UShort_t>>();
-  auto *thresholds = new std::vector<std::vector<UShort_t>>();
-  for (const auto *sensor: *fSensors) {
-    sensorsData->push_back(std::vector<UShort_t>(sensor->fStripAmount));
-    TString branchName = inTree->GetAlias(sensor->fName);
-    inTree->SetBranchAddress(branchName, &(sensorsData->back()[0]));
+  std::vector<UShort_t> sensorData = std::vector<UShort_t>(sensor->fStripAmount);
+  std::vector<UShort_t> sensorThresholds = fIOManager->GetSensorThresholds<UShort_t>(sensor, fRunId);
+  TString brName = inTree->GetAlias(sensor->fName);
+  inTree->SetBranchAddress(brName, &(sensorData[0]));
+  outTree->Branch(sensor->fName, &(sensorData[0]), brName + "/s");
+
+  auto *zeroSignalSensorData = new std::vector<std::vector<UShort_t>>();
+  auto *zeroSignalSensorThresholds = new std::vector<std::vector<UShort_t>>();
+  for (const auto *zeroSignalSensor: sensorsZeroSignal) {
+    zeroSignalSensorData->push_back(std::vector<UShort_t>(zeroSignalSensor->fStripAmount));
+    TString branchName = inTree->GetAlias(zeroSignalSensor->fName);
+    inTree->SetBranchAddress(branchName, &(zeroSignalSensorData->back()[0]));
     // Connect data variables with tree branches
-    outTree->Branch(sensor->fName, &(sensorsData->back()[0]), branchName + "/s");
+    outTree->Branch(zeroSignalSensor->fName, &(zeroSignalSensorData->back()[0]), branchName + "/s");
     // Read sensor's thresholds
-    auto sensorThresholds = fIOManager->GetSensorThresholds<UShort_t>(sensor, fRunId);
-    thresholds->push_back(sensorThresholds);
+    auto sensorThresholds = fIOManager->GetSensorThresholds<UShort_t>(zeroSignalSensor, fRunId);
+    zeroSignalSensorThresholds->push_back(sensorThresholds);
   }
   Info("Preprocessing::MultiplicitySelection", "Begin multiplicity selection");
   Info("Preprocessing::MultiplicitySelection", "Input tree entries: %lld", inTree->GetEntries());
   for (Long64_t eventNb = 0; eventNb < inTree->GetEntries(); eventNb++) {
     inTree->GetEntry(eventNb);
-    if (!CheckIfSingleMultiplicity(fSensors, sensorsData, thresholds)) {
+    bool saveEvent = true;
+    const int sensorMult = CheckDataMultiplicity(sensorData, sensorThresholds);
+    if (sensorMult != 1) {
+      saveEvent = false;
       continue;
-    } else {
+    }
+    for (int j = 0; j < sensorsZeroSignal.size(); j++) {
+      int multiplicityNoSignalSensor = CheckDataMultiplicity(zeroSignalSensorData->at(j), zeroSignalSensorThresholds->at(j));
+      if (multiplicityNoSignalSensor != 0) {
+        saveEvent = false;
+      }
+    }
+    if (saveEvent) {
       outTree->Fill();
+    } else {
+      continue;
     }
   }
   Info("Preprocessing::MultiplicitySelection", "Output tree entries: %lld", outTree->GetEntries());
@@ -985,28 +1030,103 @@ void Preprocessing::MultiplicitySelection(const TString& opt = "draw_off") {
   outFile->Write();
   outFile->Close();
   inFile->Close();
-  CreateSpectraHists();
+  CreateSpectraHists(sensor);
 }
 
-void Preprocessing::CreateSpectraHists() {
-  const TString multSelectPath = fIOManager->GetPath(ROOT_MULT_SELECTED_PATH, fRunId, fSensors);
-  for (const auto *sensor: *fSensors) {
-    auto inFile = fIOManager->OpenRootFile(multSelectPath);
-    const auto tree = static_cast<TTree*>(GetObjectFromRootFile(inFile));    
-    auto thresholds = fIOManager->GetSensorThresholds<UShort_t>(sensor, fRunId);
+void Preprocessing::MultiplicitySelection(std::vector<SensorRunInfo*> sensors, 
+                                          std::vector<SensorRunInfo*> sensorsZeroSignal = std::vector<SensorRunInfo*>()) {
+  // Read input file
+  const TString inFilePath = fIOManager->GetPath(ROOT_INPUT_REDUCED_TREE_PATH, fRunId, fSensors);
+  auto inFile = fIOManager->OpenRootFile(inFilePath);
+  const auto inTree = static_cast<TTree*>(GetObjectFromRootFile(inFile));
+  // Create output file and tree
+  const TString outFilePath = fIOManager->GetPath(ROOT_MULT_SELECTED_PATH, fRunId, fSensors);
+  auto outFile = fIOManager->CreateRootFile(outFilePath);
+  TTree *outTree = new TTree(inTree->GetName(), "Tree with a single multiplicity");
+  // Create internal tree objects structure
+  inTree->SetMakeClass(1);
 
-    const TString histSpectraPath = fIOManager->GetPath(ROOT_HIST_SPECTRA_PATH, fRunId, sensor);
-    auto histSpectraFile = fIOManager->CreateRootFile(histSpectraPath);
-    DrawSensorSpectraByStrip(tree, sensor, thresholds);
-    histSpectraFile->Close();
-    inFile->Close();
+  std::vector<std::vector<UShort_t>> sensorsData;
+  std::vector<std::vector<UShort_t>> sensorsThresholds;
+
+  for (const auto &sensor: sensors) {
+    sensorsData.push_back(std::vector<UShort_t>(sensor->fStripAmount));
+    sensorsThresholds.push_back(fIOManager->GetSensorThresholds<UShort_t>(sensor, fRunId));
+    TString brName = inTree->GetAlias(sensor->fName);
+    inTree->SetBranchAddress(brName, &(sensorsData.back()[0]));
+    outTree->Branch(sensor->fName, &(sensorsData.back()[0]), brName + "/s");
+  }
+
+
+  auto *zeroSignalSensorData = new std::vector<std::vector<UShort_t>>();
+  auto *zeroSignalSensorThresholds = new std::vector<std::vector<UShort_t>>();
+  for (const auto *zeroSignalSensor: sensorsZeroSignal) {
+    zeroSignalSensorData->push_back(std::vector<UShort_t>(zeroSignalSensor->fStripAmount));
+    TString branchName = inTree->GetAlias(zeroSignalSensor->fName);
+    inTree->SetBranchAddress(branchName, &(zeroSignalSensorData->back()[0]));
+    // Connect data variables with tree branches
+    outTree->Branch(zeroSignalSensor->fName, &(zeroSignalSensorData->back()[0]), branchName + "/s");
+    // Read sensor's thresholds
+    auto sensorThresholds = fIOManager->GetSensorThresholds<UShort_t>(zeroSignalSensor, fRunId);
+    zeroSignalSensorThresholds->push_back(sensorThresholds);
+  }
+  Info("Preprocessing::MultiplicitySelection", "Begin multiplicity selection");
+  Info("Preprocessing::MultiplicitySelection", "Input tree entries: %lld", inTree->GetEntries());
+  for (Long64_t eventNb = 0; eventNb < inTree->GetEntries(); eventNb++) {
+    inTree->GetEntry(eventNb);
+    bool saveEvent = true;
+    if (!(eventNb % 100000)) {
+      std::cout << "Event number " << eventNb << std::endl;
+    }
+    for (int sensorNb = 0; sensorNb < sensors.size(); sensorNb++) {
+      const int sensorMult = CheckDataMultiplicity(sensorsData[sensorNb], sensorsThresholds[sensorNb]);
+      if (sensorMult != 1) {
+        saveEvent = false;
+        break;
+      }
+      for (int j = 0; j < sensorsZeroSignal.size(); j++) {
+        int multiplicityNoSignalSensor = CheckDataMultiplicity(zeroSignalSensorData->at(j), zeroSignalSensorThresholds->at(j));
+        if (multiplicityNoSignalSensor != 0) {
+          saveEvent = false;
+          break;
+        }
+      }
+    }
+    if (saveEvent) {
+      outTree->Fill();
+    } else {
+      continue;
+    }
+  }
+  Info("Preprocessing::MultiplicitySelection", "Output tree entries: %lld", outTree->GetEntries());
+  outTree->Write();
+  outFile->Write();
+  outFile->Close();
+  inFile->Close();
+  for (int sensorNb = 0; sensorNb < sensors.size(); sensorNb++) {
+    CreateSpectraHists(sensors[sensorNb]); 
   }
 }
 
+
+void Preprocessing::CreateSpectraHists(const SensorRunInfo* sensor) {
+  const TString multSelectPath = fIOManager->GetPath(ROOT_MULT_SELECTED_PATH, fRunId, fSensors);
+  auto inFile = fIOManager->OpenRootFile(multSelectPath);
+  const auto tree = static_cast<TTree*>(GetObjectFromRootFile(inFile));    
+  auto thresholds = fIOManager->GetSensorThresholds<UShort_t>(sensor, fRunId);
+  const TString histSpectraPath = fIOManager->GetPath(ROOT_HIST_SPECTRA_PATH, fRunId, sensor);
+  auto histSpectraFile = fIOManager->CreateRootFile(histSpectraPath);
+  DrawSensorSpectraByStrip(tree, sensor, thresholds);
+  histSpectraFile->Close();
+  inFile->Close();
+}
+
 void Preprocessing::Exec() {
-  ConvertTree();
-  FindThresholds();
-  MultiplicitySelection();
+  // ConvertTree();
+  Error("Preprocessing::Exec", "Method is obsolete, please use the sequence:");
+  Error("Preprocessing::Exec", "  ConvertTree() -> FindThresholds() -> MultiplicitySelection()");
+  // FindThresholds();
+  // MultiplicitySelection();
 }
 
 class PeakSearch {
@@ -1091,6 +1211,8 @@ protected:
 
   Int_t fSearchRadius = 10; // radius of algorithm search aroun initial guess points (applicable for Sliding window (SW) and Gauss)
   Int_t fSlideWindowWidth = 10; // sliding window width (applicable for SW)
+
+  std::vector<std::vector<float>> fIntegralInWindow; // stores events integral for peaks found by SLIDINIG_WINDOW algorithm
 };
 
 void PeakSearch::SetPeakSearchMethod(const TString& peakSearchAlgorithm) {
@@ -1128,6 +1250,7 @@ PeakSearch::SlidingWindowPeakSearch(TH1* hist, const std::list<Double_t>& initGu
                                     const Int_t searchRadius) 
 {
   std::list<Double_t> peaks;
+  std::vector<float> peaksIntegral;
   for (const auto& guessPos: initGuess) {
     // gStyle->SetStatFormat("6.8g");
     const Int_t peakBinNb = hist->GetXaxis()->FindBin(guessPos);
@@ -1143,8 +1266,10 @@ PeakSearch::SlidingWindowPeakSearch(TH1* hist, const std::list<Double_t>& initGu
         // peakRMS = hist->GetStdDev();
       }
     }
+    peaksIntegral.push_back(maxIntegral);
     peaks.push_back(peakMean);
   }
+  fIntegralInWindow.push_back(peaksIntegral);
   return peaks;
 }
 
@@ -1186,6 +1311,14 @@ std::list<Double_t> PeakSearch::GetPeaks(TH1* hist, const std::list<Double_t>& i
   }
   // restore hist range
   hist->GetXaxis()->SetRange(0, hist->GetXaxis()->GetNbins());
+  // std::sort(peaks.begin(), peaks.end(), [](const Double_t& first,const Double_t& second) {
+  //       return first < second; 
+  // });
+  peaks.sort();
+  for (const auto &peak: peaks) {
+    std::cout << peak << " ";
+  }
+  std::cout << std::endl;
   return peaks;
 }
 
@@ -1218,6 +1351,11 @@ public:
   ** 4) Report file printing.
   **/  
   void Exec();
+
+  void SearchPeaks();
+
+  void DeadLayerEstimation();
+  void CalcCalibrationCoefficients(Bool_t fitLastTwoPoints = false);
 private:
   /**
   ** @brief Finds peaks with a set algorithm method.
@@ -1232,10 +1370,6 @@ private:
   ** ...
   ** value_low_energy_strip_N, value_middle_energy_strip_N, value_high_energy_strip_N
   **/
-  void SearchPeaks();
-
-  void DeadLayerEstimation();
-  void CalcCalibrationCoefficients();
   void PrintReport(const std::vector<std::vector<Double_t>>& peaks,
                    const std::vector<Double_t>& deadVec,
                    const Double_t avgDead,
@@ -1335,30 +1469,41 @@ std::vector<Double_t> Calibration::GetAlphaEnergiesAfterDeadLayer (const Double_
 }
 
 
-void Calibration::CalcCalibrationCoefficients() {
+void Calibration::CalcCalibrationCoefficients(Bool_t fitOnlyLastTwoPointsNvsE = false) {
   // read peaks from file
   const TString peakDataPath = fIOManager->GetPath(TXT_PEAK_DATA_PATH, fRunId, fSensor);
   auto peaks = Read2DDoubleVectorFromFile(peakDataPath);
-  // read dead layers from file
-  const TString deadDataPath = fIOManager->GetPath(TXT_DEAD_LAYER_PATH, fRunId, fSensor);
-  auto deadVec = ReadDoubleVectorFromFile(deadDataPath);
-  const Double_t avgDead = CalculateAvg(deadVec);
-  auto energies = GetAlphaEnergiesAfterDeadLayer(avgDead);
+  std::vector<Double_t> deadVec;
+  std::vector<std::vector<Double_t>> energies;
+  Double_t avgDead;
+  if (fSensor->fIsDeadLayerPerStripsSet) {
+    for (Int_t iStrip = 0; iStrip < fSensor->fStripAmount; iStrip++) {
+      energies.push_back(GetAlphaEnergiesAfterDeadLayer(fSensor->fDeadLayers[iStrip]));
+      deadVec = fSensor->fDeadLayers;
+      avgDead = CalculateAvg(deadVec);
+    }
+  } else {
+    // read dead layers from file
+    const TString deadDataPath = fIOManager->GetPath(TXT_DEAD_LAYER_PATH, fRunId, fSensor);
+    deadVec = ReadDoubleVectorFromFile(deadDataPath);
+    avgDead = CalculateAvg(deadVec);
+    auto energies_avg = GetAlphaEnergiesAfterDeadLayer(avgDead);
+    for (Int_t iStrip = 0; iStrip < fSensor->fStripAmount; iStrip++) {
+      energies.push_back(energies_avg);
+    }
+  }
 
   std::vector<std::vector<Double_t>> coeffsAB;
   for (Int_t iStrip = 0; iStrip < peaks.size(); iStrip++) {
-    auto gr = new TGraph(energies.size(), &peaks[iStrip][0], &energies[0]);
+    TGraph* gr = (fitOnlyLastTwoPointsNvsE)
+               ? new TGraph(energies[0].size() - 1, &peaks[iStrip][1], &energies[iStrip][1])
+               : new TGraph(energies[0].size(), &peaks[iStrip][0], &energies[iStrip][0]);
     TFitResultPtr fitRes = gr->Fit("pol1","S");
     const Double_t a = fitRes->Parameter(1);
     const Double_t b = fitRes->Parameter(0);
     std::vector<Double_t> coeffs = {a, b}; 
     coeffsAB.push_back(coeffs);
   }
-
-  const TString deadPath = fIOManager->GetPath(TXT_DEAD_LAYER_PATH, fRunId, fSensor);
-  auto fileDead = fIOManager->CreateTextFile(deadPath);
-  DumpVector(deadVec, fileDead);
-  fileDead.close();
 
   const TString calibPath = fIOManager->GetPath(TXT_CALIB_COEFF_PATH, fRunId, fSensor);
   auto fileCalib = fIOManager->CreateTextFile(calibPath);
@@ -1408,6 +1553,21 @@ void Calibration::PrintReport(const std::vector<std::vector<Double_t>>& peaks,
            << setw(20) << stripPeaks[2] << endl;
   }
   report << endl;
+
+  report << "Integral over the window ([Counts]):" << endl;
+  report << "StripNb" << std::right 
+         << setw(20) << "E_low" 
+         << setw(20) << "E_middle" 
+         << setw(20) << "E_high"  << endl;
+  iStrip = 0;
+  for (const auto& integral: fIntegralInWindow) {
+    report << iStrip++ << std::right 
+           << setw(20) << integral[0] 
+           << setw(20) << integral[1] 
+           << setw(20) << integral[2] << endl;
+  }
+  report << endl;
+
   report << "Dead layer estimation [um] by strips: " << endl;
   report << "StripNb" << setw(20) << "Dead layer"<< endl;
   iStrip = 0;
@@ -1416,6 +1576,8 @@ void Calibration::PrintReport(const std::vector<std::vector<Double_t>>& peaks,
            << setw(20) << dead << endl;
   }
   report << "Avg:" << setw(20) << avgDead << endl;
+  report << "Max-Min:" << setw(20) 
+         << *std::max_element(deadVec.begin(), deadVec.end()) - *std::min_element(deadVec.begin(), deadVec.end()) << endl;
   report << endl;
   report << "Calibration coefficients: " << endl;  
   report << "StripNb" << std::right 
@@ -1549,6 +1711,12 @@ void NonUniformityMapBuilder::SearchPixelHighEnergyPeak() {
     ROOT_HIST_PIXEL_PATH, fMapSensors->at(0)->fRunId, fMapSensors
   );
   auto histFile = fIOManager->OpenRootFile(pixelSpectraPath);
+
+  const TString peaksHistPath = fIOManager->GetPath(
+    ROOT_HIST_PEAKS_PATH, fMapSensors->at(0)->fRunId, fMapSensors
+  );
+  const auto peakHists = fIOManager->CreateRootFile(peaksHistPath);
+
   std::vector<std::vector<Double_t>> peaks;
   for (Int_t iStripThick = 0; iStripThick < fMapSensors->at(0)->fStripAmount; iStripThick++) {
     std::vector<Double_t> stripPeaks;
@@ -1571,6 +1739,7 @@ void NonUniformityMapBuilder::SearchPixelHighEnergyPeak() {
         peakPos = std::numeric_limits<double>::quiet_NaN();
       }
       stripPeaks.push_back(peakPos);
+      hist->Write();
     }
     peaks.push_back(stripPeaks);
   }
@@ -1581,6 +1750,7 @@ void NonUniformityMapBuilder::SearchPixelHighEnergyPeak() {
   Dump2DVector(peaks, peaksFile);
   peaksFile.close();
   histFile->Close();
+  peakHists->Close();
 }
 
 void NonUniformityMapBuilder::CreateThinSensorMap() {
