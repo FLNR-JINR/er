@@ -45,7 +45,7 @@ void sim_digi(Int_t events_count = 1) {
   EREXP1811EventHeader* decayMCheader = new EREXP1811EventHeader();
   run->SetMCEventHeader(decayMCheader);
   // -----   Create media   -------------------------------------------------
-  run->SetMaterials("media1.geo");       // Materials
+  run->SetMaterials("media.geo");       // Materials
   // -----   Create detectors  ----------------------------------------------   
   FairModule* cave= new ERCave("CAVE");
   cave->SetGeometryFileName("cave.geo");

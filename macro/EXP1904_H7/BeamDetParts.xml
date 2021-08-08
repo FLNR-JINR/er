@@ -17,12 +17,12 @@
 			<gasPlanesOffset X="-0.09" Y="-0.3"/>
 			<distBetweenXandYStrips>1.2</distBetweenXandYStrips>
 			<cathodeThickness>0.0006</cathodeThickness>
-			<kaptonWindowThickness>0.00125</kaptonWindowThickness>
+			<kaptonWindowThickness>0.00254</kaptonWindowThickness>
 			<anodeWireDiameter>0.0025</anodeWireDiameter>
 			<kaptonWindowMedia>kapton</kaptonWindowMedia>
 			<cathodeMedia>Steel</cathodeMedia>
 			<anodeWireMedia>tungsten</anodeWireMedia>
-			<gasMedia>CF4_CH4</gasMedia>
+			<gasMedia>CF4</gasMedia>
 		</MWPC>
 		<MWPC id="MWPC2">
 			<gasVolGeometry X="4" Y="4" Z="8.2"/>
@@ -30,12 +30,12 @@
 			<gasPlanesOffset X="0.03" Y="-0.155"/>
 			<distBetweenXandYStrips>1.2</distBetweenXandYStrips>
 			<cathodeThickness>0.0006</cathodeThickness>
-			<kaptonWindowThickness>0.00125</kaptonWindowThickness>
+			<kaptonWindowThickness>0.00254</kaptonWindowThickness>
 			<anodeWireDiameter>0.0025</anodeWireDiameter>
 			<kaptonWindowMedia>kapton</kaptonWindowMedia>
 			<cathodeMedia>Steel</cathodeMedia>
 			<anodeWireMedia>tungsten</anodeWireMedia>
-			<gasMedia>CF4_CH4</gasMedia>
+			<gasMedia>CF4</gasMedia>
 		</MWPC>
 	</MWPCTypes>
 </BeamDetParts>
