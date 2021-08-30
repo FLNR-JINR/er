@@ -48,7 +48,7 @@ If you need to merge several root files into single file use `hadd` tool provide
 
 ```bash
 cd <folder_with_root_files>
-hadd <target_name>.root 
+hadd <target_name>.root <list_of_files_to_merge> 
 ```
 For additional information read `hadd` manual.
 
