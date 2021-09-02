@@ -6,7 +6,7 @@ The calibration procedure is described in proper [ExpertRoot documentation secti
 
 Files in this directory demonstrate examples of work with ERCalibration functions. All the files are ready to use on er.jinr.ru host.
 
-* [ERCalibration.cxx](ERCalibration.cxx) - calibration classes and functions which are imported to user code.
+* [ERCalibrationSSD.cxx](ERCalibrationSSD.cxx) - calibration classes and functions which are imported to user code.
 * [ssd_one_spectrum_calibration.C](ssd_one_spectrum_calibration.C) - thick sensor calibration example.
 * [non_uniform_map_building.C](non_uniform_map_building.C) - thin sensor thickness map building example.
 * [thin_sensor_map_effective_to_real.C](thin_sensor_map_effective_to_real.C) - recalculation of the effective thickness to real one. The non-uniform map building procedure gives effective thickness distribution. Recalculating may be required when the sensor is significantly shifted from a position where direct exposure assumption is applicable.
