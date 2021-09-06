@@ -37,6 +37,7 @@ ERDetectorGeoPar.cxx
 ERDigitizer.cxx
 ERRunAna.cxx
 
+ERElossCalculatorUtils.cxx
 ERGeoComponent.cxx
 ERGeoSubAssembly.cxx
 ERSetup.cxx

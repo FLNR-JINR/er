@@ -19,5 +19,6 @@
 #pragma link C++ class ERRecoMCApplication+;
 
 #pragma link C++ class ElossCalculator+;
+#pragma link C++ class ERElossCalculatorUtils+;
 
 #endif
