@@ -174,8 +174,12 @@ std::pair<float, float> ERBeamDetPID::CalcEkinAndTimeOnTarget(ERBeamDetTrack& tr
   Float_t sumLoss = 0.;
   Bool_t firstTofAlreadySkipped = kFALSE;
   bool secondTofPassed = false;
+
   while(!gGeoManager->IsOutside()) {
     TString matName = node->GetMedium()->GetMaterial()->GetName();
+    if (TString(node->GetName()).Contains("anode")) {
+      matName = "CF4";
+    }
     G4Material* mat = nist->FindOrBuildMaterial(matName.Data()); 
     node = gGeoManager->FindNextBoundary();
     Double_t step = gGeoManager->GetStep();
@@ -183,7 +187,7 @@ std::pair<float, float> ERBeamDetPID::CalcEkinAndTimeOnTarget(ERBeamDetTrack& tr
     LOG(DEBUG) << "[ERBeamDet][CalcEkinAndTimeOnTarget] track position (" << current_position.X() << ", " 
                << current_position.Y() << ", " << current_position.Z() << ")" << FairLogger::endl;
     LOG(DEBUG) << "[ERBeamDet][CalcEkinAndTimeOnTarget] path  = " <<  gGeoManager->GetPath() 
-               << FairLogger::FairLogger::endl;
+               << FairLogger::endl;
     if (!firstTofAlreadySkipped && TString(gGeoManager->GetPath()).Contains("ToF")) {
       firstTofAlreadySkipped = kTRUE;
       node = gGeoManager->Step();
