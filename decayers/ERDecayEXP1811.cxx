@@ -26,6 +26,8 @@ using namespace std;
 #include "EREXP1811EventHeader.h"
 #include "ERMCEventHeader.h"
 
+#include "G4IonTable.hh"
+
 ERDecayEXP1811::ERDecayEXP1811():
   ERDecay("EXP1811"),
   fDecayFinish(kFALSE),
@@ -188,7 +190,7 @@ Bool_t ERDecayEXP1811::Stepping() {
         return kTRUE;
       }
 
-      TLorentzVector lv2H(0., 0., 0., f2H->Mass());
+      TLorentzVector lv2H(0., 0., 0.,  1.875612);
       TLorentzVector lvReaction;
       lvReaction = lv8He + lv2H;
 
@@ -221,7 +223,8 @@ Bool_t ERDecayEXP1811::Stepping() {
           fUnstableIon7H->SetExcEnergy(excitation);
         }
         decay7HMass += excitation;
-        if((ECM - f3He->Mass() - decay7HMass) > 0) { // выход из цикла while для PhaseGenerator
+        const float he3_mass = G4IonTable::GetIonTable()->GetIon(2,3)->GetPDGMass() * 1e-3;
+        if((ECM - he3_mass - decay7HMass) > 0) { // выход из цикла while для PhaseGenerator
           reactionHappen = kTRUE;
           LOG(DEBUG) << "[ERDecayEXP1811] Reaction is happen" << endl;
         }
@@ -335,7 +338,7 @@ void ERDecayEXP1811::FinishEvent() {
 //-------------------------------------------------------------------------------------------------
 void ERDecayEXP1811::ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass) {
   Double_t m1 = h7Mass;
-  Double_t m2 = f3He->Mass();
+  Double_t m2 = G4IonTable::GetIonTable()->GetIon(2,3)->GetPDGMass() * 1e-3;
 
   // Energy of 1-st particle in cm.
   // total energy of the first particle is calculated as
