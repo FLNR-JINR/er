@@ -3,6 +3,7 @@
 #include "G4IonTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4NistManager.hh"
+#include "G4EmCalculator.hh"
 
 #include "TVector3.h"
 #include "TMath.h"
@@ -202,7 +203,7 @@ std::pair<float, float> ERBeamDetPID::CalcEkinAndTimeOnTarget(ERBeamDetTrack& tr
     const double step_to_target_vertex = (target_vertex - current_position).Mag();
     const bool is_last_step = step_to_target_vertex <= step;
     step = is_last_step ? step_to_target_vertex : step;
-    Double_t edep = CalcElossIntegralVolStep(T, *ion, *mat, step);
+    Double_t edep = ComputeElossIntegralVolStep(T, *ion, *mat, "ionIoni", step);
     node = gGeoManager->GetCurrentNode();
     LOG(DEBUG) <<"[ERBeamDet][CalcEkinAndTimeOnTarget] Kinetic Energy  = " << T << " medium " << matName 
                << " step  = " << step << " edep = " << edep << FairLogger::endl;
