@@ -50,6 +50,7 @@ void calc_mm(TFile* input, TFile* output, TString tree_name, TString out_tree_na
       theta_cm = h7_lv_cm->Angle(he8_lv_in_cm->Vect()) * 180. /  TMath::Pi();
       const auto triton = triton_ar->GetEntriesFast() == 1 ? dynamic_cast<ERTelescopeParticle*>(triton_ar->At(0)) : nullptr;
       if (!triton) {
+         continue;
          std::cerr << "H3 not found in entry!" << std::endl;
          exit(-1);
       }
