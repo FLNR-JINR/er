@@ -1,9 +1,9 @@
 
 TTree* setup_tree(int telescope, TString tree_name,  TString ana_tree_name, TString he_branch_name, TString mm_alias) {
     TChain* h7_by_t1 = new TChain(ana_tree_name);
-    h7_by_t1->Add("analysis*.root");
+    h7_by_t1->Add("analysis.root");
     TChain* er_h7_by_t1 = new TChain(tree_name);
-    er_h7_by_t1->Add("selected*.root");
+    er_h7_by_t1->Add("selected.root");
     h7_by_t1->AddFriend(er_h7_by_t1);
     h7_by_t1->SetAlias("mm", mm_alias);
     h7_by_t1->SetAlias("triton_ekin_in_cm", "h3_lv_in_cm.T() - h3_lv_in_cm.Mag()");

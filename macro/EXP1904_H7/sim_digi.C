@@ -184,20 +184,21 @@ void sim_digi(Int_t events_count = 1) {
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 
   Double_t  kinE_MevPerNucleon = 26.;
-
+  
   Int_t Z = 2, A = 8, Q = 2;
   TString ionName = "8He";
   ERIonMixGenerator* generator = new ERIonMixGenerator(ionName, Z, A, Q, 1);
   Double32_t kin_energy = kinE_MevPerNucleon * 1e-3 * A; //GeV
-  //generator->SetKinE(kin_energy);
-  generator->SetKinESigma(0.2015, 0.00405);
+ generator->SetKinE(kin_energy);
+  //generator->SetKinESigma(0.2015, 0.00405);
   generator->SetPSigmaOverP(0);
   Double32_t sigmaTheta = 0.;
 
   generator->SetThetaSigma(0, sigmaTheta);
   generator->SetPhiRange(0, 360);
   //generator->SetBoxXYZ(0, 0, 0., 0., beamStartPosition);
-  generator->SetSigmaXYZ(0.033, -0.072, beamStartPosition, 0.585, 0.384);
+  //generator->SetSigmaXYZ(0.033, -0.072, beamStartPosition, 0.585, 0.384);
+  generator->SetSigmaXYZ(0.033, -0.072, beamStartPosition, 0., 0.);
   generator->SpreadingOnTarget(); 
 
   primGen->AddGenerator(generator);
@@ -206,16 +207,16 @@ void sim_digi(Int_t events_count = 1) {
 /////////////////////////////////////////////////////////////////////////////
   // ------- Decayer --------------------------------------------------------
   
-  Double_t massH7 = 6.5691;//7.5061760;  // [GeV]
+  Double_t massH7 = 4*0.939565 + 2.808920;//7.5061760;  // [GeV]
   ERDecayer* decayer = new ERDecayer();
   ERDecayEXP1811* targetDecay = new ERDecayEXP1811();
   targetDecay->SetInteractionVolumeName("shapeD2");
-  targetDecay->SetNuclearInteractionLength(20.);
+  targetDecay->SetNuclearInteractionLength(6.);
   //targetDecay->SetAngularDistribution("cos_tetta_cross.txt");
   targetDecay->SetH7Mass(massH7);
   //targetDecay->SetDecayFile("pmom-pv-1_short.dat", 0.0005 /*excitation in file [GeV]*/);
-  targetDecay->SetH7Exitation(2., 2., 0.3);
-  targetDecay->SetH7Exitation(6.5, 2., 0.7);
+  targetDecay->SetH7Exitation(0.002, 0.001, 0.3);
+  targetDecay->SetH7Exitation(0.0065, 0.001, 0.7);
   targetDecay->SetMinStep(1e-4);
   targetDecay->SetMaxPathLength(0.6/*2e-4 * 10 * 1.1*/);
 
