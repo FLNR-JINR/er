@@ -30,37 +30,43 @@ void ERRTelescopeGeoComponentDoubleSi::ConstructGeometryVolume(void) {
                << fRMax << " r_min = " << fRMin << FairLogger::endl;
   auto* media = CreateMaterial(fMedia);
   media->GetMaterial()->Print();
-  const Double_t sphere_r_min = 3000.;
-  // Due to a bug in the tubes, the sphere with a big radius is used instead.
-  const auto make_tubes = [sphere_r_min](const TString& name, TGeoMedium* material,
-                                         const Double_t r_min, const Double_t r_max, const Double_t z, 
-                                         const Double_t phi_min, const Double_t phi_max) -> TGeoVolume* {
-    const Double_t sphere_r_max = sphere_r_min + z;
-    const Double_t sphere_theta_min = TMath::ATan(r_min/sphere_r_min)*TMath::RadToDeg();
-    const Double_t sphere_theta_max = TMath::ATan(r_max/sphere_r_max)*TMath::RadToDeg();
+  const Double_t sphere_r = 30000.;
+  //Due to a bug in the tubes, the sphere with a big radius is used instead.
+  const auto make_tubes = [sphere_r](const TString& name, TGeoMedium* material,
+                                        const Double_t r_min, const Double_t r_max,
+                                        const Double_t zplus, const Double_t zminus, 
+                                        const Double_t phi_min, const Double_t phi_max) 
+                                        -> TGeoVolume* {
+    const Double_t sphere_r_max = sphere_r + zplus; const Double_t sphere_r_min = sphere_r - zminus;
+    const Double_t sphere_theta_min = TMath::ASin(r_min/sphere_r) * TMath::RadToDeg();
+    const Double_t sphere_theta_max = TMath::ASin(r_max/sphere_r) * TMath::RadToDeg();
     return gGeoManager->MakeSphere(name, material, sphere_r_min, sphere_r_max, 
                                    sphere_theta_min, sphere_theta_max, phi_min, phi_max);
   };
   const auto fullZ = fSensetiveZ + fDeadLayerThicknessFrontSide + fDeadLayerThicknessBackSide;
   fVolume = new TGeoVolumeAssembly(this->GetVolumeName());
-  auto* station = make_tubes("r_station", media, fRMin, fRMax, fullZ, 0., 360.);
-  fVolume->AddNode(station, 0, new TGeoCombiTrans(0, 0., -sphere_r_min, new TGeoRotation()));
+  auto* station = make_tubes("r_station", media, fRMin*sphere_r/(sphere_r-fullZ/2), 
+                             fRMax*sphere_r/(sphere_r+fullZ/2), fullZ/2, fullZ/2, 0., 360.);
+  fVolume->AddNode(station, 0, new TGeoCombiTrans(0, 0., -(sphere_r), new TGeoRotation()));
   const Double_t segmentDPhi = 360. / fStripCountX;
   const Double_t segmentDR = (fSensetiveRMax-fSensetiveRMin) / fStripCountY;
-  TGeoVolume* segment = make_tubes("Segment", media, fSensetiveRMin, fSensetiveRMax,
-                                   fSensetiveZ, -segmentDPhi/2., segmentDPhi/2.);
+  TGeoVolume* segment = make_tubes("Sector", media, fSensetiveRMin, fSensetiveRMax,
+                                   fSensetiveZ/2 + fDeadLayerThicknessFrontSide, 
+                                   fSensetiveZ/2 + fDeadLayerThicknessBackSide, 
+                                   -segmentDPhi/2., segmentDPhi/2.);
   for (Int_t iRing = 0; iRing < fStripCountY; iRing++) {
     const Double_t r_min = fSensetiveRMin + iRing * segmentDR;
     const Double_t r_max = fSensetiveRMin + (iRing + 1) * segmentDR;
-    TGeoVolume* sensetive_segment = make_tubes("SensitiveSegment", media, r_min, r_max, fSensetiveZ,
+    TGeoVolume* sensetive_segment = make_tubes("SensitiveSegment", media, r_min, r_max,  
+                                               fSensetiveZ/2 + fDeadLayerThicknessFrontSide, 
+                                               fSensetiveZ/2 + fDeadLayerThicknessBackSide,
                                                -segmentDPhi/2., segmentDPhi/2.);
     segment->AddNode(sensetive_segment, iRing, new TGeoCombiTrans(0, 0., 0, new TGeoRotation()));
   }
   for (Int_t iSegment = 0; iSegment < fStripCountX; iSegment++) {
     auto* rotation = new TGeoRotation();
     rotation->RotateZ(segmentDPhi * iSegment);
-    const Double_t zTranslation = (fDeadLayerThicknessFrontSide  - fDeadLayerThicknessBackSide) / 2.;
-    station->AddNode(segment, iSegment, new TGeoCombiTrans(0, 0., zTranslation, rotation));
+	  station->AddNode(segment, iSegment, new TGeoCombiTrans(0, 0., 0, rotation));
   }
 }
 //--------------------------------------------------------------------------------------------------
