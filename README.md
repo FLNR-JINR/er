@@ -38,6 +38,7 @@ Due to high dependencies on the external packages of various versions, we strong
 the docker-image [docker](https://www.docker.com) to deploy ER installation.
 
 1. Install docker desktop on your system: https://www.docker.com/get-started
+2. Follow docker post-installation steps: https://docs.docker.com/engine/install/linux-postinstall/
 2. Clone ER repository:
 
 ```
@@ -56,7 +57,7 @@ docker build --build-arg ER=dev -t er .
 * To run simulation in interactive session:
 
 ```
-docker run -v /home/vitaliy/er/macro/EXP1904_H7:/opt/run -w /opt/run -e DISPLAY=0 -it er /bin/bash
+docker run -v /home/vitaliy/er/macro/EXP1904_H7:/opt/run -w /opt/run -e DISPLAY=$DISPLAY -it er /bin/bash
 root -l -q create_passive_component.C
 root -l -q create_target_exp1904.C
 root -l -q sim_digi.C
@@ -64,7 +65,7 @@ root -l sim_digi.root
 ```
 where -v is used to map your host working directory '/home/vitaliy/er/macro/EXP1904_H7' and working 
 directory  '/opt/run' inside container; -w /opt/run - set working directory for interactive session;
--e DISPLAY=0 is needed to forward gui from container to host machine; -it - to set interactive session.
+-e DISPLAY=$DISPLAY is needed to forward gui from container to host machine; -it - to set interactive session.
 
 * To run macro in batch mode:
 
@@ -77,13 +78,21 @@ docker run -v /Users/vitaliy/er/macro/EXP1904_H7:/opt/run -w /opt/run  er root -
 Map _ER_ source directory on host machine and container to compile updated sources:
 
 ```
-docker run -v /home/vitaliy/er:/opt/er -v /home/vitaliy/er/macro/EXP1904_H7:/opt/run -w /opt/run -e DISPLAY=0 -it er /bin/bash
-cd /opt/er/build
+docker run --entrypoint /bin/bash -v /home/vitaliy/er:/opt/er -v /home/vitaliy/er/macro/EXP1904_H7:/opt/run -w /opt/run -e DISPLAY=$DISPLAY -it er
+cd /opt/er
+mkdir build
+cd /build
+export SIMPATH=/opt/FairSoft/
+export FAIRROOTPATH=/opt/FairRoot/
+cmake ../ -DACCULINNA_GO4=/opt/accdaq/install/
 make
+source ./config.sh
 # to run with new build
 cd /opt/run/
 root -l sim_digi.C
 ```
+
+Redifinition of `entrypoint` is needed because `er/build/config.sh` may not exists in mapped volume.
 
 ## Step by Step installation
 
