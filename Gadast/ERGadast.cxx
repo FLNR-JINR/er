@@ -80,7 +80,7 @@ Bool_t ERGadast::ProcessHits(FairVolume* vol) {
     AddStep();
     return kTRUE;
   }
-  fELoss += gMC->Edep(); // GeV //Return the energy lost in the current step
+  fELoss += gMC->Edep() * 1e3; // MeV //Return the energy lost in the current step
   
   //finish point
   if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared()) { 
