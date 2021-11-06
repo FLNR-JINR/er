@@ -134,7 +134,7 @@ void ERGadastDigitizer::Exec(Option_t* opt)
           if (point->GetTime() < time)
             time = point->GetTime();
         }
-        Float_t edepSigma = sqrt(pow(fCsIEdepErrorA,2) + pow(fCsIEdepErrorB*TMath::Sqrt(edep/1000.),2) + pow(fCsIEdepErrorC*edep,2));
+        Float_t edepSigma = sqrt(pow(fCsIEdepErrorA,2) + pow(fCsIEdepErrorB*TMath::Sqrt(edep),2) + pow(fCsIEdepErrorC*edep,2));
         edep = gRandom->Gaus(fCsILC*edep, edepSigma);
         if (edep < fCsIElossThreshold)
           continue;
@@ -155,7 +155,7 @@ void ERGadastDigitizer::Exec(Option_t* opt)
       if (point->GetTime() < time)
         time = point->GetTime();
     }
-    Float_t edepSigma = sqrt(pow(fLaBrEdepErrorA,2) + pow(fLaBrEdepErrorB*TMath::Sqrt(edep/1000.),2) + pow(fLaBrEdepErrorC*edep,2));
+    Float_t edepSigma = sqrt(pow(fLaBrEdepErrorA,2) + pow(fLaBrEdepErrorB*TMath::Sqrt(edep),2) + pow(fLaBrEdepErrorC*edep,2));
     edep = gRandom->Gaus(fLaBrLC*edep, edepSigma);
     if (edep < fLaBrElossThreshold)
       continue;
