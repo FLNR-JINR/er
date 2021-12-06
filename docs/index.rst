@@ -54,3 +54,4 @@ for full live cycle of low-energy physics experiment.
   faq
   sadms
   howto
+  authors
