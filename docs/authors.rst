@@ -3,11 +3,11 @@ Authors and contributors
 
 **ER** is currently developed and mantained at `FLNR <http://flerovlab.jinr.ru/>`_  and `LIT <(https://lit.jinr.ru/en>`_ by:
 
-* [Vitaliy Schetinin](mailto:schetinin@jinr.ru)
-* [Sergey Belogurov](mailto:belogurov@jinr.ru)
-* [Mikhail Kozlov](mailto:kozlovmy@jinr.ru)
-* [Vratislav Chudoba](mailto:chudoba@jinr.ru)
-* [Egor Ovcharenko](mailto:eovchar@jinr.ru)
-* [Ivan Muzalevsky](mailto:muzalevsky@jinr.ru)
-* [Ilyas Satyshev](mailto:satyshev@jinr.ru)
-* [Sofya Rymzhanova](mailto:rymzhanova@jinr.ru)
+* `Vitaliy Schetinin <mailto:schetinin@jinr.ru>`_
+* `Sergey Belogurov <mailto:belogurov@jinr.ru>`_
+* `Mikhail Kozlov <mailto:kozlovmy@jinr.ru>`_
+* `Vratislav Chudoba <mailto:chudoba@jinr.ru>`_
+* `Egor Ovcharenko <mailto:eovchar@jinr.ru>`_
+* `Ivan Muzalevsky <mailto:muzalevsky@jinr.ru>`_
+* `Ilyas Satyshev <mailto:satyshev@jinr.ru>`_
+* `Sofya Rymzhanova <mailto:rymzhanova@jinr.ru>`_
