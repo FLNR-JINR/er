@@ -8,6 +8,6 @@ Authors and contributors
 * `Mikhail Kozlov <mailto:kozlovmy@jinr.ru>`_
 * `Vratislav Chudoba <mailto:chudoba@jinr.ru>`_
 * `Egor Ovcharenko <mailto:eovchar@jinr.ru>`_
-* `Ivan Muzalevsky <mailto:muzalevsky@jinr.ru>`_
+* `Ivan Muzalevskii <mailto:muzalevsky@jinr.ru>`_
 * `Ilyas Satyshev <mailto:satyshev@jinr.ru>`_
 * `Sofya Rymzhanova <mailto:rymzhanova@jinr.ru>`_

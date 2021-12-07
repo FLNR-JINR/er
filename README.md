@@ -225,6 +225,6 @@ cd build && cmake build . && ctest -R exp1904_h7_sim
 * [Mikhail Kozlov](mailto:kozlovmy@jinr.ru)
 * [Vratislav Chudoba](mailto:chudoba@jinr.ru)
 * [Egor Ovcharenko](mailto:eovchar@jinr.ru)
-* [Ivan Muzalevsky](mailto:muzalevsky@jinr.ru)
+* [Ivan Muzalevskii](mailto:muzalevsky@jinr.ru)
 * [Ilyas Satyshev](mailto:satyshev@jinr.ru)
 * [Sofya Rymzhanova](mailto:rymzhanova@jinr.ru)
