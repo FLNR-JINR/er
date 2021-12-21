@@ -36,23 +36,27 @@ class ERTelescopeDigitizer : public ERDigitizer {
   /** Virtual method Reset **/
   virtual void Reset();
   /** Modifiers **/
-  void SetSiElossThreshold(Float_t th){fSiElossThreshold = th;}
-  void SetSiElossSigma(Float_t sigma) {fSiElossSigma = sigma;}
-  void SetSiTimeSigma(Float_t sigma)  {fSiTimeSigma = sigma;}
-  void SetCsIElossThreshold(Float_t th){fCsIElossThreshold = th;}
-  void SetCsIElossSigma(Float_t sigma) {fCsIElossSigma = sigma;}
-  void SetCsITimeSigma(Float_t sigma)  {fCsITimeSigma = sigma;}
+  void SetSiElossThreshold(float th){fSiElossThreshold = th;}
+  void SetSiElossSigma(float sigma);
+  void SetSiTimeSigma(float sigma);
+  void SetCsIElossThreshold(float th){fCsIElossThreshold = th;}
+  void SetCsIElossSigma(float sigma);
+  void SetCsITimeSigma(float sigma);
+  void SetSiElossModel(const std::function<float(float)>& model) {fSiElossModel = model;}
+  void SetCsIElossModel(const std::function<float(float)>& model) {fCsIElossModel = model;}
+  void SetSiTimeModel(const std::function<float(float)>& model) {fSiTimeModel = model;}
+  void SetCsITimeModel(const std::function<float(float)>& model) {fCsITimeModel = model;}
 protected:
   //Input arrays
   std::map<TString, TClonesArray*> fQTelescopePoints;
   //Output arrays
   std::map<TString, TClonesArray*> fQTelescopeDigi;
   Float_t       fSiElossThreshold = 0.;
-  Float_t       fSiElossSigma = 0.;
-  Float_t       fSiTimeSigma = 0.;
   Float_t       fCsIElossThreshold = 0.;
-  Float_t       fCsIElossSigma = 0.;
-  Float_t       fCsITimeSigma = 0.;
+  std::function<float(float)> fSiElossModel = [](float eloss) { return eloss; };
+  std::function<float(float)> fCsIElossModel = [](float eloss) { return eloss; };
+  std::function<float(float)> fSiTimeModel = [](float time) { return time; };
+  std::function<float(float)> fCsITimeModel = [](float time) { return time; };
 protected:
   ERDigi* AddDigi(Float_t edep, Double_t time, Int_t stripNb, TString digiBranchName);
 private:

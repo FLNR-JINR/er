@@ -36,6 +36,22 @@ ERTelescopeDigitizer::ERTelescopeDigitizer(Int_t verbose)
   fAvailibleRunManagers.push_back("ERRunAna");
 }
 //-------------------------------------------------------------------------------------------------
+void ERTelescopeDigitizer::SetSiElossSigma(float sigma) { 
+  fSiElossModel = [sigma](float eloss) { return gRandom->Gaus(eloss, sigma);};
+}
+//-------------------------------------------------------------------------------------------------
+void ERTelescopeDigitizer::SetCsIElossSigma(float sigma) {
+  fCsIElossModel = [sigma](float eloss) { return gRandom->Gaus(eloss, sigma);};
+}
+//-------------------------------------------------------------------------------------------------
+void ERTelescopeDigitizer::SetSiTimeSigma(float sigma) {
+  fSiTimeModel = [sigma](float time) { return gRandom->Gaus(time, sigma);};
+}
+//-------------------------------------------------------------------------------------------------
+void ERTelescopeDigitizer::SetCsITimeSigma(float sigma) {
+  fCsITimeModel = [sigma](float time) { return gRandom->Gaus(time, sigma);};
+}
+//-------------------------------------------------------------------------------------------------
 InitStatus ERTelescopeDigitizer::Init() {
   if (ERTask::Init() != kSUCCESS)
     return kFATAL;
@@ -74,15 +90,17 @@ void ERTelescopeDigitizer::Exec(Option_t* opt) {
     Double_t  elossThreshold, timeThreshold;
     Double_t  elossSigma, timeSigma;
     std::map<Int_t, std::vector<Int_t>> sortedPoints;
+    std::function<float(float)> calc_eloss_with_error;
+    std::function<float(float)> calc_time_with_error;
     if (itPointBranches.first.Contains("Si")) {
       elossThreshold = fSiElossThreshold;
-      elossSigma     = fSiElossSigma;
-      timeSigma      = fSiTimeSigma;
+      calc_eloss_with_error = fSiElossModel;
+      calc_time_with_error = fSiTimeModel;
     }
     if (itPointBranches.first.Contains("CsI")) {
       elossThreshold = fCsIElossThreshold;
-      elossSigma     = fCsIElossSigma;
-      timeSigma      = fCsITimeSigma;
+      calc_eloss_with_error = fCsIElossModel;
+      calc_time_with_error = fCsITimeModel;
     }
     for (Int_t iPoint = 0; iPoint < itPointBranches.second->GetEntriesFast(); iPoint++){
       ERPoint* point = (ERPoint*)(itPointBranches.second->At(iPoint));
@@ -101,10 +119,10 @@ void ERTelescopeDigitizer::Exec(Option_t* opt) {
       if (edep == 0) {  // if no points in input branch
         continue;
       }
-      edep = gRandom->Gaus(edep, elossSigma);
+      edep = calc_eloss_with_error(edep);
       if (edep < elossThreshold)
         continue;
-      time = gRandom->Gaus(time, timeSigma);
+      time = calc_time_with_error(time);
       auto* digi = AddDigi(edep, time, itPoint.first, itPointBranches.first);
       //for (const auto itPointsForCurrentVolume : itPoint.second) {
       //  digi->AddLink(FairLink("ERPoint", itPointsForCurrentVolume));
