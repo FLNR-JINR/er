@@ -38,9 +38,9 @@ void run_sim(Int_t nEvents = 1000)
   cave->SetGeometryFileName("cave_air.geo"); // cave or cave_air
   run->AddModule(cave);
 
-  ERSensPlane* sensPlane = new ERSensPlane("SENSPLANE");
-  sensPlane->SetGeometryFileName("sensPlane.geo.root");
-  sensPlane->SetDetectorPosition(0., 0., 10.);
+  ERSensPlane* sensPlane = new ERSensPlane();
+  sensPlane->SetDetectorGeometry(1., 1., 0.1, "vacuum");
+  sensPlane->SetDetectorPositioning(0., 0., 10.);
   run->AddModule(sensPlane);
 
   // -----   Create PrimaryGenerator   --------------------------------------
@@ -78,6 +78,10 @@ void run_sim(Int_t nEvents = 1000)
   rtdb->saveOutput();
   rtdb->print();
   // ---------------------------------------------------------
+
+  
+  TString geometryName = "setup.root";
+  run->CreateGeometryFile(geometryName.Data());
 
   // -----   Run simulation  ------------------------------------------------
   run->Run(nEvents);

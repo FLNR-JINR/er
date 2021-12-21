@@ -5,6 +5,7 @@
 Set(INCLUDE_DIRECTORIES
   ${BASE_INCLUDE_DIRECTORIES}
   ${CMAKE_SOURCE_DIR}/SensPlane/
+  ${CMAKE_SOURCE_DIR}/data/
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -19,7 +20,6 @@ Link_Directories(${LINK_DIRECTORIES})
 
 Set(SRCS
   ERSensPlane.cxx
-  ERSensPlanePoint.cxx
 )
 
 Set(HEADERS )
