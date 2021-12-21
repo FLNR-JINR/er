@@ -213,7 +213,7 @@ add_subdirectory (global)
 add_subdirectory (beamtime)
 add_subdirectory (BeamDet)
 add_subdirectory (field)
-#add_subdirectory (SensPlane)
+add_subdirectory (SensPlane)
 add_subdirectory (N15B11)
 
 Execute_Process(COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-opengl
