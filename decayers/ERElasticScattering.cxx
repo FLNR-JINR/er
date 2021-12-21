@@ -250,32 +250,34 @@ void  ERElasticScattering::ThetaRangesLab2CM() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// It is a method to recalculation theta ranges from Lab to CM.
+/// It is a method for recalculation theta ranges from Lab to CM.
 /// Input formula is tan(thetaLab) = MomOfProjectilePerpendicularComponent / MomOfProjectileParallelComponent.
 /// Where MomOfProjectilePerpendicularComponent = Pcm*Sin(thetaCM)*sqrt(1-V^2),
 /// and MomOfProjectileParallelComponent = Pcm*Cos(thetaCM) + V*sqrt(pM^2+Pcm^2).
-/// Where V is a velocity of central of mass relativity of the Lab.
-/// Pcm is momentum of CM relativity of Lab. 
+/// Where Pcm is abs value of  the projectile  momentum in the CM, V is the velocity of CM wrt Lab.
+/// V=Plab/(sqrt(Plab^2 + pM^2)+tM) ,    Pcm= V*tM/sqrt(1-V^2)
 /// Here we use inverse formula to obtain thetaCM from thetaLab.
-/// For comfortable calculations we introduced corresponding notations.
+/// The following notations are used:
 /// y = tan(thetaLab),
 /// z = V*sqrt(pM^2+Pcm^2),
 /// t = 1-V^2,
 /// x = Cos(thetaCM).
 /// a = Pcm^2*(y^2+t),
-/// b = 2*y^2*Pcm*z*x,
+/// b = 2*y^2*Pcm*z,
 /// c = y^2*z^2 - Pcm^2*t = 0,
 /// From input formula we obtain the equation 
 /// a*x^2 + b*x + c = 0
 /// From the equation  
-/// D = b^2 - a*c, 
-/// x1,2 = (-b +- sqrt(D)) / 2 / a,
-/// for projectile ion Cos(thetaCM) = (-b + sqrt(D)) / 2 / a,
-/// for target ion Cos(thetaCM) = -Cos(thetaCM) = (b - sqrt(D)) / 2 / a.
+/// D = b^2 - 4*a*c, 
+/// x1,2 = (-b/2 +- sqrt(D/4)) /  a,
+/// for projectile ion Cos(thetaCM) = (-b/2 + sqrt(D/4)) / a,
+/// for target ion Cos(thetaCM) = -Cos(thetaCM) 
+/// Further generalization for binary reactions can be done using  Pcm1=sqrt((S+M1^2+M2^2)/4S-M1). S is S-invariant
+/// instead of Pcm in calculations for the products
 void ERElasticScattering::ThetaRangesLab2CMRelativistic() {
   Double_t pM = GetProjectileIonMass();
   Double_t tM = GetTargetIonMass();
-  /// For a target ion in the calculations below projectile mass has to be changed with target mass
+  /// For the target ion in the calculations below the target mass has to be substituted for the projectile mass
   if (fDetectionIonType == kTARGET) 
     pM = tM;
 
@@ -296,11 +298,11 @@ void ERElasticScattering::ThetaRangesLab2CMRelativistic() {
   if (B1Min < 0. || B1Max < 0.) {
     LOG(FATAL) << "In ERElasticScattering::ThetaRangesLab2CMRelativistic() B1 can't be < 0." << FairLogger::endl;
   }
-  B1Min = sqrt(B1Min);
+  B1Min = sqrt(B1Min); //sqrt(D/Pcm)
   B1Max = sqrt(B1Max);
-  Double_t B2Min = yMin*yMin*z;
+  Double_t B2Min = yMin*yMin*z;  // b/2/Pcm
   Double_t B2Max = yMax*yMax*z;
-  Double_t B3Min = MomInCM*(yMin*yMin + t);
+  Double_t B3Min = MomInCM*(yMin*yMin + t); // a/Pcm
   Double_t B3Max = MomInCM*(yMax*yMax + t);
   Double_t CosThetaCMMin;
   Double_t CosThetaCMMax;
