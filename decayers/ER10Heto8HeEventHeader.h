@@ -19,12 +19,13 @@ private:
   
   Int_t fTrigger = 0;
   Int_t fTriggerPriority = 0;
+  float fTime = -1.;
 public:
   ER10Heto8HeEventHeader() : fTrigger(0), fTriggerPriority(0) {}
   void SetData(const TVector3& position, const TLorentzVector& He8b,
                const TLorentzVector& H3, const TLorentzVector& H1,
                const TLorentzVector& He8d, const TLorentzVector& He10,
-               const TLorentzVector& n1, const TLorentzVector& n2);
+               const TLorentzVector& n1, const TLorentzVector& n2, float time);
   void SetTrigger(Int_t trigger) { fTrigger = trigger; }
   
   Int_t GetTrigger() const {return fTrigger;}
