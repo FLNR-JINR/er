@@ -9,7 +9,7 @@ void ER10Heto8HeEventHeader::SetData(const TVector3& position, const TLorentzVec
                                    const TLorentzVector& H3, const TLorentzVector& H1,
                                    const TLorentzVector& He8d,
                                    const TLorentzVector& He10, const TLorentzVector& n1,
-                                   const TLorentzVector& n2) {
+                                   const TLorentzVector& n2, const float time) {
   fReactionPos = position;
   fHe8b = He8b;
   fH3 = H3;
@@ -18,6 +18,7 @@ void ER10Heto8HeEventHeader::SetData(const TVector3& position, const TLorentzVec
   fHe10 = He10;
   fn1 = n1;
   fn2 = n2;
+  fTime = time;
 }
 // -------------------------------------------------------------------------
 void ER10Heto8HeEventHeader::Clear() {
@@ -30,6 +31,7 @@ void ER10Heto8HeEventHeader::Clear() {
   fn2.SetXYZM(0, 0, 0, 0);
   fTrigger = 0;
   fTriggerPriority = 0;
+  fTime = -1.;
 }
 // -------------------------------------------------------------------------
 
