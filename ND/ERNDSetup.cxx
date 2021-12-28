@@ -32,6 +32,19 @@ ERNDSetup* ERNDSetup::Instance(){
                 return fInstance;
 }
 
+TGeoHMatrix GetGlobalToLocalMatrix(const TString& path) {
+  TGeoIterator nextNode(gGeoManager->GetTopVolume());
+  while(nextNode()) {
+    TString nodePath;
+    nextNode.GetPath(nodePath);
+    if (nodePath.Contains(path)) {
+      return (*static_cast<const TGeoHMatrix*>(nextNode.GetCurrentMatrix()));
+    }
+  }
+  LOG(FATAL) << "Path " << path << " not found in geometry" << FairLogger::endl;
+  return nullptr;
+}
+
 void ERNDSetup::ReadGeoParamsFromParContainer() {
   if (fInited)
     return;
@@ -71,6 +84,8 @@ TVector3 ERNDSetup::Pos(Int_t channel) {
         LOG(FATAL) << "ERNDSetup: Node for channel " << channel << " not found in geometry."
                    << FairLogger::endl;
     }
-    const auto* translation = fChannel2Node[channel]->GetMatrix()->GetTranslation();
+    auto matrix = GetGlobalToLocalMatrix(fChannel2Node[channel]->GetName());
+    const auto* translation = matrix.GetTranslation();
+
     return TVector3(translation[0], translation[1], translation[2]);
 }
