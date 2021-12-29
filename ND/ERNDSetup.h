@@ -14,6 +14,7 @@
 #include "Rtypes.h"
 #include "TVector3.h"
 #include "TGeoNode.h"
+#include "TGeoManager.h"
 
 class ERNDSetup {
     static ERNDSetup* fInstance;
@@ -25,6 +26,7 @@ public:
     void PMTPos(TVector3 pos, TVector3& pmtPos);
     TVector3 Pos(Int_t channel);
     void ReadGeoParamsFromParContainer();
+    static TGeoHMatrix GetGlobalToLocalMatrix(const TString& path);
 protected:
     std::unordered_map<Int_t, const TGeoNode*> fChannel2Node;
     bool fInited = false;

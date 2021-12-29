@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-#include "TGeoManager.h"
-
 #include "FairLogger.h"
 
 ERNDSetup* ERNDSetup::fInstance = NULL;
@@ -32,7 +30,7 @@ ERNDSetup* ERNDSetup::Instance(){
                 return fInstance;
 }
 
-TGeoHMatrix GetGlobalToLocalMatrix(const TString& path) {
+TGeoHMatrix ERNDSetup::GetGlobalToLocalMatrix(const TString& path) {
   TGeoIterator nextNode(gGeoManager->GetTopVolume());
   while(nextNode()) {
     TString nodePath;
