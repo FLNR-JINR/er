@@ -54,7 +54,7 @@ void ssd_one_spectrum_calibration() {
   //  ./result/[run_id]/[sensor_name]/draw/spectra_[run_id]_[sensor_name].root
   //   Tree with a data is in the
   //  ./result/[run_id]/input/mult_one_[run_id]_[sensor_name].root
-  prep_ssd_1m_1->MultiplicitySelection();
+  prep_ssd_1m_1->MultiplicitySelection(ssd_1m_1);
 
   // [Calibration] (http://er.jinr.ru/si_detector_calibration.html)
   auto calib_ssd_1m_1 = new Calibration(file_calib_path);
