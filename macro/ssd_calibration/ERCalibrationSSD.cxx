@@ -581,6 +581,7 @@ enum FileType {
   ROOT_INPUT_REDUCED_TREE_PATH, // *.root file with only tree leaves treated in analysis
   ROOT_MULT_SELECTED_PATH, // *.root ROOT_INPUT_REDUCED_TREE_PATH after excluding non-single multiplycity stations
   ROOT_HIST_SPECTRA_PATH, // *.root strip histograms after multiplycity selection and cut on thresholds
+  ROOT_HIST_CALIBRATED_SPECTRA_PATH, // *.root `ROOT_HIST_SPECTRA_PATH` spectra with calibration coefficients applied
   ROOT_HIST_PEAKS_PATH, // *.root strip histograms with marked peaks found by TSpectrum and chosen algorithm
   ROOT_HIST_PIXEL_PATH, // *.root pixel spectra histograms
   ROOT_HIST_NON_UNIFORM_MAP_PATH, // *.root pixel effective thickness map 
@@ -718,6 +719,11 @@ TString CalibIOManager::GetPath(const Int_t fileType,
     case ROOT_HIST_PEAKS_PATH:
       path = this->ConstructSensorFilePath(
         {"draw"}, "peaks", nameRoot, sensors, "root"
+      );
+    break;
+    case ROOT_HIST_CALIBRATED_SPECTRA_PATH:
+      path = this->ConstructSensorFilePath(
+        {"draw"}, "calibrated", nameRoot, sensors, "root"
       );
     break;
     case ROOT_HIST_PIXEL_PATH:
@@ -1381,6 +1387,10 @@ public:
   */
   void SetPathToCustomSpectra(const TString& path) {fSpectraHistPath = path;}
 
+  /* Draws input histograms with calibration coefficients apllied.
+  Saves result to ./result/[run_id]/[sensor_name]/draw/calibrated_[run_id]_[sensor_name].root 
+  */
+  void DrawCalibratedHists();
 protected:
   /**
   ** @brief Finds peaks with a set algorithm method.
@@ -1576,13 +1586,15 @@ void Calibration::PrintReport(const std::vector<std::vector<Double_t>>& peaks,
   report << "StripNb" << std::right 
          << setw(20) << "E_low" 
          << setw(20) << "E_middle" 
-         << setw(20) << "E_high"  << endl;
+         << setw(20) << "E_high"
+         << setw(20) << "\\eta"  << endl;
   Int_t iStrip = 0;
   for (const auto& stripPeaks: peaks) {
     report << iStrip++ << std::right 
            << setw(20) << stripPeaks[0] 
            << setw(20) << stripPeaks[1] 
-           << setw(20) << stripPeaks[2] << endl;
+           << setw(20) << stripPeaks[2]
+           << setw(20) << (stripPeaks[2] - stripPeaks[1]) / (stripPeaks[2] - stripPeaks[0])  << endl;
   }
   report << endl;
 
@@ -1624,10 +1636,39 @@ void Calibration::PrintReport(const std::vector<std::vector<Double_t>>& peaks,
   report.close();
 }
 
+void Calibration::DrawCalibratedHists() {
+  if (fSpectraHistPath == "") {
+    fSpectraHistPath = fIOManager->GetPath(ROOT_HIST_SPECTRA_PATH, fRunId, fSensor);
+  }
+  const auto histFile = fIOManager->OpenRootFile(fSpectraHistPath);
+
+  const TString calibCoeffsPath = fIOManager->GetPath(TXT_CALIB_COEFF_PATH, fRunId, fSensor);
+  auto calibCoeffs = Read2DDoubleVectorFromFile(calibCoeffsPath);
+
+  const TString calibratedSpectra = fIOManager->GetPath(ROOT_HIST_CALIBRATED_SPECTRA_PATH, fRunId, fSensor);
+  const auto calibratedHists = fIOManager->CreateRootFile(calibratedSpectra);
+
+  for (Int_t iStrip = 0; iStrip < fSensor->fStripAmount; iStrip++) {
+    const auto hist = static_cast<TH1D*>(GetObjectFromRootFile(histFile, iStrip));
+    const Int_t binsAmount = hist->GetXaxis()->GetNbins();
+    auto calibratedHist = new TH1D(hist->GetName(), hist->GetName(),
+                                   binsAmount, calibCoeffs[iStrip][1], calibCoeffs[iStrip][0] * binsAmount + calibCoeffs[iStrip][1]);
+    for (int iBin = 0; iBin < binsAmount; iBin++) {
+      auto value = hist->GetBinContent(iBin + 1);
+      calibratedHist->SetBinContent(iBin + 1, value);
+    }
+    calibratedHist->Write();
+  }
+  histFile->Close();
+  calibratedHists->Close();
+}
+
+
 void Calibration::Exec() {
   SearchPeaks();
   DeadLayerEstimation();
   CalcCalibrationCoefficients();
+  DrawCalibratedHists();
 }
 
 class NonUniformityMapBuilder: public TaskManager, public PeakSearch {

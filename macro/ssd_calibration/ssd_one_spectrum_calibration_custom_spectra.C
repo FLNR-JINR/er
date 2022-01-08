@@ -9,8 +9,12 @@ all the data is ready to run.
 using namespace ERCalibrationSSD;
 
 void ssd_one_spectrum_calibration_custom_spectra() {
-  const TString runID = "custom_hists_run"; // name of the resulting folder in `results`
-  const TString custom_hists_path = "./hists/source70degSh500nsG8V5_3-H1det20um.root";
+  // const TString runID = "source0degSh500nsG8V250-H2det"; // name of the resulting folder in `results`
+  // const TString custom_hists_path = "./source0degSh500nsG8V250-H2det.root";
+  const TString runID = "source0degSh500nsG8V250-H1det_inv"; // name of the resulting folder in `results`
+  const TString custom_hists_path = "./source0degSh500nsG8V250-H1det_inv.root";
+  // const TString runID = "source70degSh500nsG8V5_3-H1det20um"; // name of the resulting folder in `results`
+  // const TString custom_hists_path = "./source70degSh500nsG8V5_3-H1det20um.root";
   auto x = new SensorRunInfo("x", 16, 4096, runID);
   x->SetNoiseThreshold(500);
   // [Calibration] (http://er.jinr.ru/si_detector_calibration.html)
@@ -23,8 +27,8 @@ void ssd_one_spectrum_calibration_custom_spectra() {
 
   calib_x->SetPeakSearchMethod("sliding_window");
   calib_x->SetFitMinSigma(6.);
-  calib_x->SetFitPeakThreshold(0.7);
-  calib_x->SetSlideWindowWidth(30);
+  calib_x->SetFitPeakThreshold(0.3);
+  calib_x->SetSlideWindowWidth(50);
   calib_x->SetSearchRadius(50);
 
   calib_x->SearchPeaks();
@@ -34,4 +38,7 @@ void ssd_one_spectrum_calibration_custom_spectra() {
   // );
   const bool fitOnlyLastTwoPointsNvsE = false;
   calib_x->CalcCalibrationCoefficients(fitOnlyLastTwoPointsNvsE);
+
+  // Save calibrated hists in ./result/[run_id]/[sensor_name]/draw/calibrated_[run_id]_[sensor_name].root
+  calib_x->DrawCalibratedHists();
 }
