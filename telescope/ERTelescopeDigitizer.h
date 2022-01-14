@@ -10,6 +10,7 @@
 #define ERTelescopeDigitizer_H
 
 #include <limits>
+#include <functional>
 
 #include "TClonesArray.h"
 
