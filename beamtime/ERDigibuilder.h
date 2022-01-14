@@ -19,6 +19,7 @@
 #include "ERUnpack.h"
 
 class ERBeamTimeEventHeader;
+class EventCommon;
 
 class ERDigibuilder : public FairSource {
  public:
