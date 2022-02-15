@@ -134,9 +134,9 @@ void ERGadast::FinishPoint() {
   fMomOut = mom.Vect();
 
   if (fELoss > 0.){
-    if(fDetectorType == 0)
+    if(fDetectorType == CsI)
       AddCsIPoint();
-    if(fDetectorType == 1)
+    if(fDetectorType == LaBr)
       AddLaBrPoint();
   }
 }
