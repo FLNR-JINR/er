@@ -24,6 +24,7 @@ ERGadastLaBrPoint::ERGadastLaBrPoint(Int_t eventID, Int_t trackID,
 		  Double_t tof, Double_t length, Double_t eLoss, Int_t pdg,  Int_t cell)
   : FairMCPoint(trackID, -1., posIn, momIn, tof, length, eLoss),
     fEventID(eventID),
+    fMot0TrackID(mot0trackID),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
     fPDG(pdg), fCell(cell)
