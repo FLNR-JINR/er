@@ -7,6 +7,7 @@
 #ifndef ERGadastSetup_H
 #define ERGadastSetup_H
 
+#include <tuple>
 
 #include "TVector3.h"
 #include "TGeoMatrix.h"
@@ -28,6 +29,8 @@ public:
     static Float_t LaBrDispB(TVector3* pos);
 
 	int GetMeshElement(TVector3* pos, SensetiveType detType);
+	std::tuple<size_t, size_t, size_t> GetCsIMeshElement(TVector3* pos, size_t x_counts,
+	 													 size_t y_counts, size_t z_counts);
 private:
 	ERGadastSetup();
 	static ERGadastSetup* fInstance;
