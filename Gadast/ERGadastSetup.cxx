@@ -4,6 +4,9 @@
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 #include "TGeoNode.h"
+#include "TGeoCompositeShape.h"
+#include "TGeoBoolNode.h"
+#include "TGeoTrd2.h"
 #include <iostream>
 
 #include "FairRun.h"
@@ -35,6 +38,52 @@ ERGadastSetup::ERGadastSetup()
 
     fDigiPar = (ERGadastDigiPar*)(rtdb->getContainer("ERGadastDigiPar"));
     if ( ! fDigiPar ) Fatal("ERGadastSetup`", "No ERNeuRadDigiPar in runtime");
+}
+//----------------------------------------------------------------------------
+std::tuple<size_t, size_t, size_t> ERGadastSetup::GetCsIMeshElement(TVector3* pos, size_t x_counts,
+	 														        size_t y_counts, size_t z_counts)
+{
+	TGeoNode* node = gGeoManager->FindNode(pos->X(), pos->Y(), pos->Z());
+	TString path = TString(gGeoManager->GetPath());
+	const auto get_matrix = [node, path]() -> TGeoHMatrix {
+		TGeoIterator nextNode(gGeoManager->GetTopVolume());
+		while (nextNode()) {
+			TString nodePath;
+    		nextNode.GetPath(nodePath);
+			nodePath.ReplaceAll("cave", "/cave_1");
+			if (nodePath == path) {
+				return (*dynamic_cast<const TGeoHMatrix*>(nextNode.GetCurrentMatrix()));
+			}
+		}
+		LOG(FATAL) << "Gadast node " << node->GetName() << " not found" << FairLogger::endl; 
+	};
+
+	auto h_matrix = get_matrix();
+	double posMaster[3];
+	posMaster[0] = pos->X(); posMaster[1] = pos->Y();  posMaster[2] = pos->Z();
+	double posLocal[3];
+	h_matrix.MasterToLocal(posMaster, posLocal);
+
+	auto* shape = dynamic_cast<TGeoCompositeShape*>(node->GetVolume()->GetShape());
+	if (!shape)
+		LOG(FATAL) << "Shape of CsI is not composite" << FairLogger::endl;
+	double dx, dy, dz;
+	double origin[3] = {0, 0, 0};
+	auto* bool_node = shape->GetBoolNode();
+	bool_node->ComputeBBox(dx, dy, dz, origin);
+	posLocal[0] += dx;
+	posLocal[1] += dy;
+	posLocal[2] += dynamic_cast<TGeoTrd2*>(bool_node->GetLeftShape())->GetDz();
+
+	float step_x = dx * 2 / static_cast<float>(x_counts);
+	float step_y = dy * 2 / static_cast<float>(y_counts);
+	float step_z = dz * 2 / static_cast<float>(z_counts);
+
+	size_t x = (size_t)(posLocal[0] / step_x);
+	size_t y = (size_t)(posLocal[1] / step_y);
+	size_t z = (size_t)(posLocal[2] / step_z);
+
+	return std::make_tuple(x, y, z);
 }
 //----------------------------------------------------------------------------
 int ERGadastSetup::GetMeshElement(TVector3* pos, SensetiveType detType){

@@ -53,11 +53,132 @@ ERGadastDigitizer::ERGadastDigitizer(Int_t verbose)
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
+
 ERGadastDigitizer::~ERGadastDigitizer()
 {
   delete fSetup;
 }
+
 // ----------------------------------------------------------------------------
+
+void ERGadastDigitizer::SetCsILC(Float_t lc)
+{
+  fCsILCFun = [lc](BlockAddress, size_t, size_t, size_t) {return lc;};
+  fCsILCGrid = [](BlockAddress) {return std::make_tuple(1,1,1);};
+}
+
+// ----------------------------------------------------------------------------
+
+void ERGadastDigitizer::SetCsILC(std::map<BlockAddress, float>& lc)
+{
+  fCsILCFun = [lc](BlockAddress address, size_t, size_t, size_t) {
+    return lc.at(address);
+  };
+  fCsILCGrid = [](BlockAddress) {return std::make_tuple(1,1,1);};
+}
+
+// ----------------------------------------------------------------------------
+
+void ERGadastDigitizer::SetCsILC(std::map<BlockAddress, CoefficientMatrix>& lc)
+{
+  fCsILCFun = [&lc](BlockAddress address, size_t x, size_t y, size_t z) {
+    LOG(DEBUG) << "CsILCFun: wall=" << address.first << ", block=" << address.second 
+               << ", x cell=" << x << ", y cell=" << y << ", z cell=" << z << FairLogger::endl;
+    return lc.at(address).at(x).at(y).at(z);
+  };
+
+  fCsILCGrid = [&lc](BlockAddress address) {
+    LOG(DEBUG) << "fCsILCGrid: wall=" << address.first << ", block=" << address.second << FairLogger::endl;
+    const auto& matrix = lc.at(address);
+    const size_t x_size = matrix.size();
+    const size_t y_size = matrix.at(0).size();
+    const size_t z_size = matrix.at(0).at(0).size();
+    return std::make_tuple(x_size, y_size, z_size);
+  };
+}
+
+// ----------------------------------------------------------------------------
+
+void ERGadastDigitizer::SetCsIEdepError(Float_t a, Float_t b, Float_t c)
+{
+  fCsILCAFun = [a](BlockAddress, size_t, size_t, size_t) {return a;};
+  fCsILCAGrid = [](BlockAddress) {return std::make_tuple(1,1,1);};
+  fCsILCBFun = [b](BlockAddress, size_t, size_t, size_t) {return b;};
+  fCsILCBGrid = [](BlockAddress) {return std::make_tuple(1,1,1);};
+  fCsILCCFun = [c](BlockAddress, size_t, size_t, size_t) {return c;};
+  fCsILCCGrid = [](BlockAddress) {return std::make_tuple(1,1,1);};
+}
+
+// ----------------------------------------------------------------------------
+
+void ERGadastDigitizer::SetCsIEdepError(std::map<BlockAddress, float>& a, 
+                                        std::map<BlockAddress, float>& b,
+                                        std::map<BlockAddress, float>& c) {
+  fCsILCAFun = [a](BlockAddress address, size_t, size_t, size_t) {
+    return a.at(address);
+  };
+  fCsILCAGrid = [](BlockAddress) {return std::make_tuple(1,1,1);};
+  fCsILCBFun = [b](BlockAddress address, size_t, size_t, size_t) {
+    return b.at(address);
+  };
+  fCsILCBGrid = [](BlockAddress) {return std::make_tuple(1,1,1);};
+  fCsILCCFun = [c](BlockAddress address, size_t, size_t, size_t) {
+    return c.at(address);
+  };
+  fCsILCCGrid = [](BlockAddress) {return std::make_tuple(1,1,1);};
+}
+
+// ----------------------------------------------------------------------------
+
+void ERGadastDigitizer::SetCsIEdepError(std::map<BlockAddress, CoefficientMatrix>& a, 
+                                        std::map<BlockAddress, CoefficientMatrix>& b,
+                                        std::map<BlockAddress, CoefficientMatrix>& c) {
+  fCsILCAFun = [&a](BlockAddress address, size_t x, size_t y, size_t z) {
+    LOG(DEBUG) << "fCsILCAFun: wall=" << address.first << ", block=" << address.second 
+               << ", x cell=" << x << ", y cell=" << y << ", z cell=" << z << FairLogger::endl;
+    return a.at(address).at(x).at(y).at(z);
+  };
+
+  fCsILCAGrid = [&a](BlockAddress address) {
+    LOG(DEBUG) << "fCsILCAGrid: wall=" << address.first << ", block=" << address.second << FairLogger::endl;
+    const auto& matrix = a.at(address);
+    const size_t x_size = matrix.size();
+    const size_t y_size = matrix.at(0).size();
+    const size_t z_size = matrix.at(0).at(0).size();
+    return std::make_tuple(x_size, y_size, z_size);
+  };
+
+  fCsILCBFun = [&b](BlockAddress address, size_t x, size_t y, size_t z) {
+    LOG(DEBUG) << "fCsILCAFun: wall=" << address.first << ", block=" << address.second 
+               << ", x cell=" << x << ", y cell=" << y << ", z cell=" << z << FairLogger::endl;
+    return b.at(address).at(x).at(y).at(z);
+  };
+
+  fCsILCBGrid = [&b](BlockAddress address) {
+    LOG(DEBUG) << "fCsILCBGrid: wall=" << address.first << ", block=" << address.second << FairLogger::endl;
+    const auto& matrix = b.at(address);
+    const size_t x_size = matrix.size();
+    const size_t y_size = matrix.at(0).size();
+    const size_t z_size = matrix.at(0).at(0).size();
+    return std::make_tuple(x_size, y_size, z_size);
+  };
+
+  fCsILCCFun = [&c](BlockAddress address, size_t x, size_t y, size_t z) {
+    LOG(DEBUG) << "fCsILCAFun: wall=" << address.first << ", block=" << address.second 
+               << ", x cell=" << x << ", y cell=" << y << ", z cell=" << z << FairLogger::endl;
+    return c.at(address).at(x).at(y).at(z);
+  };
+
+  fCsILCCGrid = [&c](BlockAddress address) {
+    LOG(DEBUG) << "fCsILCAGrid: wall=" << address.first << ", block=" << address.second << FairLogger::endl;
+    const auto& matrix = c.at(address);
+    const size_t x_size = matrix.size();
+    const size_t y_size = matrix.at(0).size();
+    const size_t z_size = matrix.at(0).at(0).size();
+    return std::make_tuple(x_size, y_size, z_size);
+  };
+
+}
 
 // ----------------------------------------------------------------------------
 void ERGadastDigitizer::SetParContainers()
@@ -125,23 +246,46 @@ void ERGadastDigitizer::Exec(Option_t* opt)
 
   for (const auto &itWall : pointsCsI){
     for (const auto &itBlock : itWall.second){
+      BlockAddress address = std::make_pair(itWall.first, itBlock.first);
       for (const auto &itCell : itBlock.second){
         Float_t edep = 0; // sum edep in cell
+        Float_t edepSigma = 0; // sum edep in cell
         Float_t time = std::numeric_limits<float>::max(); // first time in cell
         for (const auto iPoint : itCell.second){
           ERGadastCsIPoint* point = (ERGadastCsIPoint*)fGadastCsIPoints->At(iPoint);
-          edep += point->GetEnergyLoss();
           if (point->GetTime() < time)
             time = point->GetTime();
+          TVector3 pos;
+          point->PositionIn(pos);
+
+          size_t x_counts, y_counts, z_counts;
+          std::tie(x_counts, y_counts, z_counts) = fCsILCGrid(address);
+          size_t x_bin, y_bin, z_bin;
+          std::tie(x_bin, y_bin, z_bin) = fSetup->GetCsIMeshElement(&pos, x_counts, y_counts, z_counts);
+          edep += fCsILCFun(address, x_bin, y_bin, z_bin) * point->GetEnergyLoss();
+          
+          std::tie(x_counts, y_counts, z_counts) = fCsILCAGrid(address);
+          std::tie(x_bin, y_bin, z_bin) = fSetup->GetCsIMeshElement(&pos, x_counts, y_counts, z_counts);
+          const float A = fCsILCAFun(address, x_bin, y_bin, z_bin);
+
+          std::tie(x_counts, y_counts, z_counts) = fCsILCBGrid(address);
+          std::tie(x_bin, y_bin, z_bin) = fSetup->GetCsIMeshElement(&pos, x_counts, y_counts, z_counts);
+          const float B = fCsILCBFun(address, x_bin, y_bin, z_bin);
+
+          std::tie(x_counts, y_counts, z_counts) = fCsILCCGrid(address);
+          std::tie(x_bin, y_bin, z_bin) = fSetup->GetCsIMeshElement(&pos, x_counts, y_counts, z_counts);
+          const float C = fCsILCCFun(address, x_bin, y_bin, z_bin);
+          
+          edepSigma += sqrt(pow(A, 2) + pow(B * TMath::Sqrt(edep), 2) + pow(C * edep, 2));
         }
-        Float_t edepSigma = sqrt(pow(fCsIEdepErrorA,2) + pow(fCsIEdepErrorB*TMath::Sqrt(edep),2) + pow(fCsIEdepErrorC*edep,2));
-        edep = gRandom->Gaus(fCsILC*edep, edepSigma);
+        
+        edep = gRandom->Gaus(edep, edepSigma);
         if (edep < fCsIElossThreshold)
           continue;
         Float_t timeSigma = TMath::Sqrt(fCsITimeErrorA/edep);
         time = gRandom->Gaus(time, timeSigma);
 
-        AddCsIDigi(edep,itWall.first,itBlock.first,itCell.first);
+        AddCsIDigi(edep, itWall.first, itBlock.first, itCell.first);
       }
     }
   }
