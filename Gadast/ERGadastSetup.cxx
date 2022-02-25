@@ -83,6 +83,13 @@ std::tuple<size_t, size_t, size_t> ERGadastSetup::GetCsIMeshElement(TVector3* po
 	size_t y = (size_t)(posLocal[1] / step_y);
 	size_t z = (size_t)(posLocal[2] / step_z);
 
+	x = std::min(x, x_counts - 1);
+	x = std::max(x, static_cast<size_t>(0));
+	y = std::min(y, y_counts - 1);
+	y = std::max(y, static_cast<size_t>(0));
+	z = std::min(z, z_counts - 1);
+	z = std::max(z, static_cast<size_t>(0));
+
 	return std::make_tuple(x, y, z);
 }
 //----------------------------------------------------------------------------
