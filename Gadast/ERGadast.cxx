@@ -8,6 +8,8 @@
 
 #include "ERGadast.h"
 
+#include <unordered_map>
+
 #include "TClonesArray.h"
 #include "TVirtualMC.h"
 #include "TString.h"
@@ -19,6 +21,8 @@
 #include "FairLogger.h"
 
 #include "ERGadastGeoPar.h"
+#include "ERMCTrack.h"
+#include "ERStack.h"
 
 //--------------------------------------------------------------------------------------------------
 ERGadast::ERGadast(): 
@@ -90,6 +94,29 @@ Bool_t ERGadast::ProcessHits(FairVolume* vol) {
 }
 
 //--------------------------------------------------------------------------------------------------
+
+int ERGadast::ParentGammaTrackId(int track_id) const {
+  dynamic_cast<ERStack*>(gMC->GetStack())->FillTrackArray();
+  std::unordered_map<int, ERMCTrack*> id_to_track;
+  for (int i(0); i < fMCTracks->GetEntriesFast(); i++) {
+    auto* track = dynamic_cast<ERMCTrack*>(fMCTracks->At(i));
+    id_to_track[track->Id()] = track;
+  }
+  
+  auto track_it = id_to_track.find(track_id);
+  if (track_it == id_to_track.end())
+    LOG(FATAL) << "Gadast: Track not found in stack!" << FairLogger::endl;
+
+  auto* track = track_it->second;
+  auto* parent_track = track;
+  while (parent_track->GetPdgCode() != 22 || parent_track->GetMotherId() != -1) {
+    parent_track = id_to_track[parent_track->GetMotherId()];
+  }
+
+  return parent_track->Id();
+}
+
+//--------------------------------------------------------------------------------------------------
 void ERGadast::StartPoint() {
   fELoss  = 0.;
   fEventID = gMC->CurrentEvent();
@@ -102,6 +129,8 @@ void ERGadast::StartPoint() {
   fMomIn = mom.Vect();
 
   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
+  fParentGammaTrackId = ParentGammaTrackId(fTrackID);
+
   fTime   = gMC->TrackTime() * 1.0e09;// Return the current time track being transported
   fLength = gMC->TrackLength(); // Return the length of the current track from its origin (in cm)
   fMot0TrackID  = gMC->GetStack()->GetCurrentTrack()->GetMother(0);
@@ -154,7 +183,8 @@ void ERGadast::EndOfEvent() {
 void ERGadast::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
-    LOG(FATAL) << "IO manager is not set" << FairLogger::endl;  
+    LOG(FATAL) << "IO manager is not set" << FairLogger::endl;
+  fMCTracks = (TClonesArray*) ioman->GetObject("MCTrack");
   ioman->Register("GadastCsIPoint","ERGadast", fCsIPoints, kTRUE);
   ioman->Register("GadastLaBrPoint","ERGadast", fLaBrPoints, kTRUE);
   ioman->Register("GadastStep","ERGadast", fGadastSteps, kTRUE);
@@ -219,7 +249,8 @@ ERGadastCsIPoint* ERGadast::AddCsIPoint() {
               TVector3(fPosOut.X(), fPosOut.Y(), fPosOut.Z()),
               TVector3(fMomIn.Px(), fMomIn.Py(), fMomIn.Pz()),
               TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-              fTime, fLength, fELoss, fPDG, fCsIWall, fCsIBlock, fCsICell);
+              fTime, fLength, fELoss, fPDG, fCsIWall, fCsIBlock, fCsICell,
+              fParentGammaTrackId);
   
 }
 

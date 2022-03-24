@@ -142,9 +142,12 @@ private:
 
 private:
 
-  TClonesArray*  fCsIPoints;                  ///< The CsI point collection
-  TClonesArray*  fLaBrPoints;                 ///< The LaBr point collection
-  TClonesArray*  fGadastSteps;                ///< The all steps collection
+  int ParentGammaTrackId(int track_id) const;
+
+  TClonesArray*  fCsIPoints = nullptr;                  ///< The CsI point collection
+  TClonesArray*  fLaBrPoints = nullptr;                 ///< The LaBr point collection
+  TClonesArray*  fGadastSteps = nullptr;                ///< The all steps collection
+  TClonesArray*  fMCTracks = nullptr;                   ///< The all steps collection
   
   Bool_t fStoreSteps;                         ///< Flag to storing all steps in sensetive volume
 
@@ -152,6 +155,7 @@ private:
 
   Int_t fEventID;                             ///< event index
   Int_t fTrackID;                             ///< track index
+  Int_t fParentGammaTrackId = -1;             ///< parent gamma track index
   Int_t fMot0TrackID;                         ///< 0th mother track index
   Double_t fMass;                             ///< mass
   TVector3 fPosIn;                            ///< point start  position
@@ -163,7 +167,7 @@ private:
   Double32_t     fELoss;                      ///< energy loss
   Int_t fPDG;                                 ///< particle PDG
   Int_t  fStepNr;                             ///< current step numb in this active volumes
-  SensetiveType  fDetectorType;        ///< CsI or LaBr point
+  SensetiveType  fDetectorType;               ///< CsI or LaBr point
   Int_t fCsIWall;                             ///< CsI Wall number
   Int_t fCsIBlock;                            ///< CsI Block number
   Int_t fCsICell;                             ///< CsI Cell number

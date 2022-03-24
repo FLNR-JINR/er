@@ -48,11 +48,7 @@ public:
       TVector3 posIn,
       TVector3 posOut, TVector3 momIn, TVector3 momOut,
       Double_t tof, Double_t length, Double_t eLoss, Int_t pdg,
-      Int_t wall, Int_t block, Int_t cell);
-
-  /** @brief Copy constructor **/
-  ERGadastCsIPoint(const ERGadastCsIPoint&);
-
+      Int_t wall, Int_t block, Int_t cell, int parent_gamma_track_id);
 
   /** @brief Destructor **/
   virtual ~ERGadastCsIPoint();
@@ -64,6 +60,7 @@ public:
 
   Int_t GetEventID()              const { return fEventID; }
   Int_t GetMot0TrackID()          const { return fMot0TrackID; }
+  Int_t GetParentGammaTrackID()  const { return fParentGammaTrackId; }
   Double_t GetXIn()               const { return fX; }
   Double_t GetYIn()               const { return fY; }
   Double_t GetZIn()               const { return fZ; }
@@ -99,6 +96,7 @@ protected:
   
   Int_t fEventID;                                       ///< event index
   Int_t fMot0TrackID;                                   ///< 0th mother track index
+  Int_t fParentGammaTrackId = -1;                      ///< id of parrent gamma
   Double_t fMass;                                       ///< mass
   Double32_t fX_out,  fY_out,  fZ_out;                  ///< point out coordinate
   Double32_t fPx_out, fPy_out, fPz_out;                 ///< point out momentum
