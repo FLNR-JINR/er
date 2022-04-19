@@ -107,7 +107,9 @@ void ERNDPID::Exec(Option_t* opt) {
 
     if(beta <= 0 || beta >= 1) {
       LOG(DEBUG) << "[ERNDPID] Wrong beta " << beta << FairLogger::endl;
-      return ;
+      TLorentzVector lv(-1., -1., -1., -1.);
+      AddParticle(lv, tof);
+      continue;
     }
     auto gamma = 1. / TMath::Sqrt(1.- beta * beta);
     auto p = beta * gamma * mass;
