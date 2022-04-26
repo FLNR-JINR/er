@@ -123,9 +123,13 @@ void ERTelescopePID::Exec(Option_t* opt) {
       for (const auto particleDescription : fParticleDescriptions[trackBranch]) {
         // Get particle mass by PDG from G4IonTable
         const auto pdg = particleDescription.fPDG;
-        const auto* particle = G4ParticleTable::GetParticleTable()->FindParticle(pdg);
-        if (!particle)
+        auto* particle = G4ParticleTable::GetParticleTable()->GetParticle(pdg);
+        if (!particle) {
+          particle = G4IonTable::GetIonTable()->GetIon(pdg);
+        }
+        if (!particle) {
           LOG(FATAL) << "Particle with code " << pdg << " not found in Geant database "<< FairLogger::endl;
+        }
         const auto mass = particle->GetPDGMass(); // MeV
         // Find geometry point to start track back propagation.
         const auto back_propagation_start_point = FindBackPropagationStartPoint(*track);
