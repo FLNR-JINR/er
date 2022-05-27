@@ -148,7 +148,7 @@ void create_ND_geo_exp1904()
     for (int i_module(0); i_module < 45; i_module++) {
         AirBox->AddNode(moduleVol, i_module, new TGeoCombiTrans("module", xyz[i_module][0] / 10.,
                                                                           xyz[i_module][1] / 10.,
-                                                                          xyz[i_module][2] / 10., rotNoRot));
+                                                                          xyz[i_module][2] / 10. - 200., rotNoRot));
     }
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // World ------------------------------------
