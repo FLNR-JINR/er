@@ -9,6 +9,8 @@
 #ifndef ERND_H
 #define ERND_H
 
+#include <set>
+
 #include "ERDetector.h"
 #include "ERNDPoint.h"
 
@@ -33,6 +35,9 @@ public:
   /** @brief Set propagation step in sensetive volumes.
    ** Special process stepLimiter must be in TG4RunConfiguration **/
   void SetMaxStep(Double_t step) {fStep = step;}
+
+  void SetCandidatesForParentPDG(const std::set<Int_t>& pdgs) {fCandidatesForParentPdgs = pdgs;}
+
   /** Virtual method ProcessHits
    ** Defines the action to be taken when a step is inside the
    ** active volume. Creates a ERNDPoint and adds it to the
@@ -68,16 +73,23 @@ public:
   virtual Bool_t CheckIfSensitive(std::string name);
 private:
   TClonesArray* fNDPoints = nullptr; //!  The point collection
+  TClonesArray*  fMCTracks = nullptr;
   Double_t fStep = 1.; //! Max lengt of step of track propagetion in sensetive volume
+  std::set<Int_t> fCandidatesForParentPdgs = {22, 2112};
 private:
+  void FindParentParticle(int track_id, int& parentTrackId, int& parentPdg);
   /// Adds a NeuRadPoint to the Point Collection
-  ERNDPoint* AddPoint(Int_t eventID, Int_t trackID,
-			  Int_t mot0trackID,
-			  Int_t pdg,
-			  TVector3 posIn,
-			  TVector3 pos_out, TVector3 momIn,
-			  TVector3 momOut, Double_t time,
-			  Double_t length, Double_t eLoss, Int_t stilbenNr,Float_t lightYield);
+  ERNDPoint* AddPoint(
+    Int_t eventID, Int_t trackID,
+    Int_t mot0trackID,
+    Int_t pdg,
+    TVector3 posIn,
+    TVector3 pos_out, TVector3 momIn,
+    TVector3 momOut, Double_t time,
+    Double_t length, Double_t eLoss, 
+    Int_t stilbenNr,Float_t lightYield,
+    Int_t parentTrackId, Int_t parentPdg
+  );
   ClassDef(ERND,1);
 };
 

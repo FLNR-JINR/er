@@ -24,13 +24,16 @@ ERNDPoint::ERNDPoint(Int_t eventID, Int_t trackID,
 		  Int_t pdg,
 		  TVector3 posIn,
 		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t stilbenNr,Float_t lightYield)
+		  Double_t tof, Double_t length, Double_t eLoss,
+      Int_t stilbenNr,Float_t lightYield,
+      Int_t parentTrackId, Int_t parentPdgId)
   : FairMCPoint(trackID, -1., posIn, momIn, tof, length, eLoss),
     fMot0TrackID(mot0trackID),
     fEventID(eventID),
     fX_out(posOut.X()), fY_out(posOut.Y()), fZ_out(posOut.Z()),
     fPx_out(momOut.X()), fPy_out(momOut.Y()), fPz_out(momOut.Z()),
-    fStilbenNr(stilbenNr),fLightYield(lightYield), fPdg(pdg)
+    fStilbenNr(stilbenNr),fLightYield(lightYield), fPdg(pdg),
+    fParentTrackId(parentTrackId), fParentPdgId(parentPdgId)
 {
 }
 // -------------------------------------------------------------------------

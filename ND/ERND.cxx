@@ -8,6 +8,8 @@
 
 #include "ERND.h"
 
+#include <unordered_map>
+
 #include "TClonesArray.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
@@ -15,6 +17,10 @@
 
 #include "FairRootManager.h"
 #include "FairLogger.h"
+
+#include "ERMCTrack.h"
+#include "ERStack.h"
+
 //--------------------------------------------------------------------------------------------------
 ERND::ERND()
   : FairDetector("ERND", kTRUE)
@@ -76,6 +82,9 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
   static Int_t          stilbenNr;
   static Double_t       lightYield;
 
+  static Int_t          parentTrackId = -1;
+  static Int_t          parentPdg = -1;
+
   gMC->SetMaxStep(fStep);
 
   if ( gMC->IsTrackEntering() ) { // Return true if this is the first step of the track in the current volume
@@ -118,6 +127,8 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
 	{ 
     gMC->TrackPosition(posOut);
     gMC->TrackMomentum(momOut);
+
+    FindParentParticle(trackID, parentTrackId, parentPdg);
     
 	  if (eLoss > 0. && gMC->TrackCharge()!=0){
       AddPoint( eventID, trackID, mot0TrackID, pdg,
@@ -125,7 +136,8 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
                 TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
                 TVector3(momIn.Px(),  momIn.Py(),  momIn.Pz()),
                 TVector3(momOut.Px(), momOut.Py(), momOut.Pz()),
-                time, length, eLoss, stilbenNr, lightYield);
+                time, length, eLoss, stilbenNr, lightYield,
+                parentTrackId, parentPdg);
     }
   }
   return kTRUE;
@@ -140,7 +152,8 @@ void ERND::EndOfEvent() {
 void ERND::Register() {
   FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman)
-	Fatal("Init", "IO manager is not set");	
+	Fatal("Init", "IO manager is not set");
+  fMCTracks = (TClonesArray*) ioman->GetObject("MCTrack");
   ioman->Register("NDPoint","ND", fNDPoints, kTRUE);
 }
 //--------------------------------------------------------------------------------------------------
@@ -178,18 +191,46 @@ void ERND::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset) {
   LOG(DEBUG) << "decector: " << cl2->GetEntriesFast() << " merged entries" << FairLogger::endl;
 }
 //--------------------------------------------------------------------------------------------------
-ERNDPoint* ERND::AddPoint(Int_t eventID, Int_t trackID,
-				    Int_t mot0trackID,
-				    Int_t pdg,
-				    TVector3 posIn,
-				    TVector3 posOut, TVector3 momIn,
-				    TVector3 momOut, Double_t time,
-				    Double_t length, Double_t eLoss, Int_t stilbenNr, Float_t lightYield) {
+ERNDPoint* ERND::AddPoint(
+    Int_t eventID, Int_t trackID, Int_t mot0trackID, Int_t pdg,
+    TVector3 posIn, TVector3 posOut, TVector3 momIn,
+    TVector3 momOut, Double_t time, Double_t length,
+    Double_t eLoss, Int_t stilbenNr, Float_t lightYield,
+    Int_t parentTrackId, Int_t parentPdg) 
+{
   TClonesArray& clref = *fNDPoints;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) ERNDPoint(eventID, trackID, mot0trackID, pdg,
-					  posIn, posOut, momIn, momOut, time, length, eLoss,stilbenNr,lightYield);
-	
+					  posIn, posOut, momIn, momOut, time, length, eLoss,stilbenNr, lightYield,
+            parentTrackId, parentPdg);
+}
+//--------------------------------------------------------------------------------------------------
+void ERND::FindParentParticle(const int track_id, int& parentTrackId, int& parentPdg)
+{
+  dynamic_cast<ERStack*>(gMC->GetStack())->FillTrackArray();
+  std::unordered_map<int, ERMCTrack*> id_to_track;
+  for (int i(0); i < fMCTracks->GetEntriesFast(); i++) {
+    auto* track = dynamic_cast<ERMCTrack*>(fMCTracks->At(i));
+    id_to_track[track->Id()] = track;
+  }
+  
+  auto track_it = id_to_track.find(track_id);
+  if (track_it == id_to_track.end())
+    LOG(FATAL) << "ND: Track not found in stack!" << FairLogger::endl;
+
+  auto* track = track_it->second;
+  auto* parent_track = track;
+  while ((fCandidatesForParentPdgs.find(parent_track->GetPdgCode()) != fCandidatesForParentPdgs.end())
+         && parent_track->GetMotherId() != -1)
+  {
+    parent_track = id_to_track[parent_track->GetMotherId()];
+  }
+
+  parentTrackId = parent_track->Id();
+  if (parent_track->GetMotherId() != -1)
+  {
+    parentPdg = parent_track->GetPdgCode();
+  }
 }
 //--------------------------------------------------------------------------------------------------
 void ERND::ConstructGeometry() {

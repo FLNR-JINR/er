@@ -39,12 +39,23 @@ class ERNDPoint : public FairMCPoint
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [MeV]
    **/
-  ERNDPoint(Int_t eventID, Int_t trackID,
-		  Int_t mot0trackID,
-		  Int_t pdg,
-		  TVector3 posIn,
-		  TVector3 posOut, TVector3 momIn, TVector3 momOut,
-		  Double_t tof, Double_t length, Double_t eLoss, Int_t stilbenNr, Float_t lightYield);
+  ERNDPoint(
+    Int_t eventID,
+    Int_t trackID,
+    Int_t mot0trackID,
+    Int_t pdg,
+    TVector3 posIn,
+    TVector3 posOut,
+    TVector3 momIn,
+    TVector3 momOut,
+    Double_t tof,
+    Double_t length,
+    Double_t eLoss,
+    Int_t stilbenNr,
+    Float_t lightYield,
+    Int_t parentTrackId,
+    Int_t parentPdgId
+  );
 
 
   /** Copy constructor **/
@@ -101,7 +112,9 @@ class ERNDPoint : public FairMCPoint
   Int_t fStilbenNr;
   Float_t fLightYield;
   Int_t fPdg;
-
+  Int_t fParentTrackId = -1;                      ///< id of parrent particle track.
+  Int_t fParentPdgId = -1;                        ///< pdg of parrent particle.
+  
   ClassDef(ERNDPoint,1)
 };
 #endif

@@ -109,7 +109,7 @@ int ERGadast::ParentGammaTrackId(int track_id) const {
 
   auto* track = track_it->second;
   auto* parent_track = track;
-  while (parent_track->GetPdgCode() != 22 || parent_track->GetMotherId() != -1) {
+  while (parent_track->GetPdgCode() != 22 && parent_track->GetMotherId() != -1) {
     parent_track = id_to_track[parent_track->GetMotherId()];
   }
 

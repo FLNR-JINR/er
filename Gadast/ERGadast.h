@@ -147,7 +147,7 @@ private:
   TClonesArray*  fCsIPoints = nullptr;                  ///< The CsI point collection
   TClonesArray*  fLaBrPoints = nullptr;                 ///< The LaBr point collection
   TClonesArray*  fGadastSteps = nullptr;                ///< The all steps collection
-  TClonesArray*  fMCTracks = nullptr;                   ///< The all steps collection
+  TClonesArray*  fMCTracks = nullptr;                   ///< The mc tracks collection
   
   Bool_t fStoreSteps;                         ///< Flag to storing all steps in sensetive volume
 
