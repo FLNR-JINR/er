@@ -296,7 +296,7 @@ Bool_t ERDecay10Heto8He::Stepping() {
       FairRunSim* run = FairRunSim::Instance();
       if (TString(run->GetMCEventHeader()->ClassName()).Contains("ERDecayMCEventHeader")){   
         ERDecayMCEventHeader* header = (ERDecayMCEventHeader*)run->GetMCEventHeader();
-        header->SetDecayPos(curPos.Vect());
+        header->SetReactionPos(curPos.Vect());
         header->SetInputIon(He8bTrackNb);
         header->AddOutputParticle(He10TrackNb);
         header->AddOutputParticle(H1TrackNb);
@@ -307,6 +307,13 @@ Bool_t ERDecay10Heto8He::Stepping() {
       if (TString(run->GetMCEventHeader()->ClassName()).Contains("ER10Heto8HeEventHeader")){   
         ER10Heto8HeEventHeader* header = (ER10Heto8HeEventHeader*)run->GetMCEventHeader();
         header->SetData(curPos.Vect(), lv8Heb,  lv3H, *fLv1H, *fLv8Hed,  *fLv10He, *fLvn1, *fLvn2, gMC->TrackTime() * 1e9);
+        header->SetReactionPos(curPos.Vect());
+        header->SetInputIon(He8bTrackNb);
+        header->AddOutputParticle(He10TrackNb);
+        header->AddOutputParticle(H1TrackNb);
+        header->AddOutputParticle(He8dTrackNb);
+        header->AddOutputParticle(n1TrackNb);
+        header->AddOutputParticle(n2TrackNb);
         header->SetTrigger(1);
       }
     }

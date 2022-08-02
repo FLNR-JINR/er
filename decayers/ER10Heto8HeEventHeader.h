@@ -4,11 +4,10 @@
 #include "TLorentzVector.h"
 #include "TArrayI.h"
 
-#include "FairMCEventHeader.h"
+#include "ERDecayMCEventHeader.h"
 
-class ER10Heto8HeEventHeader : public FairMCEventHeader {
+class ER10Heto8HeEventHeader : public ERDecayMCEventHeader {
 private:
-  TVector3 fReactionPos;
   TLorentzVector fHe8b;
   TLorentzVector fHe8d;
   TLorentzVector fH3;
@@ -26,6 +25,7 @@ public:
                const TLorentzVector& H3, const TLorentzVector& H1,
                const TLorentzVector& He8d, const TLorentzVector& He10,
                const TLorentzVector& n1, const TLorentzVector& n2, float time);
+  
   void SetTrigger(Int_t trigger) { fTrigger = trigger; }
   
   Int_t GetTrigger() const {return fTrigger;}

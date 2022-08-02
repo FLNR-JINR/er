@@ -17,9 +17,11 @@
 
 #include "FairRootManager.h"
 #include "FairLogger.h"
+#include "FairRunSim.h"
 
 #include "ERMCTrack.h"
 #include "ERStack.h"
+#include "ERDecayMCEventHeader.h"
 
 //--------------------------------------------------------------------------------------------------
 ERND::ERND()
@@ -128,9 +130,9 @@ Bool_t ERND::ProcessHits(FairVolume* vol) {
     gMC->TrackPosition(posOut);
     gMC->TrackMomentum(momOut);
 
-    FindParentParticle(trackID, parentTrackId, parentPdg);
-    
-	  if (eLoss > 0. && gMC->TrackCharge()!=0){
+	  if (eLoss > 0. && gMC->TrackCharge()!=0)
+    {
+      FindParentParticle(trackID, parentTrackId, parentPdg);
       AddPoint( eventID, trackID, mot0TrackID, pdg,
                 TVector3(posIn.X(),   posIn.Y(),   posIn.Z()),
                 TVector3(posOut.X(),  posOut.Y(),  posOut.Z()),
@@ -220,10 +222,33 @@ void ERND::FindParentParticle(const int track_id, int& parentTrackId, int& paren
 
   auto* track = track_it->second;
   auto* parent_track = track;
-  while ((fCandidatesForParentPdgs.find(parent_track->GetPdgCode()) != fCandidatesForParentPdgs.end())
-         && parent_track->GetMotherId() != -1)
+
+  FairRunSim* run = FairRunSim::Instance();
+  if (auto* header = dynamic_cast<ERDecayMCEventHeader*>(run->GetMCEventHeader()))
   {
-    parent_track = id_to_track[parent_track->GetMotherId()];
+    TArrayI reaction_track_ids = header->GetOutputTrackID();
+    const auto found_in_reaction = [&reaction_track_ids](const int id)
+    {
+      for (int i = 0; i < reaction_track_ids.GetSize(); ++i)
+      {
+        if (reaction_track_ids[i] == id)
+          return true;
+      }
+      return false;
+    };
+
+    while (!found_in_reaction(parent_track->Id()) && parent_track->GetMotherId() != -1)
+    {
+      parent_track = id_to_track[parent_track->GetMotherId()];
+    } 
+  }
+  else
+  {
+    while ((fCandidatesForParentPdgs.find(parent_track->GetPdgCode()) != fCandidatesForParentPdgs.end())
+        && parent_track->GetMotherId() != -1)
+    {
+      parent_track = id_to_track[parent_track->GetMotherId()];
+    }
   }
 
   parentTrackId = parent_track->Id();

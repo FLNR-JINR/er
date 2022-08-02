@@ -12,6 +12,7 @@ ${CMAKE_SOURCE_DIR}/BeamDet/data
 ${CMAKE_SOURCE_DIR}/data/
 ${CMAKE_SOURCE_DIR}/ND/
 ${CMAKE_SOURCE_DIR}/ND/data
+${CMAKE_SOURCE_DIR}/decayers
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

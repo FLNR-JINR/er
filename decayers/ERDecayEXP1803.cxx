@@ -246,7 +246,7 @@ Bool_t ERDecayEXP1803::Stepping() {
       FairRunSim* run = FairRunSim::Instance();
       if (TString(run->GetMCEventHeader()->ClassName()).Contains("ERDecayMCEventHeader")){   
         ERDecayMCEventHeader* header = (ERDecayMCEventHeader*)run->GetMCEventHeader();
-        header->SetDecayPos(curPos.Vect());
+        header->SetReactionPos(curPos.Vect());
         header->SetInputIon(He6TrackNb);
         header->AddOutputParticle(H5TrackNb);
         header->AddOutputParticle(He3TrackNb);

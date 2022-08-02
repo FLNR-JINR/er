@@ -18,8 +18,8 @@
 #include "FairMCEventHeader.h"
 
 class ERDecayMCEventHeader : public FairMCEventHeader {
-private:
-  TVector3 fDecayPos;
+protected:
+  TVector3 fReactionPos;
   Int_t fInputTrackID;
   TArrayI fOutputTrackID;
   Int_t fOutputsTracksNb = 0;
@@ -28,7 +28,7 @@ private:
 public:
   ERDecayMCEventHeader();
 
-  void SetDecayPos(TVector3 pos){fDecayPos = pos;}
+  void SetReactionPos(TVector3 pos){fReactionPos = pos;}
   void SetInputIon(Int_t iID){fInputTrackID = iID;}
   void SetTrigger(Int_t trigger){fTrigger = trigger;}
   void SetTriggerPriority(Int_t priority){fTriggerPriority = priority;}
@@ -38,7 +38,7 @@ public:
 
   Int_t GetTrigger() const {return fTrigger;}
   Int_t GetTriggerPriority() const {return fTriggerPriority;}
-
+  TArrayI GetOutputTrackID() const {return fOutputTrackID;}
   void Clear();
 
   ClassDef(ERDecayMCEventHeader,1)
