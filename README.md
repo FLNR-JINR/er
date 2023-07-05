@@ -42,7 +42,8 @@ the docker-image [docker](https://www.docker.com) to deploy ER installation.
 2. Clone ER repository:
 
 ```
-git clone https://github.com/FLNR-JINR/er/ .
+git clone https://github.com/FLNR-JINR/er/
+cd er
 git checkout dev
 ```
 
@@ -55,21 +56,21 @@ docker build --build-arg ER=dev -t er .
 4. Run _er_ container, compile updated sources, run simulation:
 
 ```
-docker run --entrypoint /bin/bash --net=host -v /home/vitaliy/er:/opt/er -v /home/vitaliy/er/macro/EXP1904_H7:/opt/run -w /opt/run -v /tmp/.X11-unix:/tmp/.X11-unix  -v $HOME/.Xauthority:/home/jovyan/.Xauthority:rw -e DISPLAY=$DISPLAY -it er
+docker run --entrypoint /bin/bash --net=host -v $(pwd):/opt/er -v $(pwd)/macro/He10/sim:/opt/run -w /opt/run -v /tmp/.X11-unix:/tmp/.X11-unix  -v $HOME/.Xauthority:/home/jovyan/.Xauthority:rw -e DISPLAY=$DISPLAY -it er
 cd /opt/er
 mkdir build
 cd build
 export SIMPATH=/opt/FairSoft/
 export FAIRROOTPATH=/opt/FairRoot/
 cmake ../ -DACCULINNA_GO4=/opt/accdaq/install/
-make
+make -j8
 source ./config.sh
 # to run with new build
 cd /opt/run/
 root -l sim_digi.C
 ```
 
-where -v is used to map your host working directory '/home/vitaliy/er/macro/EXP1904_H7' and working 
+where -v is used to map your host working directory '/path_to/macro/He10/sim' and working 
 directory  '/opt/run' inside container; -w /opt/run - set working directory for interactive session;
 -e DISPLAY=$DISPLAY is needed to forward gui from container to host machine; -it - to set interactive session.
 
