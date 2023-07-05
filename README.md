@@ -63,7 +63,7 @@ cd build
 export SIMPATH=/opt/FairSoft/
 export FAIRROOTPATH=/opt/FairRoot/
 cmake ../ -DACCULINNA_GO4=/opt/accdaq/install/
-make
+make -j8
 source ./config.sh
 # to run with new build
 cd /opt/run/
