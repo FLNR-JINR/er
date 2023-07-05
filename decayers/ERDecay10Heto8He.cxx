@@ -169,9 +169,228 @@ Bool_t ERDecay10Heto8He::Init() {
   
   return kTRUE;
 }
-
 //-------------------------------------------------------------------------------------------------
 Bool_t ERDecay10Heto8He::Stepping() {
+  if(!fDecayFinish && gMC->TrackPid() == 1000020080
+     && TString(gMC->CurrentVolName()).Contains(GetInteractionVolumeName()))
+  {
+    if (!fIsInterationPointFound) {
+      if (!FindInteractionPoint()) {
+        fDecayFinish = kTRUE;
+        return kTRUE;
+      } else {
+        fDistanceFromEntrance = 0;
+      }
+    }
+    gMC->SetMaxStep(fMinStep);
+    TLorentzVector curPos;
+    gMC->TrackPosition(curPos);
+    Double_t trackStep = gMC->TrackStep();
+    fDistanceFromEntrance += trackStep;
+       
+    if (fDistanceFromEntrance > fDistanceToInteractPoint) {
+      
+      
+      // 8He + 2H → 3He + 7H
+	  // 8He + 3H -> 1H + 10He
+      TLorentzVector lv8Heb;
+      gMC->TrackMomentum(lv8Heb);
+      
+      if (lv8Heb.P() == 0) { // temporary fix of bug with zero kinetic energy
+        return kTRUE;
+      }
+
+      TLorentzVector lv3H(0., 0., 0., f3H->Mass());
+      TLorentzVector lvReaction;
+      lvReaction = lv8Heb + lv3H;
+
+      const TVector3 boost = lvReaction.BoostVector(); //Get Pcm 3 vector
+      Double_t ECM = 0;
+      TLorentzVector lv8HebCM, lv3HCM;
+      lv8HebCM = lv8Heb;
+      lv3HCM = lv3H;
+      lv8HebCM.Boost(-boost);
+      lv3HCM.Boost(-boost);
+      ECM = lv8HebCM(3) + lv3HCM(3);
+
+      Int_t reactionHappen = kFALSE;
+      
+      Double_t decay10HeMass;
+      Int_t reactionAttempsCounter = 0;
+      Double_t excitation = 0;  // excitation energy
+      const auto MeV2GeV = 1./1000.;
+      
+      /*while (reactionHappen==kFALSE) { // while reaction condition is not fullfilled   
+        decay10HeMass = f10HeMass;
+        if (fIs10HeExcitationSet) {
+          Double_t randWeight = gRandom->Uniform(0., f10HeExcitationWeight.back());
+          Int_t distribNum = 0;
+          // choose distribution by weight
+          for (; distribNum < f10HeExcitationWeight.size(); distribNum++) {
+            if (randWeight < f10HeExcitationWeight[distribNum]) {
+              break;
+            }
+          }//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+          //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+          excitation = gRandom->Gaus(f10HeExcitationMean[distribNum], f10HeExcitationSigma[distribNum]);
+          fUnstableIon10He->SetExcEnergy(excitation);
+        }
+        decay10HeMass += excitation;
+        if((ECM - f1H->Mass() - decay10HeMass) > 0) { // выход из цикла while для PhaseGenerator
+          reactionHappen = kTRUE;
+          LOG(DEBUG) << "[ERDecayEXP1811] Reaction is happen" << endl;
+        }
+        reactionAttempsCounter++;
+        if (reactionAttempsCounter > 1000){
+          LOG(DEBUG) << "[ERDecayEXP1811] Reaction is forbidden for this CM energy" << endl;
+          fDecayFinish = kTRUE;
+          return kTRUE;
+        }
+      }*/
+      
+	if (fDecayFile.eof()){
+		LOG(ERROR) << "Decay file finished! There are no more events in file " << fDecayFilePath
+		<< " to be processed." << FairLogger::endl;
+		return kFALSE;
+	}
+	std::string event_line;
+	std::getline(fDecayFile,event_line);
+	std::istringstream iss(event_line);
+	std::vector<std::string> outputs_components((std::istream_iterator<std::string>(iss)),
+                                               std::istream_iterator<std::string>());
+  	// if (outputs_components.size() < 5*3){
+  	if (outputs_components.size() < (3*3+1)){
+		LOG(ERROR) << "Wrong components number in raw in decay file!" << FairLogger::endl;
+		return kFALSE;
+	}
+	excitation = std::stod(outputs_components[0]);
+	excitation *= MeV2GeV;
+	
+	decay10HeMass = f10HeMass;
+	fUnstableIon10He->SetExcEnergy(excitation);
+	decay10HeMass += excitation;
+	
+	if((ECM - f1H->Mass() - decay10HeMass) > 0) { // выход из цикла while для PhaseGenerator
+          reactionHappen = kTRUE;
+          LOG(DEBUG) << "[ERDecayEXP1811] Reaction is happen" << endl;
+        }
+	
+
+      ReactionPhaseGenerator(ECM, decay10HeMass); 
+      fLv10He->Boost(boost);
+      fLv1H->Boost(boost);
+
+      
+	  //10He -> 8He + n + n
+      /*if (!DecayPhaseGenerator(excitation)){
+        fDecayFinish = kTRUE;
+        return kTRUE;
+      }*/
+      if (fDecayFilePath == ""){
+      	LOG(ERROR) <<"Decay file is not set!"<< FairLogger::endl;
+      	return kFALSE;
+      }
+      
+      if (fDecayFile.eof()){
+    LOG(ERROR) << "Decay file finished! There are no more events in file " << fDecayFilePath
+               << " to be processed." << FairLogger::endl;
+    return kFALSE;
+  }
+  
+  // Fill momentum vectors in CM.
+  TVector3 p8Hed(std::stod(outputs_components[1]),std::stod(outputs_components[2]),
+               std::stod(outputs_components[3]));
+  TVector3 pn1(std::stod(outputs_components[4]),std::stod(outputs_components[5]),
+               std::stod(outputs_components[6]));
+  TVector3 pn2(std::stod(outputs_components[7]),std::stod(outputs_components[8]),
+               std::stod(outputs_components[9]));
+               
+  const auto excitationScale = excitation > 0. ? sqrt(excitation / fDecayFileExcitation) : 1.;
+//   const auto MeV2GeV = 1./1000.;
+  const auto scale = excitationScale * MeV2GeV;
+  
+  pn1 *= scale;
+  pn2 *= scale;
+  p8Hed *= scale;
+  const auto fill_output_lorentz_vectors_in_lab = 
+      [this](TLorentzVector* lv, const TVector3& p, const Double_t mass) {
+        lv->SetXYZM(p.X(), p.Y(), p.Z(), mass);
+        lv->Boost(fLv10He->BoostVector());
+      };             
+  
+  fill_output_lorentz_vectors_in_lab(fLvn1, pn1, fn->Mass());
+  fill_output_lorentz_vectors_in_lab(fLvn2, pn2, fn->Mass());
+  fill_output_lorentz_vectors_in_lab(fLv8Hed, p8Hed, f8He->Mass()); 
+  
+  
+      
+  //========================================================================================    
+
+      Int_t He8bTrackNb, He10TrackNb,H1TrackNb, He8dTrackNb, n1TrackNb, n2TrackNb;
+
+      He8bTrackNb = gMC->GetStack()->GetCurrentTrackNumber();
+
+      /*																					//???????????
+      gMC->GetStack()->PushTrack(1, He8TrackNb, f7H->PdgCode(),						
+                                 fLv7H->Px(), fLv7H->Py(), fLv7H->Pz(),
+                                 fLv7H->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 gMC->TrackTime(), 0., 0., 0.,
+                                 kPDecay, H7TrackNb, decay7HMass, 0);*/
+
+      gMC->GetStack()->PushTrack(1, He8bTrackNb, f1H->PdgCode(),
+                                 fLv1H->Px(), fLv1H->Py(), fLv1H->Pz(),
+                                 fLv1H->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 gMC->TrackTime(), 0., 0., 0.,
+                                 kPDecay, H1TrackNb, f1H->Mass(), 0);
+      gMC->GetStack()->PushTrack(1, He8bTrackNb, f8He->PdgCode(),
+                                 fLv8Hed->Px(), fLv8Hed->Py(), fLv8Hed->Pz(),
+                                 fLv8Hed->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 gMC->TrackTime(), 0., 0., 0.,
+                                 kPDecay, He8dTrackNb, f8He->Mass(), 0);
+      gMC->GetStack()->PushTrack(1, He8bTrackNb, fn->PdgCode(),
+                                 fLvn1->Px(),fLvn1->Py(),fLvn1->Pz(),
+                                 fLvn1->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 gMC->TrackTime(), 0., 0., 0.,
+                                 kPDecay, n1TrackNb, fn->Mass(), 0);
+      gMC->GetStack()->PushTrack(1, He8bTrackNb, fn->PdgCode(),	
+                                 fLvn2->Px(),fLvn2->Py(),fLvn2->Pz(),
+                                 fLvn2->E(), curPos.X(), curPos.Y(), curPos.Z(),
+                                 gMC->TrackTime(), 0., 0., 0.,
+                                 kPDecay, n2TrackNb, fn->Mass(), 0);		//убрана трассировка второго нейтрона для изучения ND
+      gMC->StopTrack();
+      fDecayFinish = kTRUE;
+      gMC->SetMaxStep(100.);
+
+      FairRunSim* run = FairRunSim::Instance();
+      if (TString(run->GetMCEventHeader()->ClassName()).Contains("ERDecayMCEventHeader")){   
+        ERDecayMCEventHeader* header = (ERDecayMCEventHeader*)run->GetMCEventHeader();
+        header->SetReactionPos(curPos.Vect());
+        header->SetInputIon(He8bTrackNb);
+        header->AddOutputParticle(He10TrackNb);
+        header->AddOutputParticle(H1TrackNb);
+        header->AddOutputParticle(He8dTrackNb);
+        header->AddOutputParticle(n1TrackNb);
+        header->AddOutputParticle(n2TrackNb);
+      }   
+      if (TString(run->GetMCEventHeader()->ClassName()).Contains("ER10Heto8HeEventHeader")){   
+        ER10Heto8HeEventHeader* header = (ER10Heto8HeEventHeader*)run->GetMCEventHeader();
+        header->SetData(curPos.Vect(), lv8Heb,  lv3H, *fLv1H, *fLv8Hed,  *fLv10He, *fLvn1, *fLvn2, gMC->TrackTime() * 1e9);
+        header->SetReactionPos(curPos.Vect());
+        header->SetInputIon(He8bTrackNb);
+        header->AddOutputParticle(He10TrackNb);
+        header->AddOutputParticle(H1TrackNb);
+        header->AddOutputParticle(He8dTrackNb);
+        header->AddOutputParticle(n1TrackNb);
+        header->AddOutputParticle(n2TrackNb);
+        header->SetTrigger(1);
+      }
+    }
+  }
+  return kTRUE;
+}
+
+//-------------------------------------------------------------------------------------------------
+Bool_t ERDecay10Heto8He::Stepping_main() {
   if(!fDecayFinish && gMC->TrackPid() == 1000020080
      && TString(gMC->CurrentVolName()).Contains(GetInteractionVolumeName()))
   {
@@ -284,11 +503,11 @@ Bool_t ERDecay10Heto8He::Stepping() {
                                  fLvn1->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
                                  kPDecay, n1TrackNb, fn->Mass(), 0);
-      gMC->GetStack()->PushTrack(1, He8bTrackNb, fn->PdgCode(),
+/*      gMC->GetStack()->PushTrack(1, He8bTrackNb, fn->PdgCode(),
                                  fLvn2->Px(),fLvn2->Py(),fLvn2->Pz(),
                                  fLvn2->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, n2TrackNb, fn->Mass(), 0);
+                                 kPDecay, n2TrackNb, fn->Mass(), 0);*/	//убрана трассировка второго нейтрона для изучения ND
       gMC->StopTrack();
       fDecayFinish = kTRUE;
       gMC->SetMaxStep(100.);

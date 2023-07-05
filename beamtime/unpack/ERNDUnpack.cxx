@@ -83,8 +83,14 @@ void ERNDUnpack::ApplyCalibrations(const ERChannel channel, float& amp, float& t
 void ERNDUnpack::AddNDDigi(const float edep, const float time, const float tac, 
                            const ERChannel channelNb) { 
     auto* digiCollection = digi_collections_["NDDigis"];
+    //new((*digiCollection) [digiCollection->GetEntriesFast()])
+    //    ERNDDigi(channelNb, edep, -1. /*lightYield*/, time, -1. /*neutronProb*/, tac);
     new((*digiCollection) [digiCollection->GetEntriesFast()])
-        ERNDDigi(channelNb, edep, -1. /*lightYield*/, time, -1. /*neutronProb*/, tac);
+        ERNDDigi(channelNb, edep, 
+                -1./*edep_n1*/, -1./*edep_n2*/, -1./*edep_mis*/, -1/*ParentTrackID*/, -1./*lightYield*/, 
+                time, -1. /*neutronProb*/, 
+                -1./*x_in*/, -1./*y_in*/, -1./*z_in*/, 
+                tac);
 }
 //--------------------------------------------------------------------------------------------------
 Bool_t ERNDUnpack::CheckSetup() {

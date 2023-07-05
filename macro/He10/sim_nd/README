@@ -1,0 +1,6 @@
+0. create tritium target (create_target_10he_3h_steel_geo.C) and stilben wall (create_ND_geo_exp1904_10he_8m.C).
+1. sim_digi.C - creates simulation file (sim).
+2. reco_10he_exp.C - reconstruts data from the sim.
+3. AfterReco.C - selection of 8He events in square telescope. No need if beam diagnostics is tested.
+4.1 beamdet_precision.C - beam diagnostics: comparison of beam coordinates, components of unit vectors and energy on target.
+4.2 ND_precision.C - ND diagnostics: comparison of neutron coordinates, components of unit vectors and energy on target.

@@ -6,3 +6,5 @@ macro/h7_test/cuts
 macro/h7_test/parameters
 macro/tests/cuts
 macro/tests/parameters
+run.sh
+*.sw*

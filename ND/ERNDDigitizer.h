@@ -73,7 +73,7 @@ protected:
 
   ERNDSetup* fSetup = nullptr;
 protected:
-  ERNDDigi* AddDigi(Int_t stilbenNb, Float_t edep, Float_t lightYield, Float_t time, Float_t neutronProb);
+  ERNDDigi* AddDigi(Int_t stilbenNb, Float_t edep, Float_t edep_n1, Float_t edep_n2, Float_t edep_mis, Int_t parentTrackID, Float_t lightYield, Float_t time, Float_t neutronProb, Float_t x_in, Float_t y_in, Float_t z_in);
   Float_t NeutronProbability(Float_t edep, Float_t ly);
 private:
   virtual void SetParContainers();

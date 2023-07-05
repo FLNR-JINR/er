@@ -333,7 +333,8 @@ void ERStack::Reset()
 // -----   Public method Register   ----------------------------------------
 void ERStack::Register()
 {
-  FairRootManager::Instance()->Register("MCTrack", "Stack", fTracks,kTRUE);
+//  FairRootManager::Instance()->Register("MCTrack", "Stack", fTracks,kFALSE);	//MCTrack is off
+  FairRootManager::Instance()->Register("MCTrack", "Stack", fTracks,kTRUE);	//MCTrack is on
 }
 // -------------------------------------------------------------------------
 

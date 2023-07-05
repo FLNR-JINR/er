@@ -70,6 +70,8 @@ class ERNDPoint : public FairMCPoint
 
 
   /** Accessors **/
+  Int_t GetParentTrackID()      const { return fParentTrackId; }
+  Int_t GetParentPDGID()        const { return fParentPdgId; }
   Int_t GetEventID()            const { return fEventID; }
   Int_t GetMot0TrackID()        const { return fMot0TrackID; }
   Double_t GetXIn()             const { return fX; }

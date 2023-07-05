@@ -45,6 +45,7 @@ void SetAngularDistribution(TString ADfile);
 public:
   Bool_t Init();
   Bool_t Stepping();
+  Bool_t Stepping_main();
   // Bool_t Init() { return true; } 
   // Bool_t Stepping() { return true; } 
 
