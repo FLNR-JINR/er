@@ -39,15 +39,16 @@ public:
     const PDG fPDG = -1;
     const TString fDeStation;
     const std::list<TString> fEStations;
+    const std::map<TString, std::pair<Int_t, Double_t>> active_deposits_;
     const Double_t fNormalizedThickness = 0.002;
     const std::vector<TString> stations_to_use_em_calculator_for_de_e_;
     const std::vector<TString> stations_to_use_em_calculator_for_kinetic_energy_;
     ParticleDescription() = default;
-    ParticleDescription(PDG pdg, const TString& deStation, 
-                        const std::list<TString>& eStations, Double_t normalizedThickness,
+    ParticleDescription(PDG pdg, const TString& deStation, const std::list<TString>& eStations,
+                        const std::map<TString, std::pair<Int_t, Double_t>> active_deposits, Double_t normalizedThickness,
                         const std::vector<TString>& stations_to_use_em_calculator_for_de_e,
                         const std::vector<TString>& stations_to_use_em_calculator_for_kinetic_energy)
-        : fPDG(pdg), fDeStation(deStation), fEStations(eStations),
+        : fPDG(pdg), fDeStation(deStation), fEStations(eStations), active_deposits_(active_deposits),
           fNormalizedThickness(normalizedThickness), 
           stations_to_use_em_calculator_for_de_e_(stations_to_use_em_calculator_for_de_e),
           stations_to_use_em_calculator_for_kinetic_energy_(stations_to_use_em_calculator_for_kinetic_energy) {}
@@ -72,12 +73,14 @@ public:
   ~ERTelescopePID() = default;
   /* Modifiers */
   void SetParticle(const TString& trackBranchName, const PDG pdg, 
-                   const TString& deStation = "", const TString& eStation = "",
+                   const TString& deStation = "", const TString& eStation = "", 
+                   const std::map<TString, std::pair<Int_t, Double_t>> activeDeposits = std::map<TString, std::pair<Int_t, Double_t>>(),
                    Double_t deNormalizedThickness = 0.002, 
                    const std::vector<TString>& stations_to_use_em_calculator_for_de_e = {},
                    const std::vector<TString>& stations_to_use_em_calculator_for_kinetic_energy = {});
   void SetParticle(const TString& trackBranchName, const PDG pdg, 
-                   const TString& deStation = "", const std::list<TString>& eStations = {},
+                   const TString& deStation = "", const std::list<TString>& eStations = {}, 
+                   const std::map<TString, std::pair<Int_t, Double_t>> activeDeposits = std::map<TString, std::pair<Int_t, Double_t>>(),
                    Double_t deNormalizedThickness = 0.002, 
                    const std::vector<TString>& stations_to_use_em_calculator_for_de_e = {},
                    const std::vector<TString>& stations_to_use_em_calculator_for_kinetic_energy = {});
@@ -85,6 +88,7 @@ public:
       const TString& station, EdepAccountingStrategy strategy) {
     fEdepAccountingStrategies[station] = strategy;
   }
+
 public:
   /** @brief Defines all input and output object colletions participates
    ** in track finding.
@@ -96,6 +100,8 @@ public:
   virtual void Exec(Option_t* opt);
   /** @brief Resets all output data. **/
   virtual void Reset();
+private:
+  std::map<TString, std::pair<Int_t, Double_t>> fActiveDeposits;
 protected:
   //Paramaters
   ERTelescopeSetup* fQTelescopeSetup = nullptr; ///< access to ERTelescopeSetup class instance
@@ -128,8 +134,8 @@ protected:
   ERTelescopeParticle* AddParticle(const TLorentzVector& lvInteraction, Double_t kineticEnergy,
                                     Double_t deadEloss, Double_t edepInThickStation, Double_t edepInThinStation,
                                     Double_t edepInThickStationCorrected, Double_t edepInThinStationCorrected,
-                                    ERChannel channelOfThinStaion, ERChannel channelOfThickStation,
-                                    TClonesArray& col);
+                                    ERChannel channelOfThinStaion, ERChannel channelOfThickStation, 
+                                    std::map<TString, std::pair<Int_t, Double_t>> activeDepositsList, TClonesArray& col);
   ClassDef(ERTelescopePID, 1)
 };
 #endif

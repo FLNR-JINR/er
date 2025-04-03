@@ -37,7 +37,8 @@ ERTelescopeDigitizer::ERTelescopeDigitizer(Int_t verbose)
 }
 //-------------------------------------------------------------------------------------------------
 void ERTelescopeDigitizer::SetSiElossSigma(float sigma) { 
-  fSiElossModel = [sigma](float eloss) { return gRandom->Gaus(eloss, sigma);};
+  fSiElossModel = [sigma](float eloss) { return gRandom->Gaus(eloss, 0.01118*sqrt(eloss));};
+  // fSiElossModel = [sigma](float eloss) { return gRandom->Gaus(eloss, sigma);};
 }
 //-------------------------------------------------------------------------------------------------
 void ERTelescopeDigitizer::SetCsIElossSigma(float sigma) {

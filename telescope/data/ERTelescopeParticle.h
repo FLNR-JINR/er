@@ -31,7 +31,8 @@ public:
                        Double_t edepInThinStation = -1., Double_t correctedEdepInThickStation = -1.,
                        Double_t correctedEdepInThinStation = -1., 
                        ERChannel channelOfThinStation = consts::undefined_channel,
-                       ERChannel channelOfThickStation = consts::undefined_channel);
+                       ERChannel channelOfThickStation = consts::undefined_channel,
+                       std::map<TString, std::pair<Int_t, Double_t>> activeDeposites = std::map<TString, std::pair<Int_t, Double_t>>());
   Double_t GetDeadEloss() const {return fDeadEloss;}
   Double_t GetKineticEnergy() const {return fKineticEnergy;}
   TLorentzVector GetLVInteraction() const {return fLVInteraction;}
@@ -41,7 +42,37 @@ public:
   Double_t GetCorrectedEdepInThinStation() const {return fCorrectedEdepInThinStation;}
   ERChannel ChannelOfThinStation() const {return fChannelOfThinStation;}
   ERChannel ChannelOfThickStation() const {return fChannelOfThickStation;}
+  const std::map<TString, std::pair<Int_t, Double_t>>& GetfEdeposits() const { return fEdeposits;}
+  Double_t GetfEdeposit(const TString& key) const {
+      auto it = fEdeposits.find(key);  
+      if (it != fEdeposits.end()) {
+          return it->second.second; 
+      } else {
+          LOG(WARNING) << "Key not found: " << key.Data() << FairLogger::endl;
+          return -1.0f;  
+      }
+  }  
+  Int_t GetfDepChannel(const TString& key) const {
+        // Проверка, существует ли ключ в карте
+        auto it = fEdeposits.find(key);
+        if (it != fEdeposits.end()) {
+            return it->second.first;  // Возвращаем первый элемент пары
+        } else {
+            LOG(WARNING) << "Key not found: " << key.Data() << FairLogger::endl;
+            return -1.0f;
+        }
+  }  
+  std::vector<TString> GetAllEdepositNames() const {
+      std::vector<TString> keys;  // Контейнер для ключей
+      // Перебор всех элементов карты и добавление ключей в вектор
+      for (const auto& pair : fEdeposits) {
+          keys.push_back(pair.first);
+      }
+      return keys;  // Возврат всех ключей
+  }
+
 private:
+
   TLorentzVector fLVInteraction;
   Double_t  fKineticEnergy = 0.;
   Double_t  fDeadEloss = 0.;
@@ -51,6 +82,8 @@ private:
   ERChannel fChannelOfThickStation = consts::undefined_channel;
   Double_t  fCorrectedEdepInThickStation = -1.;
   Double_t  fCorrectedEdepInThinStation = -1.;
+  std::map<TString, std::pair<Int_t, Double_t>> fEdeposits;
+
   ClassDef(ERTelescopeParticle, 1)
 };
 

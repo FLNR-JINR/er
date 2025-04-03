@@ -13,13 +13,15 @@ ERTelescopeParticle::ERTelescopeParticle(
     const Double_t edepInThinStation /*= -1.*/, const Double_t correctedEdepInThickStation /*= -1.*/,
     const Double_t correctedEdepInThinStation /*= -1.*/, 
     const ERChannel channelOfThinStation/*= consts::undefined_channel*/,
-    const ERChannel channelOfThickStation/*= consts::undefined_channel*/)
+    const ERChannel channelOfThickStation/*= consts::undefined_channel*/,
+    const std::map<TString, std::pair<Int_t, Double_t>> activeDeposites)
     : fLVInteraction(lvInteraction), fKineticEnergy(kineticEnergy), fDeadEloss(deadEloss),
       fEdepInThickStation(edepInThickStation), fEdepInThinStation(edepInThinStation),
       fCorrectedEdepInThickStation(correctedEdepInThickStation), 
       fCorrectedEdepInThinStation(correctedEdepInThinStation),
       fChannelOfThinStation(channelOfThinStation),
-      fChannelOfThickStation(channelOfThickStation)
+      fChannelOfThickStation(channelOfThickStation),
+      fEdeposits(activeDeposites)
 {
 }
 //--------------------------------------------------------------------------------------------------

@@ -80,7 +80,7 @@ InitStatus ERTelescopePID::Init() {
 //--------------------------------------------------------------------------------------------------
 void ERTelescopePID::SetParticle(
     const TString& trackBranchName, const PDG pdg, 
-    const TString& deStation /*= ""*/, const TString& eStation /*= ""*/,
+    const TString& deStation /*= ""*/, const TString& eStation /*= ""*/, const std::map<TString, std::pair<Int_t, Double_t>> activestations/*= {}*/,
     const Double_t deNormalizedThickness /*= 0.002*/,
     const std::vector<TString>& stations_to_use_em_calculator_for_de_e /* = {}*/,
     const std::vector<TString>& stations_to_use_em_calculator_for_kinetic_energy/*= {}*/) {
@@ -90,7 +90,7 @@ void ERTelescopePID::SetParticle(
   std::list<TString> eStations;
   if (eStation != "" )
     eStations.push_back(eStation);
-  fParticleDescriptions[trackBranchName].emplace_back(pdg, deStation, eStations,
+  fParticleDescriptions[trackBranchName].emplace_back(pdg, deStation, eStations, activestations,
                                                       deNormalizedThickness,
                                                       stations_to_use_em_calculator_for_de_e,
                                                       stations_to_use_em_calculator_for_kinetic_energy);
@@ -98,11 +98,11 @@ void ERTelescopePID::SetParticle(
 //--------------------------------------------------------------------------------------------------
 void ERTelescopePID::SetParticle(
     const TString& trackBranchName, const PDG pdg, 
-    const TString& deStation /*= ""*/, const std::list<TString>& eStations /*= {}*/,
-    const Double_t deNormalizedThickness /*= 0.002*/,
+    const TString& deStation /*= ""*/, const std::list<TString>& eStations /*= {}*/, 
+    const std::map<TString, std::pair<Int_t, Double_t>> activestations/*= {}*/, const Double_t deNormalizedThickness /*= 0.002*/,
     const std::vector<TString>& stations_to_use_em_calculator_for_de_e /* = {}*/,
     const std::vector<TString>& stations_to_use_em_calculator_for_kinetic_energy/*= {}*/) {
-  fParticleDescriptions[trackBranchName].emplace_back(pdg, deStation, eStations,
+  fParticleDescriptions[trackBranchName].emplace_back(pdg, deStation, eStations, activestations,
                                                       deNormalizedThickness,
                                                       stations_to_use_em_calculator_for_de_e,
                                                       stations_to_use_em_calculator_for_kinetic_energy);
@@ -118,7 +118,8 @@ void ERTelescopePID::Exec(Option_t* opt) {
     if (tracks->GetEntriesFast() == 0)
       continue;
     LOG(DEBUG) << "[ERTelescopePID] Work with traсks in " << trackBranch << FairLogger::endl;
-    for (Int_t iTrack(0); iTrack < tracks->GetEntriesFast(); iTrack++) { 
+    for (Int_t iTrack(0); iTrack < tracks->GetEntriesFast(); iTrack++) { // loop over tracks
+      fActiveDeposits.clear();
       const auto* track = static_cast<ERTelescopeTrack*>(tracks->At(iTrack));
       for (const auto particleDescription : fParticleDescriptions[trackBranch]) {
         // Get particle mass by PDG from G4IonTable
@@ -146,6 +147,7 @@ void ERTelescopePID::Exec(Option_t* opt) {
                  edepInThickStationCorrected = -1., edepInThinStationCorrected = -1.;
         ERChannel channelOfThinStation = consts::undefined_channel;
         ERChannel channelOfThickStation = consts::undefined_channel;
+
         FindEnergiesForDeEAnalysis(trackBranch, digisOnTrack, 
                                    particleDescription.fEStations, particleDescription.fDeStation,
                                    particleDescription.fNormalizedThickness, edepInThickStation, edepInThinStation,
@@ -160,11 +162,27 @@ void ERTelescopePID::Exec(Option_t* opt) {
         TVector3 direction = track->GetDirection();
         const auto momentum = momentumMag * direction;
         const TLorentzVector lvTarget (momentum, fullEnergy);
+        auto list_active_deposits = particleDescription.active_deposits_;
+
+        // Выводим все элементы на экран 
+        for (const auto& pair : list_active_deposits) {
+          TString keyToFind = pair.first;
+          if (fActiveDeposits.find(keyToFind) != fActiveDeposits.end()) {
+              list_active_deposits[pair.first] = fActiveDeposits[keyToFind];
+          }
+        }
+        LOG(DEBUG) << "[ERTelescopePID] list_active_deposits filled with Channel-Amp:" << FairLogger::endl;
+        for (const auto& pair : list_active_deposits) {
+            if (pair.second.second>0) {
+              LOG(DEBUG) << "[ERTelescopePID] " << pair.first << ": " << pair.second.first << "-" << pair.second.first << FairLogger::endl;
+            }
+        }
+
         // Add particle to collection.
         auto& particleCollection = *fQTelescopeParticle[trackBranch][pdg];
         AddParticle(lvTarget, kinetic_energy, deadDeposite, edepInThickStation, edepInThinStation,
                     edepInThickStationCorrected, edepInThinStationCorrected,
-                    channelOfThinStation, channelOfThickStation, particleCollection);
+                    channelOfThinStation, channelOfThickStation, list_active_deposits, particleCollection);
       }
     }
   }
@@ -185,12 +203,12 @@ ERTelescopeParticle* ERTelescopePID::
 AddParticle(const TLorentzVector& lvInteraction, const Double_t kinetic_energy, const Double_t deadEloss,
             Double_t edepInThickStation, Double_t edepInThinStation,
             Double_t edepInThickStationCorrected, Double_t edepInThinStationCorrected,
-            const ERChannel channelOfThinStation, const ERChannel channelOfThickStation,
-            TClonesArray& col) {
+            const ERChannel channelOfThinStation, const ERChannel channelOfThickStation, 
+            const std::map<TString, std::pair<Int_t, Double_t>> activeStationDeposits, TClonesArray& col) {
   return new(col[col.GetEntriesFast()]) ERTelescopeParticle(lvInteraction, kinetic_energy, deadEloss,
                                             edepInThickStation, edepInThinStation, 
                                             edepInThickStationCorrected, edepInThinStationCorrected,
-                                            channelOfThinStation, channelOfThickStation);
+                                            channelOfThinStation, channelOfThickStation, activeStationDeposits);
 }
 //--------------------------------------------------------------------------------------------------
 TVector3 ERTelescopePID::FindBackPropagationStartPoint(const ERTelescopeTrack& track) {
@@ -307,6 +325,7 @@ CalcEnergyDeposites(const ERTelescopeTrack& track, const TVector3& start_point,
       for (auto& branchAndDigi : branchAndDigis) {
         const auto digiBranch = branchAndDigi.first;
         auto* digi = branchAndDigi.second;
+        // std::cout << branchAndDigi.first << std::endl;
         if (use_em_calcaulator_for_de_e)
           digi->SetEdep(edep_using_em_calculator);
         digisOnTrack.emplace_back(digiBranch, digi, gGeoManager->GetStep());
@@ -362,6 +381,8 @@ std::map<TString, ERDigi*> ERTelescopePID::FindDigisByNode(const TGeoNode& node,
     return digiBranchSubString; // for ex: Telescope_4_SingleSi_SSD_V_4_X
   };
   const auto digiBranchSubstring = getDigiBranchSubString();
+
+  // std::cout << digiBranchSubstring << " " << stationBranchSubstring.Data() << std::endl;
   LOG(DEBUG) <<"   [ERTelescopePID][CalcEnergyDeposites] Digi branch substring " 
              << digiBranchSubstring << FairLogger::endl;
   // Multiple digi collections can correspond to one geometry node.
@@ -393,22 +414,25 @@ std::map<TString, ERDigi*> ERTelescopePID::FindDigisByNode(const TGeoNode& node,
   };
   const auto channels = getChannels();
   for (const auto& digiBranchName : digiBranchNames) {
+
     auto* digis = fQTelescopeDigi[digiBranchName];
     // @BUG Code only for XY doubleSi stations.
     Int_t channel = (nodeOfDoubleSiStation && digiBranchName.EndsWith("_X")) ? channels[1] : channels[0];
     LOG(DEBUG) << "   [ERTelescopePID][CalcEnergyDeposites] Finding digi with channel number " 
                << channel << " in branch " << digiBranchName << FairLogger::endl;
     Bool_t digiFound = false;
+
     for (Int_t iDigi = 0; iDigi < digis->GetEntriesFast(); iDigi++){
       auto* digi = static_cast<ERDigi*>(digis->At(iDigi));
-       LOG(DEBUG) << "   [ERTelescopePID][CalcEnergyDeposites]  Collection has digi with channel " 
-                  << digi->Channel() << " and edep " << digi->Edep() << FairLogger::endl;
+       LOG(DEBUG) << "   [ERTelescopePID][CalcEnergyDeposites]  Collection has digi with channel " << digi->Channel() 
+                  << " and edep " << digi->Edep() << FairLogger::endl;
       if (digi->Channel() != channel)
         continue;
       digiFound = true;
-      LOG(DEBUG) << "   [ERTelescopePID][CalcEnergyDeposites] Found digi with edep " 
+      LOG(DEBUG) << "   [ERTelescopePID][CalcEnergyDeposites] Found digi along the track with edep " 
                 << digi->Edep() << FairLogger::endl;
       resultDigis[digiBranchName] = digi;
+
       break;
     }
     if (!digiFound)
@@ -481,6 +505,7 @@ void ERTelescopePID::FindEnergiesForDeEAnalysis(const TString& trackBranch,
 }
 //--------------------------------------------------------------------------------------------------
 Double_t ERTelescopePID::ApplyEdepAccountingStrategy(const std::map<TString, ERDigi*>& digisByBranchName) {
+
   if (digisByBranchName.empty())
     return 0;
   // @TODO setup->GetComponent(branchName) and component->ComponentName() should be used here
@@ -488,14 +513,18 @@ Double_t ERTelescopePID::ApplyEdepAccountingStrategy(const std::map<TString, ERD
     const auto itStationStrategy = std::find_if(
         fEdepAccountingStrategies.begin(), fEdepAccountingStrategies.end(),
         [&branchName](const std::pair<TString, EdepAccountingStrategy> stationAndStrategy) {
+          // if (branchName.Contains(stationAndStrategy.first)) std::cout << stationAndStrategy.first<< " " <<  branchName.Contains(stationAndStrategy.first) << std::endl;
           return branchName.Contains(stationAndStrategy.first);
     });
+
     if (itStationStrategy != fEdepAccountingStrategies.end())
       return itStationStrategy->second;
-    if (branchName.Contains("_X"))
+    if (branchName.Contains("_X")) {
       return EdepFromXChannel;
-    else if (branchName.Contains("_Y"))
+    }
+    else if (branchName.Contains("_Y")){
       return EdepFromYChannel;
+    }
     if (branchName.Contains("CsI"))
       return SummarizedEdep;
     LOG(FATAL) << "Unable to select edep accaunting strategy by branch " << branchName << FairLogger::endl;
@@ -505,9 +534,44 @@ Double_t ERTelescopePID::ApplyEdepAccountingStrategy(const std::map<TString, ERD
   for (const auto& branchAndDigi : digisByBranchName) {
     const auto branchName = branchAndDigi.first;
     const auto* digi = branchAndDigi.second;
+
+    auto extractStation = [](const TString& input) -> TString {
+        // Находим индекс "Si_"
+        int pos = input.Index("Si_");
+        if (pos != kNPOS) { // Если найдено
+            // Удаляем все до и включая "Si_"
+            TString result = input;
+            result.Remove(0, pos + strlen("Si_")); // Удаляем всё до "Si_" включительно
+            int firstDigitPos = -1;
+            for (int i = result.Length() - 1; i >= 0; --i) {
+                if (std::isdigit(result[i])) {
+                    firstDigitPos = i;
+                } else if (firstDigitPos != -1) {
+                    // Как только нашли первую цифру, прекращаем цикл
+                    break;
+                }
+            }
+            // Если найдена первая цифра, обрезаем строку
+            if (firstDigitPos != -1) {
+                result.Remove(firstDigitPos + 1, result.Length() - firstDigitPos - 1); // Удаляем всё после первой цифры
+            }            
+            return result;
+        }
+
+        if (input.Contains("CsI")) {
+          // TString result = input;
+          // result = "CsI";
+          return "CsI";
+        }
+        return ""; // Возвращаем пустую строку, если "Si_" не найдено
+    };
+    const auto stationBranchSubstring = extractStation(branchName);
+
     // @TODO component->GetBranchName(...) should be used here
     if ((strategy == EdepFromXChannel && branchName.Contains("_X"))
         || (strategy == EdepFromYChannel && branchName.Contains("_Y"))) {
+      fActiveDeposits[stationBranchSubstring.Data()].second = digi->Edep();
+      fActiveDeposits[stationBranchSubstring.Data()].first = digi->Channel();
       return digi->Edep();
     }
     summarizedEdep += digi->Edep();

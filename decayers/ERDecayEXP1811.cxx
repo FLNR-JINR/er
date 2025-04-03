@@ -102,12 +102,14 @@ Bool_t ERDecayEXP1811::Init() {
     std::cerr  << "-W- ERDecayEXP1811: Ion 8He not found in database!" << endl;
     return kFALSE;
   }
+  std::cout << "8He " << f8He->Mass() << " " << G4IonTable::GetIonTable()->GetIon(2,8)->GetPDGMass() * 1e-3 << std::endl;
 
   f2H = TDatabasePDG::Instance()->GetParticle("Deuteron");
   if ( ! f2H ) {
     std::cerr  << "-W- ERDecayEXP1811: Ion Deuteron not found in database!" << endl;
     return kFALSE;
   }
+  std::cout << "2H " << f2H->Mass() << " " << G4IonTable::GetIonTable()->GetIon(1,2)->GetPDGMass() * 1e-3 << std::endl;
 
   f7H = TDatabasePDG::Instance()->GetParticle("7H");
   if ( ! f7H ) {
@@ -120,12 +122,14 @@ Bool_t ERDecayEXP1811::Init() {
     std::cerr  << "-W- ERDecayEXP1811: Ion 3He not found in database!" << endl;
     return kFALSE;
   }
+  std::cout << "3He " << f3He->Mass() << " " << G4IonTable::GetIonTable()->GetIon(2,3)->GetPDGMass() * 1e-3 << std::endl;
 
   f3H = TDatabasePDG::Instance()->GetParticle("Triton");
   if ( ! f3H ) {
     std::cerr  << "-W- ERDecayEXP1811: Ion Triton not found in database!" << endl;
     return kFALSE;
   }
+  std::cout << "3H " << f3H->Mass() << " " << G4IonTable::GetIonTable()->GetIon(1,3)->GetPDGMass() * 1e-3 << std::endl;
 
   fn = TDatabasePDG::Instance()->GetParticle("neutron");
   if ( ! fn ) {
@@ -261,12 +265,12 @@ Bool_t ERDecayEXP1811::Stepping() {
                                  fLv3He->Px(), fLv3He->Py(), fLv3He->Pz(),
                                  fLv3He->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, He3TrackNb, f3He->Mass(), 0);
+                                 kPDecay, He3TrackNb, G4IonTable::GetIonTable()->GetIon(2,3)->GetPDGMass() * 1e-3, 0);
       gMC->GetStack()->PushTrack(1, He8TrackNb, f3H->PdgCode(),
                                  fLv3H->Px(), fLv3H->Py(), fLv3H->Pz(),
                                  fLv3H->E(), curPos.X(), curPos.Y(), curPos.Z(),
                                  gMC->TrackTime(), 0., 0., 0.,
-                                 kPDecay, H3TrackNb, f3H->Mass(), 0);
+                                 kPDecay, H3TrackNb, G4IonTable::GetIonTable()->GetIon(1,3)->GetPDGMass() * 1e-3, 0);
       gMC->GetStack()->PushTrack(1, He8TrackNb, fn->PdgCode(),
                                  fLvn1->Px(),fLvn1->Py(),fLvn1->Pz(),
                                  fLvn1->E(), curPos.X(), curPos.Y(), curPos.Z(),
@@ -368,7 +372,7 @@ void ERDecayEXP1811::ReactionPhaseGenerator(Double_t Ecm, Double_t h7Mass) {
 Bool_t ERDecayEXP1811::DecayPhaseGenerator(const Double_t excitation) {
   if (fDecayFilePath == ""){ // if decay file not defined, per morm decay using phase space
     Double_t decayMasses[5];
-    decayMasses[0] = f3H->Mass();
+    decayMasses[0] = G4IonTable::GetIonTable()->GetIon(1,3)->GetPDGMass() * 1e-3;
     decayMasses[1] = fn->Mass(); 
     decayMasses[2] = fn->Mass();
     decayMasses[3] = fn->Mass(); 
@@ -425,7 +429,7 @@ Bool_t ERDecayEXP1811::DecayPhaseGenerator(const Double_t excitation) {
   fill_output_lorentz_vectors_in_lab(fLvn2, pn2, fn->Mass());
   fill_output_lorentz_vectors_in_lab(fLvn3, pn3, fn->Mass());
   fill_output_lorentz_vectors_in_lab(fLvn4, pn4, fn->Mass());
-  fill_output_lorentz_vectors_in_lab(fLv3H, p3H, f3H->Mass());
+  fill_output_lorentz_vectors_in_lab(fLv3H, p3H, G4IonTable::GetIonTable()->GetIon(1,3)->GetPDGMass() * 1e-3);
   return kTRUE;
 }
 
